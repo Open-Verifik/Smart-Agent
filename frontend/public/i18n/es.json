@@ -1,0 +1,10 @@
+{
+  "nav": {
+    "chat": "Chat"
+  },
+  "userMenu": {
+    "welcome": "Bienvenido:",
+    "role": "Rol:",
+    "signOut": "Cerrar sesión"
+  }
+}

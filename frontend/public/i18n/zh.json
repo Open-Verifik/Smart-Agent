@@ -1,0 +1,11 @@
+{
+  "nav": {
+    "chat": "聊天"
+  },
+  "userMenu": {
+    "welcome": "欢迎：",
+    "role": "角色：",
+    "signOut": "登出"
+  }
+}
+

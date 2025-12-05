@@ -1,3 +1,27 @@
-import { Routes } from '@angular/router';
+import { Route } from '@angular/router';
+import { initialDataResolver } from 'app/app.resolvers';
+import { LayoutComponent } from 'app/layout/layout.component';
 
-export const routes: Routes = [];
+export const appRoutes: Route[] = [
+    // Redirect empty path to '/chat'
+    { path: '', pathMatch: 'full', redirectTo: 'chat' },
+
+    // Chat routes
+    {
+        path: '',
+        component: LayoutComponent,
+        resolve: {
+            initialData: initialDataResolver,
+        },
+        children: [
+            {
+                path: 'chat',
+                loadChildren: () =>
+                    import('app/modules/chat/chat.routes').then((m) => m.default),
+            },
+        ],
+    },
+
+    // 404 & Catch all
+    { path: '**', redirectTo: 'chat' },
+];

@@ -1,0 +1,11 @@
+{
+  "nav": {
+    "chat": "채팅"
+  },
+  "userMenu": {
+    "welcome": "환영합니다:",
+    "role": "역할:",
+    "signOut": "로그아웃"
+  }
+}
+

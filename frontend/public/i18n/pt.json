@@ -1,0 +1,11 @@
+{
+  "nav": {
+    "chat": "Chat"
+  },
+  "userMenu": {
+    "welcome": "Bem-vindo:",
+    "role": "Função:",
+    "signOut": "Sair"
+  }
+}
+
