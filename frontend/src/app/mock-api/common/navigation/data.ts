@@ -2,41 +2,55 @@
 import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const defaultNavigation: FuseNavigationItem[] = [
-    {
-        id: 'chat',
-        title: 'nav.chat',
-        type: 'basic',
-        icon: 'heroicons_outline:chat-bubble-left-right',
-        link: '/chat',
-    },
+  {
+    id: 'chat',
+    title: 'nav.chat',
+    type: 'basic',
+    icon: 'heroicons_outline:chat-bubble-left-right',
+    link: '/chat',
+  },
+  {
+    id: 'postman',
+    title: 'Postman',
+    type: 'basic',
+    icon: 'heroicons_outline:command-line',
+    link: '/postman',
+  },
 ];
 
 export const compactNavigation: FuseNavigationItem[] = [
-    {
-        id: 'chat',
-        title: 'nav.chat',
-        tooltip: 'nav.chat',
-        type: 'aside',
-        icon: 'heroicons_outline:chat-bubble-left-right',
-        children: [],
-    },
+  {
+    id: 'chat',
+    title: 'nav.chat',
+    tooltip: 'nav.chat',
+    type: 'aside',
+    icon: 'heroicons_outline:chat-bubble-left-right',
+    children: [],
+  },
 ];
 
 export const futuristicNavigation: FuseNavigationItem[] = [
-    {
-        id: 'chat',
-        title: 'nav.chat',
-        type: 'group',
-        children: [],
-    },
+  {
+    id: 'chat',
+    title: 'nav.chat',
+    type: 'group',
+    children: [],
+  },
 ];
 
 export const horizontalNavigation: FuseNavigationItem[] = [
-    {
-        id: 'chat',
-        title: 'nav.chat',
-        type: 'basic',
-        icon: 'heroicons_outline:chat-bubble-left-right',
-        link: '/chat',
-    },
+  {
+    id: 'chat',
+    title: 'nav.chat',
+    type: 'basic',
+    icon: 'heroicons_outline:chat-bubble-left-right',
+    link: '/chat',
+  },
+  {
+    id: 'postman',
+    title: 'Postman',
+    type: 'basic',
+    icon: 'heroicons_outline:command-line',
+    link: '/postman',
+  },
 ];
