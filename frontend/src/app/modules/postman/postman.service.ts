@@ -14,6 +14,7 @@ export class PostmanService {
   // Signals for state management
   selectedEndpoint = signal<ApiEndpoint | null>(null);
   response = signal<any>(null);
+  responseTime = signal<number | null>(null);
   isLoading = signal<boolean>(false);
   error = signal<any>(null);
 
@@ -23,7 +24,7 @@ export class PostmanService {
 
   fetchPublicFeatures() {
     // Use environment.apiUrl to support local dev and prod
-    const apiUrl = environment.apiUrl || 'https://api.verifik.co';
+    const apiUrl = environment.apiUrl;
 
     this._httpClient
       .get<any>(`${apiUrl}/v2/public/app-features`)
@@ -92,7 +93,21 @@ export class PostmanService {
 
   selectEndpoint(endpoint: ApiEndpoint) {
     // Create a copy to avoid mutating the original definition when editing params
-    this.selectedEndpoint.set(JSON.parse(JSON.stringify(endpoint)));
+    const endpointCopy = JSON.parse(JSON.stringify(endpoint));
+
+    // Update Authorization header with latest token if placeholder exists
+    if (endpointCopy.headers) {
+      endpointCopy.headers.forEach((h: any) => {
+        if (h.key === 'Authorization' && h.value.includes('<token>')) {
+          const token = localStorage.getItem('accessToken');
+          if (token) {
+            h.value = h.value.replace('<token>', token);
+          }
+        }
+      });
+    }
+
+    this.selectedEndpoint.set(endpointCopy);
     this.response.set(null);
     this.error.set(null);
   }
@@ -111,7 +126,12 @@ export class PostmanService {
     // Prepare Headers
     if (endpoint.headers) {
       endpoint.headers.forEach((h) => {
-        options.headers[h.key] = h.value;
+        let value = h.value;
+        if (value && value.includes('<token>')) {
+          const token = localStorage.getItem('accessToken') || '';
+          value = value.replace('<token>', token);
+        }
+        options.headers[h.key] = value;
       });
     }
 
@@ -133,9 +153,11 @@ export class PostmanService {
       body = endpoint.body;
     }
 
+    const startTime = Date.now();
     const req$ = this._httpClient.request(endpoint.method, url, {
       ...options,
       body: body,
+      observe: 'response',
     });
 
     req$
@@ -143,6 +165,7 @@ export class PostmanService {
         tap((res) => {
           this.isLoading.set(false);
           this.response.set(res);
+          this.responseTime.set(Date.now() - startTime);
         }),
         catchError((err) => {
           this.isLoading.set(false);

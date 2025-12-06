@@ -1,3 +1,5 @@
+import { environment } from 'environments/environment';
+
 export interface ApiEndpoint {
   id: string;
   label: string;
@@ -16,7 +18,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
     label: 'API Key Access via Email',
     category: 'AUTHENTICATION',
     method: 'POST',
-    url: 'https://api.verifik.co/v2/projects/email-login',
+    url: `${environment.apiUrl}/v2/projects/email-login`,
     headers: [{ key: 'Accept', value: 'application/json' }],
     params: [
       {
@@ -33,7 +35,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
     label: 'Liveness Detection',
     category: "BIOMETRICS API'S",
     method: 'POST',
-    url: 'https://api.verifik.co/v2/face-recognition/liveness',
+    url: `${environment.apiUrl}/v2/face-recognition/liveness`,
     headers: [
       { key: 'Content-Type', value: 'application/json' },
       { key: 'Authorization', value: 'Bearer <token>' },
@@ -49,7 +51,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
     label: 'Colombian Citizen',
     category: 'IDENTITY VALIDATION',
     method: 'GET',
-    url: 'https://api.verifik.co/v2/co/cedula',
+    url: `${environment.apiUrl}/v2/co/cedula`,
     headers: [
       { key: 'Accept', value: 'application/json' },
       { key: 'Authorization', value: 'Bearer <token>' },

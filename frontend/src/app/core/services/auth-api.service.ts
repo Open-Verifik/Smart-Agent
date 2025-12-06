@@ -59,7 +59,7 @@ export interface AuthTokenResponse {
 })
 export class AuthApiService {
   private _httpWrapper = inject(HttpWrapperService);
-  private _apiUrl = environment.apiUrl || 'https://api.verifik.co';
+  private _apiUrl = environment.apiUrl;
 
   /**
    * Send email OTP for validation
