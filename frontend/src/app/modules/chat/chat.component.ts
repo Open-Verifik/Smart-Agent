@@ -46,10 +46,14 @@ interface AgentInfo {
   feedbacks?: AgentFeedback[];
 }
 
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatIconModule, MatButtonModule, MatProgressSpinnerModule],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
 })
@@ -68,6 +72,12 @@ export class ChatComponent implements OnInit {
   agentInfo = signal<AgentInfo | null>(null);
   isLoadingAgentInfo = signal(false);
   isSubmittingFeedback = signal(false);
+
+  // Payment Confirmation Modal State
+  showPaymentConfirmationModal = signal(false);
+  pendingPayment = signal<any>(null);
+  isProcessingPayment = signal(false);
+  showPaymentDetails = signal(false);
 
   // Feedback form state
   feedbackRating = signal(0);
@@ -267,46 +277,65 @@ export class ChatComponent implements OnInit {
     });
   }
 
-  async confirmPayment(msgIndex: number) {
+  togglePaymentDetails() {
+    this.showPaymentDetails.update((v) => !v);
+  }
+
+  confirmPayment(msgIndex: number) {
     const msg = this.messages()[msgIndex];
     if (!msg.payment_required) return;
 
-    const details = msg.payment_required;
+    this.pendingPayment.set(msg.payment_required);
+    this.showPaymentConfirmationModal.set(true);
+  }
+
+  cancelPayment() {
+    this.showPaymentConfirmationModal.set(false);
+    this.pendingPayment.set(null);
+  }
+
+  async executePayment() {
+    const details = this.pendingPayment();
+    if (!details) return;
+
+    this.isProcessingPayment.set(true);
+
     const amount = details.amount;
     const contractAddress = details.receiver_address;
     const serviceId = details.serviceId || 'cedula-validation';
     const requestId = details.requestId || `req_${Date.now()}`;
 
-    if (confirm(`Authorize payment of ${amount} AVAX to ${contractAddress}?`)) {
-      this.isLoading.set(true);
-      try {
-        // Use payForService instead of plain sendTransaction
-        const tx = await this.walletService.payForService(
-          contractAddress,
-          serviceId,
-          requestId,
-          amount,
-        );
-        console.log('Transaction sent:', tx.hash);
+    try {
+      const tx = await this.walletService.payForService(
+        contractAddress,
+        serviceId,
+        requestId,
+        amount,
+      );
+      console.log('Transaction sent:', tx.hash);
 
-        this.messages.update((msgs) => [
-          ...msgs,
-          {
-            role: 'system',
-            content: `Payment sent! TX: ${tx.hash}. Waiting for confirmation...`,
-          },
-        ]);
+      this.messages.update((msgs) => [
+        ...msgs,
+        {
+          role: 'system',
+          content: `Payment sent! TX: ${tx.hash}. Waiting for confirmation...`,
+        },
+      ]);
 
-        await tx.wait();
+      this.showPaymentConfirmationModal.set(false);
+      this.pendingPayment.set(null);
 
-        // Store payment transaction for feedback linking
-        this.lastPaymentTx.set(tx.hash);
+      await tx.wait();
 
-        await this.callAgent('Payment complete. Please proceed.', tx.hash);
-        await this.refreshBalance();
-      } catch (error: any) {
-        this.handleError(error);
-      }
+      this.lastPaymentTx.set(tx.hash);
+
+      await this.callAgent('Payment complete. Please proceed.', tx.hash);
+      await this.refreshBalance();
+    } catch (error: any) {
+      this.handleError(error);
+      this.showPaymentConfirmationModal.set(false);
+    } finally {
+      this.isProcessingPayment.set(false);
     }
   }
 

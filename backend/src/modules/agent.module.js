@@ -36,6 +36,9 @@ const executeTool = async (toolName, args, paymentTx) => {
 	// But the requirement says "The agent will connect to the source (verifik backend) via web2"
 
 	let url = tool.url;
+	console.log(`[Agent] Executing Tool: ${toolName}`);
+	console.log(`[Agent] Target URL: ${url}`);
+	console.log(`[Agent] Args:`, JSON.stringify(args));
 
 	// If we want to strictly follow the config for the base URL:
 	if (config.verifik.apiUrl && url.startsWith("https://verifik.app")) {
@@ -53,19 +56,32 @@ const executeTool = async (toolName, args, paymentTx) => {
 	}
 
 	try {
-		console.log(`[Agent] Executing tool ${toolName} at ${url} with args:`, args);
-		const response = await axios({
+		const axiosConfig = {
 			method: tool.method,
 			url: url,
-			data: args,
 			headers: headers,
-			validateStatus: (status) => status < 500, // Resolve 402s so we can handle them
-		});
+			validateStatus: (status) => status < 500,
+		};
+
+		if (tool.method === "GET") {
+			axiosConfig.params = args;
+		} else {
+			axiosConfig.data = args;
+		}
+
+		console.log(`[Agent] Executing tool ${toolName} at ${url} with args:`, args);
+		const response = await axios(axiosConfig);
 
 		if (response.status === 402) {
+			const details = typeof response.data === "object" && response.data !== null ? response.data : { message: response.data };
+
 			return {
 				status: "payment_required",
-				details: response.data.details,
+				details: {
+					...details,
+					endpoint: url,
+					toolName: toolName,
+				},
 			};
 		}
 
@@ -186,7 +202,7 @@ const chatWithAgent = async (userMessage, history = [], paymentTx = null) => {
 					// Return the data to the user
 					return {
 						role: "assistant",
-						content: `Tool executed successfully. Result: ${JSON.stringify(toolResult.data)}`,
+						content: `Tool executed successfully.`,
 						data: toolResult.data,
 					};
 				}

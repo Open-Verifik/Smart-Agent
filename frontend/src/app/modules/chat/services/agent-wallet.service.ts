@@ -13,7 +13,8 @@ export class AgentWalletService {
   private readonly RPC_URL = 'https://api.avax-test.network/ext/bc/C/rpc';
 
   constructor() {
-    this.provider = new ethers.providers.JsonRpcProvider(this.RPC_URL);
+    this.provider = new ethers.providers.StaticJsonRpcProvider(this.RPC_URL);
+    this.provider.pollingInterval = 2000; // Poll every 2 seconds (good balance)
     this.loadOrGenerateWallet();
   }
 
@@ -41,7 +42,7 @@ export class AgentWalletService {
   async sendTransaction(
     to: string,
     amountEther: string,
-    data: string = '0x'
+    data: string = '0x',
   ): Promise<ethers.providers.TransactionResponse> {
     if (!this.wallet) throw new Error('Wallet not initialized');
 
@@ -65,7 +66,7 @@ export class AgentWalletService {
     contractAddress: string,
     serviceId: string,
     requestId: string,
-    amountEther: string
+    amountEther: string,
   ): Promise<ethers.providers.TransactionResponse> {
     if (!this.wallet) throw new Error('Wallet not initialized');
 
@@ -93,7 +94,7 @@ export class AgentWalletService {
       const estimatedGas = await contract.estimateGas['payForService'](
         serviceId,
         requestId,
-        estimateOptions
+        estimateOptions,
       );
 
       // Add 20% buffer
@@ -102,7 +103,7 @@ export class AgentWalletService {
         'Gas estimated:',
         estimatedGas.toString(),
         'With 20% buffer:',
-        gasLimit.toString()
+        gasLimit.toString(),
       );
     } catch (error) {
       // If estimation fails, use a safe default (100k gas) with 20% buffer = 120k
@@ -149,7 +150,7 @@ export class AgentWalletService {
     rating: number,
     tags: string[] = [],
     comment: string = '',
-    paymentTxHash: string | null = null
+    paymentTxHash: string | null = null,
   ): Promise<ethers.providers.TransactionResponse> {
     if (!this.wallet) throw new Error('Wallet not initialized');
     if (rating < 1 || rating > 5) throw new Error('Rating must be between 1 and 5');
@@ -180,7 +181,7 @@ export class AgentWalletService {
         rating,
         tags,
         comment,
-        paymentProof
+        paymentProof,
       );
       gasLimit = estimatedGas.mul(120).div(100); // 20% buffer
     } catch (error) {
@@ -213,7 +214,7 @@ export class AgentWalletService {
       tags,
       comment,
       paymentProof,
-      txOptions
+      txOptions,
     );
   }
 

@@ -27,11 +27,16 @@ app.use(cors());
 app.use(koaBody());
 
 // Import Routes
+// Import Routes
 const unprotectedRoutes = require("./routes/unprotected");
+const proxyRoutes = require("./routes/proxy");
 
 // Register Routes
 app.use(unprotectedRoutes.routes());
 app.use(unprotectedRoutes.allowedMethods());
+
+app.use(proxyRoutes.routes());
+app.use(proxyRoutes.allowedMethods());
 
 const port = config.port;
 
@@ -42,5 +47,11 @@ app.listen(port, () => {
 	console.log(
 		"Registered Routes:",
 		unprotectedRoutes.stack.map((i) => i.path)
+	);
+
+	// log proxy routes
+	console.log(
+		"Proxy Routes:",
+		proxyRoutes.stack.map((i) => i.path)
 	);
 });
