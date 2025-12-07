@@ -7,6 +7,80 @@
     "role": "Role:",
     "signOut": "Sign out"
   },
+  "postman": {
+    "layout": {
+      "splitVertical": "Split Vertical",
+      "splitHorizontal": "Split Horizontal"
+    },
+    "sidebar": {
+      "title": "API Explorer",
+      "search": "Search endpoints...",
+      "noResults": "No endpoints found",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar"
+    },
+    "requestEditor": {
+      "title": "Request",
+      "send": "Send",
+      "sending": "Sending...",
+      "selectEndpoint": "Select an endpoint to start",
+      "tabs": {
+        "about": "About",
+        "params": "Params",
+        "headers": "Headers",
+        "body": "Body"
+      },
+      "params": {
+        "key": "Key",
+        "value": "Value",
+        "description": "Description",
+        "addParam": "Add Param",
+        "keyPlaceholder": "Key",
+        "valuePlaceholder": "Value",
+        "descriptionPlaceholder": "Description"
+      },
+      "headers": {
+        "key": "Key",
+        "value": "Value",
+        "addHeader": "Add Header",
+        "keyPlaceholder": "Key",
+        "valuePlaceholder": "Value"
+      },
+      "body": {
+        "jsonBody": "JSON Body"
+      }
+    },
+    "responseViewer": {
+      "title": "Response",
+      "viewMode": {
+        "json": "JSON",
+        "table": "Table"
+      },
+      "status": "Status",
+      "time": "Time",
+      "copy": "Copy",
+      "copyJson": "Copy JSON",
+      "fullScreen": "Full Screen",
+      "print": "Print",
+      "noResponse": "Send a request to see the response",
+      "error": "Error",
+      "fullScreenTitle": "Request Details & Response",
+      "requestInfo": "Request Information",
+      "endpoint": "Endpoint",
+      "method": "Method",
+      "url": "URL",
+      "responseBody": "Response Body",
+      "backToNormal": "Back to normal view"
+    },
+    "jsonTable": {
+      "array": "Array",
+      "object": "Object",
+      "key": "key",
+      "keys": "keys",
+      "null": "null",
+      "emptyObject": "{}"
+    }
+  },
   "appFeatures": {
     "colombia_special_api_identity_lookup": {
       "title": "Colombia - Private Citizen Information",

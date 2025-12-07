@@ -7,6 +7,80 @@
     "role": "Rol:",
     "signOut": "Cerrar sesión"
   },
+  "postman": {
+    "layout": {
+      "splitVertical": "División Vertical",
+      "splitHorizontal": "División Horizontal"
+    },
+    "sidebar": {
+      "title": "Explorador de API",
+      "search": "Buscar endpoints...",
+      "noResults": "No se encontraron endpoints",
+      "collapse": "Contraer barra lateral",
+      "expand": "Expandir barra lateral"
+    },
+    "requestEditor": {
+      "title": "Solicitud",
+      "send": "Enviar",
+      "sending": "Enviando...",
+      "selectEndpoint": "Selecciona un endpoint para comenzar",
+      "tabs": {
+        "about": "Acerca de",
+        "params": "Parámetros",
+        "headers": "Encabezados",
+        "body": "Cuerpo"
+      },
+      "params": {
+        "key": "Clave",
+        "value": "Valor",
+        "description": "Descripción",
+        "addParam": "Agregar Parámetro",
+        "keyPlaceholder": "Clave",
+        "valuePlaceholder": "Valor",
+        "descriptionPlaceholder": "Descripción"
+      },
+      "headers": {
+        "key": "Clave",
+        "value": "Valor",
+        "addHeader": "Agregar Encabezado",
+        "keyPlaceholder": "Clave",
+        "valuePlaceholder": "Valor"
+      },
+      "body": {
+        "jsonBody": "Cuerpo JSON"
+      }
+    },
+    "responseViewer": {
+      "title": "Respuesta",
+      "viewMode": {
+        "json": "JSON",
+        "table": "Tabla"
+      },
+      "status": "Estado",
+      "time": "Tiempo",
+      "copy": "Copiar",
+      "copyJson": "Copiar JSON",
+      "fullScreen": "Pantalla Completa",
+      "print": "Imprimir",
+      "noResponse": "Envía una solicitud para ver la respuesta",
+      "error": "Error",
+      "fullScreenTitle": "Detalles de Solicitud y Respuesta",
+      "requestInfo": "Información de Solicitud",
+      "endpoint": "Endpoint",
+      "method": "Método",
+      "url": "URL",
+      "responseBody": "Cuerpo de Respuesta",
+      "backToNormal": "Volver a vista normal"
+    },
+    "jsonTable": {
+      "array": "Arreglo",
+      "object": "Objeto",
+      "key": "clave",
+      "keys": "claves",
+      "null": "nulo",
+      "emptyObject": "{}"
+    }
+  },
   "appFeatures": {
     "colombia_special_api_identity_lookup": {
       "title": "Colombia - Información Privada de Ciudadanos",
