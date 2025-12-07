@@ -332,6 +332,39 @@
               <pre>{{ msg.data | json }}</pre>
             </div>
 
+            <!-- Proof Card (ERC8004) -->
+            @if (msg.proof) {
+              <div class="proof-card">
+                <div class="proof-header">
+                  <div class="proof-icon">
+                    <mat-icon>verified_user</mat-icon>
+                  </div>
+                  <div class="proof-title">
+                    <div class="proof-label">Verifik Protocol Proof</div>
+                    <div class="proof-network">Avalanche Fuji Testnet</div>
+                  </div>
+                </div>
+                <div class="proof-body">
+                  <div class="proof-hash-row">
+                    <span class="proof-hash-label">Proof Hash:</span>
+                    <a
+                      [href]="'https://testnet.snowtrace.io/tx/' + msg.proof"
+                      target="_blank"
+                      class="proof-hash-value"
+                    >
+                      {{ msg.proof.substring(0, 10) }}...{{ msg.proof.substring(56) }}
+                      <mat-icon class="inline-icon">open_in_new</mat-icon>
+                    </a>
+                  </div>
+                  <div class="proof-status-row">
+                    <span class="status-badge">
+                      <mat-icon class="status-icon">check</mat-icon> VALIDATED ON-CHAIN
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+
             <!-- Feedback Button (show after successful tool execution) -->
             @if (msg.role === 'assistant' && msg.data) {
               <div class="feedback-prompt">
@@ -346,14 +379,27 @@
       </div>
     }
 
-    <!-- Loading Indicator -->
+    <!-- Thinking Log (Visualization of thought process) -->
     @if (isLoading()) {
       <div class="message">
-        <div class="message-bubble loading">
-          <div class="loading-dots">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+        <div class="message-bubble thinking-bubble">
+          <div class="thinking-header">
+            <div class="loading-dots">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+            <span class="thinking-status">{{ currentThinkingStep() }}</span>
+          </div>
+
+          <!-- Steps Log -->
+          <div class="thinking-steps">
+            @for (step of thinkingSteps(); track $index) {
+              <div class="step-item animate-fadeIn">
+                <mat-icon class="step-icon">check_circle_outline</mat-icon>
+                <span>{{ step }}</span>
+              </div>
+            }
           </div>
         </div>
       </div>

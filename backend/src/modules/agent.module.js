@@ -191,9 +191,10 @@ const chatWithAgent = async (userMessage, history = [], paymentTx = null) => {
 					}
 
 					// If success, record validation proof on-chain (ERC8004)
+					let validationProof = null;
 					if (toolResult.status === "success" && toolResult.data) {
 						try {
-							await recordValidationProof(toolCall.tool, toolCall.args, toolResult.data, paymentTx);
+							validationProof = await recordValidationProof(toolCall.tool, toolCall.args, toolResult.data, paymentTx);
 						} catch (validationError) {
 							console.warn("[Agent] Failed to record validation proof:", validationError.message);
 						}
@@ -204,6 +205,7 @@ const chatWithAgent = async (userMessage, history = [], paymentTx = null) => {
 						role: "assistant",
 						content: `Tool executed successfully.`,
 						data: toolResult.data,
+						proof: validationProof,
 					};
 				}
 			} catch (e) {
@@ -284,8 +286,10 @@ const recordValidationProof = async (toolName, args, result, paymentTx = null) =
 		);
 
 		console.log(`[Agent] Validation proof recorded: ${validationHash}`);
+		return validationHash;
 	} catch (error) {
 		console.error("[Agent] Error recording validation proof:", error.message);
+		return null;
 	}
 };
 

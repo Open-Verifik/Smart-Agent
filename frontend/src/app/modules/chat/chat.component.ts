@@ -11,6 +11,7 @@ interface ChatMessage {
   tool_call?: any;
   payment_required?: any;
   data?: any;
+  proof?: string;
 }
 
 interface AgentIdentity {
@@ -93,6 +94,9 @@ export class ChatComponent implements OnInit {
   feedbackComment = signal('');
   lastPaymentTx = signal<string | null>(null);
   availableTags = ['fast', 'accurate', 'helpful', 'reliable', 'easy-to-use'];
+
+  thinkingSteps = signal<string[]>([]);
+  currentThinkingStep = signal('');
 
   // Backend URLs
   private apiUrl = `${environment.smartAgentUrl}/api/agent/chat`;
@@ -246,6 +250,9 @@ export class ChatComponent implements OnInit {
     this.isLoading.set(true);
     this.scrollToBottom();
 
+    // Start Thinking Simulation
+    this.startThinkingSimulation();
+
     try {
       await this.callAgent(input);
     } catch (error: any) {
@@ -263,6 +270,9 @@ export class ChatComponent implements OnInit {
     this.http.post<any>(this.apiUrl, payload).subscribe({
       next: (response) => {
         this.isLoading.set(false);
+        this.thinkingSteps.set([]); // Clear thinking steps
+        this.currentThinkingStep.set('');
+
         this.messages.update((msgs) => [...msgs, response]);
         this.scrollToBottom();
 
@@ -284,6 +294,31 @@ export class ChatComponent implements OnInit {
         this.handleError(err);
       },
     });
+  }
+
+  private startThinkingSimulation() {
+    const steps = [
+      'Analysing request intent...',
+      'Identifying necessary tools...',
+      'Checking tool requirements...',
+      'Consulting knowledge base...',
+      'Preparing tool execution...',
+    ];
+    this.thinkingSteps.set([]);
+    this.currentThinkingStep.set('Thinking...');
+
+    let i = 0;
+    const interval = setInterval(() => {
+      if (!this.isLoading() || i >= steps.length) {
+        clearInterval(interval);
+        return;
+      }
+      const step = steps[i];
+      this.thinkingSteps.update((s) => [...s, step]);
+      this.currentThinkingStep.set(step);
+      this.scrollToBottom();
+      i++;
+    }, 800);
   }
 
   togglePaymentDetails() {
