@@ -6,6 +6,7 @@ import "./styles/capabilities.css";
 import "./styles/architecture.css";
 import "./styles/customers.css";
 import "./styles/integration.css";
+import "./styles/footer.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
