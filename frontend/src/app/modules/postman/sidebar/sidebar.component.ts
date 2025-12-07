@@ -13,13 +13,21 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
 import { ApiEndpoint } from '../postman.types';
 
 @Component({
   selector: 'postman-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatTooltipModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    TranslocoPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
@@ -30,7 +38,7 @@ import { ApiEndpoint } from '../postman.types';
         class="h-14 flex items-center justify-between px-4 border-b dark:border-slate-800 flex-shrink-0"
       >
         <div class="font-bold text-slate-800 dark:text-slate-100 truncate" *ngIf="!collapsed">
-          Collections
+          {{ 'postman.sidebar.title' | transloco }}
         </div>
         <button
           mat-icon-button
@@ -53,7 +61,7 @@ import { ApiEndpoint } from '../postman.types';
             type="text"
             [ngModel]="searchQuery()"
             (ngModelChange)="searchQuery.set($event)"
-            placeholder="Search request..."
+            [placeholder]="'postman.sidebar.search' | transloco"
             class="w-full bg-slate-100 dark:bg-slate-900 border-none rounded-md py-1.5 pl-8 pr-3 text-xs text-slate-700 dark:text-slate-300 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400"
           />
         </div>
@@ -89,7 +97,13 @@ import { ApiEndpoint } from '../postman.types';
               class="w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors hover:bg-slate-200 dark:hover:bg-slate-800 text-left group relative"
               [class.bg-blue-100]="selectedEndpoint()?.id === endpoint.id"
               [class.dark:bg-blue-900]="selectedEndpoint()?.id === endpoint.id"
-              [matTooltip]="collapsed ? endpoint.label : ''"
+              [matTooltip]="
+                collapsed
+                  ? endpoint.code
+                    ? ('appFeatures.' + endpoint.code + '.title' | transloco)
+                    : endpoint.label
+                  : ''
+              "
               matTooltipPosition="right"
             >
               <span
@@ -106,7 +120,11 @@ import { ApiEndpoint } from '../postman.types';
                 {{ collapsed ? endpoint.method.substring(0, 1) : endpoint.method }}
               </span>
               <span *ngIf="!collapsed" class="truncate">
-                {{ endpoint.label }}
+                {{
+                  endpoint.code
+                    ? ('appFeatures.' + endpoint.code + '.title' | transloco)
+                    : endpoint.label
+                }}
               </span>
             </button>
           </div>

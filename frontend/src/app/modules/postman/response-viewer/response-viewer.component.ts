@@ -2,20 +2,23 @@ import { Component, inject, signal, computed, HostListener } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
 import { JsonTableComponent } from './json-table.component';
 
 @Component({
   selector: 'postman-response-viewer',
   standalone: true,
-  imports: [CommonModule, JsonTableComponent, MatButtonModule, MatIconModule],
+  imports: [CommonModule, JsonTableComponent, MatButtonModule, MatIconModule, TranslocoPipe],
   host: { class: 'block h-full' },
   template: `
     <div class="flex flex-col h-full overflow-hidden bg-transparent">
       <div
         class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0"
       >
-        <div class="font-bold text-xs uppercase tracking-wider text-slate-500">Response</div>
+        <div class="font-bold text-xs uppercase tracking-wider text-slate-500">
+          {{ 'postman.responseViewer.title' | transloco }}
+        </div>
 
         <div class="flex items-center gap-2">
           <!-- View Switcher -->
@@ -30,7 +33,7 @@ import { JsonTableComponent } from './json-table.component';
                 [class.shadow-sm]="viewMode() === 'json'"
                 class="px-3 py-1 text-xs rounded-md transition-all font-medium text-slate-600 dark:text-slate-300"
               >
-                JSON
+                {{ 'postman.responseViewer.viewMode.json' | transloco }}
               </button>
               <button
                 (click)="viewMode.set('table')"
@@ -39,7 +42,7 @@ import { JsonTableComponent } from './json-table.component';
                 [class.shadow-sm]="viewMode() === 'table'"
                 class="px-3 py-1 text-xs rounded-md transition-all font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1"
               >
-                Table
+                {{ 'postman.responseViewer.viewMode.table' | transloco }}
               </button>
             </div>
 
@@ -48,7 +51,7 @@ import { JsonTableComponent } from './json-table.component';
               mat-icon-button
               class="!w-8 !h-8 flex items-center justify-center text-slate-400 hover:text-blue-600"
               (click)="isFullScreen.set(true)"
-              title="Full Screen"
+              [title]="'postman.responseViewer.fullScreen' | transloco"
             >
               <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">open_in_full</mat-icon>
             </button>
@@ -73,9 +76,12 @@ import { JsonTableComponent } from './json-table.component';
                 'text-red-600': response().status >= 400,
               }"
             >
-              Status: {{ response().status }} {{ response().statusText }}
+              {{ 'postman.responseViewer.status' | transloco }}: {{ response().status }}
+              {{ response().statusText }}
             </span>
-            <span class="text-slate-500 font-mono">Time: {{ responseTime() ?? '--' }} ms </span>
+            <span class="text-slate-500 font-mono"
+              >{{ 'postman.responseViewer.time' | transloco }}: {{ responseTime() ?? '--' }} ms
+            </span>
           </div>
 
           <!-- Scrollable Content Area -->
@@ -85,10 +91,10 @@ import { JsonTableComponent } from './json-table.component';
               <button
                 (click)="copyJson()"
                 class="sticky top-2 right-2 float-right p-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity text-slate-600 dark:text-slate-300 flex items-center gap-1 z-10"
-                title="Copy JSON"
+                [title]="'postman.responseViewer.copyJson' | transloco"
               >
                 <span class="material-icons text-xs" style="font-size: 14px;">content_copy</span>
-                Copy
+                {{ 'postman.responseViewer.copy' | transloco }}
               </button>
               <pre
                 class="text-xs font-mono bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto select-text shadow-inner"
@@ -110,7 +116,7 @@ import { JsonTableComponent } from './json-table.component';
           >
             <div class="font-bold mb-2 flex items-center gap-2">
               <span class="material-icons text-sm">error_outline</span>
-              Error
+              {{ 'postman.responseViewer.error' | transloco }}
             </div>
             <pre class="text-xs select-text overflow-x-auto">{{ error() | json }}</pre>
           </div>
@@ -127,7 +133,7 @@ import { JsonTableComponent } from './json-table.component';
                 />
               </svg>
             </div>
-            <div>Send a request to see the response</div>
+            <div>{{ 'postman.responseViewer.noResponse' | transloco }}</div>
           </div>
         </ng-template>
       </div>
@@ -150,7 +156,7 @@ import { JsonTableComponent } from './json-table.component';
               <mat-icon>arrow_back</mat-icon>
             </button>
             <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200">
-              Request Details & Response
+              {{ 'postman.responseViewer.fullScreenTitle' | transloco }}
             </h2>
           </div>
           <div class="flex items-center gap-2">
@@ -161,7 +167,7 @@ import { JsonTableComponent } from './json-table.component';
               class="!flex !items-center !gap-2"
             >
               <mat-icon>print</mat-icon>
-              Print
+              {{ 'postman.responseViewer.print' | transloco }}
             </button>
             <button mat-icon-button color="warn" (click)="isFullScreen.set(false)">
               <mat-icon>close</mat-icon>
@@ -180,16 +186,20 @@ import { JsonTableComponent } from './json-table.component';
             <h3
               class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 border-b pb-2"
             >
-              Request Information
+              {{ 'postman.responseViewer.requestInfo' | transloco }}
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4" *ngIf="selectedEndpoint() as ep">
               <div>
-                <div class="text-xs text-slate-400 mb-1">Endpoints</div>
+                <div class="text-xs text-slate-400 mb-1">
+                  {{ 'postman.responseViewer.endpoint' | transloco }}
+                </div>
                 <div class="font-mono text-sm break-all font-medium">{{ ep.label }}</div>
               </div>
               <div>
-                <div class="text-xs text-slate-400 mb-1">Method</div>
+                <div class="text-xs text-slate-400 mb-1">
+                  {{ 'postman.responseViewer.method' | transloco }}
+                </div>
                 <div
                   class="font-mono text-sm font-bold"
                   [ngClass]="{
@@ -203,7 +213,9 @@ import { JsonTableComponent } from './json-table.component';
                 </div>
               </div>
               <div class="col-span-1 md:col-span-2">
-                <div class="text-xs text-slate-400 mb-1">URL</div>
+                <div class="text-xs text-slate-400 mb-1">
+                  {{ 'postman.responseViewer.url' | transloco }}
+                </div>
                 <div
                   class="font-mono text-sm text-blue-600 dark:text-blue-400 break-all bg-white dark:bg-slate-800 p-2 rounded border dark:border-slate-700"
                 >
@@ -218,7 +230,7 @@ import { JsonTableComponent } from './json-table.component';
             <h3
               class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 border-b pb-2 flex items-center justify-between"
             >
-              <span>Response Body</span>
+              <span>{{ 'postman.responseViewer.responseBody' | transloco }}</span>
               <span class="text-xs font-normal normal-case" *ngIf="response()">
                 {{ response().status }} {{ response().statusText }} ({{ responseTime() }}ms)
               </span>

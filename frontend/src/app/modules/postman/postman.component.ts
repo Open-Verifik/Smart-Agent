@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { RequestEditorComponent } from './request-editor/request-editor.component';
 import { ResponseViewerComponent } from './response-viewer/response-viewer.component';
@@ -20,6 +21,7 @@ import { PostmanService } from './postman.service';
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    TranslocoPipe,
   ],
   template: `
     <div
@@ -58,35 +60,70 @@ import { PostmanService } from './postman.service';
             </button>
           </div>
 
-          <!-- Layout Toggles (Joined Segmented Control) -->
-          <div
-            class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm"
-          >
-            <button
-              class="p-1.5 px-3 rounded-md transition-all text-slate-500 hover:text-slate-900"
-              [class.bg-slate-100]="layout === 'horizontal'"
-              [class.text-slate-900]="layout === 'horizontal'"
-              [class.font-medium]="layout === 'horizontal'"
-              [class.dark:bg-slate-700]="layout === 'horizontal'"
-              [class.dark:text-white]="layout === 'horizontal'"
-              (click)="setLayout('horizontal')"
-              matTooltip="Split Vertical"
+          <div class="flex items-center gap-3">
+            <!-- Payment Method Toggle (Privy-style: JWT | x402) -->
+            <div
+              class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm"
             >
-              <mat-icon class="!w-4 !h-4 !text-[16px]">view_column</mat-icon>
-            </button>
-            <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
-            <button
-              class="p-1.5 px-3 rounded-md transition-all text-slate-500 hover:text-slate-900"
-              [class.bg-slate-100]="layout === 'vertical'"
-              [class.text-slate-900]="layout === 'vertical'"
-              [class.font-medium]="layout === 'vertical'"
-              [class.dark:bg-slate-700]="layout === 'vertical'"
-              [class.dark:text-white]="layout === 'vertical'"
-              (click)="setLayout('vertical')"
-              matTooltip="Split Horizontal"
+              <button
+                class="px-3 py-1.5 rounded-md transition-all text-xs font-medium"
+                [class.bg-slate-100]="paymentMethod() === 'jwt'"
+                [class.text-slate-900]="paymentMethod() === 'jwt'"
+                [class.dark:bg-slate-700]="paymentMethod() === 'jwt'"
+                [class.dark:text-white]="paymentMethod() === 'jwt'"
+                [class.text-slate-500]="paymentMethod() !== 'jwt'"
+                [class.hover:text-slate-900]="paymentMethod() !== 'jwt'"
+                (click)="setPaymentMethod('jwt')"
+                matTooltip="Authenticate with JWT Token"
+              >
+                JWT
+              </button>
+              <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+              <button
+                class="px-3 py-1.5 rounded-md transition-all text-xs font-medium"
+                [class.bg-slate-100]="paymentMethod() === 'x402'"
+                [class.text-slate-900]="paymentMethod() === 'x402'"
+                [class.dark:bg-slate-700]="paymentMethod() === 'x402'"
+                [class.dark:text-white]="paymentMethod() === 'x402'"
+                [class.text-slate-500]="paymentMethod() !== 'x402'"
+                [class.hover:text-slate-900]="paymentMethod() !== 'x402'"
+                (click)="setPaymentMethod('x402')"
+                matTooltip="Pay with x402 Wallet"
+              >
+                x402
+              </button>
+            </div>
+
+            <!-- Layout Toggles (Joined Segmented Control) -->
+            <div
+              class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm"
             >
-              <mat-icon class="!w-4 !h-4 !text-[16px]">view_stream</mat-icon>
-            </button>
+              <button
+                class="p-1.5 px-3 rounded-md transition-all text-slate-500 hover:text-slate-900"
+                [class.bg-slate-100]="layout === 'horizontal'"
+                [class.text-slate-900]="layout === 'horizontal'"
+                [class.font-medium]="layout === 'horizontal'"
+                [class.dark:bg-slate-700]="layout === 'horizontal'"
+                [class.dark:text-white]="layout === 'horizontal'"
+                (click)="setLayout('horizontal')"
+                [matTooltip]="'postman.layout.splitVertical' | transloco"
+              >
+                <mat-icon class="!w-4 !h-4 !text-[16px]">view_column</mat-icon>
+              </button>
+              <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-1"></div>
+              <button
+                class="p-1.5 px-3 rounded-md transition-all text-slate-500 hover:text-slate-900"
+                [class.bg-slate-100]="layout === 'vertical'"
+                [class.text-slate-900]="layout === 'vertical'"
+                [class.font-medium]="layout === 'vertical'"
+                [class.dark:bg-slate-700]="layout === 'vertical'"
+                [class.dark:text-white]="layout === 'vertical'"
+                (click)="setLayout('vertical')"
+                [matTooltip]="'postman.layout.splitHorizontal' | transloco"
+              >
+                <mat-icon class="!w-4 !h-4 !text-[16px]">view_stream</mat-icon>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -177,8 +214,15 @@ export class PostmanComponent {
       .sort((a, b) => b.count - a.count);
   });
 
+  // Payment Method State
+  paymentMethod = this._postmanService.paymentMethod;
+
   toggleCountry(country: string) {
     this.selectedCountry.update((c) => (c === country ? null : country));
+  }
+
+  setPaymentMethod(method: 'jwt' | 'x402') {
+    this._postmanService.paymentMethod.set(method);
   }
 
   getCountryFlag(country: string): string {

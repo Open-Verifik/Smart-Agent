@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
   selector: 'postman-json-table',
   standalone: true,
-  imports: [CommonModule, JsonTableComponent], // JsonTableComponent must be imported for recursive use
+  imports: [CommonModule, JsonTableComponent, TranslocoPipe], // JsonTableComponent must be imported for recursive use
   template: `
     <ng-container *ngIf="parsedData as d">
       <!-- Primitives -->
@@ -12,7 +13,9 @@ import { CommonModule } from '@angular/common';
         *ngIf="isPrimitive(d)"
         class="font-mono text-xs text-slate-800 dark:text-slate-200 break-all whitespace-pre-wrap select-text"
       >
-        <span *ngIf="d === null" class="text-slate-400 italic">null</span>
+        <span *ngIf="d === null" class="text-slate-400 italic">{{
+          'postman.jsonTable.null' | transloco
+        }}</span>
         <span *ngIf="typeof d === 'boolean'" class="text-purple-600">{{ d }}</span>
         <span *ngIf="typeof d === 'string'" class="text-green-700 dark:text-green-400"
           >"{{ d }}"</span
@@ -27,7 +30,7 @@ import { CommonModule } from '@angular/common';
           class="px-2 py-1 bg-slate-100 dark:bg-slate-800/50 text-xs text-slate-500 font-mono border-b dark:border-slate-800 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors flex items-center gap-2 select-none"
         >
           <span class="text-[10px]">{{ isExpanded ? '▼' : '▶' }}</span>
-          <span>Array ({{ d.length }})</span>
+          <span>{{ 'postman.jsonTable.array' | transloco }} ({{ d.length }})</span>
         </div>
         <table *ngIf="isExpanded" class="w-full text-left text-xs border-collapse">
           <tbody>
@@ -59,7 +62,12 @@ import { CommonModule } from '@angular/common';
         >
           <span class="text-[10px]">{{ isExpanded ? '▼' : '▶' }}</span>
           <span
-            >Object ({{ getKeys(d).length }} {{ getKeys(d).length === 1 ? 'key' : 'keys' }})</span
+            >{{ 'postman.jsonTable.object' | transloco }} ({{ getKeys(d).length }}
+            {{
+              getKeys(d).length === 1
+                ? ('postman.jsonTable.key' | transloco)
+                : ('postman.jsonTable.keys' | transloco)
+            }})</span
           >
         </div>
         <table *ngIf="isExpanded" class="w-full text-left text-xs border-collapse">

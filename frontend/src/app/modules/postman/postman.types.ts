@@ -13,6 +13,7 @@ export interface ApiEndpoint {
   category?: string;
   country?: string;
   documentationUrl?: string; // URL to the markdown file
+  estimatedCost?: number; // USD cost for x402 payment calculation
 }
 
 export const API_ENDPOINTS: ApiEndpoint[] = [

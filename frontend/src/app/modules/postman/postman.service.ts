@@ -18,6 +18,7 @@ export class PostmanService {
   responseTime = signal<number | null>(null);
   isLoading = signal<boolean>(false);
   error = signal<any>(null);
+  paymentMethod = signal<'jwt' | 'x402'>('jwt');
 
   constructor(private _httpClient: HttpClient) {
     this.fetchPublicFeatures();
@@ -33,39 +34,63 @@ export class PostmanService {
         tap((response) => {
           if (response && response.data) {
             const features = response.data || [];
-            const dynamicEndpoints: ApiEndpoint[] = features.map((feature: any) => ({
-              id: feature._id || feature.code,
-              label: feature.name,
-              code: feature.code, // Map the code
-              category: this._mapCategory(feature.baseCategory || feature.group),
-              country: feature.country,
-              method: 'POST',
-              // Use the feature's URL if absolute, else prepend apiUrl
-              url: feature.url
-                ? feature.url.startsWith('http')
-                  ? feature.url
-                  : `${apiUrl}/${feature.url}`
-                : '',
-              description: feature.description,
-              headers: [
-                { key: 'Content-Type', value: 'application/json' },
-                {
-                  key: 'Authorization',
-                  value: localStorage.getItem('accessToken')
-                    ? `Bearer ${localStorage.getItem('accessToken')}`
-                    : 'Bearer <token>',
-                },
-              ],
-              params: feature.dependencies
-                ? feature.dependencies.map((dependency: any) => ({
-                    key: dependency.field,
-                    value: dependency.default || '',
-                    type: dependency.type,
-                    required: dependency.required,
-                    description: dependency.description,
-                  }))
-                : [],
-            }));
+            const dynamicEndpoints: ApiEndpoint[] = features.map((feature: any) => {
+              const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
+
+              return {
+                id: feature._id || feature.code,
+                label: feature.name,
+                code: feature.code, // Map the code
+                category: this._mapCategory(feature.baseCategory || feature.group),
+                country: feature.country,
+                method: method,
+                // Use the feature's URL if absolute, else prepend apiUrl
+                url: feature.url
+                  ? feature.url.startsWith('http')
+                    ? feature.url
+                    : `${apiUrl}/${feature.url}`
+                  : '',
+                description: feature.description,
+                estimatedCost: feature.price || 0.01, // Map price from backend for x402 payment
+                headers: [
+                  { key: 'Content-Type', value: 'application/json' },
+                  {
+                    key: 'Authorization',
+                    value: 'Bearer <token>',
+                  },
+                ],
+                // Map dependencies to Body for POST/PUT/etc, or Params for GET
+                params:
+                  method === 'GET' && feature.dependencies
+                    ? feature.dependencies.map((dependency: any) => {
+                        const defaultVal =
+                          dependency.default ||
+                          (dependency.enum && dependency.enum.length ? dependency.enum[0] : '');
+
+                        let desc = dependency.description;
+                        if (!desc && dependency.enum && dependency.enum.length) {
+                          desc = `Pick a value from [${dependency.enum.join(', ')}]`;
+                        }
+
+                        return {
+                          key: dependency.field,
+                          value: defaultVal,
+                          type: dependency.type,
+                          required: dependency.required,
+                          description: desc,
+                        };
+                      })
+                    : [],
+                body:
+                  method !== 'GET' && feature.dependencies
+                    ? feature.dependencies.reduce((acc: any, dep: any) => {
+                        acc[dep.field] =
+                          dep.default || (dep.enum && dep.enum.length ? dep.enum[0] : '');
+                        return acc;
+                      }, {})
+                    : null,
+              };
+            });
 
             this.endpoints.update((current) => {
               // Avoid duplicates if this runs multiple times or hot reloads
@@ -120,22 +145,40 @@ export class PostmanService {
     this.response.set(null);
     this.error.set(null);
 
+    // Check if using x402 payment method
+    const isX402 = this.paymentMethod() === 'x402';
+
     let url = endpoint.url;
     const options: any = {
       headers: {},
       params: {},
     };
 
-    // Prepare Headers
-    if (endpoint.headers) {
-      endpoint.headers.forEach((h) => {
-        let value = h.value;
-        if (value && value.includes('<token>')) {
-          const token = localStorage.getItem('accessToken') || '';
-          value = value.replace('<token>', token);
-        }
-        options.headers[h.key] = value;
-      });
+    // For x402, route through Smart-Agent backend proxy
+    if (isX402) {
+      // Use Smart-Agent backend proxy endpoint
+      url = `${environment.smartAgentUrl}/api/proxy`;
+
+      // Prepare headers for proxy
+      const paymentTxHeader = endpoint.headers?.find((h) => h.key === 'x-payment-tx');
+      const walletAddressHeader = endpoint.headers?.find((h) => h.key === 'x-wallet-address');
+
+      options.headers['x-payment-tx'] = paymentTxHeader?.value || '';
+      options.headers['x-wallet-address'] = walletAddressHeader?.value || '';
+      options.headers['x-target-url'] = endpoint.url; // Tell proxy where to forward
+      options.headers['Content-Type'] = 'application/json';
+    } else {
+      // JWT mode - use headers as normal
+      if (endpoint.headers) {
+        endpoint.headers.forEach((h) => {
+          let value = h.value;
+          if (value && value.includes('<token>')) {
+            const token = localStorage.getItem('accessToken') || '';
+            value = value.replace('<token>', token);
+          }
+          options.headers[h.key] = value;
+        });
+      }
     }
 
     // Prepare Params
