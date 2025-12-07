@@ -6,6 +6,79 @@
     "welcome": "환영합니다:",
     "role": "역할:",
     "signOut": "로그아웃"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "수직 분할",
+      "splitHorizontal": "수평 분할"
+    },
+    "sidebar": {
+      "title": "API 탐색기",
+      "search": "엔드포인트 검색...",
+      "noResults": "엔드포인트를 찾을 수 없습니다",
+      "collapse": "사이드바 접기",
+      "expand": "사이드바 펼치기"
+    },
+    "requestEditor": {
+      "title": "요청",
+      "send": "전송",
+      "sending": "전송 중...",
+      "selectEndpoint": "시작할 엔드포인트를 선택하세요",
+      "tabs": {
+        "about": "정보",
+        "params": "매개변수",
+        "headers": "헤더",
+        "body": "본문"
+      },
+      "params": {
+        "key": "키",
+        "value": "값",
+        "description": "설명",
+        "addParam": "매개변수 추가",
+        "keyPlaceholder": "키",
+        "valuePlaceholder": "값",
+        "descriptionPlaceholder": "설명"
+      },
+      "headers": {
+        "key": "키",
+        "value": "값",
+        "addHeader": "헤더 추가",
+        "keyPlaceholder": "키",
+        "valuePlaceholder": "값"
+      },
+      "body": {
+        "jsonBody": "JSON 본문"
+      }
+    },
+    "responseViewer": {
+      "title": "응답",
+      "viewMode": {
+        "json": "JSON",
+        "table": "테이블"
+      },
+      "status": "상태",
+      "time": "시간",
+      "copy": "복사",
+      "copyJson": "JSON 복사",
+      "fullScreen": "전체 화면",
+      "print": "인쇄",
+      "noResponse": "요청을 전송하여 응답을 확인하세요",
+      "error": "오류",
+      "fullScreenTitle": "요청 세부정보 및 응답",
+      "requestInfo": "요청 정보",
+      "endpoint": "엔드포인트",
+      "method": "메서드",
+      "url": "URL",
+      "responseBody": "응답 본문",
+      "backToNormal": "일반 보기로 돌아가기"
+    },
+    "jsonTable": {
+      "array": "배열",
+      "object": "객체",
+      "key": "키",
+      "keys": "키",
+      "null": "null",
+      "emptyObject": "{}"
+    }
   }
 }
-

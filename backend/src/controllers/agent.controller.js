@@ -39,7 +39,28 @@ const getInfo = async (ctx) => {
 	}
 };
 
+/**
+ * Get Agent Card (ERC8004 format)
+ * GET /api/agent/agent-card.json
+ */
+const getAgentCard = async (ctx) => {
+	try {
+		const agentCard = await AgentModule.getAgentCard();
+		if (!agentCard) {
+			ctx.status = 404;
+			ctx.body = { error: "Agent card not available" };
+			return;
+		}
+		ctx.body = agentCard;
+	} catch (error) {
+		console.error("Agent Card Controller Error:", error);
+		ctx.status = 500;
+		ctx.body = { error: error.message };
+	}
+};
+
 module.exports = {
 	chat,
 	getInfo,
+	getAgentCard,
 };

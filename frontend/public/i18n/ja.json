@@ -6,6 +6,79 @@
     "welcome": "ようこそ：",
     "role": "役割：",
     "signOut": "サインアウト"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "垂直分割",
+      "splitHorizontal": "水平分割"
+    },
+    "sidebar": {
+      "title": "APIエクスプローラー",
+      "search": "エンドポイントを検索...",
+      "noResults": "エンドポイントが見つかりません",
+      "collapse": "サイドバーを折りたたむ",
+      "expand": "サイドバーを展開"
+    },
+    "requestEditor": {
+      "title": "リクエスト",
+      "send": "送信",
+      "sending": "送信中...",
+      "selectEndpoint": "開始するエンドポイントを選択",
+      "tabs": {
+        "about": "について",
+        "params": "パラメータ",
+        "headers": "ヘッダー",
+        "body": "ボディ"
+      },
+      "params": {
+        "key": "キー",
+        "value": "値",
+        "description": "説明",
+        "addParam": "パラメータを追加",
+        "keyPlaceholder": "キー",
+        "valuePlaceholder": "値",
+        "descriptionPlaceholder": "説明"
+      },
+      "headers": {
+        "key": "キー",
+        "value": "値",
+        "addHeader": "ヘッダーを追加",
+        "keyPlaceholder": "キー",
+        "valuePlaceholder": "値"
+      },
+      "body": {
+        "jsonBody": "JSONボディ"
+      }
+    },
+    "responseViewer": {
+      "title": "レスポンス",
+      "viewMode": {
+        "json": "JSON",
+        "table": "テーブル"
+      },
+      "status": "ステータス",
+      "time": "時間",
+      "copy": "コピー",
+      "copyJson": "JSONをコピー",
+      "fullScreen": "フルスクリーン",
+      "print": "印刷",
+      "noResponse": "リクエストを送信してレスポンスを表示",
+      "error": "エラー",
+      "fullScreenTitle": "リクエスト詳細とレスポンス",
+      "requestInfo": "リクエスト情報",
+      "endpoint": "エンドポイント",
+      "method": "メソッド",
+      "url": "URL",
+      "responseBody": "レスポンスボディ",
+      "backToNormal": "通常表示に戻る"
+    },
+    "jsonTable": {
+      "array": "配列",
+      "object": "オブジェクト",
+      "key": "キー",
+      "keys": "キー",
+      "null": "null",
+      "emptyObject": "{}"
+    }
   }
 }
-

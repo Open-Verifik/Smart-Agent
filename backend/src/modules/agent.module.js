@@ -304,9 +304,71 @@ const getAgentInfo = async () => {
 	return { identity, reputation, feedbacks };
 };
 
+/**
+ * Get agent card in ERC8004 format
+ * This returns the agent card JSON that can be referenced in the NFT metadata
+ */
+const getAgentCard = async () => {
+	const agentTokenId = config.erc8004?.agentTokenId;
+	if (!agentTokenId) {
+		return null;
+	}
+
+	try {
+		const identity = await ERC8004Module.getAgentIdentity(agentTokenId);
+
+		if (!identity) {
+			return null;
+		}
+
+		// Return ERC8004-compliant agent card format
+		return {
+			name: identity.name || "Verifik AI Agent",
+			description:
+				identity.description || "AI-powered agent for identity validation and document processing using x402 payment protocol on Avalanche",
+			image: "https://verifik.app/images/agent-avatar.png", // You can update this URL
+			external_url: "https://verifik.app",
+			attributes: [
+				{
+					trait_type: "Agent Type",
+					value: "Identity Verification",
+				},
+				{
+					trait_type: "Protocol",
+					value: "x402",
+				},
+				{
+					trait_type: "Network",
+					value: "Avalanche C-Chain",
+				},
+				{
+					trait_type: "Status",
+					value: identity.active ? "Active" : "Inactive",
+				},
+			],
+			capabilities: identity.capabilities || [
+				"identity-validation",
+				"document-ocr",
+				"biometric-verification",
+				"cedula-validation",
+				"x402-payment-processing",
+			],
+			agentAddress: identity.agentAddress,
+			tokenId: agentTokenId,
+			registryContract: config.erc8004?.identityRegistryAddress || "0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6",
+			network: "avalanche-fuji-testnet",
+			chainId: 43113,
+		};
+	} catch (error) {
+		console.error("[Agent] Error getting agent card:", error.message);
+		return null;
+	}
+};
+
 module.exports = {
 	chatWithAgent,
 	executeTool,
 	recordValidationProof,
 	getAgentInfo,
+	getAgentCard,
 };

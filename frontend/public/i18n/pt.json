@@ -6,6 +6,79 @@
     "welcome": "Bem-vindo:",
     "role": "Função:",
     "signOut": "Sair"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "Divisão Vertical",
+      "splitHorizontal": "Divisão Horizontal"
+    },
+    "sidebar": {
+      "title": "Explorador de API",
+      "search": "Pesquisar endpoints...",
+      "noResults": "Nenhum endpoint encontrado",
+      "collapse": "Recolher barra lateral",
+      "expand": "Expandir barra lateral"
+    },
+    "requestEditor": {
+      "title": "Solicitação",
+      "send": "Enviar",
+      "sending": "Enviando...",
+      "selectEndpoint": "Selecione um endpoint para começar",
+      "tabs": {
+        "about": "Sobre",
+        "params": "Parâmetros",
+        "headers": "Cabeçalhos",
+        "body": "Corpo"
+      },
+      "params": {
+        "key": "Chave",
+        "value": "Valor",
+        "description": "Descrição",
+        "addParam": "Adicionar Parâmetro",
+        "keyPlaceholder": "Chave",
+        "valuePlaceholder": "Valor",
+        "descriptionPlaceholder": "Descrição"
+      },
+      "headers": {
+        "key": "Chave",
+        "value": "Valor",
+        "addHeader": "Adicionar Cabeçalho",
+        "keyPlaceholder": "Chave",
+        "valuePlaceholder": "Valor"
+      },
+      "body": {
+        "jsonBody": "Corpo JSON"
+      }
+    },
+    "responseViewer": {
+      "title": "Resposta",
+      "viewMode": {
+        "json": "JSON",
+        "table": "Tabela"
+      },
+      "status": "Status",
+      "time": "Tempo",
+      "copy": "Copiar",
+      "copyJson": "Copiar JSON",
+      "fullScreen": "Tela Cheia",
+      "print": "Imprimir",
+      "noResponse": "Envie uma solicitação para ver a resposta",
+      "error": "Erro",
+      "fullScreenTitle": "Detalhes da Solicitação e Resposta",
+      "requestInfo": "Informações da Solicitação",
+      "endpoint": "Endpoint",
+      "method": "Método",
+      "url": "URL",
+      "responseBody": "Corpo da Resposta",
+      "backToNormal": "Voltar à visualização normal"
+    },
+    "jsonTable": {
+      "array": "Array",
+      "object": "Objeto",
+      "key": "chave",
+      "keys": "chaves",
+      "null": "nulo",
+      "emptyObject": "{}"
+    }
   }
 }
-

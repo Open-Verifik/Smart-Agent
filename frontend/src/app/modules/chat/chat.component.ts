@@ -97,6 +97,7 @@ export class ChatComponent implements OnInit {
   // Backend URLs
   private apiUrl = `${environment.smartAgentUrl}/api/agent/chat`;
   private agentInfoUrl = `${environment.smartAgentUrl}/api/agent/info`;
+  agentCardUrl = `${environment.smartAgentUrl}/api/agent/agent-card.json`;
 
   constructor(
     private http: HttpClient,

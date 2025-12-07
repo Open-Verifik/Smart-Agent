@@ -5,4 +5,5 @@ module.exports = (router) => {
 
 	router.post(`${PATH}/chat`, Controller.chat);
 	router.get(`${PATH}/info`, Controller.getInfo);
+	router.get(`${PATH}/agent-card.json`, Controller.getAgentCard);
 };

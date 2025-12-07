@@ -6,6 +6,79 @@
     "welcome": "欢迎：",
     "role": "角色：",
     "signOut": "登出"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "垂直分割",
+      "splitHorizontal": "水平分割"
+    },
+    "sidebar": {
+      "title": "API 浏览器",
+      "search": "搜索端点...",
+      "noResults": "未找到端点",
+      "collapse": "折叠侧边栏",
+      "expand": "展开侧边栏"
+    },
+    "requestEditor": {
+      "title": "请求",
+      "send": "发送",
+      "sending": "发送中...",
+      "selectEndpoint": "选择一个端点开始",
+      "tabs": {
+        "about": "关于",
+        "params": "参数",
+        "headers": "请求头",
+        "body": "请求体"
+      },
+      "params": {
+        "key": "键",
+        "value": "值",
+        "description": "描述",
+        "addParam": "添加参数",
+        "keyPlaceholder": "键",
+        "valuePlaceholder": "值",
+        "descriptionPlaceholder": "描述"
+      },
+      "headers": {
+        "key": "键",
+        "value": "值",
+        "addHeader": "添加请求头",
+        "keyPlaceholder": "键",
+        "valuePlaceholder": "值"
+      },
+      "body": {
+        "jsonBody": "JSON 请求体"
+      }
+    },
+    "responseViewer": {
+      "title": "响应",
+      "viewMode": {
+        "json": "JSON",
+        "table": "表格"
+      },
+      "status": "状态",
+      "time": "时间",
+      "copy": "复制",
+      "copyJson": "复制 JSON",
+      "fullScreen": "全屏",
+      "print": "打印",
+      "noResponse": "发送请求以查看响应",
+      "error": "错误",
+      "fullScreenTitle": "请求详情和响应",
+      "requestInfo": "请求信息",
+      "endpoint": "端点",
+      "method": "方法",
+      "url": "URL",
+      "responseBody": "响应体",
+      "backToNormal": "返回正常视图"
+    },
+    "jsonTable": {
+      "array": "数组",
+      "object": "对象",
+      "key": "键",
+      "keys": "键",
+      "null": "空",
+      "emptyObject": "{}"
+    }
   }
 }
-

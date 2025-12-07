@@ -59,7 +59,7 @@ export class LanguagesComponent implements OnInit, OnDestroy {
       zh: 'cn',
       ko: 'kr',
       ja: 'jp',
-      pt: 'us', // Using US flag as fallback for Portuguese (BR flag not available)
+      pt: 'br',
       fr: 'fr',
     };
 

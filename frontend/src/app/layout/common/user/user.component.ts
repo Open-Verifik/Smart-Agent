@@ -21,6 +21,7 @@ import { AuthService } from 'app/core/auth/auth.service';
 import { User } from 'app/core/user/user.types';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
+import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.service';
 
 @Component({
   selector: 'user',
@@ -57,7 +58,30 @@ export class UserComponent implements OnInit, OnDestroy {
     private _userService: UserService,
     private _matDialog: MatDialog,
     private _authService: AuthService,
+    private _walletService: AgentWalletService,
   ) {}
+
+  walletAddress: string | null = null;
+  avaxBalance: string | null = null;
+
+  async fetchWalletInfo() {
+    this.walletAddress = this._walletService.getAddress();
+    if (this.walletAddress) {
+      try {
+        this.avaxBalance = await this._walletService.getBalance();
+        this._changeDetectorRef.markForCheck();
+      } catch (e) {
+        console.error('Failed to fetch wallet balance', e);
+      }
+    }
+  }
+
+  copyWalletAddress() {
+    if (this.walletAddress) {
+      navigator.clipboard.writeText(this.walletAddress);
+      // Optional: Show snackbar
+    }
+  }
 
   // -----------------------------------------------------------------------------------------------------
   // @ Lifecycle hooks
@@ -67,6 +91,8 @@ export class UserComponent implements OnInit, OnDestroy {
    * On init
    */
   ngOnInit(): void {
+    this.fetchWalletInfo();
+
     // Load user from local storage as fallback before subscription emits
     try {
       const storedUser = localStorage.getItem('verifik_account');

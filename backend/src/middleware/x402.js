@@ -31,9 +31,23 @@ module.exports = async (ctx, next) => {
 	let requiredPriceUsd = 0.05;
 
 	// Match tool by URL suffix
+	let pathToMatch = ctx.path;
+
+	// Handle Postman Proxy path extraction
+	if (ctx.path === "/api/proxy" && ctx.header["x-target-url"]) {
+		try {
+			const targetUrl = new URL(ctx.header["x-target-url"]);
+			pathToMatch = targetUrl.pathname;
+		} catch (e) {
+			if (ctx.header["x-target-url"].startsWith("/")) {
+				pathToMatch = ctx.header["x-target-url"];
+			}
+		}
+	}
+
 	// ctx.path e.g. /v2/co/cedula
 	// tool.url e.g. http://localhost:3060/v2/co/cedula
-	const matchedTool = toolsManifest.endpoints.find((t) => t.url.endsWith(ctx.path));
+	const matchedTool = toolsManifest.endpoints.find((t) => t.url.endsWith(pathToMatch));
 	if (matchedTool && typeof matchedTool.priceUsd === "number") {
 		requiredPriceUsd = matchedTool.priceUsd;
 	}

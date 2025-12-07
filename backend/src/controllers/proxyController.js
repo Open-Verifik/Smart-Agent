@@ -1,4 +1,5 @@
 const axios = require("axios");
+const https = require("https");
 const config = require("../config");
 
 const VERIFIK_BASE_URL = config.verifik.apiUrl || "https://verifik.app";
@@ -9,11 +10,21 @@ const VERIFIK_BASE_URL = config.verifik.apiUrl || "https://verifik.app";
  */
 const handleRequest = async (ctx) => {
 	// 1. Construct Target URL
-	// ctx.path is e.g. "/v2/co/runt/vehiculo"
-	// Ensure no double slashes
-	const baseUrl = VERIFIK_BASE_URL.replace(/\/$/, "");
-	const targetPath = ctx.path.startsWith("/") ? ctx.path : "/" + ctx.path;
-	const targetUrl = `${baseUrl}${targetPath}`;
+	// Check if x-target-url header is present (from Postman UI)
+	const targetUrlHeader = ctx.get("x-target-url");
+
+	let targetUrl;
+	if (targetUrlHeader) {
+		// Postman UI mode - use the target URL from header
+		targetUrl = targetUrlHeader;
+		console.log(`[Proxy] Using target URL from header: ${targetUrl}`);
+	} else {
+		// Regular proxy mode - use ctx.path
+		// ctx.path is e.g. "/v2/co/runt/vehiculo"
+		const baseUrl = VERIFIK_BASE_URL.replace(/\/$/, "");
+		const targetPath = ctx.path.startsWith("/") ? ctx.path : "/" + ctx.path;
+		targetUrl = `${baseUrl}${targetPath}`;
+	}
 
 	console.log(`[Proxy] Forwarding ${ctx.method} to ${targetUrl}`);
 
@@ -34,6 +45,10 @@ const handleRequest = async (ctx) => {
 			data: ctx.request.body, // Forward Body
 			headers: headers,
 			validateStatus: () => true, // Check all status codes manually
+			// Bypass SSL certificate errors
+			httpsAgent: new https.Agent({
+				rejectUnauthorized: false,
+			}),
 		});
 
 		// 3. Forward Response Back to Client

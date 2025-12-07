@@ -13,4 +13,11 @@ const router = new Router();
 
 router.all(/^\/v2\/.+/, x402Middleware, proxyController.handleRequest);
 
+/**
+ * Generic Proxy Route for Postman UI
+ * Accepts target URL in x-target-url header
+ * Used by Postman view for x402 payments
+ */
+router.all("/api/proxy", x402Middleware, proxyController.handleRequest);
+
 module.exports = router;

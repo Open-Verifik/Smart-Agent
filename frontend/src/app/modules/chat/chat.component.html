@@ -48,7 +48,7 @@
     <div class="modal-overlay" (click)="toggleAgentInfoModal()">
       <div class="modal-content agent-info-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>🤖 Agent Identity (ERC8004)</h2>
+          <h2>Agent Identity (ERC8004)</h2>
           <button class="close-button" (click)="toggleAgentInfoModal()">✕</button>
         </div>
 
@@ -58,7 +58,7 @@
           } @else if (agentInfo()?.identity) {
             <div class="agent-identity">
               <div class="identity-section">
-                <h3>📋 Identity</h3>
+                <h3>Identity</h3>
                 <div class="detail-item">
                   <label>Name</label>
                   <div class="detail-value">{{ agentInfo()?.identity?.name }}</div>
@@ -73,7 +73,7 @@
                     <span
                       [class]="agentInfo()?.identity?.active ? 'status-active' : 'status-inactive'"
                     >
-                      {{ agentInfo()?.identity?.active ? '✅ Active' : '❌ Inactive' }}
+                      {{ agentInfo()?.identity?.active ? 'Active' : 'Inactive' }}
                     </span>
                   </div>
                 </div>
@@ -92,7 +92,7 @@
               </div>
 
               <div class="identity-section">
-                <h3>🛠️ Capabilities</h3>
+                <h3>Capabilities</h3>
                 <div class="capabilities-list">
                   @for (cap of agentInfo()?.identity?.capabilities; track cap) {
                     <span class="capability-badge">{{ cap }}</span>
@@ -102,7 +102,7 @@
 
               @if (agentInfo()?.reputation) {
                 <div class="identity-section">
-                  <h3>⭐ Reputation</h3>
+                  <h3>Reputation</h3>
                   <div class="reputation-stats">
                     <div class="stat-item">
                       <label>Average Rating</label>
@@ -130,7 +130,7 @@
               }
               @if (agentInfo()?.feedbacks && (agentInfo()?.feedbacks)!.length > 0) {
                 <div class="identity-section">
-                  <h3>📝 Recent Reviews</h3>
+                  <h3>Recent Reviews</h3>
                   <div class="feedbacks-list">
                     @for (feedback of agentInfo()?.feedbacks; track feedback.id) {
                       <div class="feedback-item">
@@ -173,25 +173,23 @@
                       target="_blank"
                       class="link-button-small"
                     >
-                      🔍 View All on Snowtrace
+                      View All on Snowtrace
                     </a>
                   </div>
                 </div>
               }
 
               <div class="identity-section">
-                <h3>🔗 Links</h3>
+                <h3>Links</h3>
                 <div class="links-list">
                   <a
                     href="https://testnet.snowtrace.io/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1"
                     target="_blank"
                     class="link-button"
                   >
-                    🔍 View NFT on Snowtrace
+                    View NFT on Snowtrace
                   </a>
-                  <a href="https://verifik.app/agent-card.json" target="_blank" class="link-button">
-                    📄 Agent Card JSON
-                  </a>
+                  <a [href]="agentCardUrl" target="_blank" class="link-button"> Agent Card JSON </a>
                 </div>
               </div>
             </div>
