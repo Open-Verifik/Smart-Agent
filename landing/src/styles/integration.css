@@ -1,0 +1,135 @@
+/* INTEGRATION SECTION */
+#integration {
+    padding: 8rem 8vw;
+    background: #000;
+    position: relative;
+    overflow: hidden;
+}
+
+.integration-header {
+    margin-bottom: 6rem;
+    max-width: 900px;
+}
+
+.integration-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 3rem;
+    position: relative;
+    z-index: 2;
+}
+
+.theory-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 3rem;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+.theory-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.highlight-red {
+    border-top: 4px solid #ef4444;
+}
+
+.highlight-blue {
+    border-top: 4px solid #3b82f6;
+}
+
+.theory-number {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #a1a1aa;
+    margin-bottom: 1rem;
+    display: block;
+    font-family: 'Inter', sans-serif;
+}
+
+.theory-card h3 {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+.theory-card p {
+    color: #cbd5e1;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+
+.tech-pill {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-family: monospace;
+}
+
+.pill-red {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.pill-blue {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.web2-note {
+    grid-column: 1 / -1; /* Span full width */
+    margin-top: 4rem;
+    padding: 3rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0) 100%);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    text-align: center;
+}
+
+.web2-note h4 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+.web2-note p {
+    color: #94a3b8;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Background Texture for T-REX */
+.trex-bg {
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    font-size: 10rem;
+    opacity: 0.03;
+    font-weight: 800;
+    pointer-events: none;
+    line-height: 1;
+}
+
+@media (max-width: 768px) {
+    .integration-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .theory-card {
+        padding: 2rem;
+    }
+}

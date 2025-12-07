@@ -1,9 +1,16 @@
+import { CompanyParticles } from "./company-particles.js";
 import "./styles/base.css";
 import "./styles/header.css";
 import "./styles/hero.css";
 import "./styles/capabilities.css";
+import "./styles/architecture.css";
+import "./styles/customers.css";
+import "./styles/integration.css";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+// Initialize Company Particles (2D Canvas)
+new CompanyParticles("particles-companies");
 
 // Constants
 const RADIUS = 5;

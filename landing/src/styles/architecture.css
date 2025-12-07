@@ -1,0 +1,164 @@
+/* ARCHITECTURE SECTION */
+#architecture {
+    position: relative;
+    padding: 8rem 8vw;
+    background: #050505;
+    overflow: hidden;
+}
+
+.arch-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr 1fr;
+    gap: 2rem;
+    align-items: center;
+    position: relative;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Glass Cards for Nodes */
+.arch-node {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    transition: all 0.4s ease;
+}
+
+.arch-node:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.arch-node h3 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin: 1rem 0 0.5rem;
+}
+
+.arch-node p {
+    font-size: 0.9rem;
+    color: #a1a1aa;
+    margin-bottom: 0;
+}
+
+.arch-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Central Gateway (The Agent) */
+.gateway-node {
+    padding: 4rem 2rem;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    background: radial-gradient(circle at center, rgba(74, 222, 128, 0.05) 0%, rgba(0,0,0,0) 70%);
+}
+
+.gateway-core {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.core-pulse {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid #4ade80;
+    animation: ping 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+    opacity: 0.5;
+}
+
+.core-solid {
+    width: 80%;
+    height: 80%;
+    background: #000;
+    border: 1px solid #4ade80;
+    border-radius: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(74, 222, 128, 0.2);
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+/* Connecting Pipelines (SVG Overlay) */
+.pipeline-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.pipe-line {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 2;
+}
+
+.pipe-flow {
+    fill: none;
+    stroke: #4ade80;
+    stroke-width: 2;
+    stroke-dasharray: 20 200;
+    animation: flow 4s linear infinite;
+}
+
+.pipe-flow.reverse {
+    stroke: #ef4444; /* Red for payment check return */
+    animation-direction: reverse;
+}
+
+@keyframes flow {
+    to {
+        stroke-dashoffset: -220;
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .arch-container {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+    .pipeline-overlay { display: none; } /* Hide complex lines on mobile */
+}
+
+.arch-header {
+    text-align: center;
+    margin-bottom: 5rem;
+    max-width: 800px;
+    margin-left: auto; 
+    margin-right: auto;
+}

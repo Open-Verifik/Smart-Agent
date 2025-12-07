@@ -1,0 +1,120 @@
+#inf_crsl-vk {
+    width: 100%;
+    padding: 6rem 0 4rem; /* Increased top padding for title */
+    background: #050505;
+    overflow: hidden;
+    position: relative;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.customers-header {
+    text-align: center;
+    position: relative;
+    z-index: 3;
+    margin-bottom: 3rem;
+}
+
+.customers-header h2 {
+    font-size: 3rem;
+    color: #fff;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(to right, #fff, #9ca3af);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+#particles-companies {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+#inf_crsl-vk article {
+    display: flex;
+    width: 200%;
+    animation: bannermove 40s linear infinite;
+    position: relative;
+    z-index: 20; /* Content well above particles */
+}
+
+#inf_crsl-vk article:hover {
+    animation-play-state: paused;
+}
+
+#inf_crsl-vk article div {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+#inf_crsl-vk ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    align-items: center;
+    gap: 4rem; /* Spacing between logos */
+}
+
+#inf_crsl-vk li {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#inf_crsl-vk img {
+    max-height: 120px; /* Standardize logo height */
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(1.5); /* Make them monochromatic/light */
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 21;
+    pointer-events: auto; /* Force events */
+}
+
+#inf_crsl-vk img:hover {
+    filter: brightness(0) invert(1); /* Make pure white on hover */
+    opacity: 1;
+}
+
+@keyframes bannermove {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Gradient Masks to fade edges */
+#inf_crsl-vk::before,
+#inf_crsl-vk::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 150px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+}
+
+#inf_crsl-vk::before {
+    left: 0;
+    background: linear-gradient(to right, #050505, transparent);
+}
+
+#inf_crsl-vk::after {
+    right: 0;
+    background: linear-gradient(to left, #050505, transparent);
+}
