@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ethers } from 'ethers';
+import { BehaviorSubject } from 'rxjs';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 
 @Injectable({
@@ -9,6 +10,10 @@ export class AgentWalletService {
   private wallet: ethers.Wallet | null = null;
   private provider: ethers.providers.JsonRpcProvider;
   private readonly STORAGE_KEY = 'agent_burner_wallet_key';
+
+  // Balance Subject for reactive UI updates
+  private balanceSubject = new BehaviorSubject<string>('0.00');
+  public balance$ = this.balanceSubject.asObservable();
 
   // Avalanche C-Chain - Fuji Testnet
   private readonly RPC_URL = 'https://api.avax-test.network/ext/bc/C/rpc';
@@ -316,5 +321,17 @@ export class AgentWalletService {
   resetWallet() {
     localStorage.removeItem(this.STORAGE_KEY);
     this.loadOrGenerateWallet();
+  }
+
+  /**
+   * Manually trigger a balance refresh
+   */
+  async refreshBalance(): Promise<void> {
+    try {
+      const balance = await this.getBalance();
+      this.balanceSubject.next(balance);
+    } catch (error) {
+      console.warn('Failed to refresh balance:', error);
+    }
   }
 }

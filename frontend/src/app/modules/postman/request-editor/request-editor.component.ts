@@ -270,7 +270,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
               <div class="flex justify-between items-center mb-2 text-sm">
                 <span class="text-slate-500 dark:text-slate-400">Wallet Balance</span>
                 <span class="font-mono text-slate-700 dark:text-slate-300"
-                  >{{ walletBalance() }} AVAX</span
+                  >{{ formatBalance(walletBalance()) }} AVAX</span
                 >
               </div>
 
@@ -299,11 +299,14 @@ import { TranslocoPipe } from '@jsverse/transloco';
                 mat-flat-button
                 color="primary"
                 class="w-full !h-12 !rounded-xl !text-base shadow-lg shadow-indigo-500/20"
-                [disabled]="isProcessingPayment()"
+                [disabled]="isProcessingPayment() || !canAfford()"
                 (click)="executePayment()"
               >
-                <span *ngIf="!isProcessingPayment()" class="font-medium"
+                <span *ngIf="!isProcessingPayment() && canAfford()" class="font-medium"
                   >Pay {{ pendingPaymentAmount() }} AVAX</span
+                >
+                <span *ngIf="!canAfford()" class="font-medium text-red-200"
+                  >Insufficient Balance</span
                 >
                 <div *ngIf="isProcessingPayment()" class="flex items-center justify-center gap-2">
                   <mat-progress-spinner
@@ -593,6 +596,9 @@ export class RequestEditorComponent {
       await tx.wait();
       console.log('Payment confirmed!');
 
+      // Refresh wallet balance to update UI
+      this._walletService.refreshBalance();
+
       // Update the x-payment-tx header with the transaction hash
       const paymentTxHeader = ep.headers?.find((h) => h.key === 'x-payment-tx');
       if (paymentTxHeader) {
@@ -628,6 +634,16 @@ export class RequestEditorComponent {
     const cost = parseFloat(this.pendingPaymentAmount());
     const remaining = current - cost;
     return remaining > 0 ? remaining.toFixed(5) : '0.00000';
+  }
+
+  canAfford(): boolean {
+    const current = parseFloat(this.walletBalance());
+    const cost = parseFloat(this.pendingPaymentAmount());
+    return current >= cost;
+  }
+
+  formatBalance(balance: string): string {
+    return parseFloat(balance).toFixed(5);
   }
 
   renderMarkdown(text: string): string {

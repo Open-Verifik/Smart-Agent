@@ -81,12 +81,7 @@ export class UserComponent implements OnInit, OnDestroy {
   async fetchWalletInfo() {
     this.walletAddress = this._walletService.getAddress();
     if (this.walletAddress) {
-      try {
-        this.avaxBalance = await this._walletService.getBalance();
-        this._changeDetectorRef.markForCheck();
-      } catch (e) {
-        console.error('Failed to fetch wallet balance', e);
-      }
+      this._walletService.refreshBalance();
     }
   }
 
@@ -168,6 +163,12 @@ export class UserComponent implements OnInit, OnDestroy {
       this.user = user;
 
       // Mark for check
+      this._changeDetectorRef.markForCheck();
+    });
+
+    // Subscribe to wallet balance updates
+    this._walletService.balance$.pipe(takeUntil(this._unsubscribeAll)).subscribe((balance) => {
+      this.avaxBalance = balance;
       this._changeDetectorRef.markForCheck();
     });
   }
