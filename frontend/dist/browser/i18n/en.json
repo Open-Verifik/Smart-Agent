@@ -1,0 +1,168 @@
+{
+  "nav": {
+    "chat": "Chat"
+  },
+  "userMenu": {
+    "welcome": "Welcome:",
+    "role": "Role:",
+    "signOut": "Sign out"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "Split Vertical",
+      "splitHorizontal": "Split Horizontal"
+    },
+    "sidebar": {
+      "title": "API Explorer",
+      "search": "Search endpoints...",
+      "noResults": "No endpoints found",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar"
+    },
+    "requestEditor": {
+      "title": "Request",
+      "send": "Send",
+      "sending": "Sending...",
+      "selectEndpoint": "Select an endpoint to start",
+      "tabs": {
+        "about": "About",
+        "params": "Params",
+        "headers": "Headers",
+        "body": "Body"
+      },
+      "params": {
+        "key": "Key",
+        "value": "Value",
+        "description": "Description",
+        "addParam": "Add Param",
+        "keyPlaceholder": "Key",
+        "valuePlaceholder": "Value",
+        "descriptionPlaceholder": "Description"
+      },
+      "headers": {
+        "key": "Key",
+        "value": "Value",
+        "addHeader": "Add Header",
+        "keyPlaceholder": "Key",
+        "valuePlaceholder": "Value"
+      },
+      "body": {
+        "jsonBody": "JSON Body"
+      }
+    },
+    "responseViewer": {
+      "title": "Response",
+      "viewMode": {
+        "json": "JSON",
+        "table": "Table"
+      },
+      "status": "Status",
+      "time": "Time",
+      "copy": "Copy",
+      "copyJson": "Copy JSON",
+      "fullScreen": "Full Screen",
+      "print": "Print",
+      "noResponse": "Send a request to see the response",
+      "error": "Error",
+      "fullScreenTitle": "Request Details & Response",
+      "requestInfo": "Request Information",
+      "endpoint": "Endpoint",
+      "method": "Method",
+      "url": "URL",
+      "responseBody": "Response Body",
+      "backToNormal": "Back to normal view"
+    },
+    "jsonTable": {
+      "array": "Array",
+      "object": "Object",
+      "key": "key",
+      "keys": "keys",
+      "null": "null",
+      "emptyObject": "{}"
+    }
+  },
+  "proofCard": {
+    "title": "Verifik Protocol Proof",
+    "network": "Avalanche Fuji Testnet",
+    "hashLabel": "PROOF HASH:",
+    "validated": "VALIDATED ON-CHAIN"
+  },
+  "agentThinking": {
+    "header": "Agent Thinking...",
+    "steps": {
+      "analysing": "Analysing request intent...",
+      "identifying": "Identifying necessary tools...",
+      "checking": "Checking tool requirements...",
+      "consulting": "Consulting knowledge base...",
+      "preparing": "Preparing tool execution..."
+    }
+  },
+  "authModal": {
+    "header": {
+      "login": "Log in",
+      "secureWallet": "Secure Your Wallet"
+    },
+    "choice": {
+      "continueEmail": "Continue with Email",
+      "continueSMS": "Continue with SMS",
+      "continueWallet": "Continue with a wallet",
+      "or": "Or",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "walletConnected": {
+      "title": "Wallet Connected",
+      "address": "Address"
+    },
+    "emailInput": {
+      "infoMessage": "You must have an existing <strong>Verifik account</strong> to receive the code.",
+      "placeholder": "name@example.com",
+      "continue": "Continue",
+      "back": "Back"
+    },
+    "phoneInput": {
+      "infoMessage": "You must have an existing <strong>Verifik account</strong> to receive the code.",
+      "selectCountry": "Select",
+      "searchCountry": "Search country...",
+      "noCountries": "No countries found",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "Continue",
+      "back": "Back"
+    },
+    "otpVerify": {
+      "title": "Enter confirmation code",
+      "emailMessage": "Please check {{email}} for a message and enter your code below.",
+      "phoneMessage": "Please check {{phone}} for a message and enter your code below.",
+      "verify": "Verify",
+      "back": "Back"
+    },
+    "walletConnect": {
+      "title": "Connect Wallet",
+      "subtitle": "Connect your wallet to create an agent or sign in.",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "Create Agent Wallet (x402)",
+      "back": "Back"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "Address"
+      },
+      "instruction": "To insure your funds are safe, encrypt your private key. <br class=\"hidden sm:block\">We recommend using a <strong>Passkey</strong> for the best security.",
+      "createPasskey": "Create Passkey",
+      "usePIN": "Use 6-Digit PIN",
+      "notSupported": "Passkeys are not supported on this device."
+    },
+    "pinSetup": {
+      "title": "Set Your PIN",
+      "subtitle": "Enter a 6-digit PIN to encrypt your wallet. You'll need this PIN to access your wallet.",
+      "warning": "<strong>Important:</strong> If you forget your PIN, you won't be able to access your wallet. Write it down and keep it safe!",
+      "encryptWallet": "Encrypt Wallet",
+      "back": "Back"
+    },
+    "footer": {
+      "protectedBy": "Protected by Verifik"
+    }
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "nav": {
+    "chat": "Chat"
+  },
+  "userMenu": {
+    "welcome": "Bienvenido:",
+    "role": "Rol:",
+    "signOut": "Cerrar sesión"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "División Vertical",
+      "splitHorizontal": "División Horizontal"
+    },
+    "sidebar": {
+      "title": "Explorador de API",
+      "search": "Buscar endpoints...",
+      "noResults": "No se encontraron endpoints",
+      "collapse": "Contraer barra lateral",
+      "expand": "Expandir barra lateral"
+    },
+    "requestEditor": {
+      "title": "Solicitud",
+      "send": "Enviar",
+      "sending": "Enviando...",
+      "selectEndpoint": "Selecciona un endpoint para comenzar",
+      "tabs": {
+        "about": "Acerca de",
+        "params": "Parámetros",
+        "headers": "Encabezados",
+        "body": "Cuerpo"
+      },
+      "params": {
+        "key": "Clave",
+        "value": "Valor",
+        "description": "Descripción",
+        "addParam": "Agregar Parámetro",
+        "keyPlaceholder": "Clave",
+        "valuePlaceholder": "Valor",
+        "descriptionPlaceholder": "Descripción"
+      },
+      "headers": {
+        "key": "Clave",
+        "value": "Valor",
+        "addHeader": "Agregar Encabezado",
+        "keyPlaceholder": "Clave",
+        "valuePlaceholder": "Valor"
+      },
+      "body": {
+        "jsonBody": "Cuerpo JSON"
+      }
+    },
+    "responseViewer": {
+      "title": "Respuesta",
+      "viewMode": {
+        "json": "JSON",
+        "table": "Tabla"
+      },
+      "status": "Estado",
+      "time": "Tiempo",
+      "copy": "Copiar",
+      "copyJson": "Copiar JSON",
+      "fullScreen": "Pantalla Completa",
+      "print": "Imprimir",
+      "noResponse": "Envía una solicitud para ver la respuesta",
+      "error": "Error",
+      "fullScreenTitle": "Detalles de Solicitud y Respuesta",
+      "requestInfo": "Información de Solicitud",
+      "endpoint": "Endpoint",
+      "method": "Método",
+      "url": "URL",
+      "responseBody": "Cuerpo de Respuesta",
+      "backToNormal": "Volver a vista normal"
+    },
+    "jsonTable": {
+      "array": "Arreglo",
+      "object": "Objeto",
+      "key": "clave",
+      "keys": "claves",
+      "null": "nulo",
+      "emptyObject": "{}"
+    }
+  },
+  "proofCard": {
+    "title": "Prueba de Protocolo Verifik",
+    "network": "Avalanche Fuji Testnet",
+    "hashLabel": "HASH DE PRUEBA:",
+    "validated": "VALIDADO EN CADENA"
+  },
+  "agentThinking": {
+    "header": "Agente Pensando...",
+    "steps": {
+      "analysing": "Analizando intención...",
+      "identifying": "Identificando herramientas...",
+      "checking": "Verificando requisitos...",
+      "consulting": "Consultando base de conocimientos...",
+      "preparing": "Preparando ejecución..."
+    }
+  },
+  "authModal": {
+    "header": {
+      "login": "Iniciar sesión",
+      "secureWallet": "Asegura Tu Billetera"
+    },
+    "choice": {
+      "continueEmail": "Continuar con Correo",
+      "continueSMS": "Continuar con SMS",
+      "continueWallet": "Continuar con una billetera",
+      "or": "O",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUp": "Regístrate"
+    },
+    "walletConnected": {
+      "title": "Billetera Conectada",
+      "address": "Dirección"
+    },
+    "emailInput": {
+      "infoMessage": "Debes tener una <strong>cuenta de Verifik</strong> existente para recibir el código.",
+      "placeholder": "nombre@ejemplo.com",
+      "continue": "Continuar",
+      "back": "Atrás"
+    },
+    "phoneInput": {
+      "infoMessage": "Debes tener una <strong>cuenta de Verifik</strong> existente para recibir el código.",
+      "selectCountry": "Seleccionar",
+      "searchCountry": "Buscar país...",
+      "noCountries": "No se encontraron países",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "Continuar",
+      "back": "Atrás"
+    },
+    "otpVerify": {
+      "title": "Ingresa el código de confirmación",
+      "emailMessage": "Por favor revisa {{email}} para un mensaje e ingresa tu código a continuación.",
+      "phoneMessage": "Por favor revisa {{phone}} para un mensaje e ingresa tu código a continuación.",
+      "verify": "Verificar",
+      "back": "Atrás"
+    },
+    "walletConnect": {
+      "title": "Conectar Billetera",
+      "subtitle": "Conecta tu billetera para crear un agente o iniciar sesión.",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "Crear Billetera de Agente (x402)",
+      "back": "Atrás"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "Dirección"
+      },
+      "instruction": "Para asegurar que tus fondos estén seguros, encripta tu clave privada. <br class=\"hidden sm:block\">Recomendamos usar una <strong>Passkey</strong> para la mejor seguridad.",
+      "createPasskey": "Crear Passkey",
+      "usePIN": "Usar PIN de 6 Dígitos",
+      "notSupported": "Las Passkeys no son compatibles con este dispositivo."
+    },
+    "pinSetup": {
+      "title": "Establece Tu PIN",
+      "subtitle": "Ingresa un PIN de 6 dígitos para encriptar tu billetera. Necesitarás este PIN para acceder a tu billetera.",
+      "warning": "<strong>Importante:</strong> Si olvidas tu PIN, no podrás acceder a tu billetera. ¡Anótalo y guárdalo en un lugar seguro!",
+      "encryptWallet": "Encriptar Billetera",
+      "back": "Atrás"
+    },
+    "footer": {
+      "protectedBy": "Protegido por Verifik"
+    }
+  }
+}

@@ -26,19 +26,54 @@
         </div>
       </div>
 
-      <!-- Wallet Widget -->
-      <div
-        class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-300 transition-colors hover:shadow-sm"
-        (click)="toggleWalletModal()"
-      >
-        <div class="text-xs font-medium text-slate-600 dark:text-slate-300 font-mono">
-          {{ walletBalance() | number: '1.4-4' }} AVAX
-        </div>
+      <!-- Right Side Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Mode Toggle -->
         <div
-          class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400"
+          class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700"
         >
-          <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">account_balance_wallet</mat-icon>
+          <button
+            class="px-3 py-1.5 rounded-md text-xs font-medium transition-all"
+            [class.bg-white]="chatMode() === 'credits'"
+            [class.text-slate-900]="chatMode() === 'credits'"
+            [class.shadow-sm]="chatMode() === 'credits'"
+            [class.dark:bg-slate-700]="chatMode() === 'credits'"
+            [class.dark:text-white]="chatMode() === 'credits'"
+            [class.text-slate-500]="chatMode() !== 'credits'"
+            (click)="setChatMode('credits')"
+          >
+            CREDITS
+          </button>
+          <button
+            class="px-3 py-1.5 rounded-md text-xs font-medium transition-all"
+            [class.bg-white]="chatMode() === 'x402'"
+            [class.text-slate-900]="chatMode() === 'x402'"
+            [class.shadow-sm]="chatMode() === 'x402'"
+            [class.dark:bg-slate-700]="chatMode() === 'x402'"
+            [class.dark:text-white]="chatMode() === 'x402'"
+            [class.text-slate-500]="chatMode() !== 'x402'"
+            (click)="setChatMode('x402')"
+          >
+            x402
+          </button>
         </div>
+
+        <!-- Wallet Widget -->
+        @if (chatMode() === 'x402') {
+          <div
+            class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-300 transition-colors hover:shadow-sm"
+            (click)="toggleWalletModal()"
+          >
+            <div class="text-xs font-medium text-slate-600 dark:text-slate-300 font-mono">
+              {{ walletBalance() | number: '1.4-4' }} AVAX
+            </div>
+            <div
+              class="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400"
+            >
+              <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">account_balance_wallet</mat-icon>
+            </div>
+          </div>
+        }
       </div>
     </div>
   </div>

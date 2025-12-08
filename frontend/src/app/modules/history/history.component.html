@@ -27,14 +27,14 @@
         >
           <button
             class="px-3 py-1.5 rounded-md transition-all text-xs font-medium"
-            [class.bg-slate-100]="mode() === 'jwt'"
-            [class.text-slate-900]="mode() === 'jwt'"
-            [class.dark:bg-slate-700]="mode() === 'jwt'"
-            [class.dark:text-white]="mode() === 'jwt'"
-            [class.text-slate-500]="mode() !== 'jwt'"
-            (click)="setMode('jwt')"
+            [class.bg-slate-100]="mode() === 'credits'"
+            [class.text-slate-900]="mode() === 'credits'"
+            [class.dark:bg-slate-700]="mode() === 'credits'"
+            [class.dark:text-white]="mode() === 'credits'"
+            [class.text-slate-500]="mode() !== 'credits'"
+            (click)="setMode('credits')"
           >
-            JWT
+            CREDITS
           </button>
           <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
           <button

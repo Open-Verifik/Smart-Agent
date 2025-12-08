@@ -1,0 +1,168 @@
+{
+  "nav": {
+    "chat": "チャット"
+  },
+  "userMenu": {
+    "welcome": "ようこそ：",
+    "role": "役割：",
+    "signOut": "サインアウト"
+  },
+  "postman": {
+    "layout": {
+      "splitVertical": "垂直分割",
+      "splitHorizontal": "水平分割"
+    },
+    "sidebar": {
+      "title": "APIエクスプローラー",
+      "search": "エンドポイントを検索...",
+      "noResults": "エンドポイントが見つかりません",
+      "collapse": "サイドバーを折りたたむ",
+      "expand": "サイドバーを展開"
+    },
+    "requestEditor": {
+      "title": "リクエスト",
+      "send": "送信",
+      "sending": "送信中...",
+      "selectEndpoint": "開始するエンドポイントを選択",
+      "tabs": {
+        "about": "について",
+        "params": "パラメータ",
+        "headers": "ヘッダー",
+        "body": "ボディ"
+      },
+      "params": {
+        "key": "キー",
+        "value": "値",
+        "description": "説明",
+        "addParam": "パラメータを追加",
+        "keyPlaceholder": "キー",
+        "valuePlaceholder": "値",
+        "descriptionPlaceholder": "説明"
+      },
+      "headers": {
+        "key": "キー",
+        "value": "値",
+        "addHeader": "ヘッダーを追加",
+        "keyPlaceholder": "キー",
+        "valuePlaceholder": "値"
+      },
+      "body": {
+        "jsonBody": "JSONボディ"
+      }
+    },
+    "responseViewer": {
+      "title": "レスポンス",
+      "viewMode": {
+        "json": "JSON",
+        "table": "テーブル"
+      },
+      "status": "ステータス",
+      "time": "時間",
+      "copy": "コピー",
+      "copyJson": "JSONをコピー",
+      "fullScreen": "フルスクリーン",
+      "print": "印刷",
+      "noResponse": "リクエストを送信してレスポンスを表示",
+      "error": "エラー",
+      "fullScreenTitle": "リクエスト詳細とレスポンス",
+      "requestInfo": "リクエスト情報",
+      "endpoint": "エンドポイント",
+      "method": "メソッド",
+      "url": "URL",
+      "responseBody": "レスポンスボディ",
+      "backToNormal": "通常表示に戻る"
+    },
+    "jsonTable": {
+      "array": "配列",
+      "object": "オブジェクト",
+      "key": "キー",
+      "keys": "キー",
+      "null": "null",
+      "emptyObject": "{}"
+    }
+  },
+  "proofCard": {
+    "title": "Verifikプロトコル証明",
+    "network": "Avalanche Fuji テストネット",
+    "hashLabel": "証明ハッシュ:",
+    "validated": "オンチェーンで検証済み"
+  },
+  "agentThinking": {
+    "header": "エージェントが思考中...",
+    "steps": {
+      "analysing": "リクエストの意図を分析中...",
+      "identifying": "必要なツールを特定中...",
+      "checking": "ツールの要件を確認中...",
+      "consulting": "ナレッジベースを参照中...",
+      "preparing": "ツールの実行を準備中..."
+    }
+  },
+  "authModal": {
+    "header": {
+      "login": "ログイン",
+      "secureWallet": "ウォレットを保護"
+    },
+    "choice": {
+      "continueEmail": "メールで続行",
+      "continueSMS": "SMSで続行",
+      "continueWallet": "ウォレットで続行",
+      "or": "または",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signUp": "サインアップ"
+    },
+    "walletConnected": {
+      "title": "ウォレット接続済み",
+      "address": "アドレス"
+    },
+    "emailInput": {
+      "infoMessage": "コードを受信するには、既存の<strong>Verifikアカウント</strong>が必要です。",
+      "placeholder": "name@example.com",
+      "continue": "続行",
+      "back": "戻る"
+    },
+    "phoneInput": {
+      "infoMessage": "コードを受信するには、既存の<strong>Verifikアカウント</strong>が必要です。",
+      "selectCountry": "選択",
+      "searchCountry": "国を検索...",
+      "noCountries": "国が見つかりません",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "続行",
+      "back": "戻る"
+    },
+    "otpVerify": {
+      "title": "確認コードを入力",
+      "emailMessage": "{{email}}にメッセージが届いているか確認し、以下にコードを入力してください。",
+      "phoneMessage": "{{phone}}にメッセージが届いているか確認し、以下にコードを入力してください。",
+      "verify": "確認",
+      "back": "戻る"
+    },
+    "walletConnect": {
+      "title": "ウォレット接続",
+      "subtitle": "エージェントを作成またはサインインするためにウォレットを接続してください。",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "エージェントウォレットを作成 (x402)",
+      "back": "戻る"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "アドレス"
+      },
+      "instruction": "資金の安全を確保するために、秘密鍵を暗号化してください。<br class=\"hidden sm:block\">最高のセキュリティのために<strong>Passkey</strong>の使用をお勧めします。",
+      "createPasskey": "Passkeyを作成",
+      "usePIN": "6桁のPINを使用",
+      "notSupported": "このデバイスではPasskeyがサポートされていません。"
+    },
+    "pinSetup": {
+      "title": "PINを設定",
+      "subtitle": "ウォレットを暗号化するために6桁のPINを入力してください。ウォレットにアクセスするにはこのPINが必要です。",
+      "warning": "<strong>重要:</strong> PINを忘れると、ウォレットにアクセスできなくなります。メモして安全な場所に保管してください！",
+      "encryptWallet": "ウォレットを暗号化",
+      "back": "戻る"
+    },
+    "footer": {
+      "protectedBy": "Verifikによって保護"
+    }
+  }
+}

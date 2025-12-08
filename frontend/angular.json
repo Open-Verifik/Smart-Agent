@@ -28,7 +28,14 @@
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "allowedCommonJsDependencies": [
-              "ethers"
+              "ethers",
+              "qrcode",
+              "bn.js",
+              "js-sha3",
+              "bech32",
+              "hash.js",
+              "aes-js",
+              "scrypt-js"
             ],
             "assets": [
               {
@@ -56,13 +63,18 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "3MB",
+                  "maximumError": "4MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "60kB"
+                },
+                {
+                  "type": "bundle",
+                  "maximumWarning": "2MB",
+                  "maximumError": "3MB"
                 }
               ],
               "outputHashing": "all"

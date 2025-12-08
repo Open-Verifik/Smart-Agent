@@ -49,7 +49,7 @@ export class HistoryComponent implements OnInit {
   private _route = inject(ActivatedRoute);
 
   // Signals
-  mode = signal<'jwt' | 'x402'>('jwt');
+  mode = signal<'credits' | 'x402'>('credits');
 
   // Data Signals (from HistoryService)
   requests = this._historyService.requests;
@@ -62,8 +62,8 @@ export class HistoryComponent implements OnInit {
     // React to changes in requests/mode to update dataSource
     effect(() => {
       const allRequests = this.requests();
-      if (this.mode() === 'jwt') {
-        this.dataSource.data = allRequests; // Show all for JWT (server filters usually) or filter client-side if mixed
+      if (this.mode() === 'credits') {
+        this.dataSource.data = allRequests; // Show all for CREDITS (server filters usually) or filter client-side if mixed
         this.displayedColumns = ['status', 'service', 'parameters', 'date', 'duration'];
       } else {
         this.dataSource.data = allRequests; // Show all from public endpoint (already filtered by wallet)
@@ -76,7 +76,7 @@ export class HistoryComponent implements OnInit {
     // Subscribe to query params to handle mode switching and deep linking
     this._route.queryParams.subscribe((params) => {
       const view = params['view'];
-      const targetMode = view === 'x402' ? 'x402' : 'jwt';
+      const targetMode = view === 'x402' ? 'x402' : 'credits';
 
       // If switching modes, reset pagination
       if (this.mode() !== targetMode) {
@@ -89,7 +89,7 @@ export class HistoryComponent implements OnInit {
     });
   }
 
-  setMode(mode: 'jwt' | 'x402') {
+  setMode(mode: 'credits' | 'x402') {
     // Update URL, which triggers the subscription above
     this._router.navigate([], {
       relativeTo: this._route,
@@ -99,7 +99,7 @@ export class HistoryComponent implements OnInit {
   }
 
   loadData() {
-    if (this.mode() === 'jwt') {
+    if (this.mode() === 'credits') {
       this._historyService.getHistory(this.pageIndex() + 1, this.pageSize()).subscribe();
     } else {
       const wallet = this._walletService.getAddress();

@@ -71,6 +71,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-chat',
@@ -82,6 +83,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    TranslocoModule,
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -280,17 +282,30 @@ export class ChatComponent implements OnInit {
     }
   }
 
+  // Chat Mode: 'x402' (Blockchain) or 'credits' (JWT/Web2)
+  chatMode = signal<'x402' | 'credits'>('x402');
+
+  setChatMode(mode: 'x402' | 'credits') {
+    this.chatMode.set(mode);
+  }
+
   async callAgent(
     message: string,
     paymentTx: string | null = null,
     paymentAmount: string | null = null,
   ) {
+    // Get JWT token if in CREDITS mode
+    const isCredits = this.chatMode() === 'credits';
+    const userToken = isCredits ? localStorage.getItem('accessToken') : null;
+
     const payload = {
       message: message,
       history: this.messages().map((m) => ({ role: m.role, content: m.content })),
-      paymentTx: paymentTx,
-      paymentWallet: this.walletAddress(),
-      paymentAmount: paymentAmount,
+      paymentTx: isCredits ? null : paymentTx,
+      paymentWallet: isCredits ? null : this.walletAddress(),
+      paymentAmount: isCredits ? null : paymentAmount,
+      mode: this.chatMode(),
+      userToken: userToken,
     };
 
     this.http.post<any>(this.apiUrl, payload).subscribe({
