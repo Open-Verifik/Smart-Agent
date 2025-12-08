@@ -108,9 +108,9 @@ worldContainer.add(realisticGroup);
 const createRealisticEarth = () => {
 	const geometry = new THREE.SphereGeometry(RADIUS, SEGMENTS, SEGMENTS);
 	const material = new THREE.MeshPhongMaterial({
-		map: textureLoader.load("/earth-day.jpg"),
-		specularMap: textureLoader.load("/earth-specular.jpg"),
-		normalMap: textureLoader.load("/earth-normal.jpg"),
+		map: textureLoader.load("./earth-day.jpg"),
+		specularMap: textureLoader.load("./earth-specular.jpg"),
+		normalMap: textureLoader.load("./earth-normal.jpg"),
 		specular: new THREE.Color("grey"),
 		shininess: 10,
 	});

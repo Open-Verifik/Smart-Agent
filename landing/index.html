@@ -2,10 +2,10 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20241208" />
-		<link rel="alternate icon" type="image/svg+xml" href="/favicon.ico?v=20241208" />
-		<link rel="shortcut icon" href="/favicon.ico?v=20241208" />
-		<link rel="apple-touch-icon" href="/favicon.svg?v=20241208" />
+		<link rel="icon" type="image/svg+xml" href="./favicon.svg?v=20241208" />
+		<link rel="alternate icon" type="image/svg+xml" href="./favicon.ico?v=20241208" />
+		<link rel="shortcut icon" href="./favicon.ico?v=20241208" />
+		<link rel="apple-touch-icon" href="./favicon.svg?v=20241208" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Verifik Smart Agent | The Trust Layer</title>
 
@@ -41,12 +41,23 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet" />
+
+		<!-- Three.js CDN (fallback if build doesn't bundle) -->
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.jsdelivr.net/npm/three@0.181.2/build/three.module.js",
+					"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.181.2/examples/jsm/",
+					"three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.181.2/examples/jsm/"
+				}
+			}
+		</script>
 	</head>
 	<body>
 		<div id="ui-layer">
 			<header>
 				<div class="logo">
-					<img src="/verifik-logo.svg" alt="Verifik Smart Agent" style="height: 24px; width: auto" />
+					<img src="./verifik-logo.svg" alt="Verifik Smart Agent" style="height: 24px; width: auto" />
 				</div>
 				<nav>
 					<a href="#capabilities">Capabilities</a>
