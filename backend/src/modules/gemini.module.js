@@ -40,10 +40,14 @@ const getServiceAccountToken = async () => {
 				path.resolve(config.google.keyFilePath), // Absolute path if provided
 			];
 
+			console.log(`[Gemini] Attempting to load credentials from: ${config.google.keyFilePath}`);
+			console.log(`[Gemini] Trying paths: ${pathsToTry.join(", ")}`);
+
 			let foundPath = null;
 			for (const tryPath of pathsToTry) {
 				if (fs.existsSync(tryPath)) {
 					foundPath = tryPath;
+					console.log(`[Gemini] Found credentials file at: ${foundPath}`);
 					break;
 				}
 			}
@@ -54,14 +58,22 @@ const getServiceAccountToken = async () => {
 				// Last resort: try parsing as JSON string
 				try {
 					keyFile = JSON.parse(config.google.keyFilePath);
+					console.log(`[Gemini] Parsed credentials as JSON string`);
 				} catch (e) {
 					throw new Error(
-						`Google Credentials file not found. Tried paths: ${pathsToTry.join(", ")}. ` + `Original path: ${config.google.keyFilePath}`
+						`Google Credentials file not found. Tried paths: ${pathsToTry.join(", ")}. ` +
+							`Original path: ${config.google.keyFilePath}. ` +
+							`Current working directory: ${process.cwd()}. ` +
+							`Module directory: ${__dirname}`
 					);
 				}
 			}
 		} else {
-			throw new Error("Google Credentials not configured");
+			throw new Error(
+				`Google Credentials not configured. ` +
+					`GOOGLE_APPLICATION_CREDENTIALS env var is: ${process.env.GOOGLE_APPLICATION_CREDENTIALS || "undefined"}. ` +
+					`Config value: ${config.google.keyFilePath || "undefined"}`
+			);
 		}
 
 		const nowSeconds = Math.floor(now / 1000);

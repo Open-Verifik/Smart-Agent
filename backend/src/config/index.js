@@ -1,4 +1,20 @@
-require("dotenv").config();
+const path = require("path");
+const dotenv = require("dotenv");
+
+// Load .env from backend directory (where this config file is)
+const envPath = path.resolve(__dirname, "../../.env");
+dotenv.config({ path: envPath });
+
+// Debug: Log if GOOGLE_APPLICATION_CREDENTIALS is loaded (without revealing value)
+if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+	console.warn(
+		`[Config] WARNING: GOOGLE_APPLICATION_CREDENTIALS not found in environment. ` +
+			`Tried loading from: ${envPath}. ` +
+			`Current working directory: ${process.cwd()}`
+	);
+} else {
+	console.log(`[Config] GOOGLE_APPLICATION_CREDENTIALS loaded: ${process.env.GOOGLE_APPLICATION_CREDENTIALS.substring(0, 50)}...`);
+}
 
 const config = {
 	env: process.env.NODE_ENV || "development",
