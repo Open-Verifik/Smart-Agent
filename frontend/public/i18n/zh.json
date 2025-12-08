@@ -96,5 +96,73 @@
       "consulting": "正在查询知识库...",
       "preparing": "正在准备执行..."
     }
+  },
+  "authModal": {
+    "header": {
+      "login": "登录",
+      "secureWallet": "保护您的钱包"
+    },
+    "choice": {
+      "continueEmail": "使用电子邮件继续",
+      "continueSMS": "使用短信继续",
+      "continueWallet": "使用钱包继续",
+      "or": "或",
+      "noAccount": "没有账户？",
+      "signUp": "注册"
+    },
+    "walletConnected": {
+      "title": "钱包已连接",
+      "address": "地址"
+    },
+    "emailInput": {
+      "infoMessage": "您必须拥有现有的<strong>Verifik账户</strong>才能接收代码。",
+      "placeholder": "name@example.com",
+      "continue": "继续",
+      "back": "返回"
+    },
+    "phoneInput": {
+      "infoMessage": "您必须拥有现有的<strong>Verifik账户</strong>才能接收代码。",
+      "selectCountry": "选择",
+      "searchCountry": "搜索国家...",
+      "noCountries": "未找到国家",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "继续",
+      "back": "返回"
+    },
+    "otpVerify": {
+      "title": "输入确认码",
+      "emailMessage": "请检查{{email}}的消息并在下方输入您的代码。",
+      "phoneMessage": "请检查{{phone}}的消息并在下方输入您的代码。",
+      "verify": "验证",
+      "back": "返回"
+    },
+    "walletConnect": {
+      "title": "连接钱包",
+      "subtitle": "连接您的钱包以创建代理或登录。",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "创建代理钱包 (x402)",
+      "back": "返回"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "地址"
+      },
+      "instruction": "为确保您的资金安全，请加密您的私钥。<br class=\"hidden sm:block\">我们建议使用<strong>Passkey</strong>以获得最佳安全性。",
+      "createPasskey": "创建Passkey",
+      "usePIN": "使用6位PIN",
+      "notSupported": "此设备不支持Passkey。"
+    },
+    "pinSetup": {
+      "title": "设置PIN",
+      "subtitle": "输入6位PIN以加密您的钱包。您需要此PIN才能访问钱包。",
+      "warning": "<strong>重要提示:</strong> 如果您忘记PIN，将无法访问您的钱包。请记下并妥善保管！",
+      "encryptWallet": "加密钱包",
+      "back": "返回"
+    },
+    "footer": {
+      "protectedBy": "由Verifik保护"
+    }
   }
 }

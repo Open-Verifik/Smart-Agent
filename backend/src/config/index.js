@@ -16,6 +16,7 @@ const config = {
 		chainId: process.env.X402_CHAIN_ID || 43113,
 		networkName: process.env.X402_NETWORK_NAME || "avalanche-fuji-testnet",
 		walletPrivateKey: process.env.X402_WALLET_PRIVATE_KEY,
+		contractAddress: process.env.X402_CONTRACT_ADDRESS || "0x72Fdce477bBD9f322907b3b1C4a58bC4d5D64C3a",
 	},
 	erc8004: {
 		identityRegistry: process.env.ERC8004_IDENTITY_REGISTRY,

@@ -14,6 +14,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule } from '@jsverse/transloco';
 import { Router } from '@angular/router';
 import { UserService } from 'app/core/user/user.service';
@@ -22,6 +23,7 @@ import { User } from 'app/core/user/user.types';
 import { Subject, takeUntil } from 'rxjs';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.service';
+import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 
 @Component({
   selector: 'user',
@@ -29,14 +31,16 @@ import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   exportAs: 'user',
+  standalone: true,
   imports: [
-    MatButtonModule,
-    MatMenuModule,
-    MatIconModule,
-    MatDividerModule,
-    TranslocoModule,
-    MatDialogModule,
     CommonModule,
+    MatButtonModule,
+    MatDividerModule,
+    MatIconModule,
+    MatMenuModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    TranslocoModule,
   ],
 })
 export class UserComponent implements OnInit, OnDestroy {
@@ -59,6 +63,8 @@ export class UserComponent implements OnInit, OnDestroy {
     private _matDialog: MatDialog,
     private _authService: AuthService,
     private _walletService: AgentWalletService,
+    private _encryptionService: WalletEncryptionService,
+    private _snackBar: MatSnackBar,
   ) {}
 
   walletAddress: string | null = null;
@@ -87,7 +93,13 @@ export class UserComponent implements OnInit, OnDestroy {
   copyWalletAddress() {
     if (this.walletAddress) {
       navigator.clipboard.writeText(this.walletAddress);
-      // Optional: Show snackbar
+
+      this._snackBar.open('Address copied to clipboard', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'center',
+        verticalPosition: 'bottom',
+        panelClass: ['bg-slate-900', 'text-white'],
+      });
     }
   }
 
@@ -113,13 +125,33 @@ export class UserComponent implements OnInit, OnDestroy {
 
         // Check if user is authenticated via agent wallet (Web3)
         const agentAddress = localStorage.getItem('x402_agent_address');
-        const agentPk = localStorage.getItem('x402_agent_pk');
+        const walletType = localStorage.getItem('x402_wallet_type');
+        const isWalletEncrypted = this._encryptionService.isWalletEncrypted();
+        const hasPlainTextPk = !!localStorage.getItem('x402_agent_pk');
 
-        if (agentAddress && agentPk) {
+        // Self-heal: If wallet is encrypted but type is missing, set it to 'encrypted-model'
+        if (isWalletEncrypted && !walletType) {
+          localStorage.setItem('x402_wallet_type', 'encrypted-model');
+        }
+
+        // User is authenticated if they have an address AND one of:
+        // 1. Encrypted wallet (agent wallet with passkey/PIN)
+        // 2. Plain text pk (legacy, backwards compatibility)
+        // 3. MetaMask wallet (external wallet)
+        const isMetaMaskWallet = walletType === 'metamask';
+        const hasValidWallet = isWalletEncrypted || hasPlainTextPk || isMetaMaskWallet;
+
+        if (agentAddress && hasValidWallet) {
+          // Determine wallet display name
+          let walletName = 'Agent Wallet';
+          if (isMetaMaskWallet) {
+            walletName = 'MetaMask Wallet';
+          }
+
           // Create a mock user object for Web3-only authentication
           this.user = {
             id: agentAddress,
-            name: 'Agent Wallet',
+            name: walletName,
             email: `${agentAddress.substring(0, 6)}...${agentAddress.substring(agentAddress.length - 4)}`,
             credits: 0,
             role: 'agent',
@@ -165,22 +197,51 @@ export class UserComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Sign out
+   * Sign out or Reset Wallet
+   * - Web3-only: Reset wallet (clear wallet data, keep Web2 credentials)
+   * - Web2/Hybrid: Full sign out (clear everything)
    */
   signOut(): void {
+    if (this.isWeb3Only) {
+      // Web3-only: Just reset the wallet, keep Web2 credentials intact
+      this.resetWallet();
+    } else {
+      // Web2 or Hybrid: Full sign out
+      this.fullSignOut();
+    }
+  }
+
+  /**
+   * Reset wallet only (Web3-only users)
+   * Clears wallet data but preserves Web2 credentials
+   */
+  private resetWallet(): void {
+    // Clear only wallet credentials (encrypted and plain)
+    // This will clear: x402_agent_pk_encrypted, x402_encryption_method,
+    // x402_encryption_salt, x402_credential_id, x402_agent_pk, x402_agent_address
+    this._encryptionService.clearEncryptionData();
+    localStorage.removeItem('x402_agent_address');
+    localStorage.removeItem('x402_wallet_type'); // Clear wallet type (metamask, etc.)
+
+    // Clear user state
+    this.user = null;
+    this._changeDetectorRef.markForCheck();
+
+    // Navigate to home
+    this._router.navigate(['/']);
+  }
+
+  /**
+   * Full sign out (Web2 or Hybrid users)
+   * Clears both Web2 and Web3 credentials
+   */
+  private fullSignOut(): void {
     this._authService.signOut().subscribe(() => {
       this.user = null;
-      // The service user setter is public, but accessing it to set null might be type restricted if it expects User
-      // Looking at UserService: set user(value: User)
-      // If strict null checks are on, it might complain if we pass null.
-      // However, standard Angular templates usually allow resetting.
-      // If it fails, I'll fix it. For now, try to set to null or verify auth service handles it.
-      // AuthService.signOut() does NOT call userService.user = null in its implementation I saw.
-      // So I will force it here.
       this._userService.user = null as any;
 
-      // Clear agent wallet credentials as well
-      localStorage.removeItem('x402_agent_pk');
+      // Clear all agent wallet credentials (encrypted and plain)
+      this._encryptionService.clearEncryptionData();
       localStorage.removeItem('x402_agent_address');
 
       this._changeDetectorRef.markForCheck();

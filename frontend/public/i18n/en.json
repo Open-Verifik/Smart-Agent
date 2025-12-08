@@ -96,5 +96,73 @@
       "consulting": "Consulting knowledge base...",
       "preparing": "Preparing tool execution..."
     }
+  },
+  "authModal": {
+    "header": {
+      "login": "Log in",
+      "secureWallet": "Secure Your Wallet"
+    },
+    "choice": {
+      "continueEmail": "Continue with Email",
+      "continueSMS": "Continue with SMS",
+      "continueWallet": "Continue with a wallet",
+      "or": "Or",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up"
+    },
+    "walletConnected": {
+      "title": "Wallet Connected",
+      "address": "Address"
+    },
+    "emailInput": {
+      "infoMessage": "You must have an existing <strong>Verifik account</strong> to receive the code.",
+      "placeholder": "name@example.com",
+      "continue": "Continue",
+      "back": "Back"
+    },
+    "phoneInput": {
+      "infoMessage": "You must have an existing <strong>Verifik account</strong> to receive the code.",
+      "selectCountry": "Select",
+      "searchCountry": "Search country...",
+      "noCountries": "No countries found",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "Continue",
+      "back": "Back"
+    },
+    "otpVerify": {
+      "title": "Enter confirmation code",
+      "emailMessage": "Please check {{email}} for a message and enter your code below.",
+      "phoneMessage": "Please check {{phone}} for a message and enter your code below.",
+      "verify": "Verify",
+      "back": "Back"
+    },
+    "walletConnect": {
+      "title": "Connect Wallet",
+      "subtitle": "Connect your wallet to create an agent or sign in.",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "Create Agent Wallet (x402)",
+      "back": "Back"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "Address"
+      },
+      "instruction": "To insure your funds are safe, encrypt your private key. <br class=\"hidden sm:block\">We recommend using a <strong>Passkey</strong> for the best security.",
+      "createPasskey": "Create Passkey",
+      "usePIN": "Use 6-Digit PIN",
+      "notSupported": "Passkeys are not supported on this device."
+    },
+    "pinSetup": {
+      "title": "Set Your PIN",
+      "subtitle": "Enter a 6-digit PIN to encrypt your wallet. You'll need this PIN to access your wallet.",
+      "warning": "<strong>Important:</strong> If you forget your PIN, you won't be able to access your wallet. Write it down and keep it safe!",
+      "encryptWallet": "Encrypt Wallet",
+      "back": "Back"
+    },
+    "footer": {
+      "protectedBy": "Protected by Verifik"
+    }
   }
 }

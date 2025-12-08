@@ -21,6 +21,15 @@ import { AuthService } from 'app/core/auth/auth.service';
 import { Router } from '@angular/router';
 import { CountryService, CountryDialCode } from 'app/core/services/country.service';
 import { AuthApiService } from 'app/core/services/auth-api.service';
+import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
+import { TranslocoModule } from '@jsverse/transloco';
+
+// Extend Window interface for MetaMask
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 type AuthState =
   | 'CHOICE'
@@ -28,7 +37,9 @@ type AuthState =
   | 'PHONE_INPUT'
   | 'OTP_VERIFY_EMAIL'
   | 'OTP_VERIFY_PHONE'
-  | 'WALLET_CONNECT';
+  | 'WALLET_CONNECT'
+  | 'WALLET_ENCRYPT_CHOICE'
+  | 'WALLET_ENCRYPT_PIN';
 
 @Component({
   selector: 'auth-modal',
@@ -43,6 +54,7 @@ type AuthState =
     MatDialogModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    TranslocoModule,
   ],
   templateUrl: './auth-modal.component.html',
   encapsulation: ViewEncapsulation.None,
@@ -56,6 +68,16 @@ export class AuthModalComponent {
   phone = signal('');
   otp = signal(''); // Array of 6 chars? Or just string for now.
   otpArray = signal<string[]>(new Array(6).fill(''));
+
+  // Wallet encryption
+  pin = signal('');
+  pinArray = signal<string[]>(new Array(6).fill(''));
+  tempWalletAddress = signal<string | null>(null);
+  tempWalletPrivateKey = signal<string | null>(null);
+  passkeySupported = signal(false);
+
+  // Existing auth state
+  connectedWalletAddress = signal<string | null>(null);
 
   // Country selection
   selectedCountry = signal<CountryDialCode | null>(null);
@@ -74,6 +96,7 @@ export class AuthModalComponent {
   private _dialogRef = inject(MatDialogRef<AuthModalComponent>);
   private _router = inject(Router);
   private _countryService = inject(CountryService);
+  private _encryptionService = inject(WalletEncryptionService);
 
   projectId = environment.projectId;
   projectFlowId = environment.loginProjectFlowId;
@@ -91,6 +114,12 @@ export class AuthModalComponent {
       this.selectedCountry.set(defaultCountry);
     }
     this.filteredCountries.set(this.countryDialCodes);
+
+    // Check if wallet is already connected
+    const existingAddress = localStorage.getItem('x402_agent_address');
+    if (existingAddress) {
+      this.connectedWalletAddress.set(existingAddress);
+    }
   }
 
   setState(newState: AuthState) {
@@ -349,25 +378,158 @@ export class AuthModalComponent {
     this.setState('WALLET_CONNECT');
   }
 
-  createAgentWallet() {
-    // Lazy load ethers to avoid large bundle payload if not used?
-    // User has it in dependencies.
-    import('ethers').then(({ ethers }) => {
-      const wallet = ethers.Wallet.createRandom();
-      console.log('Created Wallet:', wallet.address, wallet.privateKey);
+  async createAgentWallet() {
+    this.isLoading.set(true);
 
-      // Storing in localStorage for authentication
-      localStorage.setItem('x402_agent_pk', wallet.privateKey);
+    try {
+      // Lazy load ethers to avoid large bundle payload if not used
+      const { ethers } = await import('ethers');
+      const wallet = ethers.Wallet.createRandom();
+
+      console.log('Created Wallet:', wallet.address);
+
+      // Store wallet temporarily (not in localStorage yet)
+      this.tempWalletAddress.set(wallet.address);
+      this.tempWalletPrivateKey.set(wallet.privateKey);
+
+      // Store address immediately (not sensitive)
       localStorage.setItem('x402_agent_address', wallet.address);
 
-      alert(
-        `Created Agent Wallet! \nAddress: ${wallet.address}\nPrivate Key saved to local storage.`,
-      );
+      // Check if passkeys are supported
+      const supported = await this._encryptionService.isPasskeysSupported();
+      this.passkeySupported.set(supported);
 
-      // Close modal and reload to show authenticated state
+      this.isLoading.set(false);
+
+      // Move to encryption choice screen
+      this.setState('WALLET_ENCRYPT_CHOICE');
+    } catch (error) {
+      console.error('Wallet creation failed:', error);
+      this.error.set('Failed to create wallet');
+      this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Connect to MetaMask wallet
+   */
+  async connectMetaMask() {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    try {
+      // Check if MetaMask is installed
+      if (!window.ethereum) {
+        this.error.set('MetaMask is not installed. Please install MetaMask extension.');
+        this.isLoading.set(false);
+        return;
+      }
+
+      // Request account access
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+
+      if (!accounts || accounts.length === 0) {
+        this.error.set('No accounts found in MetaMask');
+        this.isLoading.set(false);
+        return;
+      }
+
+      const address = accounts[0];
+      console.log('Connected MetaMask:', address);
+
+      // Request private key export (this will prompt user in MetaMask)
+      // Note: MetaMask doesn't directly expose private keys for security
+      // We'll need to ask user to export it manually or use a different approach
+
+      // For now, we'll store the address and mark that this is a MetaMask wallet
+      // The user will need to sign transactions through MetaMask
+      localStorage.setItem('x402_agent_address', address);
+      localStorage.setItem('x402_wallet_type', 'metamask'); // Track wallet type
+
+      this.isLoading.set(false);
+
+      // Close modal and reload
+      this._dialogRef.close();
+      location.reload();
+    } catch (error: any) {
+      console.error('MetaMask connection failed:', error);
+      if (error.code === 4001) {
+        this.error.set('Connection rejected. Please approve the connection in MetaMask.');
+      } else {
+        this.error.set('Failed to connect to MetaMask');
+      }
+      this.isLoading.set(false);
+    }
+  }
+
+  async encryptWithPasskey() {
+    const privateKey = this.tempWalletPrivateKey();
+    if (!privateKey) {
+      this.error.set('No wallet to encrypt');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    const success = await this._encryptionService.encryptWithPasskeys(privateKey);
+
+    if (success) {
+      // Set wallet type explicitly
+      localStorage.setItem('x402_wallet_type', 'encrypted-model');
+
+      // Clear temp data
+      this.tempWalletPrivateKey.set(null);
+
+      // Close modal and reload
       this._dialogRef.close(true);
       location.reload();
-    });
+    } else {
+      this.isLoading.set(false);
+      this.error.set('Passkey encryption failed. Please try PIN instead.');
+    }
+  }
+
+  usePINInstead() {
+    this.setState('WALLET_ENCRYPT_PIN');
+  }
+
+  async encryptWithPIN() {
+    const privateKey = this.tempWalletPrivateKey();
+    const pin = this.pinArray().join('');
+
+    if (!privateKey) {
+      this.error.set('No wallet to encrypt');
+      return;
+    }
+
+    if (pin.length !== 6) {
+      this.error.set('Please enter a 6-digit PIN');
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    const success = await this._encryptionService.encryptWithPIN(privateKey, pin);
+
+    if (success) {
+      // Set wallet type explicitly
+      localStorage.setItem('x402_wallet_type', 'encrypted-model');
+
+      // Clear temp data
+      this.tempWalletPrivateKey.set(null);
+      this.pinArray.set(new Array(6).fill(''));
+
+      // Close modal and reload
+      this._dialogRef.close(true);
+      location.reload();
+    } else {
+      this.isLoading.set(false);
+      this.error.set('PIN encryption failed. Please try again.');
+    }
   }
 
   // --- Helpers ---
@@ -513,6 +675,74 @@ export class AuthModalComponent {
   onKeyDown(event: KeyboardEvent, index: number) {
     if (event.key === 'Backspace' && !this.otpArray()[index] && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  }
+
+  // PIN input handlers (similar to OTP)
+  onPinInput(event: any, index: number) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    // Remove any non-digit characters
+    value = value.replace(/\D/g, '');
+
+    // Handle paste
+    if (value.length > 1) {
+      const currentPin = [...this.pinArray()];
+      const digits = value.split('').slice(0, 6 - index);
+
+      for (let i = 0; i < digits.length && index + i < 6; i++) {
+        currentPin[index + i] = digits[i];
+        const inputElement = document.getElementById(`pin-${index + i}`) as HTMLInputElement;
+        if (inputElement) {
+          inputElement.value = digits[i];
+        }
+      }
+
+      this.pinArray.set(currentPin);
+      input.value = currentPin[index] || '';
+
+      const nextIndex = Math.min(index + digits.length, 5);
+      setTimeout(() => {
+        const nextInput = document.getElementById(`pin-${nextIndex}`) as HTMLInputElement;
+        if (nextInput) {
+          nextInput.focus();
+          nextInput.select();
+        }
+      }, 0);
+
+      return;
+    }
+
+    // Handle single character input
+    const currentPin = [...this.pinArray()];
+
+    if (value.length > 0) {
+      const digit = value.slice(-1);
+      currentPin[index] = digit;
+      this.pinArray.set(currentPin);
+      input.value = digit;
+
+      if (index < 5) {
+        setTimeout(() => {
+          const nextInput = document.getElementById(`pin-${index + 1}`) as HTMLInputElement;
+          if (nextInput) {
+            nextInput.focus();
+            nextInput.select();
+          }
+        }, 0);
+      }
+    } else {
+      currentPin[index] = '';
+      this.pinArray.set(currentPin);
+      input.value = '';
+    }
+  }
+
+  onPinKeyDown(event: KeyboardEvent, index: number) {
+    if (event.key === 'Backspace' && !this.pinArray()[index] && index > 0) {
+      const prevInput = document.getElementById(`pin-${index - 1}`);
       prevInput?.focus();
     }
   }

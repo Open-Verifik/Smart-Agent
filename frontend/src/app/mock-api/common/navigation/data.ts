@@ -16,6 +16,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
     icon: 'heroicons_outline:command-line',
     link: '/postman',
   },
+  {
+    id: 'history',
+    title: 'History',
+    type: 'basic',
+    icon: 'heroicons_outline:clock',
+    link: '/history',
+  },
 ];
 
 export const compactNavigation: FuseNavigationItem[] = [
@@ -52,5 +59,12 @@ export const horizontalNavigation: FuseNavigationItem[] = [
     type: 'basic',
     icon: 'heroicons_outline:command-line',
     link: '/postman',
+  },
+  {
+    id: 'history',
+    title: 'History',
+    type: 'basic',
+    icon: 'heroicons_outline:clock',
+    link: '/history',
   },
 ];

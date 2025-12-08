@@ -1,0 +1,146 @@
+<div class="flex flex-col flex-auto min-w-0">
+  <!-- Header -->
+  <div
+    class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent"
+  >
+    <div class="flex-1 min-w-0">
+      <!-- Breadcrumbs -->
+      <div class="flex flex-wrap items-center font-medium text-xs text-secondary leading-none">
+        <a class="cursor-pointer text-primary-500 hover:underline">Verifik</a>
+        <mat-icon
+          class="icon-size-4 mx-2 text-secondary"
+          [svgIcon]="'heroicons_solid:chevron-right'"
+        ></mat-icon>
+        <span class="cursor-default">History</span>
+      </div>
+      <!-- Title -->
+      <div class="mt-2">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate"
+        >
+          Request History
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex flex-col flex-auto p-6 sm:p-10">
+    <div class="flex flex-col bg-card shadow overflow-hidden rounded-2xl w-full">
+      <div class="overflow-x-auto">
+        <table mat-table [dataSource]="dataSource" class="w-full bg-transparent" matSort>
+          <!-- Status Column -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-6">Status</th>
+            <td mat-cell *matCellDef="let request" class="pl-6 py-4">
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                [ngClass]="getStatusColor(request.statusCode)"
+              >
+                {{ getStatusLabel(request.statusCode) }} ({{ request.statusCode }})
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Service Column -->
+          <ng-container matColumnDef="service">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Service</th>
+            <td mat-cell *matCellDef="let request" class="py-4">
+              <div class="flex flex-col">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{
+                  request.endpoint || request.code
+                }}</span>
+                <span class="text-xs text-secondary mt-1">{{ request.project }}</span>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Parameters Column -->
+          <ng-container matColumnDef="parameters">
+            <th mat-header-cell *matHeaderCellDef>Parameters</th>
+            <td mat-cell *matCellDef="let request" class="py-4">
+              <div class="flex flex-col gap-1">
+                <span
+                  class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded inline-block w-fit"
+                  >{{ request.method }}</span
+                >
+                <div class="flex flex-col gap-0.5 mt-1" *ngIf="request.params">
+                  <div
+                    *ngFor="let param of formatParams(request.params)"
+                    class="text-xs text-secondary"
+                  >
+                    <span class="font-medium text-slate-700 dark:text-slate-300"
+                      >{{ param.key }}:</span
+                    >
+                    <span class="ml-1">{{ param.value }}</span>
+                  </div>
+                </div>
+                <span
+                  *ngIf="!request.params || formatParams(request.params).length === 0"
+                  class="text-xs text-secondary italic"
+                  >No parameters</span
+                >
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Date Column -->
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+            <td mat-cell *matCellDef="let request" class="py-4 whitespace-nowrap text-secondary">
+              {{ formatDate(request.createdAt) }}
+            </td>
+          </ng-container>
+
+          <!-- Duration Column -->
+          <ng-container matColumnDef="duration">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pr-6">Duration</th>
+            <td mat-cell *matCellDef="let request" class="pr-6 py-4 text-secondary text-right">
+              {{ formatDuration(request.duration) }}
+            </td>
+          </ng-container>
+
+          <tr
+            mat-header-row
+            *matHeaderRowDef="displayedColumns"
+            class="h-12 text-xs font-semibold uppercase text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+          ></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="hover:bg-gray-50 dark:hover:bg-black dark:hover:bg-opacity-5 transition-colors cursor-default"
+          ></tr>
+
+          <!-- No Data -->
+          <tr *matNoDataRow>
+            <td
+              [attr.colspan]="displayedColumns.length"
+              class="p-8 text-center text-secondary text-lg"
+            >
+              <div class="flex flex-col items-center justify-center">
+                <mat-icon
+                  class="icon-size-12 mb-4 text-hint"
+                  [svgIcon]="'heroicons_outline:clipboard-document-list'"
+                ></mat-icon>
+                <span>No requests found</span>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator
+        class="border-t"
+        [length]="total()"
+        [pageSize]="pageSize()"
+        [pageIndex]="pageIndex()"
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        [showFirstLastButtons]="true"
+        (page)="onPaginatorEvent($event)"
+        aria-label="Select page of requests"
+      >
+      </mat-paginator>
+    </div>
+  </div>
+</div>

@@ -75,6 +75,14 @@ const executeTool = async (toolName, args, paymentTx) => {
 		if (response.status === 402) {
 			const details = typeof response.data === "object" && response.data !== null ? response.data : { message: response.data };
 
+			// Override receiver_address with the configured Payment Contract Address
+			// This ensures we pay to the VerifikPayment contract, not the EOA returned by the backend
+			if (config.x402 && config.x402.contractAddress) {
+				details.receiver_address = config.x402.contractAddress;
+				// Also ensure chainId matches
+				details.chain_id = config.x402.chainId;
+			}
+
 			return {
 				status: "payment_required",
 				details: {

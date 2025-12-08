@@ -96,5 +96,73 @@
       "consulting": "ナレッジベースを参照中...",
       "preparing": "ツールの実行を準備中..."
     }
+  },
+  "authModal": {
+    "header": {
+      "login": "ログイン",
+      "secureWallet": "ウォレットを保護"
+    },
+    "choice": {
+      "continueEmail": "メールで続行",
+      "continueSMS": "SMSで続行",
+      "continueWallet": "ウォレットで続行",
+      "or": "または",
+      "noAccount": "アカウントをお持ちでないですか？",
+      "signUp": "サインアップ"
+    },
+    "walletConnected": {
+      "title": "ウォレット接続済み",
+      "address": "アドレス"
+    },
+    "emailInput": {
+      "infoMessage": "コードを受信するには、既存の<strong>Verifikアカウント</strong>が必要です。",
+      "placeholder": "name@example.com",
+      "continue": "続行",
+      "back": "戻る"
+    },
+    "phoneInput": {
+      "infoMessage": "コードを受信するには、既存の<strong>Verifikアカウント</strong>が必要です。",
+      "selectCountry": "選択",
+      "searchCountry": "国を検索...",
+      "noCountries": "国が見つかりません",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "続行",
+      "back": "戻る"
+    },
+    "otpVerify": {
+      "title": "確認コードを入力",
+      "emailMessage": "{{email}}にメッセージが届いているか確認し、以下にコードを入力してください。",
+      "phoneMessage": "{{phone}}にメッセージが届いているか確認し、以下にコードを入力してください。",
+      "verify": "確認",
+      "back": "戻る"
+    },
+    "walletConnect": {
+      "title": "ウォレット接続",
+      "subtitle": "エージェントを作成またはサインインするためにウォレットを接続してください。",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "エージェントウォレットを作成 (x402)",
+      "back": "戻る"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "アドレス"
+      },
+      "instruction": "資金の安全を確保するために、秘密鍵を暗号化してください。<br class=\"hidden sm:block\">最高のセキュリティのために<strong>Passkey</strong>の使用をお勧めします。",
+      "createPasskey": "Passkeyを作成",
+      "usePIN": "6桁のPINを使用",
+      "notSupported": "このデバイスではPasskeyがサポートされていません。"
+    },
+    "pinSetup": {
+      "title": "PINを設定",
+      "subtitle": "ウォレットを暗号化するために6桁のPINを入力してください。ウォレットにアクセスするにはこのPINが必要です。",
+      "warning": "<strong>重要:</strong> PINを忘れると、ウォレットにアクセスできなくなります。メモして安全な場所に保管してください！",
+      "encryptWallet": "ウォレットを暗号化",
+      "back": "戻る"
+    },
+    "footer": {
+      "protectedBy": "Verifikによって保護"
+    }
   }
 }

@@ -96,5 +96,73 @@
       "consulting": "Consultando base de conhecimento...",
       "preparing": "Preparando execução..."
     }
+  },
+  "authModal": {
+    "header": {
+      "login": "Entrar",
+      "secureWallet": "Proteja Sua Carteira"
+    },
+    "choice": {
+      "continueEmail": "Continuar com E-mail",
+      "continueSMS": "Continuar com SMS",
+      "continueWallet": "Continuar com uma carteira",
+      "or": "Ou",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se"
+    },
+    "walletConnected": {
+      "title": "Carteira Conectada",
+      "address": "Endereço"
+    },
+    "emailInput": {
+      "infoMessage": "Você deve ter uma <strong>conta Verifik</strong> existente para receber o código.",
+      "placeholder": "nome@exemplo.com",
+      "continue": "Continuar",
+      "back": "Voltar"
+    },
+    "phoneInput": {
+      "infoMessage": "Você deve ter uma <strong>conta Verifik</strong> existente para receber o código.",
+      "selectCountry": "Selecionar",
+      "searchCountry": "Pesquisar país...",
+      "noCountries": "Nenhum país encontrado",
+      "phonePlaceholder": "201 555 0123",
+      "continue": "Continuar",
+      "back": "Voltar"
+    },
+    "otpVerify": {
+      "title": "Digite o código de confirmação",
+      "emailMessage": "Por favor, verifique {{email}} para uma mensagem e digite seu código abaixo.",
+      "phoneMessage": "Por favor, verifique {{phone}} para uma mensagem e digite seu código abaixo.",
+      "verify": "Verificar",
+      "back": "Voltar"
+    },
+    "walletConnect": {
+      "title": "Conectar Carteira",
+      "subtitle": "Conecte sua carteira para criar um agente ou entrar.",
+      "zelf": "Zelf",
+      "metamask": "MetaMask",
+      "walletConnect": "WalletConnect",
+      "createAgent": "Criar Carteira de Agente (x402)",
+      "back": "Voltar"
+    },
+    "walletEncrypt": {
+      "walletIdentity": {
+        "address": "Endereço"
+      },
+      "instruction": "Para garantir que seus fundos estejam seguros, criptografe sua chave privada. <br class=\"hidden sm:block\">Recomendamos usar uma <strong>Passkey</strong> para a melhor segurança.",
+      "createPasskey": "Criar Passkey",
+      "usePIN": "Usar PIN de 6 Dígitos",
+      "notSupported": "Passkeys não são suportadas neste dispositivo."
+    },
+    "pinSetup": {
+      "title": "Defina Seu PIN",
+      "subtitle": "Digite um PIN de 6 dígitos para criptografar sua carteira. Você precisará deste PIN para acessar sua carteira.",
+      "warning": "<strong>Importante:</strong> Se você esquecer seu PIN, não poderá acessar sua carteira. Anote e guarde em um lugar seguro!",
+      "encryptWallet": "Criptografar Carteira",
+      "back": "Voltar"
+    },
+    "footer": {
+      "protectedBy": "Protegido por Verifik"
+    }
   }
 }

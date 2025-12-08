@@ -74,29 +74,32 @@ module.exports = async (ctx, next) => {
 		paymentTx = ctx.header["authorization"].replace("L402 ", "").trim();
 	}
 
+	// Determine Payment Target (Contract > Agent Wallet)
+	const paymentTarget = config.x402.contractAddress || agentAddress;
+
 	if (!paymentTx) {
 		ctx.status = 402;
 
 		console.log(`[x402] 402 Payment Required for ${ctx.path}. Price: $${requiredPriceUsd} (~${ethers.formatEther(requiredAmount)} AVAX)`);
 
-		ctx.set("WWW-Authenticate", `L402 invoice="${agentAddress}", price="${ethers.formatEther(requiredAmount)} AVAX"`);
+		ctx.set("WWW-Authenticate", `L402 invoice="${paymentTarget}", price="${ethers.formatEther(requiredAmount)} AVAX"`);
 
 		ctx.body = {
 			error: "Payment Required",
 			price: ethers.formatEther(requiredAmount) + " AVAX",
 			priceUsd: requiredPriceUsd,
-			wallet: agentAddress || "Server Configuration Error: No Wallet",
-			details: "Please send payment to the wallet address and include the transaction hash in the 'x-payment-tx' header.",
+			wallet: paymentTarget || "Server Configuration Error: No Payment Target",
+			details: "Please send payment to the address and include the transaction hash in the 'x-payment-tx' header.",
 			// Extra metadata for frontend logic
 			amount: ethers.formatEther(requiredAmount),
-			receiver_address: agentAddress,
+			receiver_address: paymentTarget,
 		};
 		return;
 	}
 
 	try {
-		if (!agentAddress) {
-			throw new Error("Agent wallet not configured on server.");
+		if (!paymentTarget) {
+			throw new Error("Payment target not configured on server.");
 		}
 
 		// Validation Logic
@@ -116,10 +119,10 @@ module.exports = async (ctx, next) => {
 			return;
 		}
 
-		if (tx.to.toLowerCase() !== agentAddress.toLowerCase()) {
-			console.warn(`[x402] Recipient mismatch: ${tx.to} vs ${agentAddress}`);
+		if (tx.to.toLowerCase() !== paymentTarget.toLowerCase()) {
+			console.warn(`[x402] Recipient mismatch: ${tx.to} vs ${paymentTarget}`);
 			ctx.status = 402;
-			ctx.body = { error: `Transaction recipient mismatch.` };
+			ctx.body = { error: `Transaction recipient mismatch. Expected ${paymentTarget}, got ${tx.to}` };
 			return;
 		}
 
