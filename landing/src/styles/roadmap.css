@@ -3,7 +3,10 @@
     padding: 8rem 8vw;
     background: #050505;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    min-height: 100vh;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
 }
 
 .roadmap-header {
@@ -28,6 +31,8 @@
     position: relative;
     max-width: 1000px;
     margin: 0 auto;
+    overflow: visible;
+    min-height: auto;
 }
 
 /* Vertical Line */
@@ -159,14 +164,48 @@
 
 /* Responsive */
 @media screen and (max-width: 768px) {
+    #roadmap {
+        padding: 4rem 4vw;
+        overflow: visible;
+        min-height: auto;
+        -webkit-overflow-scrolling: touch;
+        touch-action: pan-y;
+    }
+    
+    .roadmap-header {
+        margin-bottom: 3rem;
+    }
+    
+    .roadmap-header h2 {
+        font-size: 2rem;
+    }
+    
+    .timeline {
+        position: relative;
+        padding-bottom: 2rem;
+        overflow: visible;
+        min-height: auto;
+        height: auto;
+    }
+    
     .timeline::after {
         left: 31px;
+        height: calc(100% + 2rem);
+        bottom: 0;
     }
     
     .timeline-item {
         width: 100%;
         padding-left: 70px;
         padding-right: 25px;
+        padding-bottom: 3rem;
+        position: relative;
+        margin-bottom: 1rem;
+    }
+    
+    .timeline-item:last-child {
+        padding-bottom: 2rem;
+        margin-bottom: 0;
     }
     
     .timeline-item::after {
@@ -179,6 +218,20 @@
     
     .right {
         left: 0%;
+    }
+    
+    .timeline-content {
+        padding: 1.5rem;
+        position: relative;
+        width: 100%;
+    }
+    
+    .timeline-content h3 {
+        font-size: 1.25rem;
+    }
+    
+    .timeline-list li {
+        font-size: 0.9rem;
     }
 }
 
