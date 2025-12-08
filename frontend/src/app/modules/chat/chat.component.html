@@ -59,7 +59,7 @@
         </div>
 
         <!-- Wallet Widget -->
-        @if (chatMode() === 'x402') {
+        @if (chatMode() === 'x402' && walletAddress()) {
           <div
             class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-pointer hover:border-slate-300 transition-colors hover:shadow-sm"
             (click)="toggleWalletModal()"

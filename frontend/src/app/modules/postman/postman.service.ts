@@ -18,7 +18,7 @@ export class PostmanService {
   responseTime = signal<number | null>(null);
   isLoading = signal<boolean>(false);
   error = signal<any>(null);
-  paymentMethod = signal<'jwt' | 'x402'>('jwt');
+  paymentMethod = signal<'credits' | 'x402'>('credits');
 
   constructor(private _httpClient: HttpClient) {
     this.fetchPublicFeatures();

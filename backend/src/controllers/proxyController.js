@@ -29,10 +29,20 @@ const handleRequest = async (ctx) => {
 	console.log(`[Proxy] Forwarding ${ctx.method} to ${targetUrl}`);
 
 	// 2. Prepare Headers
-	// We inject our Agent's Service Token to authenticate with Verifik
+	let authHeader = ctx.header.authorization;
+
+	console.log({ authHeader });
+
+	// Strict Logic: We only inject the Service Token if the Authorization header is missing
+	// AND a payment transaction is present (Postman x402 flow).
+	// This prevents "free" access if the x402 middleware is bypassed without payment.
+	if (!authHeader && ctx.get("x-payment-tx")) {
+		authHeader = `Bearer ${config.verifik.serviceToken}`;
+	}
+
 	const headers = {
 		"Content-Type": "application/json",
-		Authorization: `Bearer ${config.verifik.serviceToken}`,
+		Authorization: authHeader,
 		Accept: "application/json",
 	};
 

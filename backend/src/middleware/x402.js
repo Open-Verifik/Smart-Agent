@@ -78,13 +78,19 @@ module.exports = async (ctx, next) => {
 	const paymentTarget = config.x402.contractAddress || agentAddress;
 
 	// CREDITS MODE BYPASS:
-	// If the request has an Authorization header that is NOT the Service Token,
-	// we assume it is a User Token (Credits Mode) and let the downstream service handle it.
 	const authHeader = ctx.header["authorization"];
 	const serviceToken = config.verifik?.serviceToken;
+	const expectedServiceAuth = `Bearer ${serviceToken}`;
 
-	if (authHeader && authHeader.startsWith("Bearer ") && serviceToken && !authHeader.includes(serviceToken)) {
-		console.log(`[x402] bypassing payment check for User Token (Credits Mode)`);
+	// Debug Log
+	console.log(`[x402] Checking Request: ${ctx.path}`);
+	console.log(`[x402] Auth header present: ${!!authHeader}`);
+	// Do not log full tokens for security, just presence or match status
+	console.log(`[x402] Is Service Token: ${authHeader === expectedServiceAuth}`);
+
+	// If Auth is present AND it is NOT the Service Token, assume it is User Token -> Bypass
+	if (authHeader && authHeader.startsWith("Bearer ") && authHeader !== expectedServiceAuth) {
+		console.log(`[x402] Bypassing payment check for User Token (Credits Mode)`);
 		return next();
 	}
 

@@ -7,9 +7,7 @@ import { WalletEncryptionService } from 'app/core/services/wallet-encryption.ser
   providedIn: 'root',
 })
 export class AgentWalletService {
-  private wallet: ethers.Wallet | null = null;
   private provider: ethers.providers.JsonRpcProvider;
-  private readonly STORAGE_KEY = 'agent_burner_wallet_key';
 
   // Balance Subject for reactive UI updates
   private balanceSubject = new BehaviorSubject<string>('0.00');
@@ -20,8 +18,7 @@ export class AgentWalletService {
 
   constructor(private _encryptionService: WalletEncryptionService) {
     this.provider = new ethers.providers.StaticJsonRpcProvider(this.RPC_URL);
-    this.provider.pollingInterval = 2000; // Poll every 2 seconds (good balance)
-    this.loadOrGenerateWallet();
+    this.provider.pollingInterval = 2000; // Poll every 2 seconds
 
     // Listen for MetaMask account changes
     if ((window as any).ethereum) {
@@ -34,7 +31,6 @@ export class AgentWalletService {
             window.location.reload();
           } else {
             console.log('MetaMask disconnected');
-            // Optional: Handle disconnect (e.g., clear storage)
             window.location.reload();
           }
         }
@@ -42,55 +38,42 @@ export class AgentWalletService {
     }
   }
 
-  private loadOrGenerateWallet() {
-    const storedKey = localStorage.getItem(this.STORAGE_KEY);
-    if (storedKey) {
-      this.wallet = new ethers.Wallet(storedKey, this.provider);
-    } else {
-      this.wallet = ethers.Wallet.createRandom().connect(this.provider);
-      localStorage.setItem(this.STORAGE_KEY, this.wallet.privateKey);
-    }
-    console.log('Agent Wallet Address:', this.wallet.address);
-  }
-
   /**
    * Get the active wallet address
-   * Prioritizes the authenticated user's address (x402_agent_address)
-   * Falls back to the internal burner wallet
+   * Returns the authenticated user's address (x402_agent_address)
    */
   getAddress(): string {
-    const authAddress = localStorage.getItem('x402_agent_address');
-    if (authAddress) return authAddress;
-
-    return this.wallet ? this.wallet.address : '';
+    return localStorage.getItem('x402_agent_address') || '';
   }
 
   /**
    * Get the balance of the active wallet
    */
   async getBalance(): Promise<string> {
-    const authAddress = localStorage.getItem('x402_agent_address');
+    const authAddress = this.getAddress();
+    if (!authAddress) return '0.00';
 
-    if (authAddress) {
-      // Get balance for the authenticated user
-      const balance = await this.provider.getBalance(authAddress);
-      return ethers.utils.formatEther(balance);
-    }
-
-    // Fallback to internal wallet
-    if (!this.wallet) return '0';
-    const balance = await this.wallet.getBalance();
+    const balance = await this.provider.getBalance(authAddress);
     return ethers.utils.formatEther(balance);
   }
 
   /**
-   * Get the appropriate signer (MetaMask or Internal Wallet)
+   * Get the appropriate signer (MetaMask or Encrypted Agent Wallet)
    */
   private async getSigner(): Promise<ethers.Signer> {
     const walletType = localStorage.getItem('x402_wallet_type');
-    const encryptionMethod = this._encryptionService.getEncryptionMethod();
+    let encryptionMethod = this._encryptionService.getEncryptionMethod();
 
-    // 1. Encrypted Agent Wallet (Prioritize if method exists)
+    // Auto-detect encryption method if missing but wallet data exists
+    if (!encryptionMethod && this._encryptionService.isWalletEncrypted()) {
+      if (localStorage.getItem('x402_credential_id')) {
+        encryptionMethod = 'passkey';
+      } else if (localStorage.getItem('x402_encryption_salt')) {
+        encryptionMethod = 'pin';
+      }
+    }
+
+    // 1. Encrypted Agent Wallet
     if (encryptionMethod) {
       let privateKey: string | null = null;
 
@@ -98,7 +81,7 @@ export class AgentWalletService {
         // Triggers browser's Passkey prompt
         privateKey = await this._encryptionService.decryptWithPasskeys();
       } else if (encryptionMethod === 'pin') {
-        // Fallback UI for PIN (Simple request for now)
+        // Fallback UI for PIN
         const pin = prompt('Please enter your 6-digit PIN to sign the transaction:');
         if (pin) {
           privateKey = await this._encryptionService.decryptWithPIN(pin);
@@ -119,10 +102,9 @@ export class AgentWalletService {
       return provider.getSigner();
     }
 
-    // 3. Fallback to internal banner wallet (Legacy/Default)
-    if (this.wallet) return this.wallet;
-
-    throw new Error('No wallet available for signing');
+    throw new Error(
+      'No valid wallet connected. Please sign in with your Agent Wallet or MetaMask.',
+    );
   }
 
   async sendTransaction(
@@ -320,8 +302,10 @@ export class AgentWalletService {
   }
 
   resetWallet() {
-    localStorage.removeItem(this.STORAGE_KEY);
-    this.loadOrGenerateWallet();
+    this._encryptionService.clearEncryptionData();
+    localStorage.removeItem('x402_agent_address');
+    localStorage.removeItem('x402_wallet_type');
+    window.location.reload();
   }
 
   /**

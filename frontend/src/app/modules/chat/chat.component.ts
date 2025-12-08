@@ -72,6 +72,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-chat',
@@ -83,7 +85,9 @@ import { TranslocoModule } from '@jsverse/transloco';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatTooltipModule,
     TranslocoModule,
+    MatDialogModule,
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -128,6 +132,7 @@ export class ChatComponent implements OnInit {
   constructor(
     private http: HttpClient,
     public walletService: AgentWalletService,
+    private _matDialog: MatDialog,
   ) {}
 
   async ngOnInit() {
@@ -171,6 +176,14 @@ export class ChatComponent implements OnInit {
 
   toggleAgentInfoModal() {
     this.showAgentInfoModal.update((show) => !show);
+  }
+
+  openAuthModal() {
+    this._matDialog.open(AuthModalComponent, {
+      panelClass: 'auth-modal-dialog',
+      width: '400px',
+      maxWidth: '100vw',
+    });
   }
 
   toggleFeedbackModal() {
@@ -266,6 +279,33 @@ export class ChatComponent implements OnInit {
   async sendMessage() {
     const input = this.userInput();
     if (!input.trim()) return;
+
+    // Check Authentication
+    const isCredits = this.chatMode() === 'credits';
+    const hasWallet = !!this.walletService.getAddress();
+    const hasCredits = !!localStorage.getItem('accessToken');
+
+    // If x402 mode -> Need Wallet
+    // If Credits mode -> Need Credits OR Wallet(maybe?) No, Credits needs Token.
+    // User Requirement: "if none credits credentials or wallet is active, we should open the AuthModal"
+
+    // Simplest logic: If we have NO auth at all (neither wallet nor token), definitely open modal.
+    if (!hasWallet && !hasCredits) {
+      this.openAuthModal();
+      return;
+    }
+
+    // Strict logic based on Mode?
+    // If mode is x402, we MUST have wallet.
+    if (!isCredits && !hasWallet) {
+      this.openAuthModal();
+      return;
+    }
+    // If mode is Credits, we MUST have token.
+    if (isCredits && !hasCredits) {
+      this.openAuthModal();
+      return;
+    }
 
     this.messages.update((msgs) => [...msgs, { role: 'user', content: input }]);
     this.userInput.set('');

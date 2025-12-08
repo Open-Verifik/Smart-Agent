@@ -67,16 +67,16 @@ import { PostmanService } from './postman.service';
             >
               <button
                 class="px-3 py-1.5 rounded-md transition-all text-xs font-medium"
-                [class.bg-slate-100]="paymentMethod() === 'jwt'"
-                [class.text-slate-900]="paymentMethod() === 'jwt'"
-                [class.dark:bg-slate-700]="paymentMethod() === 'jwt'"
-                [class.dark:text-white]="paymentMethod() === 'jwt'"
-                [class.text-slate-500]="paymentMethod() !== 'jwt'"
-                [class.hover:text-slate-900]="paymentMethod() !== 'jwt'"
-                (click)="setPaymentMethod('jwt')"
+                [class.bg-slate-100]="paymentMethod() === 'credits'"
+                [class.text-slate-900]="paymentMethod() === 'credits'"
+                [class.dark:bg-slate-700]="paymentMethod() === 'credits'"
+                [class.dark:text-white]="paymentMethod() === 'credits'"
+                [class.text-slate-500]="paymentMethod() !== 'credits'"
+                [class.hover:text-slate-900]="paymentMethod() !== 'credits'"
+                (click)="setPaymentMethod('credits')"
                 matTooltip="Authenticate with JWT Token"
               >
-                JWT
+                CREDITS
               </button>
               <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
               <button
@@ -221,7 +221,7 @@ export class PostmanComponent {
     this.selectedCountry.update((c) => (c === country ? null : country));
   }
 
-  setPaymentMethod(method: 'jwt' | 'x402') {
+  setPaymentMethod(method: 'credits' | 'x402') {
     this._postmanService.paymentMethod.set(method);
   }
 
