@@ -77,6 +77,17 @@ module.exports = async (ctx, next) => {
 	// Determine Payment Target (Contract > Agent Wallet)
 	const paymentTarget = config.x402.contractAddress || agentAddress;
 
+	// CREDITS MODE BYPASS:
+	// If the request has an Authorization header that is NOT the Service Token,
+	// we assume it is a User Token (Credits Mode) and let the downstream service handle it.
+	const authHeader = ctx.header["authorization"];
+	const serviceToken = config.verifik?.serviceToken;
+
+	if (authHeader && authHeader.startsWith("Bearer ") && serviceToken && !authHeader.includes(serviceToken)) {
+		console.log(`[x402] bypassing payment check for User Token (Credits Mode)`);
+		return next();
+	}
+
 	if (!paymentTx) {
 		ctx.status = 402;
 

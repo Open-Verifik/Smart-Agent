@@ -6,14 +6,14 @@ const AgentModule = require("../modules/agent.module");
  */
 const chat = async (ctx) => {
 	try {
-		const { message, history, paymentTx, paymentWallet, paymentAmount } = ctx.request.body;
+		const { message, history, paymentTx, paymentWallet, paymentAmount, mode, userToken } = ctx.request.body;
 		if (!message) {
 			ctx.status = 400;
 			ctx.body = { error: "Message is required" };
 			return;
 		}
 
-		const response = await AgentModule.chatWithAgent(message, history || [], paymentTx, paymentWallet, paymentAmount);
+		const response = await AgentModule.chatWithAgent(message, history || [], paymentTx, paymentWallet, paymentAmount, mode, userToken);
 		ctx.body = response;
 	} catch (error) {
 		console.error("Agent Controller Error:", error);

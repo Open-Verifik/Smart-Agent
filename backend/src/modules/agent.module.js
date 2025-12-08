@@ -25,8 +25,9 @@ const toolsDef = JSON.parse(fs.readFileSync(toolsPath, "utf8"));
  * @param {string} paymentTx - Optional payment transaction hash
  * @param {string} paymentWallet - Optional payment wallet address
  * @param {string} paymentAmount - Optional payment amount
+ * @param {string} userToken - Optional user JWT token (for Credits mode)
  */
-const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmount) => {
+const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmount, userToken) => {
 	const tool = toolsDef.endpoints.find((t) => t.id === toolName);
 	if (!tool) {
 		throw new Error(`Tool ${toolName} not found`);
@@ -49,8 +50,8 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
 
 	const headers = {
 		"Content-Type": "application/json",
-		// Inject the service token for authentication
-		Authorization: `Bearer ${config.verifik.serviceToken}`,
+		// Inject the service token for authentication, OR use User Token if in Credits mode
+		Authorization: userToken ? `Bearer ${userToken}` : `Bearer ${config.verifik.serviceToken}`,
 	};
 
 	if (paymentTx) {
@@ -66,6 +67,7 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
 	}
 
 	try {
+		console.log(`[Agent] Sending request to ${url} with headers Auth: ${headers.Authorization.substring(0, 20)}...`);
 		const axiosConfig = {
 			method: tool.method,
 			url: url,
@@ -82,7 +84,20 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
 		console.log(`[Agent] Executing tool ${toolName} at ${url} with args:`, args);
 		const response = await axios(axiosConfig);
 
+		console.log(`[Agent] Tool execution response status: ${response.status}`);
+		console.log(`[Agent] Tool execution response data type: ${typeof response.data}`);
+		console.log(`[Agent] Tool execution data sample:`, JSON.stringify(response.data).substring(0, 200));
+
 		if (response.status === 402) {
+			// CREDITS MODE: If using userToken, 402 means Insufficient Credits (or user has no access)
+			if (userToken) {
+				return {
+					status: "error",
+					error: "Insufficient Credits. Please top up your account or switch to x402 mode to pay with crypto.",
+				};
+			}
+
+			// x402 MODE: Handle Blockchain Payment Request
 			const details = typeof response.data === "object" && response.data !== null ? response.data : { message: response.data };
 
 			// Override receiver_address with the configured Payment Contract Address
@@ -100,6 +115,14 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
 					endpoint: url,
 					toolName: toolName,
 				},
+			};
+		}
+
+		if (response.status >= 400) {
+			const errorMsg = response.data?.error || response.data?.message || JSON.stringify(response.data) || "Unknown Backend Error";
+			return {
+				status: "error",
+				error: `Backend returned ${response.status}: ${errorMsg}`,
 			};
 		}
 
@@ -126,8 +149,18 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
  * @param {string} paymentTx - Transaction hash if user just paid
  * @param {string} paymentWallet - Wallet address that paid
  * @param {string} paymentAmount - Amount paid
+ * @param {string} mode - Chat mode: 'x402' | 'credits'
+ * @param {string} userToken - User JWT token (optional)
  */
-const chatWithAgent = async (userMessage, history = [], paymentTx = null, paymentWallet = null, paymentAmount = null) => {
+const chatWithAgent = async (
+	userMessage,
+	history = [],
+	paymentTx = null,
+	paymentWallet = null,
+	paymentAmount = null,
+	mode = "x402",
+	userToken = null
+) => {
 	// 1. Construct System Prompt
 	const fullPrompt = constructSystemPrompt(toolsDef.endpoints, history, userMessage, paymentTx);
 
@@ -170,7 +203,7 @@ const chatWithAgent = async (userMessage, history = [], paymentTx = null, paymen
 					console.log("[Agent] Detected Tool Call:", toolCall);
 
 					// Execute Tool
-					const toolResult = await executeTool(toolCall.tool, toolCall.args, paymentTx, paymentWallet, paymentAmount);
+					const toolResult = await executeTool(toolCall.tool, toolCall.args, paymentTx, paymentWallet, paymentAmount, userToken);
 
 					// If payment required, return special status to frontend
 					if (toolResult.status === "payment_required") {
@@ -179,6 +212,14 @@ const chatWithAgent = async (userMessage, history = [], paymentTx = null, paymen
 							content: "I need to perform a paid action. Please confirm payment.",
 							tool_call: toolCall,
 							payment_required: toolResult.details,
+						};
+					}
+
+					// If tool execution failed
+					if (toolResult.status === "error") {
+						return {
+							role: "assistant",
+							content: `To process your request, I attempted to call the tool but encountered an error: ${toolResult.error}`,
 						};
 					}
 
