@@ -5,6 +5,7 @@
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
   background-color: #050505;
+  scroll-behavior: smooth;
 }
 
 * {

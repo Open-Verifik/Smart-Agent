@@ -4,6 +4,7 @@
     background: #000;
     position: relative;
     overflow: hidden;
+    scroll-margin-top: 100px;
 }
 
 .integration-header {
