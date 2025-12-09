@@ -127,6 +127,7 @@ export class AuthModalComponent {
     this.otp.set('');
     this.otpArray.set(new Array(6).fill(''));
     this.error.set(null);
+    this.errorKey.set(null);
     if (newState === 'PHONE_INPUT') {
       // Reset to default country when entering phone input
       const defaultCountry = this._countryService.countryDialCodes.find(
@@ -141,6 +142,7 @@ export class AuthModalComponent {
   }
 
   error = signal<string | null>(null);
+  errorKey = signal<string | null>(null); // Translation key for error messages
 
   // --- Email Flow ---
   startEmailFlow() {
@@ -172,6 +174,7 @@ export class AuthModalComponent {
 
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     this._authApiService
       .sendEmailOtp({
@@ -191,7 +194,7 @@ export class AuthModalComponent {
         error: (err) => {
           this.isLoading.set(false);
           this.setState('EMAIL_INPUT');
-          this.error.set(err.error?.message || 'Failed to send OTP');
+          this.setError(err.error?.message || 'Failed to send OTP');
         },
       });
   }
@@ -203,6 +206,7 @@ export class AuthModalComponent {
 
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     this._authApiService
       .validateEmailOtp({
@@ -313,6 +317,7 @@ export class AuthModalComponent {
 
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     // Format phone number: remove country code if it's already included
     let finalPhone = phoneDigits;
@@ -342,7 +347,7 @@ export class AuthModalComponent {
         error: (err) => {
           this.isLoading.set(false);
           this.setState('PHONE_INPUT');
-          this.error.set(err.error?.message || 'Failed to send OTP');
+          this.setError(err.error?.message || 'Failed to send OTP');
         },
       });
   }
@@ -353,6 +358,7 @@ export class AuthModalComponent {
 
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     this._authApiService
       .validatePhoneOtp({
@@ -416,6 +422,7 @@ export class AuthModalComponent {
   async connectMetaMask() {
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     try {
       // Check if MetaMask is installed
@@ -473,6 +480,7 @@ export class AuthModalComponent {
 
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     const success = await this._encryptionService.encryptWithPasskeys(privateKey);
 
@@ -512,6 +520,7 @@ export class AuthModalComponent {
 
     this.isLoading.set(true);
     this.error.set(null);
+    this.errorKey.set(null);
 
     const success = await this._encryptionService.encryptWithPIN(privateKey, pin);
 
@@ -533,6 +542,29 @@ export class AuthModalComponent {
   }
 
   // --- Helpers ---
+
+  /**
+   * Set error message with translation key mapping
+   * Maps API error codes to translation keys, or uses the message directly if not mapped
+   */
+  setError(message: string) {
+    // Map common error codes to translation keys
+    const errorMap: { [key: string]: string } = {
+      invalid_email: 'authModal.errors.invalidEmail',
+      invalid_phone: 'authModal.errors.invalidPhone',
+    };
+
+    // Check if message matches an error code
+    const errorKey = errorMap[message];
+    if (errorKey) {
+      this.errorKey.set(errorKey);
+      this.error.set(null);
+    } else {
+      // For non-mapped errors, use the message directly
+      this.error.set(message);
+      this.errorKey.set(null);
+    }
+  }
 
   handleSuccess(res: any) {
     const data = res.data || res;

@@ -13,8 +13,9 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error()" class="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm text-center">
-    {{ error() }}
+  <div *ngIf="error() || errorKey()" class="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm text-center">
+    <span *ngIf="errorKey()">{{ errorKey() | transloco }}</span>
+    <span *ngIf="!errorKey() && error()">{{ error() }}</span>
   </div>
 
   <!-- CHOICE State -->

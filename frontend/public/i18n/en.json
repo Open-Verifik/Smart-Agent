@@ -172,6 +172,10 @@
     },
     "footer": {
       "protectedBy": "Protected by Verifik"
+    },
+    "errors": {
+      "invalidEmail": "Invalid email address",
+      "invalidPhone": "Invalid phone number"
     }
   },
   "chat": {
