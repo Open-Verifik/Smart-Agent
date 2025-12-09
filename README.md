@@ -19,6 +19,10 @@ The platform empowers users to interact with high-value/premium APIs through a n
 
 ## Technical Details
 
+### Web 2 credentials
+
+To test the web2 part with some credits you can use demo@avalanche.com and the one time password I hardcoded it to `515783`.
+
 ### How it's Made configuration
 
 We built the Verifik Smart Agent using a modern stack designed for performance, security, and Web3 integration.
