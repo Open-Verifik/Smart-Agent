@@ -1,6 +1,7 @@
 {
   "nav": {
-    "chat": "Chat"
+    "chat": "Chat",
+    "history": "Historial"
   },
   "userMenu": {
     "welcome": "Bienvenido:",
@@ -164,5 +165,85 @@
     "footer": {
       "protectedBy": "Protegido por Verifik"
     }
+  },
+  "chat": {
+    "header": {
+      "subtitle": "Protocolo x402"
+    },
+    "agentInfo": {
+      "title": "Identidad del Agente (ERC8004)",
+      "loading": "Cargando información del agente...",
+      "identity": "Identidad",
+      "name": "Nombre",
+      "description": "Descripción",
+      "status": "Estado",
+      "agentAddress": "Dirección del Agente",
+      "registered": "Registrado",
+      "active": "Activo",
+      "inactive": "Inactivo",
+      "capabilities": "Capacidades",
+      "reputation": "Reputación",
+      "averageRating": "Calificación Promedio",
+      "totalReviews": "Reseñas Totales",
+      "totalRatings": "Calificaciones Totales",
+      "recentReviews": "Reseñas Recientes",
+      "verified": "Verificado",
+      "noInfo": "Identidad del agente no disponible. El agente puede no estar registrado en ERC8004.",
+      "viewSnowtrace": "Ver todo en Snowtrace",
+      "viewNft": "Ver NFT en Snowtrace",
+      "agentCard": "JSON de Tarjeta de Agente",
+      "links": "Enlaces"
+    },
+    "walletModal": {
+      "title": "Billetera de Agente",
+      "subtitle": "Protocolo x402 • Avalanche Fuji",
+      "address": "Dirección de Billetera",
+      "balance": "Saldo",
+      "refresh": "Actualizar",
+      "reset": "Restablecer"
+    },
+    "payment": {
+      "required": "Pago Requerido",
+      "amount": "Cantidad:",
+      "to": "A:",
+      "payBtn": "Pagar y Continuar",
+      "confirmTitle": "Confirmar Pago",
+      "aboutToPay": "Estás a punto de pagar",
+      "service": "Servicio",
+      "serviceName": "Datos Premium Verifik",
+      "endpoint": "Endpoint:",
+      "tool": "Herramienta:",
+      "network": "Red:",
+      "networkName": "Avalanche C-Chain",
+      "confirmBtn": "Confirmar Pago",
+      "processing": "Procesando...",
+      "cancel": "Cancelar",
+      "fee": "≈ ${{ price }} USD"
+    },
+    "feedback": {
+      "prompt": "¿Fue útil?",
+      "btn": "Calificar y Reseñar",
+      "modalTitle": "Califica Tu Experiencia",
+      "ratingLabel": "Calificación (1-5 estrellas)",
+      "star": "estrella",
+      "stars": "estrellas",
+      "selectRating": "Selecciona una calificación",
+      "tagsLabel": "Etiquetas (opcional)",
+      "commentLabel": "Comentario (opcional)",
+      "placeholder": "Comparte tu experiencia...",
+      "linkedTo": "Tu feedback estará vinculado a la transacción de pago:",
+      "submit": "Enviar Feedback",
+      "submitting": "Enviando...",
+      "cancel": "Cancelar",
+      "note": "Tu feedback será registrado en cadena vía Registro de Reputación ERC8004"
+    },
+    "inputPlaceholder": "Escribe tu solicitud (ej. 'Validar ID 12345678')...",
+    "securedBy": "Asegurado por Verifik",
+    "mode": {
+      "credits": "CRÉDITOS"
+    }
+  },
+  "history": {
+    "title": "Historial de Solicitudes"
   }
 }

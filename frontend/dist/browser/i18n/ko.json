@@ -1,6 +1,7 @@
 {
   "nav": {
-    "chat": "채팅"
+    "chat": "채팅",
+    "history": "기록"
   },
   "userMenu": {
     "welcome": "환영합니다:",
@@ -164,5 +165,85 @@
     "footer": {
       "protectedBy": "Verifik에 의해 보호됨"
     }
+  },
+  "chat": {
+    "header": {
+      "subtitle": "x402 프로토콜"
+    },
+    "agentInfo": {
+      "title": "에이전트 신원 (ERC8004)",
+      "loading": "에이전트 정보 로딩 중...",
+      "identity": "신원",
+      "name": "이름",
+      "description": "설명",
+      "status": "상태",
+      "agentAddress": "에이전트 주소",
+      "registered": "등록일",
+      "active": "활성",
+      "inactive": "비활성",
+      "capabilities": "기능",
+      "reputation": "평판",
+      "averageRating": "평균 평점",
+      "totalReviews": "총 리뷰 수",
+      "totalRatings": "총 평점 수",
+      "recentReviews": "최근 리뷰",
+      "verified": "검증됨",
+      "noInfo": "에이전트 신원을 사용할 수 없습니다. 에이전트가 ERC8004에 등록되지 않았을 수 있습니다.",
+      "viewSnowtrace": "Snowtrace에서 모두 보기",
+      "viewNft": "Snowtrace에서 NFT 보기",
+      "agentCard": "에이전트 카드 JSON",
+      "links": "링크"
+    },
+    "walletModal": {
+      "title": "에이전트 지갑",
+      "subtitle": "x402 프로토콜 • Avalanche Fuji",
+      "address": "지갑 주소",
+      "balance": "잔액",
+      "refresh": "새로고침",
+      "reset": "재설정"
+    },
+    "payment": {
+      "required": "결제 필요",
+      "amount": "금액:",
+      "to": "받는 주소:",
+      "payBtn": "결제하고 계속",
+      "confirmTitle": "결제 확인",
+      "aboutToPay": "결제하려고 합니다",
+      "service": "서비스",
+      "serviceName": "Verifik 프리미엄 데이터",
+      "endpoint": "엔드포인트:",
+      "tool": "도구:",
+      "network": "네트워크:",
+      "networkName": "Avalanche C-Chain",
+      "confirmBtn": "결제 확인",
+      "processing": "처리 중...",
+      "cancel": "취소",
+      "fee": "≈ ${{ price }} USD"
+    },
+    "feedback": {
+      "prompt": "도움이 되었나요?",
+      "btn": "평가 및 리뷰",
+      "modalTitle": "경험 평가",
+      "ratingLabel": "평점 (1-5점)",
+      "star": "점",
+      "stars": "점",
+      "selectRating": "평점 선택",
+      "tagsLabel": "태그 (선택사항)",
+      "commentLabel": "댓글 (선택사항)",
+      "placeholder": "경험을 공유해주세요...",
+      "linkedTo": "피드백이 결제 트랜잭션에 연결됩니다:",
+      "submit": "피드백 제출",
+      "submitting": "제출 중...",
+      "cancel": "취소",
+      "note": "피드백은 ERC8004 평판 레지스트리를 통해 온체인에 기록됩니다"
+    },
+    "inputPlaceholder": "요청을 입력하세요 (예: 'ID 12345678 검증')...",
+    "securedBy": "Verifik에 의해 보호됨",
+    "mode": {
+      "credits": "크레딧"
+    }
+  },
+  "history": {
+    "title": "요청 기록"
   }
 }
