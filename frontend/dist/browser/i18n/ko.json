@@ -172,6 +172,10 @@
     },
     "footer": {
       "protectedBy": "Verifik에 의해 보호됨"
+    },
+    "errors": {
+      "invalidEmail": "유효하지 않은 이메일 주소",
+      "invalidPhone": "유효하지 않은 전화번호"
     }
   },
   "chat": {

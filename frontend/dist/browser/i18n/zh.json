@@ -172,6 +172,10 @@
     },
     "footer": {
       "protectedBy": "由Verifik保护"
+    },
+    "errors": {
+      "invalidEmail": "无效的电子邮件地址",
+      "invalidPhone": "无效的电话号码"
     }
   },
   "chat": {

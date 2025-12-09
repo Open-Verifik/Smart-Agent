@@ -172,6 +172,10 @@
     },
     "footer": {
       "protectedBy": "Verifikによって保護"
+    },
+    "errors": {
+      "invalidEmail": "無効なメールアドレス",
+      "invalidPhone": "無効な電話番号"
     }
   },
   "chat": {
