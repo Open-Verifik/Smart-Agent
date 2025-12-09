@@ -6,7 +6,15 @@
   "userMenu": {
     "welcome": "Welcome:",
     "role": "Role:",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "login": "Log in",
+    "creditsLabel": "CREDITS",
+    "credits": "Credits",
+    "agentWallet": "Agent Wallet",
+    "active": "Active",
+    "connectWeb2Account": "Connect Web2 Account",
+    "connectWeb2AccountDescription": "Link your email or phone to access credits",
+    "resetWallet": "Reset Wallet"
   },
   "postman": {
     "layout": {

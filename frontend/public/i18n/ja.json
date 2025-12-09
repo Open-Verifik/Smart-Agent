@@ -6,7 +6,15 @@
   "userMenu": {
     "welcome": "ようこそ：",
     "role": "役割：",
-    "signOut": "サインアウト"
+    "signOut": "サインアウト",
+    "login": "ログイン",
+    "creditsLabel": "クレジット",
+    "credits": "クレジット",
+    "agentWallet": "エージェントウォレット",
+    "active": "アクティブ",
+    "connectWeb2Account": "Web2アカウントを接続",
+    "connectWeb2AccountDescription": "メールまたは電話をリンクしてクレジットにアクセス",
+    "resetWallet": "ウォレットをリセット"
   },
   "postman": {
     "layout": {

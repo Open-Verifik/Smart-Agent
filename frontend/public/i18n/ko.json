@@ -6,7 +6,15 @@
   "userMenu": {
     "welcome": "환영합니다:",
     "role": "역할:",
-    "signOut": "로그아웃"
+    "signOut": "로그아웃",
+    "login": "로그인",
+    "creditsLabel": "크레딧",
+    "credits": "크레딧",
+    "agentWallet": "에이전트 지갑",
+    "active": "활성",
+    "connectWeb2Account": "Web2 계정 연결",
+    "connectWeb2AccountDescription": "이메일 또는 전화를 연결하여 크레딧에 액세스",
+    "resetWallet": "지갑 재설정"
   },
   "postman": {
     "layout": {

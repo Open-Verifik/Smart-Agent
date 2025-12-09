@@ -6,7 +6,15 @@
   "userMenu": {
     "welcome": "Bem-vindo:",
     "role": "Função:",
-    "signOut": "Sair"
+    "signOut": "Sair",
+    "login": "Entrar",
+    "creditsLabel": "CRÉDITOS",
+    "credits": "Créditos",
+    "agentWallet": "Carteira do Agente",
+    "active": "Ativo",
+    "connectWeb2Account": "Conectar Conta Web2",
+    "connectWeb2AccountDescription": "Vincule seu e-mail ou telefone para acessar créditos",
+    "resetWallet": "Redefinir Carteira"
   },
   "postman": {
     "layout": {

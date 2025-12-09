@@ -6,7 +6,15 @@
   "userMenu": {
     "welcome": "Bienvenido:",
     "role": "Rol:",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "creditsLabel": "CRÉDITOS",
+    "credits": "Créditos",
+    "agentWallet": "Billetera de Agente",
+    "active": "Activo",
+    "connectWeb2Account": "Conectar Cuenta Web2",
+    "connectWeb2AccountDescription": "Vincula tu correo o teléfono para acceder a créditos",
+    "resetWallet": "Restablecer Billetera"
   },
   "postman": {
     "layout": {

@@ -6,7 +6,15 @@
   "userMenu": {
     "welcome": "欢迎：",
     "role": "角色：",
-    "signOut": "登出"
+    "signOut": "登出",
+    "login": "登录",
+    "creditsLabel": "积分",
+    "credits": "积分",
+    "agentWallet": "代理钱包",
+    "active": "活跃",
+    "connectWeb2Account": "连接Web2账户",
+    "connectWeb2AccountDescription": "链接您的电子邮件或电话以访问积分",
+    "resetWallet": "重置钱包"
   },
   "postman": {
     "layout": {

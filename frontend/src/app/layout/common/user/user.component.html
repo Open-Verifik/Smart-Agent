@@ -4,7 +4,7 @@
     (click)="openAuthModal()"
     class="rounded-full border-slate-300 dark:border-slate-700"
   >
-    Log in
+    {{ 'userMenu.login' | transloco }}
   </button>
 } @else {
   <!-- Agent Wallet Card -->
@@ -31,7 +31,7 @@
         <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{{
           user.credits || '0.00' | number: '1.2-4'
         }}</span>
-        <span class="text-[9px] font-bold text-slate-400 mt-[1px]">CREDITS</span>
+        <span class="text-[9px] font-bold text-slate-400 mt-[1px]">{{ 'userMenu.creditsLabel' | transloco }}</span>
 
         @if (avaxBalance) {
           <div class="h-2 w-px bg-slate-300 dark:bg-slate-600 mx-1"></div>
@@ -90,7 +90,7 @@
           <span
             class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide"
           >
-            Credits
+            {{ 'userMenu.credits' | transloco }}
           </span>
         </div>
       </div>
@@ -100,10 +100,10 @@
     @if (walletAddress) {
       <div class="py-3 border-b border-slate-100 dark:border-slate-700">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Agent Wallet</span>
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ 'userMenu.agentWallet' | transloco }}</span>
           <span
             class="text-[10px] px-1.5 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full font-medium"
-            >Active</span
+            >{{ 'userMenu.active' | transloco }}</span
           >
         </div>
         <div
@@ -163,10 +163,10 @@
               d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
             />
           </svg>
-          <span>Connect Web2 Account</span>
+          <span>{{ 'userMenu.connectWeb2Account' | transloco }}</span>
         </button>
         <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2">
-          Link your email or phone to access credits
+          {{ 'userMenu.connectWeb2AccountDescription' | transloco }}
         </p>
       </div>
     }
@@ -210,7 +210,7 @@
         </svg>
 
         <!-- Dynamic text based on auth type -->
-        <span *ngIf="isWeb3Only">Reset Wallet</span>
+        <span *ngIf="isWeb3Only">{{ 'userMenu.resetWallet' | transloco }}</span>
         <span *ngIf="!isWeb3Only">{{ 'userMenu.signOut' | transloco }}</span>
       </button>
     </div>
