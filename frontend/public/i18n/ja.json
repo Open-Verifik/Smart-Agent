@@ -1,6 +1,7 @@
 {
   "nav": {
-    "chat": "チャット"
+    "chat": "チャット",
+    "history": "履歴"
   },
   "userMenu": {
     "welcome": "ようこそ：",
@@ -164,5 +165,85 @@
     "footer": {
       "protectedBy": "Verifikによって保護"
     }
+  },
+  "chat": {
+    "header": {
+      "subtitle": "x402プロトコル"
+    },
+    "agentInfo": {
+      "title": "エージェント識別情報 (ERC8004)",
+      "loading": "エージェント情報を読み込み中...",
+      "identity": "識別情報",
+      "name": "名前",
+      "description": "説明",
+      "status": "ステータス",
+      "agentAddress": "エージェントアドレス",
+      "registered": "登録日",
+      "active": "アクティブ",
+      "inactive": "非アクティブ",
+      "capabilities": "機能",
+      "reputation": "評価",
+      "averageRating": "平均評価",
+      "totalReviews": "レビュー総数",
+      "totalRatings": "評価総数",
+      "recentReviews": "最近のレビュー",
+      "verified": "検証済み",
+      "noInfo": "エージェント識別情報が利用できません。エージェントがERC8004に登録されていない可能性があります。",
+      "viewSnowtrace": "Snowtraceで全て表示",
+      "viewNft": "SnowtraceでNFTを表示",
+      "agentCard": "エージェントカードJSON",
+      "links": "リンク"
+    },
+    "walletModal": {
+      "title": "エージェントウォレット",
+      "subtitle": "x402プロトコル • Avalanche Fuji",
+      "address": "ウォレットアドレス",
+      "balance": "残高",
+      "refresh": "更新",
+      "reset": "リセット"
+    },
+    "payment": {
+      "required": "支払いが必要です",
+      "amount": "金額:",
+      "to": "送信先:",
+      "payBtn": "支払って続行",
+      "confirmTitle": "支払い確認",
+      "aboutToPay": "支払いを行います",
+      "service": "サービス",
+      "serviceName": "Verifikプレミアムデータ",
+      "endpoint": "エンドポイント:",
+      "tool": "ツール:",
+      "network": "ネットワーク:",
+      "networkName": "Avalanche C-Chain",
+      "confirmBtn": "支払いを確認",
+      "processing": "処理中...",
+      "cancel": "キャンセル",
+      "fee": "≈ ${{ price }} USD"
+    },
+    "feedback": {
+      "prompt": "役に立ちましたか？",
+      "btn": "評価とレビュー",
+      "modalTitle": "体験を評価",
+      "ratingLabel": "評価 (1-5星)",
+      "star": "星",
+      "stars": "星",
+      "selectRating": "評価を選択",
+      "tagsLabel": "タグ (オプション)",
+      "commentLabel": "コメント (オプション)",
+      "placeholder": "体験を共有してください...",
+      "linkedTo": "フィードバックは支払いトランザクションにリンクされます:",
+      "submit": "フィードバックを送信",
+      "submitting": "送信中...",
+      "cancel": "キャンセル",
+      "note": "フィードバックはERC8004評価レジストリ経由でオンチェーンに記録されます"
+    },
+    "inputPlaceholder": "リクエストを入力してください (例: 'ID 12345678を検証')...",
+    "securedBy": "Verifikによって保護",
+    "mode": {
+      "credits": "クレジット"
+    }
+  },
+  "history": {
+    "title": "リクエスト履歴"
   }
 }

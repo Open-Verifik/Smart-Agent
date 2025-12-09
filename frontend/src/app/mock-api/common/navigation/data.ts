@@ -18,7 +18,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
   },
   {
     id: 'history',
-    title: 'History',
+    title: 'nav.history',
     type: 'basic',
     icon: 'heroicons_outline:clock',
     link: '/history',
@@ -62,7 +62,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
   },
   {
     id: 'history',
-    title: 'History',
+    title: 'nav.history',
     type: 'basic',
     icon: 'heroicons_outline:clock',
     link: '/history',

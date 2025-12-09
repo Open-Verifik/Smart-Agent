@@ -22,7 +22,9 @@
           >
             {{ agentInfo()?.identity?.name || 'Verifik Agent' }}
           </div>
-          <div class="text-[11px] text-slate-500 font-medium">x402 Protocol</div>
+          <div class="text-[11px] text-slate-500 font-medium">
+            {{ 'chat.header.subtitle' | transloco }}
+          </div>
         </div>
       </div>
 
@@ -42,7 +44,7 @@
             [class.text-slate-500]="chatMode() !== 'credits'"
             (click)="setChatMode('credits')"
           >
-            CREDITS
+            {{ 'chat.mode.credits' | transloco }}
           </button>
           <button
             class="px-3 py-1.5 rounded-md text-xs font-medium transition-all"
@@ -83,13 +85,13 @@
     <div class="modal-overlay" (click)="toggleAgentInfoModal()">
       <div class="modal-content agent-info-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Agent Identity (ERC8004)</h2>
+          <h2>{{ 'chat.agentInfo.title' | transloco }}</h2>
           <button class="close-button" (click)="toggleAgentInfoModal()">✕</button>
         </div>
 
         <div class="modal-body">
           @if (isLoadingAgentInfo()) {
-            <div class="loading-state">Loading agent information...</div>
+            <div class="loading-state">{{ 'chat.agentInfo.loading' | transloco }}</div>
           } @else if (agentInfo()?.identity) {
             <div class="agent-identity">
               <div class="identity-section">
@@ -108,7 +110,11 @@
                     <span
                       [class]="agentInfo()?.identity?.active ? 'status-active' : 'status-inactive'"
                     >
-                      {{ agentInfo()?.identity?.active ? 'Active' : 'Inactive' }}
+                      {{
+                        agentInfo()?.identity?.active
+                          ? ('chat.agentInfo.active' | transloco)
+                          : ('chat.agentInfo.inactive' | transloco)
+                      }}
                     </span>
                   </div>
                 </div>
@@ -230,7 +236,7 @@
             </div>
           } @else {
             <div class="no-info">
-              <p>Agent identity not available. The agent may not be registered on ERC8004.</p>
+              <p>{{ 'chat.agentInfo.noInfo' | transloco }}</p>
             </div>
           }
         </div>
@@ -260,8 +266,10 @@
           >
             <mat-icon>account_balance_wallet</mat-icon>
           </div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white">Agent Wallet</h2>
-          <p class="text-xs text-slate-500 mt-1">x402 Protocol • Avalanche Fuji</p>
+          <h2 class="text-xl font-bold text-slate-900 dark:text-white">
+            {{ 'chat.walletModal.title' | transloco }}
+          </h2>
+          <p class="text-xs text-slate-500 mt-1">{{ 'chat.walletModal.subtitle' | transloco }}</p>
         </div>
 
         <!-- Content -->
@@ -292,6 +300,7 @@
               <button
                 class="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all text-slate-400 hover:text-blue-600 shadow-sm opacity-0 group-hover:opacity-100"
                 (click)="copyAddress()"
+                (click)="copyAddress()"
                 matTooltip="Copy Address"
               >
                 <mat-icon class="!w-4 !h-4 !text-[16px]">content_copy</mat-icon>
@@ -301,8 +310,9 @@
 
           <!-- Balance -->
           <div>
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5"
-              >Balance</label
+            <label
+              class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5"
+              >{{ 'chat.walletModal.balance' | transloco }}</label
             >
             <div
               class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex flex-col items-center justify-center"
@@ -322,7 +332,7 @@
               (click)="refreshBalance()"
             >
               <mat-icon class="!w-4 !h-4 mr-2">refresh</mat-icon>
-              Refresh
+              {{ 'chat.walletModal.refresh' | transloco }}
             </button>
             <button
               mat-stroked-button
@@ -331,7 +341,7 @@
               (click)="resetWallet()"
             >
               <mat-icon class="!w-4 !h-4 mr-2">delete_outline</mat-icon>
-              Reset
+              {{ 'chat.walletModal.reset' | transloco }}
             </button>
           </div>
         </div>
@@ -340,7 +350,7 @@
         <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
           <div class="flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
             <mat-icon class="!w-3 !h-3 !text-[12px]">verified_user</mat-icon>
-            <span>Secured by Verifik</span>
+            <span>{{ 'chat.securedBy' | transloco }}</span>
           </div>
         </div>
       </div>
@@ -362,12 +372,19 @@
           <!-- Payment Request -->
           @if (msg.payment_required) {
             <div class="payment-request">
-              <div class="payment-header"><span class="icon">⚡</span> Payment Required</div>
-              <div class="payment-amount">
-                Amount: <strong>{{ msg.payment_required.amount }} AVAX</strong>
+              <div class="payment-header">
+                <span class="icon">⚡</span> {{ 'chat.payment.required' | transloco }}
               </div>
-              <div class="payment-to">To: {{ msg.payment_required.receiver_address }}</div>
-              <button class="pay-button" (click)="confirmPayment($index)">Pay & Proceed</button>
+              <div class="payment-amount">
+                {{ 'chat.payment.amount' | transloco }}
+                <strong>{{ msg.payment_required.amount }} AVAX</strong>
+              </div>
+              <div class="payment-to">
+                {{ 'chat.payment.to' | transloco }} {{ msg.payment_required.receiver_address }}
+              </div>
+              <button class="pay-button" (click)="confirmPayment($index)">
+                {{ 'chat.payment.payBtn' | transloco }}
+              </button>
             </div>
           }
 
@@ -414,9 +431,9 @@
             <!-- Feedback Button (show after successful tool execution) - Only for x402 -->
             @if (chatMode() === 'x402' && msg.role === 'assistant' && msg.data) {
               <div class="feedback-prompt">
-                <p>Was this helpful?</p>
+                <p>{{ 'chat.feedback.prompt' | transloco }}</p>
                 <button class="feedback-button" (click)="toggleFeedbackModal()">
-                  ⭐ Rate & Review
+                  ⭐ {{ 'chat.feedback.btn' | transloco }}
                 </button>
               </div>
             }
@@ -541,7 +558,7 @@
         [(ngModel)]="userInput"
         (keyup.enter)="sendMessage()"
         type="text"
-        placeholder="Type your request (e.g., 'Validate ID 12345678')..."
+        [placeholder]="'chat.inputPlaceholder' | transloco"
         class="flex-1 h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
       />
       <button
@@ -564,7 +581,7 @@
     <div class="modal-overlay" (click)="cancelPayment()">
       <div class="modal-content payment-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
-          <h2>Confirm Payment</h2>
+          <h2>{{ 'chat.payment.confirmTitle' | transloco }}</h2>
           <button class="close-button" (click)="cancelPayment()">✕</button>
         </div>
 
@@ -578,19 +595,23 @@
               >
             </div>
 
-            <p class="text-slate-500 dark:text-slate-400 mb-2">You are about to pay</p>
+            <p class="text-slate-500 dark:text-slate-400 mb-2">
+              {{ 'chat.payment.aboutToPay' | transloco }}
+            </p>
             <h1 class="text-3xl font-bold mb-1 text-slate-900 dark:text-white">
               {{ pendingPayment()?.amount | number: '1.5-5' }} AVAX
             </h1>
             <p class="text-sm text-slate-400 mb-6" *ngIf="pendingPayment()?.priceUsd">
-              ≈ ${{ pendingPayment()?.priceUsd }} USD
+              {{ 'chat.payment.fee' | transloco: { price: pendingPayment()?.priceUsd } }}
             </p>
 
             <div
               class="payment-details bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6 text-left border border-slate-200 dark:border-slate-700"
             >
               <div class="detail-row flex justify-between mb-2">
-                <span class="text-slate-500 dark:text-slate-400">To:</span>
+                <span class="text-slate-500 dark:text-slate-400">{{
+                  'chat.payment.to' | transloco
+                }}</span>
                 <span
                   class="font-mono text-xs text-right text-slate-700 dark:text-slate-300 break-all pl-4"
                   >{{ pendingPayment()?.receiver_address }}</span
@@ -601,10 +622,10 @@
                 (click)="togglePaymentDetails()"
               >
                 <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                  Service
+                  {{ 'chat.payment.service' | transloco }}
                 </span>
                 <div class="flex items-center gap-1 text-right text-slate-700 dark:text-slate-300">
-                  <span class="font-medium">Verifik Premium Data</span>
+                  <span class="font-medium">{{ 'chat.payment.serviceName' | transloco }}</span>
                   <mat-icon
                     class="!w-4 !h-4 !text-[16px] transition-transform"
                     [class.rotate-90]="showPaymentDetails()"
@@ -618,13 +639,17 @@
                   class="mt-2 mb-2 p-3 bg-slate-100 dark:bg-slate-900/50 rounded text-xs space-y-1 animate-fadeIn"
                 >
                   <div class="flex flex-col gap-1">
-                    <span class="text-slate-500 font-semibold">Endpoint:</span>
+                    <span class="text-slate-500 font-semibold">{{
+                      'chat.payment.endpoint' | transloco
+                    }}</span>
                     <span class="font-mono break-all text-slate-700 dark:text-slate-300">{{
                       pendingPayment()?.endpoint || 'N/A'
                     }}</span>
                   </div>
                   <div class="flex flex-col gap-1 mt-2">
-                    <span class="text-slate-500 font-semibold">Tool:</span>
+                    <span class="text-slate-500 font-semibold">{{
+                      'chat.payment.tool' | transloco
+                    }}</span>
                     <span class="font-mono break-all text-slate-700 dark:text-slate-300">{{
                       pendingPayment()?.toolName || 'N/A'
                     }}</span>
@@ -633,10 +658,12 @@
               }
 
               <div class="detail-row flex justify-between">
-                <span class="text-slate-500 dark:text-slate-400">Network:</span>
-                <span class="font-medium text-right text-slate-700 dark:text-slate-300"
-                  >Avalanche C-Chain</span
-                >
+                <span class="text-slate-500 dark:text-slate-400">{{
+                  'chat.payment.network' | transloco
+                }}</span>
+                <span class="font-medium text-right text-slate-700 dark:text-slate-300">{{
+                  'chat.payment.networkName' | transloco
+                }}</span>
               </div>
             </div>
 
@@ -647,14 +674,16 @@
               [disabled]="isProcessingPayment()"
               (click)="executePayment()"
             >
-              <span *ngIf="!isProcessingPayment()">Confirm Payment</span>
+              <span *ngIf="!isProcessingPayment()">{{
+                'chat.payment.confirmBtn' | transloco
+              }}</span>
               <div *ngIf="isProcessingPayment()" class="flex items-center justify-center gap-2">
                 <mat-progress-spinner
                   diameter="20"
                   mode="indeterminate"
                   class="text-white"
                 ></mat-progress-spinner>
-                <span>Processing...</span>
+                <span>{{ 'chat.payment.processing' | transloco }}</span>
               </div>
             </button>
 
@@ -664,7 +693,7 @@
               [disabled]="isProcessingPayment()"
               (click)="cancelPayment()"
             >
-              Cancel
+              {{ 'chat.payment.cancel' | transloco }}
             </button>
           </div>
         </div>

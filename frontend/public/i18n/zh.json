@@ -1,6 +1,7 @@
 {
   "nav": {
-    "chat": "聊天"
+    "chat": "聊天",
+    "history": "历史"
   },
   "userMenu": {
     "welcome": "欢迎：",
@@ -164,5 +165,85 @@
     "footer": {
       "protectedBy": "由Verifik保护"
     }
+  },
+  "chat": {
+    "header": {
+      "subtitle": "x402协议"
+    },
+    "agentInfo": {
+      "title": "代理身份 (ERC8004)",
+      "loading": "正在加载代理信息...",
+      "identity": "身份",
+      "name": "名称",
+      "description": "描述",
+      "status": "状态",
+      "agentAddress": "代理地址",
+      "registered": "注册日期",
+      "active": "活跃",
+      "inactive": "非活跃",
+      "capabilities": "功能",
+      "reputation": "声誉",
+      "averageRating": "平均评分",
+      "totalReviews": "总评论数",
+      "totalRatings": "总评分数",
+      "recentReviews": "最近评论",
+      "verified": "已验证",
+      "noInfo": "代理身份不可用。代理可能未在ERC8004上注册。",
+      "viewSnowtrace": "在Snowtrace上查看全部",
+      "viewNft": "在Snowtrace上查看NFT",
+      "agentCard": "代理卡片JSON",
+      "links": "链接"
+    },
+    "walletModal": {
+      "title": "代理钱包",
+      "subtitle": "x402协议 • Avalanche Fuji",
+      "address": "钱包地址",
+      "balance": "余额",
+      "refresh": "刷新",
+      "reset": "重置"
+    },
+    "payment": {
+      "required": "需要支付",
+      "amount": "金额:",
+      "to": "收款地址:",
+      "payBtn": "支付并继续",
+      "confirmTitle": "确认支付",
+      "aboutToPay": "您即将支付",
+      "service": "服务",
+      "serviceName": "Verifik高级数据",
+      "endpoint": "端点:",
+      "tool": "工具:",
+      "network": "网络:",
+      "networkName": "Avalanche C-Chain",
+      "confirmBtn": "确认支付",
+      "processing": "处理中...",
+      "cancel": "取消",
+      "fee": "≈ ${{ price }} USD"
+    },
+    "feedback": {
+      "prompt": "这有用吗？",
+      "btn": "评分和评论",
+      "modalTitle": "评价您的体验",
+      "ratingLabel": "评分 (1-5星)",
+      "star": "星",
+      "stars": "星",
+      "selectRating": "选择评分",
+      "tagsLabel": "标签 (可选)",
+      "commentLabel": "评论 (可选)",
+      "placeholder": "分享您的体验...",
+      "linkedTo": "您的反馈将链接到支付交易:",
+      "submit": "提交反馈",
+      "submitting": "提交中...",
+      "cancel": "取消",
+      "note": "您的反馈将通过ERC8004声誉注册表记录在链上"
+    },
+    "inputPlaceholder": "输入您的请求 (例如: '验证ID 12345678')...",
+    "securedBy": "由Verifik保护",
+    "mode": {
+      "credits": "积分"
+    }
+  },
+  "history": {
+    "title": "请求历史"
   }
 }

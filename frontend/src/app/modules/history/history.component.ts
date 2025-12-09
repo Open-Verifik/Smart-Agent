@@ -15,6 +15,7 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { HistoryService, ApiRequest } from './history.service';
 import { AgentWalletService } from '../chat/services/agent-wallet.service';
@@ -30,6 +31,7 @@ import { AgentWalletService } from '../chat/services/agent-wallet.service';
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
+    TranslocoModule,
   ],
   templateUrl: './history.component.html',
   encapsulation: ViewEncapsulation.None,
