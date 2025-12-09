@@ -115,7 +115,8 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
 				status: "payment_required",
 				details: {
 					...details,
-					endpoint: url,
+					// Use the original tool URL for display purposes so user sees the real endpoint
+					endpoint: tool.url,
 					toolName: toolName,
 				},
 			};
