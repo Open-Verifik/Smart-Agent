@@ -54,4 +54,8 @@ app.listen(port, () => {
 		"Proxy Routes:",
 		proxyRoutes.stack.map((i) => i.path)
 	);
+
+	// Run cleanup on startup
+	const ConversationRepository = require("./repositories/conversation.repository");
+	ConversationRepository.cleanup(30);
 });

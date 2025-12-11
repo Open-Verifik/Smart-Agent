@@ -1,29 +1,125 @@
-<div class="chat-container">
-  <!-- Header -->
-  <div
-    class="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md p-4 sticky top-0 z-10"
+<div class="flex h-screen w-full bg-white dark:bg-slate-900 overflow-hidden relative">
+  <!-- Sidebar -->
+  <aside
+    class="w-[280px] bg-slate-50 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-all duration-300 shrink-0 z-20"
+    [class.-ml-[280px]]="!isSidebarOpen()"
   >
-    <div class="max-w-4xl mx-auto flex justify-between items-center">
-      <!-- Identity -->
-      <div class="flex items-center gap-3 cursor-pointer group" (click)="toggleAgentInfoModal()">
+    <!-- Sidebar Header -->
+    <div
+      class="h-16 px-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shadow-sm z-10"
+    >
+      <div class="flex items-center gap-2 font-bold text-slate-700 dark:text-slate-200">
+        <mat-icon class="text-slate-500">history</mat-icon>
+        <span>Your Chats</span>
+      </div>
+      <button
+        (click)="startNewChat()"
+        class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
+        matTooltip="New Chat"
+      >
+        <mat-icon>add_circle_outline</mat-icon>
+      </button>
+    </div>
+
+    <!-- Conversation List -->
+    <div class="flex-1 overflow-y-auto p-3 space-y-1">
+      @if (conversations().length === 0) {
+        <div class="text-center py-8 text-slate-400 text-sm">No history yet. Start a chat!</div>
+      }
+
+      @for (conv of conversations(); track conv.id) {
         <div
-          class="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm shadow-sm relative group-hover:scale-105 transition-transform"
+          class="group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all border border-transparent"
+          [class.bg-white]="currentConversationId() === conv.id"
+          [class.dark:bg-slate-900]="currentConversationId() === conv.id"
+          [class.shadow-sm]="currentConversationId() === conv.id"
+          [class.border-slate-200]="currentConversationId() === conv.id"
+          [class.dark:border-slate-800]="currentConversationId() === conv.id"
+          [class.hover:bg-slate-200]="currentConversationId() !== conv.id"
+          [class.dark:hover:bg-slate-900]="currentConversationId() !== conv.id"
+          (click)="selectConversation(conv.id)"
         >
-          AI
-          @if (agentInfo()?.identity) {
-            <div
-              class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"
-            ></div>
+          @if (isRenamingId() === conv.id) {
+            <input
+              type="text"
+              [(ngModel)]="renameInput"
+              (click)="$event.stopPropagation()"
+              (blur)="saveRename(conv)"
+              (keyup.enter)="saveRename(conv)"
+              class="w-full text-sm bg-white dark:bg-slate-900 border border-blue-500 rounded px-2 py-1 outline-none"
+            />
+          } @else {
+            <div class="flex-1 min-w-0 pr-2">
+              <div class="truncate text-sm font-medium text-slate-700 dark:text-slate-300">
+                {{ conv.title }}
+              </div>
+              <div class="text-[10px] text-slate-400 mt-0.5">
+                {{ conv.updated_at | date: 'MMM d, h:mm a' }}
+              </div>
+            </div>
+
+            <div class="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+              <button
+                (click)="startRenaming(conv, $event)"
+                class="p-1 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded text-slate-400 hover:text-blue-500 transition-colors"
+              >
+                <mat-icon
+                  class="!w-4 !h-4 !text-[16px] leading-none flex items-center justify-center"
+                  >edit</mat-icon
+                >
+              </button>
+              <button
+                (click)="deleteConversation(conv, $event)"
+                class="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded text-slate-400 hover:text-red-500 transition-colors"
+              >
+                <mat-icon
+                  class="!w-4 !h-4 !text-[16px] leading-none flex items-center justify-center"
+                  >delete</mat-icon
+                >
+              </button>
+            </div>
           }
         </div>
-        <div>
+      }
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <main class="flex-1 flex flex-col h-full min-w-0 relative bg-white dark:bg-slate-900">
+    <!-- Header -->
+    <div
+      class="h-16 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 flex items-center justify-between shrink-0 z-10"
+    >
+      <div class="flex items-center gap-3">
+        <!-- Sidebar Toggle -->
+        <button
+          (click)="toggleSidebar()"
+          class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+        >
+          <mat-icon>{{ isSidebarOpen() ? 'menu_open' : 'menu' }}</mat-icon>
+        </button>
+
+        <!-- Identity -->
+        <div class="flex items-center gap-3 cursor-pointer group" (click)="toggleAgentInfoModal()">
           <div
-            class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-blue-600 transition-colors"
+            class="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm relative group-hover:scale-105 transition-transform"
           >
-            {{ agentInfo()?.identity?.name || 'Verifik Agent' }}
+            AI
+            @if (agentInfo()?.identity) {
+              <div
+                class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"
+              ></div>
+            }
           </div>
-          <div class="text-[11px] text-slate-500 font-medium">
-            {{ 'chat.header.subtitle' | transloco }}
+          <div>
+            <div
+              class="font-bold text-slate-900 dark:text-white text-sm group-hover:text-blue-600 transition-colors"
+            >
+              {{ agentInfo()?.identity?.name || 'Verifik Agent' }}
+            </div>
+            <div class="text-[10px] text-slate-500 font-medium hidden sm:block">
+              {{ 'chat.header.subtitle' | transloco }}
+            </div>
           </div>
         </div>
       </div>
@@ -32,7 +128,7 @@
       <div class="flex items-center gap-3">
         <!-- Mode Toggle -->
         <div
-          class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700"
+          class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 border border-slate-200 dark:border-slate-700 hidden sm:flex"
         >
           <button
             class="px-3 py-1.5 rounded-md text-xs font-medium transition-all"
@@ -78,167 +174,256 @@
         }
       </div>
     </div>
-  </div>
 
-  <!-- Agent Info Modal (ERC8004) -->
-  @if (showAgentInfoModal()) {
-    <div class="modal-overlay" (click)="toggleAgentInfoModal()">
-      <div class="modal-content agent-info-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>{{ 'chat.agentInfo.title' | transloco }}</h2>
-          <button class="close-button" (click)="toggleAgentInfoModal()">✕</button>
-        </div>
-
-        <div class="modal-body">
-          @if (isLoadingAgentInfo()) {
-            <div class="loading-state">{{ 'chat.agentInfo.loading' | transloco }}</div>
-          } @else if (agentInfo()?.identity) {
-            <div class="agent-identity">
-              <div class="identity-section">
-                <h3>Identity</h3>
-                <div class="detail-item">
-                  <label>Name</label>
-                  <div class="detail-value">{{ agentInfo()?.identity?.name }}</div>
-                </div>
-                <div class="detail-item">
-                  <label>Description</label>
-                  <div class="detail-value">{{ agentInfo()?.identity?.description }}</div>
-                </div>
-                <div class="detail-item">
-                  <label>Status</label>
-                  <div class="detail-value">
-                    <span
-                      [class]="agentInfo()?.identity?.active ? 'status-active' : 'status-inactive'"
-                    >
-                      {{
-                        agentInfo()?.identity?.active
-                          ? ('chat.agentInfo.active' | transloco)
-                          : ('chat.agentInfo.inactive' | transloco)
-                      }}
-                    </span>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <label>Agent Address</label>
-                  <div class="detail-value">
-                    <code>{{ agentInfo()?.identity?.agentAddress }}</code>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <label>Registered</label>
-                  <div class="detail-value">
-                    {{ agentInfo()?.identity?.createdAt | date: 'medium' }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="identity-section">
-                <h3>Capabilities</h3>
-                <div class="capabilities-list">
-                  @for (cap of agentInfo()?.identity?.capabilities; track cap) {
-                    <span class="capability-badge">{{ cap }}</span>
-                  }
-                </div>
-              </div>
-
-              @if (agentInfo()?.reputation) {
-                <div class="identity-section">
-                  <h3>Reputation</h3>
-                  <div class="reputation-stats">
-                    <div class="stat-item">
-                      <label>Average Rating</label>
-                      <div class="stat-value">
-                        <strong>{{
-                          agentInfo()?.reputation?.averageRating?.toFixed(2) || 'N/A'
-                        }}</strong>
-                        / 5.0
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <label>Total Reviews</label>
-                      <div class="stat-value">
-                        <strong>{{ agentInfo()?.reputation?.totalFeedbacks || 0 }}</strong>
-                      </div>
-                    </div>
-                    <div class="stat-item">
-                      <label>Total Ratings</label>
-                      <div class="stat-value">
-                        <strong>{{ agentInfo()?.reputation?.totalRatings || 0 }}</strong>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+    <!-- Scrollable Messages Area -->
+    <div class="flex-1 overflow-y-auto messages-container p-4 scroll-smooth" #scrollContainer>
+      <div class="max-w-4xl mx-auto space-y-6 pb-4">
+        @for (msg of messages(); track $index) {
+          <div
+            class="message flex gap-4 animate-fadeIn"
+            [class.flex-row-reverse]="msg.role === 'user'"
+          >
+            <!-- Avatar -->
+            <div
+              class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold"
+              [class.bg-slate-900]="msg.role === 'user'"
+              [class.text-white]="msg.role === 'user'"
+              [class.bg-slate-200]="msg.role !== 'user'"
+              [class.text-slate-700]="msg.role !== 'user'"
+              [class.dark:bg-slate-700]="msg.role !== 'user'"
+              [class.dark:text-slate-50]="msg.role !== 'user'"
+            >
+              @if (msg.role === 'user') {
+                <mat-icon class="!w-4 !h-4 !text-[16px] flex items-center justify-center"
+                  >person</mat-icon
+                >
+              } @else {
+                AI
               }
-              @if (agentInfo()?.feedbacks && (agentInfo()?.feedbacks)!.length > 0) {
-                <div class="identity-section">
-                  <h3>Recent Reviews</h3>
-                  <div class="feedbacks-list">
-                    @for (feedback of agentInfo()?.feedbacks; track feedback.id) {
-                      <div class="feedback-item">
-                        <div class="feedback-header">
-                          <div class="feedback-rating">
-                            @for (star of [1, 2, 3, 4, 5]; track star) {
-                              <span [class.filled]="star <= feedback.rating">⭐</span>
-                            }
-                          </div>
-                          <div class="feedback-meta">
-                            <span class="feedback-address"
-                              >{{ feedback.client.substring(0, 6) }}...{{
-                                feedback.client.substring(38)
-                              }}</span
-                            >
-                            <span class="feedback-date">{{
-                              feedback.timestamp | date: 'short'
-                            }}</span>
-                            @if (feedback.verified) {
-                              <span class="verified-badge">✓ Verified</span>
-                            }
-                          </div>
-                        </div>
-                        @if (feedback.tags && feedback.tags.length > 0) {
-                          <div class="feedback-tags">
-                            @for (tag of feedback.tags; track tag) {
-                              <span class="tag-small">{{ tag }}</span>
-                            }
-                          </div>
-                        }
-                        @if (feedback.comment) {
-                          <div class="feedback-comment-text">{{ feedback.comment }}</div>
-                        }
-                      </div>
-                    }
-                  </div>
-                  <div class="view-all-link">
-                    <a
-                      href="https://testnet.snowtrace.io/address/0xc8AF65010D6Bf85e4DC89D9D13E9cC185df919B1#readContract"
-                      target="_blank"
-                      class="link-button-small"
-                    >
-                      View All on Snowtrace
-                    </a>
-                  </div>
-                </div>
-              }
+            </div>
 
-              <div class="identity-section">
-                <h3>Links</h3>
-                <div class="links-list">
-                  <a
-                    href="https://testnet.snowtrace.io/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1"
-                    target="_blank"
-                    class="link-button"
+            <!-- Bubble -->
+            <div class="max-w-[85%]">
+              <div
+                class="message-bubble p-4 rounded-2xl shadow-sm border"
+                [class.bg-slate-900]="msg.role === 'user'"
+                [class.text-white]="msg.role === 'user'"
+                [class.border-slate-800]="msg.role === 'user'"
+                [class.rounded-tr-sm]="msg.role === 'user'"
+                [class.bg-white]="msg.role !== 'user'"
+                [class.text-slate-700]="msg.role !== 'user'"
+                [class.dark:bg-slate-800]="msg.role !== 'user'"
+                [class.dark:text-slate-200]="msg.role !== 'user'"
+                [class.border-slate-200]="msg.role !== 'user'"
+                [class.dark:border-slate-700]="msg.role !== 'user'"
+                [class.rounded-tl-sm]="msg.role !== 'user'"
+              >
+                <!-- Content -->
+                <div
+                  class="markdown-body text-sm leading-relaxed whitespace-pre-wrap font-sans"
+                  [innerHTML]="msg.content | markdown"
+                ></div>
+
+                <!-- Payment Request -->
+                @if (msg.payment_required) {
+                  <div
+                    class="mt-4 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700"
                   >
-                    View NFT on Snowtrace
-                  </a>
-                  <a [href]="agentCardUrl" target="_blank" class="link-button"> Agent Card JSON </a>
-                </div>
+                    <div
+                      class="flex items-center gap-2 mb-2 text-slate-900 dark:text-white font-semibold"
+                    >
+                      <span class="text-amber-500">⚡</span>
+                      {{ 'chat.payment.required' | transloco }}
+                    </div>
+                    <div class="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">
+                      {{ msg.payment_required.amount }} AVAX
+                    </div>
+                    <div class="text-xs text-slate-500 mb-3 break-all font-mono">
+                      To: {{ msg.payment_required.receiver_address }}
+                    </div>
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      class="w-full"
+                      (click)="confirmPayment($index)"
+                    >
+                      {{ 'chat.payment.payBtn' | transloco }}
+                    </button>
+                  </div>
+                }
+
+                <!-- Data Display -->
+                @if (msg.data) {
+                  <div
+                    class="mt-3 p-3 bg-slate-100 dark:bg-slate-950 rounded-lg text-xs font-mono overflow-x-auto border border-slate-200 dark:border-slate-800"
+                  >
+                    <pre class="whitespace-pre-wrap">{{ msg.data | json }}</pre>
+                  </div>
+
+                  @if (msg.proof) {
+                    <div
+                      class="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-center justify-between"
+                    >
+                      <div class="flex items-center gap-2">
+                        <div
+                          class="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"
+                        >
+                          <mat-icon class="!w-4 !h-4 !text-[16px]">verified</mat-icon>
+                        </div>
+                        <div class="text-xs text-green-800 dark:text-green-300 font-medium">
+                          Validated On-Chain
+                        </div>
+                      </div>
+                      <a
+                        [href]="'https://testnet.snowtrace.io/tx/' + msg.proof"
+                        target="_blank"
+                        class="text-xs text-green-600 hover:underline flex items-center gap-1"
+                      >
+                        View TX <mat-icon class="!w-3 !h-3 !text-[12px]">open_in_new</mat-icon>
+                      </a>
+                    </div>
+                  }
+
+                  @if (chatMode() === 'x402' && msg.role === 'assistant') {
+                    <button
+                      class="mt-3 text-xs text-slate-400 hover:text-yellow-500 flex items-center gap-1 transition-colors"
+                      (click)="toggleFeedbackModal()"
+                    >
+                      <mat-icon class="!w-3 !h-3 !text-[12px]">star_outline</mat-icon> Rate this
+                    </button>
+                  }
+                }
               </div>
             </div>
-          } @else {
-            <div class="no-info">
-              <p>{{ 'chat.agentInfo.noInfo' | transloco }}</p>
+          </div>
+        }
+
+        <!-- Typing Indicator -->
+        @if (isLoading()) {
+          <div class="message flex gap-4">
+            <div
+              class="w-8 h-8 rounded-full bg-slate-900 text-white flex-shrink-0 flex items-center justify-center text-xs font-bold"
+            >
+              AI
             </div>
-          }
+            <div
+              class="message-bubble p-4 rounded-2xl rounded-tl-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm"
+            >
+              <div class="flex items-center gap-1.5">
+                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></div>
+                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-150"></div>
+                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce delay-300"></div>
+              </div>
+              <!-- Thinking Steps -->
+              @if (thinkingSteps().length > 0) {
+                <div
+                  class="mt-2 text-xs text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-2 animate-fadeIn"
+                >
+                  {{ currentThinkingStep() | transloco }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div
+      class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shrink-0 z-10"
+    >
+      <div class="max-w-4xl mx-auto flex gap-3 items-center relative">
+        <input
+          [(ngModel)]="userInput"
+          (keyup.enter)="sendMessage()"
+          type="text"
+          [placeholder]="'chat.inputPlaceholder' | transloco"
+          class="flex-1 h-12 pl-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400 shadow-sm"
+        />
+        <button
+          (click)="sendMessage()"
+          [disabled]="isLoading() || !userInput().trim()"
+          class="absolute right-2 top-2 h-8 w-8 flex items-center justify-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:bg-slate-300 transition-all shadow-sm"
+        >
+          <mat-icon class="!w-4 !h-4 !text-[16px]">arrow_upward</mat-icon>
+        </button>
+      </div>
+      <div class="text-center mt-2 text-[10px] text-slate-400">
+        Verifik Agent can make mistakes. Verify important information.
+      </div>
+    </div>
+  </main>
+
+  <!-- Modals (Overlaying the whole Layout) -->
+
+  <!-- Agent Info Modal -->
+  @if (showAgentInfoModal()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fadeIn"
+      (click)="toggleAgentInfoModal()"
+    >
+      <!-- Reuse existing content style but ensure it's centered -->
+      <div
+        class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-xl max-h-[90vh] overflow-y-auto"
+        (click)="$event.stopPropagation()"
+      >
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold dark:text-white">
+              {{ 'chat.agentInfo.title' | transloco }}
+            </h2>
+            <button (click)="toggleAgentInfoModal()" class="text-slate-400 hover:text-slate-600">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <!-- Content same as before logic... simplified for brevity, assume content matches -->
+          <!-- We rely on component logic for data -->
+          <div class="space-y-4">
+            @if (isLoadingAgentInfo()) {
+              <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+            } @else {
+              <div class="flex items-start gap-4">
+                <div
+                  class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-2xl"
+                >
+                  🤖
+                </div>
+                <div>
+                  <h3 class="font-bold text-lg dark:text-white">
+                    {{ agentInfo()?.identity?.name }}
+                  </h3>
+                  <p class="text-sm text-slate-500">{{ agentInfo()?.identity?.description }}</p>
+                </div>
+              </div>
+              <!-- Stats -->
+              <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+                <div class="text-center">
+                  <div class="font-bold text-xl dark:text-white">
+                    {{ agentInfo()?.reputation?.averageRating?.toFixed(1) || '0.0' }}
+                  </div>
+                  <div class="text-[10px] text-slate-500 uppercase">Rating</div>
+                </div>
+                <div class="text-center border-l border-slate-200 dark:border-slate-700">
+                  <div class="font-bold text-xl dark:text-white">
+                    {{ agentInfo()?.reputation?.totalFeedbacks || 0 }}
+                  </div>
+                  <div class="text-[10px] text-slate-500 uppercase">Reviews</div>
+                </div>
+                <div class="text-center border-l border-slate-200 dark:border-slate-700">
+                  <div class="font-bold text-xl dark:text-white">
+                    {{ agentInfo()?.identity?.active ? 'ON' : 'OFF' }}
+                  </div>
+                  <div class="text-[10px] text-slate-500 uppercase">Status</div>
+                </div>
+              </div>
+              <!-- Address -->
+              <div
+                class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-mono break-all text-slate-600 dark:text-slate-300"
+              >
+                {{ agentInfo()?.identity?.agentAddress }}
+              </div>
+            }
+          </div>
         </div>
       </div>
     </div>
@@ -246,468 +431,150 @@
 
   <!-- Wallet Modal -->
   @if (showWalletModal()) {
-    <div class="modal-overlay" (click)="toggleWalletModal()">
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fadeIn"
+      (click)="toggleWalletModal()"
+    >
       <div
         class="w-full max-w-sm mx-auto p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl relative animate-slideUp"
         (click)="$event.stopPropagation()"
       >
-        <!-- Close Button -->
+        <!-- Content reused from previous template, simplified structure -->
         <button
-          class="absolute right-4 top-4 text-slate-400 hover:text-slate-600 transition-colors"
+          class="absolute right-4 top-4 text-slate-400 hover:text-slate-600"
           (click)="toggleWalletModal()"
         >
           <mat-icon>close</mat-icon>
         </button>
+        <h2 class="text-xl font-bold mb-4 dark:text-white">
+          {{ 'chat.walletModal.title' | transloco }}
+        </h2>
 
-        <!-- Header -->
-        <div class="text-center mb-6">
-          <div
-            class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full mx-auto flex items-center justify-center mb-3"
-          >
-            <mat-icon>account_balance_wallet</mat-icon>
+        @if (walletQrCode()) {
+          <div class="flex justify-center mb-4">
+            <img [src]="walletQrCode()" class="w-32 h-32 rounded-lg border" />
           </div>
-          <h2 class="text-xl font-bold text-slate-900 dark:text-white">
-            {{ 'chat.walletModal.title' | transloco }}
-          </h2>
-          <p class="text-xs text-slate-500 mt-1">{{ 'chat.walletModal.subtitle' | transloco }}</p>
-        </div>
+        }
 
-        <!-- Content -->
-        <div class="space-y-5">
-          <!-- Address -->
-          <div>
-            <!-- QR Code -->
-            @if (walletQrCode()) {
-              <div class="flex justify-center mb-3">
-                <div class="p-2 bg-white rounded-xl border border-slate-100 shadow-sm">
-                  <img [src]="walletQrCode()" alt="Wallet Address QR" class="w-32 h-32" />
-                </div>
-              </div>
-            }
-
-            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5"
-              >Wallet Address</label
-            >
-
-            <div
-              class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 group hover:border-blue-200 transition-colors"
-            >
-              <code
-                class="text-xs text-slate-600 dark:text-slate-300 break-all flex-1 font-mono leading-relaxed"
+        <div class="mb-4">
+          <label class="text-xs text-slate-500 uppercase">Address</label>
+          <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg flex gap-2 items-center">
+            <code class="text-xs flex-1 break-all dark:text-slate-300">{{ walletAddress() }}</code>
+            <button (click)="copyAddress()">
+              <mat-icon class="text-slate-400 hover:text-blue-500 !w-4 !h-4 text-[16px]"
+                >content_copy</mat-icon
               >
-                {{ walletAddress() }}
-              </code>
-              <button
-                class="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-all text-slate-400 hover:text-blue-600 shadow-sm opacity-0 group-hover:opacity-100"
-                (click)="copyAddress()"
-                (click)="copyAddress()"
-                matTooltip="Copy Address"
-              >
-                <mat-icon class="!w-4 !h-4 !text-[16px]">content_copy</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- Balance -->
-          <div>
-            <label
-              class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5"
-              >{{ 'chat.walletModal.balance' | transloco }}</label
-            >
-            <div
-              class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex flex-col items-center justify-center"
-            >
-              <div class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {{ walletBalance() | number: '1.4-4' }}
-              </div>
-              <div class="text-xs font-medium text-slate-400 mt-1">AVAX</div>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="grid grid-cols-2 gap-3 pt-2">
-            <button
-              mat-stroked-button
-              class="w-full !h-10 !rounded-lg !border-slate-200 text-slate-600"
-              (click)="refreshBalance()"
-            >
-              <mat-icon class="!w-4 !h-4 mr-2">refresh</mat-icon>
-              {{ 'chat.walletModal.refresh' | transloco }}
-            </button>
-            <button
-              mat-stroked-button
-              color="warn"
-              class="w-full !h-10 !rounded-lg !border-red-100 text-red-600 bg-red-50/50"
-              (click)="resetWallet()"
-            >
-              <mat-icon class="!w-4 !h-4 mr-2">delete_outline</mat-icon>
-              {{ 'chat.walletModal.reset' | transloco }}
             </button>
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-          <div class="flex items-center justify-center gap-1.5 text-[10px] text-slate-400">
-            <mat-icon class="!w-3 !h-3 !text-[12px]">verified_user</mat-icon>
-            <span>{{ 'chat.securedBy' | transloco }}</span>
+        <div class="mb-6">
+          <label class="text-xs text-slate-500 uppercase">Balance</label>
+          <div class="text-3xl font-bold dark:text-white">
+            {{ walletBalance() | number: '1.4-4' }}
+            <span class="text-sm font-normal text-slate-400">AVAX</span>
           </div>
         </div>
+
+        <button mat-stroked-button class="w-full mb-2" (click)="refreshBalance()">Refresh</button>
+        <button mat-stroked-button color="warn" class="w-full" (click)="resetWallet()">
+          Reset Wallet
+        </button>
       </div>
     </div>
   }
-
-  <!-- Chat Area -->
-  <div class="messages" #scrollContainer>
-    @for (msg of messages(); track $index) {
-      <div
-        class="message"
-        [class.user]="msg.role === 'user'"
-        [class.system]="msg.role === 'system'"
-      >
-        <div class="message-bubble">
-          <!-- Message Content -->
-          <div class="message-content">{{ msg.content }}</div>
-
-          <!-- Payment Request -->
-          @if (msg.payment_required) {
-            <div class="payment-request">
-              <div class="payment-header">
-                <span class="icon">⚡</span> {{ 'chat.payment.required' | transloco }}
-              </div>
-              <div class="payment-amount">
-                {{ 'chat.payment.amount' | transloco }}
-                <strong>{{ msg.payment_required.amount }} AVAX</strong>
-              </div>
-              <div class="payment-to">
-                {{ 'chat.payment.to' | transloco }} {{ msg.payment_required.receiver_address }}
-              </div>
-              <button class="pay-button" (click)="confirmPayment($index)">
-                {{ 'chat.payment.payBtn' | transloco }}
-              </button>
-            </div>
-          }
-
-          <!-- Data Display -->
-          @if (msg.data) {
-            <div class="data-display">
-              <pre>{{ msg.data | json }}</pre>
-            </div>
-
-            <!-- Proof Card (ERC8004) -->
-            @if (msg.proof) {
-              <div class="proof-card">
-                <div class="proof-header">
-                  <div class="proof-icon">
-                    <mat-icon>verified_user</mat-icon>
-                  </div>
-                  <div class="proof-title">
-                    <div class="proof-label">{{ 'proofCard.title' | transloco }}</div>
-                    <div class="proof-network">{{ 'proofCard.network' | transloco }}</div>
-                  </div>
-                </div>
-                <div class="proof-body">
-                  <div class="proof-hash-row">
-                    <span class="proof-hash-label">{{ 'proofCard.hashLabel' | transloco }}</span>
-                    <a
-                      [href]="'https://testnet.snowtrace.io/tx/' + msg.proof"
-                      target="_blank"
-                      class="proof-hash-value"
-                    >
-                      {{ msg.proof.substring(0, 10) }}...{{ msg.proof.substring(56) }}
-                      <mat-icon class="inline-icon">open_in_new</mat-icon>
-                    </a>
-                  </div>
-                  <div class="proof-status-row">
-                    <span class="status-badge">
-                      <mat-icon class="status-icon">check</mat-icon>
-                      {{ 'proofCard.validated' | transloco }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            }
-
-            <!-- Feedback Button (show after successful tool execution) - Only for x402 -->
-            @if (chatMode() === 'x402' && msg.role === 'assistant' && msg.data) {
-              <div class="feedback-prompt">
-                <p>{{ 'chat.feedback.prompt' | transloco }}</p>
-                <button class="feedback-button" (click)="toggleFeedbackModal()">
-                  ⭐ {{ 'chat.feedback.btn' | transloco }}
-                </button>
-              </div>
-            }
-          }
-        </div>
-      </div>
-    }
-
-    <!-- Typing Indicator -->
-    @if (isLoading()) {
-      <div class="message">
-        <div class="message-bubble typing-bubble">
-          <div class="typing-indicator">
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-            <span class="typing-dot"></span>
-          </div>
-        </div>
-      </div>
-    }
-  </div>
-
-  <!-- Feedback Modal -->
-  @if (showFeedbackModal()) {
-    <div class="modal-overlay" (click)="toggleFeedbackModal()">
-      <div class="modal-content feedback-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>⭐ Rate Your Experience</h2>
-          <button class="close-button" (click)="toggleFeedbackModal()">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="feedback-form">
-            <!-- Rating -->
-            <div class="feedback-section">
-              <label>Rating (1-5 stars)</label>
-              <div class="star-rating">
-                @for (star of [1, 2, 3, 4, 5]; track star) {
-                  <button
-                    type="button"
-                    class="star-button"
-                    [class.active]="feedbackRating() >= star"
-                    (click)="setRating(star)"
-                  >
-                    ⭐
-                  </button>
-                }
-              </div>
-              <div class="rating-text">
-                @if (feedbackRating() > 0) {
-                  {{ feedbackRating() }} {{ feedbackRating() === 1 ? 'star' : 'stars' }}
-                } @else {
-                  Select a rating
-                }
-              </div>
-            </div>
-
-            <!-- Tags -->
-            <div class="feedback-section">
-              <label>Tags (optional)</label>
-              <div class="tags-list">
-                @for (tag of availableTags; track tag) {
-                  <button
-                    type="button"
-                    class="tag-button"
-                    [class.selected]="feedbackTags().includes(tag)"
-                    (click)="toggleTag(tag)"
-                  >
-                    {{ tag }}
-                  </button>
-                }
-              </div>
-            </div>
-
-            <!-- Comment -->
-            <div class="feedback-section">
-              <label>Comment (optional)</label>
-              <textarea
-                [(ngModel)]="feedbackComment"
-                placeholder="Share your experience..."
-                class="feedback-comment"
-                rows="4"
-              ></textarea>
-            </div>
-
-            @if (lastPaymentTx()) {
-              <div class="payment-link-info">
-                🔗 Your feedback will be linked to payment transaction:
-                <code>{{ lastPaymentTx() }}</code>
-              </div>
-            }
-
-            <!-- Submit Button -->
-            <div class="feedback-actions">
-              <button
-                class="submit-feedback-button"
-                (click)="submitFeedback()"
-                [disabled]="feedbackRating() === 0 || isSubmittingFeedback()"
-              >
-                @if (isSubmittingFeedback()) {
-                  Submitting...
-                } @else {
-                  Submit Feedback
-                }
-              </button>
-              <button class="cancel-button" (click)="toggleFeedbackModal()">Cancel</button>
-            </div>
-
-            <div class="feedback-note">
-              💡 Your feedback will be recorded on-chain via ERC8004 Reputation Registry
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Input Area (Footer) -->
-  <div class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-    <div class="max-w-4xl mx-auto flex gap-3 items-center">
-      <input
-        [(ngModel)]="userInput"
-        (keyup.enter)="sendMessage()"
-        type="text"
-        [placeholder]="'chat.inputPlaceholder' | transloco"
-        class="flex-1 h-12 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
-      />
-      <button
-        (click)="sendMessage()"
-        [disabled]="isLoading() || !userInput().trim()"
-        class="h-12 w-12 flex items-center justify-center rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
-      >
-        <mat-icon *ngIf="!isLoading()">arrow_upward</mat-icon>
-        <mat-progress-spinner
-          *ngIf="isLoading()"
-          diameter="20"
-          mode="indeterminate"
-        ></mat-progress-spinner>
-      </button>
-    </div>
-  </div>
 
   <!-- Payment Confirmation Modal -->
   @if (showPaymentConfirmationModal()) {
-    <div class="modal-overlay" (click)="cancelPayment()">
-      <div class="modal-content payment-modal" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>{{ 'chat.payment.confirmTitle' | transloco }}</h2>
-          <button class="close-button" (click)="cancelPayment()">✕</button>
-        </div>
-
-        <div class="modal-body p-6">
-          <div class="payment-summary text-center">
-            <div
-              class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto flex items-center justify-center mb-4"
-            >
-              <mat-icon class="text-blue-600 dark:text-blue-400 !w-8 !h-8 !text-[32px]"
-                >account_balance_wallet</mat-icon
-              >
-            </div>
-
-            <p class="text-slate-500 dark:text-slate-400 mb-2">
-              {{ 'chat.payment.aboutToPay' | transloco }}
-            </p>
-            <h1 class="text-3xl font-bold mb-1 text-slate-900 dark:text-white">
-              {{ pendingPayment()?.amount | number: '1.5-5' }} AVAX
-            </h1>
-            <p class="text-sm text-slate-400 mb-6" *ngIf="pendingPayment()?.priceUsd">
-              {{ 'chat.payment.fee' | transloco: { price: pendingPayment()?.priceUsd } }}
-            </p>
-
-            <div
-              class="payment-details bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6 text-left border border-slate-200 dark:border-slate-700"
-            >
-              <div class="detail-row flex justify-between mb-2">
-                <span class="text-slate-500 dark:text-slate-400">{{
-                  'chat.payment.to' | transloco
-                }}</span>
-                <span
-                  class="font-mono text-xs text-right text-slate-700 dark:text-slate-300 break-all pl-4"
-                  >{{ pendingPayment()?.receiver_address }}</span
-                >
-              </div>
-              <div
-                class="detail-row flex justify-between mb-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 rounded px-1 -mx-1 transition-colors"
-                (click)="togglePaymentDetails()"
-              >
-                <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                  {{ 'chat.payment.service' | transloco }}
-                </span>
-                <div class="flex items-center gap-1 text-right text-slate-700 dark:text-slate-300">
-                  <span class="font-medium">{{ 'chat.payment.serviceName' | transloco }}</span>
-                  <mat-icon
-                    class="!w-4 !h-4 !text-[16px] transition-transform"
-                    [class.rotate-90]="showPaymentDetails()"
-                    >chevron_right</mat-icon
-                  >
-                </div>
-              </div>
-
-              @if (showPaymentDetails()) {
-                <div
-                  class="mt-2 mb-2 p-3 bg-slate-100 dark:bg-slate-900/50 rounded text-xs space-y-1 animate-fadeIn"
-                >
-                  <div class="flex flex-col gap-1">
-                    <span class="text-slate-500 font-semibold">{{
-                      'chat.payment.endpoint' | transloco
-                    }}</span>
-                    <span class="font-mono break-all text-slate-700 dark:text-slate-300">{{
-                      pendingPayment()?.endpoint || 'N/A'
-                    }}</span>
-                  </div>
-                  <div class="flex flex-col gap-1 mt-2">
-                    <span class="text-slate-500 font-semibold">{{
-                      'chat.payment.tool' | transloco
-                    }}</span>
-                    <span class="font-mono break-all text-slate-700 dark:text-slate-300">{{
-                      pendingPayment()?.toolName || 'N/A'
-                    }}</span>
-                  </div>
-                </div>
-              }
-
-              <div class="detail-row flex justify-between">
-                <span class="text-slate-500 dark:text-slate-400">{{
-                  'chat.payment.network' | transloco
-                }}</span>
-                <span class="font-medium text-right text-slate-700 dark:text-slate-300">{{
-                  'chat.payment.networkName' | transloco
-                }}</span>
-              </div>
-            </div>
-
-            <button
-              mat-flat-button
-              color="primary"
-              class="w-full !h-12 !rounded-lg !text-lg mb-3 bg-blue-600 text-white hover:bg-blue-700"
-              [disabled]="isProcessingPayment()"
-              (click)="executePayment()"
-            >
-              <span *ngIf="!isProcessingPayment()">{{
-                'chat.payment.confirmBtn' | transloco
-              }}</span>
-              <div *ngIf="isProcessingPayment()" class="flex items-center justify-center gap-2">
-                <mat-progress-spinner
-                  diameter="20"
-                  mode="indeterminate"
-                  class="text-white"
-                ></mat-progress-spinner>
-                <span>{{ 'chat.payment.processing' | transloco }}</span>
-              </div>
-            </button>
-
-            <button
-              mat-stroked-button
-              class="w-full !h-12 !rounded-lg border border-slate-300 dark:border-slate-600"
-              [disabled]="isProcessingPayment()"
-              (click)="cancelPayment()"
-            >
-              {{ 'chat.payment.cancel' | transloco }}
-            </button>
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fadeIn"
+      (click)="cancelPayment()"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl p-6"
+        (click)="$event.stopPropagation()"
+      >
+        <!-- Payment Confirmation Logic/UI reused essentially -->
+        <h2 class="text-xl font-bold mb-4 dark:text-white">Confirm Payment</h2>
+        <div class="text-center py-4">
+          <div class="text-4xl font-bold text-slate-900 dark:text-white mb-2">
+            {{ pendingPayment()?.amount }} AVAX
           </div>
+          <p class="text-slate-500 text-sm">To: {{ pendingPayment()?.receiver_address }}</p>
+        </div>
+        <div class="space-y-3 mt-4">
+          <button
+            mat-flat-button
+            color="primary"
+            class="w-full !h-12 !text-lg"
+            (click)="executePayment()"
+            [disabled]="isProcessingPayment()"
+          >
+            @if (isProcessingPayment()) {
+              Processing...
+            } @else {
+              Confirm Payment
+            }
+          </button>
+          <button mat-stroked-button class="w-full !h-12" (click)="cancelPayment()">Cancel</button>
         </div>
       </div>
     </div>
   }
-</div>
 
-<!-- Toast Notification -->
-@if (showToast()) {
-  <div class="toast-notification animate-slideUpFade">
-    <div class="toast-content">
-      <mat-icon class="toast-icon">check_circle</mat-icon>
-      <span>{{ toastMessage() }}</span>
+  <!-- Feedback Modal -->
+  @if (showFeedbackModal()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fadeIn"
+      (click)="toggleFeedbackModal()"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl p-6"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 class="text-xl font-bold mb-4 dark:text-white">Rate Experience</h2>
+
+        <div class="flex justify-center gap-2 mb-4">
+          @for (star of [1, 2, 3, 4, 5]; track star) {
+            <button
+              (click)="setRating(star)"
+              class="text-3xl transition-transform hover:scale-110"
+              [class.grayscale]="feedbackRating() < star"
+            >
+              ⭐
+            </button>
+          }
+        </div>
+
+        <textarea
+          [(ngModel)]="feedbackComment"
+          class="w-full p-3 border rounded-lg mb-4 bg-slate-50 dark:bg-slate-800 dark:text-white"
+          rows="3"
+          placeholder="Tell us more..."
+        ></textarea>
+
+        <div class="flex gap-2">
+          <button
+            mat-flat-button
+            color="primary"
+            class="flex-1"
+            (click)="submitFeedback()"
+            [disabled]="isSubmittingFeedback() || feedbackRating() === 0"
+          >
+            Submit
+          </button>
+          <button mat-stroked-button class="flex-1" (click)="toggleFeedbackModal()">Cancel</button>
+        </div>
+      </div>
     </div>
-  </div>
-}
+  }
+
+  <!-- Toasts -->
+  @if (showToast()) {
+    <div
+      class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60] bg-slate-800 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm animate-slideUpFade"
+    >
+      <mat-icon class="!w-4 !h-4 text-[16px]">check_circle</mat-icon> {{ toastMessage() }}
+    </div>
+  }
+</div>

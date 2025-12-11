@@ -1,0 +1,25 @@
+{
+  "id": "28453c34-a762-4464-93ba-f0bcd63c7ff1",
+  "title": "hi",
+  "created_at": "2025-12-11T05:23:45.689Z",
+  "updated_at": "2025-12-11T05:24:06.330Z",
+  "owner_address": "0x7b3F8AA8849D0fC0898cD3cE897a417C0D61ce7d",
+  "messages": [
+    {
+      "role": "user",
+      "content": "hi"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I help you today?"
+    },
+    {
+      "role": "user",
+      "content": "what endpoints you have to validate identities?"
+    },
+    {
+      "role": "assistant",
+      "content": "I have access to the following endpoints for identity validation:\n\n**Colombia:**\n* Colombia - National ID Verification\n* Colombia - Police Records Check\n* Colombia - Military Service Records\n* Colombia - Health Records Verification\n* Colombia - Tax Information Verification\n* Colombia - Data Verification Service (multiple specific services like judicial process details, affiliations, contraloria certificate, delinquent debtors, electoral records, lawyers, RUNT driver, RUNT vehicle, RUNT vehicle by plate, RUNT vehicle by VIN, police records RNMC, politically exposed persons, SISBEN, RUES, RUES complete, Ministry of Labor certificates)\n* Colombia - Vehicle Verification (multiple specific services like RUNT vehicle, RUNT vehicle by plate, RUNT vehicle by VIN, pico y placa, vehicle tax, accidentality Bogota, fines Bogota, fines Medellin)\n\n**Venezuela:**\n* Venezuela - Identity Verification\n* Venezuela - Immigration Status Verification\n\n**Mexico:**\n* Mexico - Data Verification Service (CURP)\n* Mexico - Vehicle Verification\n\n**United States:**\n* United States - Data Verification Service (Florida driver license, SSN)\n* United States - Vehicle Verification (multiple specific services like by plate, by VIN)\n\n**Ecuador:**\n* Ecuador - Identity Verification\n* Ecuador - Vehicle Verification (multiple specific services like by plate, fines, vehicle registration)\n* Ecuador - Data Verification Service (company lookup)\n\n**Peru:**\n* Peru - Vehicle Verification (multiple specific services like by plate, SOAT)\n* Peru - Immigration Status Verification\n* Peru - Identity Verification (v3)\n* Peru - Complete Identity Verification (v3)\n* Peru - Data Verification Service (company lookup v3)\n\n**Chile:**\n* Chile - Identity Verification\n* Chile - Vehicle Verification\n* Chile - Data Verification Service (company lookup, taxpayer lookup, document validation)\n\n**Costa Rica:**\n* Costa Rica - Identity Verification\n* Costa Rica - Vehicle Verification\n\n**Panama:**\n* Panama - Identity Verification\n* Panama - Data Verification Service (company lookup)\n\n**Spain:**\n* Spain - Identity Verification\n* Spain - Vehicle Verification\n* Spain - Data Verification Service (company lookup)\n\n**Brazil:**\n* Brazil - Identity Verification\n* Brazil - Data Verification Service (company lookup, criminal history)\n* Brazil - Vehicle Verification\n\n**Argentina:**\n* Argentina - Identity Verification\n* Argentina - Vehicle Verification\n* Argentina - Data Verification Service (company lookup)\n\n**Bolivia:**\n* Bolivia - Identity Verification\n* Bolivia - Vehicle Verification\n* Bolivia - Data Verification Service (company lookup)\n\n**Guatemala:**\n* Guatemala - Identity Verification\n\n**Honduras:**\n* Honduras - Identity Verification\n\n**El Salvador:**\n* El Salvador - Data Verification Service (DUI lookup)\n\n**República Dominicana:**\n* República Dominicana - Identity Verification\n\n**Global:**\n* Global - DEA Background Check\n* Global - UN Sanctions Check\n* Global - Interpol Background Check\n* Global - OFAC Sanctions Check\n* Global - FBI Background Check\n* Global - Europol Background Check\n* Global - Passport Entries (United States)\n\n**Communication Services:**\n* SMS Messaging\n* WhatsApp Messaging\n* Email OTP\n\n**Other Services:**\n* Credit Intents\n* IP Lookup\n* OCR Scan (Pro, GPT, Studio)\n\nPlease let me know which country or type of verification you are interested in, and I can provide more specific details."
+    }
+  ]
+}
