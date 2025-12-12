@@ -249,10 +249,12 @@ export class AgentWalletService {
 
     const contract = new ethers.Contract(REPUTATION_REGISTRY, REPUTATION_ABI, signer);
 
-    // Create payment proof hash if paymentTxHash is provided
-    const paymentProof = paymentTxHash
-      ? ethers.utils.keccak256(ethers.utils.toUtf8Bytes(paymentTxHash))
-      : ethers.constants.HashZero;
+    // Use paymentTxHash directly if valid, otherwise HashZero
+    // We do NOT hash the tx hash again, otherwise the link to explorer breaks
+    const paymentProof =
+      paymentTxHash && ethers.utils.isHexString(paymentTxHash)
+        ? paymentTxHash
+        : ethers.constants.HashZero;
 
     // Get fee data
     const feeData = await this.provider.getFeeData();
@@ -409,5 +411,31 @@ export class AgentWalletService {
         };
       }),
     );
+  }
+  /**
+   * Fetch transaction details for verification
+   */
+  async getTransactionDetails(txHash: string) {
+    try {
+      const tx = await this.provider.getTransaction(txHash);
+      if (!tx) return null;
+
+      const receipt = await this.provider.getTransactionReceipt(txHash);
+      const block = await this.provider.getBlock(tx.blockNumber!); // blockNumber should be present if mined
+
+      return {
+        hash: tx.hash,
+        from: tx.from,
+        to: tx.to,
+        value: ethers.utils.formatEther(tx.value),
+        gasUsed: receipt.gasUsed.toString(),
+        status: receipt.status === 1 ? 'Success' : 'Failed',
+        timestamp: block.timestamp * 1000, // Convert to ms
+        blockNumber: tx.blockNumber,
+      };
+    } catch (error) {
+      console.error('Error fetching tx details:', error);
+      return null;
+    }
   }
 }

@@ -104,7 +104,7 @@ const getAgentFeedbacks = async (agentTokenId) => {
 				comment: feedback.comment,
 				verified: feedback.verified,
 				timestamp: new Date(Number(feedback.timestamp) * 1000).toISOString(),
-				paymentProof: feedback.paymentProof,
+				paymentProof: feedback.paymentProof === ethers.ZeroHash ? null : feedback.paymentProof,
 			});
 		}
 		return feedbacks;

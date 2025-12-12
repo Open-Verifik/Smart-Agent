@@ -47,16 +47,11 @@
 
     <!-- Link -->
     <a
-      [href]="
-        'https://testnets.opensea.io/assets/avalanche-fuji/' +
-        agentInfo.identity.agentCardURI?.split('/')?.[0] +
-        '/' +
-        (agentInfo.identity.agentCardURI || '1')
-      "
+      href="https://testnet.snowtrace.io/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1"
       target="_blank"
       class="block text-center text-sm text-blue-600 hover:underline"
     >
-      View Agent Card (ERC8004)
+      View Agent on SnowTrace
     </a>
 
     <!-- Reviews -->
@@ -71,7 +66,7 @@
       </h4>
 
       <div class="flex flex-col gap-3">
-        @for (feedback of agentInfo.feedbacks; track feedback.id) {
+        @for (feedback of sortedFeedbacks; track feedback.id) {
           <div
             class="group p-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl transition-all shadow-sm hover:shadow-md"
           >

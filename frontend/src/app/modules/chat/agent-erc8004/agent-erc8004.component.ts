@@ -33,4 +33,8 @@ export interface AgentCardInfo {
 })
 export class AgentErc8004Component {
   @Input() agentInfo: AgentCardInfo | null = null;
+
+  get sortedFeedbacks() {
+    return this.agentInfo?.feedbacks ? [...this.agentInfo.feedbacks].reverse().slice(0, 10) : [];
+  }
 }
