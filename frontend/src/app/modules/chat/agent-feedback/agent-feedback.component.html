@@ -1,0 +1,104 @@
+<button class="close-button" (click)="close()">
+  <mat-icon>close</mat-icon>
+</button>
+
+<div class="modal-header">
+  <h2>Rate Experience</h2>
+</div>
+
+<div class="modal-body">
+  <!-- Star Rating -->
+  <div class="rating-stars flex justify-center gap-2 mb-6">
+    @for (star of [1, 2, 3, 4, 5]; track star) {
+      <button
+        class="star-button transition-transform hover:scale-110 focus:outline-none"
+        [class.active]="rating() >= star"
+        (click)="setRating(star)"
+      >
+        <mat-icon class="!w-10 !h-10 !text-[40px]">{{
+          rating() >= star ? 'star' : 'star_border'
+        }}</mat-icon>
+      </button>
+    }
+  </div>
+
+  <!-- Tags -->
+  <div class="feedback-tags flex flex-wrap justify-center gap-2 mb-6">
+    @for (tag of availableTags; track tag) {
+      <button
+        class="tag px-3 py-1.5 rounded-full text-xs font-medium border transition-all"
+        [class.selected]="selectedTags().includes(tag)"
+        [class.bg-indigo-50]="selectedTags().includes(tag)"
+        [class.text-indigo-600]="selectedTags().includes(tag)"
+        [class.border-indigo-200]="selectedTags().includes(tag)"
+        [class.bg-white]="!selectedTags().includes(tag)"
+        [class.text-slate-600]="!selectedTags().includes(tag)"
+        [class.border-slate-200]="!selectedTags().includes(tag)"
+        [class.hover:border-indigo-300]="!selectedTags().includes(tag)"
+        (click)="toggleTag(tag)"
+      >
+        {{ tag }}
+      </button>
+    }
+  </div>
+
+  <!-- Comment -->
+  <div class="comment-section mb-4">
+    <textarea
+      [(ngModel)]="comment"
+      placeholder="Tell us about your experience..."
+      class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none transition-all"
+      rows="4"
+      [disabled]="isSubmitting()"
+    ></textarea>
+  </div>
+
+  <!-- Payment Info -->
+  @if (data.paymentTxHash) {
+    <div
+      class="payment-link-info mb-6 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700"
+    >
+      <div class="flex items-center gap-2 mb-1">
+        <mat-icon class="!w-4 !h-4 !text-[16px]">link</mat-icon>
+        <span>Feedback linked to payment:</span>
+      </div>
+      <code
+        class="block bg-slate-100 dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-700 font-mono break-all"
+      >
+        {{ data.paymentTxHash }}
+      </code>
+    </div>
+  }
+
+  <!-- Actions -->
+  <div class="feedback-actions flex gap-3">
+    <button
+      mat-stroked-button
+      class="flex-1 !h-11 !rounded-xl border-slate-300 dark:border-slate-600"
+      (click)="close()"
+      [disabled]="isSubmitting()"
+    >
+      Cancel
+    </button>
+    <button
+      mat-flat-button
+      color="primary"
+      class="flex-1 !h-11 !rounded-xl !bg-indigo-600 hover:!bg-indigo-700 text-white"
+      (click)="submit()"
+      [disabled]="isSubmitting() || rating() === 0"
+    >
+      @if (isSubmitting()) {
+        <div class="flex items-center justify-center gap-2">
+          <mat-icon class="animate-spin !w-5 !h-5 !text-[20px]">refresh</mat-icon>
+          <span>Submitting...</span>
+        </div>
+      } @else {
+        Submit Feedback
+      }
+    </button>
+  </div>
+
+  <div class="feedback-note mt-4 text-center text-[10px] text-slate-400">
+    💡 Your feedback will be recorded on-chain via ERC8004 Reputation Registry
+  </div>
+</div>

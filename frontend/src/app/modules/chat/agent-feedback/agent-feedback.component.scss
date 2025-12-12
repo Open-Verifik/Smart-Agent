@@ -1,0 +1,121 @@
+/* Agent Feedback Modal Styles */
+
+/* Ensure the host component provides the modal container styling */
+:host {
+  display: block;
+  background: white;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+
+  /* Header */
+  .modal-header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding-top: 0.5rem;
+
+    h2 {
+      font-size: 1.125rem; /* 18px */
+      font-weight: 600;
+      color: #0f172a;
+      margin: 0;
+      letter-spacing: -0.01em;
+      line-height: 1.5;
+    }
+  }
+
+  .close-button {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    color: #94a3b8;
+    background: transparent;
+    width: 32px;
+    height: 32px;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+
+    &:hover {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+/* Stars */
+.star-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: #e2e8f0; /* slate-200 */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.active {
+    color: #f59e0b; /* amber-500 */
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.3));
+  }
+
+  &:hover {
+    transform: scale(1.15);
+  }
+}
+
+/* Tags */
+.tag {
+  outline: none;
+
+  &.selected {
+    border-color: #818cf8; /* indigo-400 */
+    box-shadow: 0 2px 4px rgba(99, 102, 241, 0.1);
+  }
+
+  &:hover:not(.selected) {
+    background-color: #f8fafc;
+  }
+}
+
+/* Comment Area */
+textarea {
+  font-family: inherit;
+}
+
+/* Dark Mode Support */
+:host-context(.dark) {
+  background: #0f172a; /* slate-900 */
+  border: 1px solid #1e293b;
+
+  .modal-header h2 {
+    color: white;
+  }
+
+  .close-button {
+    &:hover {
+      background: #1e293b;
+      color: white;
+    }
+  }
+
+  .star-button {
+    color: #334155; /* slate-700 */
+
+    &.active {
+      color: #fbbf24; /* amber-400 */
+    }
+  }
+}
