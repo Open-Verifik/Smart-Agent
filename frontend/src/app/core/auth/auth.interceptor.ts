@@ -58,7 +58,8 @@ export const authInterceptor = (
             req.url.includes('x402-agent.verifik.co') ||
             req.url.includes('api/') ||
             req.url.includes('staging-api.verifik.co') ||
-            req.url.includes('api.verifik.co');
+            req.url.includes('api.verifik.co') ||
+            req.url.includes('verifik.app');
 
           if (!isBackendApiCall) {
             // Sign out

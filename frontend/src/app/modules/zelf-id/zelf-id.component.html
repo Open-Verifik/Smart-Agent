@@ -1,0 +1,307 @@
+<div class="flex flex-col flex-auto min-w-0">
+  <!-- Header -->
+  <div
+    class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent"
+  >
+    <div class="flex-1 min-w-0">
+      <!-- Breadcrumbs -->
+      <div class="flex flex-wrap items-center font-medium text-xs text-secondary leading-none">
+        <a class="cursor-pointer text-primary-500 hover:underline">Verifik</a>
+        <mat-icon
+          class="icon-size-4 mx-2 text-secondary"
+          [svgIcon]="'heroicons_solid:chevron-right'"
+        ></mat-icon>
+        <span class="cursor-default">Zelf ID</span>
+      </div>
+      <!-- Title -->
+      <div class="mt-2">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate"
+        >
+          Identity Verification
+        </h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex flex-col flex-auto p-6 sm:p-10">
+    <div class="flex flex-col bg-card shadow rounded-2xl w-full p-8 max-w-3xl mx-auto">
+      <!-- Loading -->
+      <div *ngIf="loading()" class="flex flex-col items-center justify-center py-12">
+        <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+        <p class="mt-4 text-secondary font-medium">Loading configuration...</p>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="error()" class="flex flex-col items-center justify-center py-8 text-center">
+        <div
+          class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4"
+        >
+          <mat-icon
+            class="text-red-600 dark:text-red-400"
+            [svgIcon]="'heroicons_outline:exclamation-triangle'"
+          ></mat-icon>
+        </div>
+        <h3 class="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">
+          Error Loading Project
+        </h3>
+        <p class="text-secondary max-w-md">{{ error() }}</p>
+        <button mat-stroked-button color="primary" class="mt-6" (click)="loadProject()">
+          Retry
+        </button>
+      </div>
+
+      <!-- Content -->
+      <div *ngIf="!loading() && !error() && project()" class="flex flex-col animate-fadeIn">
+        <div class="flex items-center gap-4 mb-6">
+          <div
+            class="w-16 h-16 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center"
+            *ngIf="project().logo"
+          >
+            <img [src]="project().logo" class="w-10 h-10 object-contain" />
+          </div>
+          <div>
+            <h3 class="text-xl font-bold">{{ project().name }}</h3>
+            <p class="text-secondary text-sm">
+              {{ project().description || 'Please complete the verification steps below.' }}
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="border-t border-slate-200 dark:border-slate-700 pt-6"
+          *ngIf="step() === 'registration'"
+        >
+          <p class="text-slate-600 dark:text-slate-400 mb-6">
+            Please fill in your details to proceed with the verification.
+          </p>
+
+          <!-- Form -->
+          <form
+            [formGroup]="signUpForm"
+            (ngSubmit)="submitForm()"
+            class="flex flex-col gap-4"
+            *ngIf="signUpForm"
+          >
+            <!-- Full Name -->
+            <mat-form-field *ngIf="formFields().includes('fullName')" class="w-full">
+              <mat-label>Full Name*</mat-label>
+              <input matInput formControlName="fullName" placeholder="John Doe" />
+              <mat-error>Name is required</mat-error>
+            </mat-form-field>
+
+            <!-- Split Name -->
+            <div class="flex gap-4" *ngIf="formFields().includes('firstName')">
+              <mat-form-field class="w-1/2">
+                <mat-label>First Name*</mat-label>
+                <input matInput formControlName="firstName" />
+                <mat-error>First Name is required</mat-error>
+              </mat-form-field>
+              <mat-form-field class="w-1/2">
+                <mat-label>Last Name*</mat-label>
+                <input matInput formControlName="lastName" />
+                <mat-error>Last Name is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Email -->
+            <mat-form-field *ngIf="formFields().includes('email')" class="w-full">
+              <mat-label>Email*</mat-label>
+              <input matInput formControlName="email" type="email" placeholder="john@example.com" />
+              <mat-error>Email is required</mat-error>
+            </mat-form-field>
+
+            <!-- Phone -->
+            <div class="flex gap-4" *ngIf="formFields().includes('phone')">
+              <mat-form-field class="w-32">
+                <mat-label>Code</mat-label>
+                <mat-select formControlName="countryCode">
+                  <mat-option *ngFor="let cc of countryCodes" [value]="cc.code">
+                    <span class="mr-2">{{ cc.flag }}</span> {{ cc.code }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field class="flex-auto">
+                <mat-label>Phone*</mat-label>
+                <input matInput formControlName="phone" type="tel" placeholder="1234567890" />
+                <mat-icon matSuffix>call</mat-icon>
+                <mat-error>Phone is required</mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Terms -->
+            <div *ngIf="formFields().includes('agreements')" class="flex items-center my-2">
+              <mat-checkbox formControlName="agreements"
+                >I agree to the Terms and Conditions</mat-checkbox
+              >
+            </div>
+
+            <div class="mt-4 flex justify-end">
+              <button
+                mat-flat-button
+                color="primary"
+                [disabled]="signUpForm.invalid || saving()"
+                class="px-8 w-full sm:w-auto"
+              >
+                <mat-progress-spinner
+                  *ngIf="saving()"
+                  mode="indeterminate"
+                  diameter="20"
+                  class="mr-2"
+                ></mat-progress-spinner>
+                {{ saving() ? 'Registering...' : 'Start Verification' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- OTP Verification Step -->
+        <div *ngIf="step().startsWith('otp')" class="flex flex-col items-center py-8">
+          <div
+            class="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400"
+          >
+            <mat-icon
+              [svgIcon]="
+                step() === 'otp-email'
+                  ? 'heroicons_outline:envelope'
+                  : 'heroicons_outline:device-phone-mobile'
+              "
+              class="icon-size-8"
+            ></mat-icon>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">
+            Verify {{ step() === 'otp-email' ? 'Email Address' : 'Phone Number' }}
+          </h3>
+          <p class="text-secondary mb-8 text-center max-w-sm">
+            We sent a verification code to <br />
+            <span class="font-bold text-slate-800 dark:text-slate-200">
+              {{
+                step() === 'otp-email'
+                  ? appRegistration().email
+                  : appRegistration().countryCode + ' ' + appRegistration().phone
+              }}
+            </span>
+          </p>
+
+          <form
+            [formGroup]="otpForm"
+            (ngSubmit)="verifyOtp()"
+            class="w-full max-w-xs flex flex-col gap-4"
+          >
+            <mat-form-field class="w-full text-center">
+              <mat-label>Verification Code</mat-label>
+              <input
+                matInput
+                formControlName="code"
+                class="text-center tracking-widest text-2xl font-mono"
+                placeholder="0000"
+                maxlength="6"
+              />
+            </mat-form-field>
+
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="otpForm.invalid || saving()"
+              type="submit"
+              class="w-full h-12 text-lg rounded-xl"
+            >
+              <mat-progress-spinner
+                *ngIf="saving()"
+                mode="indeterminate"
+                diameter="24"
+                class="mr-2 inline-block"
+              ></mat-progress-spinner>
+              <span *ngIf="!saving()">Verify Code</span>
+            </button>
+          </form>
+
+          <button
+            mat-button
+            class="mt-6 text-secondary"
+            (click)="sendOtp(step() === 'otp-email' ? 'email' : 'phone')"
+          >
+            Did not receive code? <span class="text-primary hover:underline">Resend</span>
+          </button>
+        </div>
+
+        <!-- Completion Step (Temporary) -->
+        <div
+          *ngIf="step() === 'complete'"
+          class="flex flex-col items-center py-12 text-center animate-fadeIn"
+        >
+          <div
+            class="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6 text-green-600 dark:text-green-400"
+          >
+            <mat-icon [svgIcon]="'heroicons_outline:check-circle'" class="icon-size-12"></mat-icon>
+          </div>
+          <h3 class="text-3xl font-bold mb-4">Registration Complete!</h3>
+          <p class="text-secondary max-w-md">
+            Your identity has been registered and contact details verified.
+          </p>
+        </div>
+      </div>
+
+      <!-- Debug Flow Info -->
+      <div
+        class="mt-8 p-6 bg-slate-100 dark:bg-slate-800 rounded-2xl w-full max-w-3xl mx-auto"
+        *ngIf="projectFlow()"
+      >
+        <h4 class="font-bold text-sm mb-2 text-slate-500 uppercase tracking-wider">
+          Flow Debug Config
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+          <div>
+            <span class="text-slate-500">Flow Version:</span>
+            <span class="ml-2 font-bold text-green-600">{{
+              projectFlow()?.raw?.version || 'N/A'
+            }}</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Flow Type:</span>
+            <span class="ml-2 font-bold">{{ projectFlow()?.raw?.type }}</span>
+          </div>
+          <div>
+            <span class="text-slate-500">Full Name Style:</span>
+            <span class="ml-2 font-bold">{{
+              projectFlow()?.onboardingSettings?.signUpForm?.fullNameStyle || 'undefined'
+            }}</span>
+          </div>
+          <div>
+            <span class="text-slate-500">FullName:</span>
+            <span class="ml-2 font-bold">{{
+              projectFlow()?.onboardingSettings?.signUpForm?.fullName
+            }}</span>
+          </div>
+          <div>
+            <span class="text-slate-500">FirstName:</span>
+            <span class="ml-2 font-bold">{{
+              projectFlow()?.onboardingSettings?.signUpForm?.firstName
+            }}</span>
+          </div>
+          <div>
+            <span class="text-slate-500">LastName:</span>
+            <span class="ml-2 font-bold">{{
+              projectFlow()?.onboardingSettings?.signUpForm?.lastName
+            }}</span>
+          </div>
+          <div
+            class="col-span-1 sm:col-span-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700"
+          >
+            <span class="text-slate-500">Computed Name Logic:</span>
+            <span class="ml-2 font-bold text-primary-500">{{
+              projectFlow()?.isNameSeparated ? 'SEPARATED' : 'TOGETHER'
+            }}</span>
+          </div>
+          <div class="col-span-1 sm:col-span-2">
+            <span class="text-slate-500">Raw Settings:</span>
+            <pre class="mt-1 p-2 bg-white dark:bg-black/20 rounded">{{
+              projectFlow()?.onboardingSettings?.signUpForm | json
+            }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

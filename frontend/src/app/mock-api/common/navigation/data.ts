@@ -17,6 +17,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
     link: '/postman',
   },
   {
+    id: 'zelf-id',
+    title: 'Zelf ID',
+    type: 'basic',
+    icon: 'heroicons_outline:identification',
+    link: '/zelf-id',
+  },
+  {
     id: 'history',
     title: 'nav.history',
     type: 'basic',
@@ -59,6 +66,13 @@ export const horizontalNavigation: FuseNavigationItem[] = [
     type: 'basic',
     icon: 'heroicons_outline:command-line',
     link: '/postman',
+  },
+  {
+    id: 'zelf-id',
+    title: 'Zelf ID',
+    type: 'basic',
+    icon: 'heroicons_outline:identification',
+    link: '/zelf-id',
   },
   {
     id: 'history',

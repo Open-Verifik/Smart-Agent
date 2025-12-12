@@ -23,6 +23,10 @@ export const appRoutes: Route[] = [
         loadChildren: () => import('app/modules/postman/postman.routes').then((m) => m.default),
       },
       {
+        path: 'zelf-id',
+        loadChildren: () => import('app/modules/zelf-id/zelf-id.routes').then((m) => m.default),
+      },
+      {
         path: 'history',
         loadChildren: () => import('app/modules/history/history.routes').then((m) => m.default),
       },
