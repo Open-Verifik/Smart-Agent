@@ -143,7 +143,15 @@ export class ChatComponent implements OnInit {
   // --- Conversation Management ---
   conversations = signal<ConversationSummary[]>([]);
   currentConversationId = signal<string | null>(null);
-  isSidebarOpen = signal(true);
+  isSidebarOpen = signal<boolean>(this.getInitialSidebarState());
+
+  private getInitialSidebarState(): boolean {
+    const saved = localStorage.getItem('isSidebarOpen');
+    if (saved !== null) {
+      return saved === 'true';
+    }
+    return window.innerWidth >= 1024; // Default open on desktop
+  }
   isRenamingId = signal<string | null>(null); // ID of conversation being renamed
   renameInput = signal('');
 
@@ -371,7 +379,11 @@ export class ChatComponent implements OnInit {
   }
 
   toggleSidebar() {
-    this.isSidebarOpen.update((v) => !v);
+    this.isSidebarOpen.update((v) => {
+      const newState = !v;
+      localStorage.setItem('isSidebarOpen', String(newState));
+      return newState;
+    });
   }
 
   // --- Existing Logic ---
@@ -674,6 +686,7 @@ export class ChatComponent implements OnInit {
   refreshBalance() {
     this.walletService.getBalance().then((b) => this.walletBalance.set(b));
   }
+
   getImageUrl(src: string): string {
     if (!src) return '';
     if (src.startsWith('http') || src.startsWith('data:')) {
@@ -755,7 +768,10 @@ export class ChatComponent implements OnInit {
       );
       this.messages.update((msgs) => [
         ...msgs,
-        { role: 'system', content: `Payment sent! TX: ${tx.hash}. Waiting for confirmation...` },
+        {
+          role: 'system',
+          content: `Payment sent! TX: ${tx.hash}. Waiting for confirmation...`,
+        },
       ]);
       await tx.wait();
       this.lastPaymentTx.set(tx.hash);
@@ -867,7 +883,7 @@ export class ChatComponent implements OnInit {
 
   scrollToBottom(): void {
     setTimeout(() => {
-      if (this.scrollContainer) {
+      if (this.scrollContainer?.nativeElement) {
         this.scrollContainer.nativeElement.scrollTop =
           this.scrollContainer.nativeElement.scrollHeight;
       }
