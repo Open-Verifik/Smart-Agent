@@ -164,8 +164,62 @@ const chatWithAgent = async (
 	paymentAmount = null,
 	mode = "x402",
 	userToken = null,
-	images = []
+	images = [],
+	pendingToolCall = null
 ) => {
+	// 0. CHECK FOR PENDING TOOL EXECUTION (Payment Confirmation Flow)
+	// If we have a paymentTx AND a pendingToolCall, we can skip the LLM entirely and execute the tool directly.
+	// This is the "deterministic" path.
+	if (paymentTx && pendingToolCall) {
+		console.log(`[Agent] Payment confirmed (${paymentTx}). Executing pending tool: ${pendingToolCall.tool}`);
+
+		try {
+			// Execute Tool directly
+			const toolResult = await executeTool(pendingToolCall.tool, pendingToolCall.args, paymentTx, paymentWallet, paymentAmount, userToken);
+
+			// If it still requires payment (e.g. partial payment? unlikely but possible), handled same way
+			if (toolResult.status === "payment_required") {
+				return {
+					role: "assistant",
+					content: "I need to perform a paid action. Please confirm payment.",
+					tool_call: pendingToolCall, // Return same tool call
+					payment_required: toolResult.details,
+				};
+			}
+
+			if (toolResult.status === "error") {
+				return {
+					role: "assistant",
+					content: `To process your request, I attempted to call the tool but encountered an error: ${toolResult.error}`,
+				};
+			}
+
+			// Record Proof
+			let validationProof = null;
+			if (toolResult.status === "success" && toolResult.data) {
+				try {
+					validationProof = await recordValidationProof(pendingToolCall.tool, pendingToolCall.args, toolResult.data, paymentTx);
+				} catch (validationError) {
+					console.warn("[Agent] Failed to record validation proof:", validationError.message);
+				}
+			}
+
+			// Return success
+			return {
+				role: "assistant",
+				content: `Tool executed successfully.`,
+				data: toolResult.data,
+				proof: validationProof,
+			};
+		} catch (execError) {
+			console.error("[Agent] Pending Tool Execution Failed:", execError);
+			return {
+				role: "assistant",
+				content: `An error occurred while executing the pending action: ${execError.message}`,
+			};
+		}
+	}
+
 	// 1. Construct System Prompt
 	const fullPrompt = constructSystemPrompt(toolsDef.endpoints, history, userMessage, paymentTx, images);
 
@@ -225,6 +279,26 @@ const chatWithAgent = async (
 				const toolCall = JSON.parse(jsonMatch[0]);
 				if (toolCall.tool && toolCall.args) {
 					console.log("[Agent] Detected Tool Call:", toolCall);
+
+					// Helper: Validate required arguments are present and valid
+					const toolDef = toolsDef.endpoints.find((t) => t.id === toolCall.tool);
+					if (toolDef && toolDef.parameters && toolDef.parameters.required) {
+						const missingArgs = toolDef.parameters.required.filter(
+							(key) =>
+								!toolCall.args[key] ||
+								toolCall.args[key] === "null" ||
+								toolCall.args[key] === "undefined" ||
+								toolCall.args[key] === ""
+						);
+
+						if (missingArgs.length > 0) {
+							console.warn(`[Agent] Tool call ${toolCall.tool} missing required args: ${missingArgs.join(", ")}. Aborting execution.`);
+							return {
+								role: "assistant",
+								content: `I'm missing some information to process your request. Please provide the: ${missingArgs.join(", ")}`,
+							};
+						}
+					}
 
 					// Execute Tool
 					const toolResult = await executeTool(toolCall.tool, toolCall.args, paymentTx, paymentWallet, paymentAmount, userToken);
@@ -440,6 +514,7 @@ const constructSystemPrompt = (tools, history, userMessage, paymentTx, images = 
     1. Check if you have all necessary parameters.
     2. If missing parameters, ask the user for them.
     3. If you have parameters, DO NOT ASK for payment permission. Output the JSON object IMMEDIATELY to call the tool. The system handles the payment request flow.
+    4. NEVER output a tool call if any "required" parameter is null, undefined, or missing. Ask the user first.
        IGNORE the "estimatedCost" field in the tool definition. Do not mention it.
        {"tool": "tool_id", "args": { ... }}
     
@@ -449,14 +524,22 @@ const constructSystemPrompt = (tools, history, userMessage, paymentTx, images = 
 			? `
     - You have received ${images.length} image(s). 
     - Your PRIMARY GOAL is to EXTRACT information from these images to call a validation tool.
-    - Analyze the image to identify the document type (e.g., Colombian Cédula, Passport, Visa, etc.).
-    - Extract the document number and other required fields.
-    - SPECIFIC RULE FOR COLOMBIAN ID (Cédula): If you see a Colombian Cédula, extract the number and IMMEDIATELY call 'colombia_api_identity_lookup' with documentType="CC" and the extracted number.
+    - Analyze the image to identify the **Country** and **Document Type** (e.g., National ID, Passport, Driver's License).
+    - Extract the **Document Number** and any other visible identifiers.
+    
+    INTELLIGENT TOOL MATCHING:
+    1. Look at the "country" and "description" fields of the available tools provided in the context.
+    2. Match the country and document type found in the image to the most appropriate tool.
+       - Example: If image shows "República de Colombia", look for tools with country="Colombia".
+       - Example: If image shows "United States" and a car plate, look for vehicle tools.
+    3. Once the correct tool is identified, extract the specific parameters required by that tool (e.g., 'documentType', 'documentNumber', 'plate').
+    4. Call the tool immediately with the extracted data.
+    
     - Do NOT just describe the image. Use the extracted data to call the tool.
+    - If you are unsure of the number, ask the user to confirm it, but attempt the extraction first.
     `
 			: ""
 	}
-
     Output ONLY the JSON object. Do not add conversational text when calling a tool.
     
     Current Context:

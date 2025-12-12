@@ -15,9 +15,9 @@ const crypto = require("crypto");
  */
 const chat = async (ctx) => {
 	try {
-		const { message, conversationId, paymentTx, paymentWallet, paymentAmount, mode, userToken, images } = ctx.request.body;
+		const { message, conversationId, paymentTx, paymentWallet, paymentAmount, mode, userToken, images, pendingToolCall } = ctx.request.body;
 
-		if (!message && (!images || images.length === 0)) {
+		if (!message && (!images || images.length === 0) && !paymentTx) {
 			ctx.status = 400;
 			ctx.body = { error: "Message or image is required" };
 			return;
@@ -74,7 +74,8 @@ const chat = async (ctx) => {
 			paymentAmount,
 			mode,
 			userToken,
-			processedImages
+			processedImages,
+			pendingToolCall
 		);
 
 		// Now we persist

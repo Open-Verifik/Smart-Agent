@@ -522,6 +522,7 @@ export class ChatComponent implements OnInit {
     paymentTx: string | null = null,
     paymentAmount: string | null = null,
     images: string[] = [],
+    pendingToolCall: any = null,
   ) {
     const isCredits = this.chatMode() === 'credits';
     const userToken = isCredits ? localStorage.getItem('accessToken') : null;
@@ -535,6 +536,7 @@ export class ChatComponent implements OnInit {
       mode: this.chatMode(),
       userToken: userToken,
       images: images,
+      pendingToolCall: pendingToolCall,
     };
 
     this.http.post<any>(`${this.apiUrl}/chat`, payload).subscribe({
@@ -775,7 +777,17 @@ export class ChatComponent implements OnInit {
       this.isLoading.set(true);
       this.startThinkingSimulation();
 
-      await this.callAgent('Payment complete. Please proceed.', tx.hash, amount);
+      // Find the message that triggered this payment to get the tool_call
+      const triggeringMsg = this.messages().find((m) => m.payment_required === details);
+      const pendingToolCall = triggeringMsg?.tool_call;
+
+      await this.callAgent(
+        'Payment complete. Please proceed.',
+        tx.hash,
+        amount,
+        [],
+        pendingToolCall,
+      );
       await this.refreshBalance();
     } catch (error: any) {
       this.handleError(error);
