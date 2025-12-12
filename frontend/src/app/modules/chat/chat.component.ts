@@ -15,6 +15,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 import { AgentFeedbackComponent } from './agent-feedback/agent-feedback.component';
+import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 
 // --- Interfaces ---
 interface ToolCall {
@@ -154,21 +155,24 @@ export class ChatComponent implements OnInit {
     this.walletAddress.set(this.walletService.getAddress());
     await this.refreshBalance();
 
+    // Check for Wallet Change
+    const currentWallet = this.walletAddress();
+    const lastWallet = localStorage.getItem('lastWalletAddress');
+
+    if (currentWallet !== lastWallet) {
+      console.log('Wallet changed, clearing session.');
+      localStorage.removeItem('currentConversationId');
+      localStorage.setItem('lastWalletAddress', currentWallet || '');
+      this.currentConversationId.set(null);
+    }
+
     // Load initial data
     this.loadAgentInfo();
-    // this.loadConversations(); // MOVED BELOW to ensure mode is set
 
     // Determine Mode Smartly based on Balances
     const hasWallet = !!this.walletService.getAddress();
     const hasCredits = !!localStorage.getItem('accessToken');
     const walletBalance = parseFloat(this.walletBalance() || '0');
-
-    // Logic:
-    // 1. If has credits but no wallet -> Credits
-    // 2. If has wallet but no credits -> x402
-    // 3. If has both:
-    //    - If wallet empty (< 0.01 AVAX) -> Credits
-    //    - Else -> x402 (Default)
 
     if (hasCredits && !hasWallet) {
       this.setChatMode('credits');
@@ -183,14 +187,18 @@ export class ChatComponent implements OnInit {
     }
 
     // Now load conversations with correct mode/wallet
-    this.loadConversations();
+    this.loadConversations(); // This filters by wallet address
 
     // Restore Session
     const savedId = localStorage.getItem('currentConversationId');
     if (savedId) {
+      // Only select if it exists in the loaded conversations?
+      // Issue: loadConversations is async.
+      // We can trust the backend to enforce access control?
+      // If not, relying on the 'lastWalletAddress' check above is the primary frontend defense.
       this.selectConversation(savedId);
     } else {
-      this.startNewChat(false); // don't clear again if init
+      this.startNewChat(false);
     }
   }
 
@@ -652,18 +660,30 @@ export class ChatComponent implements OnInit {
   confirmPayment(msgIndex: number) {
     const msg = this.messages()[msgIndex];
     if (!msg.payment_required) return;
-    this.pendingPayment.set(msg.payment_required);
-    this.showPaymentConfirmationModal.set(true);
+
+    // Open Dialog
+    const dialogRef = this._matDialog.open(PaymentConfirmationComponent, {
+      panelClass: 'payment-confirmation-dialog',
+      backdropClass: 'backdrop-blur-sm',
+      data: {
+        amount: msg.payment_required.amount,
+        currentBalance: this.walletBalance(),
+        receiver: msg.payment_required.receiver_address,
+        endpoint: msg.payment_required.endpoint || msg.payment_required.toolName || 'Unknown',
+        details: msg.payment_required.details,
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        await this.executePayment(msg.payment_required!);
+      }
+    });
   }
 
-  cancelPayment() {
-    this.showPaymentConfirmationModal.set(false);
-    this.pendingPayment.set(null);
-  }
+  // cancelPayment removed (handled by dialog)
 
-  async executePayment() {
-    const details = this.pendingPayment();
-    if (!details) return;
+  async executePayment(details: PaymentRequired) {
     this.isProcessingPayment.set(true);
     const amount = details.amount;
     const contractAddress = details.receiver_address;
@@ -681,15 +701,27 @@ export class ChatComponent implements OnInit {
         ...msgs,
         { role: 'system', content: `Payment sent! TX: ${tx.hash}. Waiting for confirmation...` },
       ]);
-      this.showPaymentConfirmationModal.set(false);
-      this.pendingPayment.set(null);
       await tx.wait();
       this.lastPaymentTx.set(tx.hash);
+
+      // Update message to show confirmed
+      this.messages.update((msgs) =>
+        msgs.map((msg) => {
+          if (
+            msg.role === 'system' &&
+            msg.content.includes(tx.hash) &&
+            msg.content.includes('Waiting')
+          ) {
+            return { ...msg, content: `Payment sent! TX: ${tx.hash}. Confirmed.` };
+          }
+          return msg;
+        }),
+      );
+
       await this.callAgent('Payment complete. Please proceed.', tx.hash, amount);
       await this.refreshBalance();
     } catch (error: any) {
       this.handleError(error);
-      this.showPaymentConfirmationModal.set(false);
     } finally {
       this.isProcessingPayment.set(false);
     }
@@ -752,12 +784,15 @@ export class ChatComponent implements OnInit {
   async resetWallet() {
     if (confirm('Are you sure you want to reset your wallet?')) {
       this.walletService.resetWallet();
-      this.walletAddress.set(this.walletService.getAddress());
+      this.walletAddress.set('');
+      localStorage.setItem('lastWalletAddress', '');
+
+      // Clear Chat State
+      this.startNewChat(true);
+      this.conversations.set([]);
+
       await this.refreshBalance();
       this.showWalletModal.set(false);
-      // Reload conversations for new wallet address logic?
-      // conversations list depends on wallet address, so yes
-      this.loadConversations();
     }
   }
 

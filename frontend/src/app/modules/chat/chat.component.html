@@ -265,6 +265,7 @@
             </div>
 
             <!-- Case 2: Success Toast -->
+            <!-- Case 2: Success Toast -->
           } @else if (
             msg.role === 'system' && msg.content.includes('Thank you for your feedback')
           ) {
@@ -277,7 +278,100 @@
               </div>
             </div>
 
-            <!-- Case 3: Regular Message -->
+            <!-- Case 3: Payment Receipt Card -->
+          } @else if (msg.role === 'system' && msg.content.includes('Payment sent!')) {
+            <div class="message flex gap-4 animate-fadeIn">
+              <!-- Avatar -->
+              <div
+                class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-50"
+              >
+                AI
+              </div>
+
+              <!-- Payment Receipt Card -->
+              <div class="max-w-[85%] sm:max-w-lg w-full">
+                <div
+                  class="bg-white dark:bg-slate-800 rounded-2xl rounded-tl-sm p-4 shadow-sm border border-slate-200 dark:border-slate-700 w-full"
+                >
+                  <!-- Header -->
+                  <div
+                    class="flex flex-wrap items-center justify-between mb-3 pb-3 border-b border-slate-100 dark:border-slate-700 gap-2"
+                  >
+                    <div class="flex items-center gap-2">
+                      <div
+                        class="w-6 h-6 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center"
+                      >
+                        <mat-icon class="text-blue-600 dark:text-blue-400 !w-4 !h-4 !text-[16px]"
+                          >receipt_long</mat-icon
+                        >
+                      </div>
+                      <span class="text-sm font-bold text-slate-800 dark:text-white"
+                        >Payment Receipt</span
+                      >
+                      <span
+                        class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 text-[10px] font-bold uppercase tracking-wider"
+                        >AVAX</span
+                      >
+                    </div>
+
+                    @if (msg.content.includes('Waiting')) {
+                      <div
+                        class="flex items-center gap-1.5 text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100"
+                      >
+                        <mat-progress-spinner
+                          diameter="12"
+                          mode="indeterminate"
+                          class="mr-1"
+                        ></mat-progress-spinner>
+                        Processing...
+                      </div>
+                    } @else {
+                      <div
+                        class="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100"
+                      >
+                        <mat-icon class="!w-3 !h-3 !text-[12px]">check_circle</mat-icon>
+                        Confirmed
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Body & Tx Hash -->
+                  <div class="space-y-3">
+                    <p class="text-sm text-slate-600 dark:text-slate-300">
+                      Transaction initiated on chain.
+                    </p>
+
+                    <!-- Reusing Tx Hash Display Logic -->
+                    @if (extractTxHash(msg.content); as txHash) {
+                      <div class="flex flex-col gap-1.5">
+                        <label
+                          class="text-[10px] uppercase tracking-wider font-semibold text-slate-400"
+                          >Transaction Hash</label
+                        >
+                        <a
+                          [href]="'https://testnet.snowtrace.io/tx/' + txHash"
+                          target="_blank"
+                          class="group flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-300 hover:bg-blue-50/50 transition-all cursor-pointer text-decoration-none"
+                        >
+                          <span
+                            class="font-mono text-xs text-slate-600 dark:text-slate-400 truncate mr-2"
+                            >{{ txHash }}</span
+                          >
+                          <div
+                            class="flex items-center gap-1 text-slate-400 group-hover:text-blue-500"
+                          >
+                            <span class="text-[10px] font-bold">VIEW</span>
+                            <mat-icon class="!w-3 !h-3 !text-[12px]">open_in_new</mat-icon>
+                          </div>
+                        </a>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Case 4: Regular Message -->
           } @else {
             <div
               class="message flex gap-4 animate-fadeIn"
@@ -674,44 +768,6 @@
         <button mat-stroked-button color="warn" class="w-full" (click)="resetWallet()">
           Reset Wallet
         </button>
-      </div>
-    </div>
-  }
-
-  <!-- Payment Confirmation Modal -->
-  @if (showPaymentConfirmationModal()) {
-    <div
-      class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-fadeIn"
-      (click)="cancelPayment()"
-    >
-      <div
-        class="bg-white dark:bg-slate-900 w-full max-w-md rounded-2xl shadow-xl p-6"
-        (click)="$event.stopPropagation()"
-      >
-        <!-- Payment Confirmation Logic/UI reused essentially -->
-        <h2 class="text-xl font-bold mb-4 dark:text-white">Confirm Payment</h2>
-        <div class="text-center py-4">
-          <div class="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-            {{ pendingPayment()?.amount }} AVAX
-          </div>
-          <p class="text-slate-500 text-sm">To: {{ pendingPayment()?.receiver_address }}</p>
-        </div>
-        <div class="space-y-3 mt-4">
-          <button
-            mat-flat-button
-            color="primary"
-            class="w-full !h-12 !text-lg"
-            (click)="executePayment()"
-            [disabled]="isProcessingPayment()"
-          >
-            @if (isProcessingPayment()) {
-              Processing...
-            } @else {
-              Confirm Payment
-            }
-          </button>
-          <button mat-stroked-button class="w-full !h-12" (click)="cancelPayment()">Cancel</button>
-        </div>
       </div>
     </div>
   }

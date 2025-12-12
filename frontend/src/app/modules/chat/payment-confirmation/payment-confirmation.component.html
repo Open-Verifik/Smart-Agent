@@ -1,0 +1,138 @@
+<div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full overflow-hidden">
+  <!-- Header -->
+  <div class="p-6 pb-2">
+    <h2 class="text-xl font-bold dark:text-white flex items-center gap-2">
+      <div
+        class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center"
+      >
+        <mat-icon class="text-slate-900 dark:text-white">account_balance_wallet</mat-icon>
+      </div>
+      Confirm Payment
+    </h2>
+  </div>
+
+  <div class="p-6 pt-2">
+    <!-- Cost Section -->
+    <div class="text-center py-6">
+      <div class="text-xs text-slate-500 uppercase tracking-wider font-bold mb-2">Total Cost</div>
+      <div
+        class="text-5xl font-bold text-slate-900 dark:text-white flex items-center justify-center gap-1"
+      >
+        {{ data.amount }}
+        <span class="text-lg text-slate-400 font-normal self-end mb-1.5 ml-1">AVAX</span>
+      </div>
+    </div>
+
+    <!-- Balance Details -->
+    <div
+      class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-6 border border-slate-100 dark:border-slate-700 space-y-3"
+    >
+      <div class="flex justify-between items-center">
+        <span class="text-sm text-slate-500 font-medium">Current Balance</span>
+        <span class="font-mono text-sm dark:text-slate-300"
+          >{{ data.currentBalance | number: '1.4-4' }} AVAX</span
+        >
+      </div>
+
+      <div class="w-full h-px bg-slate-200 dark:bg-slate-700"></div>
+
+      <div class="flex justify-between items-center">
+        <span class="text-sm font-bold text-slate-700 dark:text-slate-200">New Balance</span>
+        <span
+          class="font-mono text-sm font-bold"
+          [class.text-amber-500]="newBalance < 0.1 && newBalance >= 0"
+          [class.text-red-500]="newBalance < 0"
+          [class.text-emerald-600]="newBalance >= 0.1"
+        >
+          {{ newBalance | number: '1.4-4' }} AVAX
+        </span>
+      </div>
+      @if (newBalance < 0) {
+        <div class="text-xs text-red-500 text-right font-medium mt-1">Insufficient Funds</div>
+      }
+    </div>
+
+    <!-- Service Info -->
+    <div class="mb-8">
+      <label class="text-xs text-slate-400 uppercase font-bold tracking-wider mb-3 block px-1"
+        >Service Details</label
+      >
+      <div
+        class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
+      >
+        <!-- Endpoint -->
+        <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex items-start gap-3">
+          <div
+            class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center shrink-0"
+          >
+            <mat-icon class="!w-4 !h-4 !text-[16px]">api</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[10px] text-slate-400 uppercase font-bold">Endpoint</div>
+            <div
+              class="text-sm font-mono text-slate-700 dark:text-slate-300 break-all leading-tight"
+            >
+              {{ data.endpoint || 'Unknown Endpoint' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiver -->
+        <div class="p-3 border-b border-slate-100 dark:border-slate-700 flex items-start gap-3">
+          <div
+            class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 flex items-center justify-center shrink-0"
+          >
+            <mat-icon class="!w-4 !h-4 !text-[16px]">wallet</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[10px] text-slate-400 uppercase font-bold">Receiver</div>
+            <div
+              class="text-xs font-mono text-slate-600 dark:text-slate-400 break-all leading-tight"
+            >
+              {{ data.receiver }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Params (Details) -->
+        @if (data.details) {
+          <div class="p-3 bg-slate-50 dark:bg-slate-800/50 flex items-start gap-3">
+            <div
+              class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 flex items-center justify-center shrink-0"
+            >
+              <mat-icon class="!w-4 !h-4 !text-[16px]">data_object</mat-icon>
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="text-[10px] text-slate-400 uppercase font-bold">Parameters</div>
+              <div
+                class="text-xs text-slate-600 dark:text-slate-400 mt-1 font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded p-2"
+              >
+                {{ data.details }}
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3">
+      <button
+        mat-stroked-button
+        class="flex-1 !h-12 !rounded-xl !border-slate-200 dark:!border-slate-700 dark:text-white"
+        (click)="close()"
+      >
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        color="primary"
+        class="flex-[2] !h-12 !rounded-xl text-lg shadow-lg shadow-blue-500/20"
+        (click)="confirm()"
+        [disabled]="newBalance < 0"
+      >
+        Confirm Payment
+      </button>
+    </div>
+  </div>
+</div>
