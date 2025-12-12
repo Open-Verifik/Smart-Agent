@@ -668,48 +668,12 @@
           <!-- We rely on component logic for data -->
           <div class="space-y-4">
             @if (isLoadingAgentInfo()) {
-              <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+              <div class="flex justify-center p-8">
+                <mat-progress-spinner mode="indeterminate" diameter="30"></mat-progress-spinner>
+              </div>
             } @else {
-              <div class="flex items-start gap-4">
-                <div
-                  class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-2xl"
-                >
-                  🤖
-                </div>
-                <div>
-                  <h3 class="font-bold text-lg dark:text-white">
-                    {{ agentInfo()?.identity?.name }}
-                  </h3>
-                  <p class="text-sm text-slate-500">{{ agentInfo()?.identity?.description }}</p>
-                </div>
-              </div>
-              <!-- Stats -->
-              <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
-                <div class="text-center">
-                  <div class="font-bold text-xl dark:text-white">
-                    {{ agentInfo()?.reputation?.averageRating?.toFixed(1) || '0.0' }}
-                  </div>
-                  <div class="text-[10px] text-slate-500 uppercase">Rating</div>
-                </div>
-                <div class="text-center border-l border-slate-200 dark:border-slate-700">
-                  <div class="font-bold text-xl dark:text-white">
-                    {{ agentInfo()?.reputation?.totalFeedbacks || 0 }}
-                  </div>
-                  <div class="text-[10px] text-slate-500 uppercase">Reviews</div>
-                </div>
-                <div class="text-center border-l border-slate-200 dark:border-slate-700">
-                  <div class="font-bold text-xl dark:text-white">
-                    {{ agentInfo()?.identity?.active ? 'ON' : 'OFF' }}
-                  </div>
-                  <div class="text-[10px] text-slate-500 uppercase">Status</div>
-                </div>
-              </div>
-              <!-- Address -->
-              <div
-                class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-mono break-all text-slate-600 dark:text-slate-300"
-              >
-                {{ agentInfo()?.identity?.agentAddress }}
-              </div>
+              <!-- Use the new component -->
+              <app-agent-erc8004 [agentInfo]="agentInfo()"></app-agent-erc8004>
             }
           </div>
         </div>
@@ -777,7 +741,8 @@
     <div
       class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[60] bg-slate-800 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm animate-slideUpFade"
     >
-      <mat-icon class="!w-4 !h-4 text-[16px]">check_circle</mat-icon> {{ toastMessage() }}
+      <mat-icon class="!w-4 !h-4 text-[16px]">check_circle</mat-icon>
+      {{ toastMessage() }}
     </div>
   }
 </div>

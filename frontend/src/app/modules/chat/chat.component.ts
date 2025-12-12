@@ -16,6 +16,7 @@ import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.co
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
 import { AgentFeedbackComponent } from './agent-feedback/agent-feedback.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
+import { AgentErc8004Component } from './agent-erc8004/agent-erc8004.component';
 
 // --- Interfaces ---
 interface ToolCall {
@@ -98,6 +99,7 @@ interface AgentInfo {
     TranslocoModule,
     MatDialogModule,
     MarkdownPipe,
+    AgentErc8004Component,
   ],
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.scss',
@@ -170,20 +172,30 @@ export class ChatComponent implements OnInit {
     this.loadAgentInfo();
 
     // Determine Mode Smartly based on Balances
+    // Determine Mode Smartly based on Balances & Preference
+    const savedMode = localStorage.getItem('chatMode') as 'x402' | 'credits';
     const hasWallet = !!this.walletService.getAddress();
     const hasCredits = !!localStorage.getItem('accessToken');
     const walletBalance = parseFloat(this.walletBalance() || '0');
 
-    if (hasCredits && !hasWallet) {
-      this.setChatMode('credits');
-    } else if (hasWallet && hasCredits) {
-      if (walletBalance < 0.01) {
+    if (
+      savedMode &&
+      ((savedMode === 'x402' && hasWallet) || (savedMode === 'credits' && hasCredits))
+    ) {
+      this.chatMode.set(savedMode);
+    } else {
+      // Fallback if no preference or preference is invalid for current auth state
+      if (hasCredits && !hasWallet) {
         this.setChatMode('credits');
-      } else {
+      } else if (hasWallet && hasCredits) {
+        if (walletBalance < 0.01) {
+          this.setChatMode('credits');
+        } else {
+          this.setChatMode('x402');
+        }
+      } else if (hasWallet) {
         this.setChatMode('x402');
       }
-    } else if (hasWallet) {
-      this.setChatMode('x402');
     }
 
     // Now load conversations with correct mode/wallet
@@ -399,8 +411,16 @@ export class ChatComponent implements OnInit {
 
   setChatMode(mode: 'x402' | 'credits') {
     this.chatMode.set(mode);
+    localStorage.setItem('chatMode', mode);
+
+    // When switching modes, we must reset the view because the identity changes
+    this.currentConversationId.set(null);
+    localStorage.removeItem('currentConversationId');
+    this.messages.set([]);
 
     this.refreshBalance();
+    this.loadConversations(); // Refresh list for new identity
+    this.startNewChat(false); // Reset UI to welcome message
   }
 
   // Image Attachments

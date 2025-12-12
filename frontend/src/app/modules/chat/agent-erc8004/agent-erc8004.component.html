@@ -1,0 +1,135 @@
+<div class="space-y-4">
+  @if (!agentInfo) {
+    <div class="flex justify-center p-4">
+      <div
+        class="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"
+      ></div>
+    </div>
+  } @else {
+    <div class="flex items-start gap-4">
+      <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-2xl">
+        🤖
+      </div>
+      <div>
+        <h3 class="font-bold text-lg dark:text-white">
+          {{ agentInfo.identity.name }}
+        </h3>
+        <p class="text-sm text-slate-500">{{ agentInfo.identity.description }}</p>
+      </div>
+    </div>
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+      <div class="text-center">
+        <div class="font-bold text-xl dark:text-white">
+          {{ agentInfo.reputation.averageRating?.toFixed(1) || '0.0' }}
+        </div>
+        <div class="text-[10px] text-slate-500 uppercase">Rating</div>
+      </div>
+      <div class="text-center border-l border-slate-200 dark:border-slate-700">
+        <div class="font-bold text-xl dark:text-white">
+          {{ agentInfo.reputation.totalFeedbacks || 0 }}
+        </div>
+        <div class="text-[10px] text-slate-500 uppercase">Reviews</div>
+      </div>
+      <div class="text-center border-l border-slate-200 dark:border-slate-700">
+        <div class="font-bold text-xl dark:text-white">
+          {{ agentInfo.identity.active ? 'ON' : 'OFF' }}
+        </div>
+        <div class="text-[10px] text-slate-500 uppercase">Status</div>
+      </div>
+    </div>
+    <!-- Address -->
+    <div
+      class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-mono break-all text-slate-600 dark:text-slate-300"
+    >
+      {{ agentInfo.identity.agentAddress }}
+    </div>
+
+    <!-- Link -->
+    <a
+      [href]="
+        'https://testnets.opensea.io/assets/avalanche-fuji/' +
+        agentInfo.identity.agentCardURI?.split('/')?.[0] +
+        '/' +
+        (agentInfo.identity.agentCardURI || '1')
+      "
+      target="_blank"
+      class="block text-center text-sm text-blue-600 hover:underline"
+    >
+      View Agent Card (ERC8004)
+    </a>
+
+    <!-- Reviews -->
+    <div class="pt-2 border-t border-slate-100 dark:border-slate-800 mt-2">
+      <h4 class="text-sm font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+        Recent Reviews
+        <span
+          class="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 font-normal border border-slate-200 dark:border-slate-700"
+        >
+          {{ agentInfo.reputation.totalFeedbacks }}
+        </span>
+      </h4>
+
+      <div class="flex flex-col gap-3">
+        @for (feedback of agentInfo.feedbacks; track feedback.id) {
+          <div
+            class="group p-4 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl transition-all shadow-sm hover:shadow-md"
+          >
+            <!-- Header: User & Rating -->
+            <div class="flex items-start justify-between mb-2">
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500 dark:text-slate-400"
+                >
+                  <mat-icon class="!w-3 !h-3 !text-[12px]">person</mat-icon>
+                </div>
+                <span class="text-xs font-semibold text-slate-700 dark:text-slate-200 font-mono">
+                  {{ feedback.client | slice: 0 : 6 }}...
+                </span>
+                <span class="text-[10px] text-slate-400">•</span>
+                <span class="text-[10px] text-slate-400">Verified Client</span>
+              </div>
+
+              <div
+                class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-md border border-yellow-100 dark:border-yellow-900/30"
+              >
+                <mat-icon class="!w-3 !h-3 !text-[12px] text-yellow-600 dark:text-yellow-500"
+                  >star</mat-icon
+                >
+                <span class="text-xs font-bold text-yellow-700 dark:text-yellow-500">{{
+                  feedback.rating
+                }}</span>
+              </div>
+            </div>
+
+            <!-- Comment -->
+            <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3 pl-8">
+              "{{ feedback.comment }}"
+            </p>
+
+            <!-- Metadata / Proof -->
+            @if (feedback.paymentProof) {
+              <div class="pl-8 flex items-center gap-2">
+                <a
+                  [href]="'https://testnet.snowtrace.io/tx/' + feedback.paymentProof"
+                  target="_blank"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 dark:bg-slate-900 text-[10px] font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-slate-100 dark:border-slate-800"
+                >
+                  <mat-icon class="!w-3 !h-3 !text-[12px]">receipt_long</mat-icon>
+                  <span class="font-mono">Tx: {{ feedback.paymentProof | slice: 0 : 8 }}...</span>
+                  <mat-icon class="!w-2.5 !h-2.5 !text-[10px] opacity-50">open_in_new</mat-icon>
+                </a>
+              </div>
+            }
+          </div>
+        } @empty {
+          <div
+            class="text-center py-6 text-slate-400 text-sm bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700"
+          >
+            No reviews yet. Be the first to rate!
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
