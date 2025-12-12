@@ -60,7 +60,9 @@
         <table mat-table [dataSource]="dataSource" class="w-full bg-transparent" matSort>
           <!-- Status Column -->
           <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-6">Status</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-6">
+              {{ 'history.table.status' | transloco }}
+            </th>
             <td mat-cell *matCellDef="let request" class="pl-6 py-4">
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
@@ -73,14 +75,16 @@
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400"
                 *ngIf="!request.statusCode"
               >
-                Confirmed
+                {{ 'history.table.confirmed' | transloco }}
               </span>
             </td>
           </ng-container>
 
           <!-- Service Column -->
           <ng-container matColumnDef="service">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Service</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ 'history.table.service' | transloco }}
+            </th>
             <td mat-cell *matCellDef="let request" class="py-4">
               <div class="flex flex-col">
                 <span class="font-medium text-slate-900 dark:text-slate-100">{{
@@ -93,7 +97,7 @@
 
           <!-- Parameters Column -->
           <ng-container matColumnDef="parameters">
-            <th mat-header-cell *matHeaderCellDef>Parameters</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.parameters' | transloco }}</th>
             <td mat-cell *matCellDef="let request" class="py-4">
               <div class="flex flex-col gap-1">
                 <span
@@ -114,7 +118,7 @@
                 <span
                   *ngIf="!request.params || formatParams(request.params).length === 0"
                   class="text-xs text-secondary italic"
-                  >No parameters</span
+                  >{{ 'history.table.noParams' | transloco }}</span
                 >
               </div>
             </td>
@@ -122,7 +126,7 @@
 
           <!-- RequestID Column (x402) -->
           <ng-container matColumnDef="requestId">
-            <th mat-header-cell *matHeaderCellDef>Request ID</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.requestId' | transloco }}</th>
             <td mat-cell *matCellDef="let request" class="py-4 font-mono text-xs">
               {{ request.requestId }}
             </td>
@@ -130,7 +134,7 @@
 
           <!-- Amount Column (x402) -->
           <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.amount' | transloco }}</th>
             <td mat-cell *matCellDef="let request" class="py-4 font-mono text-xs text-green-600">
               <ng-container *ngIf="mode() === 'x402'">
                 {{ request.paymentAmount || request.cost }}
@@ -142,7 +146,7 @@
 
           <!-- Transaction Hash Column (x402) -->
           <ng-container matColumnDef="transactionHash">
-            <th mat-header-cell *matHeaderCellDef>Tx Hash</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.txHash' | transloco }}</th>
             <td mat-cell *matCellDef="let request" class="py-4">
               <a
                 [href]="'https://testnet.snowtrace.io/tx/' + request.paymentTx"
@@ -159,7 +163,9 @@
 
           <!-- Date Column -->
           <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              {{ 'history.table.date' | transloco }}
+            </th>
             <td mat-cell *matCellDef="let request" class="py-4 whitespace-nowrap text-secondary">
               {{ formatDate(request.createdAt || request.timestamp) }}
             </td>
@@ -167,7 +173,9 @@
 
           <!-- Duration Column -->
           <ng-container matColumnDef="duration">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pr-6">Duration</th>
+            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pr-6">
+              {{ 'history.table.duration' | transloco }}
+            </th>
             <td mat-cell *matCellDef="let request" class="pr-6 py-4 text-secondary text-right">
               {{ formatDuration(request.duration) }}
             </td>
@@ -195,7 +203,7 @@
                   class="icon-size-12 mb-4 text-hint"
                   [svgIcon]="'heroicons_outline:clipboard-document-list'"
                 ></mat-icon>
-                <span>No requests found</span>
+                <span>{{ 'history.table.noRequests' | transloco }}</span>
               </div>
             </td>
           </tr>

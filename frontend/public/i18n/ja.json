@@ -184,7 +184,13 @@
   },
   "chat": {
     "header": {
-      "subtitle": "x402プロトコル"
+      "subtitle": "x402プロトコル",
+      "disclaimer": "Verifikエージェントは間違える可能性があります。重要な情報は確認してください。"
+    },
+    "sidebar": {
+      "title": "チャット一覧",
+      "newChat": "新規チャット",
+      "noHistory": "履歴がありません。チャットを開始してください！"
     },
     "agentInfo": {
       "title": "エージェント識別情報 (ERC8004)",
@@ -208,15 +214,25 @@
       "viewSnowtrace": "Snowtraceで全て表示",
       "viewNft": "SnowtraceでNFTを表示",
       "agentCard": "エージェントカードJSON",
-      "links": "リンク"
+      "links": "リンク",
+      "verifiedClient": "Verified Client",
+      "noReviews": "No reviews yet. Be the first to rate!",
+      "viewSnowtrace": "View Agent on SnowTrace",
+      "recentReviews": "Recent Reviews",
+      "rating": "Rating",
+      "reviews": "Reviews",
+      "on": "ON",
+      "off": "OFF"
     },
     "walletModal": {
       "title": "エージェントウォレット",
       "subtitle": "x402プロトコル • Avalanche Fuji",
       "address": "ウォレットアドレス",
+      "addressLabel": "アドレス",
       "balance": "残高",
+      "balanceLabel": "残高",
       "refresh": "更新",
-      "reset": "リセット"
+      "reset": "ウォレットをリセット"
     },
     "payment": {
       "required": "支払いが必要です",
@@ -234,7 +250,23 @@
       "confirmBtn": "支払いを確認",
       "processing": "処理中...",
       "cancel": "キャンセル",
-      "fee": "≈ ${{ price }} USD"
+      "fee": "≈ ${{ price }} USD",
+      "title": "Confirm Payment",
+      "totalCost": "Total Cost",
+      "currentBalance": "Current Balance",
+      "newBalance": "New Balance",
+      "insufficientFunds": "Insufficient Funds",
+      "serviceDetails": "Service Details",
+      "endpoint": "Endpoint",
+      "unknownEndpoint": "Unknown Endpoint",
+      "receiver": "Receiver",
+      "parameters": "Parameters",
+      "receipt": {
+        "title": "Payment Receipt",
+        "processing": "Processing...",
+        "confirmed": "Confirmed",
+        "initiated": "Transaction initiated on chain."
+      }
     },
     "feedback": {
       "prompt": "役に立ちましたか？",
@@ -251,7 +283,22 @@
       "submit": "フィードバックを送信",
       "submitting": "送信中...",
       "cancel": "キャンセル",
-      "note": "フィードバックはERC8004評価レジストリ経由でオンチェーンに記録されます"
+      "note": "フィードバックはERC8004評価レジストリ経由でオンチェーンに記録されます",
+      "modalTitle": "Rate Experience",
+      "placeholder": "Tell us about your experience...",
+      "linkedTo": "Feedback linked to payment:",
+      "submit": "Submit Feedback",
+      "submitting": "Submitting...",
+      "proof": {
+        "title": "Proof of Feedback",
+        "confirming": "Confirming...",
+        "onChain": "On-Chain",
+        "processing": "Processing your reputation feedback on correct execution.",
+        "txHash": "Transaction Hash",
+        "view": "VIEW",
+        "success": "Reputation Recorded Successfully"
+      },
+      "rateThis": "Rate this"
     },
     "inputPlaceholder": "リクエストを入力してください (例: 'ID 12345678を検証')...",
     "securedBy": "Verifikによって保護",
@@ -260,6 +307,19 @@
     }
   },
   "history": {
-    "title": "リクエスト履歴"
+    "title": "リクエスト履歴",
+    "table": {
+      "status": "ステータス",
+      "service": "サービス",
+      "parameters": "パラメータ",
+      "requestId": "リクエストID",
+      "amount": "金額",
+      "txHash": "Tx Hash",
+      "date": "日付",
+      "duration": "所要時間",
+      "noRequests": "リクエストが見つかりません",
+      "noParams": "パラメータなし",
+      "confirmed": "確認済み"
+    }
   }
 }

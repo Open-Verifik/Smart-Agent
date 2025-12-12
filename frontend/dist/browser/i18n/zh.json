@@ -184,7 +184,13 @@
   },
   "chat": {
     "header": {
-      "subtitle": "x402协议"
+      "subtitle": "x402协议",
+      "disclaimer": "Verifik 代理可能会犯错。请核实重要信息。"
+    },
+    "sidebar": {
+      "title": "您的聊天",
+      "newChat": "新聊天",
+      "noHistory": "暂无历史记录。开始聊天吧！"
     },
     "agentInfo": {
       "title": "代理身份 (ERC8004)",
@@ -208,15 +214,25 @@
       "viewSnowtrace": "在Snowtrace上查看全部",
       "viewNft": "在Snowtrace上查看NFT",
       "agentCard": "代理卡片JSON",
-      "links": "链接"
+      "links": "链接",
+      "verifiedClient": "Verified Client",
+      "noReviews": "No reviews yet. Be the first to rate!",
+      "viewSnowtrace": "View Agent on SnowTrace",
+      "recentReviews": "Recent Reviews",
+      "rating": "Rating",
+      "reviews": "Reviews",
+      "on": "ON",
+      "off": "OFF"
     },
     "walletModal": {
       "title": "代理钱包",
       "subtitle": "x402协议 • Avalanche Fuji",
       "address": "钱包地址",
+      "addressLabel": "地址",
       "balance": "余额",
+      "balanceLabel": "余额",
       "refresh": "刷新",
-      "reset": "重置"
+      "reset": "重置钱包"
     },
     "payment": {
       "required": "需要支付",
@@ -234,7 +250,23 @@
       "confirmBtn": "确认支付",
       "processing": "处理中...",
       "cancel": "取消",
-      "fee": "≈ ${{ price }} USD"
+      "fee": "≈ ${{ price }} USD",
+      "title": "Confirm Payment",
+      "totalCost": "Total Cost",
+      "currentBalance": "Current Balance",
+      "newBalance": "New Balance",
+      "insufficientFunds": "Insufficient Funds",
+      "serviceDetails": "Service Details",
+      "endpoint": "Endpoint",
+      "unknownEndpoint": "Unknown Endpoint",
+      "receiver": "Receiver",
+      "parameters": "Parameters",
+      "receipt": {
+        "title": "Payment Receipt",
+        "processing": "Processing...",
+        "confirmed": "Confirmed",
+        "initiated": "Transaction initiated on chain."
+      }
     },
     "feedback": {
       "prompt": "这有用吗？",
@@ -251,7 +283,22 @@
       "submit": "提交反馈",
       "submitting": "提交中...",
       "cancel": "取消",
-      "note": "您的反馈将通过ERC8004声誉注册表记录在链上"
+      "note": "您的反馈将通过ERC8004声誉注册表记录在链上",
+      "modalTitle": "Rate Experience",
+      "placeholder": "Tell us about your experience...",
+      "linkedTo": "Feedback linked to payment:",
+      "submit": "Submit Feedback",
+      "submitting": "Submitting...",
+      "proof": {
+        "title": "Proof of Feedback",
+        "confirming": "Confirming...",
+        "onChain": "On-Chain",
+        "processing": "Processing your reputation feedback on correct execution.",
+        "txHash": "Transaction Hash",
+        "view": "VIEW",
+        "success": "Reputation Recorded Successfully"
+      },
+      "rateThis": "Rate this"
     },
     "inputPlaceholder": "输入您的请求 (例如: '验证ID 12345678')...",
     "securedBy": "由Verifik保护",
@@ -260,6 +307,19 @@
     }
   },
   "history": {
-    "title": "请求历史"
+    "title": "请求历史",
+    "table": {
+      "status": "状态",
+      "service": "服务",
+      "parameters": "参数",
+      "requestId": "请求 ID",
+      "amount": "金额",
+      "txHash": "交易哈希",
+      "date": "日期",
+      "duration": "时长",
+      "noRequests": "未找到请求",
+      "noParams": "无参数",
+      "confirmed": "已确认"
+    }
   }
 }

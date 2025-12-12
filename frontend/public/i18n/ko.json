@@ -184,7 +184,13 @@
   },
   "chat": {
     "header": {
-      "subtitle": "x402 프로토콜"
+      "subtitle": "x402 프로토콜",
+      "disclaimer": "Verifik 에이전트는 실수를 할 수 있습니다. 중요한 정보를 확인하십시오."
+    },
+    "sidebar": {
+      "title": "채팅 목록",
+      "newChat": "새 채팅",
+      "noHistory": "아직 기록이 없습니다. 채팅을 시작하세요!"
     },
     "agentInfo": {
       "title": "에이전트 신원 (ERC8004)",
@@ -208,13 +214,23 @@
       "viewSnowtrace": "Snowtrace에서 모두 보기",
       "viewNft": "Snowtrace에서 NFT 보기",
       "agentCard": "에이전트 카드 JSON",
-      "links": "링크"
+      "links": "링크",
+      "verifiedClient": "Verified Client",
+      "noReviews": "No reviews yet. Be the first to rate!",
+      "viewSnowtrace": "View Agent on SnowTrace",
+      "recentReviews": "Recent Reviews",
+      "rating": "Rating",
+      "reviews": "Reviews",
+      "on": "ON",
+      "off": "OFF"
     },
     "walletModal": {
       "title": "에이전트 지갑",
       "subtitle": "x402 프로토콜 • Avalanche Fuji",
       "address": "지갑 주소",
+      "addressLabel": "주소",
       "balance": "잔액",
+      "balanceLabel": "잔액",
       "refresh": "새로고침",
       "reset": "재설정"
     },
@@ -234,7 +250,23 @@
       "confirmBtn": "결제 확인",
       "processing": "처리 중...",
       "cancel": "취소",
-      "fee": "≈ ${{ price }} USD"
+      "fee": "≈ ${{ price }} USD",
+      "title": "Confirm Payment",
+      "totalCost": "Total Cost",
+      "currentBalance": "Current Balance",
+      "newBalance": "New Balance",
+      "insufficientFunds": "Insufficient Funds",
+      "serviceDetails": "Service Details",
+      "endpoint": "Endpoint",
+      "unknownEndpoint": "Unknown Endpoint",
+      "receiver": "Receiver",
+      "parameters": "Parameters",
+      "receipt": {
+        "title": "Payment Receipt",
+        "processing": "Processing...",
+        "confirmed": "Confirmed",
+        "initiated": "Transaction initiated on chain."
+      }
     },
     "feedback": {
       "prompt": "도움이 되었나요?",
@@ -251,7 +283,22 @@
       "submit": "피드백 제출",
       "submitting": "제출 중...",
       "cancel": "취소",
-      "note": "피드백은 ERC8004 평판 레지스트리를 통해 온체인에 기록됩니다"
+      "note": "피드백은 ERC8004 평판 레지스트리를 통해 온체인에 기록됩니다",
+      "modalTitle": "Rate Experience",
+      "placeholder": "Tell us about your experience...",
+      "linkedTo": "Feedback linked to payment:",
+      "submit": "Submit Feedback",
+      "submitting": "Submitting...",
+      "proof": {
+        "title": "Proof of Feedback",
+        "confirming": "Confirming...",
+        "onChain": "On-Chain",
+        "processing": "Processing your reputation feedback on correct execution.",
+        "txHash": "Transaction Hash",
+        "view": "VIEW",
+        "success": "Reputation Recorded Successfully"
+      },
+      "rateThis": "Rate this"
     },
     "inputPlaceholder": "요청을 입력하세요 (예: 'ID 12345678 검증')...",
     "securedBy": "Verifik에 의해 보호됨",
@@ -260,6 +307,19 @@
     }
   },
   "history": {
-    "title": "요청 기록"
+    "title": "요청 기록",
+    "table": {
+      "status": "상태",
+      "service": "서비스",
+      "parameters": "매개변수",
+      "requestId": "요청 ID",
+      "amount": "금액",
+      "txHash": "Tx 해시",
+      "date": "날짜",
+      "duration": "소요 시간",
+      "noRequests": "요청을 찾을 수 없습니다",
+      "noParams": "매개변수 없음",
+      "confirmed": "확인됨"
+    }
   }
 }

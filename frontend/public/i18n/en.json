@@ -184,7 +184,13 @@
   },
   "chat": {
     "header": {
-      "subtitle": "x402 Protocol"
+      "subtitle": "x402 Protocol",
+      "disclaimer": "Verifik Agent can make mistakes. Verify important information."
+    },
+    "sidebar": {
+      "title": "Your Chats",
+      "newChat": "New Chat",
+      "noHistory": "No history yet. Start a chat!"
     },
     "agentInfo": {
       "title": "Agent Identity (ERC8004)",
@@ -208,15 +214,23 @@
       "viewSnowtrace": "View All on Snowtrace",
       "viewNft": "View NFT on Snowtrace",
       "agentCard": "Agent Card JSON",
-      "links": "Links"
+      "links": "Links",
+      "verifiedClient": "Verified Client",
+      "noReviews": "No reviews yet. Be the first to rate!",
+      "rating": "Rating",
+      "reviews": "Reviews",
+      "on": "ON",
+      "off": "OFF"
     },
     "walletModal": {
       "title": "Agent Wallet",
       "subtitle": "x402 Protocol • Avalanche Fuji",
       "address": "Wallet Address",
+      "addressLabel": "Address",
       "balance": "Balance",
+      "balanceLabel": "Balance",
       "refresh": "Refresh",
-      "reset": "Reset"
+      "reset": "Reset Wallet"
     },
     "payment": {
       "required": "Payment Required",
@@ -234,7 +248,22 @@
       "confirmBtn": "Confirm Payment",
       "processing": "Processing...",
       "cancel": "Cancel",
-      "fee": "≈ ${{ price }} USD"
+      "fee": "≈ ${{ price }} USD",
+      "title": "Confirm Payment",
+      "totalCost": "Total Cost",
+      "currentBalance": "Current Balance",
+      "newBalance": "New Balance",
+      "insufficientFunds": "Insufficient Funds",
+      "serviceDetails": "Service Details",
+      "unknownEndpoint": "Unknown Endpoint",
+      "receiver": "Receiver",
+      "parameters": "Parameters",
+      "receipt": {
+        "title": "Payment Receipt",
+        "processing": "Processing...",
+        "confirmed": "Confirmed",
+        "initiated": "Transaction initiated on chain."
+      }
     },
     "feedback": {
       "prompt": "Was this helpful?",
@@ -251,7 +280,17 @@
       "submit": "Submit Feedback",
       "submitting": "Submitting...",
       "cancel": "Cancel",
-      "note": "Your feedback will be recorded on-chain via ERC8004 Reputation Registry"
+      "note": "Your feedback will be recorded on-chain via ERC8004 Reputation Registry",
+      "proof": {
+        "title": "Proof of Feedback",
+        "confirming": "Confirming...",
+        "onChain": "On-Chain",
+        "processing": "Processing your reputation feedback on correct execution.",
+        "txHash": "Transaction Hash",
+        "view": "VIEW",
+        "success": "Reputation Recorded Successfully"
+      },
+      "rateThis": "Rate this"
     },
     "inputPlaceholder": "Type your request (e.g., 'Validate ID 12345678')...",
     "securedBy": "Secured by Verifik",
@@ -260,6 +299,19 @@
     }
   },
   "history": {
-    "title": "Request History"
+    "title": "Request History",
+    "table": {
+      "status": "Status",
+      "service": "Service",
+      "parameters": "Parameters",
+      "requestId": "Request ID",
+      "amount": "Amount",
+      "txHash": "Tx Hash",
+      "date": "Date",
+      "duration": "Duration",
+      "noRequests": "No requests found",
+      "noParams": "No parameters",
+      "confirmed": "Confirmed"
+    }
   }
 }

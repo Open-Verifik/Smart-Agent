@@ -11,10 +11,19 @@ export interface AgentFeedbackData {
   paymentTxHash?: string | null;
 }
 
+import { TranslocoModule } from '@jsverse/transloco';
+
 @Component({
   selector: 'app-agent-feedback',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, MatDialogModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    TranslocoModule,
+  ],
   templateUrl: './agent-feedback.component.html',
   styleUrls: ['./agent-feedback.component.scss'],
 })

@@ -12,10 +12,12 @@ export interface PaymentConfirmationData {
   receiver: string;
 }
 
+import { TranslocoModule } from '@jsverse/transloco';
+
 @Component({
   selector: 'app-payment-confirmation',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, TranslocoModule],
   templateUrl: './payment-confirmation.component.html',
   styleUrls: ['./payment-confirmation.component.scss'],
 })

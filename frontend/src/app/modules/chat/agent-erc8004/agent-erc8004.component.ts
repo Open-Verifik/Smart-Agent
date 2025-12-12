@@ -24,10 +24,12 @@ export interface AgentCardInfo {
   }>;
 }
 
+import { TranslocoModule } from '@jsverse/transloco';
+
 @Component({
   selector: 'app-agent-erc8004',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [CommonModule, MatIconModule, TranslocoModule],
   templateUrl: './agent-erc8004.component.html',
   styles: ``,
 })

@@ -184,7 +184,13 @@
   },
   "chat": {
     "header": {
-      "subtitle": "Protocolo x402"
+      "subtitle": "Protocolo x402",
+      "disclaimer": "El Agente Verifik puede cometer errores. Verifica la información importante."
+    },
+    "sidebar": {
+      "title": "Tus Chats",
+      "newChat": "Nuevo Chat",
+      "noHistory": "Aún no hay historial. ¡Inicia un chat!"
     },
     "agentInfo": {
       "title": "Identidad del Agente (ERC8004)",
@@ -205,18 +211,26 @@
       "recentReviews": "Reseñas Recientes",
       "verified": "Verificado",
       "noInfo": "Identidad del agente no disponible. El agente puede no estar registrado en ERC8004.",
-      "viewSnowtrace": "Ver todo en Snowtrace",
+      "viewSnowtrace": "Ver Agente en SnowTrace",
       "viewNft": "Ver NFT en Snowtrace",
       "agentCard": "JSON de Tarjeta de Agente",
-      "links": "Enlaces"
+      "links": "Enlaces",
+      "verifiedClient": "Cliente Verificado",
+      "noReviews": "Aún no hay reseñas. ¡Sé el primero en calificar!",
+      "rating": "Calificación",
+      "reviews": "Reseñas",
+      "on": "AC",
+      "off": "IN"
     },
     "walletModal": {
       "title": "Billetera de Agente",
       "subtitle": "Protocolo x402 • Avalanche Fuji",
       "address": "Dirección de Billetera",
+      "addressLabel": "Dirección",
       "balance": "Saldo",
+      "balanceLabel": "Saldo",
       "refresh": "Actualizar",
-      "reset": "Restablecer"
+      "reset": "Restablecer Billetera"
     },
     "payment": {
       "required": "Pago Requerido",
@@ -234,7 +248,22 @@
       "confirmBtn": "Confirmar Pago",
       "processing": "Procesando...",
       "cancel": "Cancelar",
-      "fee": "≈ ${{ price }} USD"
+      "fee": "≈ ${{ price }} USD",
+      "title": "Confirmar Pago",
+      "totalCost": "Costo Total",
+      "currentBalance": "Saldo Actual",
+      "newBalance": "Nuevo Saldo",
+      "insufficientFunds": "Fondos Insuficientes",
+      "serviceDetails": "Detalles del Servicio",
+      "unknownEndpoint": "Endpoint Desconocido",
+      "receiver": "Destinatario",
+      "parameters": "Parámetros",
+      "receipt": {
+        "title": "Recibo de Pago",
+        "processing": "Procesando...",
+        "confirmed": "Confirmado",
+        "initiated": "Transacción iniciada en cadena."
+      }
     },
     "feedback": {
       "prompt": "¿Fue útil?",
@@ -251,7 +280,17 @@
       "submit": "Enviar Feedback",
       "submitting": "Enviando...",
       "cancel": "Cancelar",
-      "note": "Tu feedback será registrado en cadena vía Registro de Reputación ERC8004"
+      "note": "Tu feedback será registrado en cadena vía Registro de Reputación ERC8004",
+      "proof": {
+        "title": "Prueba de Feedback",
+        "confirming": "Confirmando...",
+        "onChain": "En Cadena",
+        "processing": "Procesando tu feedback de reputación sobre la ejecución correcta.",
+        "txHash": "Hash de Transacción",
+        "view": "VER",
+        "success": "Reputación Registrada Exitosamente"
+      },
+      "rateThis": "Calificar esto"
     },
     "inputPlaceholder": "Escribe tu solicitud (ej. 'Validar ID 12345678')...",
     "securedBy": "Asegurado por Verifik",
@@ -260,6 +299,19 @@
     }
   },
   "history": {
-    "title": "Historial de Solicitudes"
+    "title": "Historial de Solicitudes",
+    "table": {
+      "status": "Estado",
+      "service": "Servicio",
+      "parameters": "Parámetros",
+      "requestId": "ID de Solicitud",
+      "amount": "Monto",
+      "txHash": "Tx Hash",
+      "date": "Fecha",
+      "duration": "Duración",
+      "noRequests": "No se encontraron solicitudes",
+      "noParams": "Sin parámetros",
+      "confirmed": "Confirmado"
+    }
   }
 }

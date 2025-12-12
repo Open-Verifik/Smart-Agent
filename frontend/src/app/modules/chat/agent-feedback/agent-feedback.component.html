@@ -3,7 +3,7 @@
 </button>
 
 <div class="modal-header">
-  <h2>Rate Experience</h2>
+  <h2>{{ 'chat.feedback.modalTitle' | transloco }}</h2>
 </div>
 
 <div class="modal-body">
@@ -46,7 +46,7 @@
   <div class="comment-section mb-4">
     <textarea
       [(ngModel)]="comment"
-      placeholder="Tell us about your experience..."
+      [placeholder]="'chat.feedback.placeholder' | transloco"
       class="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none resize-none transition-all"
       rows="4"
       [disabled]="isSubmitting()"
@@ -60,7 +60,7 @@
     >
       <div class="flex items-center gap-2 mb-1">
         <mat-icon class="!w-4 !h-4 !text-[16px]">link</mat-icon>
-        <span>Feedback linked to payment:</span>
+        <span>{{ 'chat.feedback.linkedTo' | transloco }}</span>
       </div>
       <code
         class="block bg-slate-100 dark:bg-slate-900 p-2 rounded border border-slate-200 dark:border-slate-700 font-mono break-all"
@@ -78,7 +78,7 @@
       (click)="close()"
       [disabled]="isSubmitting()"
     >
-      Cancel
+      {{ 'chat.feedback.cancel' | transloco }}
     </button>
     <button
       mat-flat-button
@@ -90,15 +90,15 @@
       @if (isSubmitting()) {
         <div class="flex items-center justify-center gap-2">
           <mat-icon class="animate-spin !w-5 !h-5 !text-[20px]">refresh</mat-icon>
-          <span>Submitting...</span>
+          <span>{{ 'chat.feedback.submitting' | transloco }}</span>
         </div>
       } @else {
-        Submit Feedback
+        {{ 'chat.feedback.submit' | transloco }}
       }
     </button>
   </div>
 
   <div class="feedback-note mt-4 text-center text-[10px] text-slate-400">
-    💡 Your feedback will be recorded on-chain via ERC8004 Reputation Registry
+    💡 {{ 'chat.feedback.note' | transloco }}
   </div>
 </div>
