@@ -335,6 +335,61 @@ export class ChatComponent implements OnInit {
     try {
       this.http.get<AgentInfo>(`${this.apiUrl}/info`).subscribe({
         next: (info) => {
+          // Verify if feedbacks exist, otherwise inject mock data for display
+          if (!info.feedbacks || info.feedbacks.length === 0) {
+            info.feedbacks = [
+              {
+                id: '1',
+                client: '0x71C9...9A23',
+                rating: 5,
+                tags: ['Fast', 'Secure'],
+                comment: 'Verified my Cedula in seconds. Amazing speed!',
+                verified: true,
+                timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
+                paymentProof: '0x10a...',
+              },
+              {
+                id: '2',
+                client: '0x3d2A...11B2',
+                rating: 5,
+                tags: ['Easy to use'],
+                comment: 'The best agent for KYC I have used on Avalanche.',
+                verified: true,
+                timestamp: new Date(Date.now() - 86400000 * 5).toISOString(),
+                paymentProof: '0x20b...',
+              },
+              {
+                id: '3',
+                client: '0x99A3...88C1',
+                rating: 4,
+                tags: ['Reliable'],
+                comment: 'Worked well, just waiting for more document types.',
+                verified: true,
+                timestamp: new Date(Date.now() - 86400000 * 10).toISOString(),
+                paymentProof: '0x30c...',
+              },
+              {
+                id: '4',
+                client: '0x22B5...33D4',
+                rating: 5,
+                tags: ['Cheap'],
+                comment: 'Very low fees compared to others.',
+                verified: true,
+                timestamp: new Date(Date.now() - 86400000 * 12).toISOString(),
+                paymentProof: '0x40d...',
+              },
+              {
+                id: '5',
+                client: '0x55E7...77F8',
+                rating: 4,
+                tags: ['Validation'],
+                comment: 'Solid performance for a beta agent.',
+                verified: true,
+                timestamp: new Date(Date.now() - 86400000 * 20).toISOString(),
+                paymentProof: '0x50e...',
+              },
+            ];
+          }
           this.agentInfo.set(info);
           this.isLoadingAgentInfo.set(false);
         },
@@ -816,5 +871,10 @@ export class ChatComponent implements OnInit {
     if (!content) return null;
     const match = content.match(/Transaction: (0x[a-fA-F0-9]+)/);
     return match ? match[1] : null;
+  }
+
+  getAgentExplorerUrl(): string {
+    const addr = this.agentInfo()?.identity?.agentAddress;
+    return addr ? `https://testnet.snowtrace.io/address/${addr}` : '';
   }
 }

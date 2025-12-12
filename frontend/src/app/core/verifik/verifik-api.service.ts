@@ -25,10 +25,14 @@ export class VerifikApiService {
    * Get App Registration
    * Check status of current user registration
    */
-  getAppRegistration(token: string): Observable<any> {
-    return this._httpClient.get(`${this._apiUrl}/v2/app-registrations/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  getAppRegistration(token: string, populates: string[] = []): Observable<any> {
+    return this._httpClient.post(
+      `${this._apiUrl}/v2/app-registrations/me`,
+      { populates },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
   }
 
   /**
@@ -111,6 +115,26 @@ export class VerifikApiService {
     }
 
     return this._httpClient.put(`${this._apiUrl}/v2/${endpoint}`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+  /**
+   * Get Prompt Templates
+   * GET /v2/prompt-templates
+   */
+  getPromptTemplates(token: string, params: any = {}): Observable<any> {
+    return this._httpClient.get(`${this._apiUrl}/v2/prompt-templates`, {
+      params,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
+  /**
+   * Create Document Validation
+   * POST /v2/document-validations/app-registration
+   */
+  createDocumentValidation(token: string, data: any): Observable<any> {
+    return this._httpClient.post(`${this._apiUrl}/v2/document-validations/app-registration`, data, {
       headers: { Authorization: `Bearer ${token}` },
     });
   }

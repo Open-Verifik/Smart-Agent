@@ -69,6 +69,54 @@
           </div>
         </div>
 
+        <!-- Progress Stepper -->
+        <div
+          class="flex items-center mb-8 overflow-x-auto py-2 no-scrollbar scroll-smooth"
+          *ngIf="progressSteps().length > 0"
+        >
+          <div *ngFor="let s of progressSteps(); let i = index" class="flex items-center min-w-fit">
+            <div class="flex items-center">
+              <div
+                class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold mr-3 transition-all duration-300"
+                [ngClass]="{
+                  'bg-slate-900 border-2 border-slate-900 text-white dark:bg-white dark:border-white dark:text-slate-900':
+                    s.status === 'completed',
+                  'bg-white dark:bg-slate-900 border-4 border-indigo-600 text-indigo-600 shadow-lg shadow-indigo-500/20':
+                    s.status === 'current',
+                  'bg-transparent border-2 border-slate-300 text-slate-400 dark:border-slate-600':
+                    s.status === 'pending',
+                }"
+              >
+                <mat-icon
+                  *ngIf="s.status === 'completed'"
+                  class="icon-size-4"
+                  [svgIcon]="'heroicons_solid:check'"
+                ></mat-icon>
+                <span *ngIf="s.status !== 'completed'">{{ i + 1 }}</span>
+              </div>
+              <span
+                class="text-sm font-semibold mr-4 whitespace-nowrap"
+                [ngClass]="{
+                  'text-indigo-600 dark:text-indigo-400': s.status === 'current',
+                  'text-slate-400 dark:text-slate-500': s.status === 'pending',
+                  'text-slate-900 dark:text-white': s.status === 'completed',
+                }"
+              >
+                {{ s.label }}
+              </span>
+            </div>
+            <!-- Connector Line -->
+            <div
+              *ngIf="i < progressSteps().length - 1"
+              class="h-0.5 w-8 mx-2 transition-colors duration-300"
+              [ngClass]="{
+                'bg-slate-900 dark:bg-white': s.status === 'completed',
+                'bg-slate-200 dark:bg-slate-700': s.status !== 'completed',
+              }"
+            ></div>
+          </div>
+        </div>
+
         <div
           class="border-t border-slate-200 dark:border-slate-700 pt-6"
           *ngIf="step() === 'registration'"
@@ -224,6 +272,144 @@
           >
             Did not receive code? <span class="text-primary hover:underline">Resend</span>
           </button>
+        </div>
+
+        <!-- Document Verification Step -->
+        <div
+          *ngIf="step() === 'document'"
+          class="flex flex-col items-center py-8 animate-fadeIn w-full"
+        >
+          <div
+            class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mb-6 text-indigo-600 dark:text-indigo-400"
+          >
+            <mat-icon [svgIcon]="'heroicons_outline:identification'" class="icon-size-8"></mat-icon>
+          </div>
+          <h3 class="text-2xl font-bold mb-2">Verify Identity</h3>
+          <p class="text-secondary mb-8 text-center max-w-sm">
+            Select your document type and upload images.
+          </p>
+
+          <!-- Country Select -->
+          <mat-form-field class="w-full max-w-sm">
+            <mat-label>Issue Country</mat-label>
+            <mat-select [value]="selectedCountry()" (selectionChange)="selectCountry($event.value)">
+              <mat-option *ngFor="let c of countries()" [value]="c.code">
+                <span class="mr-2 text-lg">{{ getFlagEmoji(c.code) }}</span> {{ c.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Template Select -->
+          <div *ngIf="selectedCountry()" class="w-full max-w-sm mt-4 flex flex-col gap-3">
+            <p class="text-sm font-medium text-secondary mb-1">Select Document Type</p>
+
+            <div
+              *ngFor="let t of filteredTemplates()"
+              class="border rounded-xl p-4 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center"
+              [ngClass]="{
+                'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/10 ring-1 ring-indigo-600':
+                  selectedTemplate() === t,
+                'border-slate-200 dark:border-slate-700': selectedTemplate() !== t,
+              }"
+              (click)="selectTemplate(t)"
+            >
+              <mat-icon
+                [svgIcon]="getDocumentIcon(t.documentType)"
+                class="text-secondary mr-3"
+              ></mat-icon>
+              <span class="font-medium">{{ t.name }}</span>
+            </div>
+          </div>
+
+          <!-- Upload Actions -->
+          <div *ngIf="selectedTemplate()" class="w-full max-w-sm mt-8 animate-fadeIn">
+            <!-- Front -->
+            <div class="mb-4">
+              <p class="text-sm font-bold mb-2">Front Side <span class="text-red-500">*</span></p>
+
+              <button
+                *ngIf="!frontImage()"
+                mat-stroked-button
+                class="w-full h-32 rounded-xl border-dashed border-2 flex flex-col items-center justify-center gap-2"
+                (click)="fileInputFront.click()"
+              >
+                <mat-icon class="icon-size-8 text-secondary">cloud_upload</mat-icon>
+                <span class="text-secondary">Upload Front Image</span>
+              </button>
+
+              <div *ngIf="frontImage()" class="relative animate-fadeIn">
+                <img
+                  [src]="frontImage()"
+                  class="w-full h-48 object-contain rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-800"
+                />
+                <button
+                  mat-icon-button
+                  class="absolute top-2 right-2 bg-white/90 hover:bg-white text-red-500 shadow-sm"
+                  (click)="frontImage.set(null)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <input
+                #fileInputFront
+                type="file"
+                hidden
+                accept="image/*"
+                (change)="handleFile($event, 'front')"
+              />
+            </div>
+
+            <!-- Back -->
+            <div class="mb-6" *ngIf="selectedTemplate().requiresBackSide">
+              <p class="text-sm font-bold mb-2">Back Side <span class="text-red-500">*</span></p>
+
+              <button
+                *ngIf="!backImage()"
+                mat-stroked-button
+                class="w-full h-32 rounded-xl border-dashed border-2 flex flex-col items-center justify-center gap-2"
+                (click)="fileInputBack.click()"
+              >
+                <mat-icon class="icon-size-8 text-secondary">cloud_upload</mat-icon>
+                <span class="text-secondary">Upload Back Image</span>
+              </button>
+
+              <div *ngIf="backImage()" class="relative animate-fadeIn">
+                <img
+                  [src]="backImage()"
+                  class="w-full h-48 object-contain rounded-xl border border-slate-200 bg-slate-50 dark:bg-slate-800"
+                />
+                <button
+                  mat-icon-button
+                  class="absolute top-2 right-2 bg-white/90 hover:bg-white text-red-500 shadow-sm"
+                  (click)="backImage.set(null)"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+
+              <input
+                #fileInputBack
+                type="file"
+                hidden
+                accept="image/*"
+                (change)="handleFile($event, 'back')"
+              />
+            </div>
+
+            <button
+              mat-flat-button
+              color="primary"
+              class="w-full h-12 rounded-xl mt-4 font-bold text-lg"
+              [disabled]="
+                !frontImage() || (selectedTemplate().requiresBackSide && !backImage()) || loading()
+              "
+              (click)="submitDocument()"
+            >
+              <mat-icon *ngIf="loading()" class="animate-spin mr-2">refresh</mat-icon>
+              {{ loading() ? 'Uploading...' : 'Submit Document' }}
+            </button>
+          </div>
         </div>
 
         <!-- Completion Step (Temporary) -->

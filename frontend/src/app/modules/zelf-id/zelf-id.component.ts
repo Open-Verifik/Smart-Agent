@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit, inject, signal } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -82,7 +82,7 @@ export class ZelfIdComponent implements OnInit {
           }
 
           // Fallback: Check if there's a login flow that might be acting as onboarding in some configs,
-          // or just grab the first valid one active.
+          // or just grab the first validated one active.
           if (!flowData) {
             flowData = activeFlows.find((f: any) => f.type !== 'login');
           }
@@ -96,6 +96,8 @@ export class ZelfIdComponent implements OnInit {
             const flow = new ProjectFlow(flowData);
             this.projectFlow.set(flow);
             this.initForm(flow);
+            // Check state
+            this.checkForExistingRegistration();
           } else {
             this.error.set('No active Zelf ID flow found.');
           }
@@ -180,8 +182,168 @@ export class ZelfIdComponent implements OnInit {
   }
 
   // State
-  step = signal<'registration' | 'otp-email' | 'otp-phone' | 'complete'>('registration');
+  step = signal<
+    'registration' | 'otp-email' | 'otp-phone' | 'basic-info' | 'document' | 'liveness' | 'complete'
+  >('registration');
   appRegistration = signal<any>(null);
+
+  // Document State
+  countries = signal<any[]>([]);
+  templates = signal<any[]>([]);
+  filteredTemplates = signal<any[]>([]);
+  selectedCountry = signal<string>('');
+  selectedTemplate = signal<any>(null);
+
+  progressSteps = computed(() => {
+    const flow = this.projectFlow();
+    const appReg = this.appRegistration();
+    const currentStep = this.step();
+    if (!flow) return [];
+
+    const settings = flow.onboardingSettings;
+    const steps: any[] = [];
+
+    // 1. Sign Up
+    const isRegistered = !!appReg;
+    steps.push({
+      label: 'Account',
+      status: isRegistered ? 'completed' : currentStep === 'registration' ? 'current' : 'pending',
+    });
+
+    // 2. Email
+    if (settings.signUpForm.emailGateway !== 'none' && settings.signUpForm.email !== false) {
+      const isValidated = appReg?.emailValidation?.status === 'validated';
+      steps.push({
+        label: 'Email',
+        status: isValidated ? 'completed' : currentStep === 'otp-email' ? 'current' : 'pending',
+      });
+    }
+
+    // 3. Phone
+    if (settings.signUpForm.phoneGateway !== 'none' && settings.signUpForm.phone !== false) {
+      const isValidated = appReg?.phoneValidation?.status === 'validated';
+      steps.push({
+        label: 'Phone',
+        status: isValidated ? 'completed' : currentStep === 'otp-phone' ? 'current' : 'pending',
+      });
+    }
+
+    // 4. Basic Info
+    if (settings.steps.basicInformation !== 'skip') {
+      const isValidated = appReg?.informationValidation?.status === 'validated';
+      steps.push({
+        label: 'Info',
+        status: isValidated ? 'completed' : currentStep === 'basic-info' ? 'current' : 'pending',
+      });
+    }
+
+    // 5. Document
+    if (settings.steps.document !== 'skip') {
+      const isValidated = appReg?.documentValidation?.status === 'validated';
+      steps.push({
+        label: 'Identity',
+        status: isValidated ? 'completed' : currentStep === 'document' ? 'current' : 'pending',
+      });
+    }
+
+    // 6. Liveness
+    if (settings.steps.liveness !== 'skip') {
+      const isValidated = appReg?.biometricValidation?.status === 'validated';
+      steps.push({
+        label: 'Selfie',
+        status: isValidated ? 'completed' : currentStep === 'liveness' ? 'current' : 'pending',
+      });
+    }
+
+    return steps;
+  });
+
+  loadDocumentConfig() {
+    const flow = this.projectFlow();
+    if (!flow) return;
+
+    const allowed = flow.raw.allowedCountries || [];
+    const token = localStorage.getItem('appRegistrationToken');
+    if (!token) return;
+
+    this._verifikApi.getPromptTemplates(token).subscribe({
+      next: (res) => {
+        const allTemplates = res.data || [];
+
+        // Filter by allowed countries if specified
+        let relevantTemplates = allTemplates;
+        if (allowed.length > 0) {
+          relevantTemplates = allTemplates.filter((t: any) => allowed.includes(t.country));
+        }
+
+        this.templates.set(relevantTemplates);
+
+        // Extract unique countries
+        const uniqueCountries = [...new Set(relevantTemplates.map((t: any) => t.country))];
+
+        // Create country options
+        const countryOptions = uniqueCountries.map((code) => ({
+          code,
+          name: this.getCountryName(code as string),
+        }));
+
+        this.countries.set(countryOptions);
+
+        // Auto-select if only one
+        if (countryOptions.length === 1) {
+          this.selectCountry(countryOptions[0].code as string);
+        }
+      },
+      error: (err) => console.warn('Failed to load templates', err),
+    });
+  }
+
+  getCountryName(code: string) {
+    try {
+      const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+      return regionNames.of(code);
+    } catch (e) {
+      return code;
+    }
+  }
+
+  selectCountry(code: string) {
+    this.selectedCountry.set(code);
+    const countryTemplates = this.templates().filter((t) => t.country === code);
+    this.filteredTemplates.set(countryTemplates);
+
+    if (countryTemplates.length === 1) {
+      this.selectedTemplate.set(countryTemplates[0]);
+    } else {
+      this.selectedTemplate.set(null);
+    }
+  }
+
+  selectTemplate(template: any) {
+    this.selectedTemplate.set(template);
+  }
+
+  getFlagEmoji(countryCode: string) {
+    if (!countryCode || countryCode.length !== 2 || !/^[a-zA-Z]{2}$/.test(countryCode)) return '';
+    const codePoints = countryCode
+      .toUpperCase()
+      .split('')
+      .map((char) => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+  }
+
+  getDocumentIcon(type: any) {
+    const name = (typeof type === 'string' ? type : type?.name || '').toLowerCase();
+    if (name.includes('passport')) return 'heroicons_outline:book-open';
+    if (name.includes('license') || name.includes('driving'))
+      return 'heroicons_outline:identification';
+    return 'heroicons_outline:identification';
+  }
+
+  handleFile(event: any, side: 'front' | 'back') {
+    // TODO: Implement upload logic
+    console.log('File selected', side, event.target.files[0]);
+  }
 
   // OTP Form
   otpForm = this._formBuilder.group({
@@ -211,7 +373,7 @@ export class ZelfIdComponent implements OnInit {
           localStorage.setItem('appRegistrationToken', token);
           this.appRegistration.set(appReg);
 
-          this._determineNextStep(appReg);
+          this._determineNextStep(appReg, true);
         }
       },
       error: (err) => {
@@ -222,27 +384,118 @@ export class ZelfIdComponent implements OnInit {
     });
   }
 
-  private _determineNextStep(appReg: any) {
+  checkForExistingRegistration() {
+    const token = localStorage.getItem('appRegistrationToken');
+    if (!token) return;
+
+    this._verifikApi
+      .getAppRegistration(token, [
+        'emailValidation',
+        'phoneValidation',
+        'documentValidation',
+        'biometricValidation',
+        'informationValidation',
+      ])
+      .subscribe({
+        next: (res) => {
+          const appReg = res.data;
+          if (appReg) {
+            console.log('Restored App Registration:', appReg);
+            this.appRegistration.set(appReg);
+            // If we restored, we assume user is coming back. We might not want to auto-spam OTP unless they request it.
+            // BUT, determining next step sets the step UI. If step is 'otp-email', they see the OTP input.
+            this._determineNextStep(appReg, false);
+          }
+        },
+        error: (err) => {
+          console.warn('Existing registration token invalidated or expired', err);
+          localStorage.removeItem('appRegistrationToken');
+        },
+      });
+  }
+
+  private _determineNextStep(appReg: any, autoSendOtp = true) {
     // Logic: Email Verification? -> Phone Verification? -> Complete
     const flow = this.projectFlow()!;
-    const settings = flow.onboardingSettings.signUpForm!;
+    const settings = flow.onboardingSettings.signUpForm;
 
-    // Check if Email needs verification (simple check: if email exists and gateway is not none)
-    // For now, if we have an email in appReg, we verify it.
-    // User prompt: "proceed to know if we need to validate... with an OTP"
+    const isExpired = (val: any) => {
+      if (!val) return true;
+      // Check time difference (allow up to 2 minutes)
+      const date = new Date(val.updatedAt || val.createdAt);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = diffMs / 60000; // minutes
+      return diffMins > 2;
+    };
 
-    if (appReg.email && !appReg.emailValidation && settings.emailGateway !== 'none') {
-      this.step.set('otp-email');
-      // Trigger OTP send immediately
-      this.sendOtp('email');
-      return;
+    // 1. Email Verification
+    if (appReg.email && settings.emailGateway !== 'none') {
+      const emailVal = appReg.emailValidation;
+      // If validatedation doesn't exist OR it is not validated yet
+      if (!emailVal || emailVal.status !== 'validated') {
+        this.step.set('otp-email');
+
+        // Determine if we should send/resend OTP:
+        // - If no validatedation exists -> Send
+        // - If validatedation exists but is expired (> 2 mins) -> Resend
+        // - If validatedation exists and is fresh -> Do nothing (User inputs code)
+        const expired = isExpired(emailVal);
+        if (autoSendOtp && (!emailVal || expired)) {
+          this.sendOtp('email');
+        }
+        return;
+      }
     }
 
-    if (appReg.phone && !appReg.phoneValidation && settings.phoneGateway !== 'none') {
-      this.step.set('otp-phone');
-      this.sendOtp('phone');
-      return;
+    // 2. Phone Verification
+    if (appReg.phone && settings.phoneGateway !== 'none') {
+      const phoneVal = appReg.phoneValidation;
+      if (!phoneVal || phoneVal.status !== 'validated') {
+        this.step.set('otp-phone');
+
+        const expired = isExpired(phoneVal);
+        if (autoSendOtp && (!phoneVal || expired)) {
+          this.sendOtp('phone');
+        }
+        return;
+      }
     }
+
+    const steps = flow.onboardingSettings.steps;
+
+    // 3. Basic Information
+    if (steps?.basicInformation !== 'skip') {
+      const infoVal = appReg.informationValidation;
+      // Check if validated. If string, it might mean populate failed/not populated, but we requested it.
+      // If it's done, it should be an object with status 'validated'.
+      if (!infoVal || infoVal.status !== 'validated') {
+        this.step.set('basic-info');
+        return;
+      }
+    }
+
+    // 4. Document
+    if (steps?.document !== 'skip') {
+      const docVal = appReg.documentValidation;
+      if (!docVal || docVal.status !== 'validated') {
+        this.step.set('document');
+        if (this.countries().length === 0) {
+          this.loadDocumentConfig();
+        }
+        return;
+      }
+    }
+
+    // 5. Liveness
+    if (steps?.liveness !== 'skip') {
+      const bioVal = appReg.biometricValidation;
+      if (!bioVal || bioVal.status !== 'validated') {
+        this.step.set('liveness');
+        return;
+      }
+    }
+
     this.step.set('complete');
   }
 
@@ -298,17 +551,30 @@ export class ZelfIdComponent implements OnInit {
         this.saving.set(false);
         // Update local state Validation
         const updatedReg = { ...this.appRegistration() };
-        if (type === 'email') updatedReg.emailValidation = true; // Mark done
-        if (type === 'phone') updatedReg.phoneValidation = true;
+        if (type === 'email') updatedReg.emailValidation = { status: 'valid' }; // Mock update
+        if (type === 'phone') updatedReg.phoneValidation = { status: 'valid' };
 
         this.appRegistration.set(updatedReg);
 
         // Proceed
-        this._determineNextStep(updatedReg);
+        this._determineNextStep(updatedReg, true);
       },
       error: (err) => {
         this.saving.set(false);
-        alert('Invalid Code');
+        console.error('Verify OTP Error', err);
+        const error = err.error || {};
+        if (
+          error.code === 'NotFound' ||
+          error.message?.includes('not_found') ||
+          // Also check specific backend messages
+          error.message === 'email_validation_not_found' ||
+          error.message === 'phone_validation_not_found'
+        ) {
+          alert('Verification code expired or not found. Sending a new one...');
+          this.sendOtp(type);
+        } else {
+          alert('Invalid Code');
+        }
       },
     });
   }
