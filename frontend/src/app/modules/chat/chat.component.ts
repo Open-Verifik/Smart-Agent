@@ -226,7 +226,17 @@ export class ChatComponent implements OnInit {
     localStorage.setItem('currentConversationId', id);
     this.isLoading.set(true);
 
-    this.http.get<any>(`${this.apiUrl}/history/${id}`).subscribe({
+    // Determine identity for strict access control
+    let walletAddress = '';
+    if (this.chatMode() === 'x402') {
+      walletAddress = this.walletAddress();
+    } else {
+      walletAddress = this.getUserId();
+    }
+
+    const params = { walletAddress };
+
+    this.http.get<any>(`${this.apiUrl}/history/${id}`, { params }).subscribe({
       next: (data) => {
         this.messages.set(data.messages || []);
         this.isLoading.set(false);
@@ -234,9 +244,13 @@ export class ChatComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load history', err);
-        // If 404, clean up
-        localStorage.removeItem('currentConversationId');
-        this.startNewChat();
+        // If 404 or 403, clean up
+        if (err.status === 403 || err.status === 404) {
+          localStorage.removeItem('currentConversationId');
+          this.currentConversationId.set(null);
+          this.messages.set([]);
+          // Optionally show error toast?
+        }
         this.isLoading.set(false);
       },
     });
@@ -297,31 +311,51 @@ export class ChatComponent implements OnInit {
       return;
     }
 
-    this.http.patch(`${this.apiUrl}/conversations/${conv.id}`, { title: newTitle }).subscribe({
-      next: () => {
-        // Update local list
-        this.conversations.update((list) =>
-          list.map((c) => (c.id === conv.id ? { ...c, title: newTitle } : c)),
-        );
-        this.isRenamingId.set(null);
-      },
-      error: (err) => console.error('Rename failed', err),
-    });
+    // Auth
+    let walletAddress = '';
+    if (this.chatMode() === 'x402') {
+      walletAddress = this.walletAddress();
+    } else {
+      walletAddress = this.getUserId();
+    }
+
+    this.http
+      .patch(`${this.apiUrl}/conversations/${conv.id}`, { title: newTitle, walletAddress })
+      .subscribe({
+        next: () => {
+          // Update local list
+          this.conversations.update((list) =>
+            list.map((c) => (c.id === conv.id ? { ...c, title: newTitle } : c)),
+          );
+          this.isRenamingId.set(null);
+        },
+        error: (err) => console.error('Rename failed', err),
+      });
   }
 
   deleteConversation(conv: ConversationSummary, event: Event) {
     event.stopPropagation();
     if (!confirm('Delete this chat?')) return;
 
-    this.http.delete(`${this.apiUrl}/conversations/${conv.id}`).subscribe({
-      next: () => {
-        this.conversations.update((list) => list.filter((c) => c.id !== conv.id));
-        if (this.currentConversationId() === conv.id) {
-          this.startNewChat();
-        }
-      },
-      error: (err) => console.error('Delete failed', err),
-    });
+    // Auth
+    let walletAddress = '';
+    if (this.chatMode() === 'x402') {
+      walletAddress = this.walletAddress();
+    } else {
+      walletAddress = this.getUserId();
+    }
+
+    this.http
+      .delete(`${this.apiUrl}/conversations/${conv.id}`, { params: { walletAddress } })
+      .subscribe({
+        next: () => {
+          this.conversations.update((list) => list.filter((c) => c.id !== conv.id));
+          if (this.currentConversationId() === conv.id) {
+            this.startNewChat();
+          }
+        },
+        error: (err) => console.error('Delete failed', err),
+      });
   }
 
   toggleSidebar() {

@@ -173,12 +173,24 @@ const listConversations = async (ctx) => {
 const getHistory = async (ctx) => {
 	try {
 		const { conversationId } = ctx.params;
+		const { walletAddress } = ctx.query;
+
 		const conversation = ConversationRepository.get(conversationId);
 		if (!conversation) {
 			ctx.status = 404;
 			ctx.body = { error: "Conversation not found" };
 			return;
 		}
+
+		// Security Check: Verify Ownership
+		if (conversation.owner_address) {
+			if (!walletAddress || conversation.owner_address.toLowerCase() !== walletAddress.toLowerCase()) {
+				ctx.status = 403;
+				ctx.body = { error: "Unauthorized access to this conversation" };
+				return;
+			}
+		}
+
 		ctx.body = conversation;
 	} catch (error) {
 		ctx.status = 500;
@@ -193,12 +205,22 @@ const getHistory = async (ctx) => {
 const updateConversation = async (ctx) => {
 	try {
 		const { conversationId } = ctx.params;
-		const { title } = ctx.request.body;
+		const { title, walletAddress } = ctx.request.body;
 
 		if (!title) {
 			ctx.status = 400;
 			ctx.body = { error: "Title is required" };
 			return;
+		}
+
+		// Security Check
+		const conversation = ConversationRepository.get(conversationId);
+		if (conversation && conversation.owner_address) {
+			if (!walletAddress || conversation.owner_address.toLowerCase() !== walletAddress.toLowerCase()) {
+				ctx.status = 403;
+				ctx.body = { error: "Unauthorized modification" };
+				return;
+			}
 		}
 
 		const updated = ConversationRepository.updateTitle(conversationId, title);
@@ -215,6 +237,18 @@ const updateConversation = async (ctx) => {
 const deleteConversation = async (ctx) => {
 	try {
 		const { conversationId } = ctx.params;
+		const { walletAddress } = ctx.query;
+
+		// Security Check
+		const conversation = ConversationRepository.get(conversationId);
+		if (conversation && conversation.owner_address) {
+			if (!walletAddress || conversation.owner_address.toLowerCase() !== walletAddress.toLowerCase()) {
+				ctx.status = 403;
+				ctx.body = { error: "Unauthorized deletion" };
+				return;
+			}
+		}
+
 		ConversationRepository.delete(conversationId);
 		ctx.body = { success: true };
 	} catch (error) {

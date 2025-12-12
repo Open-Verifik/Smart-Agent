@@ -91,19 +91,10 @@ class ConversationRepository {
 				// If data.owner_address is null/undefined, it matches anonymous requests (if we support that logic),
 				// BUT commonly we want strict ownership.
 
-				// Let's adopt strictly: if ownerAddress is requested, only return matches.
-				if (ownerAddress) {
-					if (data.owner_address?.toLowerCase() === ownerAddress.toLowerCase()) {
-						conversations.push({
-							id: data.id,
-							title: data.title,
-							updated_at: data.updated_at,
-						});
-					}
-				} else {
-					// Admin/Dev mode or listing everything (Not recommended for prod)
-					// Or listing anonymous chats?
-					// Let's just list all if no owner specified for now.
+				// SECURITY: Do not list conversations if no owner is provided.
+				if (!ownerAddress) return [];
+
+				if (data.owner_address?.toLowerCase() === ownerAddress.toLowerCase()) {
 					conversations.push({
 						id: data.id,
 						title: data.title,
