@@ -16,13 +16,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
     icon: 'heroicons_outline:command-line',
     link: '/postman',
   },
-  {
-    id: 'zelf-id',
-    title: 'Zelf ID',
-    type: 'basic',
-    icon: 'heroicons_outline:identification',
-    link: '/zelf-id',
-  },
+  // {
+  //   id: 'zelf-id',
+  //   title: 'Zelf ID',
+  //   type: 'basic',
+  //   icon: 'heroicons_outline:identification',
+  //   link: '/zelf-id',
+  // },
   {
     id: 'history',
     title: 'nav.history',
@@ -67,13 +67,13 @@ export const horizontalNavigation: FuseNavigationItem[] = [
     icon: 'heroicons_outline:command-line',
     link: '/postman',
   },
-  {
-    id: 'zelf-id',
-    title: 'Zelf ID',
-    type: 'basic',
-    icon: 'heroicons_outline:identification',
-    link: '/zelf-id',
-  },
+  // {
+  //   id: 'zelf-id',
+  //   title: 'Zelf ID',
+  //   type: 'basic',
+  //   icon: 'heroicons_outline:identification',
+  //   link: '/zelf-id',
+  // },
   {
     id: 'history',
     title: 'nav.history',
