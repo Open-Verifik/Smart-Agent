@@ -178,7 +178,10 @@
     </div>
 
     <!-- Scrollable Messages Area -->
-    <div class="flex-1 overflow-y-auto messages-container p-4 scroll-smooth" #scrollContainer>
+    <div
+      class="flex-1 overflow-y-auto messages-container p-4 scroll-smooth max-h-[calc(100vh-16rem)]"
+      #scrollContainer
+    >
       <div class="max-w-4xl mx-auto space-y-6 pb-4">
         @for (msg of messages(); track $index) {
           <!-- Case 1: Feedback Proof Card -->
