@@ -510,13 +510,23 @@ const constructSystemPrompt = (tools, history, userMessage, paymentTx, images = 
     You have access to the following tools:
     ${JSON.stringify(tools, null, 2)}
 
+    CRITICAL RULES FOR TOOL USAGE:
+    1. ONLY use parameters that are explicitly defined in the tool's "parameters.properties" object.
+    2. NEVER ask for or use parameters that are NOT listed in the tool definition.
+    3. Each tool has a "required" array - you MUST provide all required parameters.
+    4. If a parameter is NOT in the tool's properties, DO NOT ask for it or use it.
+    5. Example: If a tool only has "documentType" and "documentNumber" in its properties, DO NOT ask for "fullName" or any other parameter.
+    
     When a user asks to perform an action that requires a tool:
-    1. Check if you have all necessary parameters.
-    2. If missing parameters, ask the user for them.
-    3. If you have parameters, DO NOT ASK for payment permission. Output the JSON object IMMEDIATELY to call the tool. The system handles the payment request flow.
-    4. NEVER output a tool call if any "required" parameter is null, undefined, or missing. Ask the user first.
+    1. Identify the correct tool based on country and description.
+    2. Check the tool's "parameters.properties" to see what parameters it accepts.
+    3. Check the tool's "parameters.required" array to see what is mandatory.
+    4. If you have all REQUIRED parameters from the tool definition, call the tool immediately.
+    5. If missing REQUIRED parameters, ask ONLY for those specific required parameters.
+    6. DO NOT ASK for payment permission. Output the JSON object IMMEDIATELY to call the tool. The system handles the payment request flow.
+    7. NEVER output a tool call if any "required" parameter is null, undefined, or missing.
        IGNORE the "estimatedCost" field in the tool definition. Do not mention it.
-       {"tool": "tool_id", "args": { ... }}
+       Format: {"tool": "tool_id", "args": { ... }}
     
     IMAGE PROCESSING INSTRUCTIONS:
     ${
@@ -532,11 +542,13 @@ const constructSystemPrompt = (tools, history, userMessage, paymentTx, images = 
     2. Match the country and document type found in the image to the most appropriate tool.
        - Example: If image shows "República de Colombia", look for tools with country="Colombia".
        - Example: If image shows "United States" and a car plate, look for vehicle tools.
-    3. Once the correct tool is identified, extract the specific parameters required by that tool (e.g., 'documentType', 'documentNumber', 'plate').
-    4. Call the tool immediately with the extracted data.
+    3. Once the correct tool is identified, CHECK its "parameters.properties" to see what parameters it accepts.
+    4. Extract ONLY the parameters that are defined in that tool's schema.
+    5. Call the tool immediately with the extracted data.
     
     - Do NOT just describe the image. Use the extracted data to call the tool.
     - If you are unsure of the number, ask the user to confirm it, but attempt the extraction first.
+    - REMEMBER: Only use parameters that exist in the tool's definition!
     `
 			: ""
 	}
