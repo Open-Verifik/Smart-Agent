@@ -26,7 +26,7 @@ export interface EmailValidationValidateRequest {
 
 export interface PhoneValidationRequest {
   phone: string;
-  country: string;
+  countryCode: string;
   project: string;
   type: string;
   validationMethod: string;
@@ -39,10 +39,12 @@ export interface PhoneValidationResponse {
 }
 
 export interface PhoneValidationValidateRequest {
-  code: string;
+  otp: string;
   phoneValidation: string;
   project: string;
   type: string;
+  phone: string;
+  countryCode: string;
 }
 
 export interface AuthTokenResponse {

@@ -354,7 +354,7 @@ export class AuthModalComponent {
     this._authApiService
       .sendPhoneOtp({
         phone: finalPhone,
-        country: country.countryCode.toUpperCase(),
+        countryCode: country.dialCode,
         project: this.projectId,
         type: 'login',
         validationMethod: 'verificationCode',
@@ -383,12 +383,24 @@ export class AuthModalComponent {
     this.error.set(null);
     this.errorKey.set(null);
 
+    const country = this.selectedCountry();
+    if (!country) return;
+
+    let finalPhone = this.phone().replace(/\D/g, '');
+    const dialCodeDigits = country.dialCode.replace('+', '');
+
+    if (finalPhone.startsWith(dialCodeDigits)) {
+      finalPhone = finalPhone.substring(dialCodeDigits.length);
+    }
+
     this._authApiService
       .validatePhoneOtp({
-        code: code,
+        otp: code,
         phoneValidation: this.validationId()!,
         project: this.projectId,
         type: 'login',
+        phone: finalPhone,
+        countryCode: country.dialCode,
       })
       .subscribe({
         next: (res) => {
