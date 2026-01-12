@@ -30,6 +30,10 @@ export const appRoutes: Route[] = [
         path: 'history',
         loadChildren: () => import('app/modules/history/history.routes').then((m) => m.default),
       },
+      {
+        path: 'settings',
+        loadChildren: () => import('app/modules/settings/settings.routes').then((m) => m.default),
+      },
     ],
   },
 

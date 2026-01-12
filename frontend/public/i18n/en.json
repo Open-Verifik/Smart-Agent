@@ -1,7 +1,65 @@
 {
   "nav": {
     "chat": "Chat",
-    "history": "History"
+    "history": "History",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "coming_soon": "Soon",
+    "coming_soon_title": "Coming Soon",
+    "coming_soon_desc": "This feature is currently under development. Check back soon for updates!",
+    "sections": {
+      "account": "Account",
+      "developers": "Developers"
+    },
+    "panels": {
+      "profile": "Profile",
+      "profile_desc": "Manage your personal information",
+      "security": "Security",
+      "security_desc": "Password and authentication settings",
+      "api_key": "API Key",
+      "api_key_desc": "Manage your API access tokens",
+      "webhooks": "Webhooks",
+      "webhooks_desc": "Configure webhook endpoints"
+    },
+    "api_key": {
+      "title": "API Key Management",
+      "subtitle": "Manage your API tokens for secure access to Verifik services",
+      "current_token": "Current Access Token",
+      "bearer_token_info": "Use this token in your Authorization header",
+      "active": "Active",
+      "show_token": "Show token",
+      "hide_token": "Hide token",
+      "copy_token": "Copy token",
+      "token_copied": "Token copied to clipboard",
+      "usage_hint": "Include this token in your API requests: Authorization: Bearer <your_token>",
+      "renew_token": "Extend Token Validity",
+      "renew_description": "Extend your current token's expiration date without invalidating existing integrations.",
+      "extend_validity": "Extend Validity",
+      "select_expiration": "Select Expiration Period",
+      "months": "months",
+      "cancel": "Cancel",
+      "renew_now": "Extend Now",
+      "renewing": "Extending...",
+      "token_renewed_success": "Token extended successfully!",
+      "token_renewal_failed": "Failed to extend token. Please try again.",
+      "revoke_generate": "Revoke & Generate New",
+      "revoke_description": "Invalidate all existing tokens and generate a new one. Use if your token is compromised.",
+      "revoke_all": "Revoke All Tokens",
+      "warning_title": "This action cannot be undone",
+      "warning_text": "All previous tokens will be permanently revoked. Applications using old tokens will lose access.",
+      "confirm_revoke": "Revoke & Generate New",
+      "revoking": "Revoking...",
+      "tokens_revoked_success": "All tokens revoked. Your new token is ready!",
+      "token_revocation_failed": "Failed to revoke tokens. Please try again.",
+      "new_token_generated": "New Token Generated!",
+      "copy_token_warning": "Copy your new token now. You won't see it again after leaving this page.",
+      "need_help": "Need help with API integration?",
+      "docs_description": "Learn how to use your API token and explore our documentation.",
+      "view_docs": "View Documentation"
+    }
   },
   "userMenu": {
     "welcome": "Welcome:",
@@ -18,7 +76,8 @@
     "connectWalletDescription": "Link a wallet to access Web3 features and AVAX payments",
     "resetWallet": "Reset Wallet",
     "signOutWeb2": "Sign Out Web2 Account",
-    "signOutWeb3": "Sign Out Wallet"
+    "signOutWeb3": "Sign Out Wallet",
+    "settings": "Settings"
   },
   "postman": {
     "layout": {

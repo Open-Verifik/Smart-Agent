@@ -1,7 +1,65 @@
 {
   "nav": {
     "chat": "Chat",
-    "history": "Historial"
+    "history": "Historial",
+    "settings": "Configuración"
+  },
+  "settings": {
+    "title": "Configuración",
+    "subtitle": "Administra tu cuenta y preferencias",
+    "coming_soon": "Pronto",
+    "coming_soon_title": "Próximamente",
+    "coming_soon_desc": "Esta función está actualmente en desarrollo. ¡Vuelve pronto para actualizaciones!",
+    "sections": {
+      "account": "Cuenta",
+      "developers": "Desarrolladores"
+    },
+    "panels": {
+      "profile": "Perfil",
+      "profile_desc": "Administra tu información personal",
+      "security": "Seguridad",
+      "security_desc": "Configuración de contraseña y autenticación",
+      "api_key": "Clave API",
+      "api_key_desc": "Administra tus tokens de acceso API",
+      "webhooks": "Webhooks",
+      "webhooks_desc": "Configura endpoints de webhook"
+    },
+    "api_key": {
+      "title": "Gestión de Clave API",
+      "subtitle": "Administra tus tokens de API para acceso seguro a los servicios de Verifik",
+      "current_token": "Token de Acceso Actual",
+      "bearer_token_info": "Usa este token en tu encabezado de Authorization",
+      "active": "Activo",
+      "show_token": "Mostrar token",
+      "hide_token": "Ocultar token",
+      "copy_token": "Copiar token",
+      "token_copied": "Token copiado al portapapeles",
+      "usage_hint": "Incluye este token en tus solicitudes API: Authorization: Bearer <tu_token>",
+      "renew_token": "Extender Validez del Token",
+      "renew_description": "Extiende la fecha de expiración de tu token sin invalidar integraciones existentes.",
+      "extend_validity": "Extender Validez",
+      "select_expiration": "Seleccionar Período de Expiración",
+      "months": "meses",
+      "cancel": "Cancelar",
+      "renew_now": "Extender Ahora",
+      "renewing": "Extendiendo...",
+      "token_renewed_success": "¡Token extendido exitosamente!",
+      "token_renewal_failed": "Error al extender el token. Intenta de nuevo.",
+      "revoke_generate": "Revocar y Generar Nuevo",
+      "revoke_description": "Invalida todos los tokens existentes y genera uno nuevo. Usa si tu token fue comprometido.",
+      "revoke_all": "Revocar Todos los Tokens",
+      "warning_title": "Esta acción no se puede deshacer",
+      "warning_text": "Todos los tokens anteriores serán revocados permanentemente. Las aplicaciones perderán acceso.",
+      "confirm_revoke": "Revocar y Generar Nuevo",
+      "revoking": "Revocando...",
+      "tokens_revoked_success": "¡Todos los tokens revocados! Tu nuevo token está listo.",
+      "token_revocation_failed": "Error al revocar los tokens. Intenta de nuevo.",
+      "new_token_generated": "¡Nuevo Token Generado!",
+      "copy_token_warning": "Copia tu nuevo token ahora. No lo verás de nuevo después de salir de esta página.",
+      "need_help": "¿Necesitas ayuda con la integración de API?",
+      "docs_description": "Aprende a usar tu token de API y explora nuestra documentación.",
+      "view_docs": "Ver Documentación"
+    }
   },
   "userMenu": {
     "welcome": "Bienvenido:",
@@ -18,7 +76,8 @@
     "connectWalletDescription": "Vincula una billetera para acceder a funciones Web3 y pagos AVAX",
     "resetWallet": "Restablecer Billetera",
     "signOutWeb2": "Cerrar Sesión Web2",
-    "signOutWeb3": "Cerrar Sesión Billetera"
+    "signOutWeb3": "Cerrar Sesión Billetera",
+    "settings": "Configuración"
   },
   "postman": {
     "layout": {

@@ -1,0 +1,350 @@
+<div class="settings-container flex flex-col flex-auto">
+  <!-- Mobile Header -->
+  <div class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+    <button mat-icon-button (click)="drawerOpened = !drawerOpened">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <h1 class="text-lg font-semibold">{{ 'settings.title' | transloco }}</h1>
+    <div class="w-10"></div>
+  </div>
+
+  <mat-sidenav-container class="flex-auto">
+    <!-- Sidebar -->
+    <mat-sidenav #drawer [mode]="drawerMode" [opened]="drawerOpened" class="w-72 dark:bg-gray-900">
+      <div class="flex flex-col h-full">
+        <!-- Sidebar Header -->
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3">
+            <div class="settings-header-icon">
+              <mat-icon class="text-white">settings</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                {{ 'settings.title' | transloco }}
+              </h2>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ 'settings.subtitle' | transloco }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Sections -->
+        <div class="flex-1 overflow-y-auto p-4">
+          <ng-container *ngFor="let section of sections; let last = last">
+            <div class="mb-6" [class.mb-0]="last">
+              <h3 class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                {{ section.title | transloco }}
+              </h3>
+
+              <div class="space-y-1">
+                <button
+                  *ngFor="let panel of section.panels"
+                  (click)="selectPanel(panel.id)"
+                  [class.active]="isPanelSelected(panel.id)"
+                  [class.disabled]="panel.disabled"
+                  class="nav-item w-full"
+                >
+                  <mat-icon [svgIcon]="panel.icon" class="nav-icon"></mat-icon>
+                  <span class="nav-label">{{ panel.title | transloco }}</span>
+                  <span *ngIf="panel.badge" class="nav-badge">
+                    {{ panel.badge | transloco }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- User Info Footer -->
+        <div *ngIf="user" class="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+            <div
+              class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold"
+            >
+              {{ user?.name?.charAt(0) || 'U' }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                {{ user?.name || 'User' }}
+              </p>
+              <p class="text-xs text-gray-500 truncate">
+                {{ user?.email || user?.phone || 'Web2 Account' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-sidenav>
+
+    <!-- Main Content -->
+    <mat-sidenav-content class="flex flex-col bg-gray-50 dark:bg-gray-900">
+      <div class="flex-1 p-6 lg:p-8 max-w-4xl mx-auto w-full">
+        <!-- API Key Panel -->
+        <ng-container *ngIf="selectedPanel === 'api_key'">
+          <!-- Panel Header -->
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {{ 'settings.api_key.title' | transloco }}
+            </h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              {{ 'settings.api_key.subtitle' | transloco }}
+            </p>
+          </div>
+
+          <!-- New Token Alert -->
+          <div *ngIf="showNewTokenAlert" class="new-token-alert mb-6">
+            <div class="flex items-start gap-4">
+              <div class="alert-icon-success">
+                <mat-icon>check_circle</mat-icon>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-green-800">
+                  {{ 'settings.api_key.new_token_generated' | transloco }}
+                </h3>
+                <p class="text-green-700 text-sm mt-1">
+                  {{ 'settings.api_key.copy_token_warning' | transloco }}
+                </p>
+              </div>
+              <button mat-icon-button (click)="dismissNewTokenAlert()" class="text-green-600">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Current Token Card -->
+          <div class="content-card mb-6">
+            <div class="card-header">
+              <div class="flex items-center gap-3">
+                <div class="card-icon blue">
+                  <mat-icon>vpn_key</mat-icon>
+                </div>
+                <div>
+                  <h2 class="font-semibold text-gray-900 dark:text-white">
+                    {{ 'settings.api_key.current_token' | transloco }}
+                  </h2>
+                  <p class="text-gray-500 text-xs">
+                    {{ 'settings.api_key.bearer_token_info' | transloco }}
+                  </p>
+                </div>
+              </div>
+              <div class="token-status">
+                <span class="status-dot"></span>
+                {{ 'settings.api_key.active' | transloco }}
+              </div>
+            </div>
+
+            <div class="card-body">
+              <div class="token-display-wrapper">
+                <div class="token-display" (click)="copyToken()">
+                  <code class="token-text">
+                    {{ hidePassword ? getMaskedToken() : accessToken }}
+                  </code>
+                </div>
+                <div class="token-actions">
+                  <button
+                    mat-icon-button
+                    (click)="hidePassword = !hidePassword"
+                    [matTooltip]="
+                      hidePassword
+                        ? ('settings.api_key.show_token' | transloco)
+                        : ('settings.api_key.hide_token' | transloco)
+                    "
+                    class="action-btn"
+                  >
+                    <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+                  </button>
+                  <button
+                    mat-icon-button
+                    (click)="copyToken()"
+                    [matTooltip]="'settings.api_key.copy_token' | transloco"
+                    class="action-btn"
+                  >
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <p class="usage-hint">
+                <mat-icon class="inline-icon">info</mat-icon>
+                {{ 'settings.api_key.usage_hint' | transloco }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Action Cards Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Renew Token Card -->
+            <div class="action-card">
+              <div class="action-card-header">
+                <div class="action-icon renew">
+                  <mat-icon>autorenew</mat-icon>
+                </div>
+                <h3 class="action-title">{{ 'settings.api_key.renew_token' | transloco }}</h3>
+              </div>
+              <p class="action-description">
+                {{ 'settings.api_key.renew_description' | transloco }}
+              </p>
+
+              <div *ngIf="!showRenewPanel" class="action-footer">
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="toggleRenewPanel()"
+                  class="action-button"
+                >
+                  {{ 'settings.api_key.extend_validity' | transloco }}
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+
+              <!-- Renew Panel -->
+              <div *ngIf="showRenewPanel" class="expand-panel">
+                <div class="panel-content">
+                  <label class="panel-label">
+                    {{ 'settings.api_key.select_expiration' | transloco }}
+                  </label>
+                  <div class="expiration-grid">
+                    <button
+                      *ngFor="let option of expirationOptions"
+                      (click)="selectedExpiration = option.value"
+                      [class.selected]="selectedExpiration === option.value"
+                      class="expiration-option"
+                    >
+                      {{ option.label }}
+                      <span class="expiration-unit">{{
+                        'settings.api_key.months' | transloco
+                      }}</span>
+                    </button>
+                  </div>
+
+                  <div class="panel-actions">
+                    <button mat-button (click)="toggleRenewPanel()" [disabled]="isRenewing">
+                      {{ 'settings.api_key.cancel' | transloco }}
+                    </button>
+                    <button
+                      mat-flat-button
+                      color="primary"
+                      (click)="renewToken()"
+                      [disabled]="isRenewing"
+                      class="confirm-btn"
+                    >
+                      <mat-spinner *ngIf="isRenewing" diameter="18" class="mr-2"></mat-spinner>
+                      {{
+                        isRenewing
+                          ? ('settings.api_key.renewing' | transloco)
+                          : ('settings.api_key.renew_now' | transloco)
+                      }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Revoke & Generate New Card -->
+            <div class="action-card danger">
+              <div class="action-card-header">
+                <div class="action-icon revoke">
+                  <mat-icon>sync_problem</mat-icon>
+                </div>
+                <h3 class="action-title">{{ 'settings.api_key.revoke_generate' | transloco }}</h3>
+              </div>
+              <p class="action-description">
+                {{ 'settings.api_key.revoke_description' | transloco }}
+              </p>
+
+              <div *ngIf="!showRevokeConfirm" class="action-footer">
+                <button
+                  mat-stroked-button
+                  color="warn"
+                  (click)="toggleRevokeConfirm()"
+                  class="action-button danger"
+                >
+                  {{ 'settings.api_key.revoke_all' | transloco }}
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+
+              <!-- Revoke Confirmation Panel -->
+              <div *ngIf="showRevokeConfirm" class="expand-panel danger">
+                <div class="panel-content">
+                  <div class="warning-box">
+                    <mat-icon class="warning-icon">warning</mat-icon>
+                    <div>
+                      <p class="warning-title">
+                        {{ 'settings.api_key.warning_title' | transloco }}
+                      </p>
+                      <p class="warning-text">{{ 'settings.api_key.warning_text' | transloco }}</p>
+                    </div>
+                  </div>
+
+                  <div class="panel-actions">
+                    <button mat-button (click)="toggleRevokeConfirm()" [disabled]="isRevoking">
+                      {{ 'settings.api_key.cancel' | transloco }}
+                    </button>
+                    <button
+                      mat-flat-button
+                      color="warn"
+                      (click)="revokeAndGenerateNew()"
+                      [disabled]="isRevoking"
+                      class="confirm-btn danger"
+                    >
+                      <mat-spinner *ngIf="isRevoking" diameter="18" class="mr-2"></mat-spinner>
+                      {{
+                        isRevoking
+                          ? ('settings.api_key.revoking' | transloco)
+                          : ('settings.api_key.confirm_revoke' | transloco)
+                      }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Documentation Link -->
+          <div class="docs-card mt-6">
+            <div class="flex items-center gap-4">
+              <div class="docs-icon">
+                <mat-icon>menu_book</mat-icon>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-medium text-gray-900 dark:text-white">
+                  {{ 'settings.api_key.need_help' | transloco }}
+                </h3>
+                <p class="text-gray-500 text-sm">
+                  {{ 'settings.api_key.docs_description' | transloco }}
+                </p>
+              </div>
+              <a
+                href="https://docs.verifik.co/authentication/renew-your-token-jwt"
+                target="_blank"
+                rel="noopener noreferrer"
+                mat-stroked-button
+                class="docs-button"
+              >
+                {{ 'settings.api_key.view_docs' | transloco }}
+                <mat-icon>open_in_new</mat-icon>
+              </a>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Coming Soon Placeholder -->
+        <ng-container *ngIf="selectedPanel !== 'api_key'">
+          <div class="coming-soon-container">
+            <div class="coming-soon-icon">
+              <mat-icon>construction</mat-icon>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mt-4">
+              {{ 'settings.coming_soon_title' | transloco }}
+            </h2>
+            <p class="text-gray-500 mt-2 text-center max-w-md">
+              {{ 'settings.coming_soon_desc' | transloco }}
+            </p>
+          </div>
+        </ng-container>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

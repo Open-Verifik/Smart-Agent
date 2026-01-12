@@ -309,4 +309,12 @@ export class UserComponent implements OnInit, OnDestroy {
       this.signOutWeb2();
     }
   }
+
+  /**
+   * Navigate to Settings page
+   * Only available for Web2 accounts
+   */
+  navigateToSettings(): void {
+    this._router.navigate(['/settings']);
+  }
 }
