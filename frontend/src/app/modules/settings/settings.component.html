@@ -330,8 +330,220 @@
           </div>
         </ng-container>
 
+        <!-- Profile Panel -->
+        <ng-container *ngIf="selectedPanel === 'profile'">
+          <!-- Panel Header -->
+          <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+              {{ 'settings.profile.title' | transloco }}
+            </h1>
+            <p class="mt-2 text-gray-600 dark:text-gray-400">
+              {{ 'settings.profile.subtitle' | transloco }}
+            </p>
+          </div>
+
+          <!-- Profile Card -->
+          <div class="content-card mb-6">
+            <div class="card-body p-0">
+              <!-- Photo Upload Section -->
+              <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                <div class="flex flex-col gap-1 mb-6">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ 'settings.profile.photo' | transloco }}
+                  </h3>
+                  <p class="text-sm text-gray-500">
+                    {{ 'settings.profile.photo_desc' | transloco }}
+                  </p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start">
+                  <!-- Preview Circle -->
+                  <div class="shrink-0">
+                    <div
+                      class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
+                    >
+                      <img
+                        *ngIf="avatar"
+                        [src]="avatar"
+                        class="w-full h-full object-cover"
+                        alt="Profile avatar"
+                      />
+                      <div
+                        *ngIf="!avatar"
+                        class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white text-4xl font-semibold"
+                      >
+                        {{ getUserInitial() }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Drop Zone -->
+                  <div class="flex-1 w-full">
+                    <input
+                      id="avatarInput"
+                      type="file"
+                      class="hidden"
+                      (change)="onFileBrowse($event)"
+                      accept=".png,.jpg,.jpeg"
+                    />
+                    <label
+                      for="avatarInput"
+                      class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
+                      (drop)="onFileDropped($event)"
+                      (dragover)="onDragOver($event)"
+                    >
+                      <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                        <mat-icon class="text-gray-400 mb-2" style="width: 32px; height: 32px; font-size: 32px;"
+                          >cloud_upload</mat-icon
+                        >
+                        <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                          <span class="font-semibold text-blue-600">{{
+                            'settings.profile.drag_drop' | transloco
+                          }}</span>
+                          {{ 'settings.profile.or_click' | transloco }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ 'settings.profile.file_types' | transloco }}
+                        </p>
+                      </div>
+                    </label>
+
+                    <div *ngIf="avatar" class="flex justify-end">
+                      <button
+                        mat-stroked-button
+                        color="warn"
+                        (click)="removeAvatar()"
+                        class="text-sm"
+                      >
+                        {{ 'settings.profile.remove_photo' | transloco }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Personal Info Form -->
+              <form *ngIf="profileLoaded" [formGroup]="profileForm" class="p-6">
+                <div class="flex flex-col gap-1 mb-6">
+                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ 'settings.profile.personal_info' | transloco }}
+                  </h3>
+                  <p class="text-sm text-gray-500">
+                    {{ 'settings.profile.privacy_info' | transloco }}
+                  </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <!-- Name -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ 'settings.profile.full_name' | transloco }}
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="name"
+                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                    />
+                  </div>
+
+                  <!-- Email -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ 'settings.profile.email' | transloco }}
+                    </label>
+                    <input
+                      type="email"
+                      formControlName="email"
+                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                    />
+                  </div>
+
+                  <!-- Country Code -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ 'settings.profile.prefix' | transloco }}
+                    </label>
+                    <div class="relative">
+                      <select
+                        formControlName="countryCode"
+                        class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white"
+                      >
+                        <option *ngFor="let country of countryCodes" [value]="country.dialCode">
+                          {{ country.dialCode }} {{ country.name | transloco }}
+                        </option>
+                      </select>
+                      <mat-icon
+                        class="absolute right-3 top-3 pointer-events-none text-gray-400"
+                        style="width: 20px; height: 20px; font-size: 20px;"
+                        >expand_more</mat-icon
+                      >
+                    </div>
+                  </div>
+
+                  <!-- Phone -->
+                  <div class="flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ 'settings.profile.phone' | transloco }}
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="phone"
+                      class="h-11 px-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 cursor-not-allowed w-full focus:outline-none"
+                    />
+                  </div>
+
+                  <!-- Company -->
+                  <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ 'settings.profile.company' | transloco }}
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="company"
+                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                    />
+                  </div>
+
+                  <!-- Address -->
+                  <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
+                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      {{ 'settings.profile.address' | transloco }}
+                    </label>
+                    <input
+                      type="text"
+                      formControlName="address"
+                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <div class="flex justify-end">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    class="!bg-blue-600 hover:!bg-blue-700 text-white px-8 h-11 rounded-lg"
+                    (click)="saveProfile()"
+                    [disabled]="isSavingProfile || profileForm.invalid"
+                  >
+                    <mat-spinner
+                      *ngIf="isSavingProfile"
+                      diameter="18"
+                      class="mr-2"
+                    ></mat-spinner>
+                    {{
+                      isSavingProfile
+                        ? ('settings.profile.saving' | transloco)
+                        : ('settings.profile.save' | transloco)
+                    }}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </ng-container>
+
         <!-- Coming Soon Placeholder -->
-        <ng-container *ngIf="selectedPanel !== 'api_key'">
+        <ng-container *ngIf="selectedPanel !== 'api_key' && selectedPanel !== 'profile'">
           <div class="coming-soon-container">
             <div class="coming-soon-icon">
               <mat-icon>construction</mat-icon>

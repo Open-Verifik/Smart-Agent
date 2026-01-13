@@ -680,3 +680,50 @@ mat-sidenav {
     }
   }
 }
+
+// Profile Section Styles
+.dropzone {
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+
+    :host-context(.dark) & {
+      border-color: #60a5fa;
+      background: rgba(59, 130, 246, 0.1);
+    }
+  }
+
+  &.dragover {
+    border-color: #3b82f6;
+    background: #dbeafe;
+    transform: scale(1.02);
+
+    :host-context(.dark) & {
+      border-color: #60a5fa;
+      background: rgba(59, 130, 246, 0.2);
+    }
+  }
+}
+
+// Form field focus states
+input:focus,
+select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+// Profile avatar preview
+.avatar-preview {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.05) 100%);
+    pointer-events: none;
+  }
+}

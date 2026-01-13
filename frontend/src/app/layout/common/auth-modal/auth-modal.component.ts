@@ -35,8 +35,10 @@ type AuthState =
   | 'CHOICE'
   | 'EMAIL_INPUT'
   | 'PHONE_INPUT'
+  | 'WHATSAPP_INPUT'
   | 'OTP_VERIFY_EMAIL'
   | 'OTP_VERIFY_PHONE'
+  | 'OTP_VERIFY_WHATSAPP'
   | 'WALLET_CONNECT'
   | 'WALLET_ENCRYPT_CHOICE'
   | 'WALLET_ENCRYPT_PIN';
@@ -91,6 +93,9 @@ export class AuthModalComponent {
 
   // Backend IDs
   validationId = signal<string | null>(null);
+
+  // Phone gateway type (sms or whatsapp)
+  phoneGateway = signal<'sms' | 'whatsapp'>('sms');
 
   private _authService = inject(AuthService);
   private _authApiService = inject(AuthApiService);
@@ -151,7 +156,7 @@ export class AuthModalComponent {
     this.otpArray.set(new Array(6).fill(''));
     this.error.set(null);
     this.errorKey.set(null);
-    if (newState === 'PHONE_INPUT') {
+    if (newState === 'PHONE_INPUT' || newState === 'WHATSAPP_INPUT') {
       // Reset to default country when entering phone input
       const defaultCountry = this._countryService.countryDialCodes.find(
         (c) => c.countryCode === 'us',
@@ -254,7 +259,14 @@ export class AuthModalComponent {
 
   // --- Phone Flow ---
   startPhoneFlow() {
+    this.phoneGateway.set('sms');
     this.setState('PHONE_INPUT');
+  }
+
+  // --- WhatsApp Flow ---
+  startWhatsAppFlow() {
+    this.phoneGateway.set('whatsapp');
+    this.setState('WHATSAPP_INPUT');
   }
 
   private isValidPhone(phone: string): boolean {
@@ -351,6 +363,7 @@ export class AuthModalComponent {
       finalPhone = phoneDigits.substring(dialCodeDigits.length);
     }
 
+    const gateway = this.phoneGateway();
     this._authApiService
       .sendPhoneOtp({
         phone: finalPhone,
@@ -358,18 +371,19 @@ export class AuthModalComponent {
         project: this.projectId,
         type: 'login',
         validationMethod: 'verificationCode',
+        phoneGateway: gateway,
       })
       .subscribe({
         next: (res) => {
           this.isLoading.set(false);
           if (res.data?._id) {
             this.validationId.set(res.data._id);
-            this.setState('OTP_VERIFY_PHONE');
+            this.setState(gateway === 'whatsapp' ? 'OTP_VERIFY_WHATSAPP' : 'OTP_VERIFY_PHONE');
           }
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.setState('PHONE_INPUT');
+          this.setState(gateway === 'whatsapp' ? 'WHATSAPP_INPUT' : 'PHONE_INPUT');
           this.setError(err.error?.message || 'Failed to send OTP');
         },
       });
@@ -412,6 +426,11 @@ export class AuthModalComponent {
           this.error.set('Invalid Code');
         },
       });
+  }
+
+  async verifyWhatsAppOtp() {
+    // WhatsApp uses the same validation as phone
+    await this.verifyPhoneOtp();
   }
 
   // --- Wallet Flow ---
@@ -710,6 +729,7 @@ export class AuthModalComponent {
         setTimeout(() => {
           if (this.state() === 'OTP_VERIFY_EMAIL') this.verifyEmailOtp();
           if (this.state() === 'OTP_VERIFY_PHONE') this.verifyPhoneOtp();
+          if (this.state() === 'OTP_VERIFY_WHATSAPP') this.verifyWhatsAppOtp();
         }, 100);
       }
       return;
@@ -743,6 +763,7 @@ export class AuthModalComponent {
         setTimeout(() => {
           if (this.state() === 'OTP_VERIFY_EMAIL') this.verifyEmailOtp();
           if (this.state() === 'OTP_VERIFY_PHONE') this.verifyPhoneOtp();
+          if (this.state() === 'OTP_VERIFY_WHATSAPP') this.verifyWhatsAppOtp();
         }, 100);
       }
     } else {

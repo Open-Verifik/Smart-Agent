@@ -7,6 +7,7 @@ import {
   OnInit,
   ViewEncapsulation,
 } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,7 +19,8 @@ import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
-import { SettingsService } from './settings.service';
+import { SettingsService, ProfileData } from './settings.service';
+import { CountryService, CountryDialCode } from 'app/core/services/country.service';
 
 interface SettingsPanel {
   id: string;
@@ -46,6 +48,7 @@ interface TokenExpiration {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MatButtonModule,
     MatIconModule,
     MatSidenavModule,
@@ -65,7 +68,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   drawerMode: 'over' | 'side' = 'side';
   drawerOpened = true;
-  selectedPanel = 'api_key';
+  selectedPanel = 'profile';
   user: any;
   isWeb2User = false;
 
@@ -90,6 +93,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     { value: 36, label: '36' },
   ];
 
+  // Profile state
+  profileForm: FormGroup;
+  profileLoaded = false;
+  isSavingProfile = false;
+  avatar: string = null;
+  countryCodes: CountryDialCode[] = [];
+
   sections: SettingsSection[] = [
     {
       id: 'account',
@@ -100,8 +110,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
           icon: 'heroicons_outline:user-circle',
           title: 'settings.panels.profile',
           description: 'settings.panels.profile_desc',
-          disabled: true,
-          badge: 'settings.coming_soon',
         },
         {
           id: 'security',
@@ -142,7 +150,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private _translocoService: TranslocoService,
     private _settingsService: SettingsService,
     private _clipboard: Clipboard,
+    private _formBuilder: FormBuilder,
+    private _countryService: CountryService,
   ) {
+    this.countryCodes = this._countryService.countryDialCodes;
+    this._initProfileForm();
     this._loadUserData();
   }
 
@@ -283,12 +295,144 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return `${start}${'•'.repeat(Math.min(middleLength, 20))}${end}`;
   }
 
+  // ============================================
+  // Profile Methods
+  // ============================================
+
+  saveProfile(): void {
+    if (this.profileForm.invalid) {
+      return;
+    }
+
+    this.isSavingProfile = true;
+    this._cdr.markForCheck();
+
+    const formValue = this.profileForm.value;
+    const profileData: Partial<ProfileData> = {
+      name: formValue.name,
+      email: formValue.email,
+      countryCode: formValue.countryCode,
+      company: formValue.company,
+      address: formValue.address,
+      avatar: this.avatar,
+    };
+
+    this._settingsService
+      .updateProfile(this.user._id, profileData)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: (response) => {
+          if (response?.data) {
+            this.user = { ...this.user, ...response.data };
+            const message = this._translocoService.translate('settings.profile.save_success');
+            this._snackBar.open(message, null, { duration: 3000 });
+          }
+          this.isSavingProfile = false;
+          this._cdr.markForCheck();
+        },
+        error: () => {
+          const message = this._translocoService.translate('settings.profile.save_error');
+          this._snackBar.open(message, null, { duration: 3000 });
+          this.isSavingProfile = false;
+          this._cdr.markForCheck();
+        },
+      });
+  }
+
+  onFileDropped(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this._processFile(files[0]);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onFileBrowse(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this._processFile(input.files[0]);
+    }
+  }
+
+  removeAvatar(): void {
+    this.avatar = null;
+    this._cdr.markForCheck();
+  }
+
+  getUserInitial(): string {
+    return this.user?.name?.charAt(0)?.toUpperCase() || 'U';
+  }
+
+  private _processFile(file: File): void {
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      const message = this._translocoService.translate('settings.profile.invalid_file_type');
+      this._snackBar.open(message, null, { duration: 3000 });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      const message = this._translocoService.translate('settings.profile.file_too_large');
+      this._snackBar.open(message, null, { duration: 3000 });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      this.avatar = reader.result as string;
+      this._cdr.markForCheck();
+    };
+  }
+
+  private _initProfileForm(): void {
+    this.profileForm = this._formBuilder.group({
+      name: ['', [Validators.required]],
+      email: ['', [Validators.required, Validators.email]],
+      countryCode: [''],
+      phone: [{ value: '', disabled: true }],
+      company: [''],
+      address: [''],
+    });
+  }
+
+  private _loadProfileData(): void {
+    if (!this.user) return;
+
+    this.profileForm.patchValue({
+      name: this.user.name || '',
+      email: this.user.email || '',
+      countryCode: this.user.countryCode || '+1',
+      phone: this.user.phone || '',
+      company: this.user.company || '',
+      address: this.user.address || '',
+    });
+
+    this.avatar = this.user.avatar || null;
+    this.profileLoaded = true;
+    this._cdr.markForCheck();
+  }
+
   private _loadUserData(): void {
     // Try both 'verifik_account' (Smart-Agent) and 'user' (legacy) keys
     const userStr = localStorage.getItem('verifik_account') || localStorage.getItem('user');
     this.user = userStr ? JSON.parse(userStr) : null;
     this.accessToken = this._settingsService.accessToken;
     this.isWeb2User = !!this.user;
+
+    // Load profile data if user exists
+    if (this.user) {
+      this._loadProfileData();
+    }
   }
 
   private _observeMediaChanges(): void {

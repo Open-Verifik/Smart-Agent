@@ -1,7 +1,89 @@
 {
   "nav": {
     "chat": "チャット",
-    "history": "履歴"
+    "history": "履歴",
+    "settings": "設定"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "アカウントと設定を管理",
+    "coming_soon": "近日公開",
+    "coming_soon_title": "近日公開",
+    "coming_soon_desc": "この機能は現在開発中です。更新情報については後で確認してください！",
+    "sections": {
+      "account": "アカウント",
+      "developers": "開発者"
+    },
+    "panels": {
+      "profile": "プロフィール",
+      "profile_desc": "個人情報を管理",
+      "security": "セキュリティ",
+      "security_desc": "パスワードと認証設定",
+      "api_key": "APIキー",
+      "api_key_desc": "APIアクセストークンを管理",
+      "webhooks": "Webhooks",
+      "webhooks_desc": "Webhookエンドポイントを設定"
+    },
+    "profile": {
+      "title": "プロフィール設定",
+      "subtitle": "個人情報とアカウント詳細を管理",
+      "photo": "写真",
+      "photo_desc": "他の人が簡単に識別できるように写真を追加してください。",
+      "drag_drop": "ファイルをここにドラッグ＆ドロップ",
+      "or_click": "またはクリックしてアップロード",
+      "file_types": "ファイルは.png、.jpeg、または.jpgである必要があります",
+      "remove_photo": "写真を削除",
+      "personal_info": "個人情報",
+      "privacy_info": "この情報は非公開に保たれ、Verifikの通信にのみ使用されます。",
+      "full_name": "フルネーム",
+      "email": "メール",
+      "prefix": "プレフィックス",
+      "phone": "電話",
+      "company": "会社",
+      "address": "住所",
+      "save": "保存",
+      "saving": "保存中...",
+      "save_success": "プロフィールが正常に保存されました！",
+      "save_error": "プロフィールの保存に失敗しました。もう一度お試しください。",
+      "invalid_file_type": "無効なファイルタイプです。PNGまたはJPGを使用してください。",
+      "file_too_large": "ファイルが大きすぎます。最大サイズは5MBです。"
+    },
+    "api_key": {
+      "title": "APIキー管理",
+      "subtitle": "Verifikサービスへの安全なアクセスのためのAPIトークンを管理",
+      "current_token": "現在のアクセストークン",
+      "bearer_token_info": "このトークンをAuthorizationヘッダーで使用してください",
+      "active": "アクティブ",
+      "show_token": "トークンを表示",
+      "hide_token": "トークンを非表示",
+      "copy_token": "トークンをコピー",
+      "token_copied": "トークンがクリップボードにコピーされました",
+      "usage_hint": "APIリクエストにこのトークンを含めてください：Authorization: Bearer <your_token>",
+      "renew_token": "トークンの有効期限を延長",
+      "renew_description": "既存の統合を無効にすることなく、現在のトークンの有効期限を延長します。",
+      "extend_validity": "有効期限を延長",
+      "select_expiration": "有効期限を選択",
+      "months": "ヶ月",
+      "cancel": "キャンセル",
+      "renew_now": "今すぐ延長",
+      "renewing": "延長中...",
+      "token_renewed_success": "トークンが正常に延長されました！",
+      "token_renewal_failed": "トークンの延長に失敗しました。もう一度お試しください。",
+      "revoke_generate": "取り消して新規生成",
+      "revoke_description": "既存のすべてのトークンを無効にし、新しいトークンを生成します。トークンが侵害された場合に使用してください。",
+      "revoke_all": "すべてのトークンを取り消す",
+      "warning_title": "この操作は元に戻せません",
+      "warning_text": "以前のすべてのトークンが永続的に取り消されます。古いトークンを使用しているアプリケーションはアクセスを失います。",
+      "confirm_revoke": "取り消して新規生成",
+      "revoking": "取り消し中...",
+      "tokens_revoked_success": "すべてのトークンが取り消されました。新しいトークンの準備ができました！",
+      "token_revocation_failed": "トークンの取り消しに失敗しました。もう一度お試しください。",
+      "new_token_generated": "新しいトークンが生成されました！",
+      "copy_token_warning": "新しいトークンを今すぐコピーしてください。このページを離れると、再度表示されません。",
+      "need_help": "API統合のヘルプが必要ですか？",
+      "docs_description": "APIトークンの使用方法を学び、ドキュメントを探索してください。",
+      "view_docs": "ドキュメントを表示"
+    }
   },
   "userMenu": {
     "welcome": "ようこそ：",
@@ -18,7 +100,8 @@
     "connectWalletDescription": "ウォレットをリンクしてWeb3機能とAVAX支払いにアクセス",
     "resetWallet": "ウォレットをリセット",
     "signOutWeb2": "Web2アカウントからサインアウト",
-    "signOutWeb3": "ウォレットからサインアウト"
+    "signOutWeb3": "ウォレットからサインアウト",
+    "settings": "設定"
   },
   "postman": {
     "layout": {
@@ -118,6 +201,7 @@
     "choice": {
       "continueEmail": "メールで続行",
       "continueSMS": "SMSで続行",
+      "continueWhatsApp": "WhatsAppで続行",
       "continueWallet": "ウォレットで続行",
       "or": "または",
       "noAccount": "アカウントをお持ちでないですか？",
@@ -135,6 +219,7 @@
     },
     "phoneInput": {
       "infoMessage": "コードを受信するには、既存の<strong>Verifikアカウント</strong>が必要です。",
+      "whatsappInfoMessage": "WhatsAppでコードを受信するには、既存の<strong>Verifikアカウント</strong>が必要です。",
       "selectCountry": "選択",
       "searchCountry": "国を検索...",
       "noCountries": "国が見つかりません",
@@ -146,6 +231,7 @@
       "title": "確認コードを入力",
       "emailMessage": "{{email}}にメッセージが届いているか確認し、以下にコードを入力してください。",
       "phoneMessage": "{{phone}}にメッセージが届いているか確認し、以下にコードを入力してください。",
+      "whatsappMessage": "{{phone}}に送信されたWhatsAppメッセージを確認し、以下にコードを入力してください。",
       "verify": "確認",
       "back": "戻る"
     },
@@ -215,14 +301,12 @@
       "viewNft": "SnowtraceでNFTを表示",
       "agentCard": "エージェントカードJSON",
       "links": "リンク",
-      "verifiedClient": "Verified Client",
-      "noReviews": "No reviews yet. Be the first to rate!",
-      "viewSnowtrace": "View Agent on SnowTrace",
-      "recentReviews": "Recent Reviews",
-      "rating": "Rating",
-      "reviews": "Reviews",
-      "on": "ON",
-      "off": "OFF"
+      "verifiedClient": "認証済みクライアント",
+      "noReviews": "まだレビューがありません。最初に評価してください！",
+      "rating": "評価",
+      "reviews": "レビュー",
+      "on": "オン",
+      "off": "オフ"
     },
     "walletModal": {
       "title": "エージェントウォレット",
@@ -251,21 +335,19 @@
       "processing": "処理中...",
       "cancel": "キャンセル",
       "fee": "≈ ${{ price }} USD",
-      "title": "Confirm Payment",
-      "totalCost": "Total Cost",
-      "currentBalance": "Current Balance",
-      "newBalance": "New Balance",
-      "insufficientFunds": "Insufficient Funds",
-      "serviceDetails": "Service Details",
-      "endpoint": "Endpoint",
-      "unknownEndpoint": "Unknown Endpoint",
-      "receiver": "Receiver",
-      "parameters": "Parameters",
+      "title": "支払い確認",
+      "totalCost": "合計費用",
+      "currentBalance": "現在の残高",
+      "newBalance": "新しい残高",
+      "insufficientFunds": "残高不足",
+      "serviceDetails": "サービス詳細",
+      "unknownEndpoint": "不明なエンドポイント",
+      "receiver": "受信者",
       "receipt": {
-        "title": "Payment Receipt",
-        "processing": "Processing...",
-        "confirmed": "Confirmed",
-        "initiated": "Transaction initiated on chain."
+        "title": "支払い領収書",
+        "processing": "処理中...",
+        "confirmed": "確認済み",
+        "initiated": "トランザクションがチェーンで開始されました。"
       }
     },
     "feedback": {
@@ -284,21 +366,16 @@
       "submitting": "送信中...",
       "cancel": "キャンセル",
       "note": "フィードバックはERC8004評価レジストリ経由でオンチェーンに記録されます",
-      "modalTitle": "Rate Experience",
-      "placeholder": "Tell us about your experience...",
-      "linkedTo": "Feedback linked to payment:",
-      "submit": "Submit Feedback",
-      "submitting": "Submitting...",
       "proof": {
-        "title": "Proof of Feedback",
-        "confirming": "Confirming...",
-        "onChain": "On-Chain",
-        "processing": "Processing your reputation feedback on correct execution.",
-        "txHash": "Transaction Hash",
-        "view": "VIEW",
-        "success": "Reputation Recorded Successfully"
+        "title": "フィードバックの証明",
+        "confirming": "確認中...",
+        "onChain": "オンチェーン",
+        "processing": "正しい実行に関する評価フィードバックを処理中です。",
+        "txHash": "トランザクションハッシュ",
+        "view": "表示",
+        "success": "評価が正常に記録されました"
       },
-      "rateThis": "Rate this"
+      "rateThis": "これを評価"
     },
     "inputPlaceholder": "リクエストを入力してください (例: 'ID 12345678を検証')...",
     "securedBy": "Verifikによって保護",

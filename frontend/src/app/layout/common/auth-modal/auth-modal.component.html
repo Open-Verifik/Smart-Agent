@@ -13,7 +13,10 @@
   </div>
 
   <!-- Error Message -->
-  <div *ngIf="error() || errorKey()" class="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm text-center">
+  <div
+    *ngIf="error() || errorKey()"
+    class="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm text-center"
+  >
     <span *ngIf="errorKey()">{{ errorKey() | transloco }}</span>
     <span *ngIf="!errorKey() && error()">{{ error() }}</span>
   </div>
@@ -41,6 +44,17 @@
         <mat-icon class="mr-3 text-slate-500">smartphone</mat-icon>
         <span class="text-slate-700 dark:text-slate-300">{{
           'authModal.choice.continueSMS' | transloco
+        }}</span>
+      </button>
+
+      <button
+        mat-stroked-button
+        class="w-full !h-12 !justify-start !px-4 !rounded-lg !border-slate-300 dark:!border-slate-700"
+        (click)="startWhatsAppFlow()"
+      >
+        <mat-icon class="mr-3 text-slate-500">message</mat-icon>
+        <span class="text-slate-700 dark:text-slate-300">{{
+          'authModal.choice.continueWhatsApp' | transloco
         }}</span>
       </button>
 
@@ -150,7 +164,7 @@
   </div>
 
   <!-- PHONE INPUT State -->
-  <div *ngIf="state() === 'PHONE_INPUT'" class="space-y-4">
+  <div *ngIf="state() === 'PHONE_INPUT' || state() === 'WHATSAPP_INPUT'" class="space-y-4">
     <!-- Info Message -->
     <div
       class="p-3 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20 rounded-lg flex gap-3"
@@ -158,7 +172,11 @@
       <mat-icon class="text-blue-500 !w-5 !h-5 !text-[20px] shrink-0 mt-0.5">info</mat-icon>
       <p
         class="text-xs text-blue-700 dark:text-blue-300 leading-snug"
-        [innerHTML]="'authModal.phoneInput.infoMessage' | transloco"
+        [innerHTML]="
+          state() === 'WHATSAPP_INPUT'
+            ? ('authModal.phoneInput.whatsappInfoMessage' | transloco)
+            : ('authModal.phoneInput.infoMessage' | transloco)
+        "
       ></p>
     </div>
 
@@ -268,15 +286,24 @@
     </button>
   </div>
 
-  <!-- OTP State (Email or Phone) -->
-  <div *ngIf="state() === 'OTP_VERIFY_EMAIL' || state() === 'OTP_VERIFY_PHONE'" class="space-y-6">
+  <!-- OTP State (Email, Phone, or WhatsApp) -->
+  <div
+    *ngIf="
+      state() === 'OTP_VERIFY_EMAIL' ||
+      state() === 'OTP_VERIFY_PHONE' ||
+      state() === 'OTP_VERIFY_WHATSAPP'
+    "
+    class="space-y-6"
+  >
     <div class="text-center space-y-2">
       <h3 class="font-bold">{{ 'authModal.otpVerify.title' | transloco }}</h3>
       <p class="text-sm text-slate-500">
         {{
           (state() === 'OTP_VERIFY_EMAIL'
             ? 'authModal.otpVerify.emailMessage'
-            : 'authModal.otpVerify.phoneMessage'
+            : state() === 'OTP_VERIFY_WHATSAPP'
+              ? 'authModal.otpVerify.whatsappMessage'
+              : 'authModal.otpVerify.phoneMessage'
           ) | transloco: { email: email(), phone: phone() }
         }}
       </p>

@@ -1,7 +1,89 @@
 {
   "nav": {
     "chat": "채팅",
-    "history": "기록"
+    "history": "기록",
+    "settings": "설정"
+  },
+  "settings": {
+    "title": "설정",
+    "subtitle": "계정 및 기본 설정 관리",
+    "coming_soon": "곧 출시",
+    "coming_soon_title": "곧 출시",
+    "coming_soon_desc": "이 기능은 현재 개발 중입니다. 업데이트를 위해 곧 다시 확인하세요!",
+    "sections": {
+      "account": "계정",
+      "developers": "개발자"
+    },
+    "panels": {
+      "profile": "프로필",
+      "profile_desc": "개인 정보 관리",
+      "security": "보안",
+      "security_desc": "비밀번호 및 인증 설정",
+      "api_key": "API 키",
+      "api_key_desc": "API 액세스 토큰 관리",
+      "webhooks": "Webhooks",
+      "webhooks_desc": "Webhook 엔드포인트 구성"
+    },
+    "profile": {
+      "title": "프로필 설정",
+      "subtitle": "개인 정보 및 계정 세부 정보 관리",
+      "photo": "사진",
+      "photo_desc": "다른 사람이 쉽게 식별할 수 있도록 사진을 추가하세요.",
+      "drag_drop": "파일을 여기에 끌어다 놓기",
+      "or_click": "또는 클릭하여 업로드",
+      "file_types": "파일은 .png, .jpeg 또는 .jpg여야 합니다",
+      "remove_photo": "사진 제거",
+      "personal_info": "개인 정보",
+      "privacy_info": "이 정보는 비공개로 유지되며 Verifik 통신에만 사용됩니다.",
+      "full_name": "전체 이름",
+      "email": "이메일",
+      "prefix": "접두사",
+      "phone": "전화",
+      "company": "회사",
+      "address": "주소",
+      "save": "저장",
+      "saving": "저장 중...",
+      "save_success": "프로필이 성공적으로 저장되었습니다!",
+      "save_error": "프로필 저장에 실패했습니다. 다시 시도하세요.",
+      "invalid_file_type": "잘못된 파일 형식입니다. PNG 또는 JPG를 사용하세요.",
+      "file_too_large": "파일이 너무 큽니다. 최대 크기는 5MB입니다."
+    },
+    "api_key": {
+      "title": "API 키 관리",
+      "subtitle": "Verifik 서비스에 대한 안전한 액세스를 위한 API 토큰 관리",
+      "current_token": "현재 액세스 토큰",
+      "bearer_token_info": "이 토큰을 Authorization 헤더에서 사용하세요",
+      "active": "활성",
+      "show_token": "토큰 표시",
+      "hide_token": "토큰 숨기기",
+      "copy_token": "토큰 복사",
+      "token_copied": "토큰이 클립보드에 복사되었습니다",
+      "usage_hint": "API 요청에 이 토큰을 포함하세요: Authorization: Bearer <your_token>",
+      "renew_token": "토큰 유효 기간 연장",
+      "renew_description": "기존 통합을 무효화하지 않고 현재 토큰의 만료 날짜를 연장합니다.",
+      "extend_validity": "유효 기간 연장",
+      "select_expiration": "만료 기간 선택",
+      "months": "개월",
+      "cancel": "취소",
+      "renew_now": "지금 연장",
+      "renewing": "연장 중...",
+      "token_renewed_success": "토큰이 성공적으로 연장되었습니다!",
+      "token_renewal_failed": "토큰 연장에 실패했습니다. 다시 시도하세요.",
+      "revoke_generate": "취소 및 새로 생성",
+      "revoke_description": "기존의 모든 토큰을 무효화하고 새 토큰을 생성합니다. 토큰이 손상된 경우 사용하세요.",
+      "revoke_all": "모든 토큰 취소",
+      "warning_title": "이 작업은 취소할 수 없습니다",
+      "warning_text": "이전의 모든 토큰이 영구적으로 취소됩니다. 이전 토큰을 사용하는 애플리케이션은 액세스를 잃습니다.",
+      "confirm_revoke": "취소 및 새로 생성",
+      "revoking": "취소 중...",
+      "tokens_revoked_success": "모든 토큰이 취소되었습니다. 새 토큰이 준비되었습니다!",
+      "token_revocation_failed": "토큰 취소에 실패했습니다. 다시 시도하세요.",
+      "new_token_generated": "새 토큰이 생성되었습니다!",
+      "copy_token_warning": "새 토큰을 지금 복사하세요. 이 페이지를 떠나면 다시 볼 수 없습니다.",
+      "need_help": "API 통합에 도움이 필요하신가요?",
+      "docs_description": "API 토큰 사용 방법을 배우고 문서를 탐색하세요.",
+      "view_docs": "문서 보기"
+    }
   },
   "userMenu": {
     "welcome": "환영합니다:",
@@ -18,7 +100,8 @@
     "connectWalletDescription": "지갑을 연결하여 Web3 기능 및 AVAX 결제에 액세스",
     "resetWallet": "지갑 재설정",
     "signOutWeb2": "Web2 계정 로그아웃",
-    "signOutWeb3": "지갑 로그아웃"
+    "signOutWeb3": "지갑 로그아웃",
+    "settings": "설정"
   },
   "postman": {
     "layout": {
@@ -118,6 +201,7 @@
     "choice": {
       "continueEmail": "이메일로 계속",
       "continueSMS": "SMS로 계속",
+      "continueWhatsApp": "WhatsApp로 계속",
       "continueWallet": "지갑으로 계속",
       "or": "또는",
       "noAccount": "계정이 없으신가요?",
@@ -135,6 +219,7 @@
     },
     "phoneInput": {
       "infoMessage": "코드를 받으려면 기존 <strong>Verifik 계정</strong>이 있어야 합니다.",
+      "whatsappInfoMessage": "WhatsApp로 코드를 받으려면 기존 <strong>Verifik 계정</strong>이 있어야 합니다.",
       "selectCountry": "선택",
       "searchCountry": "국가 검색...",
       "noCountries": "국가를 찾을 수 없습니다",
@@ -146,6 +231,7 @@
       "title": "확인 코드 입력",
       "emailMessage": "{{email}}에서 메시지를 확인하고 아래에 코드를 입력하세요.",
       "phoneMessage": "{{phone}}에서 메시지를 확인하고 아래에 코드를 입력하세요.",
+      "whatsappMessage": "{{phone}}로 전송된 WhatsApp 메시지를 확인하고 아래에 코드를 입력하세요.",
       "verify": "확인",
       "back": "뒤로"
     },
@@ -215,14 +301,12 @@
       "viewNft": "Snowtrace에서 NFT 보기",
       "agentCard": "에이전트 카드 JSON",
       "links": "링크",
-      "verifiedClient": "Verified Client",
-      "noReviews": "No reviews yet. Be the first to rate!",
-      "viewSnowtrace": "View Agent on SnowTrace",
-      "recentReviews": "Recent Reviews",
-      "rating": "Rating",
-      "reviews": "Reviews",
-      "on": "ON",
-      "off": "OFF"
+      "verifiedClient": "인증된 클라이언트",
+      "noReviews": "아직 리뷰가 없습니다. 첫 번째로 평가해주세요!",
+      "rating": "평점",
+      "reviews": "리뷰",
+      "on": "켜짐",
+      "off": "꺼짐"
     },
     "walletModal": {
       "title": "에이전트 지갑",
@@ -251,21 +335,19 @@
       "processing": "처리 중...",
       "cancel": "취소",
       "fee": "≈ ${{ price }} USD",
-      "title": "Confirm Payment",
-      "totalCost": "Total Cost",
-      "currentBalance": "Current Balance",
-      "newBalance": "New Balance",
-      "insufficientFunds": "Insufficient Funds",
-      "serviceDetails": "Service Details",
-      "endpoint": "Endpoint",
-      "unknownEndpoint": "Unknown Endpoint",
-      "receiver": "Receiver",
-      "parameters": "Parameters",
+      "title": "결제 확인",
+      "totalCost": "총 비용",
+      "currentBalance": "현재 잔액",
+      "newBalance": "새 잔액",
+      "insufficientFunds": "잔액 부족",
+      "serviceDetails": "서비스 세부 정보",
+      "unknownEndpoint": "알 수 없는 엔드포인트",
+      "receiver": "수신자",
       "receipt": {
-        "title": "Payment Receipt",
-        "processing": "Processing...",
-        "confirmed": "Confirmed",
-        "initiated": "Transaction initiated on chain."
+        "title": "결제 영수증",
+        "processing": "처리 중...",
+        "confirmed": "확인됨",
+        "initiated": "트랜잭션이 체인에서 시작되었습니다."
       }
     },
     "feedback": {
@@ -284,21 +366,16 @@
       "submitting": "제출 중...",
       "cancel": "취소",
       "note": "피드백은 ERC8004 평판 레지스트리를 통해 온체인에 기록됩니다",
-      "modalTitle": "Rate Experience",
-      "placeholder": "Tell us about your experience...",
-      "linkedTo": "Feedback linked to payment:",
-      "submit": "Submit Feedback",
-      "submitting": "Submitting...",
       "proof": {
-        "title": "Proof of Feedback",
-        "confirming": "Confirming...",
-        "onChain": "On-Chain",
-        "processing": "Processing your reputation feedback on correct execution.",
-        "txHash": "Transaction Hash",
-        "view": "VIEW",
-        "success": "Reputation Recorded Successfully"
+        "title": "피드백 증명",
+        "confirming": "확인 중...",
+        "onChain": "온체인",
+        "processing": "정확한 실행에 대한 평판 피드백을 처리 중입니다.",
+        "txHash": "트랜잭션 해시",
+        "view": "보기",
+        "success": "평판이 성공적으로 기록되었습니다"
       },
-      "rateThis": "Rate this"
+      "rateThis": "이것 평가하기"
     },
     "inputPlaceholder": "요청을 입력하세요 (예: 'ID 12345678 검증')...",
     "securedBy": "Verifik에 의해 보호됨",

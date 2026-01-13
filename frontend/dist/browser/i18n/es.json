@@ -24,6 +24,30 @@
       "webhooks": "Webhooks",
       "webhooks_desc": "Configura endpoints de webhook"
     },
+    "profile": {
+      "title": "Configuración de Perfil",
+      "subtitle": "Administra tu información personal y detalles de cuenta",
+      "photo": "Foto",
+      "photo_desc": "Añade una foto para que otros puedan identificarte fácilmente.",
+      "drag_drop": "Arrastra y suelta tu archivo aquí",
+      "or_click": "o haz clic para subir",
+      "file_types": "El archivo debe ser .png, .jpeg o .jpg",
+      "remove_photo": "Eliminar Foto",
+      "personal_info": "Información Personal",
+      "privacy_info": "Esta información se mantendrá privada y solo se usará para comunicaciones de Verifik.",
+      "full_name": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "prefix": "Prefijo",
+      "phone": "Teléfono",
+      "company": "Empresa",
+      "address": "Dirección",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "save_success": "¡Perfil guardado exitosamente!",
+      "save_error": "Error al guardar el perfil. Intenta de nuevo.",
+      "invalid_file_type": "Tipo de archivo inválido. Por favor usa PNG o JPG.",
+      "file_too_large": "El archivo es muy grande. El tamaño máximo es 5MB."
+    },
     "api_key": {
       "title": "Gestión de Clave API",
       "subtitle": "Administra tus tokens de API para acceso seguro a los servicios de Verifik",
@@ -177,6 +201,7 @@
     "choice": {
       "continueEmail": "Continuar con Correo",
       "continueSMS": "Continuar con SMS",
+      "continueWhatsApp": "Continuar con WhatsApp",
       "continueWallet": "Continuar con una billetera",
       "or": "O",
       "noAccount": "¿No tienes una cuenta?",
@@ -194,6 +219,7 @@
     },
     "phoneInput": {
       "infoMessage": "Debes tener una <strong>cuenta de Verifik</strong> existente para recibir el código.",
+      "whatsappInfoMessage": "Debes tener una <strong>cuenta de Verifik</strong> existente para recibir el código por WhatsApp.",
       "selectCountry": "Seleccionar",
       "searchCountry": "Buscar país...",
       "noCountries": "No se encontraron países",
@@ -205,6 +231,7 @@
       "title": "Ingresa el código de confirmación",
       "emailMessage": "Por favor revisa {{email}} para un mensaje e ingresa tu código a continuación.",
       "phoneMessage": "Por favor revisa {{phone}} para un mensaje e ingresa tu código a continuación.",
+      "whatsappMessage": "Por favor revisa WhatsApp para un mensaje enviado a {{phone}} e ingresa tu código a continuación.",
       "verify": "Verificar",
       "back": "Atrás"
     },

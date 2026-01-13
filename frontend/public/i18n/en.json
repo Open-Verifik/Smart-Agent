@@ -24,6 +24,30 @@
       "webhooks": "Webhooks",
       "webhooks_desc": "Configure webhook endpoints"
     },
+    "profile": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your personal information and account details",
+      "photo": "Photo",
+      "photo_desc": "Add a photo so others can easily identify you.",
+      "drag_drop": "Drag and drop your file here",
+      "or_click": "or click to upload",
+      "file_types": "File must be .png, .jpeg, or .jpg",
+      "remove_photo": "Remove Photo",
+      "personal_info": "Personal Information",
+      "privacy_info": "This information will be kept private and only used for Verifik communications.",
+      "full_name": "Full Name",
+      "email": "Email",
+      "prefix": "Prefix",
+      "phone": "Phone",
+      "company": "Company",
+      "address": "Address",
+      "save": "Save",
+      "saving": "Saving...",
+      "save_success": "Profile saved successfully!",
+      "save_error": "Failed to save profile. Please try again.",
+      "invalid_file_type": "Invalid file type. Please use PNG or JPG.",
+      "file_too_large": "File is too large. Maximum size is 5MB."
+    },
     "api_key": {
       "title": "API Key Management",
       "subtitle": "Manage your API tokens for secure access to Verifik services",
@@ -177,6 +201,7 @@
     "choice": {
       "continueEmail": "Continue with Email",
       "continueSMS": "Continue with SMS",
+      "continueWhatsApp": "Continue with WhatsApp",
       "continueWallet": "Continue with a wallet",
       "or": "Or",
       "noAccount": "Don't have an account?",
@@ -194,6 +219,7 @@
     },
     "phoneInput": {
       "infoMessage": "You must have an existing <strong>Verifik account</strong> to receive the code.",
+      "whatsappInfoMessage": "You must have an existing <strong>Verifik account</strong> to receive the code via WhatsApp.",
       "selectCountry": "Select",
       "searchCountry": "Search country...",
       "noCountries": "No countries found",
@@ -205,6 +231,7 @@
       "title": "Enter confirmation code",
       "emailMessage": "Please check {{email}} for a message and enter your code below.",
       "phoneMessage": "Please check {{phone}} for a message and enter your code below.",
+      "whatsappMessage": "Please check WhatsApp for a message sent to {{phone}} and enter your code below.",
       "verify": "Verify",
       "back": "Back"
     },

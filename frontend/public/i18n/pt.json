@@ -1,7 +1,89 @@
 {
   "nav": {
     "chat": "Chat",
-    "history": "Histórico"
+    "history": "Histórico",
+    "settings": "Configurações"
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Gerencie sua conta e preferências",
+    "coming_soon": "Em breve",
+    "coming_soon_title": "Em breve",
+    "coming_soon_desc": "Este recurso está atualmente em desenvolvimento. Volte em breve para atualizações!",
+    "sections": {
+      "account": "Conta",
+      "developers": "Desenvolvedores"
+    },
+    "panels": {
+      "profile": "Perfil",
+      "profile_desc": "Gerencie suas informações pessoais",
+      "security": "Segurança",
+      "security_desc": "Configurações de senha e autenticação",
+      "api_key": "Chave API",
+      "api_key_desc": "Gerencie seus tokens de acesso à API",
+      "webhooks": "Webhooks",
+      "webhooks_desc": "Configure endpoints de webhook"
+    },
+    "profile": {
+      "title": "Configurações de Perfil",
+      "subtitle": "Gerencie suas informações pessoais e detalhes da conta",
+      "photo": "Foto",
+      "photo_desc": "Adicione uma foto para que outras pessoas possam identificá-lo facilmente.",
+      "drag_drop": "Arraste e solte seu arquivo aqui",
+      "or_click": "ou clique para fazer upload",
+      "file_types": "O arquivo deve ser .png, .jpeg ou .jpg",
+      "remove_photo": "Remover Foto",
+      "personal_info": "Informações Pessoais",
+      "privacy_info": "Esta informação será mantida privada e usada apenas para comunicações da Verifik.",
+      "full_name": "Nome Completo",
+      "email": "E-mail",
+      "prefix": "Prefixo",
+      "phone": "Telefone",
+      "company": "Empresa",
+      "address": "Endereço",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "save_success": "Perfil salvo com sucesso!",
+      "save_error": "Falha ao salvar o perfil. Tente novamente.",
+      "invalid_file_type": "Tipo de arquivo inválido. Use PNG ou JPG.",
+      "file_too_large": "Arquivo muito grande. O tamanho máximo é 5MB."
+    },
+    "api_key": {
+      "title": "Gerenciamento de Chave API",
+      "subtitle": "Gerencie seus tokens de API para acesso seguro aos serviços Verifik",
+      "current_token": "Token de Acesso Atual",
+      "bearer_token_info": "Use este token no cabeçalho Authorization",
+      "active": "Ativo",
+      "show_token": "Mostrar token",
+      "hide_token": "Ocultar token",
+      "copy_token": "Copiar token",
+      "token_copied": "Token copiado para a área de transferência",
+      "usage_hint": "Inclua este token em suas solicitações de API: Authorization: Bearer <your_token>",
+      "renew_token": "Estender Validade do Token",
+      "renew_description": "Estenda a data de expiração do seu token atual sem invalidar integrações existentes.",
+      "extend_validity": "Estender Validade",
+      "select_expiration": "Selecionar Período de Expiração",
+      "months": "meses",
+      "cancel": "Cancelar",
+      "renew_now": "Estender Agora",
+      "renewing": "Estendendo...",
+      "token_renewed_success": "Token estendido com sucesso!",
+      "token_renewal_failed": "Falha ao estender o token. Tente novamente.",
+      "revoke_generate": "Revogar e Gerar Novo",
+      "revoke_description": "Invalide todos os tokens existentes e gere um novo. Use se seu token estiver comprometido.",
+      "revoke_all": "Revogar Todos os Tokens",
+      "warning_title": "Esta ação não pode ser desfeita",
+      "warning_text": "Todos os tokens anteriores serão permanentemente revogados. Aplicativos usando tokens antigos perderão acesso.",
+      "confirm_revoke": "Revogar e Gerar Novo",
+      "revoking": "Revogando...",
+      "tokens_revoked_success": "Todos os tokens revogados. Seu novo token está pronto!",
+      "token_revocation_failed": "Falha ao revogar tokens. Tente novamente.",
+      "new_token_generated": "Novo Token Gerado!",
+      "copy_token_warning": "Copie seu novo token agora. Você não o verá novamente após sair desta página.",
+      "need_help": "Precisa de ajuda com integração de API?",
+      "docs_description": "Aprenda como usar seu token de API e explore nossa documentação.",
+      "view_docs": "Ver Documentação"
+    }
   },
   "userMenu": {
     "welcome": "Bem-vindo:",
@@ -18,7 +100,8 @@
     "connectWalletDescription": "Vincule uma carteira para acessar recursos Web3 e pagamentos AVAX",
     "resetWallet": "Redefinir Carteira",
     "signOutWeb2": "Sair da Conta Web2",
-    "signOutWeb3": "Sair da Carteira"
+    "signOutWeb3": "Sair da Carteira",
+    "settings": "Configurações"
   },
   "postman": {
     "layout": {
@@ -118,6 +201,7 @@
     "choice": {
       "continueEmail": "Continuar com E-mail",
       "continueSMS": "Continuar com SMS",
+      "continueWhatsApp": "Continuar com WhatsApp",
       "continueWallet": "Continuar com uma carteira",
       "or": "Ou",
       "noAccount": "Não tem uma conta?",
@@ -135,6 +219,7 @@
     },
     "phoneInput": {
       "infoMessage": "Você deve ter uma <strong>conta Verifik</strong> existente para receber o código.",
+      "whatsappInfoMessage": "Você deve ter uma <strong>conta Verifik</strong> existente para receber o código via WhatsApp.",
       "selectCountry": "Selecionar",
       "searchCountry": "Pesquisar país...",
       "noCountries": "Nenhum país encontrado",
@@ -146,6 +231,7 @@
       "title": "Digite o código de confirmação",
       "emailMessage": "Por favor, verifique {{email}} para uma mensagem e digite seu código abaixo.",
       "phoneMessage": "Por favor, verifique {{phone}} para uma mensagem e digite seu código abaixo.",
+      "whatsappMessage": "Por favor, verifique o WhatsApp para uma mensagem enviada para {{phone}} e digite seu código abaixo.",
       "verify": "Verificar",
       "back": "Voltar"
     },
@@ -217,12 +303,10 @@
       "links": "Links",
       "verifiedClient": "Cliente Verificado",
       "noReviews": "Ainda não há avaliações. Seja o primeiro a avaliar!",
-      "viewSnowtrace": "Ver Agente no SnowTrace",
-      "recentReviews": "Avaliações Recentes",
       "rating": "Avaliação",
       "reviews": "Resenhas",
-      "on": "ON",
-      "off": "OFF"
+      "on": "LIGADO",
+      "off": "DESLIGADO"
     },
     "walletModal": {
       "title": "Carteira do Agente",
@@ -284,15 +368,10 @@
       "submitting": "Enviando...",
       "cancel": "Cancelar",
       "note": "Seu feedback será registrado na blockchain via Registro de Reputação ERC8004",
-      "modalTitle": "Avaliar Experiência",
-      "placeholder": "Conte-nos sobre sua experiência...",
-      "linkedTo": "Feedback vinculado ao pagamento:",
-      "submit": "Enviar Feedback",
-      "submitting": "Enviando...",
       "proof": {
         "title": "Prova de Feedback",
         "confirming": "Confirmando...",
-        "onChain": "On-Chain",
+        "onChain": "Na Blockchain",
         "processing": "Processando seu feedback de reputação sobre execução correta.",
         "txHash": "Hash da Transação",
         "view": "VER",

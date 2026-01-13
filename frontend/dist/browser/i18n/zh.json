@@ -1,7 +1,89 @@
 {
   "nav": {
     "chat": "聊天",
-    "history": "历史"
+    "history": "历史",
+    "settings": "设置"
+  },
+  "settings": {
+    "title": "设置",
+    "subtitle": "管理您的账户和偏好设置",
+    "coming_soon": "即将推出",
+    "coming_soon_title": "即将推出",
+    "coming_soon_desc": "此功能目前正在开发中。请稍后再来查看更新！",
+    "sections": {
+      "account": "账户",
+      "developers": "开发者"
+    },
+    "panels": {
+      "profile": "个人资料",
+      "profile_desc": "管理您的个人信息",
+      "security": "安全",
+      "security_desc": "密码和身份验证设置",
+      "api_key": "API密钥",
+      "api_key_desc": "管理您的API访问令牌",
+      "webhooks": "Webhooks",
+      "webhooks_desc": "配置Webhook端点"
+    },
+    "profile": {
+      "title": "个人资料设置",
+      "subtitle": "管理您的个人信息和账户详细信息",
+      "photo": "照片",
+      "photo_desc": "添加照片以便其他人可以轻松识别您。",
+      "drag_drop": "将文件拖放到此处",
+      "or_click": "或点击上传",
+      "file_types": "文件必须是.png、.jpeg或.jpg",
+      "remove_photo": "删除照片",
+      "personal_info": "个人信息",
+      "privacy_info": "此信息将保持私密，仅用于Verifik通信。",
+      "full_name": "全名",
+      "email": "电子邮件",
+      "prefix": "前缀",
+      "phone": "电话",
+      "company": "公司",
+      "address": "地址",
+      "save": "保存",
+      "saving": "保存中...",
+      "save_success": "个人资料保存成功！",
+      "save_error": "保存个人资料失败。请重试。",
+      "invalid_file_type": "无效的文件类型。请使用PNG或JPG。",
+      "file_too_large": "文件太大。最大大小为5MB。"
+    },
+    "api_key": {
+      "title": "API密钥管理",
+      "subtitle": "管理您的API令牌以安全访问Verifik服务",
+      "current_token": "当前访问令牌",
+      "bearer_token_info": "在Authorization标头中使用此令牌",
+      "active": "活动",
+      "show_token": "显示令牌",
+      "hide_token": "隐藏令牌",
+      "copy_token": "复制令牌",
+      "token_copied": "令牌已复制到剪贴板",
+      "usage_hint": "在API请求中包含此令牌：Authorization: Bearer <your_token>",
+      "renew_token": "延长令牌有效期",
+      "renew_description": "延长当前令牌的到期日期，而不使现有集成失效。",
+      "extend_validity": "延长有效期",
+      "select_expiration": "选择到期期限",
+      "months": "个月",
+      "cancel": "取消",
+      "renew_now": "立即延长",
+      "renewing": "延长中...",
+      "token_renewed_success": "令牌已成功延长！",
+      "token_renewal_failed": "延长令牌失败。请重试。",
+      "revoke_generate": "撤销并生成新令牌",
+      "revoke_description": "使所有现有令牌失效并生成新令牌。如果您的令牌已泄露，请使用此功能。",
+      "revoke_all": "撤销所有令牌",
+      "warning_title": "此操作无法撤销",
+      "warning_text": "所有先前的令牌将被永久撤销。使用旧令牌的应用程序将失去访问权限。",
+      "confirm_revoke": "撤销并生成新令牌",
+      "revoking": "撤销中...",
+      "tokens_revoked_success": "所有令牌已撤销。您的新令牌已准备就绪！",
+      "token_revocation_failed": "撤销令牌失败。请重试。",
+      "new_token_generated": "新令牌已生成！",
+      "copy_token_warning": "立即复制您的新令牌。离开此页面后将无法再次查看。",
+      "need_help": "需要API集成帮助？",
+      "docs_description": "了解如何使用您的API令牌并浏览我们的文档。",
+      "view_docs": "查看文档"
+    }
   },
   "userMenu": {
     "welcome": "欢迎：",
@@ -18,7 +100,8 @@
     "connectWalletDescription": "链接钱包以访问Web3功能和AVAX支付",
     "resetWallet": "重置钱包",
     "signOutWeb2": "退出Web2账户",
-    "signOutWeb3": "退出钱包"
+    "signOutWeb3": "退出钱包",
+    "settings": "设置"
   },
   "postman": {
     "layout": {
@@ -118,6 +201,7 @@
     "choice": {
       "continueEmail": "使用电子邮件继续",
       "continueSMS": "使用短信继续",
+      "continueWhatsApp": "使用WhatsApp继续",
       "continueWallet": "使用钱包继续",
       "or": "或",
       "noAccount": "没有账户？",
@@ -135,6 +219,7 @@
     },
     "phoneInput": {
       "infoMessage": "您必须拥有现有的<strong>Verifik账户</strong>才能接收代码。",
+      "whatsappInfoMessage": "您必须拥有现有的<strong>Verifik账户</strong>才能通过WhatsApp接收代码。",
       "selectCountry": "选择",
       "searchCountry": "搜索国家...",
       "noCountries": "未找到国家",
@@ -146,6 +231,7 @@
       "title": "输入确认码",
       "emailMessage": "请检查{{email}}的消息并在下方输入您的代码。",
       "phoneMessage": "请检查{{phone}}的消息并在下方输入您的代码。",
+      "whatsappMessage": "请检查发送到{{phone}}的WhatsApp消息并在下方输入您的代码。",
       "verify": "验证",
       "back": "返回"
     },
@@ -215,14 +301,12 @@
       "viewNft": "在Snowtrace上查看NFT",
       "agentCard": "代理卡片JSON",
       "links": "链接",
-      "verifiedClient": "Verified Client",
-      "noReviews": "No reviews yet. Be the first to rate!",
-      "viewSnowtrace": "View Agent on SnowTrace",
-      "recentReviews": "Recent Reviews",
-      "rating": "Rating",
-      "reviews": "Reviews",
-      "on": "ON",
-      "off": "OFF"
+      "verifiedClient": "已验证客户端",
+      "noReviews": "还没有评论。成为第一个评分的人！",
+      "rating": "评分",
+      "reviews": "评论",
+      "on": "开启",
+      "off": "关闭"
     },
     "walletModal": {
       "title": "代理钱包",
@@ -251,21 +335,19 @@
       "processing": "处理中...",
       "cancel": "取消",
       "fee": "≈ ${{ price }} USD",
-      "title": "Confirm Payment",
-      "totalCost": "Total Cost",
-      "currentBalance": "Current Balance",
-      "newBalance": "New Balance",
-      "insufficientFunds": "Insufficient Funds",
-      "serviceDetails": "Service Details",
-      "endpoint": "Endpoint",
-      "unknownEndpoint": "Unknown Endpoint",
-      "receiver": "Receiver",
-      "parameters": "Parameters",
+      "title": "确认支付",
+      "totalCost": "总成本",
+      "currentBalance": "当前余额",
+      "newBalance": "新余额",
+      "insufficientFunds": "资金不足",
+      "serviceDetails": "服务详情",
+      "unknownEndpoint": "未知端点",
+      "receiver": "接收者",
       "receipt": {
-        "title": "Payment Receipt",
-        "processing": "Processing...",
-        "confirmed": "Confirmed",
-        "initiated": "Transaction initiated on chain."
+        "title": "支付收据",
+        "processing": "处理中...",
+        "confirmed": "已确认",
+        "initiated": "交易已在链上启动。"
       }
     },
     "feedback": {
@@ -284,21 +366,16 @@
       "submitting": "提交中...",
       "cancel": "取消",
       "note": "您的反馈将通过ERC8004声誉注册表记录在链上",
-      "modalTitle": "Rate Experience",
-      "placeholder": "Tell us about your experience...",
-      "linkedTo": "Feedback linked to payment:",
-      "submit": "Submit Feedback",
-      "submitting": "Submitting...",
       "proof": {
-        "title": "Proof of Feedback",
-        "confirming": "Confirming...",
-        "onChain": "On-Chain",
-        "processing": "Processing your reputation feedback on correct execution.",
-        "txHash": "Transaction Hash",
-        "view": "VIEW",
-        "success": "Reputation Recorded Successfully"
+        "title": "反馈证明",
+        "confirming": "确认中...",
+        "onChain": "链上",
+        "processing": "正在处理您关于正确执行的声誉反馈。",
+        "txHash": "交易哈希",
+        "view": "查看",
+        "success": "声誉已成功记录"
       },
-      "rateThis": "Rate this"
+      "rateThis": "评价这个"
     },
     "inputPlaceholder": "输入您的请求 (例如: '验证ID 12345678')...",
     "securedBy": "由Verifik保护",

@@ -13,6 +13,21 @@ export interface TokenRevokeResponse {
   token: string;
 }
 
+export interface ProfileData {
+  _id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  countryCode?: string;
+  company?: string;
+  address?: string;
+  avatar?: string;
+}
+
+export interface ProfileUpdateResponse {
+  data: ProfileData;
+}
+
 /**
  * Settings Service
  * Handles API key management operations including token renewal and revocation
@@ -146,5 +161,74 @@ export class SettingsService {
     const end = token.substring(token.length - visibleChars);
     const middleLength = token.length - visibleChars * 2;
     return `${start}${'•'.repeat(Math.min(middleLength, 20))}${end}`;
+  }
+
+  // ============================================
+  // Profile Management
+  // ============================================
+
+  /**
+   * Get the user profile from localStorage
+   */
+  getStoredProfile(): ProfileData | null {
+    const userStr = localStorage.getItem('verifik_account') || localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  /**
+   * Update user profile in localStorage
+   */
+  updateStoredProfile(profile: ProfileData): void {
+    // Try to preserve existing workspace data
+    const existingUserStr = localStorage.getItem('verifik_account') || localStorage.getItem('user');
+    const existingUser = existingUserStr ? JSON.parse(existingUserStr) : {};
+
+    const updatedUser = {
+      ...existingUser,
+      ...profile,
+    };
+
+    // Update in the appropriate storage key
+    if (localStorage.getItem('verifik_account')) {
+      localStorage.setItem('verifik_account', JSON.stringify(updatedUser));
+    } else {
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+    }
+  }
+
+  /**
+   * Update user profile on the server
+   *
+   * @param userId - The user's ID
+   * @param profileData - The profile data to update
+   * @returns Observable with the updated profile
+   *
+   * API: PUT /v2/client/{userId}
+   */
+  updateProfile(
+    userId: string,
+    profileData: Partial<ProfileData>,
+  ): Observable<ProfileUpdateResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/clients/${userId}`;
+
+    return this._http
+      .put<ProfileUpdateResponse>(url, profileData, { headers: this._getAuthHeaders() })
+      .pipe(
+        map((response) => {
+          if (response?.data) {
+            // Update localStorage with the updated profile
+            this.updateStoredProfile(response.data);
+          }
+          return response;
+        }),
+        catchError((error) => {
+          console.error('[SettingsService] Profile update failed:', error);
+          return throwError(() => error);
+        }),
+      );
   }
 }

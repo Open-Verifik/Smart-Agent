@@ -30,6 +30,7 @@ export interface PhoneValidationRequest {
   project: string;
   type: string;
   validationMethod: string;
+  phoneGateway?: string; // 'sms' or 'whatsapp'
 }
 
 export interface PhoneValidationResponse {
