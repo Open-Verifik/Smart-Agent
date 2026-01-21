@@ -6,4 +6,5 @@ export const environment = {
   appUrl: 'https://prod.verifik.co',
   projectId: '6332941ccde4f719d9c00f9e',
   loginProjectFlowId: '6332941ccde4f719d9c00f9f',
+  kycBaseUrl: 'https://access.verifik.co',
 };

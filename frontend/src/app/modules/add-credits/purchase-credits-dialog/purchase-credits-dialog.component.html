@@ -1,0 +1,134 @@
+<div class="purchase-credits-dialog">
+    <!-- Normal Purchase Flow -->
+    <ng-container *ngIf="!kycRequired">
+        <!-- Header -->
+        <div class="dialog-header">
+            <h2 class="dialog-title">Purchase Credits</h2>
+            <p class="dialog-subtitle">Add credits to power your AI agents</p>
+        </div>
+
+        <mat-dialog-content class="p-0">
+            <!-- Error Message -->
+            <div *ngIf="error" class="error-message">
+                <mat-icon>error_outline</mat-icon>
+                <p>{{ error }}</p>
+            </div>
+
+            <!-- Amount Selection Section -->
+            <div class="section">
+                <label class="section-label">Select Amount</label>
+
+                <!-- Preset Amounts Grid -->
+                <div class="amount-grid">
+                    <button
+                        *ngFor="let amount of creditAmounts"
+                        type="button"
+                        class="amount-button"
+                        [class.selected]="selectedAmount === amount && !isCustomAmount"
+                        (click)="selectPresetAmount(amount)"
+                        [disabled]="loading"
+                    >
+                        <span class="amount-value">${{ amount }}</span>
+                    </button>
+                </div>
+
+                <!-- Custom Amount Toggle & Input -->
+                <div class="custom-amount-wrapper">
+                    <button
+                        type="button"
+                        class="custom-toggle"
+                        [class.active]="isCustomAmount"
+                        (click)="toggleCustomAmount()"
+                        [disabled]="loading"
+                    >
+                        <mat-icon>edit</mat-icon>
+                        <span>Enter custom amount</span>
+                    </button>
+
+                    <div *ngIf="isCustomAmount" class="custom-input-container">
+                        <span class="currency-symbol">$</span>
+                        <input
+                            type="number"
+                            class="custom-input"
+                            [(ngModel)]="customAmountValue"
+                            (ngModelChange)="onCustomAmountChange($event)"
+                            placeholder="20"
+                            min="20"
+                            max="2000"
+                            [disabled]="loading"
+                        />
+                    </div>
+                </div>
+
+                <p class="amount-hint">Minimum $20 • Maximum $2,000</p>
+            </div>
+
+            <!-- Payment Method Summary -->
+            <div class="section" *ngIf="data?.card" class="p-1">
+                <label class="section-label">Payment Method</label>
+
+                <div class="payment-summary">
+                    <div class="card-option selected read-only">
+                        <div class="card-icon-wrapper">
+                            <img
+                                [src]="getCardLogo(data.card.brand)"
+                                [alt]="data.card.brand"
+                                class="brand-logo"
+                            />
+                        </div>
+
+                        <div class="card-details">
+                            <span class="card-number">•••• {{ data.card.lastFour }}</span>
+                        </div>
+
+                        <span *ngIf="data.card.isDefault" class="default-badge">Primary</span>
+                    </div>
+                </div>
+            </div>
+        </mat-dialog-content>
+
+        <!-- Dialog Actions -->
+        <div class="dialog-actions">
+            <button type="button" class="cancel-button" (click)="close()" [disabled]="loading">
+                Cancel
+            </button>
+            <button
+                type="button"
+                class="purchase-button"
+                (click)="purchase()"
+                [disabled]="loading || !selectedCardId || !isValidAmount()"
+            >
+                <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                <ng-container *ngIf="!loading">
+                    <span>Purchase</span>
+                    <span class="button-amount">${{ selectedAmount }}</span>
+                </ng-container>
+                <span *ngIf="loading">Processing...</span>
+            </button>
+        </div>
+    </ng-container>
+
+    <!-- KYC Required State -->
+    <div class="kyc-state-wrapper" *ngIf="kycRequired">
+        <div class="kyc-icon-wrapper">
+            <mat-icon class="kyc-icon">verified_user</mat-icon>
+        </div>
+
+        <div class="kyc-content">
+            <h3 class="kyc-title">KYC Verification Required</h3>
+            <p class="kyc-description">
+                To continue with your payment, you need to complete the KYC (Know Your Customer)
+                verification process. This helps us ensure compliance and security.
+            </p>
+
+            <button class="start-kyc-button" (click)="startKyc()" [disabled]="loading">
+                <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
+                <span *ngIf="!loading">Start KYC Verification</span>
+            </button>
+
+            <button class="cancel-button kyc-cancel" (click)="close()" [disabled]="loading">
+                Close
+            </button>
+        </div>
+    </div>
+</div>

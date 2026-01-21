@@ -1,0 +1,447 @@
+// Payment Card Component - Modern UI
+// Supports both Light and Dark mode with Fuse theming
+
+// ================================
+// LIGHT MODE COLORS
+// ================================
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+// ================================
+// DARK MODE COLORS
+// ================================
+$dark-card: rgba(30, 41, 59, 0.6);
+$dark-card-hover: rgba(30, 41, 59, 0.8);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+// ================================
+// ACCENT COLORS
+// ================================
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+$accent-purple: #8b5cf6;
+$accent-green: #10b981;
+$danger-red: #ef4444;
+$default-border-light: rgba(99, 102, 241, 0.4);
+$default-border-dark: rgba(139, 92, 246, 0.4);
+
+@mixin smooth-transition($duration: 0.3s) {
+    transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.payment-card-modern {
+    position: relative;
+    @include smooth-transition;
+
+    &:hover {
+        transform: translateY(-2px);
+
+        .card-inner {
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+
+            :host-context(.dark) & {
+                border-color: rgba(255, 255, 255, 0.15);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            }
+        }
+    }
+
+    &.is-default {
+        .card-inner {
+            border-color: $default-border-light;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.02));
+
+            :host-context(.dark) & {
+                border-color: $default-border-dark;
+                background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.05));
+            }
+        }
+
+        &:hover .card-inner {
+            border-color: rgba(99, 102, 241, 0.5);
+
+            :host-context(.dark) & {
+                border-color: rgba(139, 92, 246, 0.6);
+            }
+        }
+    }
+
+    &.is-expired {
+        .card-inner {
+            border-color: rgba(239, 68, 68, 0.25);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.04), transparent);
+
+            :host-context(.dark) & {
+                border-color: rgba(239, 68, 68, 0.3);
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(30, 41, 59, 0.6));
+            }
+        }
+
+        .card-number .number-last {
+            color: $danger-red;
+        }
+    }
+}
+
+.card-inner {
+    background: $light-card;
+    border: 1px solid $light-card-border;
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    z-index: 1;
+    @include smooth-transition;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+    :host-context(.dark) & {
+        background: $dark-card;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-color: $dark-card-border;
+        box-shadow: none;
+    }
+}
+
+.card-glow {
+    position: absolute;
+    inset: -2px;
+    background: $primary-gradient;
+    border-radius: 18px;
+    opacity: 0.08;
+    filter: blur(20px);
+    z-index: 0;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        opacity: 0.15;
+    }
+}
+
+.payment-card-modern:hover .card-glow {
+    opacity: 0.12;
+    filter: blur(25px);
+
+    :host-context(.dark) & {
+        opacity: 0.25;
+    }
+}
+
+// Card Header
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-logo-wrapper {
+    width: 48px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+    padding: 6px 10px;
+    flex-shrink: 0;
+
+    :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.05);
+    }
+}
+
+.brand-logo {
+    height: 20px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+    
+    // Ensure logo is always visible
+    opacity: 1 !important;
+    
+    // Fallback if image fails to load
+    &[src=""],
+    &:not([src]) {
+        display: none;
+    }
+}
+
+.brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+// Status Tags
+.status-tags {
+    display: flex;
+    gap: 8px;
+}
+
+.status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+
+    &.default-tag {
+        background: rgba(99, 102, 241, 0.1);
+        color: $accent-purple;
+
+        :host-context(.dark) & {
+            background: rgba(139, 92, 246, 0.15);
+        }
+    }
+
+    &.expired-tag {
+        background: rgba(239, 68, 68, 0.1);
+        color: $danger-red;
+
+        :host-context(.dark) & {
+            background: rgba(239, 68, 68, 0.15);
+        }
+
+        .tag-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+        }
+    }
+}
+
+.tag-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $accent-purple;
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+}
+
+// Card Number
+.card-number-section {
+    margin-bottom: 24px;
+}
+
+.card-number {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'IBM Plex Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 20px;
+    letter-spacing: 2px;
+}
+
+.number-dots {
+    color: $light-text-muted;
+    font-weight: 500;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+.number-last {
+    color: $light-text-primary;
+    font-weight: 700;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+// Card Details
+.card-details {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    padding: 20px 0;
+    margin-bottom: 0px;
+
+    :host-context(.dark) & {
+        border-top-color: $dark-card-border;
+        border-bottom-color: $dark-card-border;
+    }
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: $light-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+.detail-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.cardholder .detail-value {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// Card Actions
+.card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: transparent;
+    border: 1px solid $light-card-border;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        border-color: $dark-card-border;
+    }
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.set-default-button {
+    color: $light-text-primary;
+    flex: 1;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+
+    &:hover {
+        background: rgba(99, 102, 241, 0.08);
+        border-color: rgba(99, 102, 241, 0.3);
+        color: $accent-purple;
+
+        mat-icon {
+            color: $accent-purple;
+        }
+    }
+}
+
+.default-message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: $accent-green;
+    flex: 1;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: $accent-green;
+    }
+}
+
+.delete-button {
+    color: $light-text-muted;
+    padding: 10px;
+    min-width: 40px;
+    justify-content: center;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+
+    &:hover:not(.disabled) {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: $danger-red;
+
+        mat-icon {
+            color: $danger-red;
+        }
+    }
+
+    &.disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 480px) {
+    .card-inner {
+        padding: 20px;
+    }
+
+    .card-number {
+        font-size: 16px;
+        gap: 8px;
+    }
+
+    .card-details {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .action-button {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .set-default-button span {
+        display: none;
+    }
+
+    .set-default-button {
+        flex: 0;
+        padding: 8px 10px;
+        min-width: 40px;
+        justify-content: center;
+    }
+}

@@ -34,6 +34,22 @@ export const appRoutes: Route[] = [
         path: 'settings',
         loadChildren: () => import('app/modules/settings/settings.routes').then((m) => m.default),
       },
+      {
+        path: 'smart-batch',
+        loadChildren: () => import('app/modules/smart-batch/smart-batch.routes').then((m) => m.default),
+      },
+      {
+        path: 'subscription-plans',
+        loadChildren: () => import('app/modules/subscription-plans/subscription-plans.routes').then((m) => m.default),
+      },
+      {
+        path: 'add-credits',
+        loadChildren: () => import('app/modules/add-credits/add-credits.routes').then((m) => m.default),
+      },
+      {
+        path: 'status-check',
+        loadChildren: () => import('app/modules/status-check/status-check.routes').then((m) => m.default),
+      },
     ],
   },
 

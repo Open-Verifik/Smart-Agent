@@ -1,0 +1,220 @@
+<div class="add-credits-container">
+    <!-- Subtle Background Pattern -->
+    <div class="bg-pattern"></div>
+
+    <div class="content-wrapper">
+        <!-- Hero Section with Balance -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <span class="badge">
+                        <mat-icon class="badge-icon">bolt</mat-icon>
+                        Smart Credits
+                    </span>
+                    <h1 class="hero-title">Power Your AI Agents</h1>
+                    <p class="hero-subtitle">
+                        Purchase credits to unlock unlimited AI-powered verifications, identity
+                        checks, and smart agent capabilities.
+                    </p>
+                </div>
+
+                <!-- Credit Balance Card -->
+                <div class="balance-card">
+                    <div class="balance-card-glow"></div>
+                    <div class="balance-card-content">
+                        <div class="balance-header">
+                            <div class="balance-icon-wrapper">
+                                <mat-icon class="balance-icon">account_balance_wallet</mat-icon>
+                            </div>
+                            <span class="balance-label">Available Credits</span>
+                        </div>
+                        <div class="balance-amount">
+                            <span class="amount-value">{{
+                                balance()?.totalCredits || 0 | number: '1.2-2'
+                            }}</span>
+                            <span class="amount-currency">credits</span>
+                        </div>
+                        <div class="balance-action">
+                            <button
+                                class="primary-cta-button"
+                                (click)="openPurchaseCreditsDialog()"
+                                [disabled]="loading()"
+                            >
+                                <span>Purchase Credits</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Payment Methods Section -->
+            <div class="payment-section">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title-wrapper">
+                            <div class="section-icon">
+                                <mat-icon>credit_card</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="section-title">Payment Methods</h2>
+                                <p class="section-subtitle">Manage your saved payment cards</p>
+                            </div>
+                        </div>
+                        <button
+                            class="add-card-button"
+                            (click)="openAddCardDialog()"
+                            [disabled]="loading()"
+                        >
+                            <mat-icon>add</mat-icon>
+                            <span>Add Card</span>
+                        </button>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div *ngIf="loading()" class="loading-state">
+                        <div class="loading-spinner">
+                            <mat-spinner diameter="48"></mat-spinner>
+                        </div>
+                        <p class="loading-text">Loading payment methods...</p>
+                    </div>
+
+                    <!-- Error State -->
+                    <div *ngIf="error() && !loading()" class="error-state">
+                        <mat-icon class="error-icon">error_outline</mat-icon>
+                        <p class="error-text">{{ error() }}</p>
+                        <button class="retry-button" (click)="loadData()">
+                            <mat-icon>refresh</mat-icon>
+                            Try Again
+                        </button>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div *ngIf="!loading() && !error() && !hasCards()" class="empty-state">
+                        <div class="empty-illustration">
+                            <div class="empty-card-visual">
+                                <mat-icon class="empty-icon">credit_card_off</mat-icon>
+                            </div>
+                        </div>
+                        <h3 class="empty-title">No payment methods yet</h3>
+                        <p class="empty-subtitle">Add a payment card to start purchasing credits</p>
+                        <button class="primary-cta-button" (click)="openAddCardDialog()">
+                            <mat-icon>add</mat-icon>
+                            <span>Add Payment Method</span>
+                        </button>
+                    </div>
+
+                    <!-- Cards List -->
+                    <div *ngIf="!loading() && !error() && hasCards()" class="cards-list">
+                        <app-payment-card
+                            *ngFor="let card of cards(); let i = index"
+                            [card]="card"
+                            [isDefault]="card.isDefault"
+                            (setDefault)="onCardSetDefault($event)"
+                            (delete)="onCardDeleted($event)"
+                            class="card-item"
+                            [style.animation-delay]="i * 100 + 'ms'"
+                        ></app-payment-card>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Sidebar -->
+            <div class="sidebar">
+                <!-- Auto-Recharge Card -->
+                <div class="sidebar-card auto-recharge-card">
+                    <div class="sidebar-card-header">
+                        <div class="sidebar-card-icon auto-recharge-icon">
+                            <mat-icon>autorenew</mat-icon>
+                        </div>
+                        <div>
+                            <h3 class="sidebar-card-title">Auto-Recharge</h3>
+                            <p class="sidebar-card-subtitle">Never run out of credits</p>
+                        </div>
+                    </div>
+
+                    <div *ngIf="autoRechargeConfig()?.hasAutoCharge" class="auto-recharge-active">
+                        <div class="status-badge active">
+                            <span class="status-dot"></span>
+                            Active
+                        </div>
+                        <div class="config-details">
+                            <div class="config-item">
+                                <span class="config-label">Threshold</span>
+                                <span class="config-value"
+                                    >{{ autoRechargeConfig()?.minThreshold }} credits</span
+                                >
+                            </div>
+                            <div class="config-item">
+                                <span class="config-label">Recharge Amount</span>
+                                <span class="config-value"
+                                    >{{ autoRechargeConfig()?.minRecharge }} credits</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        *ngIf="!autoRechargeConfig()?.hasAutoCharge"
+                        class="auto-recharge-inactive"
+                    >
+                        <div class="status-badge inactive">
+                            <span class="status-dot"></span>
+                            Inactive
+                        </div>
+                        <p class="inactive-text">
+                            Enable auto-recharge to automatically top up your balance
+                        </p>
+                    </div>
+
+                    <button
+                        class="sidebar-action-button"
+                        (click)="openAutoRechargeSettings()"
+                        [disabled]="loading()"
+                    >
+                        <mat-icon>settings</mat-icon>
+                        <span>Configure</span>
+                    </button>
+                </div>
+
+                <!-- Subscription Plans Info Card -->
+                <div class="sidebar-card pricing-card">
+                    <div class="pricing-header">
+                        <mat-icon class="pricing-icon">verified</mat-icon>
+                        <span>Subscription Plans</span>
+                    </div>
+                    <div class="pricing-content">
+                        <p class="pricing-text">
+                            Stop recharging manually! Upgrade to a plan to reduce costs and get
+                            exclusive benefits.
+                        </p>
+                        <div class="pricing-tiers">
+                            <div class="tier">
+                                <span class="tier-amount">$99</span>
+                                <span class="tier-label">Basic</span>
+                            </div>
+                            <div class="tier popular">
+                                <span class="tier-badge">Best Value</span>
+                                <span class="tier-amount">$249</span>
+                                <span class="tier-label">Plus</span>
+                            </div>
+                            <div class="tier">
+                                <span class="tier-amount">$499</span>
+                                <span class="tier-label">Business</span>
+                            </div>
+                        </div>
+                        <button
+                            class="sidebar-action-button mt-4"
+                            [routerLink]="['/subscription-plans']"
+                        >
+                            <span>View All Plans</span>
+                            <mat-icon>arrow_forward</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

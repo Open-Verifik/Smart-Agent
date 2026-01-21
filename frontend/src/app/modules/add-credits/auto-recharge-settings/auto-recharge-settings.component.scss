@@ -1,0 +1,377 @@
+// Auto-Recharge Settings Dialog - Simplified Premium UI
+// Overhauled to remove generic icons and distracting visual elements
+
+// ================================
+// COLOR PALETTE
+// ================================
+$light-bg: #ffffff;
+$light-surface: #f8fafc;
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+$dark-bg: #1e293b;
+$dark-surface: #0f172a;
+$dark-card: rgba(30, 41, 59, 0.9);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$accent-purple: #8b5cf6;
+$accent-blue: #3b82f6;
+
+// ================================
+// MIXINS
+// ================================
+@mixin smooth-transition($duration: 0.2s) {
+    transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ================================
+// DIALOG CONTAINER
+// ================================
+.auto-recharge-dialog {
+    padding: 40px;
+    background: $light-bg;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 680px; // Increased width
+    margin: 0 auto;
+
+    :host-context(.dark) & {
+        background: $dark-bg;
+    }
+}
+
+// ================================
+// DIALOG HEADER
+// ================================
+.dialog-header {
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.dialog-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: $light-text-primary;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.dialog-subtitle {
+    font-size: 15px;
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+        color: $dark-text-secondary;
+    }
+}
+
+// ================================
+// ENABLE TOGGLE CARD
+// ================================
+.enable-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    background: $light-surface;
+    border: 1px solid $light-card-border;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        background: rgba(30, 41, 59, 0.5);
+        border-color: $dark-card-border;
+    }
+
+    &.active {
+        border-color: rgba(99, 102, 241, 0.3);
+        background: rgba(99, 102, 241, 0.04);
+    }
+}
+
+.enable-info {
+    .enable-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: $light-text-primary;
+        margin-bottom: 4px;
+
+        :host-context(.dark) & {
+            color: $dark-text-primary;
+        }
+    }
+
+    .enable-desc {
+        font-size: 14px;
+        color: $light-text-secondary;
+    }
+}
+
+// ================================
+// CUSTOM SWITCH
+// ================================
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 48px;
+    height: 24px;
+
+    input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #cbd5e1;
+    @include smooth-transition;
+    border-radius: 24px;
+
+    :host-context(.dark) & {
+        background-color: #475569;
+    }
+
+    &:before {
+        position: absolute;
+        content: '';
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        @include smooth-transition;
+        border-radius: 50%;
+    }
+}
+
+input:checked + .slider {
+    background: $primary-gradient;
+}
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+// ================================
+// INPUTS
+// ================================
+.settings-group {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.premium-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid $light-card-border;
+    border-radius: 12px;
+    padding: 0 16px;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        background: #0f172a;
+        border-color: $dark-card-border;
+    }
+
+    &:focus-within {
+        border-color: $accent-purple;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+    }
+
+    input {
+        flex: 1;
+        padding: 14px 0;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        font-weight: 600;
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+            color: $dark-text-primary;
+        }
+    }
+
+    .input-suffix {
+        font-size: 13px;
+        font-weight: 700;
+        color: $light-text-muted;
+    }
+}
+
+// ================================
+// CARD SELECTION
+// ================================
+.section-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin-bottom: 16px;
+    margin-top: 32px;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.cards-selection {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.card-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: $light-surface;
+    border: 1px solid $light-card-border;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        background: rgba(30, 41, 59, 0.3);
+        border-color: $dark-card-border;
+    }
+
+    &:hover:not(:disabled):not(.selected) {
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    &.selected {
+        border-color: $accent-purple;
+        box-shadow: 0 0 0 1px $accent-purple;
+    }
+}
+
+.card-icon-wrapper {
+    width: 44px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid $light-card-border;
+}
+
+.card-details {
+    flex: 1;
+}
+.card-number {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+}
+.card-brand-name {
+    font-size: 13px;
+    color: $light-text-secondary;
+}
+
+.default-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+// ================================
+// ACTIONS
+// ================================
+.dialog-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.cancel-button {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid $light-card-border;
+    border-radius: 10px;
+    color: $light-text-secondary;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.save-button {
+    flex: 2;
+    padding: 14px;
+    background: $primary-gradient;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+// ================================
+// ERROR
+// ================================
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    color: $danger-red;
+}

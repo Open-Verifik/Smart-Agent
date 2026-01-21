@@ -1,0 +1,583 @@
+// Purchase Credits Dialog - Simplified Premium UI
+// Overhauled to remove generic icons and distracting visual elements
+
+// ================================
+// COLOR PALETTE
+// ================================
+$light-bg: #ffffff;
+$light-surface: #f8fafc;
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+$dark-bg: #1e293b;
+$dark-surface: #0f172a;
+$dark-card: rgba(30, 41, 59, 0.9);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$accent-purple: #8b5cf6;
+$accent-blue: #3b82f6;
+$danger-red: #ef4444;
+
+// ================================
+// MIXINS
+// ================================
+@mixin smooth-transition($duration: 0.2s) {
+    transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ================================
+// DIALOG CONTAINER
+// ================================
+.purchase-credits-dialog {
+    padding: 12px;
+    background: $light-bg;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 680px; // Increased width for bigger screens
+    margin: 0 auto;
+
+    :host-context(.dark) & {
+        background: $dark-bg;
+    }
+}
+
+// ================================
+// DIALOG HEADER
+// ================================
+.dialog-header {
+    text-align: left; // Changed to left for cleaner look
+    margin-bottom: 40px;
+}
+
+.dialog-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: $light-text-primary;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.dialog-subtitle {
+    font-size: 15px;
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+        color: $dark-text-secondary;
+    }
+}
+
+// ================================
+// SECTION STYLING
+// ================================
+.section {
+    margin-bottom: 32px;
+}
+
+.section-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin-bottom: 16px;
+    text-transform: none;
+    letter-spacing: normal;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+// ================================
+// AMOUNT GRID
+// ================================
+.amount-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.amount-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: transparent;
+    border: 1px solid $light-card-border;
+    border-radius: 12px;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        border-color: $dark-card-border;
+    }
+
+    &:hover:not(:disabled):not(.selected) {
+        background: rgba(99, 102, 241, 0.04);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    &.selected {
+        border-color: $accent-purple;
+        background: rgba(99, 102, 241, 0.06);
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+
+        :host-context(.dark) & {
+            background: rgba(99, 102, 241, 0.12);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .amount-value {
+            color: $accent-purple;
+            font-weight: 700;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .amount-value {
+        font-size: 18px;
+        font-weight: 600;
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+            color: $dark-text-primary;
+        }
+    }
+}
+
+// ================================
+// CUSTOM AMOUNT
+// ================================
+.custom-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: $accent-purple;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0;
+    cursor: pointer;
+    margin-bottom: 12px;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+.custom-input-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: $light-surface;
+    border: 1px solid $light-card-border;
+    border-radius: 12px;
+    margin-top: 8px;
+
+    :host-context(.dark) & {
+        background: rgba(30, 41, 59, 0.5);
+        border-color: $dark-card-border;
+    }
+
+    .currency-symbol {
+        font-size: 20px;
+        font-weight: 700;
+        color: $light-text-secondary;
+    }
+
+    .custom-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        font-size: 20px;
+        font-weight: 700;
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+            color: $dark-text-primary;
+        }
+    }
+}
+
+.amount-hint {
+    font-size: 12px;
+    color: $light-text-muted;
+    margin-top: 8px;
+}
+
+// ================================
+// PAYMENT CARDS
+// ================================
+.cards-selection {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.card-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: $light-surface;
+    border: 1px solid $light-card-border; // Simplified border, no internal lines
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        background: rgba(30, 41, 59, 0.3);
+        border-color: $dark-card-border;
+    }
+
+    &:hover:not(:disabled):not(.selected) {
+        border-color: rgba(99, 102, 241, 0.2);
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    &.selected {
+        border-color: $accent-purple;
+        background: rgba(99, 102, 241, 0.04);
+        box-shadow: 0 0 0 1px $accent-purple;
+
+        :host-context(.dark) & {
+            background: rgba(99, 102, 241, 0.08);
+        }
+    }
+}
+
+.card-icon-wrapper {
+    width: 48px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid $light-card-border;
+    flex-shrink: 0;
+    padding: 4px;
+    box-sizing: border-box;
+
+    :host-context(.dark) & {
+        background: #0f172a;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .card-brand-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+        svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .brand-logo {
+        height: 20px;
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    .card-brand-mat-icon {
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        color: $light-text-secondary;
+    }
+}
+.card-details {
+    flex: 1;
+}
+
+.card-number {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.card-brand-name {
+    font-size: 13px;
+    color: $light-text-secondary;
+}
+
+.default-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+// ================================
+// PAYMENT SUMMARY
+// ================================
+.payment-summary {
+    .card-option {
+        // Adjust for read-only display
+        &.read-only {
+            cursor: default;
+            background: $light-surface;
+            border-color: $accent-purple;
+            box-shadow: 0 0 0 1px $accent-purple;
+
+            :host-context(.dark) & {
+                background: rgba(139, 92, 246, 0.1);
+            }
+
+            &:hover {
+                background: $light-surface;
+                border-color: $accent-purple;
+
+                :host-context(.dark) & {
+                    background: rgba(139, 92, 246, 0.1);
+                }
+            }
+        }
+    }
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.cancel-button {
+    flex: 1;
+    padding: 14px;
+    background: transparent;
+    border: 1px solid $light-card-border;
+    border-radius: 10px;
+    color: $light-text-secondary;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        border-color: $dark-card-border;
+    }
+
+    &:hover {
+        background: rgba(0, 0, 0, 0.02);
+    }
+}
+
+.purchase-button {
+    flex: 1.5;
+    padding: 14px;
+    background: $primary-gradient;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    @include smooth-transition;
+
+    &:hover:not(:disabled) {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.button-amount {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+// ================================
+// ERROR MESSAGE
+// ================================
+.error-message {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    border-radius: 12px;
+    margin-bottom: 24px;
+    color: $danger-red;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+    p {
+        font-size: 14px;
+        margin: 0;
+        font-weight: 500;
+    }
+}
+
+// ================================
+// KYC STATE
+// ================================
+.kyc-state-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px 16px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.kyc-icon-wrapper {
+    width: 96px;
+    height: 96px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 0 0 12px rgba(139, 92, 246, 0.03);
+
+    :host-context(.dark) & {
+        background: rgba(139, 92, 246, 0.15);
+        box-shadow: 0 0 0 12px rgba(139, 92, 246, 0.05);
+    }
+}
+
+.kyc-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: $accent-purple;
+}
+
+.kyc-content {
+    max-width: 400px;
+}
+
+.kyc-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: $light-text-primary;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.kyc-description {
+    font-size: 15px;
+    line-height: 1.6;
+    color: $light-text-secondary;
+    margin-bottom: 32px;
+
+    :host-context(.dark) & {
+        color: $dark-text-secondary;
+    }
+}
+
+.start-kyc-button {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #0055ff 0%, #0044cc 100%);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0, 85, 255, 0.3);
+    @include smooth-transition;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 85, 255, 0.4);
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+.kyc-cancel {
+    background: transparent;
+    border: none;
+    color: $light-text-secondary;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 8px;
+
+    :host-context(.dark) & {
+        color: $dark-text-secondary;
+    }
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

@@ -1,0 +1,1250 @@
+// Add Credits Component - Premium Modern UI
+// Supports both Light and Dark mode with Fuse theming
+
+// ================================
+// LIGHT MODE COLOR PALETTE (Default)
+// ================================
+$light-bg: #f8fafc;
+$light-surface: #ffffff;
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+// ================================
+// DARK MODE COLOR PALETTE
+// ================================
+$dark-bg: #0f172a;
+$dark-surface: #1e293b;
+$dark-card: rgba(30, 41, 59, 0.8);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+// ================================
+// ACCENT COLORS (Same for both modes)
+// ================================
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+$accent-purple: #8b5cf6;
+$accent-blue: #3b82f6;
+$accent-cyan: #06b6d4;
+$accent-green: #10b981;
+$danger-red: #ef4444;
+$glow-purple: rgba(139, 92, 246, 0.3);
+$glow-blue: rgba(59, 130, 246, 0.3);
+
+// ================================
+// MIXINS
+// ================================
+@mixin smooth-transition($duration: 0.3s) {
+    transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin glass-card-light {
+    background: $light-card;
+    border: 1px solid $light-card-border;
+    border-radius: 20px;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.05),
+        0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+@mixin glass-card-dark {
+    background: $dark-card;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid $dark-card-border;
+    border-radius: 20px;
+}
+
+@mixin glow-effect($color) {
+    box-shadow: 0 8px 32px $color;
+}
+
+// ================================
+// MAIN CONTAINER
+// ================================
+.add-credits-container {
+    width: 100% !important;
+    min-height: 100vh;
+    background: $light-bg;
+    position: relative;
+    overflow: hidden;
+
+    :host-context(.dark) & {
+        background: $dark-bg;
+    }
+}
+
+// Subtle Background Pattern
+.bg-pattern {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(
+            circle at 20% 20%,
+            rgba(99, 102, 241, 0.05) 0%,
+            transparent 50%
+        ),
+        radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+
+    :host-context(.dark) & {
+        background-image: radial-gradient(
+                circle at 20% 20%,
+                rgba(99, 102, 241, 0.15) 0%,
+                transparent 50%
+            ),
+            radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+    }
+}
+
+// ================================
+// CONTENT WRAPPER
+// ================================
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: 40px 24px;
+
+    @media (min-width: 768px) {
+        padding: 48px 48px;
+    }
+
+    @media (min-width: 1280px) {
+        padding: 48px 64px;
+    }
+}
+
+// ================================
+// HERO SECTION
+// ================================
+.hero-section {
+    margin-bottom: 48px;
+}
+
+.hero-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    align-items: center;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: 1fr 400px;
+        gap: 60px;
+    }
+}
+
+.hero-text {
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 100px;
+        color: $accent-purple;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        @include smooth-transition;
+
+        :host-context(.dark) & {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .badge-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+        }
+    }
+
+    .hero-title {
+        font-size: 36px;
+        font-weight: 800;
+        color: $light-text-primary;
+        margin-bottom: 16px;
+        line-height: 1.2;
+
+        :host-context(.dark) & {
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @media (min-width: 768px) {
+            font-size: 48px;
+        }
+    }
+
+    .hero-subtitle {
+        font-size: 18px;
+        color: $light-text-secondary;
+        line-height: 1.7;
+        max-width: 500px;
+
+        :host-context(.dark) & {
+            color: $dark-text-secondary;
+        }
+    }
+}
+
+// ================================
+// BALANCE CARD
+// ================================
+.balance-card {
+    position: relative;
+    @include glass-card-light;
+    padding: 32px;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        @include glass-card-dark;
+    }
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+
+        :host-context(.dark) & {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+    }
+}
+
+.balance-card-glow {
+    position: absolute;
+    inset: -1px;
+    background: $primary-gradient;
+    border-radius: 21px;
+    opacity: 0;
+    z-index: -1;
+    @include smooth-transition;
+}
+
+.balance-card:hover .balance-card-glow {
+    opacity: 0.15;
+    filter: blur(20px);
+
+    :host-context(.dark) & {
+        opacity: 0.25;
+    }
+}
+
+.balance-card-content {
+    position: relative;
+}
+
+.balance-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.balance-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $primary-gradient;
+    border-radius: 14px;
+    @include glow-effect($glow-purple);
+}
+
+.balance-icon {
+    color: white;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+}
+
+.balance-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: $light-text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+.balance-amount {
+    margin-bottom: 28px;
+}
+
+.amount-value {
+    font-size: 48px;
+    font-weight: 800;
+    color: $light-text-primary;
+    display: block;
+    line-height: 1;
+    margin-bottom: 8px;
+
+    :host-context(.dark) & {
+        background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+}
+
+.amount-currency {
+    font-size: 16px;
+    color: $light-text-muted;
+    font-weight: 500;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+.balance-action {
+    width: 100%;
+}
+
+// ================================
+// PRIMARY CTA BUTTON
+// ================================
+.primary-cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 32px;
+    background: $primary-gradient;
+    border: none;
+    border-radius: 14px;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth-transition;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+        opacity: 0;
+        @include smooth-transition;
+    }
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(99, 102, 241, 0.35);
+
+        &::before {
+            opacity: 1;
+        }
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+// ================================
+// STATS BAR
+// ================================
+.stats-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    @include glass-card-light;
+    padding: 24px 32px;
+    margin-bottom: 48px;
+
+    :host-context(.dark) & {
+        @include glass-card-dark;
+    }
+
+    @media (min-width: 768px) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+    }
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 24px;
+}
+
+.stat-divider {
+    display: none;
+    width: 1px;
+    height: 40px;
+    background: $light-card-border;
+
+    :host-context(.dark) & {
+        background: $dark-card-border;
+    }
+
+    @media (min-width: 768px) {
+        display: block;
+    }
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 12px;
+
+    :host-context(.dark) & {
+        background: rgba(99, 102, 241, 0.2);
+    }
+
+    mat-icon {
+        color: $accent-purple;
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+    }
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.stat-label {
+    font-size: 13px;
+    color: $light-text-muted;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+// ================================
+// MAIN GRID
+// ================================
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: 1fr 380px;
+    }
+}
+
+// ================================
+// SECTION CARD
+// ================================
+.section-card {
+    @include glass-card-light;
+    padding: 32px;
+    @include smooth-transition;
+    min-height: 400px;
+
+    :host-context(.dark) & {
+        @include glass-card-dark;
+    }
+}
+
+.section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid $light-card-border;
+
+    :host-context(.dark) & {
+        border-bottom-color: $dark-card-border;
+    }
+
+    @media (min-width: 768px) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.section-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.section-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $secondary-gradient;
+    border-radius: 14px;
+    @include glow-effect($glow-blue);
+
+    mat-icon {
+        color: white;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+    }
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin-bottom: 4px;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.section-subtitle {
+    font-size: 14px;
+    color: $light-text-muted;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+// ================================
+// ADD CARD BUTTON
+// ================================
+.add-card-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid $light-card-border;
+    border-radius: 12px;
+    color: $light-text-primary;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        border-color: $dark-card-border;
+        color: $dark-text-primary;
+    }
+
+    &:hover:not(:disabled) {
+        background: rgba(99, 102, 241, 0.08);
+        border-color: rgba(99, 102, 241, 0.3);
+        color: $accent-purple;
+        transform: translateY(-1px);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// ================================
+// LOADING STATE
+// ================================
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.loading-spinner {
+    margin-bottom: 20px;
+
+    ::ng-deep .mat-mdc-progress-spinner {
+        --mdc-circular-progress-active-indicator-color: #{$accent-purple};
+    }
+}
+
+.loading-text {
+    font-size: 14px;
+    color: $light-text-muted;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+// ================================
+// ERROR STATE
+// ================================
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: $danger-red;
+    margin-bottom: 16px;
+}
+
+.error-text {
+    font-size: 14px;
+    color: $light-text-secondary;
+    margin-bottom: 20px;
+
+    :host-context(.dark) & {
+        color: $dark-text-secondary;
+    }
+}
+
+.retry-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 10px;
+    color: $danger-red;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    @include smooth-transition;
+
+    &:hover {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// ================================
+// EMPTY STATE
+// ================================
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.empty-illustration {
+    margin-bottom: 24px;
+}
+
+.empty-card-visual {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
+    border: 2px dashed rgba(99, 102, 241, 0.3);
+    border-radius: 24px;
+    animation: pulse 2s ease-in-out infinite;
+
+    :host-context(.dark) & {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+        border-color: rgba(139, 92, 246, 0.4);
+    }
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(0.98);
+    }
+}
+
+.empty-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+    color: $light-text-muted;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: $light-text-primary;
+    margin-bottom: 8px;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.empty-subtitle {
+    font-size: 14px;
+    color: $light-text-muted;
+    margin-bottom: 24px;
+    max-width: 280px;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+// ================================
+// CARDS LIST
+// ================================
+.cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card-item {
+    display: block;
+    animation: slideInUp 0.4s ease-out forwards;
+    animation-fill-mode: both;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// ================================
+// SIDEBAR
+// ================================
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.sidebar-card {
+    @include glass-card-light;
+    padding: 24px;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        @include glass-card-dark;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+        :host-context(.dark) & {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+    }
+}
+
+.sidebar-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.sidebar-card-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+
+    mat-icon {
+        font-size: 22px;
+        width: 22px;
+        height: 22px;
+        color: white;
+    }
+
+    &.auto-recharge-icon {
+        background: $success-gradient;
+        box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    &.quick-actions-icon {
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+    }
+}
+
+.sidebar-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin-bottom: 4px;
+
+    :host-context(.dark) & {
+        color: $dark-text-primary;
+    }
+}
+
+.sidebar-card-subtitle {
+    font-size: 13px;
+    color: $light-text-muted;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+// ================================
+// STATUS BADGE
+// ================================
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 16px;
+
+    &.active {
+        background: rgba(16, 185, 129, 0.1);
+        color: $accent-green;
+
+        :host-context(.dark) & {
+            background: rgba(16, 185, 129, 0.15);
+        }
+    }
+
+    &.inactive {
+        background: rgba(148, 163, 184, 0.1);
+        color: $light-text-muted;
+
+        :host-context(.dark) & {
+            background: rgba(255, 255, 255, 0.08);
+            color: $dark-text-muted;
+        }
+    }
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+
+    .active & {
+        background: $accent-green;
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+
+    .inactive & {
+        background: $light-text-muted;
+
+        :host-context(.dark) & {
+            background: $dark-text-muted;
+        }
+    }
+}
+
+// ================================
+// CONFIG DETAILS
+// ================================
+.config-details {
+    background: rgba(16, 185, 129, 0.06);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+
+    :host-context(.dark) & {
+        background: rgba(16, 185, 129, 0.1);
+    }
+}
+
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+
+    &:not(:last-child) {
+        border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+
+        :host-context(.dark) & {
+            border-bottom-color: rgba(16, 185, 129, 0.15);
+        }
+    }
+}
+
+.config-label {
+    font-size: 13px;
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+        color: $dark-text-secondary;
+    }
+}
+
+.config-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: $accent-green;
+}
+
+// Auto-recharge inactive
+.auto-recharge-inactive {
+    margin-bottom: 20px;
+}
+
+.inactive-text {
+    font-size: 14px;
+    color: $light-text-muted;
+    line-height: 1.5;
+
+    :host-context(.dark) & {
+        color: $dark-text-muted;
+    }
+}
+
+// ================================
+// SIDEBAR ACTION BUTTON
+// ================================
+.sidebar-action-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 20px;
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    color: $accent-purple;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+        background: rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    &:hover:not(:disabled) {
+        background: rgba(99, 102, 241, 0.12);
+        border-color: rgba(99, 102, 241, 0.3);
+        transform: translateY(-1px);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+    }
+}
+
+// ================================
+// QUICK ACTIONS LIST
+// ================================
+.quick-actions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.quick-action-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: $light-text-primary;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    @include smooth-transition;
+    text-align: left;
+
+    :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.03);
+        color: $dark-text-primary;
+    }
+
+    &:hover:not(:disabled) {
+        background: rgba(99, 102, 241, 0.06);
+        border-color: rgba(99, 102, 241, 0.15);
+
+        :host-context(.dark) & {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: $dark-card-border;
+        }
+
+        .action-arrow {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    span {
+        flex: 1;
+    }
+
+    .action-arrow {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: $light-text-muted;
+        opacity: 0.5;
+        @include smooth-transition;
+
+        :host-context(.dark) & {
+            color: $dark-text-muted;
+        }
+    }
+}
+
+.quick-action-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+
+    mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: white;
+    }
+
+    &.buy-icon {
+        background: $primary-gradient;
+    }
+
+    &.card-icon {
+        background: $secondary-gradient;
+    }
+
+    &.refresh-icon {
+        background: linear-gradient(135deg, #06b6d4, #0891b2);
+    }
+}
+
+// ================================
+// PRICING CARD
+// ================================
+.pricing-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+    border-color: rgba(99, 102, 241, 0.15);
+
+    :host-context(.dark) & {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        border-color: rgba(139, 92, 246, 0.2);
+    }
+}
+
+.pricing-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+
+    .pricing-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: $accent-purple;
+    }
+
+    span {
+        font-size: 14px;
+        font-weight: 600;
+        color: $accent-purple;
+    }
+}
+
+.pricing-content {
+    .pricing-text {
+        font-size: 14px;
+        color: $light-text-secondary;
+        line-height: 1.6;
+        margin-bottom: 20px;
+
+        :host-context(.dark) & {
+            color: $dark-text-secondary;
+        }
+
+        strong {
+            color: $light-text-primary;
+
+            :host-context(.dark) & {
+                color: $dark-text-primary;
+            }
+        }
+    }
+}
+
+.pricing-tiers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.tier {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    @include smooth-transition;
+    position: relative;
+
+    :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    &:hover {
+        background: rgba(99, 102, 241, 0.06);
+        border-color: rgba(99, 102, 241, 0.15);
+
+        :host-context(.dark) & {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: $dark-card-border;
+        }
+    }
+
+    &.popular {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+        border-color: rgba(99, 102, 241, 0.25);
+
+        :host-context(.dark) & {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+    }
+
+    .tier-badge {
+        position: absolute;
+        top: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 2px 8px;
+        background: $primary-gradient;
+        border-radius: 100px;
+        font-size: 9px;
+        font-weight: 700;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+    }
+
+    .tier-amount {
+        font-size: 16px;
+        font-weight: 700;
+        color: $light-text-primary;
+        margin-bottom: 4px;
+
+        :host-context(.dark) & {
+            color: $dark-text-primary;
+        }
+    }
+
+    .tier-label {
+        font-size: 11px;
+        color: $light-text-muted;
+
+        :host-context(.dark) & {
+            color: $dark-text-muted;
+        }
+    }
+}
+
+// ================================
+// RESET MAT-ICON SIZING
+// ================================
+.add-credits-container mat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

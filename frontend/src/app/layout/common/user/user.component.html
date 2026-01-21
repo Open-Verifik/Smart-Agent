@@ -30,7 +30,7 @@
       </span>
       <div class="flex items-center gap-1.5 leading-none mt-0.5">
         <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{{
-          user.credits || '0.00' | number: '1.2-4'
+          totalCredits | number: '1.2-4'
         }}</span>
         <span class="text-[9px] font-bold text-slate-400 mt-[1px]">{{
           'userMenu.creditsLabel' | transloco
@@ -90,7 +90,7 @@
                 />
               </svg>
               <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                {{ user?.credits || '0.00' | number: '1.2-4' }}
+                {{ totalCredits | number: '1.2-4' }}
               </span>
               <span
                 class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide"

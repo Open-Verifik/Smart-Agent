@@ -1,0 +1,78 @@
+<div
+    class="payment-card-modern"
+    [ngClass]="{
+        'is-default': isDefault && !isExpired(card.expires_at),
+        'is-expired': isExpired(card.expires_at),
+    }"
+>
+    <div class="card-inner">
+        <!-- Card Header -->
+        <div class="card-header">
+            <div class="brand-section">
+                <div class="brand-logo-wrapper">
+                    <img [src]="getCardLogo(card.brand)" [alt]="card.brand" class="brand-logo" />
+                </div>
+                <span class="brand-name">{{ card.brand | titlecase }}</span>
+            </div>
+            <div class="status-tags">
+                <span *ngIf="isDefault && !isExpired(card.expires_at)" class="status-tag default-tag">
+                    <span class="tag-dot"></span>
+                    Default
+                </span>
+                <span *ngIf="isExpired(card.expires_at)" class="status-tag expired-tag">
+                    <mat-icon class="tag-icon">warning</mat-icon>
+                    Expired
+                </span>
+            </div>
+        </div>
+
+        <!-- Card Number Display -->
+        <div class="card-number-section">
+            <div class="card-number">
+                <span class="number-dots">••••</span>
+                <span class="number-dots">••••</span>
+                <span class="number-dots">••••</span>
+                <span class="number-last">{{ card.lastFour }}</span>
+            </div>
+        </div>
+
+        <!-- Card Details -->
+        <div class="card-details">
+            <div class="detail-item cardholder">
+                <span class="detail-label">Cardholder</span>
+                <span class="detail-value">{{ card.name }}</span>
+            </div>
+            <div class="detail-item expires">
+                <span class="detail-label">Expires</span>
+                <span class="detail-value">{{ card.expires_at }}</span>
+            </div>
+        </div>
+
+        <!-- Card Actions -->
+        <div class="card-actions">
+            <button
+                *ngIf="!isDefault && !isExpired(card.expires_at)"
+                class="action-button set-default-button"
+                (click)="onSetDefault()"
+            >
+                <mat-icon>check_circle</mat-icon>
+                <span>Set as default</span>
+            </button>
+            <div *ngIf="isDefault && !isExpired(card.expires_at)" class="default-message">
+                <mat-icon>verified</mat-icon>
+                <span>Primary payment method</span>
+            </div>
+            <button
+                class="action-button delete-button"
+                (click)="onDelete()"
+                [disabled]="isDefault"
+                [class.disabled]="isDefault"
+            >
+                <mat-icon>delete_outline</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- Glow effect for default card -->
+    <div *ngIf="isDefault && !isExpired(card.expires_at)" class="card-glow"></div>
+</div>
