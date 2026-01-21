@@ -398,5 +398,101 @@
       "noParams": "매개변수 없음",
       "confirmed": "확인됨"
     }
+  },
+  "addCredits": {
+    "title": "크레딧 추가",
+    "subtitle": "크레딧 및 결제 수단 관리",
+    "availableCredits": "사용 가능한 크레딧",
+    "purchaseCredits": "크레딧 구매",
+    "addCard": "카드 추가",
+    "noCards": "결제 수단 없음",
+    "noCardsDesc": "크레딧을 구매하려면 결제 수단을 추가하세요",
+    "paymentMethods": {
+      "title": "결제 수단",
+      "manage": "저장된 카드 관리",
+      "cardExpired": "만료됨",
+      "cardDefault": "기본",
+      "setDefault": "기본으로 설정",
+      "deleteCard": "카드 삭제",
+      "lastFour": "•••• {{number}}",
+      "expires": "만료",
+      "cardholder": "카드 소유자"
+    },
+    "autoRecharge": {
+      "title": "자동 충전",
+      "subtitle": "크레딧 부족 걱정 없이",
+      "status": {
+        "active": "활성",
+        "inactive": "비활성"
+      },
+      "description": "자동 충전을 활성화하여 잔액을 자동으로 보충",
+      "configure": "설정",
+      "dialog": {
+        "title": "자동 충전",
+        "subtitle": "필요할 때 자동으로 크레딧 충전",
+        "enable": "자동 충전 활성화",
+        "enableDesc": "잔액이 부족할 때 자동으로 크레딧 충전",
+        "balanceThreshold": "잔액 임계값",
+        "balanceThresholdHint": "이 금액 이하로 떨어지면 충전",
+        "rechargeAmount": "충전 금액",
+        "rechargeAmountHint": "임계값에 도달했을 때 충전할 금액",
+        "paymentMethod": "결제 수단",
+        "default": "기본",
+        "cancel": "취소",
+        "saveSettings": "설정 저장",
+        "errors": {
+          "selectCard": "자동 충전을 위한 결제 수단을 선택하세요",
+          "rechargeRange": "충전 금액은 에서  사이여야 합니다",
+          "thresholdRange": "임계값은 에서  사이여야 합니다",
+          "saveFailed": "자동 충전 설정 업데이트 실패"
+        }
+      }
+    },
+    "subscriptionPlans": {
+      "title": "구독 플랜",
+      "description": "수동 충전을 중단하세요! 플랜으로 업그레이드하여 비용을 절감하고 독점 혜택을 받으세요.",
+      "basic": "베이직",
+      "plus": "플러스",
+      "business": "비즈니스",
+      "bestValue": "최고 가치",
+      "viewAllPlans": "모든 플랜 보기"
+    },
+    "purchaseDialog": {
+      "title": "크레딧 구매",
+      "selectAmount": "금액 선택",
+      "customAmount": "사용자 지정 금액",
+      "enterAmount": "금액 입력",
+      "minimum": "최소 ",
+      "paymentMethod": "결제 수단",
+      "summary": "요약",
+      "subtotal": "소계",
+      "processingFee": "처리 수수료",
+      "total": "합계",
+      "purchaseButton": "{{amount}} 크레딧 구매",
+      "purchasing": "처리 중...",
+      "cancel": "취소",
+      "success": "크레딧 구매 성공!",
+      "errors": {
+        "minimumAmount": "최소 구매 금액은 입니다",
+        "invalidAmount": "유효한 금액을 입력하세요",
+        "purchaseFailed": "구매 실패. 다시 시도하세요.",
+        "kycRequired": "KYC 인증 필요",
+        "kycMessage": "크레딧 구매를 계속하려면 KYC 인증을 완료하세요.",
+        "contactSupport": "질문이 있으시면 지원팀에 문의하세요."
+      },
+      "kyc": {
+        "title": "KYC 필수",
+        "message": "크레딧 구매를 계속하려면 KYC 인증을 완료해야 합니다.",
+        "description": "신원 확인 및 규정 준수를 위한 일회성 프로세스입니다.",
+        "startKyc": "KYC 인증 시작",
+        "contactSupport": "지원팀 문의"
+      },
+      "maximum": "최대"
+    },
+    "hero": {
+      "badge": "스마트 크레딧",
+      "title": "AI 에이전트 강화",
+      "subtitle": "크레딧을 구매하여 무제한 AI 기반 검증, 신원 확인 및 스마트 에이전트 기능을 잠금 해제하세요."
+    }
   }
 }

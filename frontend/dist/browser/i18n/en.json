@@ -399,5 +399,101 @@
       "noParams": "No parameters",
       "confirmed": "Confirmed"
     }
+  },
+  "addCredits": {
+    "title": "Add Credits",
+    "subtitle": "Manage your credits and payment methods",
+    "availableCredits": "AVAILABLE CREDITS",
+    "purchaseCredits": "Purchase Credits",
+    "addCard": "Add Card",
+    "noCards": "No payment methods",
+    "noCardsDesc": "Add a payment method to purchase credits",
+    "paymentMethods": {
+      "title": "Payment Methods",
+      "manage": "Manage your saved payment cards",
+      "cardExpired": "Expired",
+      "cardDefault": "Default",
+      "setDefault": "Set as Default",
+      "deleteCard": "Delete Card",
+      "lastFour": "•••• {{number}}",
+      "expires": "Expires",
+      "cardholder": "CARDHOLDER"
+    },
+    "autoRecharge": {
+      "title": "Auto-Recharge",
+      "subtitle": "Never run out of credits",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "description": "Enable auto-recharge to automatically top up your balance",
+      "configure": "Configure",
+      "dialog": {
+        "title": "Auto-Recharge",
+        "subtitle": "Automatically top up credits when needed",
+        "enable": "Enable Auto-Recharge",
+        "enableDesc": "Automatically top up credits when balance is low",
+        "balanceThreshold": "Balance Threshold",
+        "balanceThresholdHint": "Recharge when balance falls below this amount",
+        "rechargeAmount": "Recharge Amount",
+        "rechargeAmountHint": "Amount to recharge when threshold is reached",
+        "paymentMethod": "Payment Method",
+        "default": "Default",
+        "cancel": "Cancel",
+        "saveSettings": "Save Settings",
+        "errors": {
+          "selectCard": "Please select a payment method for auto-recharge",
+          "rechargeRange": "Recharge amount must be between $20 and $2000",
+          "thresholdRange": "Threshold amount must be between $10 and $1990",
+          "saveFailed": "Failed to update auto-recharge settings"
+        }
+      }
+    },
+    "subscriptionPlans": {
+      "title": "Subscription Plans",
+      "description": "Stop recharging manually! Upgrade to a plan to reduce costs and get exclusive benefits.",
+      "basic": "Basic",
+      "plus": "Plus",
+      "business": "Business",
+      "bestValue": "BEST VALUE",
+      "viewAllPlans": "View All Plans"
+    },
+    "purchaseDialog": {
+      "title": "Purchase Credits",
+      "selectAmount": "Select Amount",
+      "customAmount": "Custom Amount",
+      "enterAmount": "Enter amount",
+      "minimum": "Minimum $20",
+      "paymentMethod": "Payment Method",
+      "summary": "Summary",
+      "subtotal": "Subtotal",
+      "processingFee": "Processing Fee",
+      "total": "Total",
+      "purchaseButton": "Purchase {{amount}} Credits",
+      "purchasing": "Processing...",
+      "cancel": "Cancel",
+      "success": "Credits purchased successfully!",
+      "errors": {
+        "minimumAmount": "Minimum purchase amount is $20",
+        "invalidAmount": "Please enter a valid amount",
+        "purchaseFailed": "Purchase failed. Please try again.",
+        "kycRequired": "KYC verification required",
+        "kycMessage": "To continue purchasing credits, please complete your KYC verification.",
+        "contactSupport": "If you have questions, please contact support."
+      },
+      "kyc": {
+        "title": "KYC Required",
+        "message": "To continue purchasing credits, you need to complete KYC verification.",
+        "description": "This is a one-time process to verify your identity and comply with regulations.",
+        "startKyc": "Start KYC Verification",
+        "contactSupport": "Contact Support"
+      },
+      "maximum": "Maximum"
+    },
+    "hero": {
+      "badge": "Smart Credits",
+      "title": "Power Your AI Agents",
+      "subtitle": "Purchase credits to unlock unlimited AI-powered verifications, identity checks, and smart agent capabilities."
+    }
   }
 }

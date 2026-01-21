@@ -398,5 +398,101 @@
       "noParams": "无参数",
       "confirmed": "已确认"
     }
+  },
+  "addCredits": {
+    "title": "添加积分",
+    "subtitle": "管理您的积分和支付方式",
+    "availableCredits": "可用积分",
+    "purchaseCredits": "购买积分",
+    "addCard": "添加卡片",
+    "noCards": "无支付方式",
+    "noCardsDesc": "添加支付方式以购买积分",
+    "paymentMethods": {
+      "title": "支付方式",
+      "manage": "管理已保存的卡片",
+      "cardExpired": "已过期",
+      "cardDefault": "默认",
+      "setDefault": "设为默认",
+      "deleteCard": "删除卡片",
+      "lastFour": "•••• {{number}}",
+      "expires": "到期",
+      "cardholder": "持卡人"
+    },
+    "autoRecharge": {
+      "title": "自动充值",
+      "subtitle": "永不缺少积分",
+      "status": {
+        "active": "启用",
+        "inactive": "禁用"
+      },
+      "description": "启用自动充值以自动补充余额",
+      "configure": "配置",
+      "dialog": {
+        "title": "自动充值",
+        "subtitle": "在需要时自动充值积分",
+        "enable": "启用自动充值",
+        "enableDesc": "余额不足时自动充值积分",
+        "balanceThreshold": "余额阈值",
+        "balanceThresholdHint": "当余额低于此金额时充值",
+        "rechargeAmount": "充值金额",
+        "rechargeAmountHint": "达到阈值时充值的金额",
+        "paymentMethod": "支付方式",
+        "default": "默认",
+        "cancel": "取消",
+        "saveSettings": "保存设置",
+        "errors": {
+          "selectCard": "请选择自动充值的支付方式",
+          "rechargeRange": "充值金额必须在到之间",
+          "thresholdRange": "阈值必须在到之间",
+          "saveFailed": "更新自动充值设置失败"
+        }
+      }
+    },
+    "subscriptionPlans": {
+      "title": "订阅计划",
+      "description": "停止手动充值！升级到计划以降低成本并获得独家优惠。",
+      "basic": "基础",
+      "plus": "增强",
+      "business": "商业",
+      "bestValue": "最佳价值",
+      "viewAllPlans": "查看所有计划"
+    },
+    "purchaseDialog": {
+      "title": "购买积分",
+      "selectAmount": "选择金额",
+      "customAmount": "自定义金额",
+      "enterAmount": "输入金额",
+      "minimum": "最低",
+      "paymentMethod": "支付方式",
+      "summary": "摘要",
+      "subtotal": "小计",
+      "processingFee": "处理费",
+      "total": "总计",
+      "purchaseButton": "购买{{amount}}积分",
+      "purchasing": "处理中...",
+      "cancel": "取消",
+      "success": "积分购买成功！",
+      "errors": {
+        "minimumAmount": "最低购买金额为",
+        "invalidAmount": "请输入有效金额",
+        "purchaseFailed": "购买失败。请重试。",
+        "kycRequired": "需要KYC验证",
+        "kycMessage": "要继续购买积分，请完成KYC验证。",
+        "contactSupport": "如有疑问，请联系支持。"
+      },
+      "kyc": {
+        "title": "需要KYC",
+        "message": "要继续购买积分，您需要完成KYC验证。",
+        "description": "这是验证身份和遵守法规的一次性流程。",
+        "startKyc": "开始KYC验证",
+        "contactSupport": "联系支持"
+      },
+      "maximum": "最大"
+    },
+    "hero": {
+      "badge": "智能积分",
+      "title": "增强您的AI代理",
+      "subtitle": "购买积分以解锁无限的AI驱动验证、身份检查和智能代理功能。"
+    }
   }
 }

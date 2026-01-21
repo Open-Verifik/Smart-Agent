@@ -398,5 +398,101 @@
       "noParams": "パラメータなし",
       "confirmed": "確認済み"
     }
+  },
+  "addCredits": {
+    "title": "クレジットを追加",
+    "subtitle": "クレジットと支払い方法を管理",
+    "availableCredits": "利用可能なクレジット",
+    "purchaseCredits": "クレジットを購入",
+    "addCard": "カードを追加",
+    "noCards": "支払い方法がありません",
+    "noCardsDesc": "クレジットを購入するには支払い方法を追加してください",
+    "paymentMethods": {
+      "title": "支払い方法",
+      "manage": "保存されたカードを管理",
+      "cardExpired": "期限切れ",
+      "cardDefault": "デフォルト",
+      "setDefault": "デフォルトに設定",
+      "deleteCard": "カードを削除",
+      "lastFour": "•••• {{number}}",
+      "expires": "有効期限",
+      "cardholder": "カード名義人"
+    },
+    "autoRecharge": {
+      "title": "自動チャージ",
+      "subtitle": "クレジット切れの心配なし",
+      "status": {
+        "active": "有効",
+        "inactive": "無効"
+      },
+      "description": "自動チャージを有効にして残高を自動的に補充",
+      "configure": "設定",
+      "dialog": {
+        "title": "自動チャージ",
+        "subtitle": "必要に応じて自動的にクレジットを補充",
+        "enable": "自動チャージを有効にする",
+        "enableDesc": "残高が少なくなったら自動的にクレジットを補充",
+        "balanceThreshold": "残高しきい値",
+        "balanceThresholdHint": "この金額を下回ったらチャージ",
+        "rechargeAmount": "チャージ金額",
+        "rechargeAmountHint": "しきい値に達したときにチャージする金額",
+        "paymentMethod": "支払い方法",
+        "default": "デフォルト",
+        "cancel": "キャンセル",
+        "saveSettings": "設定を保存",
+        "errors": {
+          "selectCard": "自動チャージの支払い方法を選択してください",
+          "rechargeRange": "チャージ金額はからの間である必要があります",
+          "thresholdRange": "しきい値はからの間である必要があります",
+          "saveFailed": "自動チャージ設定の更新に失敗しました"
+        }
+      }
+    },
+    "subscriptionPlans": {
+      "title": "サブスクリプションプラン",
+      "description": "手動チャージをやめましょう！プランにアップグレードしてコストを削減し、特典を獲得。",
+      "basic": "ベーシック",
+      "plus": "プラス",
+      "business": "ビジネス",
+      "bestValue": "ベストバリュー",
+      "viewAllPlans": "すべてのプランを表示"
+    },
+    "purchaseDialog": {
+      "title": "クレジットを購入",
+      "selectAmount": "金額を選択",
+      "customAmount": "カスタム金額",
+      "enterAmount": "金額を入力",
+      "minimum": "最小",
+      "paymentMethod": "支払い方法",
+      "summary": "概要",
+      "subtotal": "小計",
+      "processingFee": "処理手数料",
+      "total": "合計",
+      "purchaseButton": "{{amount}}クレジットを購入",
+      "purchasing": "処理中...",
+      "cancel": "キャンセル",
+      "success": "クレジットの購入に成功しました！",
+      "errors": {
+        "minimumAmount": "最小購入金額はです",
+        "invalidAmount": "有効な金額を入力してください",
+        "purchaseFailed": "購入に失敗しました。もう一度お試しください。",
+        "kycRequired": "KYC認証が必要です",
+        "kycMessage": "クレジットの購入を続けるには、KYC認証を完了してください。",
+        "contactSupport": "ご質問がある場合は、サポートにお問い合わせください。"
+      },
+      "kyc": {
+        "title": "KYC必須",
+        "message": "クレジットの購入を続けるには、KYC認証を完了する必要があります。",
+        "description": "これは本人確認と規制遵守のための一度限りのプロセスです。",
+        "startKyc": "KYC認証を開始",
+        "contactSupport": "サポートに連絡"
+      },
+      "maximum": "最大"
+    },
+    "hero": {
+      "badge": "スマートクレジット",
+      "title": "AIエージェントを強化",
+      "subtitle": "クレジットを購入して、無制限のAI検証、身元確認、スマートエージェント機能を解除します。"
+    }
   }
 }

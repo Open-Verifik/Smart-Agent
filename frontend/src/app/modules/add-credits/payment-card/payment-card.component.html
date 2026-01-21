@@ -39,11 +39,11 @@
         <!-- Card Details -->
         <div class="card-details">
             <div class="detail-item cardholder">
-                <span class="detail-label">Cardholder</span>
+                <span class="detail-label">{{ 'addCredits.paymentMethods.cardholder' | transloco }}</span>
                 <span class="detail-value">{{ card.name }}</span>
             </div>
             <div class="detail-item expires">
-                <span class="detail-label">Expires</span>
+                <span class="detail-label">{{ 'addCredits.paymentMethods.expires' | transloco }}</span>
                 <span class="detail-value">{{ card.expires_at }}</span>
             </div>
         </div>
@@ -56,11 +56,11 @@
                 (click)="onSetDefault()"
             >
                 <mat-icon>check_circle</mat-icon>
-                <span>Set as default</span>
+                <span>{{ 'addCredits.paymentMethods.setDefault' | transloco }}</span>
             </button>
             <div *ngIf="isDefault && !isExpired(card.expires_at)" class="default-message">
                 <mat-icon>verified</mat-icon>
-                <span>Primary payment method</span>
+                <span>{{ 'addCredits.paymentMethods.cardDefault' | transloco }}</span>
             </div>
             <button
                 class="action-button delete-button"

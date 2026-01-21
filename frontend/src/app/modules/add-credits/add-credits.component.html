@@ -9,12 +9,11 @@
                 <div class="hero-text">
                     <span class="badge">
                         <mat-icon class="badge-icon">bolt</mat-icon>
-                        Smart Credits
+                        {{ 'addCredits.hero.badge' | transloco }}
                     </span>
-                    <h1 class="hero-title">Power Your AI Agents</h1>
+                    <h1 class="hero-title">{{ 'addCredits.hero.title' | transloco }}</h1>
                     <p class="hero-subtitle">
-                        Purchase credits to unlock unlimited AI-powered verifications, identity
-                        checks, and smart agent capabilities.
+                        {{ 'addCredits.hero.subtitle' | transloco }}
                     </p>
                 </div>
 
@@ -26,13 +25,17 @@
                             <div class="balance-icon-wrapper">
                                 <mat-icon class="balance-icon">account_balance_wallet</mat-icon>
                             </div>
-                            <span class="balance-label">Available Credits</span>
+                            <span class="balance-label">{{
+                                'addCredits.availableCredits' | transloco
+                            }}</span>
                         </div>
                         <div class="balance-amount">
                             <span class="amount-value">{{
                                 balance()?.totalCredits || 0 | number: '1.2-2'
                             }}</span>
-                            <span class="amount-currency">credits</span>
+                            <span class="amount-currency">{{
+                                'userMenu.credits' | transloco | lowercase
+                            }}</span>
                         </div>
                         <div class="balance-action">
                             <button
@@ -40,7 +43,7 @@
                                 (click)="openPurchaseCreditsDialog()"
                                 [disabled]="loading()"
                             >
-                                <span>Purchase Credits</span>
+                                <span>{{ 'addCredits.purchaseCredits' | transloco }}</span>
                             </button>
                         </div>
                     </div>
@@ -59,8 +62,12 @@
                                 <mat-icon>credit_card</mat-icon>
                             </div>
                             <div>
-                                <h2 class="section-title">Payment Methods</h2>
-                                <p class="section-subtitle">Manage your saved payment cards</p>
+                                <h2 class="section-title">
+                                    {{ 'addCredits.paymentMethods.title' | transloco }}
+                                </h2>
+                                <p class="section-subtitle">
+                                    {{ 'addCredits.paymentMethods.manage' | transloco }}
+                                </p>
                             </div>
                         </div>
                         <button
@@ -69,7 +76,7 @@
                             [disabled]="loading()"
                         >
                             <mat-icon>add</mat-icon>
-                            <span>Add Card</span>
+                            <span>{{ 'addCredits.addCard' | transloco }}</span>
                         </button>
                     </div>
 
@@ -78,7 +85,9 @@
                         <div class="loading-spinner">
                             <mat-spinner diameter="48"></mat-spinner>
                         </div>
-                        <p class="loading-text">Loading payment methods...</p>
+                        <p class="loading-text">
+                            {{ 'addCredits.paymentMethods.manage' | transloco }}...
+                        </p>
                     </div>
 
                     <!-- Error State -->
@@ -87,7 +96,7 @@
                         <p class="error-text">{{ error() }}</p>
                         <button class="retry-button" (click)="loadData()">
                             <mat-icon>refresh</mat-icon>
-                            Try Again
+                            {{ 'settings.profile.save_error' | transloco }}
                         </button>
                     </div>
 
@@ -98,11 +107,11 @@
                                 <mat-icon class="empty-icon">credit_card_off</mat-icon>
                             </div>
                         </div>
-                        <h3 class="empty-title">No payment methods yet</h3>
-                        <p class="empty-subtitle">Add a payment card to start purchasing credits</p>
+                        <h3 class="empty-title">{{ 'addCredits.noCards' | transloco }}</h3>
+                        <p class="empty-subtitle">{{ 'addCredits.noCardsDesc' | transloco }}</p>
                         <button class="primary-cta-button" (click)="openAddCardDialog()">
                             <mat-icon>add</mat-icon>
-                            <span>Add Payment Method</span>
+                            <span>{{ 'addCredits.addCard' | transloco }}</span>
                         </button>
                     </div>
 
@@ -130,25 +139,33 @@
                             <mat-icon>autorenew</mat-icon>
                         </div>
                         <div>
-                            <h3 class="sidebar-card-title">Auto-Recharge</h3>
-                            <p class="sidebar-card-subtitle">Never run out of credits</p>
+                            <h3 class="sidebar-card-title">
+                                {{ 'addCredits.autoRecharge.title' | transloco }}
+                            </h3>
+                            <p class="sidebar-card-subtitle">
+                                {{ 'addCredits.autoRecharge.subtitle' | transloco }}
+                            </p>
                         </div>
                     </div>
 
                     <div *ngIf="autoRechargeConfig()?.hasAutoCharge" class="auto-recharge-active">
                         <div class="status-badge active">
                             <span class="status-dot"></span>
-                            Active
+                            {{ 'addCredits.autoRecharge.status.active' | transloco }}
                         </div>
                         <div class="config-details">
                             <div class="config-item">
-                                <span class="config-label">Threshold</span>
+                                <span class="config-label">{{
+                                    'addCredits.autoRecharge.dialog.balanceThreshold' | transloco
+                                }}</span>
                                 <span class="config-value"
                                     >{{ autoRechargeConfig()?.minThreshold }} credits</span
                                 >
                             </div>
                             <div class="config-item">
-                                <span class="config-label">Recharge Amount</span>
+                                <span class="config-label">{{
+                                    'addCredits.autoRecharge.dialog.rechargeAmount' | transloco
+                                }}</span>
                                 <span class="config-value"
                                     >{{ autoRechargeConfig()?.minRecharge }} credits</span
                                 >
@@ -162,10 +179,10 @@
                     >
                         <div class="status-badge inactive">
                             <span class="status-dot"></span>
-                            Inactive
+                            {{ 'addCredits.autoRecharge.status.inactive' | transloco }}
                         </div>
                         <p class="inactive-text">
-                            Enable auto-recharge to automatically top up your balance
+                            {{ 'addCredits.autoRecharge.description' | transloco }}
                         </p>
                     </div>
 
@@ -175,7 +192,7 @@
                         [disabled]="loading()"
                     >
                         <mat-icon>settings</mat-icon>
-                        <span>Configure</span>
+                        <span>{{ 'addCredits.autoRecharge.configure' | transloco }}</span>
                     </button>
                 </div>
 
@@ -183,33 +200,42 @@
                 <div class="sidebar-card pricing-card">
                     <div class="pricing-header">
                         <mat-icon class="pricing-icon">verified</mat-icon>
-                        <span>Subscription Plans</span>
+                        <span>{{ 'addCredits.subscriptionPlans.title' | transloco }}</span>
                     </div>
                     <div class="pricing-content">
                         <p class="pricing-text">
-                            Stop recharging manually! Upgrade to a plan to reduce costs and get
-                            exclusive benefits.
+                            {{ 'addCredits.subscriptionPlans.description' | transloco }}
                         </p>
                         <div class="pricing-tiers">
                             <div class="tier">
                                 <span class="tier-amount">$99</span>
-                                <span class="tier-label">Basic</span>
+                                <span class="tier-label">{{
+                                    'addCredits.subscriptionPlans.basic' | transloco
+                                }}</span>
                             </div>
                             <div class="tier popular">
-                                <span class="tier-badge">Best Value</span>
+                                <span class="tier-badge">{{
+                                    'addCredits.subscriptionPlans.bestValue' | transloco
+                                }}</span>
                                 <span class="tier-amount">$249</span>
-                                <span class="tier-label">Plus</span>
+                                <span class="tier-label">{{
+                                    'addCredits.subscriptionPlans.plus' | transloco
+                                }}</span>
                             </div>
                             <div class="tier">
                                 <span class="tier-amount">$499</span>
-                                <span class="tier-label">Business</span>
+                                <span class="tier-label">{{
+                                    'addCredits.subscriptionPlans.business' | transloco
+                                }}</span>
                             </div>
                         </div>
                         <button
                             class="sidebar-action-button mt-4"
                             [routerLink]="['/subscription-plans']"
                         >
-                            <span>View All Plans</span>
+                            <span>{{
+                                'addCredits.subscriptionPlans.viewAllPlans' | transloco
+                            }}</span>
                             <mat-icon>arrow_forward</mat-icon>
                         </button>
                     </div>

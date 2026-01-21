@@ -1,8 +1,8 @@
 <div class="auto-recharge-dialog">
     <!-- Header -->
     <div class="dialog-header">
-        <h2 class="dialog-title">Auto-Recharge</h2>
-        <p class="dialog-subtitle">Automatically top up credits when needed</p>
+        <h2 class="dialog-title">{{ 'addCredits.autoRecharge.dialog.title' | transloco }}</h2>
+        <p class="dialog-subtitle">{{ 'addCredits.autoRecharge.dialog.subtitle' | transloco }}</p>
     </div>
 
     <mat-dialog-content class="p-2">
@@ -15,8 +15,8 @@
         <!-- Enable Toggle Card -->
         <div class="enable-card" [class.active]="enabled">
             <div class="enable-info">
-                <h3 class="enable-title">Enable Auto-Recharge</h3>
-                <p class="enable-desc">Automatically top up credits when balance is low</p>
+                <h3 class="enable-title">{{ 'addCredits.autoRecharge.dialog.enable' | transloco }}</h3>
+                <p class="enable-desc">{{ 'addCredits.autoRecharge.dialog.enableDesc' | transloco }}</p>
             </div>
             <label class="switch">
                 <input type="checkbox" [(ngModel)]="enabled" />
@@ -29,7 +29,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <!-- Threshold -->
                 <div class="input-container">
-                    <label class="input-label">Balance Threshold</label>
+                    <label class="input-label">{{ 'addCredits.autoRecharge.dialog.balanceThreshold' | transloco }}</label>
                     <div class="premium-input-wrapper">
                         <span class="input-prefix">$</span>
                         <input
@@ -41,12 +41,12 @@
                         />
                         <span class="input-suffix">USD</span>
                     </div>
-                    <p class="input-hint">Recharge when balance falls below this amount</p>
+                    <p class="input-hint">{{ 'addCredits.autoRecharge.dialog.balanceThresholdHint' | transloco }}</p>
                 </div>
 
                 <!-- Recharge Amount -->
                 <div class="input-container">
-                    <label class="input-label">Recharge Amount</label>
+                    <label class="input-label">{{ 'addCredits.autoRecharge.dialog.rechargeAmount' | transloco }}</label>
                     <div class="premium-input-wrapper">
                         <span class="input-prefix">$</span>
                         <input
@@ -58,13 +58,13 @@
                         />
                         <span class="input-suffix">USD</span>
                     </div>
-                    <p class="input-hint">Amount to recharge when threshold is reached</p>
+                    <p class="input-hint">{{ 'addCredits.autoRecharge.dialog.rechargeAmountHint' | transloco }}</p>
                 </div>
             </div>
 
             <!-- Payment Card Selection -->
             <div class="section" *ngIf="data?.cards && data.cards.length > 0">
-                <label class="section-label">Payment Method</label>
+                <label class="section-label">{{ 'addCredits.autoRecharge.dialog.paymentMethod' | transloco }}</label>
 
                 <div class="card-display" *ngIf="selectedCardId">
                     <ng-container *ngFor="let card of data.cards">
@@ -136,7 +136,7 @@
                                 <span class="card-brand-name">{{ card.brand | titlecase }}</span>
                             </div>
 
-                            <span *ngIf="card.isDefault" class="default-badge">Default</span>
+                            <span *ngIf="card.isDefault" class="default-badge">{{ 'addCredits.autoRecharge.dialog.default' | transloco }}</span>
                         </div>
                     </ng-container>
                 </div>

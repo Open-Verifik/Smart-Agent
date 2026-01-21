@@ -3,8 +3,8 @@
     <ng-container *ngIf="!kycRequired">
         <!-- Header -->
         <div class="dialog-header">
-            <h2 class="dialog-title">Purchase Credits</h2>
-            <p class="dialog-subtitle">Add credits to power your AI agents</p>
+            <h2 class="dialog-title">{{ 'addCredits.purchaseDialog.title' | transloco }}</h2>
+            <p class="dialog-subtitle">{{ 'addCredits.hero.subtitle' | transloco }}</p>
         </div>
 
         <mat-dialog-content class="p-0">
@@ -16,7 +16,9 @@
 
             <!-- Amount Selection Section -->
             <div class="section">
-                <label class="section-label">Select Amount</label>
+                <label class="section-label">{{
+                    'addCredits.purchaseDialog.selectAmount' | transloco
+                }}</label>
 
                 <!-- Preset Amounts Grid -->
                 <div class="amount-grid">
@@ -42,7 +44,7 @@
                         [disabled]="loading"
                     >
                         <mat-icon>edit</mat-icon>
-                        <span>Enter custom amount</span>
+                        <span>{{ 'addCredits.purchaseDialog.customAmount' | transloco }}</span>
                     </button>
 
                     <div *ngIf="isCustomAmount" class="custom-input-container">
@@ -60,12 +62,17 @@
                     </div>
                 </div>
 
-                <p class="amount-hint">Minimum $20 • Maximum $2,000</p>
+                <p class="amount-hint">
+                    {{ 'addCredits.purchaseDialog.minimum' | transloco }} •
+                    {{ 'addCredits.purchaseDialog.maximum' | transloco }} $2,000
+                </p>
             </div>
 
             <!-- Payment Method Summary -->
             <div class="section" *ngIf="data?.card" class="p-1">
-                <label class="section-label">Payment Method</label>
+                <label class="section-label">{{
+                    'addCredits.purchaseDialog.paymentMethod' | transloco
+                }}</label>
 
                 <div class="payment-summary">
                     <div class="card-option selected read-only">
@@ -81,7 +88,9 @@
                             <span class="card-number">•••• {{ data.card.lastFour }}</span>
                         </div>
 
-                        <span *ngIf="data.card.isDefault" class="default-badge">Primary</span>
+                        <span *ngIf="data.card.isDefault" class="default-badge">{{
+                            'addCredits.paymentMethods.cardDefault' | transloco
+                        }}</span>
                     </div>
                 </div>
             </div>
@@ -90,7 +99,7 @@
         <!-- Dialog Actions -->
         <div class="dialog-actions">
             <button type="button" class="cancel-button" (click)="close()" [disabled]="loading">
-                Cancel
+                {{ 'addCredits.purchaseDialog.cancel' | transloco }}
             </button>
             <button
                 type="button"
@@ -100,10 +109,12 @@
             >
                 <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
                 <ng-container *ngIf="!loading">
-                    <span>Purchase</span>
+                    <span>{{ 'chat.payment.payBtn' | transloco }}</span>
                     <span class="button-amount">${{ selectedAmount }}</span>
                 </ng-container>
-                <span *ngIf="loading">Processing...</span>
+                <span *ngIf="loading">{{
+                    'addCredits.purchaseDialog.purchasing' | transloco
+                }}</span>
             </button>
         </div>
     </ng-container>
@@ -115,15 +126,16 @@
         </div>
 
         <div class="kyc-content">
-            <h3 class="kyc-title">KYC Verification Required</h3>
+            <h3 class="kyc-title">{{ 'addCredits.purchaseDialog.kyc.title' | transloco }}</h3>
             <p class="kyc-description">
-                To continue with your payment, you need to complete the KYC (Know Your Customer)
-                verification process. This helps us ensure compliance and security.
+                {{ 'addCredits.purchaseDialog.kyc.description' | transloco }}
             </p>
 
             <button class="start-kyc-button" (click)="startKyc()" [disabled]="loading">
                 <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
-                <span *ngIf="!loading">Start KYC Verification</span>
+                <span *ngIf="!loading">{{
+                    'addCredits.purchaseDialog.kyc.startKyc' | transloco
+                }}</span>
             </button>
 
             <button class="cancel-button kyc-cancel" (click)="close()" [disabled]="loading">

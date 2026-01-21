@@ -399,5 +399,101 @@
       "noParams": "Sin parámetros",
       "confirmed": "Confirmado"
     }
+  },
+  "addCredits": {
+    "title": "Agregar Créditos",
+    "subtitle": "Administra tus créditos y métodos de pago",
+    "availableCredits": "CRÉDITOS DISPONIBLES",
+    "purchaseCredits": "Comprar Créditos",
+    "addCard": "Agregar Tarjeta",
+    "noCards": "Sin métodos de pago",
+    "noCardsDesc": "Agrega un método de pago para comprar créditos",
+    "paymentMethods": {
+      "title": "Métodos de Pago",
+      "manage": "Administra tus tarjetas guardadas",
+      "cardExpired": "Expirada",
+      "cardDefault": "Predeterminada",
+      "setDefault": "Establecer como Predeterminada",
+      "deleteCard": "Eliminar Tarjeta",
+      "lastFour": "•••• {{number}}",
+      "expires": "Expira",
+      "cardholder": "TITULAR"
+    },
+    "autoRecharge": {
+      "title": "Recarga Automática",
+      "subtitle": "Nunca te quedes sin créditos",
+      "status": {
+        "active": "Activa",
+        "inactive": "Inactiva"
+      },
+      "description": "Habilita la recarga automática para recargar tu saldo automáticamente",
+      "configure": "Configurar",
+      "dialog": {
+        "title": "Recarga Automática",
+        "subtitle": "Recarga créditos automáticamente cuando sea necesario",
+        "enable": "Habilitar Recarga Automática",
+        "enableDesc": "Recarga créditos automáticamente cuando el saldo sea bajo",
+        "balanceThreshold": "Umbral de Saldo",
+        "balanceThresholdHint": "Recargar cuando el saldo caiga por debajo de esta cantidad",
+        "rechargeAmount": "Monto de Recarga",
+        "rechargeAmountHint": "Cantidad a recargar cuando se alcance el umbral",
+        "paymentMethod": "Método de Pago",
+        "default": "Predeterminado",
+        "cancel": "Cancelar",
+        "saveSettings": "Guardar Configuración",
+        "errors": {
+          "selectCard": "Por favor selecciona un método de pago para la recarga automática",
+          "rechargeRange": "El monto de recarga debe estar entre $20 y $2000",
+          "thresholdRange": "El umbral debe estar entre $10 y $1990",
+          "saveFailed": "Error al actualizar la configuración de recarga automática"
+        }
+      }
+    },
+    "subscriptionPlans": {
+      "title": "Planes de Suscripción",
+      "description": "¡Deja de recargar manualmente! Actualiza a un plan para reducir costos y obtener beneficios exclusivos.",
+      "basic": "Básico",
+      "plus": "Plus",
+      "business": "Empresarial",
+      "bestValue": "MEJOR VALOR",
+      "viewAllPlans": "Ver Todos los Planes"
+    },
+    "purchaseDialog": {
+      "title": "Comprar Créditos",
+      "selectAmount": "Seleccionar Monto",
+      "customAmount": "Monto Personalizado",
+      "enterAmount": "Ingresar monto",
+      "minimum": "Mínimo $20",
+      "paymentMethod": "Método de Pago",
+      "summary": "Resumen",
+      "subtotal": "Subtotal",
+      "processingFee": "Tarifa de Procesamiento",
+      "total": "Total",
+      "purchaseButton": "Comprar {{amount}} Créditos",
+      "purchasing": "Procesando...",
+      "cancel": "Cancelar",
+      "success": "¡Créditos comprados exitosamente!",
+      "errors": {
+        "minimumAmount": "El monto mínimo de compra es $20",
+        "invalidAmount": "Por favor ingresa un monto válido",
+        "purchaseFailed": "Compra fallida. Intenta de nuevo.",
+        "kycRequired": "Verificación KYC requerida",
+        "kycMessage": "Para continuar comprando créditos, completa tu verificación KYC.",
+        "contactSupport": "Si tienes preguntas, contacta a soporte."
+      },
+      "kyc": {
+        "title": "KYC Requerido",
+        "message": "Para continuar comprando créditos, necesitas completar la verificación KYC.",
+        "description": "Este es un proceso único para verificar tu identidad y cumplir con las regulaciones.",
+        "startKyc": "Iniciar Verificación KYC",
+        "contactSupport": "Contactar Soporte"
+      },
+      "maximum": "Máximo"
+    },
+    "hero": {
+      "badge": "Créditos Inteligentes",
+      "title": "Potencia Tus Agentes de IA",
+      "subtitle": "Compra créditos para desbloquear verificaciones ilimitadas impulsadas por IA, verificaciones de identidad y capacidades de agentes inteligentes."
+    }
   }
 }
