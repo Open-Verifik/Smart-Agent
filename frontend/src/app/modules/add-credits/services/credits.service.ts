@@ -252,10 +252,30 @@ export class CreditsService {
 
         const token = localStorage.getItem('accessToken');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const userId = JSON.parse(localStorage.getItem('user') || '{}')._id;
+
+        // Safely get user ID from localStorage
+        const userStr = localStorage.getItem('verifik_account') || localStorage.getItem('user');
+        let userId: string;
+
+        try {
+            const user =
+                userStr && userStr !== 'undefined' && userStr !== 'null'
+                    ? JSON.parse(userStr)
+                    : null;
+            userId = user?._id;
+
+            if (!userId) {
+                throw new Error('User ID not found');
+            }
+        } catch (err) {
+            console.error('Error parsing user data:', err);
+            this.error.set('Failed to get user information');
+            this.loading.set(false);
+            return throwError(() => new Error('User ID not found'));
+        }
 
         return this._httpClient
-            .put<{ data: { autoCharge: AutoRechargeConfig } }>(
+            .post<{ data: { autoCharge: AutoRechargeConfig } }>(
                 `${this.apiUrl}/v2/client-settings`,
                 {
                     client: userId,

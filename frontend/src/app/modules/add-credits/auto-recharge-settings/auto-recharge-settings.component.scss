@@ -23,6 +23,7 @@ $dark-text-muted: rgba(255, 255, 255, 0.4);
 $primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
 $accent-purple: #8b5cf6;
 $accent-blue: #3b82f6;
+$danger-red: #ef4444;
 
 // ================================
 // MIXINS
@@ -35,7 +36,7 @@ $accent-blue: #3b82f6;
 // DIALOG CONTAINER
 // ================================
 .auto-recharge-dialog {
-    padding: 40px;
+    padding: 12px;
     background: $light-bg;
     border-radius: 20px;
     width: 100%;
@@ -220,6 +221,13 @@ input:checked + .slider:before {
         box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
     }
 
+    .input-prefix {
+        font-size: 16px;
+        font-weight: 600;
+        color: $light-text-muted;
+        margin-right: 2px;
+    }
+
     input {
         flex: 1;
         padding: 14px 0;
@@ -258,13 +266,11 @@ input:checked + .slider:before {
     }
 }
 
-.cards-selection {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
+.card-display {
+    display: block;
 }
 
-.card-option {
+.selected-card {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -272,23 +278,12 @@ input:checked + .slider:before {
     background: $light-surface;
     border: 1px solid $light-card-border;
     border-radius: 12px;
-    cursor: pointer;
-    text-align: left;
     width: 100%;
     @include smooth-transition;
 
     :host-context(.dark) & {
         background: rgba(30, 41, 59, 0.3);
         border-color: $dark-card-border;
-    }
-
-    &:hover:not(:disabled):not(.selected) {
-        border-color: rgba(99, 102, 241, 0.2);
-    }
-
-    &.selected {
-        border-color: $accent-purple;
-        box-shadow: 0 0 0 1px $accent-purple;
     }
 }
 
@@ -301,6 +296,22 @@ input:checked + .slider:before {
     background: white;
     border-radius: 4px;
     border: 1px solid $light-card-border;
+    overflow: hidden; // Prevent overflow
+
+    svg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        max-width: 24px;
+        max-height: 24px;
+    }
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: $light-text-secondary;
+    }
 }
 
 .card-details {

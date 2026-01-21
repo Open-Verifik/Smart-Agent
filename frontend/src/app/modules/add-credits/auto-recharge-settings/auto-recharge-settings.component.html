@@ -5,7 +5,7 @@
         <p class="dialog-subtitle">Automatically top up credits when needed</p>
     </div>
 
-    <mat-dialog-content>
+    <mat-dialog-content class="p-2">
         <!-- Error Message -->
         <div *ngIf="error" class="error-message">
             <mat-icon>error_outline</mat-icon>
@@ -31,8 +31,15 @@
                 <div class="input-container">
                     <label class="input-label">Balance Threshold</label>
                     <div class="premium-input-wrapper">
-                        <input type="number" [(ngModel)]="minThreshold" placeholder="100" min="0" />
-                        <span class="input-suffix">credits</span>
+                        <span class="input-prefix">$</span>
+                        <input
+                            type="number"
+                            [(ngModel)]="minThreshold"
+                            placeholder="10"
+                            min="10"
+                            max="1990"
+                        />
+                        <span class="input-suffix">USD</span>
                     </div>
                     <p class="input-hint">Recharge when balance falls below this amount</p>
                 </div>
@@ -41,8 +48,15 @@
                 <div class="input-container">
                     <label class="input-label">Recharge Amount</label>
                     <div class="premium-input-wrapper">
-                        <input type="number" [(ngModel)]="minRecharge" placeholder="500" min="0" />
-                        <span class="input-suffix">credits</span>
+                        <span class="input-prefix">$</span>
+                        <input
+                            type="number"
+                            [(ngModel)]="minRecharge"
+                            placeholder="20"
+                            min="20"
+                            max="2000"
+                        />
+                        <span class="input-suffix">USD</span>
                     </div>
                     <p class="input-hint">Amount to recharge when threshold is reached</p>
                 </div>
@@ -52,55 +66,79 @@
             <div class="section" *ngIf="data?.cards && data.cards.length > 0">
                 <label class="section-label">Payment Method</label>
 
-                <div class="cards-selection">
-                    <button
-                        *ngFor="let card of data.cards"
-                        type="button"
-                        class="card-option"
-                        [class.selected]="selectedCardId === card._id"
-                        (click)="selectCard(card._id)"
-                        [disabled]="loading"
-                    >
-                        <div class="card-icon-wrapper">
-                            <ng-container [ngSwitch]="card.brand?.toLowerCase()">
-                                <span *ngSwitchCase="'visa'" class="card-brand-icon visa">
-                                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path
-                                            d="M18.8 32H15.1L17.4 17.5H21.1L18.8 32ZM32.5 17.7C31.7 17.3 30.5 17 29.2 17C24.9 17 21.8 19.3 21.8 22.5C21.8 24.9 24 26.3 25.7 27.1C27.4 27.9 28 28.5 28 29.3C28 30.6 26.5 31.1 25.2 31.1C24 31.1 23 30.8 22.1 30.4L21.7 30.2L21.3 32.7C22 33 23.4 33.3 24.8 33.4C29.4 33.4 32.4 31.1 32.4 27.6C32.4 21.9 24.5 21.6 24.5 19.4C24.5 18.7 25.1 18 26.5 17.8C27.2 17.7 28.6 17.6 30.1 18.2L30.6 18.4L31 16L32.5 17.7ZM42.5 17.5H39C38.1 17.5 37.4 18 37 18.8L31.5 32H35.3L36 29.8H40.7L41.2 32H44.6L42.5 17.5ZM37.2 26.8L39.2 21.1L40.2 26.8H37.2ZM13.8 17.5L10.1 27.4L8.7 18.4L8.3 17.5H4L4.1 17.8L7.6 32H11.5L17.4 17.5H13.8Z"
-                                            fill="#1A1F71"
-                                        />
-                                    </svg>
-                                </span>
-                                <span *ngSwitchCase="'mastercard'" class="card-brand-icon mastercard">
-                                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="18" cy="24" r="12" fill="#EB001B" fill-opacity="0.8" />
-                                        <circle cx="30" cy="24" r="12" fill="#F79E1B" fill-opacity="0.8" />
-                                        <path
-                                            d="M24 16.5C21.6 18.5 20.2 21.3 20.2 24.5C20.2 27.7 21.6 30.5 24 32.5C26.4 30.5 27.8 27.7 27.8 24.5C27.8 21.3 26.4 18.5 24 16.5Z"
-                                            fill="#FF5F00"
-                                        />
-                                    </svg>
-                                </span>
-                                <span *ngSwitchCase="'amex'" class="card-brand-icon amex">
-                                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <rect width="48" height="32" rx="4" fill="#006FCF" />
-                                        <path
-                                            d="M12 24L10 18H8L12 24ZM12 24L14 30H16L12 24ZM30 18H24V30H30V18ZM28 28H26V20H28V28ZM38 18H32V30H38V18ZM36 28H34V20H36V28ZM22 18H16V30H22V18ZM20 28H18V20H20V28Z"
-                                            fill="white"
-                                        />
-                                    </svg>
-                                </span>
-                                <mat-icon *ngSwitchDefault class="card-brand-mat-icon">credit_card</mat-icon>
-                            </ng-container>
-                        </div>
+                <div class="card-display" *ngIf="selectedCardId">
+                    <ng-container *ngFor="let card of data.cards">
+                        <div *ngIf="card._id === selectedCardId" class="selected-card">
+                            <div class="card-icon-wrapper">
+                                <ng-container [ngSwitch]="card.brand?.toLowerCase()">
+                                    <span *ngSwitchCase="'visa'" class="card-brand-icon visa">
+                                        <svg
+                                            viewBox="0 0 48 48"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path
+                                                d="M18.8 32H15.1L17.4 17.5H21.1L18.8 32ZM32.5 17.7C31.7 17.3 30.5 17 29.2 17C24.9 17 21.8 19.3 21.8 22.5C21.8 24.9 24 26.3 25.7 27.1C27.4 27.9 28 28.5 28 29.3C28 30.6 26.5 31.1 25.2 31.1C24 31.1 23 30.8 22.1 30.4L21.7 30.2L21.3 32.7C22 33 23.4 33.3 24.8 33.4C29.4 33.4 32.4 31.1 32.4 27.6C32.4 21.9 24.5 21.6 24.5 19.4C24.5 18.7 25.1 18 26.5 17.8C27.2 17.7 28.6 17.6 30.1 18.2L30.6 18.4L31 16L32.5 17.7ZM42.5 17.5H39C38.1 17.5 37.4 18 37 18.8L31.5 32H35.3L36 29.8H40.7L41.2 32H44.6L42.5 17.5ZM37.2 26.8L39.2 21.1L40.2 26.8H37.2ZM13.8 17.5L10.1 27.4L8.7 18.4L8.3 17.5H4L4.1 17.8L7.6 32H11.5L17.4 17.5H13.8Z"
+                                                fill="#1A1F71"
+                                            />
+                                        </svg>
+                                    </span>
+                                    <span
+                                        *ngSwitchCase="'mastercard'"
+                                        class="card-brand-icon mastercard"
+                                    >
+                                        <svg
+                                            viewBox="0 0 48 48"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <circle
+                                                cx="18"
+                                                cy="24"
+                                                r="12"
+                                                fill="#EB001B"
+                                                fill-opacity="0.8"
+                                            />
+                                            <circle
+                                                cx="30"
+                                                cy="24"
+                                                r="12"
+                                                fill="#F79E1B"
+                                                fill-opacity="0.8"
+                                            />
+                                            <path
+                                                d="M24 16.5C21.6 18.5 20.2 21.3 20.2 24.5C20.2 27.7 21.6 30.5 24 32.5C26.4 30.5 27.8 27.7 27.8 24.5C27.8 21.3 26.4 18.5 24 16.5Z"
+                                                fill="#FF5F00"
+                                            />
+                                        </svg>
+                                    </span>
+                                    <span *ngSwitchCase="'amex'" class="card-brand-icon amex">
+                                        <svg
+                                            viewBox="0 0 48 48"
+                                            fill="none"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <rect width="48" height="32" rx="4" fill="#006FCF" />
+                                            <path
+                                                d="M12 24L10 18H8L12 24ZM12 24L14 30H16L12 24ZM30 18H24V30H30V18ZM28 28H26V20H28V28ZM38 18H32V30H38V18ZM36 28H34V20H36V28ZM22 18H16V30H22V18ZM20 28H18V20H20V28Z"
+                                                fill="white"
+                                            />
+                                        </svg>
+                                    </span>
+                                    <mat-icon *ngSwitchDefault class="card-brand-mat-icon"
+                                        >credit_card</mat-icon
+                                    >
+                                </ng-container>
+                            </div>
 
-                        <div class="card-details">
-                            <span class="card-number">•••• {{ card.lastFour }}</span>
-                            <span class="card-brand-name">{{ card.brand | titlecase }}</span>
-                        </div>
+                            <div class="card-details">
+                                <span class="card-number">•••• {{ card.lastFour }}</span>
+                                <span class="card-brand-name">{{ card.brand | titlecase }}</span>
+                            </div>
 
-                        <span *ngIf="card.isDefault" class="default-badge">Default</span>
-                    </button>
+                            <span *ngIf="card.isDefault" class="default-badge">Default</span>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
         </div>

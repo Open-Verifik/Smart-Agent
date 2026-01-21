@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
-import { AutoRechargeConfig, PaymentCard, CreditsService } from '../services/credits.service';
+import { AutoRechargeConfig, CreditsService, PaymentCard } from '../services/credits.service';
 
 export interface AutoRechargeSettingsData {
     config: AutoRechargeConfig | null;
@@ -35,8 +35,8 @@ export class AutoRechargeSettingsComponent implements OnInit {
     data = inject<AutoRechargeSettingsData>(MAT_DIALOG_DATA);
 
     enabled: boolean = false;
-    minThreshold: number = 100;
-    minRecharge: number = 500;
+    minThreshold: number = 10;
+    minRecharge: number = 20;
     selectedCardId?: string;
     loading = false;
     error: string | null = null;
@@ -44,15 +44,19 @@ export class AutoRechargeSettingsComponent implements OnInit {
     ngOnInit(): void {
         if (this.data?.config) {
             this.enabled = this.data.config.hasAutoCharge || false;
-            this.minThreshold = this.data.config.minThreshold || 100;
-            this.minRecharge = this.data.config.minRecharge || 500;
+            this.minThreshold = this.data.config.minThreshold || 10;
+            this.minRecharge = this.data.config.minRecharge || 20;
             this.selectedCardId = this.data.config.cardId;
         }
 
-        // Default to the first card if no card is selected and cards are available
-        if (!this.selectedCardId && this.data?.cards && this.data.cards.length > 0) {
-            const defaultCard = this.data.cards.find((c) => c.isDefault) || this.data.cards[0];
-            this.selectedCardId = defaultCard._id;
+        // Sort cards: Default first
+        if (this.data?.cards?.length) {
+            this.data.cards.sort((a, b) => (Number(b.isDefault) || 0) - (Number(a.isDefault) || 0));
+
+            // Default to the first card (which is now the default one) if no card is selected
+            if (!this.selectedCardId) {
+                this.selectedCardId = this.data.cards[0]._id;
+            }
         }
     }
 
@@ -72,9 +76,16 @@ export class AutoRechargeSettingsComponent implements OnInit {
             return;
         }
 
-        if (this.enabled && (this.minThreshold < 0 || this.minRecharge < 0)) {
-            this.error = 'Threshold and recharge amount must be positive';
-            return;
+        if (this.enabled) {
+            if (this.minRecharge < 20 || this.minRecharge > 2000) {
+                this.error = 'Recharge amount must be between $20 and $2000';
+                return;
+            }
+
+            if (this.minThreshold < 10 || this.minThreshold > 1990) {
+                this.error = 'Threshold amount must be between $10 and $1990';
+                return;
+            }
         }
 
         this.loading = true;

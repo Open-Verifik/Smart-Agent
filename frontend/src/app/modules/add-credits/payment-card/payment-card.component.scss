@@ -55,15 +55,24 @@ $default-border-dark: rgba(139, 92, 246, 0.4);
 
     &.is-default {
         .card-inner {
-            border-color: $default-border-light;
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.04), rgba(139, 92, 246, 0.02));
+            border-color: rgba(99, 102, 241, 0.3);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(139, 92, 246, 0.01));
+            box-shadow:
+                0 0 0 1px rgba(99, 102, 241, 0.1),
+                0 4px 12px rgba(99, 102, 241, 0.05);
 
             :host-context(.dark) & {
-                border-color: $default-border-dark;
-                background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(99, 102, 241, 0.05));
+                border-color: rgba(139, 92, 246, 0.4);
+                background: linear-gradient(
+                    135deg,
+                    rgba(139, 92, 246, 0.1),
+                    rgba(99, 102, 241, 0.05)
+                );
+                box-shadow:
+                    0 0 0 1px rgba(139, 92, 246, 0.1),
+                    0 4px 12px rgba(0, 0, 0, 0.2);
             }
         }
-
         &:hover .card-inner {
             border-color: rgba(99, 102, 241, 0.5);
 
@@ -153,13 +162,17 @@ $default-border-dark: rgba(139, 92, 246, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.03);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     border-radius: 8px;
     padding: 6px 10px;
     flex-shrink: 0;
 
     :host-context(.dark) & {
         background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow: none;
     }
 }
 
@@ -169,12 +182,12 @@ $default-border-dark: rgba(139, 92, 246, 0.4);
     max-width: 100%;
     object-fit: contain;
     display: block;
-    
+
     // Ensure logo is always visible
     opacity: 1 !important;
-    
+
     // Fallback if image fails to load
-    &[src=""],
+    &[src=''],
     &:not([src]) {
         display: none;
     }
@@ -249,7 +262,8 @@ $default-border-dark: rgba(139, 92, 246, 0.4);
     gap: 12px;
     font-family: 'IBM Plex Mono', 'SF Mono', 'Menlo', monospace;
     font-size: 20px;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    font-weight: 500;
 }
 
 .number-dots {
