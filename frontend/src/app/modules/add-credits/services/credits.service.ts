@@ -96,7 +96,7 @@ export class CreditsService {
                 }),
                 finalize(() => {
                     this.loading.set(false);
-                }),
+                })
             );
     }
 
@@ -182,7 +182,7 @@ export class CreditsService {
                 }),
                 finalize(() => {
                     this.loading.set(false);
-                }),
+                })
             );
     }
 
@@ -210,7 +210,7 @@ export class CreditsService {
                 }),
                 finalize(() => {
                     this.loading.set(false);
-                }),
+                })
             );
     }
 
@@ -239,7 +239,7 @@ export class CreditsService {
                 }),
                 finalize(() => {
                     this.loading.set(false);
-                }),
+                })
             );
     }
 
@@ -281,7 +281,7 @@ export class CreditsService {
                     client: userId,
                     autoCharge: config,
                 },
-                { headers },
+                { headers }
             )
             .pipe(
                 tap((response) => {
@@ -294,7 +294,7 @@ export class CreditsService {
                 }),
                 finalize(() => {
                     this.loading.set(false);
-                }),
+                })
             );
     }
 }
