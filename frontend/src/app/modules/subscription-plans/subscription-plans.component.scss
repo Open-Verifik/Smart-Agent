@@ -1,0 +1,1417 @@
+// Subscription Plans Component - Premium Modern UI
+// Matches Add Credits design system
+
+// ================================
+// LIGHT MODE COLOR PALETTE (Default)
+// ================================
+$light-bg: #f8fafc;
+$light-surface: #ffffff;
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+// ================================
+// DARK MODE COLOR PALETTE
+// ================================
+$dark-bg: #0f172a;
+$dark-surface: #1e293b;
+$dark-card: rgba(30, 41, 59, 0.8);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+// ================================
+// ACCENT COLORS
+// ================================
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+$accent-purple: #8b5cf6;
+$accent-blue: #3b82f6;
+$accent-green: #10b981;
+$danger-red: #ef4444;
+$glow-purple: rgba(139, 92, 246, 0.3);
+$glow-blue: rgba(59, 130, 246, 0.3);
+
+// ================================
+// MIXINS
+// ================================
+@mixin smooth-transition($duration: 0.3s) {
+  transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin glass-card-light {
+  background: $light-card;
+  border: 1px solid $light-card-border;
+  border-radius: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+@mixin glass-card-dark {
+  background: $dark-card;
+  backdrop-filter: blur(20px);
+  border: 1px solid $dark-card-border;
+  border-radius: 20px;
+}
+
+// ================================
+// MAIN CONTAINER
+// ================================
+.subscription-page {
+  width: 100%;
+  min-height: 100vh;
+  background: $light-bg;
+  position: relative;
+  overflow: hidden;
+
+  :host-context(.dark) & {
+    background: $dark-bg;
+  }
+}
+
+// Background Pattern
+.bg-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+
+  :host-context(.dark) & {
+    background-image: 
+      radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+  }
+}
+
+// ================================
+// CONTENT WRAPPER
+// ================================
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+
+  @media (min-width: 768px) {
+    padding: 48px 48px;
+  }
+
+  @media (min-width: 1280px) {
+    padding: 48px 64px;
+  }
+}
+
+// ================================
+// HEADER SECTION
+// ================================
+.header {
+  margin-bottom: 48px;
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 100px;
+    color: $accent-purple;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+
+    :host-context(.dark) & {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  h1 {
+    font-size: 36px;
+    font-weight: 800;
+    color: $light-text-primary;
+    margin: 0 0 12px;
+    line-height: 1.2;
+
+    :host-context(.dark) & {
+      background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 48px;
+    }
+  }
+
+  p {
+    font-size: 18px;
+    color: $light-text-secondary;
+    margin: 0;
+    line-height: 1.6;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+// ================================
+// CURRENT PLAN SECTION
+// ================================
+.current-plan-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @media (min-width: 900px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+}
+
+.current-plan-card {
+  @include glass-card-light;
+  padding: 32px;
+  position: relative;
+  @include smooth-transition;
+
+  :host-context(.dark) & {
+    @include glass-card-dark;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+
+    :host-context(.dark) & {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .plan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $accent-green;
+    margin-bottom: 24px;
+
+    :host-context(.dark) & {
+      background: rgba(16, 185, 129, 0.15);
+    }
+
+    &::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: $accent-green;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+  }
+
+  .plan-info {
+    margin-bottom: 32px;
+
+    .plan-name {
+      font-size: 28px;
+      font-weight: 700;
+      color: $light-text-primary;
+      margin-bottom: 8px;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+      }
+    }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+
+      .amount {
+        font-size: 48px;
+        font-weight: 800;
+        color: $light-text-primary;
+        line-height: 1;
+
+        :host-context(.dark) & {
+          background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      }
+
+      .period {
+        font-size: 18px;
+        color: $light-text-muted;
+        font-weight: 500;
+
+        :host-context(.dark) & {
+          color: $dark-text-muted;
+        }
+      }
+    }
+  }
+
+  .plan-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding: 24px;
+    background: rgba(99, 102, 241, 0.04);
+    border-radius: 16px;
+    margin-bottom: 28px;
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .meta-item {
+      .label {
+        display: block;
+        font-size: 12px;
+        color: $light-text-muted;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
+
+        :host-context(.dark) & {
+          color: $dark-text-muted;
+        }
+      }
+
+      .value {
+        font-size: 14px;
+        font-weight: 600;
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+          color: $dark-text-primary;
+        }
+
+        &.status-active {
+          color: $accent-green;
+        }
+
+        &.status-warning {
+          color: #f59e0b;
+        }
+      }
+    }
+  }
+
+  .plan-actions {
+    display: flex;
+    gap: 12px;
+    flex-direction: column;
+
+    @media (min-width: 640px) {
+      flex-direction: row;
+    }
+  }
+}
+
+// ================================
+// FEATURES CARD
+// ================================
+.features-card {
+  @include glass-card-light;
+  padding: 28px;
+  @include smooth-transition;
+  width: 100%;
+  overflow: hidden;
+
+  :host-context(.dark) & {
+    @include glass-card-dark;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin: 0 0 20px;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+
+    @media (min-width: 480px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: rgba(99, 102, 241, 0.04);
+    border-radius: 10px;
+    font-size: 13px;
+    color: $light-text-secondary;
+    @include smooth-transition;
+    min-width: 0; // Prevent overflow
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.03);
+      color: $dark-text-secondary;
+    }
+
+    &:hover {
+      background: rgba(99, 102, 241, 0.08);
+
+      :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.06);
+      }
+    }
+
+    .check-icon {
+      width: 16px;
+      height: 16px;
+      color: $accent-green;
+      flex-shrink: 0;
+    }
+
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .feature-value {
+      margin-left: auto;
+      font-weight: 600;
+      color: $accent-purple;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// ================================
+// BUTTONS
+// ================================
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  @include smooth-transition;
+  position: relative;
+  overflow: hidden;
+
+  &.btn-primary {
+    background: $primary-gradient;
+    color: white;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+      opacity: 0;
+      @include smooth-transition;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(99, 102, 241, 0.35);
+
+      &::before {
+        opacity: 1;
+      }
+    }
+  }
+
+  &.btn-ghost {
+    background: transparent;
+    border: 1px solid $light-card-border;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+      border-color: $dark-card-border;
+      color: $dark-text-primary;
+    }
+
+    &:hover:not(:disabled) {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.3);
+      color: $accent-purple;
+    }
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ================================
+// EXPLORE SECTION
+// ================================
+.explore-section {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.interval-toggle {
+  display: flex;
+  justify-content: center;
+
+  .toggle-wrapper {
+    display: inline-flex;
+    @include glass-card-light;
+    padding: 6px;
+
+    :host-context(.dark) & {
+      @include glass-card-dark;
+    }
+  }
+
+  button {
+    position: relative;
+    padding: 12px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    color: $light-text-muted;
+    background: transparent;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+      color: $dark-text-muted;
+    }
+
+    &.active {
+      background: $primary-gradient;
+      color: white;
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+    }
+
+    &:not(.active):hover {
+      color: $light-text-primary;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+      }
+    }
+
+    .save-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      padding: 3px 8px;
+      background: $success-gradient;
+      border-radius: 100px;
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.02em;
+    }
+  }
+}
+
+// ================================
+// LOADING STATE
+// ================================
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid $light-card-border;
+    border-top-color: $accent-purple;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+
+    :host-context(.dark) & {
+      border-color: $dark-card-border;
+      border-top-color: $accent-purple;
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+// ================================
+// PLANS GRID
+// ================================
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: stretch;
+  padding-top: 16px; // Space for popular badge
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1200px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// ================================
+// PLAN CARD
+// ================================
+.plan-card {
+  position: relative;
+  @include glass-card-light;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 400px;
+  @include smooth-transition;
+
+  :host-context(.dark) & {
+    @include glass-card-dark;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+
+    :host-context(.dark) & {
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  &.popular {
+    border-color: rgba(99, 102, 241, 0.3);
+
+    :host-context(.dark) & {
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+  }
+
+  &.current {
+    background: rgba(99, 102, 241, 0.04);
+    border-color: rgba(99, 102, 241, 0.3);
+
+    :host-context(.dark) & {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+  }
+
+  .popular-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 16px;
+    background: $primary-gradient;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    white-space: nowrap;
+  }
+
+  .plan-card-header {
+    margin-bottom: 24px;
+
+    h3 {
+      font-size: 24px;
+      font-weight: 700;
+      color: $light-text-primary;
+      margin: 0 0 4px;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+      }
+    }
+
+    .plan-description {
+      font-size: 14px;
+      color: $light-text-muted;
+      margin: 0;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+  }
+
+  .plan-card-pricing {
+    margin-bottom: 24px;
+
+    .price-display {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+
+      .currency {
+        font-size: 24px;
+        font-weight: 600;
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+          color: $dark-text-primary;
+        }
+      }
+
+      .price-amount {
+        font-size: 56px;
+        font-weight: 800;
+        color: $light-text-primary;
+        line-height: 1;
+        letter-spacing: -0.02em;
+
+        :host-context(.dark) & {
+          background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+      }
+
+      .price-period {
+        font-size: 16px;
+        color: $light-text-muted;
+        margin-left: 4px;
+
+        :host-context(.dark) & {
+          color: $dark-text-muted;
+        }
+      }
+
+      .price-label {
+        font-size: 28px;
+        font-weight: 700;
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+          color: $dark-text-primary;
+        }
+      }
+    }
+
+    .price-note {
+      font-size: 13px;
+      color: $light-text-muted;
+      margin: 8px 0 0;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+  }
+
+  .plan-discount-highlight {
+    padding: 20px;
+    margin-bottom: auto;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+
+    :host-context(.dark) & {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .discount-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+
+      svg {
+        width: 24px;
+        height: 24px;
+        color: $accent-green;
+      }
+
+      .discount-value {
+        font-size: 20px;
+        font-weight: 700;
+        color: $accent-green;
+      }
+    }
+
+    .discount-description {
+      font-size: 14px;
+      color: $light-text-secondary;
+      margin: 0;
+      line-height: 1.5;
+
+      :host-context(.dark) & {
+        color: $dark-text-secondary;
+      }
+    }
+  }
+
+  .plan-card-btn {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    @include smooth-transition;
+    border: none;
+
+    &.btn-primary {
+      background: $primary-gradient;
+      color: white;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+      }
+    }
+
+    &.btn-secondary {
+      background: rgba(99, 102, 241, 0.08);
+      color: $accent-purple;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+
+      :host-context(.dark) & {
+        background: rgba(99, 102, 241, 0.15);
+        border-color: rgba(99, 102, 241, 0.3);
+      }
+
+      &:hover:not(:disabled) {
+        background: rgba(99, 102, 241, 0.15);
+        border-color: rgba(99, 102, 241, 0.4);
+      }
+    }
+
+    &.btn-outline {
+      background: transparent;
+      color: $light-text-primary;
+      border: 1px solid $light-card-border;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+        border-color: $dark-card-border;
+      }
+
+      &:hover:not(:disabled) {
+        background: rgba(99, 102, 241, 0.08);
+        border-color: rgba(99, 102, 241, 0.3);
+      }
+    }
+
+    &.btn-current {
+      background: rgba(16, 185, 129, 0.1);
+      color: $accent-green;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      cursor: default;
+
+      :host-context(.dark) & {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: rgba(16, 185, 129, 0.3);
+      }
+    }
+
+    &:disabled:not(.btn-current) {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ================================
+// BACK NAV
+// ================================
+.back-nav {
+  display: flex;
+  justify-content: center;
+
+  .btn-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: $light-text-muted;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+      color: $dark-text-muted;
+    }
+
+    &:hover {
+      color: $accent-purple;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+// ================================
+// RESPONSIVE
+// ================================
+@media (max-width: 640px) {
+  .current-plan-card {
+    padding: 24px;
+
+    .plan-info .plan-price .amount {
+      font-size: 36px;
+    }
+
+    .plan-meta {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
+  .plan-card .plan-card-pricing .price-display .price-amount {
+    font-size: 42px;
+  }
+
+  .interval-toggle button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+// ============================================
+// UI VERSION TOGGLE (Dev only)
+// ============================================
+.ui-version-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+  .toggle-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+  }
+
+  .version-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.6);
+
+    &:hover {
+      color: white;
+    }
+
+    &.active {
+      background: #6366f1;
+      color: white;
+    }
+  }
+}
+
+// ============================================
+// V2: PRIVY.IO INSPIRED DESIGN
+// ============================================
+.subscription-page-v2 {
+  min-height: 100vh;
+  background: #fafafa;
+  padding: 48px 24px;
+
+  :host-context(.dark) & {
+    background: #0a0a0a;
+  }
+}
+
+.v2-container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+// V2 Header
+.v2-header {
+  text-align: center;
+  margin-bottom: 48px;
+
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #111;
+    margin: 0 0 8px;
+    letter-spacing: -0.02em;
+
+    :host-context(.dark) & {
+      color: #fff;
+    }
+  }
+
+  p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+
+    :host-context(.dark) & {
+      color: #888;
+    }
+  }
+}
+
+// V2 Current Plan Banner
+.v2-current-banner {
+  margin-bottom: 48px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+
+  :host-context(.dark) & {
+    background: #141414;
+    border-color: #262626;
+  }
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .banner-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    .current-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #10b981;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111;
+
+      :host-context(.dark) & {
+        color: #fff;
+      }
+    }
+
+    .plan-price {
+      font-size: 14px;
+      color: #666;
+
+      :host-context(.dark) & {
+        color: #888;
+      }
+    }
+  }
+
+  .banner-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+// V2 Buttons
+.v2-btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &.v2-btn-primary {
+    background: #111;
+    color: #fff;
+    border: none;
+
+    :host-context(.dark) & {
+      background: #fff;
+      color: #111;
+    }
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  &.v2-btn-outline {
+    background: transparent;
+    color: #111;
+    border: 1px solid #e5e5e5;
+
+    :host-context(.dark) & {
+      color: #fff;
+      border-color: #333;
+    }
+
+    &:hover {
+      background: #f5f5f5;
+
+      :host-context(.dark) & {
+        background: #1a1a1a;
+      }
+    }
+  }
+}
+
+// V2 Interval Toggle
+.v2-interval-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 40px;
+  padding: 4px;
+  background: #f0f0f0;
+  border-radius: 10px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+
+  :host-context(.dark) & {
+    background: #1a1a1a;
+  }
+
+  button {
+    position: relative;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    :host-context(.dark) & {
+      color: #888;
+    }
+
+    &.active {
+      background: #fff;
+      color: #111;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+      :host-context(.dark) & {
+        background: #262626;
+        color: #fff;
+      }
+    }
+
+    .save-tag {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      padding: 2px 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+      background: #10b981;
+      border-radius: 4px;
+    }
+  }
+}
+
+// V2 Loading
+.v2-loading {
+  display: flex;
+  justify-content: center;
+  padding: 80px;
+
+  .v2-spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #e5e5e5;
+    border-top-color: #111;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+
+    :host-context(.dark) & {
+      border-color: #333;
+      border-top-color: #fff;
+    }
+  }
+}
+
+// V2 Plans Grid
+.v2-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+// V2 Plan Card
+.v2-plan-card {
+  position: relative;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  transition: all 0.15s;
+
+  :host-context(.dark) & {
+    background: #141414;
+    border-color: #262626;
+  }
+
+  &:hover {
+    border-color: #d0d0d0;
+
+    :host-context(.dark) & {
+      border-color: #333;
+    }
+  }
+
+  &.recommended {
+    border-color: #111;
+
+    :host-context(.dark) & {
+      border-color: #fff;
+    }
+  }
+
+  &.current {
+    background: #f9fafb;
+    border-color: #10b981;
+
+    :host-context(.dark) & {
+      background: #0f1f1a;
+      border-color: #10b981;
+    }
+  }
+
+  .v2-card-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: #111;
+    border-radius: 4px;
+
+    :host-context(.dark) & {
+      background: #fff;
+      color: #111;
+    }
+  }
+
+  .v2-card-header {
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111;
+      margin: 0 0 8px;
+
+      :host-context(.dark) & {
+        color: #fff;
+      }
+    }
+
+    .v2-price {
+      .amount {
+        font-size: 32px;
+        font-weight: 700;
+        color: #111;
+
+        :host-context(.dark) & {
+          color: #fff;
+        }
+      }
+
+      .period {
+        font-size: 14px;
+        color: #666;
+
+        :host-context(.dark) & {
+          color: #888;
+        }
+      }
+
+      .amount-text {
+        font-size: 16px;
+        font-weight: 500;
+        color: #666;
+
+        :host-context(.dark) & {
+          color: #888;
+        }
+      }
+    }
+  }
+
+  .v2-card-discount {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    background: #f0fdf4;
+    border-radius: 8px;
+
+    :host-context(.dark) & {
+      background: #052e1f;
+    }
+
+    .discount-percent {
+      font-size: 14px;
+      font-weight: 600;
+      color: #10b981;
+    }
+
+    .discount-desc {
+      font-size: 13px;
+      color: #666;
+
+      :host-context(.dark) & {
+        color: #888;
+      }
+    }
+  }
+
+  .v2-card-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: #111;
+    color: #fff;
+    border: none;
+
+    :host-context(.dark) & {
+      background: #fff;
+      color: #111;
+    }
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+
+    &.current {
+      background: #f0fdf4;
+      color: #10b981;
+      cursor: default;
+
+      :host-context(.dark) & {
+        background: #052e1f;
+        color: #10b981;
+      }
+    }
+
+    &:disabled:not(.current) {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// V2 Back Link
+.v2-back-link {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #666;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    :host-context(.dark) & {
+      color: #888;
+    }
+
+    &:hover {
+      color: #111;
+
+      :host-context(.dark) & {
+        color: #fff;
+      }
+    }
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}

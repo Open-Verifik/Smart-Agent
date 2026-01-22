@@ -1,26 +1,27 @@
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewEncapsulation,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    OnDestroy,
+    OnInit,
+    ViewEncapsulation,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { Subject, takeUntil } from 'rxjs';
-import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
-import { SettingsService, ProfileData } from './settings.service';
-import { CountryService, CountryDialCode } from 'app/core/services/country.service';
+import { CountryDialCode, CountryService } from 'app/core/services/country.service';
+import { Observable, Subject, takeUntil } from 'rxjs';
+import { finalize, map, startWith } from 'rxjs/operators';
+import { ClientSettings, ProfileData, SettingsService } from './settings.service';
 
 interface SettingsPanel {
   id: string;
@@ -39,6 +40,16 @@ interface SettingsSection {
 
 interface TokenExpiration {
   value: number;
+  label: string;
+}
+
+interface CountryCodeOption {
+  code: string;
+  name: string;
+}
+
+interface DocumentTypeOption {
+  value: string;
   label: string;
 }
 
@@ -100,6 +111,70 @@ export class SettingsComponent implements OnInit, OnDestroy {
   avatar: string = null;
   countryCodes: CountryDialCode[] = [];
 
+  // Billing state
+  billingData: ClientSettings = null;
+  payerForm: FormGroup;
+  addressForm: FormGroup;
+  billingLoaded = false;
+  isSavingBilling = false;
+  filteredDocumentTypes: Observable<DocumentTypeOption[]>;
+  filteredBusinessCountryCodes: Observable<CountryCodeOption[]>;
+  filteredPersonCountryCodes: Observable<CountryCodeOption[]>;
+
+  billingCountryCodes: CountryCodeOption[] = [
+    { code: '+1', name: 'United States' },
+    { code: '+1', name: 'Canada' },
+    { code: '+52', name: 'Mexico' },
+    { code: '+57', name: 'Colombia' },
+    { code: '+54', name: 'Argentina' },
+    { code: '+56', name: 'Chile' },
+    { code: '+55', name: 'Brazil' },
+    { code: '+51', name: 'Peru' },
+    { code: '+58', name: 'Venezuela' },
+    { code: '+593', name: 'Ecuador' },
+    { code: '+591', name: 'Bolivia' },
+    { code: '+595', name: 'Paraguay' },
+    { code: '+598', name: 'Uruguay' },
+    { code: '+507', name: 'Panama' },
+    { code: '+506', name: 'Costa Rica' },
+    { code: '+505', name: 'Nicaragua' },
+    { code: '+504', name: 'Honduras' },
+    { code: '+503', name: 'El Salvador' },
+    { code: '+502', name: 'Guatemala' },
+    { code: '+44', name: 'United Kingdom' },
+    { code: '+33', name: 'France' },
+    { code: '+49', name: 'Germany' },
+    { code: '+39', name: 'Italy' },
+    { code: '+34', name: 'Spain' },
+    { code: '+351', name: 'Portugal' },
+    { code: '+31', name: 'Netherlands' },
+    { code: '+32', name: 'Belgium' },
+    { code: '+41', name: 'Switzerland' },
+    { code: '+43', name: 'Austria' },
+    { code: '+46', name: 'Sweden' },
+    { code: '+47', name: 'Norway' },
+    { code: '+45', name: 'Denmark' },
+    { code: '+358', name: 'Finland' },
+    { code: '+48', name: 'Poland' },
+    { code: '+81', name: 'Japan' },
+    { code: '+82', name: 'South Korea' },
+    { code: '+86', name: 'China' },
+    { code: '+91', name: 'India' },
+    { code: '+61', name: 'Australia' },
+    { code: '+64', name: 'New Zealand' },
+    { code: '+971', name: 'United Arab Emirates' },
+    { code: '+966', name: 'Saudi Arabia' },
+    { code: '+972', name: 'Israel' },
+    { code: '+90', name: 'Turkey' },
+  ];
+
+  personDocumentTypes: DocumentTypeOption[] = [];
+  businessDocumentTypes: DocumentTypeOption[] = [];
+
+  // Country dropdown state
+  showBusinessCountryDropdown = false;
+  showPersonCountryDropdown = false;
+
   sections: SettingsSection[] = [
     {
       id: 'account',
@@ -118,6 +193,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
           description: 'settings.panels.security_desc',
           disabled: true,
           badge: 'settings.coming_soon',
+        },
+      ],
+    },
+    {
+      id: 'billing',
+      title: 'settings.sections.billing',
+      panels: [
+        {
+          id: 'billing_details',
+          icon: 'heroicons_outline:credit-card',
+          title: 'settings.panels.billing_details',
+          description: 'settings.panels.billing_details_desc',
         },
       ],
     },
@@ -143,6 +230,23 @@ export class SettingsComponent implements OnInit, OnDestroy {
     },
   ];
 
+  // Panel ID to URL slug mapping
+  private _panelToSlug: Record<string, string> = {
+    profile: 'profile',
+    security: 'security',
+    billing_details: 'billing-details',
+    api_key: 'api-key',
+    webhooks: 'webhooks',
+  };
+
+  private _slugToPanel: Record<string, string> = {
+    profile: 'profile',
+    security: 'security',
+    'billing-details': 'billing_details',
+    'api-key': 'api_key',
+    webhooks: 'webhooks',
+  };
+
   constructor(
     private _cdr: ChangeDetectorRef,
     private _fuseMediaWatcherService: FuseMediaWatcherService,
@@ -152,14 +256,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private _clipboard: Clipboard,
     private _formBuilder: FormBuilder,
     private _countryService: CountryService,
+    private _route: ActivatedRoute,
+    private _router: Router,
   ) {
     this.countryCodes = this._countryService.countryDialCodes;
     this._initProfileForm();
+    this._initBillingForms();
+    this._initDocumentTypes();
     this._loadUserData();
   }
 
   ngOnInit(): void {
     this._observeMediaChanges();
+    this._observeRouteChanges();
   }
 
   ngOnDestroy(): void {
@@ -171,8 +280,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const panel = this._findPanel(panelId);
     if (panel?.disabled) return;
 
+    // Navigate to the new panel route
+    const slug = this._panelToSlug[panelId] || panelId;
+    this._router.navigate(['/settings', slug]);
+  }
+
+  private _onPanelChanged(panelId: string): void {
     this.selectedPanel = panelId;
     this._resetPanelStates();
+
+    // Load billing data when billing panel is selected
+    if (panelId === 'billing_details' && !this.billingLoaded) {
+      this.loadBillingData();
+    }
 
     if (this.drawerMode === 'over') {
       this.drawerOpened = false;
@@ -405,6 +525,110 @@ export class SettingsComponent implements OnInit, OnDestroy {
     });
   }
 
+  private _initBillingForms(): void {
+    this.payerForm = this._formBuilder.group({
+      type: ['person'],
+      // Business fields
+      business_name: [''],
+      business_documentType: [''],
+      business_documentNumber: [''],
+      business_countryCode: [''],
+      business_country: [''],
+      business_phone: [''],
+      business_email: [''],
+      business_legalRepresentative: [''],
+      // Person fields
+      person_name: [''],
+      person_documentType: [''],
+      person_documentNumber: [''],
+      person_countryCode: [''],
+      person_country: [''],
+      person_phone: [''],
+      person_email: [''],
+    });
+
+    this.addressForm = this._formBuilder.group({
+      address: ['', Validators.required],
+      city: ['', Validators.required],
+      province: ['', Validators.required],
+      country: ['', Validators.required],
+      postalCode: ['', Validators.required],
+    });
+
+    this._setupBillingFilters();
+  }
+
+  private _initDocumentTypes(): void {
+    this.personDocumentTypes = [
+      { value: 'CC', label: this._translocoService.translate('settings.billing.document_types.CC') || 'Citizenship Card' },
+      { value: 'CE', label: this._translocoService.translate('settings.billing.document_types.CE') || 'Foreign ID' },
+      { value: 'TI', label: this._translocoService.translate('settings.billing.document_types.TI') || 'Identity Card' },
+      { value: 'NIT', label: this._translocoService.translate('settings.billing.document_types.NIT') || 'Tax ID' },
+      { value: 'PPT', label: this._translocoService.translate('settings.billing.document_types.PPT') || 'Passport' },
+      { value: 'DNI', label: this._translocoService.translate('settings.billing.document_types.DNI') || 'National ID' },
+      { value: 'RUC', label: this._translocoService.translate('settings.billing.document_types.RUC') || 'Tax Registry' },
+      { value: 'CURP', label: this._translocoService.translate('settings.billing.document_types.CURP') || 'CURP' },
+      { value: 'RUT', label: this._translocoService.translate('settings.billing.document_types.RUT') || 'Tax Role' },
+    ];
+
+    this.businessDocumentTypes = [
+      { value: 'NO_TAX', label: this._translocoService.translate('settings.billing.document_types.NO_TAX') || 'No Tax ID' },
+      { value: 'INTERNATIONAL_TAX', label: this._translocoService.translate('settings.billing.document_types.INTERNATIONAL_TAX') || 'International Tax ID' },
+      { value: 'NIT', label: this._translocoService.translate('settings.billing.document_types.NIT') || 'Tax ID (NIT)' },
+    ];
+  }
+
+  private _setupBillingFilters(): void {
+    // Filter for document types
+    const documentTypeControl = this.isABusiness()
+      ? this.payerForm.get('business_documentType')
+      : this.payerForm.get('person_documentType');
+
+    this.filteredDocumentTypes = this.payerForm.valueChanges.pipe(
+      startWith(''),
+      map(() => {
+        const source = this.isABusiness() ? this.businessDocumentTypes : this.personDocumentTypes;
+        const control = this.isABusiness()
+          ? this.payerForm.get('business_documentType')
+          : this.payerForm.get('person_documentType');
+        const value = control?.value;
+        const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
+        return filterValue
+          ? source.filter((opt) => opt.label.toLowerCase().includes(filterValue))
+          : source;
+      }),
+    );
+
+    // Filter for business country codes
+    this.filteredBusinessCountryCodes = this.payerForm.get('business_countryCode').valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filterCountryCodes(value)),
+    );
+
+    // Filter for person country codes
+    this.filteredPersonCountryCodes = this.payerForm.get('person_countryCode').valueChanges.pipe(
+      startWith(''),
+      map((value) => this._filterCountryCodes(value)),
+    );
+  }
+
+  private _filterCountryCodes(value: string | CountryCodeOption): CountryCodeOption[] {
+    if (!value || (typeof value === 'string' && value.trim().length === 0)) {
+      return this.billingCountryCodes;
+    }
+
+    const filterValue = typeof value === 'string'
+      ? value.toLowerCase().trim()
+      : `${value.code} ${value.name}`.toLowerCase();
+
+    return this.billingCountryCodes.filter(
+      (country) =>
+        country.name.toLowerCase().includes(filterValue) ||
+        country.code.toLowerCase().includes(filterValue) ||
+        country.code.replace('+', '').includes(filterValue),
+    );
+  }
+
   private _loadProfileData(): void {
     if (!this.user) return;
 
@@ -435,6 +659,409 @@ export class SettingsComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ============================================
+  // Billing Methods
+  // ============================================
+
+  loadBillingData(): void {
+    if (!this.user?._id || this.billingLoaded) return;
+
+    this._settingsService
+      .getBillingConfig(this.user._id)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: (response) => {
+          if (response?.data) {
+            this.billingData = response.data;
+            this._populateBillingForms();
+          } else {
+            // Initialize default billing data
+            this.billingData = this._getDefaultBillingData();
+          }
+          this.billingLoaded = true;
+          this._cdr.markForCheck();
+        },
+        error: () => {
+          // Initialize default billing data on error
+          this.billingData = this._getDefaultBillingData();
+          this.billingLoaded = true;
+          this._cdr.markForCheck();
+        },
+      });
+  }
+
+  private _getDefaultBillingData(): ClientSettings {
+    return {
+      accountType: 'subscription',
+      testAccount: false,
+      invoiceSettings: {
+        invoiceType: 'stripe',
+        type: 'person',
+        business: null,
+        person: null,
+        address: {
+          address: '',
+          city: '',
+          province: '',
+          country: '',
+          postalCode: '',
+        },
+      },
+      sendEmailNotifications: true,
+      client: this.user?._id || '',
+    };
+  }
+
+  private _populateBillingForms(): void {
+    if (!this.billingData?.invoiceSettings) return;
+
+    const { invoiceSettings } = this.billingData;
+
+    // Set payer type
+    this.payerForm.patchValue({
+      type: invoiceSettings.type || 'person',
+    });
+
+    // Populate business fields
+    if (invoiceSettings.business) {
+      const business = invoiceSettings.business;
+      this.payerForm.patchValue({
+        business_name: business.business_name || '',
+        business_documentType: business.business_documentType || '',
+        business_documentNumber: business.business_documentNumber || '',
+        business_countryCode: this._formatCountryCodeForDisplay(business.business_countryCode, business.business_country),
+        business_country: business.business_country || '',
+        business_phone: business.business_phone || '',
+        business_email: business.business_email || '',
+        business_legalRepresentative: business.business_legalRepresentative || '',
+      });
+    }
+
+    // Populate person fields
+    if (invoiceSettings.person) {
+      const person = invoiceSettings.person;
+      this.payerForm.patchValue({
+        person_name: person.person_name || '',
+        person_documentType: person.person_documentType || '',
+        person_documentNumber: person.person_documentNumber || '',
+        person_countryCode: this._formatCountryCodeForDisplay(person.person_countryCode, person.person_country),
+        person_country: person.person_country || '',
+        person_phone: person.person_phone || '',
+        person_email: person.person_email || '',
+      });
+    }
+
+    // Populate address
+    if (invoiceSettings.address) {
+      this.addressForm.patchValue({
+        address: invoiceSettings.address.address || '',
+        city: invoiceSettings.address.city || '',
+        province: invoiceSettings.address.province || '',
+        country: invoiceSettings.address.country || '',
+        postalCode: invoiceSettings.address.postalCode || '',
+      });
+    }
+  }
+
+  private _formatCountryCodeForDisplay(code: string, name?: string): string {
+    if (!code) return '';
+
+    // If we have both code and name, format it
+    if (name) {
+      return `${code} ${name}`;
+    }
+
+    // Try to find the country name from the code
+    const country = this.billingCountryCodes.find((c) => c.code === code);
+    if (country) {
+      return `${country.code} ${country.name}`;
+    }
+
+    return code;
+  }
+
+  isABusiness(): boolean {
+    return this.payerForm?.value?.type === 'business';
+  }
+
+  isAPerson(): boolean {
+    return this.payerForm?.value?.type === 'person';
+  }
+
+  displayCountryCodeFn(country: CountryCodeOption | string): string {
+    if (!country) return '';
+    if (typeof country === 'string') return country;
+    return country.code && country.name ? `${country.code} ${country.name}` : '';
+  }
+
+  displayDocumentTypeFn(doc: DocumentTypeOption | string): string {
+    if (!doc) return '';
+    if (typeof doc === 'string') return doc;
+    return doc.label || '';
+  }
+
+  onCountryCodeSelected(event: any, type: 'business' | 'person'): void {
+    const selectedCountry = event.option?.value;
+    if (selectedCountry?.code && selectedCountry?.name) {
+      const countryCodeField = type === 'business' ? 'business_countryCode' : 'person_countryCode';
+      const countryField = type === 'business' ? 'business_country' : 'person_country';
+
+      this.payerForm.patchValue({
+        [countryCodeField]: selectedCountry,
+        [countryField]: selectedCountry.name,
+      });
+    }
+  }
+
+  selectCountryCode(country: CountryCodeOption, type: 'business' | 'person'): void {
+    const countryCodeField = type === 'business' ? 'business_countryCode' : 'person_countryCode';
+    const countryField = type === 'business' ? 'business_country' : 'person_country';
+
+    this.payerForm.patchValue({
+      [countryCodeField]: `${country.code} ${country.name}`,
+      [countryField]: country.name,
+    });
+
+    if (type === 'business') {
+      this.showBusinessCountryDropdown = false;
+    } else {
+      this.showPersonCountryDropdown = false;
+    }
+    this._cdr.markForCheck();
+  }
+
+  onCountryBlur(type: 'business' | 'person'): void {
+    // Delay to allow click on option
+    setTimeout(() => {
+      if (type === 'business') {
+        this.showBusinessCountryDropdown = false;
+      } else {
+        this.showPersonCountryDropdown = false;
+      }
+      this._cdr.markForCheck();
+    }, 200);
+  }
+
+  getFilteredBusinessCountryCodes(): CountryCodeOption[] {
+    const value = this.payerForm.get('business_countryCode')?.value || '';
+    return this._filterCountryCodesForAutocomplete(value);
+  }
+
+  getFilteredPersonCountryCodes(): CountryCodeOption[] {
+    const value = this.payerForm.get('person_countryCode')?.value || '';
+    return this._filterCountryCodesForAutocomplete(value);
+  }
+
+  private _filterCountryCodesForAutocomplete(value: string): CountryCodeOption[] {
+    if (!value || value.trim().length === 0) {
+      return this.billingCountryCodes;
+    }
+
+    const filterValue = value.toLowerCase().trim();
+
+    return this.billingCountryCodes.filter(
+      (country) =>
+        country.name.toLowerCase().includes(filterValue) ||
+        country.code.toLowerCase().includes(filterValue) ||
+        country.code.replace('+', '').includes(filterValue) ||
+        `${country.code} ${country.name}`.toLowerCase().includes(filterValue),
+    );
+  }
+
+  isBillingFormValid(): boolean {
+    const {
+      business_name,
+      business_countryCode,
+      business_phone,
+      business_documentType,
+      business_documentNumber,
+      business_legalRepresentative,
+      business_email,
+      person_name,
+      person_countryCode,
+      person_phone,
+      person_email,
+      person_documentType,
+      person_documentNumber,
+    } = this.payerForm.value;
+
+    let payerFormValid = false;
+
+    // Helper to check if country code is valid (either object or string with code)
+    const isValidCountryCode = (value: any): boolean => {
+      if (!value) return false;
+      if (typeof value === 'object' && value.code) return true;
+      if (typeof value === 'string' && value.trim().length > 0) {
+        // Check if it starts with + (has a valid code format)
+        return value.startsWith('+') || this.billingCountryCodes.some(
+          (c) => value.toLowerCase().includes(c.name.toLowerCase()),
+        );
+      }
+      return false;
+    };
+
+    if (this.isABusiness()) {
+      if (
+        business_name &&
+        isValidCountryCode(business_countryCode) &&
+        business_phone &&
+        business_documentType &&
+        business_legalRepresentative &&
+        business_email
+      ) {
+        // NO_TAX doesn't require document number
+        if (business_documentType === 'NO_TAX' || business_documentNumber) {
+          payerFormValid = true;
+        }
+      }
+    } else if (this.isAPerson()) {
+      if (
+        person_name &&
+        isValidCountryCode(person_countryCode) &&
+        person_phone &&
+        person_email &&
+        person_documentType &&
+        person_documentNumber
+      ) {
+        payerFormValid = true;
+      }
+    }
+
+    return this.addressForm.valid && payerFormValid;
+  }
+
+  checkIfDocumentNumberIsNeeded(): boolean {
+    return this.payerForm.value.business_documentType !== 'NO_TAX';
+  }
+
+  saveBillingDetails(): void {
+    if (this.isSavingBilling || !this.isBillingFormValid()) return;
+
+    this.isSavingBilling = true;
+    this._cdr.markForCheck();
+
+    const payload = this._createBillingPayload();
+
+    this._settingsService
+      .saveBillingConfig(payload)
+      .pipe(
+        finalize(() => {
+          // Always reset the saving state, regardless of success or error
+          // This runs when the observable completes or errors
+          this.isSavingBilling = false;
+          this._cdr.markForCheck();
+        }),
+        takeUntil(this._unsubscribeAll),
+      )
+      .subscribe({
+        next: (response) => {
+          if (response?.data) {
+            this.billingData = response.data;
+          }
+          const message = this._translocoService.translate('settings.billing.save_success');
+          this._snackBar.open(message, null, { duration: 3000 });
+          // Explicitly reset flag in next handler as backup
+          this.isSavingBilling = false;
+          this._cdr.markForCheck();
+        },
+        error: (error) => {
+          let message = this._translocoService.translate('settings.billing.save_error');
+          if (error?.error?.message === 'active_subscription_cant_change_gateway') {
+            message = this._translocoService.translate('settings.billing.error_active_subscription');
+          }
+          this._snackBar.open(message, null, { duration: 3000 });
+          // Explicitly reset flag in error handler as backup
+          this.isSavingBilling = false;
+          this._cdr.markForCheck();
+        },
+      });
+  }
+
+  private _createBillingPayload(): Partial<ClientSettings> {
+    const {
+      business_name,
+      business_countryCode,
+      business_country,
+      business_phone,
+      business_documentType,
+      business_documentNumber,
+      business_legalRepresentative,
+      business_email,
+      person_name,
+      person_countryCode,
+      person_country,
+      person_phone,
+      person_email,
+      person_documentType,
+      person_documentNumber,
+    } = this.payerForm.value;
+
+    const extractCountryCode = (value: CountryCodeOption | string): string => {
+      if (!value) return '';
+      if (typeof value === 'object' && value.code) return value.code;
+      if (typeof value === 'string') {
+        // Extract the code from format like "+1 United States"
+        const match = value.match(/^(\+\d+)/);
+        return match ? match[1] : value;
+      }
+      return '';
+    };
+
+    const extractCountryName = (
+      countryField: string,
+      countryCodeValue: CountryCodeOption | string,
+    ): string => {
+      if (countryField) return countryField;
+      if (typeof countryCodeValue === 'object' && countryCodeValue?.name) {
+        return countryCodeValue.name;
+      }
+      if (typeof countryCodeValue === 'string') {
+        // Extract the name from format like "+1 United States"
+        const match = countryCodeValue.match(/^\+\d+\s+(.+)$/);
+        return match ? match[1] : '';
+      }
+      return '';
+    };
+
+    return {
+      invoiceSettings: {
+        type: this.isABusiness() ? 'business' : 'person',
+        invoiceType: 'stripe',
+        business: this.isABusiness()
+          ? {
+              business_name,
+              business_countryCode: extractCountryCode(business_countryCode),
+              business_country: extractCountryName(business_country, business_countryCode),
+              business_phone,
+              business_documentType:
+                typeof business_documentType === 'object'
+                  ? business_documentType.value
+                  : business_documentType,
+              business_documentNumber,
+              business_legalRepresentative,
+              business_email,
+            }
+          : null,
+        person: this.isAPerson()
+          ? {
+              person_name,
+              person_countryCode: extractCountryCode(person_countryCode),
+              person_country: extractCountryName(person_country, person_countryCode),
+              person_phone,
+              person_email,
+              person_documentType:
+                typeof person_documentType === 'object'
+                  ? person_documentType.value
+                  : person_documentType,
+              person_documentNumber,
+            }
+          : null,
+        address: this.addressForm.value,
+      },
+      client: this.user._id,
+    };
+  }
+
   private _observeMediaChanges(): void {
     this._fuseMediaWatcherService.onMediaChange$
       .pipe(takeUntil(this._unsubscribeAll))
@@ -448,6 +1075,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
         }
         this._cdr.markForCheck();
       });
+  }
+
+  private _observeRouteChanges(): void {
+    // Get initial panel from route
+    this._route.params.pipe(takeUntil(this._unsubscribeAll)).subscribe((params) => {
+      const slug = params['panel'];
+      if (slug) {
+        const panelId = this._slugToPanel[slug] || slug;
+        // Verify the panel exists and is not disabled
+        const panel = this._findPanel(panelId);
+        if (panel && !panel.disabled) {
+          this._onPanelChanged(panelId);
+        } else {
+          // If panel doesn't exist or is disabled, redirect to profile
+          this._router.navigate(['/settings', 'profile'], { replaceUrl: true });
+        }
+      }
+    });
   }
 
   private _findPanel(panelId: string): SettingsPanel | undefined {

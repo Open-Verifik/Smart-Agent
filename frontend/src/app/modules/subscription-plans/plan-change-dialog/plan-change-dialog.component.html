@@ -1,0 +1,118 @@
+<!-- Dialog Backdrop -->
+<div class="dialog-backdrop" *ngIf="isOpen" (click)="onBackdropClick($event)">
+  <div class="dialog-container">
+    <!-- Close Button -->
+    <button class="close-btn" (click)="onCancel()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <div class="dialog-content">
+      <!-- Left Side - Plan Details -->
+      <div class="plan-details">
+        <div class="plan-header">
+          <h2>{{ formattedPlan?.name }}</h2>
+          <span class="interval-badge" *ngIf="formattedPlan?.name !== 'PAYG'">
+            {{ formattedPlan?.interval === 'year' ? ('subscriptionPlans.yearly' | transloco) : ('subscriptionPlans.monthly' | transloco) }}
+          </span>
+        </div>
+
+        <p class="plan-subtitle">{{ 'subscriptionPlans.dialog.reviewPlan' | transloco }}</p>
+
+        <!-- Yearly Savings Banner -->
+        <div class="savings-banner" *ngIf="formattedPlan?.interval === 'year'">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/>
+          </svg>
+          <span>{{ 'subscriptionPlans.dialog.twoMonthsFree' | transloco }}</span>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="benefits-section">
+          <h3>{{ 'subscriptionPlans.dialog.whatsIncluded' | transloco }}</h3>
+          <div class="benefits-list">
+            <ng-container *ngFor="let benefit of formattedPlan?.benefits">
+              <div class="benefit-item" *ngIf="benefit.key !== 'OCR'">
+                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                <span class="benefit-key">{{ 'pricing.' + benefit.key | transloco }}</span>
+                <span class="benefit-value" *ngIf="benefit.value">{{ benefit.value }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side - Order Summary -->
+      <div class="order-summary">
+        <h3>{{ 'subscriptionPlans.dialog.orderSummary' | transloco }}</h3>
+
+        <!-- Price -->
+        <div class="price-section">
+          <div class="price-row">
+            <span>{{ formattedPlan?.name }} {{ 'subscriptionPlans.dialog.planLabel' | transloco }}</span>
+            <span class="price">${{ formattedPlan?.amount | number:'1.0-0' }}</span>
+          </div>
+          <div class="price-row subtotal" *ngIf="formattedPlan?.interval === 'year'">
+            <span>{{ 'subscriptionPlans.dialog.monthlyEquivalent' | transloco }}</span>
+            <span>${{ formattedPlan?.amountByMonth | number:'1.2-2' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
+          </div>
+        </div>
+
+        <!-- Dates -->
+        <div class="dates-section">
+          <div class="date-row">
+            <span class="date-label">{{ 'subscriptionPlans.dialog.starts' | transloco }}</span>
+            <span class="date-value">{{ formattedPlan?.startDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="date-row">
+            <span class="date-label">{{ 'subscriptionPlans.dialog.renews' | transloco }}</span>
+            <span class="date-value">{{ formattedPlan?.endDate | date:'mediumDate' }}</span>
+          </div>
+        </div>
+
+        <!-- Plan Change Indicator -->
+        <div class="plan-change-indicator" *ngIf="currentPlan">
+          <div class="plan-from">
+            <span class="plan-label">{{ 'subscriptionPlans.dialog.from' | transloco }}</span>
+            <span class="plan-name">{{ currentPlan.name || 'PAYG' }}</span>
+          </div>
+          <div class="arrow">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="plan-to">
+            <span class="plan-label">{{ 'subscriptionPlans.dialog.to' | transloco }}</span>
+            <span class="plan-name">{{ formattedPlan?.name }}</span>
+          </div>
+        </div>
+
+        <!-- Note -->
+        <p class="note">
+          {{ 'subscriptionPlans.dialog.cancelNote' | transloco }}
+        </p>
+
+        <!-- Actions -->
+        <div class="actions">
+          <button class="btn btn-cancel" (click)="onCancel()">
+            {{ 'subscriptionPlans.dialog.cancel' | transloco }}
+          </button>
+          <button class="btn btn-confirm" (click)="onConfirm()">
+            {{ 'subscriptionPlans.dialog.confirmChange' | transloco }}
+          </button>
+        </div>
+
+        <!-- Security Note -->
+        <div class="security-note">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+          </svg>
+          <span>{{ 'subscriptionPlans.dialog.secureTransaction' | transloco }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

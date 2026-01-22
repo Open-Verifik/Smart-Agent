@@ -1,0 +1,618 @@
+// Plan Change Dialog - Premium Modern UI
+// Matches Add Credits design system
+
+// ================================
+// COLOR PALETTE
+// ================================
+$light-bg: #f8fafc;
+$light-surface: #ffffff;
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+$dark-bg: #0f172a;
+$dark-card: rgba(30, 41, 59, 0.95);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+$accent-purple: #8b5cf6;
+$accent-green: #10b981;
+
+@mixin smooth-transition($duration: 0.3s) {
+  transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// ================================
+// DIALOG BACKDROP
+// ================================
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+// ================================
+// DIALOG CONTAINER
+// ================================
+.dialog-container {
+  position: relative;
+  background: $light-card;
+  border-radius: 24px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: slideUp 0.3s ease-out;
+
+  :host-context(.dark) & {
+    background: $dark-card;
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.5),
+      0 0 0 1px $dark-card-border;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ================================
+// CLOSE BUTTON
+// ================================
+.close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: $light-text-muted;
+  @include smooth-transition;
+  z-index: 10;
+
+  :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.06);
+    color: $dark-text-muted;
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.1);
+      color: $dark-text-primary;
+    }
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ================================
+// DIALOG CONTENT
+// ================================
+.dialog-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ================================
+// PLAN DETAILS (Left Side)
+// ================================
+.plan-details {
+  padding: 40px;
+  border-right: 1px solid $light-card-border;
+
+  :host-context(.dark) & {
+    border-right-color: $dark-card-border;
+  }
+
+  @media (max-width: 768px) {
+    border-right: none;
+    border-bottom: 1px solid $light-card-border;
+    padding: 32px 24px;
+
+    :host-context(.dark) & {
+      border-bottom-color: $dark-card-border;
+    }
+  }
+
+  .plan-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: $light-text-primary;
+      margin: 0;
+      letter-spacing: -0.02em;
+
+      :host-context(.dark) & {
+        background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .interval-badge {
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+      background: $primary-gradient;
+      padding: 6px 14px;
+      border-radius: 100px;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+  }
+
+  .plan-subtitle {
+    font-size: 15px;
+    color: $light-text-muted;
+    margin: 0 0 28px;
+
+    :host-context(.dark) & {
+      color: $dark-text-muted;
+    }
+  }
+
+  .savings-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: $accent-green;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 28px;
+
+    :host-context(.dark) & {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15));
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+// ================================
+// BENEFITS SECTION
+// ================================
+.benefits-section {
+  h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin: 0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  .benefits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(99, 102, 241, 0.04);
+    border-radius: 12px;
+    font-size: 14px;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    &:hover {
+      background: rgba(99, 102, 241, 0.08);
+
+      :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.08);
+      }
+    }
+
+    .check-icon {
+      width: 18px;
+      height: 18px;
+      color: $accent-green;
+      flex-shrink: 0;
+    }
+
+    .benefit-key {
+      color: $light-text-secondary;
+      flex: 1;
+
+      :host-context(.dark) & {
+        color: $dark-text-secondary;
+      }
+    }
+
+    .benefit-value {
+      font-weight: 600;
+      color: $accent-purple;
+    }
+  }
+}
+
+// ================================
+// ORDER SUMMARY (Right Side)
+// ================================
+.order-summary {
+  padding: 40px;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+  border-radius: 0 24px 24px 0;
+
+  :host-context(.dark) & {
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  }
+
+  @media (max-width: 768px) {
+    border-radius: 0 0 24px 24px;
+    padding: 32px 24px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin: 0 0 28px;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+}
+
+// ================================
+// PRICE SECTION
+// ================================
+.price-section {
+  padding-bottom: 24px;
+  border-bottom: 1px solid $light-card-border;
+  margin-bottom: 24px;
+
+  :host-context(.dark) & {
+    border-bottom-color: $dark-card-border;
+  }
+
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+
+    &:not(:last-child) {
+      margin-bottom: 12px;
+    }
+
+    .price {
+      font-size: 32px;
+      font-weight: 800;
+      color: $light-text-primary;
+
+      :host-context(.dark) & {
+        background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    &.subtotal {
+      font-size: 14px;
+      color: $light-text-muted;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+  }
+}
+
+// ================================
+// DATES SECTION
+// ================================
+.dates-section {
+  padding-bottom: 24px;
+  border-bottom: 1px solid $light-card-border;
+  margin-bottom: 24px;
+
+  :host-context(.dark) & {
+    border-bottom-color: $dark-card-border;
+  }
+
+  .date-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+
+    &:not(:last-child) {
+      margin-bottom: 10px;
+    }
+
+    .date-label {
+      color: $light-text-muted;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+
+    .date-value {
+      color: $light-text-primary;
+      font-weight: 600;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+      }
+    }
+  }
+}
+
+// ================================
+// PLAN CHANGE INDICATOR
+// ================================
+.plan-change-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $light-card;
+  border: 1px solid $light-card-border;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+
+  :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: $dark-card-border;
+  }
+
+  .plan-from,
+  .plan-to {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+
+    .plan-label {
+      font-size: 11px;
+      color: $light-text-muted;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+
+    .plan-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: $light-text-primary;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+      }
+    }
+  }
+
+  .arrow {
+    padding: 0 16px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+      color: $accent-green;
+    }
+  }
+}
+
+// ================================
+// NOTE
+// ================================
+.note {
+  font-size: 13px;
+  color: $light-text-muted;
+  margin: 0 0 28px;
+  line-height: 1.6;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+}
+
+// ================================
+// ACTIONS
+// ================================
+.actions {
+  display: flex;
+  gap: 12px;
+
+  .btn {
+    flex: 1;
+    padding: 16px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    @include smooth-transition;
+    border: none;
+    position: relative;
+    overflow: hidden;
+
+    &.btn-cancel {
+      background: transparent;
+      color: $light-text-secondary;
+      border: 1px solid $light-card-border;
+
+      :host-context(.dark) & {
+        border-color: $dark-card-border;
+        color: $dark-text-secondary;
+      }
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+        color: $light-text-primary;
+
+        :host-context(.dark) & {
+          background: rgba(255, 255, 255, 0.06);
+          color: $dark-text-primary;
+        }
+      }
+    }
+
+    &.btn-confirm {
+      background: $primary-gradient;
+      color: white;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+        opacity: 0;
+        @include smooth-transition;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4);
+
+        &::before {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+// ================================
+// SECURITY NOTE
+// ================================
+.security-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  font-size: 13px;
+  color: $light-text-muted;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// ================================
+// RESPONSIVE
+// ================================
+@media (max-width: 768px) {
+  .dialog-backdrop {
+    padding: 16px;
+  }
+
+  .plan-details .plan-header h2 {
+    font-size: 26px;
+  }
+
+  .order-summary .price-section .price-row .price {
+    font-size: 28px;
+  }
+
+  .plan-change-indicator {
+    padding: 16px;
+
+    .plan-from,
+    .plan-to {
+      .plan-name {
+        font-size: 14px;
+      }
+    }
+
+    .arrow {
+      padding: 0 8px;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

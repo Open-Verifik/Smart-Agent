@@ -125,6 +125,11 @@ mat-sidenav {
   &:hover {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   }
+
+  // Allow dropdowns to escape when they contain country autocomplete
+  &:has(.country-autocomplete-wrapper) {
+    overflow: visible;
+  }
 }
 
 .card-header {
@@ -195,6 +200,9 @@ mat-sidenav {
 
 .card-body {
   padding: 24px;
+  // Allow dropdowns to escape card boundaries
+  overflow: visible;
+  position: relative;
 }
 
 .token-display-wrapper {
@@ -725,5 +733,376 @@ select:focus {
     inset: 0;
     background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.05) 100%);
     pointer-events: none;
+  }
+}
+
+// ============================================
+// Billing Section Styles
+// ============================================
+
+.card-icon {
+  &.purple {
+    background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+  }
+
+  &.green {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  }
+}
+
+// Billing Type Toggle
+.billing-type-toggle {
+  display: flex;
+  gap: 12px;
+  padding: 4px;
+  background: #f3f4f6;
+  border-radius: 12px;
+
+  :host-context(.dark) & {
+    background: #374151;
+  }
+}
+
+.type-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.5);
+
+    :host-context(.dark) & {
+      background: rgba(75, 85, 99, 0.5);
+    }
+  }
+
+  &.active {
+    background: #ffffff;
+    color: #6366f1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    :host-context(.dark) & {
+      background: #1f2937;
+      color: #a5b4fc;
+    }
+  }
+}
+
+// Form Fields
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  // Allow dropdowns to escape
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+
+    :host-context(.dark) & {
+      color: #d1d5db;
+    }
+  }
+
+  // When containing country autocomplete, ensure overflow is visible
+  &:has(.country-autocomplete-wrapper) {
+    overflow: visible;
+    z-index: 10;
+  }
+}
+
+.form-input {
+  height: 44px;
+  padding: 0 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  transition: all 0.2s ease;
+  width: 100%;
+
+  :host-context(.dark) & {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: #ffffff;
+
+    :host-context(.dark) & {
+      background: #111827;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  // Select styling
+  &:is(select) {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+}
+
+// Country Autocomplete
+.country-autocomplete-wrapper {
+  position: relative;
+  // Ensure dropdown can escape parent overflow constraints
+  overflow: visible;
+  z-index: 1;
+}
+
+.country-autocomplete-input {
+  padding-right: 48px !important;
+  padding-left: 16px !important; // Ensure consistent left padding
+  min-width: 0; // Allow flex shrinking
+  width: 100%;
+  box-sizing: border-box;
+  text-overflow: ellipsis; // Handle long text gracefully
+}
+
+.country-search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.country-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden; // Prevent horizontal scroll
+  z-index: 9999; // Very high z-index to ensure it's above everything
+  min-width: 100%; // At least as wide as the input
+  width: max-content; // Expand to fit content
+  max-width: 400px; // But don't exceed a reasonable maximum
+  box-sizing: border-box;
+
+  :host-context(.dark) & {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  // Ensure dropdown scrollbar doesn't clip content
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 4px;
+
+    :host-context(.dark) & {
+      background: #374151;
+    }
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+
+    :host-context(.dark) & {
+      background: #6b7280;
+    }
+
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+}
+
+.country-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px; // Ensure consistent height
+
+  &:first-child {
+    border-radius: 12px 12px 0 0;
+  }
+
+  &:last-child {
+    border-radius: 0 0 12px 12px;
+  }
+
+  &:hover {
+    background: #f3f4f6;
+
+    :host-context(.dark) & {
+      background: #374151;
+    }
+  }
+
+  &.no-results {
+    color: #9ca3af;
+    cursor: default;
+    justify-content: center;
+    white-space: normal;
+
+    &:hover {
+      background: transparent;
+    }
+  }
+
+  .country-code {
+    font-weight: 600;
+    color: #6366f1;
+    min-width: 70px; // Increased to prevent cutting
+    flex-shrink: 0; // Prevent code from shrinking
+    text-align: left;
+    padding-right: 8px; // Add spacing between code and name
+  }
+
+  .country-name {
+    color: #374151;
+    flex: 1;
+    min-width: 180px; // Ensure minimum space for longer country names
+    overflow: hidden; // Hide overflow
+    text-overflow: ellipsis; // Show ellipsis only if still too long
+    white-space: nowrap; // Keep text on one line
+
+    :host-context(.dark) & {
+      color: #d1d5db;
+    }
+  }
+}
+
+// Profile Save Button
+.profile-save-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  .profile-save-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .profile-save-spinner {
+    flex-shrink: 0;
+    margin: 0 !important;
+  }
+
+  .profile-save-text {
+    white-space: nowrap;
+  }
+}
+
+// Save Button
+.billing-save-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
+  padding: 0 32px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35) !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  &:hover:not(.disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4) !important;
+  }
+
+  &.disabled,
+  &:disabled {
+    background: #e5e7eb !important;
+    color: #9ca3af !important;
+    box-shadow: none !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+
+    :host-context(.dark) & {
+      background: #374151 !important;
+      color: #6b7280 !important;
+    }
+  }
+
+  .billing-save-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .billing-save-spinner {
+    flex-shrink: 0;
+    margin: 0 !important;
+  }
+
+  .billing-save-text {
+    white-space: nowrap;
+  }
+}
+
+// Responsive adjustments for billing
+@media (max-width: 1024px) {
+  .billing-type-toggle {
+    flex-direction: column;
+  }
+
+  .type-btn {
+    justify-content: flex-start;
+    padding: 14px 16px;
   }
 }

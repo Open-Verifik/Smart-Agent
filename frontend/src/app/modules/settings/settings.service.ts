@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { environment } from 'environments/environment';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 export interface TokenRenewalResponse {
   accessToken: string;
@@ -28,6 +28,56 @@ export interface ProfileUpdateResponse {
   data: ProfileData;
 }
 
+export interface BillingAddress {
+  address: string;
+  city: string;
+  province: string;
+  country: string;
+  postalCode: string;
+}
+
+export interface BillingPerson {
+  person_name: string;
+  person_documentType: string;
+  person_documentNumber: string;
+  person_countryCode: string;
+  person_country: string;
+  person_phone: string;
+  person_email: string;
+}
+
+export interface BillingBusiness {
+  business_name: string;
+  business_documentType: string;
+  business_documentNumber: string;
+  business_countryCode: string;
+  business_country: string;
+  business_phone: string;
+  business_email: string;
+  business_legalRepresentative: string;
+}
+
+export interface InvoiceSettings {
+  invoiceType: string;
+  type: 'business' | 'person';
+  business: BillingBusiness | null;
+  person: BillingPerson | null;
+  address: BillingAddress;
+}
+
+export interface ClientSettings {
+  _id?: string;
+  accountType: string;
+  testAccount: boolean;
+  invoiceSettings: InvoiceSettings;
+  sendEmailNotifications: boolean;
+  client: string;
+}
+
+export interface BillingConfigResponse {
+  data: ClientSettings;
+}
+
 /**
  * Settings Service
  * Handles API key management operations including token renewal and revocation
@@ -46,7 +96,7 @@ export class SettingsService {
    */
   private readonly apiUrl = environment.apiUrl;
 
-  constructor(private _http: HttpClient) {}
+  constructor(private _httpWrapper: HttpWrapperService) {}
 
   /**
    * Get the current access token from localStorage
@@ -60,15 +110,6 @@ export class SettingsService {
    */
   set accessToken(token: string) {
     localStorage.setItem('accessToken', token);
-  }
-
-  /**
-   * Build authorization headers with the current token
-   */
-  private _getAuthHeaders(): HttpHeaders {
-    return new HttpHeaders({
-      Authorization: `Bearer ${this.accessToken}`,
-    });
   }
 
   /**
@@ -91,24 +132,19 @@ export class SettingsService {
       expiresIn: expiresIn.toString(),
     };
 
-    return this._http
-      .get<TokenRenewalResponse>(url, {
-        headers: this._getAuthHeaders(),
-        params,
-      })
-      .pipe(
-        map((response) => {
-          if (response?.accessToken) {
-            // Update localStorage with the new token
-            this.accessToken = response.accessToken;
-          }
-          return response;
-        }),
-        catchError((error) => {
-          console.error('[SettingsService] Token renewal failed:', error);
-          return throwError(() => error);
-        }),
-      );
+    return this._httpWrapper.sendRequest('get', url, params).pipe(
+      map((response: TokenRenewalResponse) => {
+        if (response?.accessToken) {
+          // Update localStorage with the new token
+          this.accessToken = response.accessToken;
+        }
+        return response;
+      }),
+      catchError((error) => {
+        console.error('[SettingsService] Token renewal failed:', error);
+        return throwError(() => error);
+      }),
+    );
   }
 
   /**
@@ -130,8 +166,8 @@ export class SettingsService {
 
     const url = `${this.apiUrl}/v2/auth/renew-and-revoke`;
 
-    return this._http.post<TokenRevokeResponse>(url, {}, { headers: this._getAuthHeaders() }).pipe(
-      map((response) => {
+    return this._httpWrapper.sendRequest('post', url, {}).pipe(
+      map((response: TokenRevokeResponse) => {
         // The response can have either 'token' or 'accessToken'
         const newToken = response?.token || (response as any)?.accessToken;
         if (newToken) {
@@ -215,20 +251,71 @@ export class SettingsService {
 
     const url = `${this.apiUrl}/v2/clients/${userId}`;
 
-    return this._http
-      .put<ProfileUpdateResponse>(url, profileData, { headers: this._getAuthHeaders() })
-      .pipe(
-        map((response) => {
-          if (response?.data) {
-            // Update localStorage with the updated profile
-            this.updateStoredProfile(response.data);
-          }
-          return response;
-        }),
-        catchError((error) => {
-          console.error('[SettingsService] Profile update failed:', error);
-          return throwError(() => error);
-        }),
-      );
+    return this._httpWrapper.sendRequest('put', url, profileData).pipe(
+      map((response: ProfileUpdateResponse) => {
+        if (response?.data) {
+          // Update localStorage with the updated profile
+          this.updateStoredProfile(response.data);
+        }
+        return response;
+      }),
+      catchError((error) => {
+        console.error('[SettingsService] Profile update failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  // ============================================
+  // Billing Configuration
+  // ============================================
+
+  /**
+   * Get billing configuration for the current client
+   *
+   * @param clientId - The client's ID
+   * @returns Observable with the billing configuration
+   *
+   * API: GET /v2/client-settings?where_client={clientId}&findOne=true
+   */
+  getBillingConfig(clientId: string): Observable<BillingConfigResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/client-settings`;
+    const params = {
+      where_client: clientId,
+      findOne: 'true',
+    };
+
+    return this._httpWrapper.sendRequest('get', url, params).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Get billing config failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Create or update billing configuration
+   *
+   * @param billingData - The billing data to save
+   * @returns Observable with the updated billing configuration
+   *
+   * API: POST /v2/client-settings
+   */
+  saveBillingConfig(billingData: Partial<ClientSettings>): Observable<BillingConfigResponse> {
+    if (!this.accessToken) return throwError(() => new Error('No access token available'));
+    
+
+    const url = `${this.apiUrl}/v2/client-settings`;
+
+    return this._httpWrapper.sendRequest('post', url, billingData).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Save billing config failed:', error);
+        return throwError(() => error);
+      }),
+    );
   }
 }

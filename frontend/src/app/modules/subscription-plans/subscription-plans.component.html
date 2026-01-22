@@ -1,16 +1,336 @@
-<div class="flex flex-col flex-auto min-w-0 bg-gray-50 min-h-screen">
-  <div class="flex flex-col w-full max-w-7xl mx-auto p-6 md:p-8">
+<!-- Plan Change Dialog -->
+<plan-change-dialog
+  [isOpen]="showPlanChangeDialog"
+  [currentPlan]="currentSubscription"
+  [newPlan]="selectedPlanForChange"
+  (confirm)="confirmPlanChange()"
+  (cancel)="cancelPlanChange()">
+</plan-change-dialog>
+
+<!-- UI Version Toggle (Dev only) -->
+<div class="ui-version-toggle" *ngIf="false">
+  <span class="toggle-label">UI Version:</span>
+  <button 
+    class="version-btn" 
+    [class.active]="uiVersion === 'v1'" 
+    (click)="uiVersion = 'v1'">V1</button>
+  <button 
+    class="version-btn" 
+    [class.active]="uiVersion === 'v2'" 
+    (click)="uiVersion = 'v2'">V2 (Privy)</button>
+</div>
+
+<!-- ============================================ -->
+<!-- V1: CURRENT DESIGN (Add Credits Style) -->
+<!-- ============================================ -->
+<div class="subscription-page" *ngIf="uiVersion === 'v1'">
+  <!-- Background Pattern -->
+  <div class="bg-pattern"></div>
+
+  <div class="container">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Subscription Plans</h2>
-        <p class="text-lg text-gray-500 mt-1">Manage your subscription plans</p>
+    <header class="header">
+      <div class="badge">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+        </svg>
+        {{ 'subscriptionPlans.badge' | transloco }}
+      </div>
+      <!-- No subscription -->
+      <ng-container *ngIf="!currentSubscription">
+        <h1>{{ 'subscriptionPlans.title' | transloco }}</h1>
+        <p>{{ 'subscriptionPlans.subtitle' | transloco }}</p>
+      </ng-container>
+      <!-- Has subscription -->
+      <ng-container *ngIf="currentSubscription">
+        <h1>{{ 'subscriptionPlans.titleWithPlan' | transloco }}</h1>
+        <p>{{ 'subscriptionPlans.subtitleWithPlan' | transloco }}</p>
+      </ng-container>
+    </header>
+
+    <!-- Current Plan View -->
+    <div *ngIf="currentView === 'current' && currentSubscription" class="current-plan-section">
+      <!-- Current Plan Card -->
+      <div class="current-plan-card">
+        <div class="plan-badge">{{ 'subscriptionPlans.activePlan' | transloco }}</div>
+        
+        <div class="plan-info">
+          <div class="plan-name">{{ currentSubscription.name }}</div>
+          <div class="plan-price">
+            <span class="amount">${{ currentSubscription.subscriptionPlan.amount | number:'1.0-0' }}</span>
+            <span class="period">/{{ 'subscriptionPlans.interval.' + currentSubscription.subscriptionPlan.interval | transloco }}</span>
+          </div>
+        </div>
+
+        <div class="plan-meta">
+          <div class="meta-item">
+            <span class="label">{{ 'subscriptionPlans.started' | transloco }}</span>
+            <span class="value">{{ currentSubscription.startDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">{{ 'subscriptionPlans.renews' | transloco }}</span>
+            <span class="value">{{ currentSubscription.endDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="label">{{ 'subscriptionPlans.status' | transloco }}</span>
+            <span class="value status-active" *ngIf="currentSubscription.autoRenew">{{ 'subscriptionPlans.statusActive' | transloco }}</span>
+            <span class="value status-warning" *ngIf="!currentSubscription.autoRenew">{{ 'subscriptionPlans.statusCanceling' | transloco }}</span>
+          </div>
+        </div>
+
+        <div class="plan-actions">
+          <button class="btn btn-primary" (click)="manageBilling()">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+            </svg>
+            {{ 'subscriptionPlans.manageBilling' | transloco }}
+          </button>
+          <button class="btn btn-ghost" (click)="switchToExplore()">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+            </svg>
+            {{ 'subscriptionPlans.changePlan' | transloco }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Features Card -->
+      <div class="features-card" *ngIf="currentSubscription.subscriptionPlan.changesLeft?.length || currentSubscription.subscriptionPlan.changesRight?.length">
+        <h3>{{ 'subscriptionPlans.whatsIncluded' | transloco }}</h3>
+        <div class="features-grid">
+          <ng-container *ngFor="let feature of currentSubscription.subscriptionPlan.changesLeft">
+            <div class="feature-item" *ngIf="feature.key !== 'OCR'">
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span>{{ 'pricing.' + feature.key | transloco }}</span>
+              <span class="feature-value" *ngIf="feature.value && !isBoolean(feature.value)">{{ feature.value }}</span>
+            </div>
+          </ng-container>
+          <ng-container *ngFor="let feature of currentSubscription.subscriptionPlan.changesRight">
+            <div class="feature-item" *ngIf="feature.key !== 'OCR'">
+              <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              </svg>
+              <span>{{ 'pricing.' + feature.key | transloco }}</span>
+              <span class="feature-value" *ngIf="feature.value && !isBoolean(feature.value)">{{ feature.value }}</span>
+            </div>
+          </ng-container>
+        </div>
       </div>
     </div>
 
-    <!-- Content Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      <p class="text-gray-600">Content coming soon...</p>
+    <!-- Explore Plans View -->
+    <div *ngIf="currentView === 'explore'" class="explore-section">
+      <!-- Interval Toggle -->
+      <div class="interval-toggle">
+        <div class="toggle-wrapper">
+          <button 
+            [class.active]="selectedInterval === 'month'"
+            (click)="changeInterval('month')">
+            {{ 'subscriptionPlans.monthly' | transloco }}
+          </button>
+          <button 
+            [class.active]="selectedInterval === 'year'"
+            (click)="changeInterval('year')">
+            {{ 'subscriptionPlans.yearly' | transloco }}
+            <span class="save-badge">{{ 'subscriptionPlans.save20' | transloco }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loadingPlans" class="loading-state">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Plans Grid -->
+      <div class="plans-grid" *ngIf="!loadingPlans">
+        <div 
+          *ngFor="let plan of plans; trackBy: trackByPlan"
+          class="plan-card"
+          [class.popular]="plan.name === 'Plus' || plan.name === 'Business'"
+          [class.current]="plan.code === currentSubscription?.subscriptionPlan?.code">
+          
+          <div class="popular-badge" *ngIf="plan.name === 'Plus'">{{ 'subscriptionPlans.popular' | transloco }}</div>
+          
+          <div class="plan-card-header">
+            <h3>{{ plan.name }}</h3>
+            <p class="plan-description" *ngIf="plan.subtitle">{{ plan.subtitle | transloco }}</p>
+          </div>
+
+          <div class="plan-card-pricing">
+            <ng-container *ngIf="plan.name === 'PAYG'; else pricingBlock">
+              <div class="price-display">
+                <span class="price-label">{{ 'subscriptionPlans.payAsYouGo' | transloco }}</span>
+              </div>
+              <p class="price-note">{{ 'subscriptionPlans.payAsYouGoDesc' | transloco }}</p>
+            </ng-container>
+
+            <ng-template #pricingBlock>
+              <div class="price-display">
+                <span class="currency">$</span>
+                <span class="price-amount">{{ plan.amount | number:'1.0-0' }}</span>
+                <span class="price-period">/{{ 'subscriptionPlans.interval.' + plan.interval | transloco }}</span>
+              </div>
+              <p class="price-note" *ngIf="plan.interval === 'year'">
+                ${{ getAmountByMonth(plan) }}/{{ 'subscriptionPlans.interval.month' | transloco }} {{ 'subscriptionPlans.billedAnnually' | transloco }}
+              </p>
+            </ng-template>
+          </div>
+
+          <!-- Discount Highlight -->
+          <div class="plan-discount-highlight" *ngIf="plan.discount?.discount">
+            <div class="discount-badge">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/>
+              </svg>
+              <span class="discount-value">{{ plan.discount.discount }}% {{ 'subscriptionPlans.off' | transloco }}</span>
+            </div>
+            <p class="discount-description">{{ 'subscriptionPlans.discountDescription' | transloco }}</p>
+          </div>
+
+          <button 
+            class="plan-card-btn"
+            [class.btn-primary]="plan.name !== 'PAYG'"
+            [class.btn-secondary]="plan.name === 'PAYG'"
+            [class.btn-current]="plan.code === currentSubscription?.subscriptionPlan?.code"
+            [disabled]="plan.code === currentSubscription?.subscriptionPlan?.code"
+            (click)="upgradePlan(plan)">
+            <!-- Current plan -->
+            <ng-container *ngIf="plan.code === currentSubscription?.subscriptionPlan?.code">
+              {{ 'subscriptionPlans.currentPlan' | transloco }}
+            </ng-container>
+            <!-- Not current plan -->
+            <ng-container *ngIf="plan.code !== currentSubscription?.subscriptionPlan?.code">
+              <!-- PAYG -->
+              <ng-container *ngIf="plan.name === 'PAYG'">{{ 'subscriptionPlans.addCredits' | transloco }}</ng-container>
+              <!-- Regular plans -->
+              <ng-container *ngIf="plan.name !== 'PAYG'">
+                <!-- No subscription = Select plan -->
+                <ng-container *ngIf="!currentSubscription">{{ 'subscriptionPlans.selectPlan' | transloco }}</ng-container>
+                <!-- Has subscription = Upgrade/Downgrade -->
+                <ng-container *ngIf="currentSubscription">
+                  {{ plan.isDowngrade ? ('subscriptionPlans.downgrade' | transloco) : ('subscriptionPlans.upgrade' | transloco) }}
+                </ng-container>
+              </ng-container>
+            </ng-container>
+          </button>
+        </div>
+      </div>
+
+      <!-- Back Button -->
+      <div class="back-nav" *ngIf="currentSubscription">
+        <button class="btn-link" (click)="switchToCurrent()">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+          </svg>
+          {{ 'subscriptionPlans.backToCurrentPlan' | transloco }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- V2: PRIVY.IO INSPIRED DESIGN -->
+<!-- ============================================ -->
+<div class="subscription-page-v2" *ngIf="uiVersion === 'v2'">
+  <div class="v2-container">
+    <!-- Header -->
+    <header class="v2-header">
+      <ng-container *ngIf="!currentSubscription">
+        <h1>{{ 'subscriptionPlans.title' | transloco }}</h1>
+        <p>{{ 'subscriptionPlans.subtitle' | transloco }}</p>
+      </ng-container>
+      <ng-container *ngIf="currentSubscription">
+        <h1>{{ 'subscriptionPlans.titleWithPlan' | transloco }}</h1>
+        <p>{{ 'subscriptionPlans.subtitleWithPlan' | transloco }}</p>
+      </ng-container>
+    </header>
+
+    <!-- Current Plan Banner (if has subscription) -->
+    <div class="v2-current-banner" *ngIf="currentSubscription && currentView === 'current'">
+      <div class="banner-content">
+        <div class="banner-info">
+          <span class="current-label">Current plan</span>
+          <span class="plan-name">{{ currentSubscription.name }}</span>
+          <span class="plan-price">${{ currentSubscription.subscriptionPlan.amount | number:'1.0-0' }}/{{ currentSubscription.subscriptionPlan.interval }}</span>
+        </div>
+        <div class="banner-actions">
+          <button class="v2-btn v2-btn-outline" (click)="manageBilling()">Manage billing</button>
+          <button class="v2-btn v2-btn-primary" (click)="switchToExplore()">Change plan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interval Toggle -->
+    <div class="v2-interval-toggle" *ngIf="currentView === 'explore' || !currentSubscription">
+      <button [class.active]="selectedInterval === 'month'" (click)="changeInterval('month')">Monthly</button>
+      <button [class.active]="selectedInterval === 'year'" (click)="changeInterval('year')">
+        Annual
+        <span class="save-tag">-20%</span>
+      </button>
+    </div>
+
+    <!-- Loading -->
+    <div class="v2-loading" *ngIf="loadingPlans">
+      <div class="v2-spinner"></div>
+    </div>
+
+    <!-- Plans Grid -->
+    <div class="v2-plans-grid" *ngIf="!loadingPlans && (currentView === 'explore' || !currentSubscription)">
+      <div 
+        *ngFor="let plan of plans; trackBy: trackByPlan"
+        class="v2-plan-card"
+        [class.recommended]="plan.name === 'Plus'"
+        [class.current]="plan.code === currentSubscription?.subscriptionPlan?.code">
+        
+        <div class="v2-card-badge" *ngIf="plan.name === 'Plus'">Recommended</div>
+        
+        <div class="v2-card-header">
+          <h3>{{ plan.name }}</h3>
+          <div class="v2-price" *ngIf="plan.name !== 'PAYG'">
+            <span class="amount">${{ plan.amount | number:'1.0-0' }}</span>
+            <span class="period">/{{ plan.interval }}</span>
+          </div>
+          <div class="v2-price" *ngIf="plan.name === 'PAYG'">
+            <span class="amount-text">Pay as you go</span>
+          </div>
+        </div>
+
+        <div class="v2-card-discount" *ngIf="plan.discount?.discount">
+          <span class="discount-percent">{{ plan.discount.discount }}% off</span>
+          <span class="discount-desc">on all API requests</span>
+        </div>
+
+        <button 
+          class="v2-card-btn"
+          [class.current]="plan.code === currentSubscription?.subscriptionPlan?.code"
+          [disabled]="plan.code === currentSubscription?.subscriptionPlan?.code"
+          (click)="upgradePlan(plan)">
+          <ng-container *ngIf="plan.code === currentSubscription?.subscriptionPlan?.code">Current plan</ng-container>
+          <ng-container *ngIf="plan.code !== currentSubscription?.subscriptionPlan?.code">
+            <ng-container *ngIf="plan.name === 'PAYG'">Add credits</ng-container>
+            <ng-container *ngIf="plan.name !== 'PAYG'">
+              <ng-container *ngIf="!currentSubscription">Select plan</ng-container>
+              <ng-container *ngIf="currentSubscription">
+                {{ plan.isDowngrade ? 'Downgrade' : 'Upgrade' }}
+              </ng-container>
+            </ng-container>
+          </ng-container>
+        </button>
+      </div>
+    </div>
+
+    <!-- Back Link -->
+    <div class="v2-back-link" *ngIf="currentSubscription && currentView === 'explore'">
+      <button (click)="switchToCurrent()">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/>
+        </svg>
+        Back to current plan
+      </button>
     </div>
   </div>
 </div>
