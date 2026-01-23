@@ -1106,3 +1106,103 @@ select:focus {
     padding: 14px 16px;
   }
 }
+
+// ============================================
+// General Settings (Workspace) Styles
+// ============================================
+
+.workspace-save-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  .workspace-save-btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .workspace-save-spinner {
+    flex-shrink: 0;
+    margin: 0 !important;
+  }
+
+  .workspace-save-text {
+    white-space: nowrap;
+  }
+}
+
+.danger-zone-card {
+  background: rgba(239, 68, 68, 0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  padding: 24px;
+
+  :host-context(.dark) & {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+}
+
+// ============================================
+// Team Management Styles
+// ============================================
+
+.staff-dialog {
+  min-width: 400px;
+  max-width: 90vw;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.delete-dialog {
+  min-width: 400px;
+  max-width: 90vw;
+  border-radius: 20px;
+}
+
+// Staff list responsive styles
+@media (max-width: 768px) {
+  .staff-dialog {
+    min-width: 100%;
+  }
+
+  .delete-dialog {
+    min-width: 100%;
+  }
+}
+
+// Team member card hover effect
+.content-card .divide-y > div:hover {
+  background: rgba(99, 102, 241, 0.02);
+
+  :host-context(.dark) & {
+    background: rgba(99, 102, 241, 0.05);
+  }
+}
+
+// Status badge styles for team members
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+  }
+
+  &.pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+  }
+
+  &.inactive {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+  }
+}

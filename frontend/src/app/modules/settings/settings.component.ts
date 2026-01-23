@@ -1,27 +1,31 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    OnDestroy,
-    OnInit,
-    ViewEncapsulation,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { finalize, map, startWith } from 'rxjs/operators';
-import { ClientSettings, ProfileData, SettingsService } from './settings.service';
+import { ClientSettings, ProfileData, SettingsService, StaffMember, Workspace } from './settings.service';
 
 interface SettingsPanel {
   id: string;
@@ -66,8 +70,11 @@ interface DocumentTypeOption {
     MatSnackBarModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatDialogModule,
+    MatMenuModule,
     TranslocoModule,
     ClipboardModule,
+    RouterModule,
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
@@ -175,6 +182,32 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showBusinessCountryDropdown = false;
   showPersonCountryDropdown = false;
 
+  // General Settings (Workspace) state
+  workspace: Workspace = null;
+  workspaceName = '';
+  workspaceLogo: string = null;
+  workspaceLoaded = false;
+  isSavingWorkspace = false;
+  isDeletingWorkspace = false;
+
+  // Team Management state
+  staffMembers: StaffMember[] = [];
+  staffLoaded = false;
+  isLoadingStaff = false;
+  isSavingStaff = false;
+  editingStaff: StaffMember = null;
+  staffForm: FormGroup;
+  showStaffCountryDropdown = false;
+
+  // Subscription state for team limits
+  selectedSubscription: any = null;
+  staffLimit = 0;
+  hasSubscription = false;
+
+  @ViewChild('staffFormDialog') staffFormDialog: TemplateRef<any>;
+  @ViewChild('deleteWorkspaceDialog') deleteWorkspaceDialog: TemplateRef<any>;
+  staffDialogRef: any;
+
   sections: SettingsSection[] = [
     {
       id: 'account',
@@ -193,6 +226,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
           description: 'settings.panels.security_desc',
           disabled: true,
           badge: 'settings.coming_soon',
+        },
+      ],
+    },
+    {
+      id: 'workspace',
+      title: 'settings.sections.workspace',
+      panels: [
+        {
+          id: 'general',
+          icon: 'heroicons_outline:cog-6-tooth',
+          title: 'settings.panels.general',
+          description: 'settings.panels.general_desc',
+        },
+        {
+          id: 'team',
+          icon: 'heroicons_outline:user-group',
+          title: 'settings.panels.team',
+          description: 'settings.panels.team_desc',
         },
       ],
     },
@@ -234,6 +285,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private _panelToSlug: Record<string, string> = {
     profile: 'profile',
     security: 'security',
+    general: 'general',
+    team: 'team',
     billing_details: 'billing-details',
     api_key: 'api-key',
     webhooks: 'webhooks',
@@ -242,6 +295,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   private _slugToPanel: Record<string, string> = {
     profile: 'profile',
     security: 'security',
+    general: 'general',
+    team: 'team',
     'billing-details': 'billing_details',
     'api-key': 'api_key',
     webhooks: 'webhooks',
@@ -258,11 +313,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private _countryService: CountryService,
     private _route: ActivatedRoute,
     private _router: Router,
+    private _dialog: MatDialog,
   ) {
     this.countryCodes = this._countryService.countryDialCodes;
     this._initProfileForm();
     this._initBillingForms();
     this._initDocumentTypes();
+    this._initStaffForm();
     this._loadUserData();
   }
 
@@ -292,6 +349,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // Load billing data when billing panel is selected
     if (panelId === 'billing_details' && !this.billingLoaded) {
       this.loadBillingData();
+    }
+
+    // Load workspace data when general panel is selected
+    if (panelId === 'general' && !this.workspaceLoaded) {
+      this.loadWorkspaceData();
+    }
+
+    // Load staff data when team panel is selected
+    if (panelId === 'team' && !this.staffLoaded) {
+      this.loadStaffData();
     }
 
     if (this.drawerMode === 'over') {
@@ -1060,6 +1127,420 @@ export class SettingsComponent implements OnInit, OnDestroy {
       },
       client: this.user._id,
     };
+  }
+
+  // ============================================
+  // General Settings (Workspace) Methods
+  // ============================================
+
+  loadWorkspaceData(): void {
+    if (!this.user?._id || this.workspaceLoaded) return;
+
+    this._settingsService
+      .getWorkspace(this.user._id)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: (response) => {
+          if (response?.data) {
+            this.workspace = response.data;
+            this.workspaceName = response.data.name || '';
+            this.workspaceLogo = response.data.avatar || null;
+          }
+          this.workspaceLoaded = true;
+          this._cdr.markForCheck();
+        },
+        error: () => {
+          this.workspace = null;
+          this.workspaceLoaded = true;
+          this._cdr.markForCheck();
+        },
+      });
+  }
+
+  onWorkspaceLogoDropped(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this._processWorkspaceLogo(files[0]);
+    }
+  }
+
+  onWorkspaceLogoBrowse(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this._processWorkspaceLogo(input.files[0]);
+    }
+  }
+
+  private _processWorkspaceLogo(file: File): void {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    if (!allowedTypes.includes(file.type)) {
+      const message = this._translocoService.translate('settings.profile.invalid_file_type');
+      this._snackBar.open(message, null, { duration: 3000 });
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      const message = this._translocoService.translate('settings.profile.file_too_large');
+      this._snackBar.open(message, null, { duration: 3000 });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      this.workspaceLogo = reader.result as string;
+      this._cdr.markForCheck();
+    };
+  }
+
+  removeWorkspaceLogo(): void {
+    this.workspaceLogo = null;
+    this._cdr.markForCheck();
+  }
+
+  saveWorkspace(): void {
+    if (this.isSavingWorkspace || !this.workspaceName?.trim()) return;
+
+    this.isSavingWorkspace = true;
+    this._cdr.markForCheck();
+
+    const payload = {
+      name: this.workspaceName.trim(),
+      avatar: this.workspaceLogo,
+      client: this.user._id,
+    };
+
+    const saveOperation = this.workspace
+      ? this._settingsService.updateWorkspace(this.workspace._id, payload)
+      : this._settingsService.createWorkspace(payload);
+
+    saveOperation
+      .pipe(
+        finalize(() => {
+          this.isSavingWorkspace = false;
+          this._cdr.markForCheck();
+        }),
+        takeUntil(this._unsubscribeAll),
+      )
+      .subscribe({
+        next: (response) => {
+          if (response?.data) {
+            this.workspace = response.data;
+            this.user.workSpace = response.data;
+            this._updateLocalStorage();
+            const message = this._translocoService.translate('settings.general.save_success');
+            this._snackBar.open(message, null, { duration: 3000 });
+          }
+        },
+        error: () => {
+          const message = this._translocoService.translate('settings.general.save_error');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+      });
+  }
+
+  openDeleteWorkspaceDialog(): void {
+    if (!this.workspace) return;
+    this._dialog.open(this.deleteWorkspaceDialog, {
+      width: '500px',
+      maxWidth: '90vw',
+    });
+  }
+
+  confirmDeleteWorkspace(): void {
+    if (this.isDeletingWorkspace || !this.workspace) return;
+
+    this.isDeletingWorkspace = true;
+    this._cdr.markForCheck();
+
+    this._settingsService
+      .deleteWorkspace(this.workspace._id)
+      .pipe(
+        finalize(() => {
+          this.isDeletingWorkspace = false;
+          this._cdr.markForCheck();
+        }),
+        takeUntil(this._unsubscribeAll),
+      )
+      .subscribe({
+        next: () => {
+          this._dialog.closeAll();
+          this.workspace = null;
+          this.workspaceName = '';
+          this.workspaceLogo = null;
+          delete this.user.workSpace;
+          this._updateLocalStorage();
+          const message = this._translocoService.translate('settings.general.delete_success');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+        error: () => {
+          const message = this._translocoService.translate('settings.general.delete_error');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+      });
+  }
+
+  private _updateLocalStorage(): void {
+    const storageKey = localStorage.getItem('verifik_account') ? 'verifik_account' : 'user';
+    localStorage.setItem(storageKey, JSON.stringify(this.user));
+  }
+
+  // ============================================
+  // Team Management Methods
+  // ============================================
+
+  private _initStaffForm(): void {
+    this.staffForm = this._formBuilder.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      countryCode: ['+1'],
+      phone: ['', [Validators.required, Validators.pattern(/^\d{8,15}$/)]],
+      role: ['empleado'],
+    });
+  }
+
+  loadStaffData(): void {
+    if (!this.user?._id) return;
+
+    this.isLoadingStaff = true;
+    this._cdr.markForCheck();
+
+    // Load subscription first to get the staff limit
+    this._loadSubscription();
+
+    this._settingsService
+      .getStaff()
+      .pipe(
+        finalize(() => {
+          this.isLoadingStaff = false;
+          this.staffLoaded = true;
+          this._cdr.markForCheck();
+        }),
+        takeUntil(this._unsubscribeAll),
+      )
+      .subscribe({
+        next: (response) => {
+          this.staffMembers = response?.data || [];
+        },
+        error: () => {
+          this.staffMembers = [];
+        },
+      });
+  }
+
+  private _loadSubscription(): void {
+    this._settingsService
+      .getMySubscription(this.user._id)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: (response) => {
+          if (response?.data?.subscriptionPlan) {
+            this.selectedSubscription = response.data.subscriptionPlan;
+            this.hasSubscription = true;
+            // Find the "chairs" addon to get the staff limit
+            const chairsAddon = this.selectedSubscription.changesInPrices?.find(
+              (addon: any) => addon?.addOn === 'chairs',
+            );
+            this.staffLimit = chairsAddon?.count || 0;
+          } else {
+            this.selectedSubscription = { name: 'PAYG' };
+            this.hasSubscription = false;
+            this.staffLimit = 0;
+          }
+          this._cdr.markForCheck();
+        },
+        error: () => {
+          this.selectedSubscription = { name: 'PAYG' };
+          this.hasSubscription = false;
+          this.staffLimit = 0;
+          this._cdr.markForCheck();
+        },
+      });
+  }
+
+  canAddMoreStaff(): boolean {
+    // If no subscription or PAYG, check if limit is 0 (no staff allowed)
+    if (!this.hasSubscription || this.staffLimit === 0) {
+      return false;
+    }
+    // Check if current count is less than limit
+    return this.staffMembers.length < this.staffLimit;
+  }
+
+  getStaffLimitMessage(): string {
+    const planName = this.selectedSubscription?.name === 'PyG' ? 'PAYG' : (this.selectedSubscription?.name || 'PAYG');
+    return this._translocoService.translate('settings.team.limit_info', {
+      plan: planName,
+      count: this.staffLimit,
+    });
+  }
+
+  openStaffModal(staff?: StaffMember): void {
+    this._resetStaffForm();
+    if (staff) {
+      this.editingStaff = staff;
+      this.staffForm.patchValue({
+        name: staff.name,
+        email: staff.email,
+        countryCode: staff.countryCode || '+1',
+        phone: staff.phone,
+        role: staff.role || 'empleado',
+      });
+    }
+
+    this.staffDialogRef = this._dialog.open(this.staffFormDialog, {
+      width: '500px',
+      maxWidth: '90vw',
+    });
+  }
+
+  closeStaffDialog(): void {
+    if (this.staffDialogRef) {
+      this.staffDialogRef.close();
+    }
+    this._resetStaffForm();
+  }
+
+  private _resetStaffForm(): void {
+    this.editingStaff = null;
+    this.staffForm.reset({
+      name: '',
+      email: '',
+      countryCode: '+1',
+      phone: '',
+      role: 'empleado',
+    });
+  }
+
+  saveStaff(): void {
+    if (this.staffForm.invalid || this.isSavingStaff) return;
+
+    // Check staff limit before creating (not when editing)
+    if (!this.editingStaff && !this.canAddMoreStaff()) {
+      const message = this._translocoService.translate('settings.team.limit_reached');
+      this._snackBar.open(message, null, { duration: 4000 });
+      return;
+    }
+
+    this.isSavingStaff = true;
+    this._cdr.markForCheck();
+
+    const formValue = this.staffForm.value;
+    const payload: Partial<StaffMember> = {
+      name: formValue.name,
+      email: formValue.email,
+      countryCode: formValue.countryCode,
+      phone: String(formValue.phone),
+      role: formValue.role,
+      client: this.user._id,
+    };
+
+    const saveOperation = this.editingStaff
+      ? this._settingsService.updateStaff(this.editingStaff._id, payload)
+      : this._settingsService.createStaff(payload);
+
+    saveOperation
+      .pipe(
+        finalize(() => {
+          this.isSavingStaff = false;
+          this._cdr.markForCheck();
+        }),
+        takeUntil(this._unsubscribeAll),
+      )
+      .subscribe({
+        next: () => {
+          this.closeStaffDialog();
+          this.loadStaffData();
+          const message = this._translocoService.translate('settings.team.save_success');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+        error: (error) => {
+          let message = this._translocoService.translate('settings.team.save_error');
+          // Check for specific backend error about subscription
+          if (error?.error?.message === 'cannot_create_staff' || error?.status === 412) {
+            message = this._translocoService.translate('settings.team.no_plan_error');
+          }
+          this._snackBar.open(message, null, { duration: 4000 });
+        },
+      });
+  }
+
+  deleteStaff(staff: StaffMember): void {
+    if (!staff?._id) return;
+
+    this._settingsService
+      .deleteStaff(staff._id)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: () => {
+          this.loadStaffData();
+          const message = this._translocoService.translate('settings.team.delete_success');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+        error: () => {
+          const message = this._translocoService.translate('settings.team.delete_error');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+      });
+  }
+
+  reinviteStaff(staff: StaffMember): void {
+    if (!staff?._id) return;
+
+    this._settingsService
+      .reinviteStaff(staff)
+      .pipe(takeUntil(this._unsubscribeAll))
+      .subscribe({
+        next: () => {
+          const message = this._translocoService.translate('settings.team.reinvite_success');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+        error: () => {
+          const message = this._translocoService.translate('settings.team.reinvite_error');
+          this._snackBar.open(message, null, { duration: 3000 });
+        },
+      });
+  }
+
+  getStaffInitials(name: string): string {
+    if (!name) return '';
+    const words = name.trim().split(/\s+/);
+    return words.slice(0, 2).map((w) => w[0]?.toUpperCase()).join('');
+  }
+
+  truncateEmail(email: string, maxLength = 25): string {
+    if (!email || email.length <= maxLength) return email;
+    return email.substring(0, maxLength) + '...';
+  }
+
+  getFilteredStaffCountryCodes(): CountryDialCode[] {
+    const value = this.staffForm.get('countryCode')?.value || '';
+    if (!value || value.trim().length === 0) {
+      return this.countryCodes;
+    }
+
+    const filterValue = value.toLowerCase().trim();
+    return this.countryCodes.filter(
+      (country) =>
+        country.name.toLowerCase().includes(filterValue) ||
+        country.dialCode.toLowerCase().includes(filterValue),
+    );
+  }
+
+  selectStaffCountryCode(country: CountryDialCode): void {
+    this.staffForm.patchValue({ countryCode: country.dialCode });
+    this.showStaffCountryDropdown = false;
+    this._cdr.markForCheck();
+  }
+
+  onStaffCountryBlur(): void {
+    setTimeout(() => {
+      this.showStaffCountryDropdown = false;
+      this._cdr.markForCheck();
+    }, 200);
   }
 
   private _observeMediaChanges(): void {

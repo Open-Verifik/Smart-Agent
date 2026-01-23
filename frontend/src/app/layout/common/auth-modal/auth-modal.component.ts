@@ -1,28 +1,29 @@
-import {
-  Component,
-  inject,
-  signal,
-  ViewEncapsulation,
-  HostListener,
-  ElementRef,
-  ViewChild,
-} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+    Component,
+    ElementRef,
+    HostListener,
+    inject,
+    signal,
+    ViewChild,
+    ViewEncapsulation,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { environment } from 'environments/environment';
-import { AuthService } from 'app/core/auth/auth.service';
 import { Router } from '@angular/router';
-import { CountryService, CountryDialCode } from 'app/core/services/country.service';
-import { AuthApiService } from 'app/core/services/auth-api.service';
-import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { TranslocoModule } from '@jsverse/transloco';
+import { AuthService } from 'app/core/auth/auth.service';
+import { AuthApiService } from 'app/core/services/auth-api.service';
+import { CountryDialCode, CountryService } from 'app/core/services/country.service';
+import { SessionService } from 'app/core/services/session.service';
+import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
+import { environment } from 'environments/environment';
 
 // Extend Window interface for MetaMask
 declare global {
@@ -103,6 +104,7 @@ export class AuthModalComponent {
   private _router = inject(Router);
   private _countryService = inject(CountryService);
   private _encryptionService = inject(WalletEncryptionService);
+  private _sessionService = inject(SessionService);
   private _dialogData = inject<{ startWithWallet?: boolean }>(MAT_DIALOG_DATA, { optional: true });
 
   projectId = environment.projectId;
@@ -525,9 +527,10 @@ export class AuthModalComponent {
 
       this.isLoading.set(false);
 
-      // Close modal and reload
+      // Close modal and reload safely
       this._dialogRef.close();
-      location.reload();
+      this._sessionService.resetReloadTracking(); // Reset tracking after successful login
+      this._sessionService.safeReload();
     } catch (error: any) {
       console.error('MetaMask connection failed:', error);
       if (error.code === 4001) {
@@ -559,9 +562,10 @@ export class AuthModalComponent {
       // Clear temp data
       this.tempWalletPrivateKey.set(null);
 
-      // Close modal and reload
+      // Close modal and reload safely
       this._dialogRef.close(true);
-      location.reload();
+      this._sessionService.resetReloadTracking(); // Reset tracking after successful wallet setup
+      this._sessionService.safeReload();
     } else {
       this.isLoading.set(false);
       this.error.set('Passkey encryption failed. Please try PIN instead.');
@@ -600,9 +604,10 @@ export class AuthModalComponent {
       this.tempWalletPrivateKey.set(null);
       this.pinArray.set(new Array(6).fill(''));
 
-      // Close modal and reload
+      // Close modal and reload safely
       this._dialogRef.close(true);
-      location.reload();
+      this._sessionService.resetReloadTracking(); // Reset tracking after successful wallet setup
+      this._sessionService.safeReload();
     } else {
       this.isLoading.set(false);
       this.error.set('PIN encryption failed. Please try again.');
@@ -662,7 +667,8 @@ export class AuthModalComponent {
                 localStorage.setItem('verifik_account', JSON.stringify(userData));
 
                 this._dialogRef.close(true);
-                location.reload();
+                this._sessionService.resetReloadTracking(); // Reset tracking after successful login
+                this._sessionService.safeReload();
               },
               error: (err) => {
                 console.error('Session fetch failed', err);

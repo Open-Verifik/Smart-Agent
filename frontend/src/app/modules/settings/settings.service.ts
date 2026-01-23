@@ -78,6 +78,37 @@ export interface BillingConfigResponse {
   data: ClientSettings;
 }
 
+export interface Workspace {
+  _id?: string;
+  name: string;
+  avatar?: string;
+  client: string;
+}
+
+export interface WorkspaceResponse {
+  data: Workspace;
+}
+
+export interface StaffMember {
+  _id?: string;
+  name: string;
+  email: string;
+  phone: string;
+  countryCode: string;
+  role: 'empleado' | 'contabilidad' | 'desarrollador' | 'administrador';
+  client: string;
+  status?: 'active' | 'pending' | 'inactive';
+  avatar?: string;
+}
+
+export interface StaffListResponse {
+  data: StaffMember[];
+}
+
+export interface StaffResponse {
+  data: StaffMember;
+}
+
 /**
  * Settings Service
  * Handles API key management operations including token renewal and revocation
@@ -314,6 +345,264 @@ export class SettingsService {
     return this._httpWrapper.sendRequest('post', url, billingData).pipe(
       catchError((error) => {
         console.error('[SettingsService] Save billing config failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  // ============================================
+  // Workspace Management
+  // ============================================
+
+  /**
+   * Get workspace for the current client
+   *
+   * @param clientId - The client's ID
+   * @returns Observable with the workspace data
+   *
+   * API: GET /v2/workspaces?where_client={clientId}&findOne=1
+   */
+  getWorkspace(clientId: string): Observable<WorkspaceResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/work-spaces`;
+    const params = {
+      where_client: clientId,
+      findOne: '1',
+    };
+
+    return this._httpWrapper.sendRequest('get', url, params).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Get workspace failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Create a new workspace
+   *
+   * @param workspaceData - The workspace data to create
+   * @returns Observable with the created workspace
+   *
+   * API: POST /v2/work-spaces
+   */
+  createWorkspace(workspaceData: Partial<Workspace>): Observable<WorkspaceResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/work-spaces`;
+
+    return this._httpWrapper.sendRequest('post', url, workspaceData).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Create workspace failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Update an existing workspace
+   *
+   * @param workspaceId - The workspace ID
+   * @param workspaceData - The workspace data to update
+   * @returns Observable with the updated workspace
+   *
+   * API: PUT /v2/work-spaces/{workspaceId}
+   */
+  updateWorkspace(
+    workspaceId: string,
+    workspaceData: Partial<Workspace>,
+  ): Observable<WorkspaceResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/work-spaces/${workspaceId}`;
+
+    return this._httpWrapper.sendRequest('put', url, workspaceData).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Update workspace failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Delete a workspace
+   *
+   * @param workspaceId - The workspace ID
+   * @returns Observable with the deletion result
+   *
+   * API: DELETE /v2/work-spaces/{workspaceId}
+   */
+  deleteWorkspace(workspaceId: string): Observable<any> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/work-spaces/${workspaceId}`;
+
+    return this._httpWrapper.sendRequest('delete', url).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Delete workspace failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  // ============================================
+  // Staff Management
+  // ============================================
+
+  /**
+   * Get all staff members for the current client
+   *
+   * @returns Observable with the staff list
+   *
+   * API: GET /v2/staff
+   */
+  getStaff(): Observable<StaffListResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/staff`;
+
+    return this._httpWrapper.sendRequest('get', url, {}).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Get staff failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Create a new staff member
+   *
+   * @param staffData - The staff data to create
+   * @returns Observable with the created staff member
+   *
+   * API: POST /v2/staff
+   */
+  createStaff(staffData: Partial<StaffMember>): Observable<StaffResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/staff`;
+
+    return this._httpWrapper.sendRequest('post', url, staffData).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Create staff failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Update an existing staff member
+   *
+   * @param staffId - The staff ID
+   * @param staffData - The staff data to update
+   * @returns Observable with the updated staff member
+   *
+   * API: PUT /v2/staff/{staffId}
+   */
+  updateStaff(
+    staffId: string,
+    staffData: Partial<StaffMember>,
+  ): Observable<StaffResponse> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/staff/${staffId}`;
+
+    return this._httpWrapper.sendRequest('put', url, staffData).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Update staff failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Delete a staff member
+   *
+   * @param staffId - The staff ID
+   * @returns Observable with the deletion result
+   *
+   * API: DELETE /v2/staff/{staffId}
+   */
+  deleteStaff(staffId: string): Observable<any> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/staff/${staffId}`;
+
+    return this._httpWrapper.sendRequest('delete', url).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Delete staff failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  /**
+   * Reinvite a staff member
+   *
+   * @param staffData - The staff member to reinvite
+   * @returns Observable with the reinvite result
+   *
+   * API: POST /v2/staff/reinvite
+   */
+  reinviteStaff(staffData: Partial<StaffMember>): Observable<any> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/staff/reinvite`;
+
+    return this._httpWrapper.sendRequest('post', url, staffData).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Reinvite staff failed:', error);
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  // ============================================
+  // Subscription Management
+  // ============================================
+
+  /**
+   * Get the current client's subscription
+   *
+   * @param clientId - The client's ID
+   * @returns Observable with the subscription data
+   *
+   * API: GET /v2/client-subscription-plans?where_client={clientId}&where_active=true&findOne=1
+   */
+  getMySubscription(clientId: string): Observable<any> {
+    if (!this.accessToken) {
+      return throwError(() => new Error('No access token available'));
+    }
+
+    const url = `${this.apiUrl}/v2/client-subscription-plans`;
+    const params = {
+      where_client: clientId,
+      where_active: 'true',
+      findOne: '1',
+    };
+
+    return this._httpWrapper.sendRequest('get', url, params).pipe(
+      catchError((error) => {
+        console.error('[SettingsService] Get subscription failed:', error);
         return throwError(() => error);
       }),
     );

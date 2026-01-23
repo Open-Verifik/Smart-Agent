@@ -18,6 +18,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from 'app/core/auth/auth.service';
+import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
@@ -64,6 +65,7 @@ export class UserComponent implements OnInit, OnDestroy {
         private _authService: AuthService,
         private _walletService: AgentWalletService,
         private _encryptionService: WalletEncryptionService,
+        private _sessionService: SessionService,
         private _snackBar: MatSnackBar,
     ) {}
 
@@ -266,8 +268,8 @@ export class UserComponent implements OnInit, OnDestroy {
 
         this._changeDetectorRef.markForCheck();
 
-        // Reload to ensure clean state
-        location.reload();
+        // Reload to ensure clean state (using safe reload to prevent loops)
+        this._sessionService.safeReload();
     }
 
     /**
@@ -296,8 +298,8 @@ export class UserComponent implements OnInit, OnDestroy {
         } else {
             // For hybrid users, just refresh wallet info display
             this._changeDetectorRef.markForCheck();
-            // Reload to refresh the UI
-            location.reload();
+            // Reload to refresh the UI (using safe reload to prevent loops)
+            this._sessionService.safeReload();
         }
     }
 

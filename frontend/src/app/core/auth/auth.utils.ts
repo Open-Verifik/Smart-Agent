@@ -16,6 +16,12 @@ export class AuthUtils {
      * @param token
      * @param offsetSeconds
      */
+    /**
+     * Is token expired?
+     *
+     * @param token
+     * @param offsetSeconds
+     */
     static isTokenExpired(token: string, offsetSeconds?: number): boolean {
         // Return if there is no token
         if (!token || token === '' || token.trim() === '') {
@@ -40,8 +46,10 @@ export class AuthUtils {
 
         offsetSeconds = offsetSeconds || 0;
 
+        // If date is null, it means the token has no expiration date (or we couldn't parse it)
+        // In this case, we treat it as valid (non-expiring)
         if (date === null) {
-            return true;
+            return false;
         }
 
         // Check if the token is expired
@@ -60,16 +68,13 @@ export class AuthUtils {
      * @private
      */
     private static _b64decode(str: string): string {
-        const chars =
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
         let output = '';
 
         str = String(str).replace(/=+$/, '');
 
         if (str.length % 4 === 1) {
-            throw new Error(
-                "'atob' failed: The string to be decoded is not correctly encoded."
-            );
+            throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
         }
 
         /* eslint-disable */
@@ -106,8 +111,7 @@ export class AuthUtils {
             Array.prototype.map
                 .call(
                     this._b64decode(str),
-                    (c: any) =>
-                        '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                    (c: any) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
                 )
                 .join('')
         );

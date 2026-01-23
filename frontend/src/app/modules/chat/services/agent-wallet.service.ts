@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { SessionService } from 'app/core/services/session.service';
+import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { ethers } from 'ethers';
 import { BehaviorSubject } from 'rxjs';
-import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,8 @@ export class AgentWalletService {
   // Avalanche C-Chain - Fuji Testnet
   private readonly RPC_URL = 'https://api.avax-test.network/ext/bc/C/rpc';
 
+  private _sessionService = inject(SessionService);
+
   constructor(private _encryptionService: WalletEncryptionService) {
     this.provider = new ethers.providers.StaticJsonRpcProvider(this.RPC_URL);
     this.provider.pollingInterval = 2000; // Poll every 2 seconds
@@ -28,10 +31,10 @@ export class AgentWalletService {
           if (accounts.length > 0) {
             console.log('MetaMask account changed:', accounts[0]);
             localStorage.setItem('x402_agent_address', accounts[0]);
-            window.location.reload();
+            this._sessionService.safeReload();
           } else {
             console.log('MetaMask disconnected');
-            window.location.reload();
+            this._sessionService.safeReload();
           }
         }
       });
@@ -349,7 +352,7 @@ export class AgentWalletService {
     this._encryptionService.clearEncryptionData();
     localStorage.removeItem('x402_agent_address');
     localStorage.removeItem('x402_wallet_type');
-    window.location.reload();
+    this._sessionService.safeReload();
   }
 
   /**

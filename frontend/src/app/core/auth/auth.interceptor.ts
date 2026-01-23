@@ -3,7 +3,11 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { SessionService } from 'app/core/services/session.service';
 import { Observable, catchError, throwError } from 'rxjs';
+
+// Flag to prevent multiple session expiration handlers from running
+let isHandlingSessionExpiration = false;
 
 /**
  * Intercept
@@ -17,6 +21,7 @@ export const authInterceptor = (
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
   const router = inject(Router);
+  const sessionService = inject(SessionService);
 
   // Clone the request object
   let newReq = req.clone();
@@ -46,14 +51,23 @@ export const authInterceptor = (
           error.error?.code === 'Forbidden' &&
           error.error?.message === 'expired_token'
         ) {
-          authService.signOut();
-          router.navigate(['sign-out']);
+          handleSessionExpiration(authService, sessionService, router);
           return throwError(() => error);
         }
 
         // Catch "401 Unauthorized" responses
         if (error.status === 401) {
-          // Skip auto-logout for our backend API calls to allow debugging
+          // Check for specific error messages that indicate session expiration
+          const errorMessage = error.error?.message || error.error?.error || '';
+          const isSessionExpired =
+            errorMessage.includes('expired') ||
+            errorMessage.includes('invalid_token') ||
+            errorMessage.includes('jwt expired') ||
+            errorMessage.includes('Token expired') ||
+            errorMessage.includes('Unauthorized');
+
+          // Skip auto-logout for backend API calls with valid wallet-only auth
+          // This allows x402 (wallet-based) operations to continue even if Web2 token is expired
           const isBackendApiCall =
             req.url.includes('x402-agent.verifik.co') ||
             req.url.includes('api/') ||
@@ -61,15 +75,17 @@ export const authInterceptor = (
             req.url.includes('api.verifik.co') ||
             req.url.includes('verifik.app');
 
-          if (!isBackendApiCall) {
-            // Sign out
-            authService.signOut();
+          const hasWalletAuth = !!localStorage.getItem('x402_agent_address');
 
-            // Reload the app
-            location.reload();
+          if (isBackendApiCall && hasWalletAuth) {
+            // User has wallet auth, just log the error and let the request fail gracefully
+            console.warn('[AuthInterceptor] Backend API 401 with wallet auth, skipping logout:', error.url);
+          } else if (isSessionExpired || !isBackendApiCall) {
+            // Session is definitely expired or this is a non-backend call
+            handleSessionExpiration(authService, sessionService, router);
           } else {
-            // Just log the error for backend API calls
-            console.error('Backend API 401 Error:', error);
+            // Backend API call without clear session expiration - just log
+            console.error('[AuthInterceptor] Backend API 401 Error:', error);
           }
         }
       }
@@ -78,3 +94,38 @@ export const authInterceptor = (
     }),
   );
 };
+
+/**
+ * Handle session expiration centrally
+ * Uses SessionService to prevent infinite loops and provide consistent UX
+ */
+function handleSessionExpiration(
+  authService: AuthService,
+  sessionService: SessionService,
+  router: Router,
+): void {
+  // Prevent multiple handlers from running simultaneously
+  if (isHandlingSessionExpiration) {
+    console.warn('[AuthInterceptor] Already handling session expiration, skipping...');
+    return;
+  }
+
+  isHandlingSessionExpiration = true;
+
+  console.log('[AuthInterceptor] Session expired, cleaning up...');
+
+  // Sign out through auth service (which now properly clears localStorage)
+  authService.signOut();
+
+  // Use SessionService for safe cleanup and navigation
+  // clearWeb2Only: true - preserve wallet if user has one
+  sessionService.handleSessionExpired({
+    clearWeb2Only: true,
+    silent: false,
+  });
+
+  // Reset flag after a delay
+  setTimeout(() => {
+    isHandlingSessionExpiration = false;
+  }, 2000);
+}

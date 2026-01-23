@@ -35,9 +35,10 @@ export class AuthService {
             switchMap((response: any) => {
                 this._authenticated = true;
                 this._userService.user = response.user;
+                this.accessToken = response.accessToken;
 
                 return of(response);
-            }),
+            })
         );
     }
 
@@ -68,7 +69,7 @@ export class AuthService {
 
                 // Return a new observable with the response
                 return of(response.data);
-            }),
+            })
         );
     }
 
@@ -103,7 +104,7 @@ export class AuthService {
 
                     // Return true
                     return of(true);
-                }),
+                })
             );
     }
 
@@ -139,16 +140,36 @@ export class AuthService {
                 } catch (error) {
                     console.error('Failed to sync balance to local storage', error);
                 }
-            }),
+            })
         );
     }
 
     /**
      * Sign out
+     * Clears authentication state and removes tokens from localStorage
+     *
+     * @param clearWeb2Only If true, only clears Web2 credentials (preserves wallet)
      */
-    signOut(): Observable<any> {
+    signOut(clearWeb2Only: boolean = true): Observable<any> {
         // Set the authenticated flag to false
         this._authenticated = false;
+
+        // Clear Web2 credentials from localStorage
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('verifik_account');
+        localStorage.removeItem('user');
+
+        // Clear Web3 credentials if not preserving
+        if (!clearWeb2Only) {
+            localStorage.removeItem('x402_agent_address');
+            localStorage.removeItem('x402_agent_pk');
+            localStorage.removeItem('x402_agent_pk_encrypted');
+            localStorage.removeItem('x402_wallet_type');
+            localStorage.removeItem('x402_encryption_method');
+            localStorage.removeItem('x402_encryption_salt');
+            localStorage.removeItem('x402_credential_id');
+            localStorage.removeItem('lastWalletAddress');
+        }
 
         // Return the observable
         return of(true);
@@ -212,7 +233,7 @@ export class AuthService {
      */
     simulateProjectLogin(
         appRegistrationToken: string,
-        projectType: string = 'onboarding',
+        projectType: string = 'onboarding'
     ): Observable<any> {
         const headers = {
             Authorization: `Bearer ${appRegistrationToken}`,
@@ -221,7 +242,7 @@ export class AuthService {
         return this._httpClient.post(
             this.baseUrl + 'v2/auth/project-login',
             { projectType },
-            { headers },
+            { headers }
         );
     }
 }
