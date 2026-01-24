@@ -22,6 +22,7 @@ import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
+import { environment } from 'environments/environment';
 import { Subject, takeUntil } from 'rxjs';
 import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
@@ -51,6 +52,7 @@ export class UserComponent implements OnInit, OnDestroy {
 
     @Input() showAvatar: boolean = true;
     user: any;
+    tokenTicker = environment.tokenTicker || 'VKA';
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -66,11 +68,12 @@ export class UserComponent implements OnInit, OnDestroy {
         private _walletService: AgentWalletService,
         private _encryptionService: WalletEncryptionService,
         private _sessionService: SessionService,
-        private _snackBar: MatSnackBar,
+        private _snackBar: MatSnackBar
     ) {}
 
     walletAddress: string | null = null;
     avaxBalance: string | null = null;
+    tokenBalance: string | null = null;
     hasWeb2Auth: boolean = false; // Track if user has Web2 authentication
 
     /**
@@ -204,6 +207,14 @@ export class UserComponent implements OnInit, OnDestroy {
             this.avaxBalance = balance;
             this._changeDetectorRef.markForCheck();
         });
+
+        // Subscribe to token balance updates
+        this._walletService.tokenBalance$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((balance) => {
+                this.tokenBalance = balance;
+                this._changeDetectorRef.markForCheck();
+            });
     }
 
     /**

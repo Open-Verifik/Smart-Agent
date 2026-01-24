@@ -1,0 +1,11 @@
+{
+    "network": "avalanche",
+    "contractAddress": "0x8fc4b00689812f449723CB473E0A7C060b10eD3f",
+    "tokenName": "Verifik",
+    "tokenSymbol": "VKA",
+    "totalSupply": "200000000000000000000000000",
+    "deployer": "0x787389C8ec43D94362648310316F4348A4dE8C83",
+    "ecosystemWallet": "0x368542DB8782d6dc9f312b79C87b05f71c443320",
+    "deployedAt": "2026-01-24T14:09:36.865Z",
+    "transactionHash": "0x1d7b28923c3f1d4b4f0c9c83bc7b5ce1d11d20747eae2b8b546bcf4dddecb772"
+}

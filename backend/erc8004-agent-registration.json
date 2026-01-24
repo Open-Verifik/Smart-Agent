@@ -1,0 +1,17 @@
+{
+  "agentAddress": "0x787389C8ec43D94362648310316F4348A4dE8C83",
+  "tokenId": "1",
+  "name": "Verifik AI Agent",
+  "description": "AI-powered agent for identity validation and document processing using x402 payment protocol on Avalanche",
+  "agentCardURI": "https://x402-agent.verifik.co/agent-card.json",
+  "capabilities": [
+    "identity-validation",
+    "document-ocr",
+    "biometric-verification",
+    "cedula-validation",
+    "x402-payment-processing"
+  ],
+  "registeredAt": "2026-01-24T16:34:05.462Z",
+  "transactionHash": "0xdfd2bb19700c4e8d95d329847a31dec9523b2b1bac9e3cee811e83f60ea57345",
+  "blockNumber": 76462600
+}

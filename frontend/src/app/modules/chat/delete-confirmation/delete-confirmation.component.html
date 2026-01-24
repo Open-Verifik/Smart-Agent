@@ -1,0 +1,32 @@
+<div class="w-full bg-white dark:bg-slate-900 overflow-hidden flex flex-col">
+    <!-- Icon + Title -->
+    <div class="p-6 pb-2 text-center">
+        <div
+            class="w-12 h-12 mx-auto mb-4 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500"
+        >
+            <mat-icon class="!w-6 !h-6 !text-[24px]">delete_outline</mat-icon>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">
+            {{ 'chat.deleteModal.title' | transloco }}
+        </h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-4">
+            {{ 'chat.deleteModal.message' | transloco }}
+        </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="p-6 pt-6 flex flex-col gap-3">
+        <button
+            (click)="confirm()"
+            class="w-full h-10 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors shadow-sm active:transform active:scale-[0.98]"
+        >
+            {{ 'chat.deleteModal.confirm' | transloco }}
+        </button>
+        <button
+            (click)="close()"
+            class="w-full h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-sm font-medium transition-colors"
+        >
+            {{ 'chat.deleteModal.cancel' | transloco }}
+        </button>
+    </div>
+</div>
