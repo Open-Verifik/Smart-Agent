@@ -1,0 +1,49 @@
+{
+  "name": "Verifik AI Agent",
+  "description": "AI-powered agent for identity validation and document processing using x402 payment protocol on Avalanche",
+  "version": "2.0.0",
+  "agentType": "identity-validation",
+  "capabilities": [
+    "identity-validation",
+    "document-ocr",
+    "biometric-verification",
+    "cedula-validation",
+    "x402-payment-processing"
+  ],
+  "endpoints": {
+    "chat": "https://x402-agent.verifik.co/api/agent/chat",
+    "validate": "https://x402-agent.verifik.co/api/x402/validate-id"
+  },
+  "pricing": {
+    "identity-validation": "0.001 AVAX",
+    "document-ocr": "0.001 AVAX"
+  },
+  "metadata": {
+    "blockchain": "Avalanche C-Chain",
+    "network": "Fuji Testnet",
+    "contractAddress": "0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6",
+    "tokenId": "1",
+    "agentAddress": "0x787389C8ec43D94362648310316F4348A4dE8C83",
+    "standard": "ERC8004",
+    "registeredAt": "2025-11-30T23:02:29.075Z"
+  },
+  "ai": {
+    "model": "Google Gemini 2.5 Flash Lite",
+    "provider": "Google",
+    "capabilities": ["natural-language-understanding", "tool-calling", "conversation-context"]
+  },
+  "payment": {
+    "protocol": "x402",
+    "currency": "AVAX",
+    "contract": "0xD2597F288A0bCdcD4957e75Dc942AC59Ade27b4F"
+  },
+  "reputation": {
+    "registry": "0xc8AF65010D6Bf85e4DC89D9D13E9cC185df919B1",
+    "validationRegistry": "0x10485d0aC4382c49E0d0583315C81fe15D92899d"
+  },
+  "links": {
+    "website": "https://verifik.app",
+    "documentation": "https://verifik.app/docs",
+    "explorer": "https://testnet.snowtrace.io/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1"
+  }
+}
