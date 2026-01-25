@@ -661,7 +661,9 @@ export class ChatComponent implements OnInit {
 
                 // Wait for transaction confirmation
                 try {
+                    this.walletService.startActivePolling();
                     await result.tx.wait();
+                    this.walletService.pausePolling();
 
                     // Update the existing message to show success (removes "Waiting" triggering the card update)
                     this.messages.update((msgs) => {
@@ -683,6 +685,7 @@ export class ChatComponent implements OnInit {
                     this.scrollToBottom();
                     await this.loadAgentInfo();
                 } catch (error) {
+                    this.walletService.pausePolling();
                     console.error('Transaction confirmation error:', error);
                     this.messages.update((msgs) => [
                         ...msgs,

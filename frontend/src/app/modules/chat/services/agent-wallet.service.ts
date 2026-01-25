@@ -70,11 +70,11 @@ export class AgentWalletService {
     }
 
     /**
-     * Start active polling (4s) for transaction confirmation
+     * Start active polling (1.5s) for transaction confirmation
      */
     startActivePolling() {
-        console.log('🚀 Starting Active Polling (4s)...');
-        this.provider.pollingInterval = 4000;
+        console.log('🚀 Starting Active Polling (1.5s)...');
+        this.provider.pollingInterval = 1500;
     }
 
     /**
@@ -278,10 +278,14 @@ export class AgentWalletService {
         };
 
         if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
+            // Recommendation: maxFee = (2 * baseFee) + priorityFee
+            // We ensure maxFee is high enough to cover the tip and base fee spikes
             txOptions.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas.add(priorityFeeTip);
-            txOptions.maxFeePerGas = feeData.maxFeePerGas.add(priorityFeeTip);
+
+            // Add a 25% extra buffer to the suggested maxFeePerGas for safety
+            txOptions.maxFeePerGas = feeData.maxFeePerGas.mul(125).div(100).add(priorityFeeTip);
         } else if (feeData.gasPrice) {
-            txOptions.gasPrice = feeData.gasPrice.mul(120).div(100); // 20% bump for legacy
+            txOptions.gasPrice = feeData.gasPrice.mul(135).div(100); // 35% bump for legacy
         }
 
         console.log('Calling payForService with:', {
@@ -570,9 +574,9 @@ export class AgentWalletService {
 
         if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
             txOptions.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas.add(priorityFeeTip);
-            txOptions.maxFeePerGas = feeData.maxFeePerGas.add(priorityFeeTip);
+            txOptions.maxFeePerGas = feeData.maxFeePerGas.mul(125).div(100).add(priorityFeeTip);
         } else if (feeData.gasPrice) {
-            txOptions.gasPrice = feeData.gasPrice.mul(120).div(100);
+            txOptions.gasPrice = feeData.gasPrice.mul(135).div(100);
         }
 
         console.log(`Sending ${amountUnits} VKA to ${recipientAddress}`);
