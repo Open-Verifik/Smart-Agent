@@ -170,6 +170,9 @@ export class ChatComponent implements OnInit {
         this.walletAddress.set(this.walletService.getAddress());
         await this.refreshBalance();
 
+        // Auto-register VKA token if using MetaMask
+        this.walletService.registerVkaToken();
+
         // Check for Wallet Change
         const currentWallet = this.walletAddress();
         const lastWallet = localStorage.getItem('lastWalletAddress');
