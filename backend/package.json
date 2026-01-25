@@ -8,7 +8,8 @@
         "start": "kill -9 $(lsof -t -i:3060) || true; nodemon src/index.js --delay=2s --ignore 'data/*'",
         "withdraw": "node scripts/withdraw-funds.js",
         "withdraw:avax": "node scripts/withdraw-funds.js --asset AVAX",
-        "withdraw:vka": "node scripts/withdraw-funds.js --asset VKA"
+        "withdraw:vka": "node scripts/withdraw-funds.js --asset VKA",
+        "send:vka": "node scripts/send-vka.js"
     },
     "keywords": [],
     "author": "",
