@@ -31,6 +31,7 @@ const initialize = () => {
     if (!config.x402?.rpcUrl) return false;
 
     provider = new ethers.JsonRpcProvider(config.x402.rpcUrl);
+    provider.pollingInterval = 1000; // Fast detection for Avalanche (2s blocks)
 
     const identityAddress = config.erc8004?.identityRegistry;
     const reputationAddress = config.erc8004?.reputationRegistry;
