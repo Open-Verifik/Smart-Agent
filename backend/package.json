@@ -1,32 +1,35 @@
 {
-	"name": "backend",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "nodemon src/index.js --delay=2s --ignore 'data/*'"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"type": "commonjs",
-	"dependencies": {
-		"@koa/cors": "^5.0.0",
-		"@koa/router": "^15.0.0",
-		"axios": "^1.13.2",
-		"dotenv": "^17.2.3",
-		"ethers": "^6.16.0",
-		"jsonwebtoken": "^9.0.3",
-		"koa": "^3.1.1",
-		"koa-body": "^7.0.0",
-		"koa-mount": "^4.2.0",
-		"koa-static": "^5.0.0",
-		"mime-types": "^3.0.2"
-	},
-	"devDependencies": {
-		"bip39": "^3.1.0",
-		"nodemon": "^3.1.11",
-		"solc": "^0.8.31"
-	}
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "nodemon src/index.js --delay=2s --ignore 'data/*'",
+        "withdraw": "node scripts/withdraw-funds.js",
+        "withdraw:avax": "node scripts/withdraw-funds.js --asset AVAX",
+        "withdraw:vka": "node scripts/withdraw-funds.js --asset VKA"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "@koa/cors": "^5.0.0",
+        "@koa/router": "^15.0.0",
+        "axios": "^1.13.2",
+        "dotenv": "^17.2.3",
+        "ethers": "^6.16.0",
+        "jsonwebtoken": "^9.0.3",
+        "koa": "^3.1.1",
+        "koa-body": "^7.0.0",
+        "koa-mount": "^4.2.0",
+        "koa-static": "^5.0.0",
+        "mime-types": "^3.0.2"
+    },
+    "devDependencies": {
+        "bip39": "^3.1.0",
+        "nodemon": "^3.1.11",
+        "solc": "^0.8.31"
+    }
 }
