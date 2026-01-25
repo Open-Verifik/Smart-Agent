@@ -1,28 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
-  <defs>
-    <clipPath id="a">
-      <path fill-opacity=".7" d="M-85.3 0h682.6v512H-85.3z"/>
-    </clipPath>
-  </defs>
-  <g clip-path="url(#a)" transform="translate(80) scale(.9375)">
-    <path fill="#fff" d="M-128 0h768v512h-768z"/>
-    <g transform="translate(256 256)">
-      <g transform="rotate(-56.3)">
-        <g>
-          <path d="M-6-26H6v2H-6zm0 3H6v2H-6zm0 3H6v2H-6z"/>
-          <path d="M-6 18H6v2H-6zm0 3H6v2H-6zm0 3H6v2H-6z"/>
-        </g>
-        <path stroke="#fff" d="M0-17v10M-5-12h10"/>
-        <path fill="#cd2e3a" d="M0-12a6.5 6.5 0 0 1 0 12 5 5 0 0 0 0-12z"/>
-        <path fill="#0047a0" d="M0-12a5 5 0 0 1 0 12 6.5 6.5 0 0 0 0-12z"/>
-      </g>
-      <g transform="rotate(56.3)">
-        <g>
-          <path d="M-6-26H6v2H-6zm0 3H6v2H-6zm0 3H6v2H-6z"/>
-          <path d="M-6 18H6v2H-6zm0 3H6v2H-6zm0 3H6v2H-6z"/>
-        </g>
-        <path stroke="#fff" d="M0-23.5v3M0 17v3.5m0 3v3"/>
-      </g>
-    </g>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 48">
+<path fill="#fff" d="M0 0h72v48H0z"/>
+<g transform="translate(36 24)">
+<g transform="rotate(-33.7)">
+<path fill="#cd2e3a" d="M0-12a12 12 0 0 1 0 24 6 6 0 0 1 0-12 6 6 0 0 0 0-12"/>
+<path fill="#0047a0" d="M0 12a12 12 0 0 1 0-24 6 6 0 0 0 0 12 6 6 0 0 1 0 12"/>
+</g>
+<g id="g" fill="#000" transform="rotate(-33.7)">
+<g id="k" transform="translate(-24 0)">
+<path id="t" d="M-2-6h1.33v12H-2zm2.67 0h1.33v12h-1.33zm2.66 0H4.66v12h-1.33z"/>
+</g>
+<g id="l" transform="rotate(180) translate(-24 0)">
+<path id="b" d="M-2-6h1.33v5.33H-2zm0 6.67h1.33v5.33H-2zm2.67-6.67h1.33v5.33h-1.33zm0 6.67h1.33v5.33h-1.33zm2.66-6.67H4.66v5.33h-1.33zm0 6.67H4.66v5.33h-1.33z"/>
+</g>
+<g id="m" transform="rotate(67.4) translate(-24 0)">
+<path d="M-2-6h1.33v5.33H-2zm0 6.67h1.33v5.33H-2zm2.67-6.67h1.33v12h-1.33zm2.66-6.67H4.66v5.33h-1.33zm0 6.67H4.66v5.33h-1.33z"/>
+</g>
+<g id="n" transform="rotate(247.4) translate(-24 0)">
+<path d="M-2-6h1.33v12H-2zm2.67-6.67h1.33v5.33h-1.33zm0 6.67h1.33v5.33h-1.33zm2.66-6.67H4.66v12h-1.33z"/>
+</g>
+</g>
+</g>
 </svg>
