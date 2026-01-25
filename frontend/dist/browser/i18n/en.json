@@ -2,7 +2,20 @@
     "nav": {
         "chat": "Chat",
         "history": "History",
-        "settings": "Settings"
+        "settings": "Settings",
+        "smart_check": "SmartCheck",
+        "postman": "Postman",
+        "ai_validation": "AI-powered identity validation",
+        "api_testing": "API testing and development",
+        "smart_batch": "SmartBatch",
+        "batch_automation": "Batch processing automation",
+        "history_subtitle": "View past requests and logs",
+        "subscription_plans": "Subscription Plans",
+        "manage_subscription": "Manage your subscription",
+        "add_credits": "Add Credits",
+        "purchase_credits": "Purchase additional credits",
+        "status_check": "Status Check",
+        "system_health": "System health and availability"
     },
     "settings": {
         "title": "Settings",
@@ -138,6 +151,7 @@
             "role_contabilidad": "Accounting",
             "role_desarrollador": "Developer",
             "role_administrador": "Admin",
+            "status_invited": "Invited",
             "edit": "Edit",
             "reinvite": "Reinvite",
             "remove": "Remove",
