@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { User } from 'app/core/user/user.types';
 import { environment } from 'environments/environment';
-import { map, Observable, ReplaySubject, tap } from 'rxjs';
+import { map, Observable, ReplaySubject, take, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -43,7 +43,7 @@ export class UserService {
                 map((response) => response.data?.user || response.user || response),
                 tap((user) => {
                     this._user.next(user);
-                }),
+                })
             );
     }
 
@@ -56,7 +56,35 @@ export class UserService {
         return this._httpClient.patch<User>(environment.baseUrl + 'api/common/user', { user }).pipe(
             map((response) => {
                 this._user.next(response);
-            }),
+            })
         );
+    }
+
+    /**
+     * Update the client
+     *
+     * @param user
+     */
+    updateClient(data: Partial<User>): Observable<any> {
+        return this._httpWrapper
+            .sendRequest('put', environment.apiUrl + '/v2/clients/me', data)
+            .pipe(
+                tap((response) => {
+                    // Determine the new user object
+                    // If response returns the updated object, use it. Otherwise merge data.
+                    // Assuming response is the updated client object based on backend patterns.
+                    // If response has a .data property, handle that case.
+                    const updatedUser = response.data || response;
+
+                    // Merge with current user to ensure we don't lose other props if response is partial
+                    this._user.pipe(take(1)).subscribe((currentUser) => {
+                        this._user.next({
+                            ...currentUser,
+                            ...updatedUser,
+                            ...data, // Ensure the data sent is applied
+                        });
+                    });
+                })
+            );
     }
 }

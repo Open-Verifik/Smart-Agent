@@ -1,1492 +1,886 @@
 <div class="settings-container flex flex-col flex-auto">
-  <!-- Mobile Header -->
-  <div class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-    <button mat-icon-button (click)="drawerOpened = !drawerOpened">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <h1 class="text-lg font-semibold">{{ 'settings.title' | transloco }}</h1>
-    <div class="w-10"></div>
-  </div>
+    <!-- Mobile Header -->
+    <div class="lg:hidden flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+        <button mat-icon-button (click)="drawerOpened = !drawerOpened">
+            <mat-icon>menu</mat-icon>
+        </button>
+        <h1 class="text-lg font-semibold">{{ 'settings.title' | transloco }}</h1>
+        <div class="w-10"></div>
+    </div>
 
-  <mat-sidenav-container class="flex-auto">
-    <!-- Sidebar -->
-    <mat-sidenav #drawer [mode]="drawerMode" [opened]="drawerOpened" class="w-72 dark:bg-gray-900">
-      <div class="flex flex-col h-full">
-        <!-- Sidebar Header -->
-        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div class="flex items-center gap-3">
-            <div class="settings-header-icon">
-              <mat-icon class="text-white">settings</mat-icon>
-            </div>
-            <div>
-              <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                {{ 'settings.title' | transloco }}
-              </h2>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ 'settings.subtitle' | transloco }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Navigation Sections -->
-        <div class="flex-1 overflow-y-auto p-4">
-          <ng-container *ngFor="let section of sections; let last = last">
-            <div class="mb-6" [class.mb-0]="last">
-              <h3 class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                {{ section.title | transloco }}
-              </h3>
-
-              <div class="space-y-1">
-                <button
-                  *ngFor="let panel of section.panels"
-                  (click)="selectPanel(panel.id)"
-                  [class.active]="isPanelSelected(panel.id)"
-                  [class.disabled]="panel.disabled"
-                  class="nav-item w-full"
-                >
-                  <mat-icon [svgIcon]="panel.icon" class="nav-icon"></mat-icon>
-                  <span class="nav-label">{{ panel.title | transloco }}</span>
-                  <span *ngIf="panel.badge" class="nav-badge">
-                    {{ panel.badge | transloco }}
-                  </span>
-                </button>
-              </div>
-            </div>
-          </ng-container>
-        </div>
-
-        <!-- User Info Footer -->
-        <div *ngIf="user" class="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-            <div
-              class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold"
-            >
-              {{ user?.name?.charAt(0) || 'U' }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {{ user?.name || 'User' }}
-              </p>
-              <p class="text-xs text-gray-500 truncate">
-                {{ user?.email || user?.phone || 'Web2 Account' }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </mat-sidenav>
-
-    <!-- Main Content -->
-    <mat-sidenav-content class="flex flex-col bg-gray-50 dark:bg-gray-900">
-      <div class="flex-1 p-6 lg:p-8 max-w-4xl mx-auto w-full">
-        <!-- API Key Panel -->
-        <ng-container *ngIf="selectedPanel === 'api_key'">
-          <!-- Panel Header -->
-          <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ 'settings.api_key.title' | transloco }}
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-              {{ 'settings.api_key.subtitle' | transloco }}
-            </p>
-          </div>
-
-          <!-- New Token Alert -->
-          <div *ngIf="showNewTokenAlert" class="new-token-alert mb-6">
-            <div class="flex items-start gap-4">
-              <div class="alert-icon-success">
-                <mat-icon>check_circle</mat-icon>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-semibold text-green-800">
-                  {{ 'settings.api_key.new_token_generated' | transloco }}
-                </h3>
-                <p class="text-green-700 text-sm mt-1">
-                  {{ 'settings.api_key.copy_token_warning' | transloco }}
-                </p>
-              </div>
-              <button mat-icon-button (click)="dismissNewTokenAlert()" class="text-green-600">
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- Current Token Card -->
-          <div class="content-card mb-6">
-            <div class="card-header">
-              <div class="flex items-center gap-3">
-                <div class="card-icon blue">
-                  <mat-icon>vpn_key</mat-icon>
-                </div>
-                <div>
-                  <h2 class="font-semibold text-gray-900 dark:text-white">
-                    {{ 'settings.api_key.current_token' | transloco }}
-                  </h2>
-                  <p class="text-gray-500 text-xs">
-                    {{ 'settings.api_key.bearer_token_info' | transloco }}
-                  </p>
-                </div>
-              </div>
-              <div class="token-status">
-                <span class="status-dot"></span>
-                {{ 'settings.api_key.active' | transloco }}
-              </div>
-            </div>
-
-            <div class="card-body">
-              <div class="token-display-wrapper">
-                <div class="token-display" (click)="copyToken()">
-                  <code class="token-text">
-                    {{ hidePassword ? getMaskedToken() : accessToken }}
-                  </code>
-                </div>
-                <div class="token-actions">
-                  <button
-                    mat-icon-button
-                    (click)="hidePassword = !hidePassword"
-                    [matTooltip]="
-                      hidePassword
-                        ? ('settings.api_key.show_token' | transloco)
-                        : ('settings.api_key.hide_token' | transloco)
-                    "
-                    class="action-btn"
-                  >
-                    <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
-                  </button>
-                  <button
-                    mat-icon-button
-                    (click)="copyToken()"
-                    [matTooltip]="'settings.api_key.copy_token' | transloco"
-                    class="action-btn"
-                  >
-                    <mat-icon>content_copy</mat-icon>
-                  </button>
-                </div>
-              </div>
-
-              <p class="usage-hint">
-                <mat-icon class="inline-icon">info</mat-icon>
-                {{ 'settings.api_key.usage_hint' | transloco }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Action Cards Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Renew Token Card -->
-            <div class="action-card">
-              <div class="action-card-header">
-                <div class="action-icon renew">
-                  <mat-icon>autorenew</mat-icon>
-                </div>
-                <h3 class="action-title">{{ 'settings.api_key.renew_token' | transloco }}</h3>
-              </div>
-              <p class="action-description">
-                {{ 'settings.api_key.renew_description' | transloco }}
-              </p>
-
-              <div *ngIf="!showRenewPanel" class="action-footer">
-                <button
-                  mat-stroked-button
-                  color="primary"
-                  (click)="toggleRenewPanel()"
-                  class="action-button"
-                >
-                  {{ 'settings.api_key.extend_validity' | transloco }}
-                  <mat-icon>arrow_forward</mat-icon>
-                </button>
-              </div>
-
-              <!-- Renew Panel -->
-              <div *ngIf="showRenewPanel" class="expand-panel">
-                <div class="panel-content">
-                  <label class="panel-label">
-                    {{ 'settings.api_key.select_expiration' | transloco }}
-                  </label>
-                  <div class="expiration-grid">
-                    <button
-                      *ngFor="let option of expirationOptions"
-                      (click)="selectedExpiration = option.value"
-                      [class.selected]="selectedExpiration === option.value"
-                      class="expiration-option"
-                    >
-                      {{ option.label }}
-                      <span class="expiration-unit">{{
-                        'settings.api_key.months' | transloco
-                      }}</span>
-                    </button>
-                  </div>
-
-                  <div class="panel-actions">
-                    <button mat-button (click)="toggleRenewPanel()" [disabled]="isRenewing">
-                      {{ 'settings.api_key.cancel' | transloco }}
-                    </button>
-                    <button
-                      mat-flat-button
-                      color="primary"
-                      (click)="renewToken()"
-                      [disabled]="isRenewing"
-                      class="confirm-btn"
-                    >
-                      <mat-spinner *ngIf="isRenewing" diameter="18" class="mr-2"></mat-spinner>
-                      {{
-                        isRenewing
-                          ? ('settings.api_key.renewing' | transloco)
-                          : ('settings.api_key.renew_now' | transloco)
-                      }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Revoke & Generate New Card -->
-            <div class="action-card danger">
-              <div class="action-card-header">
-                <div class="action-icon revoke">
-                  <mat-icon>sync_problem</mat-icon>
-                </div>
-                <h3 class="action-title">{{ 'settings.api_key.revoke_generate' | transloco }}</h3>
-              </div>
-              <p class="action-description">
-                {{ 'settings.api_key.revoke_description' | transloco }}
-              </p>
-
-              <div *ngIf="!showRevokeConfirm" class="action-footer">
-                <button
-                  mat-stroked-button
-                  color="warn"
-                  (click)="toggleRevokeConfirm()"
-                  class="action-button danger"
-                >
-                  {{ 'settings.api_key.revoke_all' | transloco }}
-                  <mat-icon>arrow_forward</mat-icon>
-                </button>
-              </div>
-
-              <!-- Revoke Confirmation Panel -->
-              <div *ngIf="showRevokeConfirm" class="expand-panel danger">
-                <div class="panel-content">
-                  <div class="warning-box">
-                    <mat-icon class="warning-icon">warning</mat-icon>
-                    <div>
-                      <p class="warning-title">
-                        {{ 'settings.api_key.warning_title' | transloco }}
-                      </p>
-                      <p class="warning-text">{{ 'settings.api_key.warning_text' | transloco }}</p>
-                    </div>
-                  </div>
-
-                  <div class="panel-actions">
-                    <button mat-button (click)="toggleRevokeConfirm()" [disabled]="isRevoking">
-                      {{ 'settings.api_key.cancel' | transloco }}
-                    </button>
-                    <button
-                      mat-flat-button
-                      color="warn"
-                      (click)="revokeAndGenerateNew()"
-                      [disabled]="isRevoking"
-                      class="confirm-btn danger"
-                    >
-                      <mat-spinner *ngIf="isRevoking" diameter="18" class="mr-2"></mat-spinner>
-                      {{
-                        isRevoking
-                          ? ('settings.api_key.revoking' | transloco)
-                          : ('settings.api_key.confirm_revoke' | transloco)
-                      }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Documentation Link -->
-          <div class="docs-card mt-6">
-            <div class="flex items-center gap-4">
-              <div class="docs-icon">
-                <mat-icon>menu_book</mat-icon>
-              </div>
-              <div class="flex-1">
-                <h3 class="font-medium text-gray-900 dark:text-white">
-                  {{ 'settings.api_key.need_help' | transloco }}
-                </h3>
-                <p class="text-gray-500 text-sm">
-                  {{ 'settings.api_key.docs_description' | transloco }}
-                </p>
-              </div>
-              <a
-                href="https://docs.verifik.co/authentication/renew-your-token-jwt"
-                target="_blank"
-                rel="noopener noreferrer"
-                mat-stroked-button
-                class="docs-button"
-              >
-                {{ 'settings.api_key.view_docs' | transloco }}
-                <mat-icon>open_in_new</mat-icon>
-              </a>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- Profile Panel -->
-        <ng-container *ngIf="selectedPanel === 'profile'">
-          <!-- Panel Header -->
-          <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ 'settings.profile.title' | transloco }}
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-              {{ 'settings.profile.subtitle' | transloco }}
-            </p>
-          </div>
-
-          <!-- Profile Card -->
-          <div class="content-card mb-6">
-            <div class="card-body p-0">
-              <!-- Photo Upload Section -->
-              <div class="p-6 border-b border-gray-100 dark:border-gray-700">
-                <div class="flex flex-col gap-1 mb-6">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    {{ 'settings.profile.photo' | transloco }}
-                  </h3>
-                  <p class="text-sm text-gray-500">
-                    {{ 'settings.profile.photo_desc' | transloco }}
-                  </p>
-                </div>
-
-                <div class="flex flex-col md:flex-row gap-8 items-start">
-                  <!-- Preview Circle -->
-                  <div class="shrink-0">
-                    <div
-                      class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
-                    >
-                      <img
-                        *ngIf="avatar"
-                        [src]="avatar"
-                        class="w-full h-full object-cover"
-                        alt="Profile avatar"
-                      />
-                      <div
-                        *ngIf="!avatar"
-                        class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white text-4xl font-semibold"
-                      >
-                        {{ getUserInitial() }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Drop Zone -->
-                  <div class="flex-1 w-full">
-                    <input
-                      id="avatarInput"
-                      type="file"
-                      class="hidden"
-                      (change)="onFileBrowse($event)"
-                      accept=".png,.jpg,.jpeg"
-                    />
-                    <label
-                      for="avatarInput"
-                      class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
-                      (drop)="onFileDropped($event)"
-                      (dragover)="onDragOver($event)"
-                    >
-                      <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                        <mat-icon class="text-gray-400 mb-2" style="width: 32px; height: 32px; font-size: 32px;"
-                          >cloud_upload</mat-icon
-                        >
-                        <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                          <span class="font-semibold text-blue-600">{{
-                            'settings.profile.drag_drop' | transloco
-                          }}</span>
-                          {{ 'settings.profile.or_click' | transloco }}
-                        </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                          {{ 'settings.profile.file_types' | transloco }}
-                        </p>
-                      </div>
-                    </label>
-
-                    <div *ngIf="avatar" class="flex justify-end">
-                      <button
-                        mat-stroked-button
-                        color="warn"
-                        (click)="removeAvatar()"
-                        class="text-sm"
-                      >
-                        {{ 'settings.profile.remove_photo' | transloco }}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Personal Info Form -->
-              <form *ngIf="profileLoaded" [formGroup]="profileForm" class="p-6">
-                <div class="flex flex-col gap-1 mb-6">
-                  <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                    {{ 'settings.profile.personal_info' | transloco }}
-                  </h3>
-                  <p class="text-sm text-gray-500">
-                    {{ 'settings.profile.privacy_info' | transloco }}
-                  </p>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <!-- Name -->
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.profile.full_name' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="name"
-                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    />
-                  </div>
-
-                  <!-- Email -->
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.profile.email' | transloco }}
-                    </label>
-                    <input
-                      type="email"
-                      formControlName="email"
-                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    />
-                  </div>
-
-                  <!-- Country Code -->
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.profile.prefix' | transloco }}
-                    </label>
-                    <div class="relative">
-                      <select
-                        formControlName="countryCode"
-                        class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white"
-                      >
-                        <option *ngFor="let country of countryCodes" [value]="country.dialCode">
-                          {{ country.dialCode }} {{ country.name | transloco }}
-                        </option>
-                      </select>
-                      <mat-icon
-                        class="absolute right-3 top-3 pointer-events-none text-gray-400"
-                        style="width: 20px; height: 20px; font-size: 20px;"
-                        >expand_more</mat-icon
-                      >
-                    </div>
-                  </div>
-
-                  <!-- Phone -->
-                  <div class="flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.profile.phone' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="phone"
-                      class="h-11 px-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 cursor-not-allowed w-full focus:outline-none"
-                    />
-                  </div>
-
-                  <!-- Company -->
-                  <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.profile.company' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="company"
-                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    />
-                  </div>
-
-                  <!-- Address -->
-                  <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.profile.address' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="address"
-                      class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                <div class="flex justify-end">
-                  <button
-                    mat-flat-button
-                    color="primary"
-                    class="!bg-blue-600 hover:!bg-blue-700 text-white px-8 h-11 rounded-lg profile-save-btn"
-                    (click)="saveProfile()"
-                    [disabled]="isSavingProfile || profileForm.invalid"
-                  >
-                    <span class="profile-save-btn-content">
-                      <mat-spinner
-                        *ngIf="isSavingProfile"
-                        diameter="18"
-                        class="profile-save-spinner"
-                      ></mat-spinner>
-                      <span class="profile-save-text">
-                        {{
-                          isSavingProfile
-                            ? ('settings.profile.saving' | transloco)
-                            : ('settings.profile.save' | transloco)
-                        }}
-                      </span>
-                    </span>
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- Billing Details Panel -->
-        <ng-container *ngIf="selectedPanel === 'billing_details'">
-          <!-- Panel Header -->
-          <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ 'settings.billing.title' | transloco }}
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-              {{ 'settings.billing.subtitle' | transloco }}
-            </p>
-          </div>
-
-          <div *ngIf="!billingLoaded" class="flex items-center justify-center py-12">
-            <mat-spinner diameter="32"></mat-spinner>
-          </div>
-
-          <div *ngIf="billingLoaded" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Left Column: Payer Information -->
-            <div class="content-card">
-              <div class="card-header">
-                <div class="flex items-center gap-3">
-                  <div class="card-icon" [ngClass]="isABusiness() ? 'purple' : 'blue'">
-                    <mat-icon>{{ isABusiness() ? 'business' : 'person' }}</mat-icon>
-                  </div>
-                  <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">
-                      {{ 'settings.billing.payer_info' | transloco }}
-                    </h2>
-                    <p class="text-gray-500 text-xs">
-                      {{ 'settings.billing.payer_info_desc' | transloco }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <form [formGroup]="payerForm" class="card-body">
-                <!-- Type Selection -->
-                <div class="mb-6">
-                  <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">
-                    {{ 'settings.billing.type' | transloco }}
-                  </label>
-                  <div class="billing-type-toggle">
-                    <button
-                      type="button"
-                      (click)="payerForm.patchValue({ type: 'person' })"
-                      [class.active]="isAPerson()"
-                      class="type-btn"
-                    >
-                      <mat-icon>person</mat-icon>
-                      {{ 'settings.billing.person' | transloco }}
-                    </button>
-                    <button
-                      type="button"
-                      (click)="payerForm.patchValue({ type: 'business' })"
-                      [class.active]="isABusiness()"
-                      class="type-btn"
-                    >
-                      <mat-icon>business</mat-icon>
-                      {{ 'settings.billing.business' | transloco }}
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Business Fields -->
-                <ng-container *ngIf="isABusiness()">
-                  <div class="form-field mb-4">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.business_name' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="business_name"
-                      class="form-input"
-                      [placeholder]="'settings.billing.business_name_placeholder' | transloco"
-                    />
-                  </div>
-
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.document_type' | transloco }}
-                      </label>
-                      <select formControlName="business_documentType" class="form-input">
-                        <option value="">{{ 'settings.billing.select_document_type' | transloco }}</option>
-                        <option *ngFor="let doc of businessDocumentTypes" [value]="doc.value">
-                          {{ doc.label }}
-                        </option>
-                      </select>
-                    </div>
-
-                    <div class="form-field" *ngIf="checkIfDocumentNumberIsNeeded()">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.document_number' | transloco }}
-                      </label>
-                      <input
-                        type="text"
-                        formControlName="business_documentNumber"
-                        class="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.country_code' | transloco }}
-                      </label>
-                      <div class="country-autocomplete-wrapper">
-                        <input
-                          type="text"
-                          formControlName="business_countryCode"
-                          class="form-input country-autocomplete-input"
-                          [placeholder]="'settings.billing.search_country' | transloco"
-                          (focus)="showBusinessCountryDropdown = true"
-                          (blur)="onCountryBlur('business')"
-                          autocomplete="off"
-                        />
-                        <mat-icon class="country-search-icon">search</mat-icon>
-                        <div
-                          *ngIf="showBusinessCountryDropdown"
-                          class="country-dropdown"
-                        >
-                          <div
-                            *ngFor="let country of getFilteredBusinessCountryCodes()"
-                            class="country-option"
-                            (mousedown)="selectCountryCode(country, 'business')"
-                          >
-                            <span class="country-code">{{ country.code }}</span>
-                            <span class="country-name">{{ country.name }}</span>
-                          </div>
-                          <div
-                            *ngIf="getFilteredBusinessCountryCodes().length === 0"
-                            class="country-option no-results"
-                          >
-                            {{ 'settings.billing.no_results' | transloco }}
-                          </div>
+    <mat-sidenav-container class="flex-auto">
+        <!-- Sidebar -->
+        <mat-sidenav
+            #drawer
+            [mode]="drawerMode"
+            [opened]="drawerOpened"
+            class="w-72 dark:bg-gray-900"
+        >
+            <div class="flex flex-col h-full">
+                <!-- Sidebar Header -->
+                <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <div class="settings-header-icon">
+                            <mat-icon class="text-white">settings</mat-icon>
                         </div>
-                      </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                {{ 'settings.title' | transloco }}
+                            </h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ 'settings.subtitle' | transloco }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Sections -->
+                <div class="flex-1 overflow-y-auto p-4">
+                    <ng-container *ngFor="let section of sections; let last = last">
+                        <div class="mb-6" [class.mb-0]="last">
+                            <h3
+                                class="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                            >
+                                {{ section.title | transloco }}
+                            </h3>
+
+                            <div class="space-y-1">
+                                <button
+                                    *ngFor="let panel of section.panels"
+                                    (click)="selectPanel(panel.id)"
+                                    [class.active]="isPanelSelected(panel.id)"
+                                    [class.disabled]="panel.disabled"
+                                    class="nav-item w-full"
+                                >
+                                    <mat-icon [svgIcon]="panel.icon" class="nav-icon"></mat-icon>
+                                    <span class="nav-label">{{ panel.title | transloco }}</span>
+                                    <span *ngIf="panel.badge" class="nav-badge">
+                                        {{ panel.badge | transloco }}
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+
+                <!-- User Info Footer -->
+                <div *ngIf="user" class="p-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold"
+                        >
+                            {{ user?.name?.charAt(0) || 'U' }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {{ user?.name || 'User' }}
+                            </p>
+                            <p class="text-xs text-gray-500 truncate">
+                                {{ user?.email || user?.phone || 'Web2 Account' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </mat-sidenav>
+
+        <!-- Main Content -->
+        <mat-sidenav-content class="flex flex-col bg-gray-50 dark:bg-gray-900">
+            <div class="flex-1 p-6 lg:p-8 max-w-4xl mx-auto w-full">
+                <!-- API Key Panel -->
+                <ng-container *ngIf="selectedPanel === 'api_key'">
+                    <!-- Panel Header -->
+                    <div class="mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ 'settings.api_key.title' | transloco }}
+                        </h1>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">
+                            {{ 'settings.api_key.subtitle' | transloco }}
+                        </p>
                     </div>
 
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.phone' | transloco }}
-                      </label>
-                      <input
-                        type="text"
-                        formControlName="business_phone"
-                        class="form-input"
-                      />
+                    <!-- New Token Alert -->
+                    <div *ngIf="showNewTokenAlert" class="new-token-alert mb-6">
+                        <div class="flex items-start gap-4">
+                            <div class="alert-icon-success">
+                                <mat-icon>check_circle</mat-icon>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-green-800">
+                                    {{ 'settings.api_key.new_token_generated' | transloco }}
+                                </h3>
+                                <p class="text-green-700 text-sm mt-1">
+                                    {{ 'settings.api_key.copy_token_warning' | transloco }}
+                                </p>
+                            </div>
+                            <button
+                                mat-icon-button
+                                (click)="dismissNewTokenAlert()"
+                                class="text-green-600"
+                            >
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
                     </div>
-                  </div>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.email' | transloco }}
-                      </label>
-                      <input
-                        type="email"
-                        formControlName="business_email"
-                        class="form-input"
-                      />
+                    <!-- Current Token Card -->
+                    <div class="content-card mb-6">
+                        <div class="card-header">
+                            <div class="flex items-center gap-3">
+                                <div class="card-icon blue">
+                                    <mat-icon>vpn_key</mat-icon>
+                                </div>
+                                <div>
+                                    <h2 class="font-semibold text-gray-900 dark:text-white">
+                                        {{ 'settings.api_key.current_token' | transloco }}
+                                    </h2>
+                                    <p class="text-gray-500 text-xs">
+                                        {{ 'settings.api_key.bearer_token_info' | transloco }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="token-status">
+                                <span class="status-dot"></span>
+                                {{ 'settings.api_key.active' | transloco }}
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="token-display-wrapper">
+                                <div class="token-display" (click)="copyToken()">
+                                    <code class="token-text">
+                                        {{ hidePassword ? getMaskedToken() : accessToken }}
+                                    </code>
+                                </div>
+                                <div class="token-actions">
+                                    <button
+                                        mat-icon-button
+                                        (click)="hidePassword = !hidePassword"
+                                        [matTooltip]="
+                                            hidePassword
+                                                ? ('settings.api_key.show_token' | transloco)
+                                                : ('settings.api_key.hide_token' | transloco)
+                                        "
+                                        class="action-btn"
+                                    >
+                                        <mat-icon>{{
+                                            hidePassword ? 'visibility' : 'visibility_off'
+                                        }}</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
+                                        (click)="copyToken()"
+                                        [matTooltip]="'settings.api_key.copy_token' | transloco"
+                                        class="action-btn"
+                                    >
+                                        <mat-icon>content_copy</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <p class="usage-hint">
+                                <mat-icon class="inline-icon">info</mat-icon>
+                                {{ 'settings.api_key.usage_hint' | transloco }}
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.legal_representative' | transloco }}
-                      </label>
-                      <input
-                        type="text"
-                        formControlName="business_legalRepresentative"
-                        class="form-input"
-                      />
+                    <!-- Action Cards Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Renew Token Card -->
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <div class="action-icon renew">
+                                    <mat-icon>autorenew</mat-icon>
+                                </div>
+                                <h3 class="action-title">
+                                    {{ 'settings.api_key.renew_token' | transloco }}
+                                </h3>
+                            </div>
+                            <p class="action-description">
+                                {{ 'settings.api_key.renew_description' | transloco }}
+                            </p>
+
+                            <div *ngIf="!showRenewPanel" class="action-footer">
+                                <button
+                                    mat-stroked-button
+                                    color="primary"
+                                    (click)="toggleRenewPanel()"
+                                    class="action-button"
+                                >
+                                    {{ 'settings.api_key.extend_validity' | transloco }}
+                                    <mat-icon>arrow_forward</mat-icon>
+                                </button>
+                            </div>
+
+                            <!-- Renew Panel -->
+                            <div *ngIf="showRenewPanel" class="expand-panel">
+                                <div class="panel-content">
+                                    <label class="panel-label">
+                                        {{ 'settings.api_key.select_expiration' | transloco }}
+                                    </label>
+                                    <div class="expiration-grid">
+                                        <button
+                                            *ngFor="let option of expirationOptions"
+                                            (click)="selectedExpiration = option.value"
+                                            [class.selected]="selectedExpiration === option.value"
+                                            class="expiration-option"
+                                        >
+                                            {{ option.label }}
+                                            <span class="expiration-unit">{{
+                                                'settings.api_key.months' | transloco
+                                            }}</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="panel-actions">
+                                        <button
+                                            mat-button
+                                            (click)="toggleRenewPanel()"
+                                            [disabled]="isRenewing"
+                                        >
+                                            {{ 'settings.api_key.cancel' | transloco }}
+                                        </button>
+                                        <button
+                                            mat-flat-button
+                                            color="primary"
+                                            (click)="renewToken()"
+                                            [disabled]="isRenewing"
+                                            class="confirm-btn"
+                                        >
+                                            <mat-spinner
+                                                *ngIf="isRenewing"
+                                                diameter="18"
+                                                class="mr-2"
+                                            ></mat-spinner>
+                                            {{
+                                                isRenewing
+                                                    ? ('settings.api_key.renewing' | transloco)
+                                                    : ('settings.api_key.renew_now' | transloco)
+                                            }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Revoke & Generate New Card -->
+                        <div class="action-card danger">
+                            <div class="action-card-header">
+                                <div class="action-icon revoke">
+                                    <mat-icon>sync_problem</mat-icon>
+                                </div>
+                                <h3 class="action-title">
+                                    {{ 'settings.api_key.revoke_generate' | transloco }}
+                                </h3>
+                            </div>
+                            <p class="action-description">
+                                {{ 'settings.api_key.revoke_description' | transloco }}
+                            </p>
+
+                            <div *ngIf="!showRevokeConfirm" class="action-footer">
+                                <button
+                                    mat-stroked-button
+                                    color="warn"
+                                    (click)="toggleRevokeConfirm()"
+                                    class="action-button danger"
+                                >
+                                    {{ 'settings.api_key.revoke_all' | transloco }}
+                                    <mat-icon>arrow_forward</mat-icon>
+                                </button>
+                            </div>
+
+                            <!-- Revoke Confirmation Panel -->
+                            <div *ngIf="showRevokeConfirm" class="expand-panel danger">
+                                <div class="panel-content">
+                                    <div class="warning-box">
+                                        <mat-icon class="warning-icon">warning</mat-icon>
+                                        <div>
+                                            <p class="warning-title">
+                                                {{ 'settings.api_key.warning_title' | transloco }}
+                                            </p>
+                                            <p class="warning-text">
+                                                {{ 'settings.api_key.warning_text' | transloco }}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel-actions">
+                                        <button
+                                            mat-button
+                                            (click)="toggleRevokeConfirm()"
+                                            [disabled]="isRevoking"
+                                        >
+                                            {{ 'settings.api_key.cancel' | transloco }}
+                                        </button>
+                                        <button
+                                            mat-flat-button
+                                            color="warn"
+                                            (click)="revokeAndGenerateNew()"
+                                            [disabled]="isRevoking"
+                                            class="confirm-btn danger"
+                                        >
+                                            <mat-spinner
+                                                *ngIf="isRevoking"
+                                                diameter="18"
+                                                class="mr-2"
+                                            ></mat-spinner>
+                                            {{
+                                                isRevoking
+                                                    ? ('settings.api_key.revoking' | transloco)
+                                                    : ('settings.api_key.confirm_revoke'
+                                                      | transloco)
+                                            }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div>
+
+                    <!-- Documentation Link -->
+                    <div class="docs-card mt-6">
+                        <div class="flex items-center gap-4">
+                            <div class="docs-icon">
+                                <mat-icon>menu_book</mat-icon>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-900 dark:text-white">
+                                    {{ 'settings.api_key.need_help' | transloco }}
+                                </h3>
+                                <p class="text-gray-500 text-sm">
+                                    {{ 'settings.api_key.docs_description' | transloco }}
+                                </p>
+                            </div>
+                            <a
+                                href="https://docs.verifik.co/authentication/renew-your-token-jwt"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                mat-stroked-button
+                                class="docs-button"
+                            >
+                                {{ 'settings.api_key.view_docs' | transloco }}
+                                <mat-icon>open_in_new</mat-icon>
+                            </a>
+                        </div>
+                    </div>
                 </ng-container>
 
-                <!-- Person Fields -->
-                <ng-container *ngIf="isAPerson()">
-                  <div class="form-field mb-4">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.full_name' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="person_name"
-                      class="form-input"
-                      [placeholder]="'settings.billing.full_name_placeholder' | transloco"
-                    />
-                  </div>
-
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.document_type' | transloco }}
-                      </label>
-                      <select formControlName="person_documentType" class="form-input">
-                        <option value="">{{ 'settings.billing.select_document_type' | transloco }}</option>
-                        <option *ngFor="let doc of personDocumentTypes" [value]="doc.value">
-                          {{ doc.label }}
-                        </option>
-                      </select>
+                <!-- Profile Panel -->
+                <ng-container *ngIf="selectedPanel === 'profile'">
+                    <!-- Panel Header -->
+                    <div class="mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ 'settings.profile.title' | transloco }}
+                        </h1>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">
+                            {{ 'settings.profile.subtitle' | transloco }}
+                        </p>
                     </div>
 
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.document_number' | transloco }}
-                      </label>
-                      <input
-                        type="text"
-                        formControlName="person_documentNumber"
-                        class="form-input"
-                      />
-                    </div>
-                  </div>
+                    <!-- Profile Card -->
+                    <div class="content-card mb-6">
+                        <div class="card-body p-0">
+                            <!-- Photo Upload Section -->
+                            <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex flex-col gap-1 mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ 'settings.profile.photo' | transloco }}
+                                    </h3>
+                                    <p class="text-sm text-gray-500">
+                                        {{ 'settings.profile.photo_desc' | transloco }}
+                                    </p>
+                                </div>
 
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.country_code' | transloco }}
-                      </label>
-                      <div class="country-autocomplete-wrapper">
-                        <input
-                          type="text"
-                          formControlName="person_countryCode"
-                          class="form-input country-autocomplete-input"
-                          [placeholder]="'settings.billing.search_country' | transloco"
-                          (focus)="showPersonCountryDropdown = true"
-                          (blur)="onCountryBlur('person')"
-                          autocomplete="off"
-                        />
-                        <mat-icon class="country-search-icon">search</mat-icon>
-                        <div
-                          *ngIf="showPersonCountryDropdown"
-                          class="country-dropdown"
-                        >
-                          <div
-                            *ngFor="let country of getFilteredPersonCountryCodes()"
-                            class="country-option"
-                            (mousedown)="selectCountryCode(country, 'person')"
-                          >
-                            <span class="country-code">{{ country.code }}</span>
-                            <span class="country-name">{{ country.name }}</span>
-                          </div>
-                          <div
-                            *ngIf="getFilteredPersonCountryCodes().length === 0"
-                            class="country-option no-results"
-                          >
-                            {{ 'settings.billing.no_results' | transloco }}
-                          </div>
+                                <div class="flex flex-col md:flex-row gap-8 items-start">
+                                    <!-- Preview Circle -->
+                                    <div class="shrink-0">
+                                        <div
+                                            class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
+                                        >
+                                            <img
+                                                *ngIf="avatar"
+                                                [src]="avatar"
+                                                class="w-full h-full object-cover"
+                                                alt="Profile avatar"
+                                            />
+                                            <div
+                                                *ngIf="!avatar"
+                                                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 text-white text-4xl font-semibold"
+                                            >
+                                                {{ getUserInitial() }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Drop Zone -->
+                                    <div class="flex-1 w-full">
+                                        <input
+                                            id="avatarInput"
+                                            type="file"
+                                            class="hidden"
+                                            (change)="onFileBrowse($event)"
+                                            accept=".png,.jpg,.jpeg"
+                                        />
+                                        <label
+                                            for="avatarInput"
+                                            class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
+                                            (drop)="onFileDropped($event)"
+                                            (dragover)="onDragOver($event)"
+                                        >
+                                            <div
+                                                class="flex flex-col items-center justify-center pt-5 pb-6"
+                                            >
+                                                <mat-icon
+                                                    class="text-gray-400 mb-2"
+                                                    style="
+                                                        width: 32px;
+                                                        height: 32px;
+                                                        font-size: 32px;
+                                                    "
+                                                    >cloud_upload</mat-icon
+                                                >
+                                                <p
+                                                    class="mb-1 text-sm text-gray-500 dark:text-gray-400"
+                                                >
+                                                    <span class="font-semibold text-blue-600">{{
+                                                        'settings.profile.drag_drop' | transloco
+                                                    }}</span>
+                                                    {{ 'settings.profile.or_click' | transloco }}
+                                                </p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                    {{ 'settings.profile.file_types' | transloco }}
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        <div *ngIf="avatar" class="flex justify-end">
+                                            <button
+                                                mat-stroked-button
+                                                color="warn"
+                                                (click)="removeAvatar()"
+                                                class="text-sm"
+                                            >
+                                                {{ 'settings.profile.remove_photo' | transloco }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Personal Info Form -->
+                            <form *ngIf="profileLoaded" [formGroup]="profileForm" class="p-6">
+                                <div class="flex flex-col gap-1 mb-6">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        {{ 'settings.profile.personal_info' | transloco }}
+                                    </h3>
+                                    <p class="text-sm text-gray-500">
+                                        {{ 'settings.profile.privacy_info' | transloco }}
+                                    </p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                    <!-- Name -->
+                                    <div class="flex flex-col gap-1.5">
+                                        <label
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ 'settings.profile.full_name' | transloco }}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            formControlName="name"
+                                            class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="flex flex-col gap-1.5">
+                                        <label
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ 'settings.profile.email' | transloco }}
+                                        </label>
+                                        <input
+                                            type="email"
+                                            formControlName="email"
+                                            class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <!-- Country Code -->
+                                    <div class="flex flex-col gap-1.5">
+                                        <label
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ 'settings.profile.prefix' | transloco }}
+                                        </label>
+                                        <div class="relative">
+                                            <select
+                                                formControlName="countryCode"
+                                                class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white"
+                                            >
+                                                <option
+                                                    *ngFor="let country of countryCodes"
+                                                    [value]="country.dialCode"
+                                                >
+                                                    {{ country.dialCode }}
+                                                    {{ country.name | transloco }}
+                                                </option>
+                                            </select>
+                                            <mat-icon
+                                                class="absolute right-3 top-3 pointer-events-none text-gray-400"
+                                                style="width: 20px; height: 20px; font-size: 20px"
+                                                >expand_more</mat-icon
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div class="flex flex-col gap-1.5">
+                                        <label
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ 'settings.profile.phone' | transloco }}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            formControlName="phone"
+                                            class="h-11 px-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 cursor-not-allowed w-full focus:outline-none"
+                                        />
+                                    </div>
+
+                                    <!-- Company -->
+                                    <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
+                                        <label
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ 'settings.profile.company' | transloco }}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            formControlName="company"
+                                            class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                                        />
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="col-span-1 md:col-span-2 flex flex-col gap-1.5">
+                                        <label
+                                            class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                        >
+                                            {{ 'settings.profile.address' | transloco }}
+                                        </label>
+                                        <input
+                                            type="text"
+                                            formControlName="address"
+                                            class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end">
+                                    <button
+                                        mat-flat-button
+                                        color="primary"
+                                        class="!bg-blue-600 hover:!bg-blue-700 text-white px-8 h-11 rounded-lg profile-save-btn"
+                                        (click)="saveProfile()"
+                                        [disabled]="isSavingProfile || profileForm.invalid"
+                                    >
+                                        <span class="profile-save-btn-content">
+                                            <mat-spinner
+                                                *ngIf="isSavingProfile"
+                                                diameter="18"
+                                                class="profile-save-spinner"
+                                            ></mat-spinner>
+                                            <span class="profile-save-text">
+                                                {{
+                                                    isSavingProfile
+                                                        ? ('settings.profile.saving' | transloco)
+                                                        : ('settings.profile.save' | transloco)
+                                                }}
+                                            </span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                      </div>
                     </div>
-
-                    <div class="form-field">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.billing.phone' | transloco }}
-                      </label>
-                      <input
-                        type="text"
-                        formControlName="person_phone"
-                        class="form-input"
-                      />
-                    </div>
-                  </div>
-
-                  <div class="form-field">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.email' | transloco }}
-                    </label>
-                    <input
-                      type="email"
-                      formControlName="person_email"
-                      class="form-input"
-                    />
-                  </div>
                 </ng-container>
-              </form>
-            </div>
 
-            <!-- Right Column: Address Information -->
-            <div class="content-card">
-              <div class="card-header">
-                <div class="flex items-center gap-3">
-                  <div class="card-icon green">
-                    <mat-icon>location_on</mat-icon>
-                  </div>
-                  <div>
-                    <h2 class="font-semibold text-gray-900 dark:text-white">
-                      {{ 'settings.billing.address_title' | transloco }}
-                    </h2>
-                    <p class="text-gray-500 text-xs">
-                      {{ 'settings.billing.address_desc' | transloco }}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                <!-- Billing Details Panel -->
+                <ng-container *ngIf="selectedPanel === 'billing_details'">
+                    <app-billing-details [user]="user"></app-billing-details>
+                </ng-container>
 
-              <form [formGroup]="addressForm" class="card-body">
-                <div class="form-field mb-4">
-                  <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {{ 'settings.billing.address' | transloco }}
-                  </label>
-                  <input
-                    type="text"
-                    formControlName="address"
-                    class="form-input"
-                    [placeholder]="'settings.billing.address_placeholder' | transloco"
-                  />
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div class="form-field">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.city' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="city"
-                      class="form-input"
-                    />
-                  </div>
-
-                  <div class="form-field">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.province' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="province"
-                      class="form-input"
-                    />
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="form-field">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.country' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="country"
-                      class="form-input"
-                    />
-                  </div>
-
-                  <div class="form-field">
-                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      {{ 'settings.billing.postal_code' | transloco }}
-                    </label>
-                    <input
-                      type="text"
-                      formControlName="postalCode"
-                      class="form-input"
-                    />
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          <!-- Save Button -->
-          <div *ngIf="billingLoaded" class="flex justify-end mt-6">
-            <button
-              mat-flat-button
-              color="primary"
-              class="billing-save-btn"
-              [class.disabled]="!isBillingFormValid()"
-              (click)="saveBillingDetails()"
-              [disabled]="isSavingBilling || !isBillingFormValid()"
-            >
-              <span class="billing-save-btn-content">
-                <mat-spinner
-                  *ngIf="isSavingBilling"
-                  diameter="18"
-                  class="billing-save-spinner"
-                ></mat-spinner>
-                <span class="billing-save-text">
-                  {{
-                    isSavingBilling
-                      ? ('settings.billing.saving' | transloco)
-                      : ('settings.billing.save' | transloco)
-                  }}
-                </span>
-              </span>
-            </button>
-          </div>
-        </ng-container>
-
-        <!-- General Settings Panel -->
-        <ng-container *ngIf="selectedPanel === 'general'">
-          <!-- Panel Header -->
-          <div class="mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-              {{ 'settings.general.title' | transloco }}
-            </h1>
-            <p class="mt-2 text-gray-600 dark:text-gray-400">
-              {{ 'settings.general.subtitle' | transloco }}
-            </p>
-          </div>
-
-          <div *ngIf="!workspaceLoaded" class="flex items-center justify-center py-12">
-            <mat-spinner diameter="32"></mat-spinner>
-          </div>
-
-          <div *ngIf="workspaceLoaded">
-            <!-- Workspace Card -->
-            <div class="content-card mb-6">
-              <div class="card-body p-0">
-                <!-- Logo Upload Section -->
-                <div class="p-6 border-b border-gray-100 dark:border-gray-700">
-                  <div class="flex flex-col gap-1 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                      {{ 'settings.general.logo' | transloco }}
-                    </h3>
-                    <p class="text-sm text-gray-500">
-                      {{ 'settings.general.logo_desc' | transloco }}
-                    </p>
-                  </div>
-
-                  <div class="flex flex-col md:flex-row gap-8 items-start">
-                    <!-- Preview Circle -->
-                    <div class="shrink-0">
-                      <div
-                        class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
-                      >
-                        <img
-                          *ngIf="workspaceLogo"
-                          [src]="workspaceLogo"
-                          class="w-full h-full object-cover"
-                          alt="Workspace logo"
-                        />
-                        <mat-icon
-                          *ngIf="!workspaceLogo"
-                          class="text-gray-400"
-                          style="width: 40px; height: 40px; font-size: 40px;"
-                          >business</mat-icon
-                        >
-                      </div>
+                <!-- General Settings Panel -->
+                <ng-container *ngIf="selectedPanel === 'general'">
+                    <!-- Panel Header -->
+                    <div class="mb-8">
+                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            {{ 'settings.general.title' | transloco }}
+                        </h1>
+                        <p class="mt-2 text-gray-600 dark:text-gray-400">
+                            {{ 'settings.general.subtitle' | transloco }}
+                        </p>
                     </div>
 
-                    <!-- Drop Zone -->
-                    <div class="flex-1 w-full">
-                      <input
-                        id="workspaceLogoInput"
-                        type="file"
-                        class="hidden"
-                        (change)="onWorkspaceLogoBrowse($event)"
-                        accept=".png,.jpg,.jpeg"
-                      />
-                      <label
-                        for="workspaceLogoInput"
-                        class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
-                        (drop)="onWorkspaceLogoDropped($event)"
-                        (dragover)="onDragOver($event)"
-                      >
-                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                          <mat-icon
-                            class="text-gray-400 mb-2"
-                            style="width: 32px; height: 32px; font-size: 32px;"
-                            >cloud_upload</mat-icon
-                          >
-                          <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                            <span class="font-semibold text-blue-600">{{
-                              'settings.profile.drag_drop' | transloco
-                            }}</span>
-                            {{ 'settings.profile.or_click' | transloco }}
-                          </p>
-                          <p class="text-xs text-gray-500 dark:text-gray-400">
-                            {{ 'settings.profile.file_types' | transloco }}
-                          </p>
+                    <div *ngIf="!workspaceLoaded" class="flex items-center justify-center py-12">
+                        <mat-spinner diameter="32"></mat-spinner>
+                    </div>
+
+                    <div *ngIf="workspaceLoaded">
+                        <!-- Workspace Card -->
+                        <div class="content-card mb-6">
+                            <div class="card-body p-0">
+                                <!-- Logo Upload Section -->
+                                <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                                    <div class="flex flex-col gap-1 mb-6">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 dark:text-white"
+                                        >
+                                            {{ 'settings.general.logo' | transloco }}
+                                        </h3>
+                                        <p class="text-sm text-gray-500">
+                                            {{ 'settings.general.logo_desc' | transloco }}
+                                        </p>
+                                    </div>
+
+                                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                                        <!-- Preview Circle -->
+                                        <div class="shrink-0">
+                                            <div
+                                                class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
+                                            >
+                                                <img
+                                                    *ngIf="workspaceLogo"
+                                                    [src]="workspaceLogo"
+                                                    class="w-full h-full object-cover"
+                                                    alt="Workspace logo"
+                                                />
+                                                <mat-icon
+                                                    *ngIf="!workspaceLogo"
+                                                    class="text-gray-400"
+                                                    style="
+                                                        width: 40px;
+                                                        height: 40px;
+                                                        font-size: 40px;
+                                                    "
+                                                    >business</mat-icon
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <!-- Drop Zone -->
+                                        <div class="flex-1 w-full">
+                                            <input
+                                                id="workspaceLogoInput"
+                                                type="file"
+                                                class="hidden"
+                                                (change)="onWorkspaceLogoBrowse($event)"
+                                                accept=".png,.jpg,.jpeg"
+                                            />
+                                            <label
+                                                for="workspaceLogoInput"
+                                                class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
+                                                (drop)="onWorkspaceLogoDropped($event)"
+                                                (dragover)="onDragOver($event)"
+                                            >
+                                                <div
+                                                    class="flex flex-col items-center justify-center pt-5 pb-6"
+                                                >
+                                                    <mat-icon
+                                                        class="text-gray-400 mb-2"
+                                                        style="
+                                                            width: 32px;
+                                                            height: 32px;
+                                                            font-size: 32px;
+                                                        "
+                                                        >cloud_upload</mat-icon
+                                                    >
+                                                    <p
+                                                        class="mb-1 text-sm text-gray-500 dark:text-gray-400"
+                                                    >
+                                                        <span class="font-semibold text-blue-600">{{
+                                                            'settings.profile.drag_drop' | transloco
+                                                        }}</span>
+                                                        {{
+                                                            'settings.profile.or_click' | transloco
+                                                        }}
+                                                    </p>
+                                                    <p
+                                                        class="text-xs text-gray-500 dark:text-gray-400"
+                                                    >
+                                                        {{
+                                                            'settings.profile.file_types'
+                                                                | transloco
+                                                        }}
+                                                    </p>
+                                                </div>
+                                            </label>
+
+                                            <div *ngIf="workspaceLogo" class="flex justify-end">
+                                                <button
+                                                    mat-stroked-button
+                                                    color="warn"
+                                                    (click)="removeWorkspaceLogo()"
+                                                    class="text-sm"
+                                                >
+                                                    {{ 'settings.general.remove_logo' | transloco }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Workspace Name -->
+                                <div class="p-6">
+                                    <div class="flex flex-col gap-1 mb-6">
+                                        <h3
+                                            class="text-lg font-semibold text-gray-900 dark:text-white"
+                                        >
+                                            {{ 'settings.general.workspace_name' | transloco }}
+                                        </h3>
+                                        <p class="text-sm text-gray-500">
+                                            {{ 'settings.general.workspace_name_desc' | transloco }}
+                                        </p>
+                                    </div>
+
+                                    <div class="flex flex-col gap-4 max-w-lg">
+                                        <div class="flex flex-col gap-1.5">
+                                            <label
+                                                class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                            >
+                                                {{ 'settings.general.name_label' | transloco }}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                [(ngModel)]="workspaceName"
+                                                class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                                                [placeholder]="
+                                                    'settings.general.name_placeholder' | transloco
+                                                "
+                                            />
+                                        </div>
+
+                                        <div class="flex justify-end">
+                                            <button
+                                                mat-flat-button
+                                                color="primary"
+                                                class="!bg-blue-600 hover:!bg-blue-700 text-white px-8 h-11 rounded-lg workspace-save-btn"
+                                                (click)="saveWorkspace()"
+                                                [disabled]="
+                                                    isSavingWorkspace || !workspaceName?.trim()
+                                                "
+                                            >
+                                                <span class="workspace-save-btn-content">
+                                                    <mat-spinner
+                                                        *ngIf="isSavingWorkspace"
+                                                        diameter="18"
+                                                        class="workspace-save-spinner"
+                                                    ></mat-spinner>
+                                                    <span class="workspace-save-text">
+                                                        {{
+                                                            isSavingWorkspace
+                                                                ? ('settings.general.saving'
+                                                                  | transloco)
+                                                                : workspace
+                                                                  ? ('settings.general.update'
+                                                                    | transloco)
+                                                                  : ('settings.general.create'
+                                                                    | transloco)
+                                                        }}
+                                                    </span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                      </label>
 
-                      <div *ngIf="workspaceLogo" class="flex justify-end">
-                        <button
-                          mat-stroked-button
-                          color="warn"
-                          (click)="removeWorkspaceLogo()"
-                          class="text-sm"
+                        <!-- Danger Zone -->
+                        <div
+                            *ngIf="workspace && !user?.role && !user?.staff"
+                            class="danger-zone-card"
                         >
-                          {{ 'settings.general.remove_logo' | transloco }}
-                        </button>
-                      </div>
+                            <div class="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3
+                                        class="text-lg font-bold text-red-700 dark:text-red-400 mb-2"
+                                    >
+                                        {{ 'settings.general.delete_workspace' | transloco }}
+                                    </h3>
+                                    <p
+                                        class="text-sm text-red-600/80 dark:text-red-400/80 max-w-2xl leading-relaxed"
+                                    >
+                                        {{ 'settings.general.delete_warning' | transloco }}
+                                    </p>
+                                </div>
+                                <button
+                                    mat-stroked-button
+                                    color="warn"
+                                    class="!bg-white hover:!bg-red-50 dark:!bg-red-900/20 whitespace-nowrap"
+                                    (click)="openDeleteWorkspaceDialog()"
+                                >
+                                    {{ 'settings.general.delete_workspace' | transloco }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                </div>
+                </ng-container>
 
-                <!-- Workspace Name -->
-                <div class="p-6">
-                  <div class="flex flex-col gap-1 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                      {{ 'settings.general.workspace_name' | transloco }}
-                    </h3>
-                    <p class="text-sm text-gray-500">
-                      {{ 'settings.general.workspace_name_desc' | transloco }}
-                    </p>
-                  </div>
+                <!-- Team Management Panel -->
+                <ng-container *ngIf="selectedPanel === 'team'">
+                    <app-staff-list [user]="user"></app-staff-list>
+                </ng-container>
 
-                  <div class="flex flex-col gap-4 max-w-lg">
-                    <div class="flex flex-col gap-1.5">
-                      <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                        {{ 'settings.general.name_label' | transloco }}
-                      </label>
-                      <input
-                        type="text"
-                        [(ngModel)]="workspaceName"
-                        class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-                        [placeholder]="'settings.general.name_placeholder' | transloco"
-                      />
+                <!-- Coming Soon Placeholder -->
+
+                <!-- Delete Workspace Dialog -->
+                <ng-template #deleteWorkspaceDialog>
+                    <div class="delete-dialog flex flex-col bg-white dark:bg-gray-900 p-6">
+                        <div class="flex items-start gap-4 mb-6">
+                            <div
+                                class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
+                            >
+                                <mat-icon class="text-red-600 dark:text-red-400">warning</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                    {{ 'settings.general.delete_workspace' | transloco }}
+                                </h2>
+                                <p class="text-gray-500 dark:text-gray-400">
+                                    {{ 'settings.general.delete_confirm_message' | transloco }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end gap-3">
+                            <button mat-stroked-button mat-dialog-close>
+                                {{ 'settings.general.cancel' | transloco }}
+                            </button>
+                            <button
+                                mat-flat-button
+                                color="warn"
+                                [disabled]="isDeletingWorkspace"
+                                (click)="confirmDeleteWorkspace()"
+                            >
+                                <mat-spinner
+                                    *ngIf="isDeletingWorkspace"
+                                    diameter="18"
+                                    class="mr-2"
+                                ></mat-spinner>
+                                {{
+                                    isDeletingWorkspace
+                                        ? ('settings.general.deleting' | transloco)
+                                        : ('settings.general.delete_confirm' | transloco)
+                                }}
+                            </button>
+                        </div>
                     </div>
-
-                    <div class="flex justify-end">
-                      <button
-                        mat-flat-button
-                        color="primary"
-                        class="!bg-blue-600 hover:!bg-blue-700 text-white px-8 h-11 rounded-lg workspace-save-btn"
-                        (click)="saveWorkspace()"
-                        [disabled]="isSavingWorkspace || !workspaceName?.trim()"
-                      >
-                        <span class="workspace-save-btn-content">
-                          <mat-spinner
-                            *ngIf="isSavingWorkspace"
-                            diameter="18"
-                            class="workspace-save-spinner"
-                          ></mat-spinner>
-                          <span class="workspace-save-text">
-                            {{
-                              isSavingWorkspace
-                                ? ('settings.general.saving' | transloco)
-                                : (workspace
-                                    ? ('settings.general.update' | transloco)
-                                    : ('settings.general.create' | transloco))
-                            }}
-                          </span>
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Danger Zone -->
-            <div
-              *ngIf="workspace && !user?.role && !user?.staff"
-              class="danger-zone-card"
-            >
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-2">
-                    {{ 'settings.general.delete_workspace' | transloco }}
-                  </h3>
-                  <p class="text-sm text-red-600/80 dark:text-red-400/80 max-w-2xl leading-relaxed">
-                    {{ 'settings.general.delete_warning' | transloco }}
-                  </p>
-                </div>
-                <button
-                  mat-stroked-button
-                  color="warn"
-                  class="!bg-white hover:!bg-red-50 dark:!bg-red-900/20 whitespace-nowrap"
-                  (click)="openDeleteWorkspaceDialog()"
-                >
-                  {{ 'settings.general.delete_workspace' | transloco }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- Team Management Panel -->
-        <ng-container *ngIf="selectedPanel === 'team'">
-          <div class="flex flex-col h-full min-h-[calc(100vh-200px)]">
-            <!-- Panel Header -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                  {{ 'settings.team.title' | transloco }}
-                </h1>
-                <p class="mt-2 text-gray-600 dark:text-gray-400">
-                  {{ 'settings.team.subtitle' | transloco }}
-                </p>
-              </div>
-
-              <button
-                *ngIf="!user?.staff || user?.role === 'administrador'"
-                mat-flat-button
-                color="primary"
-                class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-6 h-10"
-                [class.!bg-gray-400]="!canAddMoreStaff()"
-                [class.hover:!bg-gray-400]="!canAddMoreStaff()"
-                [class.cursor-not-allowed]="!canAddMoreStaff()"
-                (click)="canAddMoreStaff() ? openStaffModal() : null"
-                [matTooltip]="!canAddMoreStaff() ? ('settings.team.limit_reached' | transloco) : ''"
-              >
-                <mat-icon class="mr-2" style="width: 20px; height: 20px; font-size: 20px;">add</mat-icon>
-                {{ 'settings.team.add_member' | transloco }}
-              </button>
-            </div>
-
-            <!-- Staff Limit Alert -->
-            <div *ngIf="selectedSubscription && staffLoaded" class="mb-6">
-              <div
-                class="rounded-xl p-4 flex items-start gap-4"
-                [ngClass]="{
-                  'bg-blue-50 border border-blue-100 dark:bg-blue-900/20 dark:border-blue-800': hasSubscription && canAddMoreStaff(),
-                  'bg-amber-50 border border-amber-100 dark:bg-amber-900/20 dark:border-amber-800': hasSubscription && !canAddMoreStaff(),
-                  'bg-red-50 border border-red-100 dark:bg-red-900/20 dark:border-red-800': !hasSubscription
-                }"
-              >
-                <mat-icon
-                  class="mt-0.5"
-                  [ngClass]="{
-                    'text-blue-600 dark:text-blue-400': hasSubscription && canAddMoreStaff(),
-                    'text-amber-600 dark:text-amber-400': hasSubscription && !canAddMoreStaff(),
-                    'text-red-600 dark:text-red-400': !hasSubscription
-                  }"
-                  style="width: 24px; height: 24px; font-size: 24px;"
-                >info</mat-icon>
-                <div class="text-sm">
-                  <p
-                    [ngClass]="{
-                      'text-blue-900 dark:text-blue-100': hasSubscription && canAddMoreStaff(),
-                      'text-amber-900 dark:text-amber-100': hasSubscription && !canAddMoreStaff(),
-                      'text-red-900 dark:text-red-100': !hasSubscription
-                    }"
-                  >
-                    <ng-container *ngIf="hasSubscription">
-                      {{ 'settings.team.limit_info_1' | transloco }}
-                      <span class="font-bold">{{ selectedSubscription.name === 'PyG' ? 'PAYG' : selectedSubscription.name }}</span>
-                      {{ 'settings.team.limit_info_2' | transloco }}
-                      <span class="font-bold">{{ staffLimit }}</span>
-                      {{ 'settings.team.limit_info_3' | transloco }}
-                      (<span class="font-semibold">{{ staffMembers.length }}/{{ staffLimit }}</span> {{ 'settings.team.used' | transloco }})
-                    </ng-container>
-                    <ng-container *ngIf="!hasSubscription">
-                      {{ 'settings.team.no_plan_warning' | transloco }}
-                    </ng-container>
-                    <a
-                      routerLink="/subscription-plans"
-                      class="underline hover:opacity-80 ml-1 font-medium"
-                      [ngClass]="{
-                        'text-blue-700 dark:text-blue-300': hasSubscription && canAddMoreStaff(),
-                        'text-amber-700 dark:text-amber-300': hasSubscription && !canAddMoreStaff(),
-                        'text-red-700 dark:text-red-300': !hasSubscription
-                      }"
-                    >
-                      {{ 'settings.team.view_plans' | transloco }}
-                    </a>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div *ngIf="isLoadingStaff" class="flex-1 flex items-center justify-center py-12">
-              <mat-spinner diameter="32"></mat-spinner>
-            </div>
-
-            <!-- Staff List -->
-            <div *ngIf="staffLoaded && !isLoadingStaff" class="content-card overflow-hidden flex-1 flex flex-col">
-            <!-- List Header -->
-            <div
-              class="hidden md:grid grid-cols-12 gap-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider"
-            >
-              <div class="col-span-4">{{ 'settings.team.name' | transloco }}</div>
-              <div class="col-span-3">{{ 'settings.team.email_label' | transloco }}</div>
-              <div class="col-span-2">{{ 'settings.team.status' | transloco }}</div>
-              <div class="col-span-2">{{ 'settings.team.role' | transloco }}</div>
-              <div class="col-span-1 text-right">{{ 'settings.team.actions' | transloco }}</div>
-            </div>
-
-            <!-- List Body -->
-            <div class="divide-y divide-gray-100 dark:divide-gray-700">
-              <ng-container *ngFor="let staff of staffMembers">
-                <div
-                  class="grid grid-cols-1 md:grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                >
-                  <!-- Name -->
-                  <div class="col-span-4 flex items-center gap-3">
-                    <div
-                      class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm overflow-hidden shrink-0"
-                    >
-                      <img *ngIf="staff.avatar" [src]="staff.avatar" class="w-full h-full object-cover" />
-                      <span *ngIf="!staff.avatar">{{ getStaffInitials(staff.name) }}</span>
-                    </div>
-                    <div class="font-medium text-gray-900 dark:text-white truncate">
-                      {{ staff.name }}
-                    </div>
-                  </div>
-
-                  <!-- Email -->
-                  <div
-                    class="col-span-3 text-sm text-gray-600 dark:text-gray-400 truncate"
-                    [matTooltip]="staff.email"
-                  >
-                    {{ truncateEmail(staff.email, 25) }}
-                  </div>
-
-                  <!-- Status -->
-                  <div class="col-span-2">
-                    <span
-                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      [ngClass]="{
-                        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': staff.status === 'active',
-                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400': staff.status !== 'active'
-                      }"
-                    >
-                      {{ 'settings.team.status_' + (staff.status || 'pending') | transloco }}
-                    </span>
-                  </div>
-
-                  <!-- Role -->
-                  <div class="col-span-2 text-sm text-gray-600 dark:text-gray-400 capitalize">
-                    {{ 'settings.team.role_' + staff.role | transloco }}
-                  </div>
-
-                  <!-- Actions -->
-                  <div class="col-span-1 flex justify-end">
-                    <button
-                      mat-icon-button
-                      [matMenuTriggerFor]="staffMenu"
-                      *ngIf="!user?.staff || user?.role === 'administrador'"
-                    >
-                      <mat-icon class="text-gray-400">more_vert</mat-icon>
-                    </button>
-                    <mat-menu #staffMenu="matMenu">
-                      <button mat-menu-item (click)="openStaffModal(staff)">
-                        <mat-icon class="text-gray-400 mr-2">edit</mat-icon>
-                        {{ 'settings.team.edit' | transloco }}
-                      </button>
-                      <button mat-menu-item (click)="reinviteStaff(staff)">
-                        <mat-icon class="text-gray-400 mr-2">send</mat-icon>
-                        {{ 'settings.team.reinvite' | transloco }}
-                      </button>
-                      <button mat-menu-item class="text-red-600" (click)="deleteStaff(staff)">
-                        <mat-icon class="text-red-400 mr-2">delete</mat-icon>
-                        {{ 'settings.team.remove' | transloco }}
-                      </button>
-                    </mat-menu>
-                  </div>
-                </div>
-              </ng-container>
-
-              <!-- Empty State -->
-              <div
-                *ngIf="!staffMembers?.length"
-                class="flex-1 p-12 flex flex-col items-center justify-center text-center"
-              >
-                <div
-                  class="w-16 h-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4"
-                >
-                  <mat-icon class="text-gray-400" style="width: 32px; height: 32px; font-size: 32px;"
-                    >group</mat-icon
-                  >
-                </div>
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                  {{ 'settings.team.no_members' | transloco }}
-                </h3>
-                <p class="text-gray-500 mt-1 max-w-sm">
-                  {{ 'settings.team.no_members_desc' | transloco }}
-                </p>
-              </div>
-            </div>
-            <!-- end divide-y list body -->
-          </div>
-          <!-- end content-card -->
-          </div>
-          <!-- end main flex container -->
-        </ng-container>
-
-        <!-- Coming Soon Placeholder -->
-        <ng-container *ngIf="selectedPanel !== 'api_key' && selectedPanel !== 'profile' && selectedPanel !== 'billing_details' && selectedPanel !== 'general' && selectedPanel !== 'team'">
-          <div class="coming-soon-container">
-            <div class="coming-soon-icon">
-              <mat-icon>construction</mat-icon>
-            </div>
-            <h2 class="text-xl font-semibold text-gray-900 dark:text-white mt-4">
-              {{ 'settings.coming_soon_title' | transloco }}
-            </h2>
-            <p class="text-gray-500 mt-2 text-center max-w-md">
-              {{ 'settings.coming_soon_desc' | transloco }}
-            </p>
-          </div>
-        </ng-container>
-      </div>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+                </ng-template>
+            </div></mat-sidenav-content
+        ></mat-sidenav-container
+    >
 </div>
-
-<!-- Staff Form Dialog -->
-<ng-template #staffFormDialog>
-  <div class="staff-dialog flex flex-col bg-white dark:bg-gray-900">
-    <!-- Modal Header -->
-    <div class="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white">
-        {{ (editingStaff ? 'settings.team.edit_member' : 'settings.team.add_member') | transloco }}
-      </h2>
-    </div>
-
-    <!-- Modal Body -->
-    <div class="flex-1 p-6 flex flex-col gap-5 overflow-y-auto" [formGroup]="staffForm">
-      <p class="text-sm text-gray-500 mb-2">
-        {{ 'settings.team.form_description' | transloco }}
-      </p>
-
-      <!-- Name -->
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {{ 'settings.team.full_name' | transloco }}
-        </label>
-        <input
-          type="text"
-          formControlName="name"
-          class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-          placeholder="e.g. John Doe"
-        />
-      </div>
-
-      <!-- Email -->
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {{ 'settings.team.email' | transloco }}
-        </label>
-        <input
-          type="email"
-          formControlName="email"
-          class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-          placeholder="e.g. john@example.com"
-        />
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Country Code -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {{ 'settings.team.country_code' | transloco }}
-          </label>
-          <div class="relative">
-            <select
-              formControlName="countryCode"
-              class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white"
-            >
-              <option *ngFor="let country of countryCodes" [value]="country.dialCode">
-                {{ country.dialCode }} {{ country.name }}
-              </option>
-            </select>
-            <mat-icon
-              class="absolute right-3 top-3 pointer-events-none text-gray-400"
-              style="width: 20px; height: 20px; font-size: 20px;"
-              >expand_more</mat-icon
-            >
-          </div>
-        </div>
-
-        <!-- Phone -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            {{ 'settings.team.phone' | transloco }}
-          </label>
-          <input
-            type="tel"
-            formControlName="phone"
-            class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
-          />
-        </div>
-      </div>
-
-      <!-- Role -->
-      <div class="flex flex-col gap-1.5">
-        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-          {{ 'settings.team.role' | transloco }}
-        </label>
-        <div class="relative">
-          <select
-            formControlName="role"
-            class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white capitalize"
-          >
-            <option value="empleado">{{ 'settings.team.role_empleado' | transloco }}</option>
-            <option value="contabilidad">{{ 'settings.team.role_contabilidad' | transloco }}</option>
-            <option value="desarrollador">{{ 'settings.team.role_desarrollador' | transloco }}</option>
-            <option value="administrador">{{ 'settings.team.role_administrador' | transloco }}</option>
-          </select>
-          <mat-icon
-            class="absolute right-3 top-3 pointer-events-none text-gray-400"
-            style="width: 20px; height: 20px; font-size: 20px;"
-            >expand_more</mat-icon
-          >
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal Footer -->
-    <div class="p-6 border-t border-gray-100 dark:border-gray-700 flex items-center justify-end gap-3 bg-gray-50/50 dark:bg-gray-800/50">
-      <button mat-stroked-button (click)="closeStaffDialog()">
-        {{ 'settings.team.cancel' | transloco }}
-      </button>
-      <button
-        mat-flat-button
-        color="primary"
-        [disabled]="isSavingStaff || staffForm.invalid"
-        class="!bg-blue-600 hover:!bg-blue-700 text-white"
-        (click)="saveStaff()"
-      >
-        <mat-spinner *ngIf="isSavingStaff" diameter="18" class="mr-2"></mat-spinner>
-        {{ isSavingStaff ? ('settings.team.saving' | transloco) : ('settings.team.save' | transloco) }}
-      </button>
-    </div>
-  </div>
-</ng-template>
-
-<!-- Delete Workspace Dialog -->
-<ng-template #deleteWorkspaceDialog>
-  <div class="delete-dialog flex flex-col bg-white dark:bg-gray-900 p-6">
-    <div class="flex items-start gap-4 mb-6">
-      <div class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-        <mat-icon class="text-red-600 dark:text-red-400">warning</mat-icon>
-      </div>
-      <div>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-          {{ 'settings.general.delete_workspace' | transloco }}
-        </h2>
-        <p class="text-gray-500 dark:text-gray-400">
-          {{ 'settings.general.delete_confirm_message' | transloco }}
-        </p>
-      </div>
-    </div>
-
-    <div class="flex items-center justify-end gap-3">
-      <button mat-stroked-button mat-dialog-close>
-        {{ 'settings.general.cancel' | transloco }}
-      </button>
-      <button
-        mat-flat-button
-        color="warn"
-        [disabled]="isDeletingWorkspace"
-        (click)="confirmDeleteWorkspace()"
-      >
-        <mat-spinner *ngIf="isDeletingWorkspace" diameter="18" class="mr-2"></mat-spinner>
-        {{ isDeletingWorkspace ? ('settings.general.deleting' | transloco) : ('settings.general.delete_confirm' | transloco) }}
-      </button>
-    </div>
-  </div>
-</ng-template>

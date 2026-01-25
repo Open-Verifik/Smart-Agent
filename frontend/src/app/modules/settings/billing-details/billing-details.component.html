@@ -1,0 +1,483 @@
+<div class="flex flex-col h-full bg-white dark:bg-gray-900 overflow-hidden">
+    <!-- Header -->
+    <div
+        class="flex flex-col p-8 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 shrink-0"
+    >
+        <div class="flex items-center gap-4">
+            <div
+                class="p-3 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
+            >
+                <mat-icon class="icon-size-8" style="width: 32px; height: 32px; font-size: 32px"
+                    >credit_card</mat-icon
+                >
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+                    {{ 'settings.billing.title' | transloco }}
+                </h2>
+                <p class="text-secondary text-lg mt-1">
+                    {{ 'settings.billing.subtitle' | transloco }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-8">
+        <div class="max-w-4xl mx-auto flex flex-col gap-8">
+            <!-- Payer Info Section -->
+            <form [formGroup]="payerForm" class="flex flex-col gap-8">
+                <div
+                    class="bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-800 p-8"
+                >
+                    <div class="flex items-center gap-3 mb-6">
+                        <mat-icon class="text-gray-400">person</mat-icon>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ 'settings.billing.payer_info' | transloco }}
+                        </h3>
+                        <span
+                            class="ml-auto text-xs font-medium px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500"
+                        >
+                            {{ 'settings.billing.payer_info_desc' | transloco }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <!-- Account Type -->
+                        <div class="md:col-span-2">
+                            <label
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                            >
+                                {{ 'settings.billing.type' | transloco }}
+                            </label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label
+                                    class="relative flex items-center justify-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200 group hover:shadow-md"
+                                    [ngClass]="{
+                                        'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300':
+                                            payerForm.get('type').value === 'person',
+                                        'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600':
+                                            payerForm.get('type').value !== 'person',
+                                    }"
+                                >
+                                    <input
+                                        type="radio"
+                                        formControlName="type"
+                                        value="person"
+                                        class="hidden"
+                                    />
+                                    <mat-icon
+                                        [class.text-blue-500]="
+                                            payerForm.get('type').value === 'person'
+                                        "
+                                        class="text-gray-400 group-hover:scale-110 transition-transform"
+                                        >person</mat-icon
+                                    >
+                                    <span class="font-medium">{{
+                                        'settings.billing.person' | transloco
+                                    }}</span>
+                                    <mat-icon
+                                        *ngIf="payerForm.get('type').value === 'person'"
+                                        class="absolute top-2 right-2 text-blue-500 icon-size-4"
+                                        style="width: 16px; height: 16px; font-size: 16px"
+                                        >check_circle</mat-icon
+                                    >
+                                </label>
+
+                                <label
+                                    class="relative flex items-center justify-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all duration-200 group hover:shadow-md"
+                                    [ngClass]="{
+                                        'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300':
+                                            payerForm.get('type').value === 'business',
+                                        'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600':
+                                            payerForm.get('type').value !== 'business',
+                                    }"
+                                >
+                                    <input
+                                        type="radio"
+                                        formControlName="type"
+                                        value="business"
+                                        class="hidden"
+                                    />
+                                    <mat-icon
+                                        [class.text-blue-500]="
+                                            payerForm.get('type').value === 'business'
+                                        "
+                                        class="text-gray-400 group-hover:scale-110 transition-transform"
+                                        >business</mat-icon
+                                    >
+                                    <span class="font-medium">{{
+                                        'settings.billing.business' | transloco
+                                    }}</span>
+                                    <mat-icon
+                                        *ngIf="payerForm.get('type').value === 'business'"
+                                        class="absolute top-2 right-2 text-blue-500 icon-size-4"
+                                        style="width: 16px; height: 16px; font-size: 16px"
+                                        >check_circle</mat-icon
+                                    >
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Business Form -->
+                        <ng-container *ngIf="isABusiness()">
+                            <div class="flex flex-col gap-1.5 md:col-span-2">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.business_name' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    formControlName="business_name"
+                                    [placeholder]="
+                                        'settings.billing.business_name_placeholder' | transloco
+                                    "
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.document_type' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    [placeholder]="
+                                        'settings.billing.select_document_type' | transloco
+                                    "
+                                    [matAutocomplete]="docTypeAuto"
+                                    formControlName="business_documentType"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                                <mat-autocomplete
+                                    #docTypeAuto="matAutocomplete"
+                                    [displayWith]="displayDocumentTypeFn"
+                                >
+                                    <mat-option
+                                        *ngFor="let type of filteredDocumentTypes | async"
+                                        [value]="type.value"
+                                    >
+                                        {{ type.label }}
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.document_number' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    formControlName="business_documentNumber"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 md:col-span-2">
+                                <div class="flex flex-col gap-1.5 col-span-1">
+                                    <label
+                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ 'settings.billing.country_code' | transloco }}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        [placeholder]="
+                                            'settings.billing.search_country' | transloco
+                                        "
+                                        [matAutocomplete]="countryCodeAuto"
+                                        formControlName="business_countryCode"
+                                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                        (blur)="onCountryBlur('business')"
+                                    />
+                                    <mat-autocomplete
+                                        #countryCodeAuto="matAutocomplete"
+                                        [displayWith]="displayCountryCodeFn"
+                                        (optionSelected)="onCountryCodeSelected($event, 'business')"
+                                    >
+                                        <mat-option
+                                            *ngFor="
+                                                let country of filteredBusinessCountryCodes | async
+                                            "
+                                            [value]="country"
+                                        >
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-lg">{{ country.code }}</span>
+                                                <span class="text-gray-900 dark:text-white">{{
+                                                    country.name
+                                                }}</span>
+                                            </div>
+                                        </mat-option>
+                                    </mat-autocomplete>
+                                </div>
+
+                                <div class="flex flex-col gap-1.5 col-span-2">
+                                    <label
+                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ 'settings.billing.phone' | transloco }}
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        formControlName="business_phone"
+                                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.email' | transloco }}
+                                </label>
+                                <input
+                                    type="email"
+                                    formControlName="business_email"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.legal_representative' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    formControlName="business_legalRepresentative"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+                        </ng-container>
+
+                        <!-- Person Form -->
+                        <ng-container *ngIf="isAPerson()">
+                            <div class="flex flex-col gap-1.5 md:col-span-2">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.full_name' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    formControlName="person_name"
+                                    [placeholder]="
+                                        'settings.billing.full_name_placeholder' | transloco
+                                    "
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.document_type' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    [placeholder]="
+                                        'settings.billing.select_document_type' | transloco
+                                    "
+                                    [matAutocomplete]="docTypeAutoPerson"
+                                    formControlName="person_documentType"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                                <mat-autocomplete
+                                    #docTypeAutoPerson="matAutocomplete"
+                                    [displayWith]="displayDocumentTypeFn"
+                                >
+                                    <mat-option
+                                        *ngFor="let type of filteredDocumentTypes | async"
+                                        [value]="type.value"
+                                    >
+                                        {{ type.label }}
+                                    </mat-option>
+                                </mat-autocomplete>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.document_number' | transloco }}
+                                </label>
+                                <input
+                                    type="text"
+                                    formControlName="person_documentNumber"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-4 md:col-span-2">
+                                <div class="flex flex-col gap-1.5 col-span-1">
+                                    <label
+                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ 'settings.billing.country_code' | transloco }}
+                                    </label>
+                                    <input
+                                        type="text"
+                                        [placeholder]="
+                                            'settings.billing.search_country' | transloco
+                                        "
+                                        [matAutocomplete]="countryCodeAutoPerson"
+                                        formControlName="person_countryCode"
+                                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                        (blur)="onCountryBlur('person')"
+                                    />
+                                    <mat-autocomplete
+                                        #countryCodeAutoPerson="matAutocomplete"
+                                        [displayWith]="displayCountryCodeFn"
+                                        (optionSelected)="onCountryCodeSelected($event, 'person')"
+                                    >
+                                        <mat-option
+                                            *ngFor="
+                                                let country of filteredPersonCountryCodes | async
+                                            "
+                                            [value]="country"
+                                        >
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-lg">{{ country.code }}</span>
+                                                <span class="text-gray-900 dark:text-white">{{
+                                                    country.name
+                                                }}</span>
+                                            </div>
+                                        </mat-option>
+                                    </mat-autocomplete>
+                                </div>
+
+                                <div class="flex flex-col gap-1.5 col-span-2">
+                                    <label
+                                        class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    >
+                                        {{ 'settings.billing.phone' | transloco }}
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        formControlName="person_phone"
+                                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5 md:col-span-2">
+                                <label
+                                    class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ 'settings.billing.email' | transloco }}
+                                </label>
+                                <input
+                                    type="email"
+                                    formControlName="person_email"
+                                    class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                                />
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Billing Address Section -->
+            <form [formGroup]="addressForm" class="flex flex-col gap-8">
+                <div
+                    class="bg-gray-50/50 dark:bg-gray-800/50 rounded-2xl border border-gray-200 dark:border-gray-800 p-8"
+                >
+                    <div class="flex items-center gap-3 mb-6">
+                        <mat-icon class="text-gray-400">home</mat-icon>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ 'settings.billing.address_title' | transloco }}
+                        </h3>
+                        <span
+                            class="ml-auto text-xs font-medium px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500"
+                        >
+                            {{ 'settings.billing.address_desc' | transloco }}
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                        <div class="flex flex-col gap-1.5 md:col-span-2">
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {{ 'settings.billing.address' | transloco }}
+                            </label>
+                            <input
+                                type="text"
+                                formControlName="address"
+                                [placeholder]="'settings.billing.address_placeholder' | transloco"
+                                class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                            />
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {{ 'settings.billing.city' | transloco }}
+                            </label>
+                            <input
+                                type="text"
+                                formControlName="city"
+                                class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                            />
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {{ 'settings.billing.province' | transloco }}
+                            </label>
+                            <input
+                                type="text"
+                                formControlName="province"
+                                class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                            />
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {{ 'settings.billing.country' | transloco }}
+                            </label>
+                            <input
+                                type="text"
+                                formControlName="country"
+                                class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                            />
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {{ 'settings.billing.postal_code' | transloco }}
+                            </label>
+                            <input
+                                type="text"
+                                formControlName="postalCode"
+                                class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Actions -->
+            <div class="flex justify-end pt-4 pb-12">
+                <button
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="isSavingBilling || payerForm.invalid || addressForm.invalid"
+                    class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-xl px-8 h-12 text-base font-medium transition-all shadow-sm hover:shadow-md disabled:opacity-50 disabled:shadow-none"
+                    (click)="saveBillingConfig()"
+                >
+                    <mat-spinner *ngIf="isSavingBilling" diameter="24" class="mr-3"></mat-spinner>
+                    {{
+                        isSavingBilling
+                            ? ('settings.billing.saving' | transloco)
+                            : ('settings.billing.save' | transloco)
+                    }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
