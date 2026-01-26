@@ -201,6 +201,7 @@
             "role_desarrollador": "开发人员",
             "role_administrador": "管理员",
             "status_invited": "已邀请",
+            "status_joined": "已加入",
             "edit": "编辑",
             "reinvite": "重新邀请",
             "remove": "删除",

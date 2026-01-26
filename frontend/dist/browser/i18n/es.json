@@ -152,6 +152,7 @@
             "role_desarrollador": "Desarrollador",
             "role_administrador": "Administrador",
             "status_invited": "Invitado",
+            "status_joined": "Unido",
             "edit": "Editar",
             "reinvite": "Reenviar Invitación",
             "remove": "Eliminar",
