@@ -406,6 +406,7 @@ const recordValidationProof = async (toolName, args, result, paymentTx = null) =
 
         // Hash the output
         const outputHash = ERC8004Module.hashOutput(output);
+
         const proofHash = paymentTx ? ethers.keccak256(ethers.toUtf8Bytes(paymentTx)) : outputHash || ethers.ZeroHash;
 
         // Get signer
@@ -428,7 +429,6 @@ const recordValidationProof = async (toolName, args, result, paymentTx = null) =
             "", // metadataURI
         );
 
-        console.log(`[Agent] Validation proof recorded: ${validationHash}`);
         return validationHash;
     } catch (error) {
         console.error("[Agent] Error recording validation proof:", error.message);
