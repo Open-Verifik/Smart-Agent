@@ -282,6 +282,39 @@ const createConversation = async (ctx) => {
 	}
 };
 
+/**
+ * Generate proof for a tool execution
+ * POST /api/agent/proof
+ * Body: { toolName, args, result, paymentTx }
+ */
+const generateProof = async (ctx) => {
+	try {
+		const { toolName, args, result, paymentTx } = ctx.request.body;
+
+		if (!toolName || !result || !paymentTx) {
+			ctx.status = 400;
+			ctx.body = { error: "toolName, result, and paymentTx are required" };
+			return;
+		}
+
+		// Use the recordValidationProof function from agent module
+		const { recordValidationProof } = require("../modules/agent.module");
+
+		const proof = await recordValidationProof(toolName, args, result, paymentTx);
+
+		if (proof) {
+			ctx.body = { proof };
+		} else {
+			ctx.status = 500;
+			ctx.body = { error: "Failed to generate proof" };
+		}
+	} catch (error) {
+		console.error("Proof Generation Error:", error);
+		ctx.status = 500;
+		ctx.body = { error: error.message };
+	}
+};
+
 module.exports = {
 	chat,
 	getInfo,
@@ -291,4 +324,5 @@ module.exports = {
 	updateConversation,
 	deleteConversation,
 	createConversation,
+	generateProof,
 };

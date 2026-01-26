@@ -570,11 +570,14 @@ export class ChatComponent implements OnInit {
             pendingToolCall: pendingToolCall,
         };
 
-        this.http.post<any>(`${this.apiUrl}/chat`, payload).subscribe({
-            next: (response) => {
+        this.http.post<any>(`${this.apiUrl}/chat`, payload, { observe: 'response' }).subscribe({
+            next: (httpResponse) => {
                 this.isLoading.set(false);
                 this.thinkingSteps.set([]);
                 this.currentThinkingStep.set('');
+
+                const response = httpResponse.body;
+                const headers = httpResponse.headers;
 
                 if (response.conversationId && !this.currentConversationId()) {
                     this.currentConversationId.set(response.conversationId);
@@ -582,13 +585,17 @@ export class ChatComponent implements OnInit {
                     this.loadConversations();
                 }
 
+                // Check for proof in response body, _proof field, or headers
+                const proofHeader = headers.get('x-validation-proof');
+                let proof = response.proof || response._proof || proofHeader;
+
                 const msg: ChatMessage = {
                     role: response.role,
                     content: response.content,
                     tool_call: response.tool_call,
                     payment_required: response.payment_required,
                     data: response.data,
-                    proof: response.proof,
+                    proof: proof,
                     images: response.images, // Backend should return image URLs if any were processed/saved
                 };
 
@@ -604,6 +611,11 @@ export class ChatComponent implements OnInit {
                         if (txMatch) {
                             this.lastPaymentTx.set(txMatch[1]);
                         }
+                    }
+
+                    // Fetch proof asynchronously if missing and in x402 mode
+                    if (!msg.proof && this.chatMode() === 'x402' && msg.tool_call && msg.data) {
+                        this.fetchProofAsync(msg, this.messages().length - 1);
                     }
                 }
             },
@@ -880,6 +892,77 @@ export class ChatComponent implements OnInit {
             { role: 'system', content: 'Error: ' + (error.message || 'Something went wrong') },
         ]);
         this.scrollToBottom();
+    }
+
+    /**
+     * Fetch proof asynchronously after the main response
+     * This ensures the proof is generated and displayed even if it wasn't included in the initial response
+     */
+    private fetchProofAsync(msg: ChatMessage, messageIndex: number) {
+        // Extract payment transaction hash
+        let paymentTx: string | null = null;
+        
+        // Try to get from lastPaymentTx first (most recent)
+        if (this.lastPaymentTx()) {
+            paymentTx = this.lastPaymentTx();
+        } else {
+            // Try to extract from payment messages (get the most recent one)
+            const paymentMsgs = this.messages()
+                .filter((m) => m.role === 'system' && m.content.includes('TX:'))
+                .reverse(); // Get most recent first
+            
+            for (const paymentMsg of paymentMsgs) {
+                const txMatch = paymentMsg.content.match(/TX: (0x[a-fA-F0-9]+)/);
+                if (txMatch) {
+                    paymentTx = txMatch[1];
+                    break; // Use the most recent payment transaction
+                }
+            }
+        }
+
+        // We need tool_call, data, and paymentTx to generate proof
+        if (!msg.tool_call || !msg.data || !paymentTx) {
+            console.log('[Chat] Cannot fetch proof: missing required data', {
+                hasToolCall: !!msg.tool_call,
+                hasData: !!msg.data,
+                hasPaymentTx: !!paymentTx,
+            });
+            return;
+        }
+
+        // Make async call to generate proof
+        const payload = {
+            toolName: msg.tool_call.tool,
+            args: msg.tool_call.args,
+            result: msg.data,
+            paymentTx: paymentTx,
+        };
+
+        console.log('[Chat] Fetching proof asynchronously for tool:', msg.tool_call.tool);
+
+        this.http.post<any>(`${this.apiUrl}/proof`, payload).subscribe({
+            next: (response) => {
+                if (response.proof) {
+                    // Update the message with the proof
+                    this.messages.update((msgs) => {
+                        const updated = [...msgs];
+                        if (updated[messageIndex]) {
+                            updated[messageIndex] = {
+                                ...updated[messageIndex],
+                                proof: response.proof,
+                            };
+                        }
+                        return updated;
+                    });
+                    console.log('[Chat] Proof fetched and updated:', response.proof);
+                    this.scrollToBottom(); // Scroll to show the updated proof
+                }
+            },
+            error: (err) => {
+                console.warn('[Chat] Failed to fetch proof:', err);
+                // Don't show error to user, proof generation is optional
+            },
+        });
     }
 
     // Wallet Modal
