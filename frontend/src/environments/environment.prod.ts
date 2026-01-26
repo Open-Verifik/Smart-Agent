@@ -15,4 +15,7 @@ export const environment = {
     x402PaymentContract: '0x5e3C7c44e5d76fa5517378582B824046cBDcFfCD',
     reputationRegistryContract: '0x310247955605c357628F51e94b3E5A20225C71a4',
     priorityFeeTipGwei: '5',
+    // Network Configuration
+    chainId: 43114, // Avalanche Mainnet (43113 = Fuji Testnet)
+    isTestnet: false, // Explicitly set to false for mainnet
 };

@@ -48,6 +48,10 @@ interface ChatMessage {
     data?: any;
     proof?: string;
     images?: string[];
+    paymentTx?: string;
+    paymentCurrency?: 'AVAX' | 'VKA';
+    paymentAmount?: string;
+    paymentStatus?: 'pending' | 'processing' | 'confirmed';
 }
 
 interface ConversationSummary {
@@ -115,6 +119,36 @@ export class ChatComponent implements OnInit {
     protected readonly smartAgentUrl = environment.smartAgentUrl;
     protected readonly tokenTicker = environment.tokenTicker || 'VKA';
     private apiUrl = `${environment.smartAgentUrl}/api/agent`;
+    
+    /**
+     * Get the Snowtrace explorer URL based on network configuration
+     * Uses explicit isTestnet flag from environment, or falls back to chainId/RPC URL detection
+     */
+    protected getSnowtraceUrl(): string {
+        // First check explicit configuration
+        if (environment.isTestnet !== undefined) {
+            return environment.isTestnet 
+                ? 'https://testnet.snowtrace.io' 
+                : 'https://snowtrace.io';
+        }
+        
+        // Fallback: Check chainId (43114 = Mainnet, 43113 = Fuji Testnet)
+        if (environment.chainId) {
+            return environment.chainId === 43113 
+                ? 'https://testnet.snowtrace.io' 
+                : 'https://snowtrace.io';
+        }
+        
+        // Fallback: Check RPC URL for testnet indicators
+        const rpcUrl = environment.rpcUrl || '';
+        const isTestnet = rpcUrl.includes('test') || 
+                         rpcUrl.includes('fuji') || 
+                         rpcUrl.includes('43113');
+        
+        return isTestnet 
+            ? 'https://testnet.snowtrace.io' 
+            : 'https://snowtrace.io';
+    }
 
     // --- Signals ---
     messages = signal<ChatMessage[]>([]);
@@ -603,13 +637,18 @@ export class ChatComponent implements OnInit {
                 this.scrollToBottom();
 
                 if (msg.data && msg.role === 'assistant') {
-                    const paymentMsg = this.messages().find(
-                        (m) => m.role === 'system' && m.content.includes('TX:')
-                    );
-                    if (paymentMsg) {
-                        const txMatch = paymentMsg.content.match(/TX: (0x[a-fA-F0-9]+)/);
-                        if (txMatch) {
-                            this.lastPaymentTx.set(txMatch[1]);
+                    // Find the most recent payment message and mark it as confirmed
+                    const paymentMsgs = this.messages()
+                        .filter((m) => m.role === 'system' && (m.paymentTx || m.content.includes('TX:')))
+                        .reverse(); // Get most recent first
+                    
+                    if (paymentMsgs.length > 0) {
+                        const paymentMsg = paymentMsgs[0];
+                        const txHash = paymentMsg.paymentTx || this.extractPaymentTxHash(paymentMsg.content);
+                        if (txHash) {
+                            this.lastPaymentTx.set(txHash);
+                            // Mark payment as confirmed since we got a successful response
+                            this.updatePaymentMessageStatus(txHash, 'confirmed');
                         }
                     }
 
@@ -830,34 +869,16 @@ export class ChatComponent implements OnInit {
             }
 
             const { tx } = txResponse;
-            this.messages.update((msgs) => [
-                ...msgs,
-                {
-                    role: 'system',
-                    content: `Payment sent (${currency})! TX: ${tx.hash}. Waiting for confirmation...`,
-                },
-            ]);
+            
+            // Create payment confirmation message using helper function
+            this.addPaymentConfirmationMessage(tx.hash, currency, paidAmount, 'pending');
 
             // Do not wait for full confirmation on frontend to avoid UI blocking.
             // Backend will verify the transaction.
             this.lastPaymentTx.set(tx.hash);
 
             // Update message to show processing
-            this.messages.update((msgs) =>
-                msgs.map((msg) => {
-                    if (
-                        msg.role === 'system' &&
-                        msg.content.includes(tx.hash) &&
-                        msg.content.includes('Waiting')
-                    ) {
-                        return {
-                            ...msg,
-                            content: `Payment sent (${currency})! TX: ${tx.hash}. Processing...`,
-                        };
-                    }
-                    return msg;
-                })
-            );
+            this.updatePaymentMessageStatus(tx.hash, 'processing');
 
             this.isLoading.set(true);
 
@@ -1041,5 +1062,86 @@ export class ChatComponent implements OnInit {
         if (!content) return null;
         const match = content.match(/Transaction: (0x[a-fA-F0-9]+)/);
         return match ? match[1] : null;
+    }
+
+    /**
+     * Extract transaction hash from payment message content
+     * Handles formats like "Payment sent (VKA)! TX: 0x..." or "Payment sent! TX: 0x..."
+     */
+    extractPaymentTxHash(content: string): string | null {
+        if (!content) return null;
+        // Match patterns like "TX: 0x..." in payment messages
+        const match = content.match(/TX:\s*(0x[a-fA-F0-9]+)/i);
+        return match ? match[1] : null;
+    }
+
+    /**
+     * Extract currency from payment message content
+     * Handles formats like "Payment sent (VKA)!" or "Payment sent (AVAX)!"
+     */
+    extractPaymentCurrency(content: string): 'AVAX' | 'VKA' | null {
+        if (!content) return null;
+        const vkaMatch = content.match(/Payment sent\s*\(VKA\)/i);
+        if (vkaMatch) return 'VKA';
+        const avaxMatch = content.match(/Payment sent\s*\(AVAX\)/i);
+        if (avaxMatch) return 'AVAX';
+        // Default to AVAX if no currency specified
+        if (content.includes('Payment sent')) return 'AVAX';
+        return null;
+    }
+
+    /**
+     * Create and add a payment confirmation message to the chat
+     * This provides a structured, maintainable way to create payment confirmation messages
+     */
+    private addPaymentConfirmationMessage(
+        txHash: string,
+        currency: 'AVAX' | 'VKA',
+        amount: string,
+        status: 'pending' | 'processing' | 'confirmed' = 'pending'
+    ): void {
+        const statusText = status === 'pending' 
+            ? 'Waiting for confirmation...' 
+            : status === 'processing' 
+            ? 'Processing...' 
+            : 'Confirmed';
+
+        const message: ChatMessage = {
+            role: 'system',
+            content: `Payment sent (${currency})! TX: ${txHash}. ${statusText}`,
+            paymentTx: txHash,
+            paymentCurrency: currency,
+            paymentAmount: amount,
+            paymentStatus: status,
+        };
+
+        this.messages.update((msgs) => [...msgs, message]);
+        this.scrollToBottom();
+    }
+
+    /**
+     * Update the status of an existing payment message
+     * This allows us to update the payment confirmation UI as the transaction progresses
+     */
+    private updatePaymentMessageStatus(
+        txHash: string,
+        status: 'processing' | 'confirmed'
+    ): void {
+        this.messages.update((msgs) =>
+            msgs.map((msg) => {
+                if (msg.role === 'system' && msg.paymentTx === txHash) {
+                    const statusText = status === 'processing' 
+                        ? 'Processing...' 
+                        : 'Confirmed';
+                    
+                    return {
+                        ...msg,
+                        content: `Payment sent (${msg.paymentCurrency || 'AVAX'})! TX: ${txHash}. ${statusText}`,
+                        paymentStatus: status,
+                    };
+                }
+                return msg;
+            })
+        );
     }
 }
