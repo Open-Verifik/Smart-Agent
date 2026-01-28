@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { environment } from '../../../../environments/environment';
 
 // Duplicate interface or ideally import from types
 export interface AgentCardInfo {
@@ -38,5 +39,20 @@ export class AgentErc8004Component {
 
   get sortedFeedbacks() {
     return this.agentInfo?.feedbacks ? [...this.agentInfo.feedbacks].reverse().slice(0, 10) : [];
+  }
+
+  /**
+   * Get the appropriate Snowtrace URL based on environment
+   */
+  get snowtraceUrl(): string {
+    if (environment.isTestnet !== undefined) {
+      return environment.isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
+    }
+    if (environment.chainId) {
+      return environment.chainId === 43113 ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
+    }
+    const rpcUrl = environment.rpcUrl || '';
+    const isTestnet = rpcUrl.includes('test') || rpcUrl.includes('fuji') || rpcUrl.includes('43113');
+    return isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
   }
 }

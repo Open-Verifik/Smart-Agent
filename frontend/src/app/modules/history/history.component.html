@@ -149,7 +149,7 @@
             <th mat-header-cell *matHeaderCellDef>{{ 'history.table.txHash' | transloco }}</th>
             <td mat-cell *matCellDef="let request" class="py-4">
               <a
-                [href]="'https://testnet.snowtrace.io/tx/' + request.paymentTx"
+                [href]="snowtraceUrl + '/tx/' + request.paymentTx"
                 target="_blank"
                 class="text-blue-500 hover:underline font-mono text-xs"
               >

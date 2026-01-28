@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
 import { JsonTableComponent } from './json-table.component';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'postman-response-viewer',
@@ -124,7 +125,7 @@ import { JsonTableComponent } from './json-table.component';
                       {{ proof }}
                     </div>
                     <a
-                      [href]="'https://testnet.snowtrace.io/tx/' + proof"
+                      [href]="snowtraceUrl + '/tx/' + proof"
                       target="_blank"
                       class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                       [title]="'View on Snowtrace'"
@@ -401,5 +402,20 @@ export class ResponseViewerComponent {
       // But to be safe and responsive...
       this.isPrinting.set(false);
     }, 500);
+  }
+
+  /**
+   * Get the appropriate Snowtrace URL based on environment
+   */
+  get snowtraceUrl(): string {
+    if (environment.isTestnet !== undefined) {
+      return environment.isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
+    }
+    if (environment.chainId) {
+      return environment.chainId === 43113 ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
+    }
+    const rpcUrl = environment.rpcUrl || '';
+    const isTestnet = rpcUrl.includes('test') || rpcUrl.includes('fuji') || rpcUrl.includes('43113');
+    return isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
   }
 }

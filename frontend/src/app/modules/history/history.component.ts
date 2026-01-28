@@ -19,6 +19,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { HistoryService, ApiRequest } from './history.service';
 import { AgentWalletService } from '../chat/services/agent-wallet.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'history',
@@ -183,5 +184,20 @@ export class HistoryComponent implements OnInit {
       .map((key) => ({ key, value: params[key] }));
 
     return filteredParams;
+  }
+
+  /**
+   * Get the appropriate Snowtrace URL based on environment
+   */
+  get snowtraceUrl(): string {
+    if (environment.isTestnet !== undefined) {
+      return environment.isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
+    }
+    if (environment.chainId) {
+      return environment.chainId === 43113 ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
+    }
+    const rpcUrl = environment.rpcUrl || '';
+    const isTestnet = rpcUrl.includes('test') || rpcUrl.includes('fuji') || rpcUrl.includes('43113');
+    return isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
   }
 }

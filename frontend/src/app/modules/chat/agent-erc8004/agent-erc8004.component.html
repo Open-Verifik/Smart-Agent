@@ -57,7 +57,7 @@
 
     <!-- Link -->
     <a
-      href="https://testnet.snowtrace.io/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1"
+      [href]="snowtraceUrl + '/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1'"
       target="_blank"
       class="block text-center text-sm text-blue-600 hover:underline"
     >
@@ -118,7 +118,7 @@
             @if (feedback.paymentProof) {
               <div class="pl-8 flex items-center gap-2">
                 <a
-                  [href]="'https://testnet.snowtrace.io/tx/' + feedback.paymentProof"
+                  [href]="snowtraceUrl + '/tx/' + feedback.paymentProof"
                   target="_blank"
                   class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 dark:bg-slate-900 text-[10px] font-medium text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border border-slate-100 dark:border-slate-800"
                 >
