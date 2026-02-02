@@ -20,3 +20,10 @@ body {
 .delete-confirmation-dialog .mat-mdc-dialog-surface {
     background-color: transparent !important;
 }
+
+.subscribe-dialog-panel .mat-mdc-dialog-surface {
+    border-radius: 20px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}

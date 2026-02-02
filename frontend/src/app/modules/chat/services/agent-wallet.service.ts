@@ -17,7 +17,7 @@ const AVALANCHE_CHAIN_ID = '0xa86a';
     providedIn: 'root',
 })
 export class AgentWalletService {
-    private provider: ethers.providers.JsonRpcProvider;
+    private provider: ethers.JsonRpcProvider;
 
     private balanceSubject = new BehaviorSubject<string>('0.00');
     /** Observable stream of the current AVAX balance */
@@ -34,7 +34,7 @@ export class AgentWalletService {
     private _sessionService = inject(SessionService);
 
     constructor(private _encryptionService: WalletEncryptionService) {
-        this.provider = new ethers.providers.JsonRpcProvider(this.RPC_URL);
+        this.provider = new ethers.JsonRpcProvider(this.RPC_URL);
         this.provider.pollingInterval = 3600000; // Idle: 1 hour
 
         // Listen for MetaMask account changes and sync local state
@@ -91,7 +91,7 @@ export class AgentWalletService {
         if (!address) return '0.00';
 
         const balance = await this.provider.getBalance(address);
-        return ethers.utils.formatEther(balance);
+        return ethers.formatEther(balance);
     }
 
     /**
@@ -104,10 +104,16 @@ export class AgentWalletService {
         if (!address) return '0.00';
 
         try {
-            const abi = ['function balanceOf(address) view returns (uint256)', 'function decimals() view returns (uint8)'];
+            const abi = [
+                'function balanceOf(address) view returns (uint256)',
+                'function decimals() view returns (uint8)',
+            ];
             const contract = new ethers.Contract(tokenAddress, abi, this.provider);
-            const [balance, decimals] = await Promise.all([contract['balanceOf'](address), contract['decimals']()]);
-            return ethers.utils.formatUnits(balance, decimals);
+            const [balance, decimals] = await Promise.all([
+                contract.balanceOf(address),
+                contract.decimals(),
+            ]);
+            return ethers.formatUnits(balance, decimals);
         } catch {
             return '0.00';
         }
@@ -153,8 +159,11 @@ export class AgentWalletService {
 
         // Auto-detect encryption method from stored credentials
         if (!encryptionMethod && this._encryptionService.isWalletEncrypted()) {
-            encryptionMethod = localStorage.getItem('x402_credential_id') ? 'passkey' : 
-                               localStorage.getItem('x402_encryption_salt') ? 'pin' : null;
+            encryptionMethod = localStorage.getItem('x402_credential_id')
+                ? 'passkey'
+                : localStorage.getItem('x402_encryption_salt')
+                  ? 'pin'
+                  : null;
         }
 
         // Encrypted Agent Wallet (passkey or PIN)
@@ -175,12 +184,14 @@ export class AgentWalletService {
         // MetaMask external wallet
         if (walletType === 'metamask' && (window as any).ethereum) {
             await this.switchToAvalancheMainnet();
-            const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+            const provider = new ethers.BrowserProvider((window as any).ethereum);
             await provider.send('eth_requestAccounts', []);
-            return provider.getSigner();
+            return await provider.getSigner(); // await needed as it returns Promise<JsonRpcSigner>
         }
 
-        throw new Error('No valid wallet connected. Please sign in with your Agent Wallet or MetaMask.');
+        throw new Error(
+            'No valid wallet connected. Please sign in with your Agent Wallet or MetaMask.'
+        );
     }
 
     /**
@@ -218,13 +229,17 @@ export class AgentWalletService {
             if (error.code === 4902) {
                 await ethereum.request({
                     method: 'wallet_addEthereumChain',
-                    params: [{
-                        chainId: AVALANCHE_CHAIN_ID,
-                        chainName: 'Avalanche C-Chain',
-                        nativeCurrency: { name: 'Avalanche', symbol: 'AVAX', decimals: 18 },
-                        rpcUrls: [environment.rpcUrl || 'https://api.avax.network/ext/bc/C/rpc'],
-                        blockExplorerUrls: ['https://snowtrace.io/'],
-                    }],
+                    params: [
+                        {
+                            chainId: AVALANCHE_CHAIN_ID,
+                            chainName: 'Avalanche C-Chain',
+                            nativeCurrency: { name: 'Avalanche', symbol: 'AVAX', decimals: 18 },
+                            rpcUrls: [
+                                environment.rpcUrl || 'https://api.avax.network/ext/bc/C/rpc',
+                            ],
+                            blockExplorerUrls: ['https://snowtrace.io/'],
+                        },
+                    ],
                 });
             } else if (error.code === 4001) {
                 throw new Error('User rejected the network switch request');
@@ -267,9 +282,15 @@ export class AgentWalletService {
             let decimals = 18;
 
             try {
-                const abi = ['function symbol() view returns (string)', 'function decimals() view returns (uint8)'];
+                const abi = [
+                    'function symbol() view returns (string)',
+                    'function decimals() view returns (uint8)',
+                ];
                 const contract = new ethers.Contract(address, abi, this.provider);
-                [symbol, decimals] = await Promise.all([contract['symbol'](), contract['decimals']()]);
+                [symbol, decimals] = await Promise.all([
+                    contract['symbol'](),
+                    contract['decimals'](),
+                ]);
             } catch {
                 // Use defaults if contract call fails
             }
@@ -279,7 +300,12 @@ export class AgentWalletService {
                 method: 'wallet_watchAsset',
                 params: {
                     type: 'ERC20',
-                    options: { address, symbol, decimals, image: 'https://verifik.app/vka-logo.png' },
+                    options: {
+                        address,
+                        symbol,
+                        decimals,
+                        image: 'https://verifik.app/vka-logo.png',
+                    },
                 },
             });
 
@@ -300,9 +326,13 @@ export class AgentWalletService {
      * @param data - Optional calldata (defaults to "0x")
      * @returns The transaction response
      */
-    async sendTransaction(to: string, amountEther: string, data: string = '0x'): Promise<ethers.providers.TransactionResponse> {
+    async sendTransaction(
+        to: string,
+        amountEther: string,
+        data: string = '0x'
+    ): Promise<ethers.TransactionResponse> {
         const signer = await this.getSigner();
-        return signer.sendTransaction({ to, value: ethers.utils.parseEther(amountEther), data });
+        return signer.sendTransaction({ to, value: ethers.parseEther(amountEther), data });
     }
 
     /**
@@ -318,7 +348,7 @@ export class AgentWalletService {
         serviceId: string,
         requestId: string,
         amountEther: string
-    ): Promise<{ tx: ethers.providers.TransactionResponse; signerAddress: string }> {
+    ): Promise<{ tx: ethers.TransactionResponse; signerAddress: string }> {
         const signer = await this.getSigner();
         const signerAddress = await signer.getAddress();
 
@@ -329,11 +359,17 @@ export class AgentWalletService {
         const abi = ['function payForService(string serviceId, string requestId) public payable'];
         const contract = new ethers.Contract(contractAddress, abi, signer);
         const args = [serviceId, requestId];
-        const overrides = { value: ethers.utils.parseEther(amountEther) };
+        const overrides = { value: ethers.parseEther(amountEther) };
 
         const tx = this.isMetaMaskAccount()
             ? await this._executeMetaMaskTransaction(contract, 'payForService', args, overrides)
-            : await this._executeInternalTransaction(contract, 'payForService', args, overrides, signerAddress);
+            : await this._executeInternalTransaction(
+                  contract,
+                  'payForService',
+                  args,
+                  overrides,
+                  signerAddress
+              );
 
         return { tx, signerAddress };
     }
@@ -350,26 +386,35 @@ export class AgentWalletService {
         recipientAddress: string,
         tokenAddress: string,
         amountUnits: string
-    ): Promise<{ tx: ethers.providers.TransactionResponse; signerAddress: string }> {
+    ): Promise<{ tx: ethers.TransactionResponse; signerAddress: string }> {
         const signer = await this.getSigner();
         const signerAddress = await signer.getAddress();
 
-        const abi = ['function transfer(address to, uint256 amount) public returns (bool)', 'function decimals() view returns (uint8)'];
+        const abi = [
+            'function transfer(address to, uint256 amount) public returns (bool)',
+            'function decimals() view returns (uint8)',
+        ];
         const contract = new ethers.Contract(tokenAddress, abi, this.provider);
 
-        const decimals = await contract['decimals']();
-        const amount = ethers.utils.parseUnits(amountUnits, decimals);
+        const decimals = await contract.decimals();
+        const amount = ethers.parseUnits(amountUnits, decimals);
         const data = contract.interface.encodeFunctionData('transfer', [recipientAddress, amount]);
 
-        let tx: ethers.providers.TransactionResponse;
+        let tx: ethers.TransactionResponse;
 
         if (this.isMetaMaskAccount()) {
             // Register token first so MetaMask shows "VKA" instead of "Unknown"
             await this.ensureVkaTokenMetadata(tokenAddress);
-            tx = await this._executeMetaMaskRaw(tokenAddress, data, ethers.BigNumber.from(0));
+            tx = await this._executeMetaMaskRaw(tokenAddress, data, 0n);
         } else {
             const signerContract = new ethers.Contract(tokenAddress, abi, signer);
-            tx = await this._executeInternalTransaction(signerContract, 'transfer', [recipientAddress, amount], {}, signerAddress);
+            tx = await this._executeInternalTransaction(
+                signerContract,
+                'transfer',
+                [recipientAddress, amount],
+                {},
+                signerAddress
+            );
         }
 
         return { tx, signerAddress };
@@ -391,18 +436,27 @@ export class AgentWalletService {
         tags: string[] = [],
         comment: string = '',
         paymentTxHash: string | null = null
-    ): Promise<ethers.providers.TransactionResponse> {
+    ): Promise<ethers.TransactionResponse> {
         const signer = await this.getSigner();
         if (rating < 1 || rating > 5) throw new Error('Rating must be between 1 and 5');
 
-        const abi = ['function submitFeedback(uint256 agentTokenId, uint8 rating, string[] memory tags, string memory comment, bytes32 paymentProof) external returns (uint256)'];
+        const abi = [
+            'function submitFeedback(uint256 agentTokenId, uint8 rating, string[] memory tags, string memory comment, bytes32 paymentProof) external returns (uint256)',
+        ];
         const contract = new ethers.Contract(environment.reputationRegistryContract, abi, signer);
-        const paymentProof = paymentTxHash && ethers.utils.isHexString(paymentTxHash) ? paymentTxHash : ethers.constants.HashZero;
+        const paymentProof =
+            paymentTxHash && ethers.isHexString(paymentTxHash) ? paymentTxHash : ethers.ZeroHash;
         const args = [agentTokenId, rating, tags, comment, paymentProof];
 
         return this.isMetaMaskAccount()
             ? await this._executeMetaMaskTransaction(contract, 'submitFeedback', args)
-            : await this._executeInternalTransaction(contract, 'submitFeedback', args, {}, await signer.getAddress());
+            : await this._executeInternalTransaction(
+                  contract,
+                  'submitFeedback',
+                  args,
+                  {},
+                  await signer.getAddress()
+              );
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -421,8 +475,8 @@ export class AgentWalletService {
     private async _executeMetaMaskRaw(
         to: string,
         data: string,
-        value: ethers.BigNumber = ethers.BigNumber.from(0)
-    ): Promise<ethers.providers.TransactionResponse> {
+        value: bigint = 0n
+    ): Promise<ethers.TransactionResponse> {
         const ethereum = (window as any).ethereum;
         if (!ethereum) throw new Error('MetaMask not found');
 
@@ -451,24 +505,37 @@ export class AgentWalletService {
 
             // Build minimal transaction params
             const txParams: any = { from: activeAccount, to, data };
-            if (!value.isZero()) txParams.value = value.toHexString();
+            if (value > 0n) txParams.value = ethers.toBeHex(value);
 
             // Send via raw RPC
-            const txHash = await ethereum.request({ method: 'eth_sendTransaction', params: [txParams] });
+            const txHash = await ethereum.request({
+                method: 'eth_sendTransaction',
+                params: [txParams],
+            });
 
             // Wait briefly for transaction to propagate
             await this._delay(500);
             const txResponse = await this.provider.getTransaction(txHash);
 
-            return txResponse || { hash: txHash, wait: async () => this.provider.waitForTransaction(txHash) } as any;
+            return (
+                txResponse ||
+                ({
+                    hash: txHash,
+                    wait: async () => this.provider.waitForTransaction(txHash),
+                } as any)
+            );
         } catch (error: any) {
             // Provide user-friendly error messages
             if (error.code === 4001) throw new Error('Transaction was rejected by user');
             if (error.message?.includes('invalid sender')) {
-                throw new Error('Invalid sender: Please ensure MetaMask is connected to Avalanche. Try reconnecting your wallet.');
+                throw new Error(
+                    'Invalid sender: Please ensure MetaMask is connected to Avalanche. Try reconnecting your wallet.'
+                );
             }
             if (error.message?.includes('insufficient funds')) {
-                throw new Error('Insufficient funds: Make sure you have enough VKA tokens and AVAX for gas.');
+                throw new Error(
+                    'Insufficient funds: Make sure you have enough VKA tokens and AVAX for gas.'
+                );
             }
             throw error;
         }
@@ -487,10 +554,10 @@ export class AgentWalletService {
         methodName: string,
         args: any[],
         overrides: any = {}
-    ): Promise<ethers.providers.TransactionResponse> {
+    ): Promise<ethers.TransactionResponse> {
         const data = contract.interface.encodeFunctionData(methodName, args);
-        const value = overrides.value || ethers.BigNumber.from(0);
-        return this._executeMetaMaskRaw(contract.address, data, value);
+        const value = overrides.value || 0n;
+        return this._executeMetaMaskRaw(contract.target as string, data, value);
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -513,8 +580,14 @@ export class AgentWalletService {
         args: any[],
         overrides: any = {},
         signerAddress: string
-    ): Promise<ethers.providers.TransactionResponse> {
-        const txOptions = await this._prepareGasOptimizedTransaction(contract, methodName, args, overrides, signerAddress);
+    ): Promise<ethers.TransactionResponse> {
+        const txOptions = await this._prepareGasOptimizedTransaction(
+            contract,
+            methodName,
+            args,
+            overrides,
+            signerAddress
+        );
         return await contract[methodName](...args, txOptions);
     }
 
@@ -534,7 +607,13 @@ export class AgentWalletService {
         baseOptions: any,
         signerAddress: string
     ): Promise<any> {
-        const gasLimit = await this._estimateGasWithBuffer(contract, methodName, args, baseOptions, signerAddress);
+        const gasLimit = await this._estimateGasWithBuffer(
+            contract,
+            methodName,
+            args,
+            baseOptions,
+            signerAddress
+        );
         return this._prepareInternalWalletOptions({ ...baseOptions, gasLimit }, signerAddress);
     }
 
@@ -553,12 +632,17 @@ export class AgentWalletService {
         args: any[],
         baseOptions: any,
         signerAddress: string
-    ): Promise<ethers.BigNumber> {
+    ): Promise<bigint> {
         try {
-            const estimated = await contract.estimateGas[methodName](...args, { ...baseOptions, from: signerAddress });
-            return estimated.mul(120).div(100);
+            // v6: dynamic method access for estimateGas
+            const method = contract[methodName];
+            const estimated = await method.estimateGas(...args, {
+                ...baseOptions,
+                from: signerAddress,
+            });
+            return (estimated * 120n) / 100n;
         } catch {
-            return ethers.BigNumber.from(300000);
+            return 300000n;
         }
     }
 
@@ -568,16 +652,19 @@ export class AgentWalletService {
      * @param signerAddress - The signer's address
      * @returns Enhanced transaction options with fee configuration
      */
-    private async _prepareInternalWalletOptions(txOptions: any, signerAddress: string): Promise<any> {
+    private async _prepareInternalWalletOptions(
+        txOptions: any,
+        signerAddress: string
+    ): Promise<any> {
         txOptions.from = signerAddress;
         const feeData = await this.provider.getFeeData();
-        const tip = ethers.utils.parseUnits(environment.priorityFeeTipGwei || '5', 'gwei');
+        const tip = ethers.parseUnits(environment.priorityFeeTipGwei || '5', 'gwei');
 
         if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
-            txOptions.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas.add(tip);
-            txOptions.maxFeePerGas = feeData.maxFeePerGas.mul(125).div(100).add(tip);
+            txOptions.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + tip;
+            txOptions.maxFeePerGas = (feeData.maxFeePerGas * 125n) / 100n + tip;
         } else if (feeData.gasPrice) {
-            txOptions.gasPrice = feeData.gasPrice.mul(135).div(100);
+            txOptions.gasPrice = (feeData.gasPrice * 135n) / 100n;
         }
 
         return txOptions;
@@ -593,13 +680,17 @@ export class AgentWalletService {
      * @param contractAddress - The payment contract to query (defaults to x402)
      * @returns Array of payment records sorted newest first
      */
-    async getPaymentHistory(contractAddress: string = environment.x402PaymentContract): Promise<any[]> {
+    async getPaymentHistory(
+        contractAddress: string = environment.x402PaymentContract
+    ): Promise<any[]> {
         const walletAddress = this.getAddress();
         if (!walletAddress) return [];
 
-        const abi = ['event PaymentReceived(address indexed payer, string serviceId, string requestId, uint256 amount)'];
+        const abi = [
+            'event PaymentReceived(address indexed payer, string serviceId, string requestId, uint256 amount)',
+        ];
         const contract = new ethers.Contract(contractAddress, abi, this.provider);
-        const filter = contract.filters['PaymentReceived'](walletAddress);
+        const filter = contract.filters.PaymentReceived(walletAddress);
 
         // Look back ~46 days (2M blocks at 2s/block)
         const currentBlock = await this.provider.getBlockNumber();
@@ -607,19 +698,27 @@ export class AgentWalletService {
         const logs = await contract.queryFilter(filter, fromBlock);
 
         return Promise.all(
-            logs.slice().reverse().map(async (log) => {
-                const parsed = contract.interface.parseLog(log);
-                const block = await log.getBlock();
-                return {
-                    transactionHash: log.transactionHash,
-                    blockNumber: log.blockNumber,
-                    timestamp: block.timestamp * 1000,
-                    serviceId: parsed.args['serviceId'],
-                    requestId: parsed.args['requestId'],
-                    amount: ethers.utils.formatEther(parsed.args['amount']),
-                };
-            })
-        );
+            logs
+                .slice()
+                .reverse()
+                .map(async (log) => {
+                    if ('args' in log) {
+                        // Check if it's an EventLog
+                        // EventLog has typed args
+                        const block = await log.getBlock();
+                        return {
+                            transactionHash: log.transactionHash,
+                            blockNumber: log.blockNumber,
+                            timestamp: (block?.timestamp || 0) * 1000,
+                            serviceId: log.args[1], // serviceId
+                            requestId: log.args[2], // requestId
+                            amount: ethers.formatEther(log.args[3]), // amount
+                        };
+                    }
+                    // Fallback for Log, though queryFilter on typed contract usually returns EventLog
+                    return null;
+                })
+        ).then((results) => results.filter((r) => r !== null));
     }
 
     /**
@@ -637,11 +736,13 @@ export class AgentWalletService {
                 this.provider.getBlock(tx.blockNumber!),
             ]);
 
+            if (!receipt || !block) return null;
+
             return {
                 hash: tx.hash,
                 from: tx.from,
                 to: tx.to,
-                value: ethers.utils.formatEther(tx.value),
+                value: ethers.formatEther(tx.value),
                 gasUsed: receipt.gasUsed.toString(),
                 status: receipt.status === 1 ? 'Success' : 'Failed',
                 timestamp: block.timestamp * 1000,

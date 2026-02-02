@@ -1,0 +1,27 @@
+status-check-subscribe {
+    display: block;
+    background: white;
+
+    .dark & {
+        background: #111827; // bg-gray-900
+    }
+
+    .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+    }
+
+    .mat-mdc-chip-grid {
+        min-height: 48px;
+    }
+
+    .mat-mdc-standard-chip {
+        --mdc-chip-elevated-container-color: #f3f4f6;
+        --mdc-chip-label-text-color: #374151;
+        border-radius: 8px !important;
+
+        .dark & {
+            --mdc-chip-elevated-container-color: #374151;
+            --mdc-chip-label-text-color: #f3f4f6;
+        }
+    }
+}

@@ -1,16 +1,296 @@
-<div class="flex flex-col flex-auto min-w-0 bg-gray-50 min-h-screen">
-  <div class="flex flex-col w-full max-w-7xl mx-auto p-6 md:p-8">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900">Status Check</h2>
-        <p class="text-lg text-gray-500 mt-1">Check system status and health</p>
-      </div>
-    </div>
+<div class="flex flex-col flex-auto min-w-0 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="flex flex-col w-full max-w-7xl mx-auto p-6 md:p-8">
+        <!-- Header -->
+        <!-- Header -->
+        <div class="flex flex-col py-6 mb-8 border-b border-gray-200 dark:border-gray-800">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        {{ 'network.title' | transloco }}
+                    </h2>
+                    <p class="text-lg text-gray-500 dark:text-gray-400 mt-1">
+                        {{ 'network.subtitle' | transloco }}
+                    </p>
+                </div>
+            </div>
 
-    <!-- Content Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      <p class="text-gray-600">Content coming soon...</p>
+            <!-- Filters Toolbar -->
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <!-- Country Filters (Pill Style) -->
+                <div
+                    class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide mask-gradient p-1 -ml-1 pl-1 lg:max-w-[60%]"
+                >
+                    <button
+                        *ngFor="let country of countries"
+                        (click)="toggleCountry(country.name)"
+                        [class.bg-white]="selectedCountry !== country.name"
+                        [class.shadow-sm]="selectedCountry !== country.name"
+                        [class.border-gray-200]="selectedCountry !== country.name"
+                        [class.bg-gray-900]="selectedCountry === country.name"
+                        [class.text-white]="selectedCountry === country.name"
+                        [class.border-transparent]="selectedCountry === country.name"
+                        class="h-9 w-9 min-w-[2.25rem] flex items-center justify-center rounded-full border transition-all duration-200 relative group text-lg flex-shrink-0 aspect-square"
+                        [matTooltip]="country.name + ' (' + country.count + ')'"
+                    >
+                        <span class="leading-none">{{ getCountryFlag(country.name) }}</span>
+                    </button>
+                    <span
+                        *ngIf="countries.length === 0 && !loading"
+                        class="text-sm text-gray-400 italic"
+                        >{{ 'network.no_filters' | transloco }}</span
+                    >
+                </div>
+
+                <!-- Input Filters -->
+                <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                    <!-- Category Dropdown -->
+                    <mat-form-field
+                        class="w-full sm:w-48 fuse-mat-dense"
+                        [subscriptSizing]="'dynamic'"
+                    >
+                        <mat-icon matPrefix class="icon-size-5 text-gray-500 ml-2 mr-2"
+                            >category</mat-icon
+                        >
+                        <mat-select
+                            [value]="selectedCategory"
+                            (selectionChange)="setCategory($event.value)"
+                            [placeholder]="'categories.label' | transloco"
+                        >
+                            <mat-option [value]="null">{{
+                                'categories.all' | transloco
+                            }}</mat-option>
+                            <mat-option *ngFor="let cat of categories" [value]="cat">
+                                {{ 'categories.' + cat | transloco }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <!-- Search -->
+                    <mat-form-field
+                        class="w-full sm:w-72 fuse-mat-dense"
+                        [subscriptSizing]="'dynamic'"
+                    >
+                        <mat-icon matPrefix class="icon-size-5 text-gray-500">search</mat-icon>
+                        <input
+                            matInput
+                            [ngModel]="searchInput"
+                            (ngModelChange)="filterData($event)"
+                            [placeholder]="'network.search_placeholder' | transloco"
+                        />
+                        <button
+                            *ngIf="searchInput"
+                            matSuffix
+                            mat-icon-button
+                            aria-label="Clear"
+                            (click)="filterData('')"
+                        >
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="flex flex-auto justify-center items-center py-20">
+            <mat-spinner diameter="64"></mat-spinner>
+        </div>
+
+        <!-- Empty State -->
+        <div
+            *ngIf="!loading && filteredData.length === 0"
+            class="flex flex-col items-center justify-center py-20 text-center"
+        >
+            <mat-icon class="icon-size-24 text-gray-300 dark:text-gray-600 mb-4"
+                >cloud_off</mat-icon
+            >
+            <p class="text-xl font-medium text-gray-600 dark:text-gray-400">
+                {{ 'network.no_services' | transloco }}
+            </p>
+            <p class="text-gray-500 dark:text-gray-500 max-w-sm mx-auto mt-2">
+                {{ 'network.no_services_desc' | transloco }}
+            </p>
+        </div>
+
+        <!-- Content Grid -->
+        <div
+            *ngIf="!loading && filteredData.length > 0"
+            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+            <div
+                *ngFor="let item of filteredData; trackBy: item?.subject?.method?.code"
+                class="flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-shadow hover:shadow-md"
+            >
+                <!-- Card Header -->
+                <div
+                    class="p-5 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-800/50"
+                >
+                    <div class="flex items-start justify-between">
+                        <div class="flex flex-col min-w-0">
+                            <h3
+                                class="text-lg font-semibold text-gray-900 dark:text-white truncate"
+                                [title]="item.subject.method.currentTranslation"
+                            >
+                                {{ item.subject.method.currentTranslation }}
+                            </h3>
+                            <div
+                                class="flex items-center mt-1 space-x-2 text-sm text-gray-500 dark:text-gray-400"
+                            >
+                                <span
+                                    class="uppercase tracking-wider text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+                                >
+                                    {{
+                                        'categories.' + item.subject.method.baseCategory | transloco
+                                    }}
+                                </span>
+                                <span class="text-gray-300 dark:text-gray-600 px-1">•</span>
+                                <span>{{
+                                    item.subject.method.price | currency: 'USD' : 'symbol' : '1.3-3'
+                                }}</span>
+                            </div>
+                        </div>
+                        <img
+                            *ngIf="item.subject.method.country !== 'All'"
+                            [src]="getFlagUrl(item.subject.method.country)"
+                            class="w-6 h-auto rounded shadow-sm flex-shrink-0"
+                            [alt]="item.subject.method.country"
+                        />
+                    </div>
+
+                    <div
+                        class="flex items-center mt-3 text-sm text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-900/50 px-3 py-1.5 rounded-md border border-gray-100 dark:border-gray-800"
+                    >
+                        <mat-icon class="icon-size-4 mr-2 text-gray-400">link</mat-icon>
+                        <span class="truncate">{{ item.subject.method.url }}</span>
+                    </div>
+                </div>
+
+                <!-- Card Content -->
+                <div class="flex-auto p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            {{
+                                item.subject.showGraph
+                                    ? ('network.response_time' | transloco)
+                                    : ('network.uptime_history' | transloco)
+                            }}
+                        </span>
+
+                        <div class="flex items-center gap-3">
+                            <!-- Alert Toggle -->
+                            <button
+                                (click)="openDialog(item)"
+                                [class.text-primary-600]="item.subject.isSubscribed"
+                                [class.bg-primary-50]="item.subject.isSubscribed"
+                                [class.border-primary-200]="item.subject.isSubscribed"
+                                class="flex items-center justify-center w-8 h-8 rounded-lg border border-gray-200 dark:border-gray-700 transition-all hover:bg-gray-50 dark:hover:bg-gray-800"
+                                [matTooltip]="
+                                    item.subject.isSubscribed
+                                        ? ('network.alerts.active' | transloco)
+                                        : ('network.alerts.enable' | transloco)
+                                "
+                            >
+                                <mat-icon
+                                    class="icon-size-4"
+                                    [class.animate-pulse]="item.subject.isSubscribed"
+                                    >{{
+                                        item.subject.isSubscribed
+                                            ? 'notifications_active'
+                                            : 'notifications_none'
+                                    }}</mat-icon
+                                >
+                            </button>
+
+                            <!-- Toggle -->
+                            <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+                                <button
+                                    class="px-3 py-1 text-xs font-medium rounded-md transition-all"
+                                    [class.bg-white]="!item.subject.showGraph"
+                                    [class.shadow-sm]="!item.subject.showGraph"
+                                    [class.text-gray-900]="!item.subject.showGraph"
+                                    [class.text-gray-500]="item.subject.showGraph"
+                                    (click)="toggleView(item, 'uptime')"
+                                >
+                                    {{ 'network.status' | transloco }}
+                                </button>
+                                <button
+                                    class="px-3 py-1 text-xs font-medium rounded-md transition-all"
+                                    [class.bg-white]="item.subject.showGraph"
+                                    [class.shadow-sm]="item.subject.showGraph"
+                                    [class.text-primary-600]="item.subject.showGraph"
+                                    [class.text-gray-500]="!item.subject.showGraph"
+                                    (click)="toggleView(item, 'graph')"
+                                >
+                                    {{ 'network.latency' | transloco }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graph View -->
+                    <div *ngIf="item.subject.showGraph" class="h-20 w-full overflow-hidden">
+                        <div [id]="'chart-' + item.subject.method.code" class="w-full h-full"></div>
+                    </div>
+
+                    <!-- Status View -->
+                    <div
+                        *ngIf="!item.subject.showGraph"
+                        class="h-20 w-full flex items-end justify-between space-x-0.5"
+                    >
+                        <ng-container *ngFor="let it of item.data">
+                            <div
+                                class="status-tick w-full flex-1 rounded-sm transition-all hover:opacity-80"
+                                [ngClass]="{
+                                    'bg-green-500': it.status === 'ok',
+                                    'bg-red-500': it.status !== 'ok' && it.status !== 'awaiting',
+                                    'bg-gray-200 dark:bg-gray-700': it.status === 'awaiting',
+                                }"
+                                [matTooltip]="
+                                    formatDate(it.createdAt) +
+                                    (it.responseTime ? ' - ' + it.responseTime + 'ms' : '')
+                                "
+                                matTooltipPosition="above"
+                            ></div>
+                        </ng-container>
+                        <div
+                            *ngIf="!item.data || item.data.length === 0"
+                            class="w-full h-full flex items-center justify-center text-gray-400 text-sm"
+                        >
+                            {{ 'network.no_data' | transloco }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div
+                    class="px-5 py-4 bg-gray-50/50 dark:bg-gray-800/30 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between"
+                >
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400 uppercase font-semibold tracking-wide">{{
+                            'network.uptime' | transloco
+                        }}</span>
+                        <span
+                            class="text-lg font-bold"
+                            [class.text-green-600]="item.subject.percentage >= 98"
+                            [class.text-yellow-600]="
+                                item.subject.percentage < 98 && item.subject.percentage >= 90
+                            "
+                            [class.text-red-600]="item.subject.percentage < 90"
+                        >
+                            {{ item.subject.percentage | number: '1.0-2' }}%
+                        </span>
+                    </div>
+
+                    <div class="text-right flex flex-col items-end">
+                        <span class="text-xs text-gray-400 uppercase font-semibold tracking-wide">{{
+                            'network.last_check' | transloco
+                        }}</span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {{ formatDate(item.subject.lastDate) || 'N/A' }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 </div>

@@ -1,0 +1,7 @@
+/* Component styles */
+.status-tick {
+    @apply w-1.5 h-6 rounded-sm transition-all duration-200;
+}
+.status-tick:hover {
+    @apply scale-125;
+}
