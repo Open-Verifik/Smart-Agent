@@ -70,7 +70,7 @@ export const renderRoadmap = () => {
                         <li><strong>DAO Governance:</strong> Community voting on new registry integrations and protocol parameters.</li>
                         <li><strong>European Expansion:</strong> Initial pilots for eIDAS compatibility.</li>
                         <li><strong>AI Fraud Layer:</strong> Decentralized machine learning nodes for anomaly detection.</li>
-                        <li><strong>Cross-Chain Bridge:</strong> Interoperability with other major L1 networks.</li>
+                        <li><strong>Cross-Chain Bridge:</strong> Interoperability with other major chains (e.g. Ethereum, Solana).</li>
                     </ul>
                 </div>
             </div>
