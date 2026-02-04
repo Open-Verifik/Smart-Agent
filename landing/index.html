@@ -32,7 +32,7 @@
 			property="og:description"
 			content="Verify AI agents with government databases. 23M+ identities validated across 20+ countries. Pay-per-verification on Avalanche."
 		/>
-		<meta property="og:image" content="https://verifik.co/wp-content/uploads/2024/04/Logo-Verifik-Blanco.svg" />
+		<meta property="og:image" content="https://x402-agent.verifik.co/verifik-logo.svg" />
 		<meta property="og:site_name" content="Verifik Smart Agent" />
 
 		<!-- Twitter -->
@@ -41,7 +41,7 @@
 		<meta name="twitter:url" content="https://x402-agent.verifik.co/" />
 		<meta name="twitter:title" content="AI Agent Identity Verification | x402 Protocol on Avalanche" />
 		<meta name="twitter:description" content="Verify AI agents with government databases. 23M+ identities validated across 20+ countries." />
-		<meta name="twitter:image" content="https://verifik.co/wp-content/uploads/2024/04/Logo-Verifik-Blanco.svg" />
+		<meta name="twitter:image" content="https://x402-agent.verifik.co/verifik-logo.svg" />
 
 		<!-- JSON-LD Structured Data (SEO, invisible) -->
 		<script type="application/ld+json">
@@ -50,7 +50,7 @@
 				"@type": "Organization",
 				"name": "Verifik",
 				"url": "https://verifik.co",
-				"logo": "https://verifik.co/wp-content/uploads/2024/04/Logo-Verifik-Blanco.svg",
+				"logo": "https://x402-agent.verifik.co/verifik-logo.svg",
 				"description": "Verifik provides identity verification APIs powered by government databases. Trust layer for AI agents on Avalanche.",
 				"sameAs": ["https://twitter.com/verifik_co", "https://www.linkedin.com/company/verifik"]
 			}
@@ -67,7 +67,7 @@
 					"name": "Verifik",
 					"logo": {
 						"@type": "ImageObject",
-						"url": "https://verifik.co/wp-content/uploads/2024/04/Logo-Verifik-Blanco.svg"
+						"url": "https://x402-agent.verifik.co/verifik-logo.svg"
 					}
 				}
 			}
@@ -122,19 +122,24 @@
 			}
 		</script>
 
-		<!-- Google Fonts -->
+		<!-- Performance: preconnect to external origins -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="dns-prefetch" href="https://verifik.co" />
+
 		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet" />
+
+		<!-- LCP image: navbar logo above the fold -->
+		<link rel="preload" href="./verifik-logo.svg" as="image" />
 
 		<!-- Component Styles -->
 		<link rel="stylesheet" href="./src/styles/components/cards.css" />
 	</head>
 	<body>
 		<div id="ui-layer">
-			<div id="navbar-container"></div>
+			<div id="navbar-container" role="banner"></div>
 
-			<div id="scroll-container">
+			<main id="scroll-container">
 				<div id="hero-container"></div>
 				<div id="integration-container"></div>
 				<div id="customers-container"></div>
@@ -142,9 +147,9 @@
 				<div id="gateway-container"></div>
 				<div id="roadmap-container"></div>
 				<div id="footer-container"></div>
-			</div>
+			</main>
 		</div>
-		<canvas id="webgl"></canvas>
+		<canvas id="webgl" aria-hidden="true"></canvas>
 		<script type="module" src="/src/main.js"></script>
 	</body>
 </html>

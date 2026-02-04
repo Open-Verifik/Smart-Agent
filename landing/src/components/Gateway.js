@@ -1,9 +1,9 @@
 export const renderGateway = () => {
     return `
-    <section id="gateway" class="gateway-section">
+    <section id="gateway" class="gateway-section" aria-labelledby="gateway-heading">
         <div class="gateway-header">
             <span class="section-label" style="color: #ef4444">THE GATEWAY</span>
-            <h2>Hybrid Web2/Web3 Infrastructure.<br/>Pay for Compute. Pay for Truth.</h2>
+            <h2 id="gateway-heading">Hybrid Web2/Web3 Infrastructure.<br/>Pay for Compute. Pay for Truth.</h2>
             <p class="gateway-subtitle">
                 A monetization layer bridging 14+ government registries to autonomous agents via the <strong>x402 payment protocol</strong>.
             </p>

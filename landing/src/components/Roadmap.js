@@ -1,9 +1,9 @@
 export const renderRoadmap = () => {
     return `
-    <section id="roadmap">
+    <section id="roadmap" aria-labelledby="roadmap-heading">
         <div class="roadmap-header">
             <span class="section-label" style="color: #4ade80">THE PATH FORWARD</span>
-            <h2>2026 Roadmap</h2>
+            <h2 id="roadmap-heading">2026 Roadmap</h2>
             <p style="color: #a1a1aa; font-size: 1.1rem; margin-top: 1rem">
                 Executing our vision for a decentralized, agent-driven economy.
             </p>
