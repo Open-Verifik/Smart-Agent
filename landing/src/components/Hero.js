@@ -3,9 +3,9 @@ export const renderHero = () => {
     <section class="hero-section">
         <main>
             <div class="hero">
-                <div class="status-indicator"><span class="dot"></span> Global Neural Network Online</div>
-                <h1 id="hero-title">IDENTITY CHAIN<br />ON AVALANCHE</h1>
-                <p id="hero-desc">The first specialized L1 for Identity. Validating people, companies, and assets for the Agentic Economy.</p>
+                <div class="status-indicator"><span class="dot"></span> Live on Avalanche C-Chain</div>
+                <h1 id="hero-title">THE TRUST LAYER<br />FOR AI AGENTS</h1>
+                <p id="hero-desc">Verify the humans and companies behind autonomous agents. Powered by 14+ government database integrations and the x402 payment protocol.</p>
 
                 <div class="protocols">
                     <div class="protocol-card">
@@ -25,15 +25,19 @@ export const renderHero = () => {
 
         <div id="stats-panel">
             <div class="stat-item">
-                <span class="label">Total requests</span>
-                <span class="value" id="nodes-count">23M</span>
+                <span class="label">Identities Verified</span>
+                <span class="value" id="nodes-count">23M+</span>
             </div>
             <div class="stat-item">
-                <span class="label">Total companies</span>
+                <span class="label">Enterprise Clients</span>
                 <span class="value">45</span>
             </div>
             <div class="stat-item">
-                <span class="label">Total countries</span>
+                <span class="label">Government Sources</span>
+                <span class="value">14+</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Countries</span>
                 <span class="value">20+</span>
             </div>
         </div>
