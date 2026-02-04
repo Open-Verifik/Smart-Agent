@@ -17,7 +17,6 @@ import { renderFooter } from "./components/Footer.js";
 import { renderHero } from "./components/Hero.js";
 import { initIntegration, renderIntegration } from "./components/Integration.js";
 import { renderNavbar } from "./components/Navbar.js";
-import { initPlanet } from "./components/Planet.js";
 import { renderProtocol } from "./components/Protocol.js";
 import { renderRoadmap } from "./components/Roadmap.js";
 
@@ -33,8 +32,8 @@ initIntegration(); // Initialize chat scroll
 document.getElementById("roadmap-container").innerHTML = renderRoadmap();
 document.getElementById("footer-container").innerHTML = renderFooter();
 
-// Initialize Planet 3D
-initPlanet();
+// Initialize Planet 3D (dynamic import so Three.js is code-split and loaded on demand)
+import("./components/Planet.js").then(({ initPlanet }) => initPlanet());
 
 // Initialize Company Particles (2D Canvas) - Must run AFTER injection
 if (document.getElementById("particles-companies")) {
