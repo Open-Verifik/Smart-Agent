@@ -5,7 +5,7 @@ export const renderHero = () => {
         <div class="hero">
             <p class="status-indicator" aria-hidden="true"><span class="dot"></span> Live on Avalanche C-Chain</p>
             <h1 id="hero-title">THE TRUST LAYER<br />FOR AI AGENTS</h1>
-            <p id="hero-desc">Verify the humans and companies behind autonomous agents. Powered by 14+ government database integrations and the x402 payment protocol.</p>
+            <p id="hero-desc">Verify the humans and companies behind autonomous agents. Powered by 14+ official government database integrations (authorized API access) and the x402 payment protocol.</p>
 
             <div class="protocols" role="list">
                 <div class="protocol-card" role="listitem">

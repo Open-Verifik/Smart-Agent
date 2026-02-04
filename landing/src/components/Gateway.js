@@ -5,7 +5,7 @@ export const renderGateway = () => {
             <span class="section-label" style="color: #ef4444">THE GATEWAY</span>
             <h2 id="gateway-heading">Hybrid Web2/Web3 Infrastructure.<br/>Pay for Compute. Pay for Truth.</h2>
             <p class="gateway-subtitle">
-                A monetization layer bridging 14+ government registries to autonomous agents via the <strong>x402 payment protocol</strong>.
+                A monetization layer bridging 14+ official government registries (authorized API access) to autonomous agents via the <strong>x402 payment protocol</strong>.
             </p>
         </div>
 
@@ -90,7 +90,7 @@ export const renderGateway = () => {
 
             <!-- Data Sources (below flow) -->
             <div class="data-sources-strip">
-                <div class="sources-label">Government Data Sources</div>
+                <div class="sources-label">Official government data sources (authorized API access)</div>
                 <div class="sources-list">
                     <span class="source-tag">🇨🇴 RNEC</span>
                     <span class="source-tag">🇲🇽 INE</span>

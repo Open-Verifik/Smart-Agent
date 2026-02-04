@@ -18,14 +18,18 @@ import { renderHero } from "./components/Hero.js";
 import { initIntegration, renderIntegration } from "./components/Integration.js";
 import { renderNavbar } from "./components/Navbar.js";
 import { renderRoadmap } from "./components/Roadmap.js";
+import { renderVision } from "./components/Vision.js";
+import { renderWhyAvalanche } from "./components/WhyAvalanche.js";
 
 // Inject HTML
 document.getElementById("navbar-container").innerHTML = renderNavbar();
 document.getElementById("hero-container").innerHTML = renderHero();
 document.getElementById("customers-container").innerHTML = renderCustomers();
+document.getElementById("vision-container").innerHTML = renderVision();
 document.getElementById("capabilities-container").innerHTML = renderCapabilities();
 document.getElementById("gateway-container").innerHTML = renderGateway();
 initGateway(); // Initialize interactive flow
+document.getElementById("why-avalanche-container").innerHTML = renderWhyAvalanche();
 document.getElementById("integration-container").innerHTML = renderIntegration();
 initIntegration(); // Initialize chat scroll
 document.getElementById("roadmap-container").innerHTML = renderRoadmap();

@@ -165,7 +165,7 @@ export const renderIntegration = () => {
                         Need to validate millions of users?
                         Upload CSV or Excel files directly. 
                         Our agent swarm processes records in parallel, cleaning your database and 
- enrichment it with verified government data overnight.
+ enriching it with verified official government data overnight.
                     </p>
                     <a href="#" class="text-link">Start a Batch Job -></a>
                 </div>
