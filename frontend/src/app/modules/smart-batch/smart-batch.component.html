@@ -1,39 +1,134 @@
-<div class="flex flex-col flex-auto min-w-0 bg-gray-50 min-h-screen">
-  <div class="flex flex-col w-full max-w-7xl mx-auto p-6 md:p-8">
+<div class="flex flex-col w-full h-full bg-[#f8fafc] dark:bg-[#0f172a] p-6 gap-6">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-8">
-      <div>
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900">SmartBatch</h2>
-        <p class="text-lg text-gray-500 mt-1">Batch processing and automation planning</p>
-      </div>
-    </div>
-
-    <!-- Planning Section -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      <div class="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
-        <div class="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-50 text-indigo-600">
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            ></path>
-          </svg>
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Smart Batch
+            </h1>
+            <p class="mt-1 text-slate-500 dark:text-slate-400">
+                Manage your automated batch processing configurations.
+            </p>
         </div>
-        <h3 class="text-xl font-semibold text-gray-900">Planning & Roadmap</h3>
-      </div>
-
-      <div class="space-y-4">
-        <p class="text-gray-600">Planning section coming soon...</p>
-        <!-- Planning content will be added here -->
-      </div>
+        <button
+            mat-flat-button
+            color="primary"
+            (click)="createConfiguration()"
+            class="!rounded-lg !px-6 !py-2"
+        >
+            <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+            Create Configuration
+        </button>
     </div>
-  </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading()" class="flex flex-col items-center justify-center flex-1">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p class="mt-4 text-slate-500">Loading configurations...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div
+        *ngIf="!isLoading() && configurations().length === 0"
+        class="flex flex-col items-center justify-center flex-1 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center"
+    >
+        <div
+            class="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6"
+        >
+            <mat-icon class="text-slate-400 icon-size-10">layers</mat-icon>
+        </div>
+        <h3 class="text-lg font-medium text-slate-900 dark:text-white">No configurations found</h3>
+        <p class="text-slate-500 dark:text-slate-400 max-w-sm mt-2 mb-6">
+            Create your first batch configuration to start automating data processing.
+        </p>
+        <button mat-stroked-button color="primary" (click)="createConfiguration()">
+            Create Configuration
+        </button>
+    </div>
+
+    <!-- List Grid -->
+    <div
+        *ngIf="!isLoading() && configurations().length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+        <div
+            *ngFor="let config of configurations()"
+            (click)="openDashboard(config._id ?? config.id ?? '')"
+            class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 transition-all hover:shadow-md hover:border-blue-500/50 cursor-pointer"
+        >
+            <!-- Actions -->
+            <div
+                class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1"
+            >
+                <button
+                    mat-icon-button
+                    (click)="editConfiguration(config._id ?? config.id ?? '', $event)"
+                    matTooltip="Edit"
+                >
+                    <mat-icon class="icon-size-5">edit</mat-icon>
+                </button>
+                <button
+                    mat-icon-button
+                    color="warn"
+                    (click)="deleteConfiguration(config._id ?? config.id ?? '', $event)"
+                    matTooltip="Delete"
+                >
+                    <mat-icon class="icon-size-5">delete</mat-icon>
+                </button>
+            </div>
+
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">{{ getCountryFlag(config.country) }}</span>
+                    <div>
+                        <h3 class="font-semibold text-slate-900 dark:text-white line-clamp-1">
+                            {{ config.name }}
+                        </h3>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span
+                                class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                            >
+                                {{ config.inputFormat | uppercase }} →
+                                {{ config.outputFormat | uppercase }}
+                            </span>
+                            <span
+                                *ngIf="!config.isActive"
+                                class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                            >
+                                Inactive
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-2 min-h-[2.5rem]">
+                {{ config.description || 'No description provided.' }}
+            </p>
+
+            <!-- Stats -->
+            <div
+                class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800"
+            >
+                <div>
+                    <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
+                        >Steps</span
+                    >
+                    <span class="text-lg font-semibold text-slate-900 dark:text-white">{{
+                        config.steps.length
+                    }}</span>
+                </div>
+                <div>
+                    <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
+                        >Strategy</span
+                    >
+                    <span
+                        class="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize truncate"
+                        >{{ config.mergeStrategy.replace('-', ' ') }}</span
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

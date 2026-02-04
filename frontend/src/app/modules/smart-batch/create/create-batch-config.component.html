@@ -1,0 +1,517 @@
+<div class="flex flex-col w-full h-full min-h-screen relative">
+    <!-- Background pattern -->
+    <div
+        class="fixed inset-0 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 pointer-events-none"
+    >
+        <div
+            class="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(99,102,241,0.08),transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(139,92,246,0.08),transparent_50%)]"
+        ></div>
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 flex flex-col w-full h-full">
+        <!-- Top Bar -->
+        <div
+            class="flex items-center justify-between px-8 py-5 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl"
+        >
+            <div class="flex items-center gap-3">
+                <button mat-icon-button routerLink="/smart-batch">
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <h1 class="text-xl font-bold text-slate-900 dark:text-white">
+                    {{ isEditMode() ? 'Edit' : 'Create' }} Batch Configuration
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-auto p-8 max-w-5xl mx-auto w-full">
+            <!-- Glass card container -->
+            <div
+                class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg p-8"
+            >
+                <mat-stepper #stepper orientation="vertical" class="bg-transparent" [linear]="true">
+                    <!-- Step 1: Basic Info -->
+                    <mat-step [stepControl]="step1Form">
+                        <ng-template matStepLabel>Basic Information</ng-template>
+                        <form
+                            [formGroup]="step1Form"
+                            class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4"
+                        >
+                            <mat-form-field appearance="outline" class="w-full col-span-2">
+                                <mat-label>Configuration Name</mat-label>
+                                <input
+                                    matInput
+                                    formControlName="name"
+                                    placeholder="e.g. Colombian ID Verification Batch"
+                                />
+                                <mat-error>Name is required</mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="w-full col-span-2">
+                                <mat-label>Description</mat-label>
+                                <textarea
+                                    matInput
+                                    formControlName="description"
+                                    rows="3"
+                                    placeholder="Describe the purpose of this batch..."
+                                ></textarea>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Country</mat-label>
+                                <mat-select formControlName="country">
+                                    <mat-option
+                                        *ngFor="let country of countries()"
+                                        [value]="country.code"
+                                    >
+                                        {{ country.name }}
+                                    </mat-option>
+                                </mat-select>
+                                <mat-error>Country is required</mat-error>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline" class="w-full">
+                                <mat-label>Merge Strategy</mat-label>
+                                <mat-select formControlName="mergeStrategy">
+                                    <mat-option value="sequential"
+                                        >Sequential (One by one)</mat-option
+                                    >
+                                    <mat-option value="parallel-independent"
+                                        >Parallel Independent</mat-option
+                                    >
+                                    <mat-option value="parallel-with-fallback"
+                                        >Parallel with Fallback</mat-option
+                                    >
+                                </mat-select>
+                            </mat-form-field>
+
+                            <div class="col-span-2 grid grid-cols-2 gap-6">
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Input Fields Format</mat-label>
+                                    <mat-select formControlName="inputFormat">
+                                        <mat-option value="csv">CSV</mat-option>
+                                        <mat-option value="xlsx">Excel (XLSX)</mat-option>
+                                        <mat-option value="jsonl">JSONL</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+
+                                <mat-form-field appearance="outline">
+                                    <mat-label>Result Output Format</mat-label>
+                                    <mat-select formControlName="outputFormat">
+                                        <mat-option value="csv">CSV</mat-option>
+                                        <mat-option value="xlsx">Excel (XLSX)</mat-option>
+                                        <mat-option value="jsonl">JSONL</mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="col-span-2 pt-4">
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    matStepperNext
+                                    [disabled]="step1Form.invalid"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </form>
+                    </mat-step>
+
+                    <!-- Step 2: Feature Selection -->
+                    <mat-step>
+                        <ng-template matStepLabel>Select Endpoints</ng-template>
+                        <div class="flex flex-col gap-6 pt-4 h-[600px]">
+                            <!-- Fixed height for layout -->
+
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-medium text-slate-500 uppercase">
+                                    Available Features
+                                    <span *ngIf="endpointSearchQuery()"
+                                        >({{ filteredAvailableFeatures().length }} of
+                                        {{ availableFeaturesForCountry().length }})</span
+                                    >
+                                    <span *ngIf="!endpointSearchQuery()"
+                                        >({{ availableFeaturesForCountry().length }})</span
+                                    >
+                                </h3>
+                                <div *ngIf="isLoadingFeatures()" class="text-xs text-blue-500">
+                                    Loading features...
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-full min-h-0">
+                                <!-- Available List -->
+                                <div
+                                    class="flex flex-col border border-slate-200/80 dark:border-slate-700/80 rounded-xl overflow-hidden bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm"
+                                >
+                                    <div
+                                        class="bg-slate-50/80 dark:bg-slate-900/50 px-4 py-3 border-b border-slate-200/80 dark:border-slate-700/80 font-medium text-sm"
+                                    >
+                                        Available
+                                    </div>
+                                    <div
+                                        class="p-2 border-b border-slate-200/80 dark:border-slate-700/80"
+                                    >
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="w-full !mb-0"
+                                            subscriptSizing="dynamic"
+                                        >
+                                            <mat-icon matPrefix class="text-slate-400 icon-size-5"
+                                                >search</mat-icon
+                                            >
+                                            <input
+                                                matInput
+                                                type="text"
+                                                [ngModel]="endpointSearchQuery()"
+                                                (ngModelChange)="endpointSearchQuery.set($event)"
+                                                placeholder="Search by title or endpoint..."
+                                                class="!py-1"
+                                            />
+                                            <button
+                                                mat-icon-button
+                                                matSuffix
+                                                *ngIf="endpointSearchQuery()"
+                                                (click)="endpointSearchQuery.set('')"
+                                                type="button"
+                                                aria-label="Clear search"
+                                            >
+                                                <mat-icon class="icon-size-5">close</mat-icon>
+                                            </button>
+                                        </mat-form-field>
+                                    </div>
+                                    <div class="flex-1 overflow-y-auto p-2 space-y-2">
+                                        <div
+                                            *ngFor="let feature of filteredAvailableFeatures()"
+                                            (click)="toggleFeature(feature)"
+                                            [class.opacity-50]="isSelected(feature)"
+                                            class="flex items-center justify-between p-3 rounded-lg border border-transparent hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 cursor-pointer transition-all select-none"
+                                        >
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs"
+                                                >
+                                                    {{ feature.code | slice: 0 : 2 | uppercase }}
+                                                </div>
+                                                <div class="flex flex-col min-w-0 flex-1">
+                                                    <span
+                                                        class="font-medium text-slate-900 dark:text-white text-sm"
+                                                        >{{ feature.name }}</span
+                                                    >
+                                                    <span
+                                                        class="text-xs font-mono text-blue-600 dark:text-blue-400 truncate"
+                                                        [title]="getEndpointDisplay(feature)"
+                                                        >{{ getEndpointDisplay(feature) }}</span
+                                                    >
+                                                    <span class="text-xs text-slate-500 truncate"
+                                                        >{{
+                                                            feature.description | slice: 0 : 50
+                                                        }}...</span
+                                                    >
+                                                </div>
+                                            </div>
+                                            <mat-icon
+                                                *ngIf="isSelected(feature)"
+                                                class="text-green-500 icon-size-5"
+                                                >check_circle</mat-icon
+                                            >
+                                            <mat-icon
+                                                *ngIf="!isSelected(feature)"
+                                                class="text-slate-300 icon-size-5"
+                                                >add_circle_outline</mat-icon
+                                            >
+                                        </div>
+                                        <div
+                                            *ngIf="
+                                                !isLoadingFeatures() &&
+                                                filteredAvailableFeatures().length === 0
+                                            "
+                                            class="flex flex-col items-center justify-center py-8 text-slate-400 text-sm"
+                                        >
+                                            <mat-icon class="icon-size-10 mb-2"
+                                                >search_off</mat-icon
+                                            >
+                                            <span
+                                                >No endpoints match "{{
+                                                    endpointSearchQuery()
+                                                }}"</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Selected List (Drag & Drop) -->
+                                <div
+                                    class="flex flex-col border border-blue-200/80 dark:border-blue-800/50 rounded-xl overflow-hidden bg-blue-50/60 dark:bg-blue-900/20 backdrop-blur-sm"
+                                >
+                                    <div
+                                        class="bg-blue-100/60 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-200/80 dark:border-blue-800/50 font-medium text-sm text-blue-700 dark:text-blue-300"
+                                    >
+                                        Selected Steps (Drag to reorder)
+                                    </div>
+                                    <div
+                                        cdkDropList
+                                        class="flex-1 overflow-y-auto p-2 space-y-2"
+                                        (cdkDropListDropped)="drop($event)"
+                                    >
+                                        <div
+                                            *ngFor="
+                                                let feature of selectedFeatures();
+                                                let i = index
+                                            "
+                                            cdkDrag
+                                            class="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 shadow-sm cursor-move"
+                                        >
+                                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                                <span
+                                                    class="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold font-mono"
+                                                >
+                                                    {{ i + 1 }}
+                                                </span>
+                                                <div class="flex flex-col min-w-0 flex-1">
+                                                    <span
+                                                        class="font-medium text-slate-900 dark:text-white text-sm"
+                                                        >{{ feature.name }}</span
+                                                    >
+                                                    <span
+                                                        class="text-xs font-mono text-blue-600 dark:text-blue-400 truncate"
+                                                        [title]="getEndpointDisplay(feature)"
+                                                        >{{ getEndpointDisplay(feature) }}</span
+                                                    >
+                                                </div>
+                                            </div>
+                                            <button
+                                                mat-icon-button
+                                                color="warn"
+                                                (click)="
+                                                    toggleFeature(feature); $event.stopPropagation()
+                                                "
+                                            >
+                                                <mat-icon class="icon-size-5">close</mat-icon>
+                                            </button>
+                                        </div>
+
+                                        <div
+                                            *ngIf="selectedFeatures().length === 0"
+                                            class="flex flex-col items-center justify-center h-full text-slate-400 opacity-60"
+                                        >
+                                            <mat-icon class="icon-size-8 mb-2"
+                                                >playlist_add</mat-icon
+                                            >
+                                            <span class="text-sm"
+                                                >Select features to add steps</span
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 flex gap-3">
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    matStepperNext
+                                    [disabled]="selectedFeatures().length === 0"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
+                    </mat-step>
+
+                    <!-- Step 3: Review Parameters -->
+                    <mat-step>
+                        <ng-template matStepLabel>Review Parameters</ng-template>
+                        <div class="pt-4 flex flex-col gap-4">
+                            <p class="text-sm text-slate-500 mb-2">
+                                Review the required parameters for each endpoint. These will be
+                                provided when running the batch.
+                            </p>
+
+                            <mat-accordion multi>
+                                <mat-expansion-panel
+                                    *ngFor="let feature of selectedFeatures(); let i = index"
+                                    [expanded]="i === 0"
+                                    class="!bg-white/60 dark:!bg-slate-800/60 !backdrop-blur-sm"
+                                >
+                                    <mat-expansion-panel-header class="!h-auto !min-h-[3.5rem]">
+                                        <mat-panel-title class="!flex-1 !min-w-0 !mr-4">
+                                            <span class="flex flex-col gap-0.5 w-full">
+                                                <span class="flex items-center gap-2 w-full">
+                                                    <span
+                                                        class="font-mono text-xs text-slate-400 shrink-0"
+                                                        >{{ i + 1 }}.</span
+                                                    >
+                                                    <span
+                                                        class="font-medium text-slate-900 dark:text-white min-w-0 break-words"
+                                                        >{{ feature.name }}</span
+                                                    >
+                                                </span>
+                                                <span
+                                                    class="text-xs font-mono text-blue-600 dark:text-blue-400 pl-5"
+                                                    >{{ getEndpointDisplay(feature) }}</span
+                                                >
+                                            </span>
+                                        </mat-panel-title>
+                                        <mat-panel-description
+                                            class="!flex-none"
+                                        ></mat-panel-description>
+                                    </mat-expansion-panel-header>
+
+                                    <!-- Read-only Parameters Display -->
+                                    <div class="pt-4">
+                                        <div *ngIf="feature.dependencies?.length > 0">
+                                            <h4
+                                                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3"
+                                            >
+                                                Required Parameters
+                                            </h4>
+                                            <div class="flex flex-wrap gap-2">
+                                                <ng-container
+                                                    *ngFor="let dep of feature.dependencies"
+                                                >
+                                                    <span
+                                                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                                                    >
+                                                        <span
+                                                            class="font-medium text-sm text-slate-700 dark:text-slate-300"
+                                                            >{{ dep.field }}</span
+                                                        >
+                                                        <span
+                                                            *ngIf="dep.required"
+                                                            class="text-xs text-orange-500 font-medium"
+                                                            >Required</span
+                                                        >
+                                                    </span>
+                                                </ng-container>
+                                            </div>
+                                            <p class="text-xs text-slate-400 mt-3">
+                                                These parameters will be mapped from your input file
+                                                when running the batch.
+                                            </p>
+                                        </div>
+                                        <div
+                                            *ngIf="
+                                                !feature.dependencies ||
+                                                feature.dependencies.length === 0
+                                            "
+                                            class="text-sm text-slate-400 italic"
+                                        >
+                                            No parameters required for this endpoint.
+                                        </div>
+                                    </div>
+                                </mat-expansion-panel>
+                            </mat-accordion>
+
+                            <div class="pt-6 flex gap-3">
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-flat-button color="primary" matStepperNext>Next</button>
+                            </div>
+                        </div>
+                    </mat-step>
+
+                    <!-- Step 4: Review -->
+                    <mat-step>
+                        <ng-template matStepLabel>Review & Create</ng-template>
+                        <div class="pt-6 max-w-2xl">
+                            <h3 class="text-lg font-bold mb-4">Summary</h3>
+
+                            <div
+                                class="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 space-y-4"
+                            >
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <span class="block text-xs text-slate-500 uppercase"
+                                            >Configuration Name</span
+                                        >
+                                        <span class="font-medium text-slate-900 dark:text-white">{{
+                                            step1Form.get('name')?.value
+                                        }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs text-slate-500 uppercase"
+                                            >Country</span
+                                        >
+                                        <span class="font-medium text-slate-900 dark:text-white">{{
+                                            step1Form.get('country')?.value
+                                        }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs text-slate-500 uppercase"
+                                            >Strategy</span
+                                        >
+                                        <span
+                                            class="font-medium text-slate-900 dark:text-white capitalize"
+                                            >{{ step1Form.get('mergeStrategy')?.value }}</span
+                                        >
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs text-slate-500 uppercase"
+                                            >Total Steps</span
+                                        >
+                                        <span class="font-medium text-slate-900 dark:text-white"
+                                            >{{ selectedFeatures().length }} steps</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-8">
+                                <h4
+                                    class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3"
+                                >
+                                    Estimated Cost per Record
+                                </h4>
+                                <div
+                                    class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 rounded-xl p-5"
+                                >
+                                    <!-- Breakdown list -->
+                                    <div class="space-y-2 mb-4">
+                                        <div
+                                            *ngFor="let feature of selectedFeatures()"
+                                            class="flex justify-between text-sm"
+                                        >
+                                            <span class="text-slate-600 dark:text-slate-400">{{
+                                                feature.name
+                                            }}</span>
+                                            <span class="font-medium text-slate-900 dark:text-white"
+                                                >${{
+                                                    (
+                                                        feature.price ||
+                                                        feature.smartCheckPrice ||
+                                                        0
+                                                    ).toFixed(2)
+                                                }}</span
+                                            >
+                                        </div>
+                                    </div>
+                                    <!-- Total -->
+                                    <div
+                                        class="flex justify-between items-center pt-3 border-t border-green-200 dark:border-green-800/50"
+                                    >
+                                        <span class="font-medium text-green-700 dark:text-green-300"
+                                            >Total per record</span
+                                        >
+                                        <span
+                                            class="text-2xl font-bold text-green-700 dark:text-green-300"
+                                            >${{ totalCostPerRecord().toFixed(2) }}</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-8 flex gap-3">
+                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-flat-button color="primary" (click)="submit()">
+                                    {{ isEditMode() ? 'Update' : 'Create' }} Configuration
+                                </button>
+                            </div>
+                        </div>
+                    </mat-step>
+                </mat-stepper>
+            </div>
+        </div>
+    </div>
+</div>

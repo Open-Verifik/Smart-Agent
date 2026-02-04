@@ -26,6 +26,8 @@
         "apexcharts": "^5.3.6",
         "ethers": "^6.16.0",
         "highlight.js": "11.11.1",
+        "jspreadsheet-ce": "^5.0.4",
+        "jsuites": "^6.1.2",
         "lodash-es": "^4.17.23",
         "luxon": "3.5.0",
         "marked": "^17.0.1",
