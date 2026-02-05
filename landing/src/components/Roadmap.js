@@ -1,9 +1,9 @@
 export const renderRoadmap = () => {
     return `
-    <section id="roadmap">
+    <section id="roadmap" aria-labelledby="roadmap-heading">
         <div class="roadmap-header">
             <span class="section-label" style="color: #4ade80">THE PATH FORWARD</span>
-            <h2>2026 Roadmap</h2>
+            <h2 id="roadmap-heading">2026 Roadmap</h2>
             <p style="color: #a1a1aa; font-size: 1.1rem; margin-top: 1rem">
                 Executing our vision for a decentralized, agent-driven economy.
             </p>
@@ -70,7 +70,7 @@ export const renderRoadmap = () => {
                         <li><strong>DAO Governance:</strong> Community voting on new registry integrations and protocol parameters.</li>
                         <li><strong>European Expansion:</strong> Initial pilots for eIDAS compatibility.</li>
                         <li><strong>AI Fraud Layer:</strong> Decentralized machine learning nodes for anomaly detection.</li>
-                        <li><strong>Cross-Chain Bridge:</strong> Interoperability with other major L1 networks.</li>
+                        <li><strong>Cross-Chain Bridge:</strong> Interoperability with other major chains (e.g. Ethereum, Solana).</li>
                     </ul>
                 </div>
             </div>

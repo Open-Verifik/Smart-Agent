@@ -10,23 +10,26 @@ import "./styles/integration.css";
 import "./styles/roadmap.css";
 
 // Components
-import { renderArchitecture } from "./components/Architecture.js";
 import { renderCapabilities } from "./components/Capabilities.js";
 import { renderCustomers } from "./components/Customers.js";
 import { renderFooter } from "./components/Footer.js";
+import { initGateway, renderGateway } from "./components/Gateway.js";
 import { renderHero } from "./components/Hero.js";
 import { initIntegration, renderIntegration } from "./components/Integration.js";
 import { renderNavbar } from "./components/Navbar.js";
-import { renderProtocol } from "./components/Protocol.js";
 import { renderRoadmap } from "./components/Roadmap.js";
+import { renderVision } from "./components/Vision.js";
+import { renderWhyAvalanche } from "./components/WhyAvalanche.js";
 
 // Inject HTML
 document.getElementById("navbar-container").innerHTML = renderNavbar();
 document.getElementById("hero-container").innerHTML = renderHero();
 document.getElementById("customers-container").innerHTML = renderCustomers();
+document.getElementById("vision-container").innerHTML = renderVision();
 document.getElementById("capabilities-container").innerHTML = renderCapabilities();
-document.getElementById("architecture-container").innerHTML = renderArchitecture();
-document.getElementById("protocol-container").innerHTML = renderProtocol();
+document.getElementById("gateway-container").innerHTML = renderGateway();
+initGateway(); // Initialize interactive flow
+document.getElementById("why-avalanche-container").innerHTML = renderWhyAvalanche();
 document.getElementById("integration-container").innerHTML = renderIntegration();
 initIntegration(); // Initialize chat scroll
 document.getElementById("roadmap-container").innerHTML = renderRoadmap();

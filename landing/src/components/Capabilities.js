@@ -17,7 +17,7 @@ export const renderCapabilities = () => {
                 <div class="feature-content">
                     <h3>Proof of Humanity</h3>
                     <p>
-                        Verify the human behind the agent. Frictionless access to government registries across 20+ countries to prevent Sybil attacks.
+                        Verify the human behind the agent. Official, authorized API access to government registries across 20+ countries to prevent Sybil attacks.
                     </p>
                     <a href="https://docs.verifik.co/intro" target="_blank" class="docs-link">
                         Explore Documentation ↗
