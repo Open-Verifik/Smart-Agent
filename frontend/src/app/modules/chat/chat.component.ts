@@ -119,7 +119,7 @@ export class ChatComponent implements OnInit {
     protected readonly smartAgentUrl = environment.smartAgentUrl;
     protected readonly tokenTicker = environment.tokenTicker || 'VKA';
     private apiUrl = `${environment.smartAgentUrl}/api/agent`;
-    
+
     /**
      * Get the Snowtrace explorer URL based on network configuration
      * Uses explicit isTestnet flag from environment, or falls back to chainId/RPC URL detection
@@ -127,27 +127,22 @@ export class ChatComponent implements OnInit {
     protected getSnowtraceUrl(): string {
         // First check explicit configuration
         if (environment.isTestnet !== undefined) {
-            return environment.isTestnet 
-                ? 'https://testnet.snowtrace.io' 
-                : 'https://snowtrace.io';
+            return environment.isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
         }
-        
+
         // Fallback: Check chainId (43114 = Mainnet, 43113 = Fuji Testnet)
         if (environment.chainId) {
-            return environment.chainId === 43113 
-                ? 'https://testnet.snowtrace.io' 
+            return environment.chainId === 43113
+                ? 'https://testnet.snowtrace.io'
                 : 'https://snowtrace.io';
         }
-        
+
         // Fallback: Check RPC URL for testnet indicators
         const rpcUrl = environment.rpcUrl || '';
-        const isTestnet = rpcUrl.includes('test') || 
-                         rpcUrl.includes('fuji') || 
-                         rpcUrl.includes('43113');
-        
-        return isTestnet 
-            ? 'https://testnet.snowtrace.io' 
-            : 'https://snowtrace.io';
+        const isTestnet =
+            rpcUrl.includes('test') || rpcUrl.includes('fuji') || rpcUrl.includes('43113');
+
+        return isTestnet ? 'https://testnet.snowtrace.io' : 'https://snowtrace.io';
     }
 
     // --- Signals ---
@@ -204,8 +199,10 @@ export class ChatComponent implements OnInit {
         this.walletAddress.set(this.walletService.getAddress());
         await this.refreshBalance();
 
-        // Auto-register VKA token if using MetaMask
-        this.walletService.registerVkaToken();
+        // Only register VKA in MetaMask when user is on MetaMask; avoid opening MetaMask when on Agent wallet
+        if (this.walletService.isUsingMetaMask()) {
+            this.walletService.registerVkaToken();
+        }
 
         // Check for Wallet Change
         const currentWallet = this.walletAddress();
@@ -639,12 +636,15 @@ export class ChatComponent implements OnInit {
                 if (msg.data && msg.role === 'assistant') {
                     // Find the most recent payment message and mark it as confirmed
                     const paymentMsgs = this.messages()
-                        .filter((m) => m.role === 'system' && (m.paymentTx || m.content.includes('TX:')))
+                        .filter(
+                            (m) => m.role === 'system' && (m.paymentTx || m.content.includes('TX:'))
+                        )
                         .reverse(); // Get most recent first
-                    
+
                     if (paymentMsgs.length > 0) {
                         const paymentMsg = paymentMsgs[0];
-                        const txHash = paymentMsg.paymentTx || this.extractPaymentTxHash(paymentMsg.content);
+                        const txHash =
+                            paymentMsg.paymentTx || this.extractPaymentTxHash(paymentMsg.content);
                         if (txHash) {
                             this.lastPaymentTx.set(txHash);
                             // Mark payment as confirmed since we got a successful response
@@ -869,7 +869,7 @@ export class ChatComponent implements OnInit {
             }
 
             const { tx } = txResponse;
-            
+
             // Create payment confirmation message using helper function
             this.addPaymentConfirmationMessage(tx.hash, currency, paidAmount, 'pending');
 
@@ -922,7 +922,7 @@ export class ChatComponent implements OnInit {
     private fetchProofAsync(msg: ChatMessage, messageIndex: number) {
         // Extract payment transaction hash
         let paymentTx: string | null = null;
-        
+
         // Try to get from lastPaymentTx first (most recent)
         if (this.lastPaymentTx()) {
             paymentTx = this.lastPaymentTx();
@@ -931,7 +931,7 @@ export class ChatComponent implements OnInit {
             const paymentMsgs = this.messages()
                 .filter((m) => m.role === 'system' && m.content.includes('TX:'))
                 .reverse(); // Get most recent first
-            
+
             for (const paymentMsg of paymentMsgs) {
                 const txMatch = paymentMsg.content.match(/TX: (0x[a-fA-F0-9]+)/);
                 if (txMatch) {
@@ -1100,11 +1100,12 @@ export class ChatComponent implements OnInit {
         amount: string,
         status: 'pending' | 'processing' | 'confirmed' = 'pending'
     ): void {
-        const statusText = status === 'pending' 
-            ? 'Waiting for confirmation...' 
-            : status === 'processing' 
-            ? 'Processing...' 
-            : 'Confirmed';
+        const statusText =
+            status === 'pending'
+                ? 'Waiting for confirmation...'
+                : status === 'processing'
+                  ? 'Processing...'
+                  : 'Confirmed';
 
         const message: ChatMessage = {
             role: 'system',
@@ -1123,17 +1124,12 @@ export class ChatComponent implements OnInit {
      * Update the status of an existing payment message
      * This allows us to update the payment confirmation UI as the transaction progresses
      */
-    private updatePaymentMessageStatus(
-        txHash: string,
-        status: 'processing' | 'confirmed'
-    ): void {
+    private updatePaymentMessageStatus(txHash: string, status: 'processing' | 'confirmed'): void {
         this.messages.update((msgs) =>
             msgs.map((msg) => {
                 if (msg.role === 'system' && msg.paymentTx === txHash) {
-                    const statusText = status === 'processing' 
-                        ? 'Processing...' 
-                        : 'Confirmed';
-                    
+                    const statusText = status === 'processing' ? 'Processing...' : 'Confirmed';
+
                     return {
                         ...msg,
                         content: `Payment sent (${msg.paymentCurrency || 'AVAX'})! TX: ${txHash}. ${statusText}`,

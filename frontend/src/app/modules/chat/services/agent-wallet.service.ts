@@ -150,6 +150,8 @@ export class AgentWalletService {
     /**
      * Gets the appropriate signer based on wallet type.
      * Supports encrypted agent wallets (passkey/PIN) and MetaMask.
+     * Encrypted Agent wallet is always preferred when present, so MetaMask is never
+     * used when the user is on Agent wallet (avoids opening MetaMask by mistake).
      * @returns An ethers Signer instance for signing transactions
      * @throws Error if no valid wallet is connected or unlock fails
      */
@@ -166,7 +168,7 @@ export class AgentWalletService {
                   : null;
         }
 
-        // Encrypted Agent Wallet (passkey or PIN)
+        // Encrypted Agent Wallet (passkey or PIN) — always use when present so we never open MetaMask
         if (encryptionMethod) {
             let privateKey: string | null = null;
 
@@ -181,7 +183,7 @@ export class AgentWalletService {
             throw new Error('Failed to unlock wallet');
         }
 
-        // MetaMask external wallet
+        // MetaMask only when explicitly chosen and no encrypted Agent wallet data
         if (walletType === 'metamask' && (window as any).ethereum) {
             await this.switchToAvalancheMainnet();
             const provider = new ethers.BrowserProvider((window as any).ethereum);
@@ -196,11 +198,23 @@ export class AgentWalletService {
 
     /**
      * Checks if the current wallet type is MetaMask.
+     * Only true when explicitly set to MetaMask and no encrypted Agent wallet is present.
      * @returns True if using MetaMask, false otherwise
      */
     private isMetaMaskAccount(): boolean {
         const type = localStorage.getItem('x402_wallet_type');
-        return !!type && type.trim().toLowerCase() === 'metamask';
+        if (!type || type.trim().toLowerCase() !== 'metamask') return false;
+        // Do not use MetaMask path if user has encrypted Agent wallet (prevents wrong signer)
+        if (this._encryptionService.isWalletEncrypted()) return false;
+        return true;
+    }
+
+    /**
+     * Public check for whether the app is using MetaMask (for UI / conditional logic).
+     * Use this to avoid calling MetaMask-only code (e.g. registerVkaToken) when on Agent wallet.
+     */
+    isUsingMetaMask(): boolean {
+        return this.isMetaMaskAccount();
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
