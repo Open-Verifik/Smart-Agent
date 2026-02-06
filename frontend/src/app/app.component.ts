@@ -6,71 +6,130 @@ import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  imports: [RouterOutlet],
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.scss'],
+    imports: [RouterOutlet],
 })
 export class AppComponent implements OnInit {
-  private _authService = inject(AuthService);
-  private _authApiService = inject(AuthApiService);
-  private _userService = inject(UserService);
-  private _sessionService = inject(SessionService);
+    private _authService = inject(AuthService);
+    private _authApiService = inject(AuthApiService);
+    private _userService = inject(UserService);
+    private _sessionService = inject(SessionService);
 
-  /**
-   * Constructor
-   */
-  constructor() {}
+    /**
+     * Constructor
+     */
+    constructor() {}
 
-  ngOnInit(): void {
-    // First, check if we're in a reload loop (SessionService handles this in constructor)
-    // If reload loop was detected, the session was cleared and we should not proceed
-
-    const token = localStorage.getItem('accessToken');
-
-    // Check if token exists and is valid before making API call
-    if (token && this._sessionService.isTokenValid()) {
-      // Ensure auth service has the token
-      this._authService.accessToken = token;
-
-      // Refresh session data
-      this._authApiService.getSession().subscribe({
-        next: (res: any) => {
-          const userData = res.data?.user || res.user || res;
-          localStorage.setItem('verifik_account', JSON.stringify(userData));
-          this._authService.accessToken = token; // Ensure token is set
-
-          // Update UserService so all subscribers get the new data
-          this._userService.user = userData;
-
-          // Reset reload tracking on successful session restore
-          this._sessionService.resetReloadTracking();
-        },
-        error: (err) => {
-          console.error('[AppComponent] Failed to restore session on app init', err);
-
-          // Check if this is an auth error (401/403)
-          const isAuthError = err.status === 401 || err.status === 403;
-
-          if (isAuthError) {
-            console.warn('[AppComponent] Session invalid, cleaning up credentials');
-            // Clear invalid token to prevent further failed attempts
-            // Use silent mode to avoid navigation loops on app init
-            this._sessionService.handleSessionExpired({
-              clearWeb2Only: true,
-              silent: true, // Don't navigate on init, let the app load normally
-            });
-          }
-        },
-      });
-    } else if (token && !this._sessionService.isTokenValid()) {
-      // Token exists but is expired - clean it up
-      console.warn('[AppComponent] Token exists but is expired, cleaning up');
-      this._sessionService.handleSessionExpired({
-        clearWeb2Only: true,
-        silent: true, // Don't navigate on init
-      });
+    ngOnInit(): void {
+        /**
+         * GLOBAL SESSION INITIALIZATION
+         *
+         * We handle token capture and session restoration here in the root component because:
+         * 1. It's the earliest point in the application lifecycle.
+         * 2. It ensures the session is established BEFORE any child components or guards
+         *    try to use the auth state.
+         * 3. It provides resilience against server-side redirects that might bypass
+         *    dedicated auth routes (like /bridge).
+         */
+        this._captureTokenFromUrl();
+        this._restoreSession();
     }
-    // If no token at all, that's fine - user is not logged in
-  }
+
+    /**
+     * Captures and validates authentication tokens provided via URL query parameters.
+     * This allows for SSO (Single Sign-On) handovers from external platforms.
+     * @private
+     */
+    private _captureTokenFromUrl(): void {
+        const urlParams = new URL(window.location.href).searchParams;
+        const tokenFromUrl = urlParams.get('token');
+        const userFromUrl = urlParams.get('user');
+
+        if (!tokenFromUrl) {
+            return;
+        }
+
+        // Detect user switch: If we already have a session for a different user, clear it first
+        const currentToken = localStorage.getItem('accessToken');
+        if (currentToken && currentToken !== tokenFromUrl) {
+            console.log('[AppComponent] Switching user context based on URL token');
+            this._authService.signOut(true);
+        }
+
+        console.log('[AppComponent] Provisioning session from URL token');
+        localStorage.setItem('accessToken', tokenFromUrl);
+        this._authService.accessToken = tokenFromUrl;
+
+        // If user profile data was also provided, hydrate the local state
+        if (userFromUrl) {
+            try {
+                const decodedUser = JSON.parse(atob(userFromUrl));
+                localStorage.setItem('verifik_account', JSON.stringify(decodedUser));
+                this._userService.user = decodedUser;
+            } catch (e) {
+                console.warn('[AppComponent] Failed to decode user data from URL', e);
+            }
+        }
+    }
+
+    /**
+     * Attempts to restore an existing session from localStorage.
+     * Validates the token and refreshes user metadata from the API.
+     * @private
+     */
+    private _restoreSession(): void {
+        const token = localStorage.getItem('accessToken');
+
+        if (!token) {
+            return;
+        }
+
+        // Handle expired tokens immediately (Guard Clause)
+        if (!this._sessionService.isTokenValid()) {
+            this._purgeExpiredSession();
+            return;
+        }
+
+        // Valid token exists, attempt to sync state with API
+        this._syncUserSession(token);
+    }
+
+    /**
+     * Purges session data and handles cleanup for expired tokens.
+     * @private
+     */
+    private _purgeExpiredSession(): void {
+        console.warn('[AppComponent] Purging expired session credentials');
+        this._sessionService.handleSessionExpired({
+            clearWeb2Only: true,
+            silent: true,
+        });
+    }
+
+    /**
+     * Synchronizes the user session data with the backend API.
+     * @param token The active authentication token
+     * @private
+     */
+    private _syncUserSession(token: string): void {
+        this._authService.accessToken = token;
+
+        this._authApiService.getSession().subscribe({
+            next: (res: any) => {
+                const userData = res.data?.user || res.user || res;
+                localStorage.setItem('verifik_account', JSON.stringify(userData));
+                this._userService.user = userData;
+                this._sessionService.resetReloadTracking();
+            },
+            error: (err) => {
+                console.error('[AppComponent] Background session sync failed', err);
+                // If the token is rejected by the server, purge it
+                if (err.status === 401 || err.status === 403) {
+                    this._purgeExpiredSession();
+                }
+            },
+        });
+    }
 }
