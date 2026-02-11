@@ -91,6 +91,9 @@ export class CreateBatchComponent implements OnInit {
         name: ['', [Validators.required, Validators.maxLength(150)]],
     });
 
+    /** Signal mirror of form validity so computeds re-run when form state changes (any order). */
+    batchFormValid = signal(false);
+
     // File upload state
     selectedFile = signal<File | null>(null);
     isDragging = signal(false);
@@ -177,11 +180,24 @@ export class CreateBatchComponent implements OnInit {
         };
     });
 
-    // Computed
+    // Computed (uses batchFormValid signal so it re-runs when name is filled in any order)
     hasValidData = computed(() => {
+        this.batchFormValid(); // depend on signal so we re-check when form validity changes
         const validation = this.validationResult();
         const basicValid = this.batchForm.valid && this.parsedRows().length > 0;
         return basicValid && (!validation || validation.isValid);
+    });
+
+    /** Reason the Create Batch button is disabled (for tooltip) */
+    createBatchDisabledReason = computed(() => {
+        this.batchFormValid(); // depend on signal so tooltip updates when name is filled
+        if (this.isSubmitting()) return 'Creating batch...';
+        if (this.parseError()) return this.parseError()!;
+        if (this.parsedRows().length === 0) return 'Upload a file with data to continue';
+        if (!this.batchForm.get('name')?.value?.trim()) return 'Enter a batch name to continue';
+        const validation = this.validationResult();
+        if (validation && !validation.isValid) return 'Fix the errors in your data to continue';
+        return null;
     });
 
     estimatedCost = computed(() => {
@@ -213,6 +229,12 @@ export class CreateBatchComponent implements OnInit {
     });
 
     ngOnInit() {
+        // Keep batchFormValid in sync with form so computeds (hasValidData, etc.) re-run in any order
+        this.batchFormValid.set(this.batchForm.valid);
+        this.batchForm.statusChanges.subscribe(() => {
+            this.batchFormValid.set(this.batchForm.valid);
+        });
+
         const id = this._route.snapshot.paramMap.get('configId');
         if (id) {
             this.configId.set(id);

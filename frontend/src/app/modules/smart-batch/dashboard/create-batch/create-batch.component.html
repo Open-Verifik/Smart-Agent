@@ -515,17 +515,25 @@
         <!-- Actions -->
         <div class="flex items-center justify-between pt-4">
             <button mat-button (click)="goBack()">Cancel</button>
-            <button
-                mat-flat-button
-                color="primary"
-                [disabled]="!hasValidData() || isSubmitting() || parseError()"
-                (click)="submit()"
-                class="!px-8"
+            <span
+                [matTooltip]="
+                    (!hasValidData() || parseError()) && createBatchDisabledReason()
+                        ? createBatchDisabledReason()
+                        : ''
+                "
             >
-                <mat-spinner *ngIf="isSubmitting()" diameter="20" class="mr-2"></mat-spinner>
-                <mat-icon *ngIf="!isSubmitting()" class="mr-2">rocket_launch</mat-icon>
-                {{ isSubmitting() ? 'Creating...' : 'Create Batch' }}
-            </button>
+                <button
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="!hasValidData() || isSubmitting() || parseError()"
+                    (click)="submit()"
+                    class="!px-8"
+                >
+                    <mat-spinner *ngIf="isSubmitting()" diameter="20" class="mr-2"></mat-spinner>
+                    <mat-icon *ngIf="!isSubmitting()" class="mr-2">rocket_launch</mat-icon>
+                    {{ isSubmitting() ? 'Creating...' : 'Create Batch' }}
+                </button>
+            </span>
         </div>
     </div>
 </div>

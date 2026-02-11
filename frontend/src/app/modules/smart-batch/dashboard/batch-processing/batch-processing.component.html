@@ -1,0 +1,529 @@
+<div class="min-h-screen w-full bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button mat-icon-button (click)="goBack()" matTooltip="Back to Dashboard">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">
+                            {{ batch()?.name || 'Batch Processing' }}
+                        </h1>
+                        <p class="text-sm text-gray-500">
+                            {{ batch()?.totalRows || 0 }} records • Status:
+                            <span [class]="getStatusColor(batch()?.status || 'pending')">
+                                {{ batch()?.status | titlecase }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3">
+                    @if (batch()?.status === 'draft' || batch()?.status === 'pending') {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            (click)="startProcessing()"
+                            [disabled]="isStarting()"
+                            class="!rounded-xl"
+                        >
+                            <span class="inline-flex items-center gap-2">
+                                @if (isStarting()) {
+                                    <mat-icon class="animate-spin">refresh</mat-icon>
+                                    Starting...
+                                } @else {
+                                    <mat-icon>play_arrow</mat-icon>
+                                    Start Processing
+                                }
+                            </span>
+                        </button>
+                    }
+                    @if (batch()?.status === 'processing') {
+                        <button mat-stroked-button (click)="pauseProcessing()" class="!rounded-xl">
+                            <span class="inline-flex items-center gap-2">
+                                <mat-icon>pause</mat-icon>
+                                Pause
+                            </span>
+                        </button>
+                    }
+                    @if (batch()?.status === 'completed') {
+                        <button
+                            mat-flat-button
+                            color="accent"
+                            (click)="generateReport()"
+                            class="!rounded-xl !bg-indigo-600"
+                        >
+                            <span class="inline-flex items-center gap-2">
+                                <mat-icon>description</mat-icon>
+                                Generate Report
+                            </span>
+                        </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            @if (isProcessing()) {
+                <div class="mt-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Processing...</span>
+                        <span>{{ progress() }}%</span>
+                    </div>
+                    <mat-progress-bar
+                        mode="determinate"
+                        [value]="progress()"
+                        class="!rounded-full"
+                    ></mat-progress-bar>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Steps Header -->
+    @if (configSteps().length > 0) {
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="bg-white rounded-xl border border-gray-200 p-4">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                    Processing Steps
+                </h3>
+                <div class="flex items-stretch gap-2 flex-wrap">
+                    @for (step of configSteps(); track step.sequence; let idx = $index) {
+                        <div
+                            class="flex items-center gap-2 min-w-0 max-w-[320px] sm:max-w-[360px] px-3 py-2.5 bg-gray-50 rounded-lg border border-gray-200"
+                        >
+                            <div
+                                class="shrink-0 w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600"
+                            >
+                                {{ step.sequence }}
+                            </div>
+                            <div class="min-w-0 flex-1 flex flex-col gap-0.5">
+                                <span class="text-sm font-medium text-gray-900 truncate" [matTooltip]="getStepName(step)">
+                                    {{ getStepName(step) }}
+                                </span>
+                                @if (getStepUrl(step)) {
+                                    <span
+                                        class="text-xs text-gray-500 font-mono truncate"
+                                        [matTooltip]="getStepUrl(step)"
+                                        matTooltipPosition="below"
+                                    >
+                                        {{ getStepUrl(step) }}
+                                    </span>
+                                }
+                                @if (getStepPrice(step) > 0) {
+                                    <span class="text-xs text-indigo-600 font-medium mt-0.5">
+                                        {{ getStepPrice(step) | number: '1.2-2' }} credits
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        @if (idx < configSteps().length - 1) {
+                            <mat-icon class="text-gray-300 !text-base shrink-0 self-center" aria-hidden="true">arrow_forward</mat-icon>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        @if (isLoading()) {
+            <div class="flex items-center justify-center h-64">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+        } @else {
+            <!-- Split Panel Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left Panel: Pending Rows -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="bg-amber-50 border-b border-amber-100 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center"
+                            >
+                                <mat-icon class="text-amber-600">pending</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="font-semibold text-gray-900">Pending</h2>
+                                <p class="text-sm text-gray-500">
+                                    {{ pendingRows().length }} records waiting
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="max-h-[500px] overflow-y-auto">
+                        @if (pendingRows().length === 0) {
+                            <div class="p-8 text-center text-gray-400">
+                                <mat-icon class="!text-5xl !w-12 !h-12 mb-2">check_circle</mat-icon>
+                                <p>All records processed!</p>
+                            </div>
+                        } @else {
+                            @for (row of pendingRows(); track row.rowIndex) {
+                                <div
+                                    class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                                    (click)="selectRow(row)"
+                                    [class.bg-indigo-50]="selectedRow()?.rowIndex === row.rowIndex"
+                                >
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center text-sm font-medium text-gray-600"
+                                            >
+                                                #{{ row.rowIndex + 1 }}
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-900 text-sm">
+                                                    {{
+                                                        row.inputData?.documentNumber ||
+                                                            row.inputData?.name ||
+                                                            'Row ' + (row.rowIndex + 1)
+                                                    }}
+                                                </p>
+                                                <p class="text-xs text-gray-400">
+                                                    {{ row.status | titlecase }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <!-- Step Status Icons -->
+                                        <div class="flex items-center gap-1">
+                                            @for (step of configSteps(); track step.sequence) {
+                                                @switch (getRowStepStatus(row, step.sequence)) {
+                                                    @case ('completed') {
+                                                        <div
+                                                            class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center"
+                                                            [matTooltip]="
+                                                                getStepName(step) + ': Completed'
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                class="text-emerald-600 !text-xs !w-3 !h-3"
+                                                                >check</mat-icon
+                                                            >
+                                                        </div>
+                                                    }
+                                                    @case ('failed') {
+                                                        <div
+                                                            class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center"
+                                                            [matTooltip]="
+                                                                getStepName(step) + ': Failed'
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                class="text-red-600 !text-xs !w-3 !h-3"
+                                                                >close</mat-icon
+                                                            >
+                                                        </div>
+                                                    }
+                                                    @default {
+                                                        <div
+                                                            class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center"
+                                                            [matTooltip]="
+                                                                getStepName(step) + ': Pending'
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                class="text-gray-400 !text-xs !w-3 !h-3"
+                                                                >more_horiz</mat-icon
+                                                            >
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <!-- Right Panel: Completed Rows -->
+                <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="bg-emerald-50 border-b border-emerald-100 px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center"
+                            >
+                                <mat-icon class="text-emerald-600">check_circle</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="font-semibold text-gray-900">Completed</h2>
+                                <p class="text-sm text-gray-500">
+                                    {{ completedRows().length }} records verified
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="max-h-[500px] overflow-y-auto">
+                        @if (completedRows().length === 0 && failedRows().length === 0) {
+                            <div class="p-8 text-center text-gray-400">
+                                <mat-icon class="!text-5xl !w-12 !h-12 mb-2"
+                                    >hourglass_empty</mat-icon
+                                >
+                                <p>No completed records yet</p>
+                            </div>
+                        } @else {
+                            <!-- Completed -->
+                            @for (row of completedRows(); track row.rowIndex) {
+                                <div
+                                    class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                                    (click)="selectRow(row)"
+                                    [class.bg-indigo-50]="selectedRow()?.rowIndex === row.rowIndex"
+                                >
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center"
+                                            >
+                                                <mat-icon class="text-emerald-600 !text-base"
+                                                    >check</mat-icon
+                                                >
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-900 text-sm">
+                                                    {{
+                                                        row.inputData?.documentNumber ||
+                                                            row.inputData?.name ||
+                                                            'Row ' + (row.rowIndex + 1)
+                                                    }}
+                                                </p>
+                                                <p class="text-xs text-emerald-600">Verified</p>
+                                            </div>
+                                        </div>
+                                        <!-- Step Status Icons for completed rows -->
+                                        <div class="flex items-center gap-1">
+                                            @for (step of configSteps(); track step.sequence) {
+                                                <div
+                                                    class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center"
+                                                    [matTooltip]="getStepName(step)"
+                                                >
+                                                    <mat-icon
+                                                        class="text-emerald-600 !text-xs !w-3 !h-3"
+                                                        >check</mat-icon
+                                                    >
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Failed -->
+                            @for (row of failedRows(); track row.rowIndex) {
+                                <div
+                                    class="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
+                                    (click)="selectRow(row)"
+                                    [class.bg-red-50]="selectedRow()?.rowIndex === row.rowIndex"
+                                >
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center"
+                                            >
+                                                <mat-icon class="text-red-600 !text-base"
+                                                    >close</mat-icon
+                                                >
+                                            </div>
+                                            <div>
+                                                <p class="font-medium text-gray-900 text-sm">
+                                                    {{
+                                                        row.inputData?.documentNumber ||
+                                                            row.inputData?.name ||
+                                                            'Row ' + (row.rowIndex + 1)
+                                                    }}
+                                                </p>
+                                                <p class="text-xs text-red-600">
+                                                    {{ row.errors?.[0]?.message || 'Failed' }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <!-- Step Status Icons for failed rows -->
+                                        <div class="flex items-center gap-1">
+                                            @for (step of configSteps(); track step.sequence) {
+                                                @switch (getRowStepStatus(row, step.sequence)) {
+                                                    @case ('completed') {
+                                                        <div
+                                                            class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center"
+                                                            [matTooltip]="
+                                                                getStepName(step) + ': Completed'
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                class="text-emerald-600 !text-xs !w-3 !h-3"
+                                                                >check</mat-icon
+                                                            >
+                                                        </div>
+                                                    }
+                                                    @case ('failed') {
+                                                        <div
+                                                            class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center"
+                                                            [matTooltip]="
+                                                                getStepName(step) + ': Failed'
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                class="text-red-600 !text-xs !w-3 !h-3"
+                                                                >close</mat-icon
+                                                            >
+                                                        </div>
+                                                    }
+                                                    @default {
+                                                        <div
+                                                            class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center"
+                                                            [matTooltip]="
+                                                                getStepName(step) + ': Skipped'
+                                                            "
+                                                        >
+                                                            <mat-icon
+                                                                class="text-gray-400 !text-xs !w-3 !h-3"
+                                                                >remove</mat-icon
+                                                            >
+                                                        </div>
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row Detail Panel -->
+            @if (selectedRow()) {
+                <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-semibold text-gray-900">
+                            Row #{{ (selectedRow()?.rowIndex ?? 0) + 1 }} Details
+                        </h3>
+                        <div class="flex items-center gap-2">
+                            @if (selectedRow()?.status === 'completed') {
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    (click)="generateRowReport(selectedRow()!)"
+                                    class="!rounded-lg"
+                                >
+                                    <mat-icon class="mr-2 icon-size-4">picture_as_pdf</mat-icon>
+                                    Generate PDF Report
+                                </button>
+                            }
+                            <button mat-icon-button (click)="selectedRow.set(null)">
+                                <mat-icon>close</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Results -->
+                    @if (configSteps().length > 0 && selectedRow()?.results) {
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-500 mb-3">Step Results</h4>
+                            <div class="space-y-3">
+                                @for (step of configSteps(); track step.sequence) {
+                                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                        <div
+                                            class="flex items-center justify-between px-4 py-3 bg-gray-50"
+                                        >
+                                            <div class="flex items-center gap-2">
+                                                <div
+                                                    class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                                                    [class]="
+                                                        getRowStepStatus(
+                                                            selectedRow()!,
+                                                            step.sequence
+                                                        ) === 'completed'
+                                                            ? 'bg-emerald-100 text-emerald-600'
+                                                            : getRowStepStatus(
+                                                                    selectedRow()!,
+                                                                    step.sequence
+                                                                ) === 'failed'
+                                                              ? 'bg-red-100 text-red-600'
+                                                              : 'bg-gray-100 text-gray-500'
+                                                    "
+                                                >
+                                                    {{ step.sequence }}
+                                                </div>
+                                                <span class="font-medium text-gray-700">{{
+                                                    getStepName(step)
+                                                }}</span>
+                                            </div>
+                                            <span
+                                                class="text-xs font-medium px-2 py-1 rounded-full"
+                                                [class]="
+                                                    getRowStepStatus(
+                                                        selectedRow()!,
+                                                        step.sequence
+                                                    ) === 'completed'
+                                                        ? 'bg-emerald-100 text-emerald-600'
+                                                        : getRowStepStatus(
+                                                                selectedRow()!,
+                                                                step.sequence
+                                                            ) === 'failed'
+                                                          ? 'bg-red-100 text-red-600'
+                                                          : 'bg-gray-100 text-gray-500'
+                                                "
+                                            >
+                                                {{
+                                                    getRowStepStatus(selectedRow()!, step.sequence)
+                                                        | titlecase
+                                                }}
+                                            </span>
+                                        </div>
+                                        @if (selectedRow()?.results?.[step.sequence]) {
+                                            <div class="px-4 py-3 bg-white border-t border-gray-100">
+                                                <div class="space-y-0">
+                                                    @for (field of getStepResultFields(selectedRow()?.results?.[step.sequence]); track field.label) {
+                                                        <div class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm">
+                                                            <span class="text-gray-500 min-w-[140px] shrink-0">{{ field.label }}</span>
+                                                            <span class="text-gray-900 font-medium break-words">{{ field.value }}</span>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Input Data -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 mb-2">Input Data</h4>
+                            <pre class="bg-gray-50 rounded-xl p-4 text-sm overflow-auto max-h-64">{{
+                                selectedRow()?.inputData | json
+                            }}</pre>
+                        </div>
+
+                        <!-- Errors (if any) -->
+                        @if (selectedRow()?.errors && selectedRow()!.errors.length > 0) {
+                            <div>
+                                <h4 class="text-sm font-medium text-red-500 mb-2">Errors</h4>
+                                <div class="space-y-2">
+                                    @for (error of selectedRow()!.errors; track error.step) {
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                            <p class="text-sm font-medium text-red-700">
+                                                Step {{ error.step }}: {{ error.code }}
+                                            </p>
+                                            <p class="text-sm text-red-600">
+                                                {{ error.message }}
+                                            </p>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

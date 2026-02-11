@@ -133,8 +133,7 @@ export class BatchDashboardComponent implements OnInit {
     }
 
     viewBatch(batchId: string) {
-        // For future implementation
-        console.log('View batch:', batchId);
+        this._router.navigate(['/smart-batch', this.configId(), 'batch', batchId]);
     }
 
     getCountryFlag(country: string): string {

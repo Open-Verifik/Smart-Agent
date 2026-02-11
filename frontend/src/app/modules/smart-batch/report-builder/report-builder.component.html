@@ -1,0 +1,461 @@
+<div class="min-h-screen w-full bg-gray-50">
+    <!-- ========== TOP BAR ========== -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-20">
+        <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <button mat-icon-button (click)="goBack()" matTooltip="Back">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div>
+                        <h1 class="text-lg font-bold text-gray-900">
+                            {{ templateId() ? 'Edit Report Template' : 'New Report Template' }}
+                        </h1>
+                        <p class="text-xs text-gray-500">Design your report layout with drag & drop</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button
+                        mat-stroked-button
+                        (click)="sendSample()"
+                        [disabled]="!templateId() || isSendingSample()"
+                        [matTooltip]="!templateId() ? 'Save template first to enable sample sending' : ''"
+                        class="!rounded-xl"
+                    >
+                        <span class="inline-flex items-center gap-2">
+                            @if (isSendingSample()) {
+                                <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
+                                Sending sample...
+                            } @else {
+                                <mat-icon class="!text-lg">send</mat-icon>
+                                Send Sample
+                            }
+                        </span>
+                    </button>
+                    <button
+                        mat-flat-button
+                        (click)="save()"
+                        [disabled]="isSaving()"
+                        class="!rounded-xl !bg-indigo-600 !text-white"
+                    >
+                        <span class="inline-flex items-center gap-2">
+                            @if (isSaving()) {
+                                <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
+                                Saving...
+                            } @else {
+                                <mat-icon class="!text-lg">save</mat-icon>
+                                Save Template
+                            }
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MAIN LAYOUT ========== -->
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex gap-6 items-start">
+            <!-- ============================== -->
+            <!-- LEFT COLUMN: Editor (40%)      -->
+            <!-- ============================== -->
+            <div class="w-full lg:w-[440px] shrink-0 space-y-4">
+                <!-- Template Settings -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-4">Template Settings</h3>
+                    <form [formGroup]="templateForm" class="space-y-4">
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>Template Name</mat-label>
+                            <input matInput formControlName="name" placeholder="My Report Template" />
+                        </mat-form-field>
+
+                        <div class="grid grid-cols-3 gap-3">
+                            <mat-form-field appearance="outline">
+                                <mat-label>Page Size</mat-label>
+                                <mat-select formControlName="pageSize">
+                                    <mat-option value="A4">A4</mat-option>
+                                    <mat-option value="Letter">Letter</mat-option>
+                                    <mat-option value="Legal">Legal</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline">
+                                <mat-label>Orientation</mat-label>
+                                <mat-select formControlName="orientation">
+                                    <mat-option value="portrait">Portrait</mat-option>
+                                    <mat-option value="landscape">Landscape</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="outline">
+                                <mat-label>PDF Engine</mat-label>
+                                <mat-select formControlName="pdfEngine">
+                                    <mat-option value="puppeteer">Puppeteer</mat-option>
+                                    <mat-option value="pdfkit">PDFKit</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <label class="text-sm text-gray-600">Primary Color:</label>
+                            <input
+                                type="color"
+                                formControlName="primaryColor"
+                                class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer"
+                            />
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Add Sections toolbar -->
+                <div class="bg-white rounded-2xl border border-gray-200 p-4">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Add Sections</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @for (sectionType of sectionTypes; track sectionType.type) {
+                            <button
+                                (click)="addSection(sectionType.type)"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors text-sm text-gray-700"
+                            >
+                                <mat-icon class="!text-base text-gray-400">{{ sectionType.icon }}</mat-icon>
+                                {{ sectionType.label }}
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Section List (drag & drop) -->
+                <div class="bg-white rounded-2xl border border-gray-200">
+                    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-900">Report Layout</h3>
+                            <p class="text-xs text-gray-400">Drag to reorder sections</p>
+                        </div>
+                        <span class="text-xs font-medium text-gray-400">{{ sections().length }} sections</span>
+                    </div>
+
+                    <div
+                        cdkDropList
+                        (cdkDropListDropped)="onDrop($event)"
+                        class="p-3 min-h-[200px]"
+                    >
+                        @if (sections().length === 0) {
+                            <div class="flex flex-col items-center justify-center h-40 text-gray-300">
+                                <mat-icon class="!text-4xl !w-10 !h-10 mb-2">add_box</mat-icon>
+                                <p class="text-sm">Add sections from above</p>
+                            </div>
+                        }
+
+                        @for (section of sections(); track section.id) {
+                            <div
+                                cdkDrag
+                                class="flex items-center gap-2 bg-white border rounded-lg px-3 py-2.5 mb-2 cursor-pointer hover:border-indigo-300 transition-colors group"
+                                [class.ring-2]="currentSelectedSection()?.id === section.id"
+                                [class.ring-indigo-500]="currentSelectedSection()?.id === section.id"
+                                [class.bg-indigo-50]="currentSelectedSection()?.id === section.id"
+                                (click)="selectSection(section)"
+                            >
+                                <div
+                                    cdkDragHandle
+                                    class="shrink-0 w-6 h-6 rounded flex items-center justify-center cursor-grab text-gray-300 hover:text-gray-500"
+                                >
+                                    <mat-icon class="!text-sm">drag_indicator</mat-icon>
+                                </div>
+
+                                <div
+                                    class="shrink-0 w-7 h-7 rounded-md flex items-center justify-center"
+                                    [style.background]="templateForm.get('primaryColor')?.value + '15'"
+                                >
+                                    <mat-icon
+                                        [style.color]="templateForm.get('primaryColor')?.value"
+                                        class="!text-base"
+                                    >{{ getSectionIcon(section.type) }}</mat-icon>
+                                </div>
+
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-medium text-gray-800 truncate">
+                                        {{ getSectionLabel(section.type) }}
+                                    </p>
+                                    <p class="text-xs text-gray-400 truncate">
+                                        @if (section.label) {
+                                            {{ section.label }}
+                                        } @else if (section.staticContent) {
+                                            {{ section.staticContent | slice: 0 : 30 }}{{ section.staticContent.length > 30 ? '...' : '' }}
+                                        } @else if (section.dataPath) {
+                                            {{ section.dataPath }}
+                                        } @else {
+                                            Section #{{ section.order + 1 }}
+                                        }
+                                    </p>
+                                </div>
+
+                                <div class="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                        mat-icon-button
+                                        (click)="duplicateSection(section); $event.stopPropagation()"
+                                        matTooltip="Duplicate"
+                                        class="!w-7 !h-7"
+                                    >
+                                        <mat-icon class="!text-sm text-gray-400">content_copy</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
+                                        (click)="deleteSection(section.id); $event.stopPropagation()"
+                                        matTooltip="Delete"
+                                        class="!w-7 !h-7"
+                                    >
+                                        <mat-icon class="!text-sm text-red-400">delete</mat-icon>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Section Editor (contextual) -->
+                @if (currentSelectedSection(); as sel) {
+                    <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-sm font-semibold text-gray-900">
+                                Edit {{ getSectionLabel(sel.type) }}
+                            </h3>
+                            <button
+                                mat-icon-button
+                                (click)="selectedSection.set(null)"
+                                class="!w-7 !h-7"
+                            >
+                                <mat-icon class="!text-base text-gray-400">close</mat-icon>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <!-- HEADER EDITOR -->
+                            @if (sel.type === 'header') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Title Text</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.staticContent || ''"
+                                        (input)="updateSection(sel.id, { staticContent: $any($event.target).value, label: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        placeholder="Report Title"
+                                    />
+                                </div>
+                            }
+
+                            <!-- TEXT EDITOR -->
+                            @if (sel.type === 'text') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Content</label>
+                                    <textarea
+                                        [value]="sel.staticContent || ''"
+                                        (input)="updateSection(sel.id, { staticContent: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        rows="4"
+                                        placeholder="Enter text content..."
+                                    ></textarea>
+                                </div>
+                            }
+
+                            <!-- FIELD EDITOR -->
+                            @if (sel.type === 'field') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Label</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.label || ''"
+                                        (input)="updateSection(sel.id, { label: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        placeholder="Field label"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Data Path</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.dataPath || ''"
+                                        (input)="updateSection(sel.id, { dataPath: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                                        placeholder="results.1.fullName"
+                                    />
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        Dot-separated path to data (e.g. results.1.fullName)
+                                    </p>
+                                </div>
+                            }
+
+                            <!-- TABLE EDITOR -->
+                            @if (sel.type === 'table') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Table Title</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.label || ''"
+                                        (input)="updateSection(sel.id, { label: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        placeholder="Table label"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Data Path (object)</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.dataPath || ''"
+                                        (input)="updateSection(sel.id, { dataPath: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                                        placeholder="results.1"
+                                    />
+                                    <p class="text-xs text-gray-400 mt-1">
+                                        Path to an object whose keys become rows
+                                    </p>
+                                </div>
+                            }
+
+                            <!-- IMAGE EDITOR -->
+                            @if (sel.type === 'image') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Image URL</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.staticContent || ''"
+                                        (input)="updateSection(sel.id, { staticContent: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                                        placeholder="https://example.com/logo.png"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Alt Text</label>
+                                    <input
+                                        type="text"
+                                        [value]="sel.label || ''"
+                                        (input)="updateSection(sel.id, { label: $any($event.target).value })"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        placeholder="Company Logo"
+                                    />
+                                </div>
+                            }
+
+                            <!-- SPACER EDITOR -->
+                            @if (sel.type === 'spacer') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Height (px)</label>
+                                    <input
+                                        type="number"
+                                        [value]="sel.style?.padding || 16"
+                                        (input)="updateSectionStyle('padding', $any($event.target).value)"
+                                        class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                        min="4"
+                                        max="200"
+                                    />
+                                </div>
+                            }
+
+                            <!-- DIVIDER EDITOR -->
+                            @if (sel.type === 'divider') {
+                                <div>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">Color</label>
+                                    <input
+                                        type="color"
+                                        [value]="sel.style?.color || '#E5E7EB'"
+                                        (input)="updateStyleColor($any($event.target).value)"
+                                        class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer"
+                                    />
+                                </div>
+                            }
+
+                            <!-- STYLE OPTIONS (for text-bearing sections) -->
+                            @if (sel.type === 'header' || sel.type === 'text' || sel.type === 'field') {
+                                <div class="pt-3 border-t border-gray-100 space-y-3">
+                                    <h4 class="text-xs font-medium text-gray-500">Style</h4>
+
+                                    <!-- Text Align -->
+                                    <div>
+                                        <label class="text-xs text-gray-400 mb-1 block">Text Align</label>
+                                        <div class="flex gap-1">
+                                            @for (align of ['left', 'center', 'right']; track align) {
+                                                <button
+                                                    (click)="updateTextAlign(align)"
+                                                    class="flex-1 py-2 rounded-lg border text-sm transition-colors"
+                                                    [class.bg-indigo-50]="sel.style?.textAlign === align"
+                                                    [class.border-indigo-300]="sel.style?.textAlign === align"
+                                                >
+                                                    <mat-icon class="!text-base">format_align_{{ align }}</mat-icon>
+                                                </button>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Font Size -->
+                                    <div>
+                                        <label class="text-xs text-gray-400 mb-1 block">Font Size</label>
+                                        <input
+                                            type="number"
+                                            [value]="sel.style?.fontSize || 14"
+                                            (input)="updateFontSize(+$any($event.target).value)"
+                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            min="8"
+                                            max="72"
+                                        />
+                                    </div>
+
+                                    <!-- Font Weight -->
+                                    <div>
+                                        <label class="text-xs text-gray-400 mb-1 block">Font Weight</label>
+                                        <div class="flex gap-1">
+                                            <button
+                                                (click)="updateFontWeight('normal')"
+                                                class="flex-1 py-2 rounded-lg border text-sm transition-colors"
+                                                [class.bg-indigo-50]="sel.style?.fontWeight !== 'bold'"
+                                                [class.border-indigo-300]="sel.style?.fontWeight !== 'bold'"
+                                            >Normal</button>
+                                            <button
+                                                (click)="updateFontWeight('bold')"
+                                                class="flex-1 py-2 rounded-lg border text-sm font-bold transition-colors"
+                                                [class.bg-indigo-50]="sel.style?.fontWeight === 'bold'"
+                                                [class.border-indigo-300]="sel.style?.fontWeight === 'bold'"
+                                            >Bold</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Text Color -->
+                                    <div class="flex items-center gap-3">
+                                        <label class="text-xs text-gray-400">Text Color</label>
+                                        <input
+                                            type="color"
+                                            [value]="sel.style?.color || '#111827'"
+                                            (input)="updateStyleColor($any($event.target).value)"
+                                            class="w-8 h-8 rounded border border-gray-200 cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- ============================== -->
+            <!-- RIGHT COLUMN: Live Preview     -->
+            <!-- ============================== -->
+            <div class="flex-1 min-w-0">
+                <div class="sticky top-20">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-sm font-semibold text-gray-500">Preview</h3>
+                        <span class="text-xs text-gray-400">Live preview with sample data</span>
+                    </div>
+
+                    <!-- Paper container - shared ReportPreviewComponent -->
+                    <report-preview
+                        [template]="{ sections: sections(), primaryColor: templateForm.get('primaryColor')?.value }"
+                        [previewData]="previewData()"
+                        [primaryColor]="templateForm.get('primaryColor')?.value || '#4F46E5'"
+                        [orientation]="templateForm.get('orientation')?.value || 'portrait'"
+                        [clickable]="true"
+                        [selectedSectionId]="currentSelectedSection()?.id ?? null"
+                        [sectionClick]="onPreviewSectionClick"
+                    />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

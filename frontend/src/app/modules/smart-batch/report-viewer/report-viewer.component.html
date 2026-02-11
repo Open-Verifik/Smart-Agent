@@ -1,0 +1,313 @@
+<div class="min-h-screen w-full bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="w-full px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button mat-icon-button (click)="goBack()" matTooltip="Back">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">Generate Report</h1>
+                        <p class="text-sm text-gray-500">{{ batch()?.name || 'Batch Report' }}</p>
+                    </div>
+                </div>
+
+                <button mat-stroked-button (click)="openReportBuilder()" class="!rounded-xl">
+                    <mat-icon class="mr-2">design_services</mat-icon>
+                    Create Template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+        @if (isLoading()) {
+            <div class="flex items-center justify-center h-64">
+                <mat-spinner diameter="48"></mat-spinner>
+            </div>
+        } @else {
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Template Selection -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">Select Template</h3>
+
+                        @if (templates().length === 0) {
+                            <div class="text-center py-8 text-gray-400">
+                                <mat-icon class="!text-4xl !w-10 !h-10 mb-2">description</mat-icon>
+                                <p class="text-sm">No templates found</p>
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    class="mt-4 !rounded-xl !bg-indigo-600"
+                                    (click)="openReportBuilder()"
+                                >
+                                    Create Template
+                                </button>
+                            </div>
+                        } @else {
+                            <div class="space-y-2">
+                                @for (template of templates(); track template._id) {
+                                    <div
+                                        class="p-4 rounded-xl border cursor-pointer transition-all"
+                                        [class.border-indigo-500]="
+                                            selectedTemplate()?._id === template._id
+                                        "
+                                        [class.bg-indigo-50]="
+                                            selectedTemplate()?._id === template._id
+                                        "
+                                        [class.border-gray-200]="
+                                            selectedTemplate()?._id !== template._id
+                                        "
+                                        [class.hover:border-indigo-300]="
+                                            selectedTemplate()?._id !== template._id
+                                        "
+                                        (click)="selectTemplate(template)"
+                                    >
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-xl flex items-center justify-center"
+                                                [style.background]="
+                                                    (template.primaryColor || '#4F46E5') + '20'
+                                                "
+                                            >
+                                                <mat-icon
+                                                    [style.color]="
+                                                        template.primaryColor || '#4F46E5'
+                                                    "
+                                                >
+                                                    description
+                                                </mat-icon>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <p class="font-medium text-gray-900">
+                                                    {{ template.name }}
+                                                </p>
+                                                <p class="text-xs text-gray-500">
+                                                    {{ template.sections?.length || 0 }} sections •
+                                                    {{ template.pdfEngine || 'puppeteer' }}
+                                                </p>
+                                                @if (selectedTemplate()?._id === template._id && templateMatch(); as match) {
+                                                    @if (match.matches) {
+                                                        <span class="inline-flex items-center gap-1 mt-1 text-xs text-emerald-600">
+                                                            <mat-icon class="!text-sm !w-3.5 !h-3.5">check_circle</mat-icon>
+                                                            Template matches data
+                                                        </span>
+                                                    } @else if (match.missingPaths.length > 0) {
+                                                        <span class="inline-flex items-center gap-1 mt-1 text-xs text-amber-600" [matTooltip]="'Missing: ' + formatMissingPaths(match.missingPaths)">
+                                                            <mat-icon class="!text-sm !w-3.5 !h-3.5">warning</mat-icon>
+                                                            {{ match.missingPaths.length }} missing field(s)
+                                                        </span>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Template match status -->
+                    @if (selectedTemplate() && templateMatch(); as match) {
+                        <div class="bg-white rounded-2xl border border-gray-200 p-4 mt-6">
+                            <h3 class="font-semibold text-gray-900 mb-2 text-sm">Data match</h3>
+                            @if (match.matches) {
+                                <p class="text-sm text-emerald-600 flex items-center gap-2 mb-2">
+                                    <mat-icon class="!text-lg !w-5 !h-5">check_circle</mat-icon>
+                                    Template matches the batch data
+                                </p>
+                                <button
+                                    mat-stroked-button
+                                    (click)="openReportBuilder()"
+                                    class="!rounded-xl !text-emerald-700 !border-emerald-300"
+                                >
+                                    <mat-icon class="mr-2 !text-lg">edit</mat-icon>
+                                    Edit with real data
+                                </button>
+                            } @else {
+                                <p class="text-sm text-amber-600 flex items-center gap-2 mb-2">
+                                    <mat-icon class="!text-lg !w-5 !h-5">warning</mat-icon>
+                                    Missing {{ match.missingPaths.length }} field(s)
+                                </p>
+                                <p class="text-xs text-gray-500">Paths: {{ formatMissingPaths(match.missingPaths) }}</p>
+                                <button
+                                    mat-stroked-button
+                                    (click)="openReportBuilder()"
+                                    class="mt-2 !rounded-xl !text-amber-700 !border-amber-300"
+                                >
+                                    <mat-icon class="mr-2 !text-lg">edit</mat-icon>
+                                    Edit template with real data
+                                </button>
+                            }
+                        </div>
+                    }
+
+                    <!-- Actions -->
+                    @if (selectedTemplate()) {
+                        <div class="bg-white rounded-2xl border border-gray-200 p-6 mt-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">Actions</h3>
+                            <div class="space-y-3">
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    (click)="generateReport()"
+                                    [disabled]="isGenerating()"
+                                    class="w-full !rounded-xl !bg-indigo-600"
+                                >
+                                    @if (isGenerating()) {
+                                        <mat-icon class="animate-spin mr-2">refresh</mat-icon>
+                                        Generating...
+                                    } @else {
+                                        <mat-icon class="mr-2">picture_as_pdf</mat-icon>
+                                        Generate PDF
+                                    }
+                                </button>
+
+                                @if (report()) {
+                                    <button
+                                        mat-stroked-button
+                                        (click)="downloadReport()"
+                                        class="w-full !rounded-xl"
+                                    >
+                                        <mat-icon class="mr-2">download</mat-icon>
+                                        Download PDF
+                                    </button>
+
+                                    <button
+                                        mat-stroked-button
+                                        (click)="sendEmail()"
+                                        [disabled]="isSending()"
+                                        class="w-full !rounded-xl"
+                                    >
+                                        @if (isSending()) {
+                                            <mat-icon class="animate-spin mr-2">refresh</mat-icon>
+                                            Sending...
+                                        } @else {
+                                            <mat-icon class="mr-2">email</mat-icon>
+                                            Send via Email
+                                        }
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Right column: Step results layout + PDF Preview -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Step results layout (print-style, drag-and-drop) -->
+                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h3 class="font-semibold text-gray-900">Step results layout</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                @if (selectedRowIndex() != null) {
+                                    Report for record #{{ selectedRowIndex()! + 1 }}
+                                } @else {
+                                    Drag sections to reorder. Layout is print-ready.
+                                }
+                            </p>
+                        </div>
+                        <div class="p-6">
+                            @if (stepResultBlocks().length === 0) {
+                                <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                                    <mat-icon class="!text-5xl !w-12 !h-12 mb-3">table_chart</mat-icon>
+                                    <p class="text-sm font-medium">No step results yet</p>
+                                    <p class="text-xs mt-1">Process the batch to see each endpoint's results here.</p>
+                                </div>
+                            } @else {
+                                <div
+                                    class="mx-auto bg-[#fafafa] rounded-lg border border-gray-200 shadow-sm p-6 min-h-[400px]"
+                                    style="max-width: 210mm;"
+                                >
+                                    <div
+                                        cdkDropList
+                                        (cdkDropListDropped)="onStepBlocksDrop($event)"
+                                        class="space-y-4"
+                                    >
+                                        @for (block of stepResultBlocks(); track block.sequence) {
+                                            <div
+                                                cdkDrag
+                                                class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                                            >
+                                                <div
+                                                    class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50"
+                                                >
+                                                    <div
+                                                        cdkDragHandle
+                                                        class="w-8 h-8 rounded flex items-center justify-center cursor-grab text-gray-400 hover:bg-gray-200 transition-colors"
+                                                    >
+                                                        <mat-icon class="!text-base">drag_indicator</mat-icon>
+                                                    </div>
+                                                    <span class="font-medium text-gray-900">{{ block.label }}</span>
+                                                    <span class="text-xs text-gray-500">Step {{ block.sequence }}</span>
+                                                </div>
+                                                <div class="overflow-x-auto">
+                                                    <table class="w-full text-sm">
+                                                        <thead>
+                                                            <tr class="border-b border-gray-200 bg-gray-50">
+                                                                <th class="text-left py-2 px-3 font-medium text-gray-700">Row</th>
+                                                                <th class="text-left py-2 px-3 font-medium text-gray-700">Result</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (row of block.rowResults; track row.rowIndex) {
+                                                                <tr class="border-b border-gray-100 last:border-0">
+                                                                    <td class="py-2 px-3 text-gray-600">#{{ row.rowIndex + 1 }}</td>
+                                                                    <td class="py-2 px-3 text-gray-800 max-w-md truncate" [matTooltip]="row.data != null ? (row.data | json) : '—'">
+                                                                        {{ getResultSummary(row.data) }}
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Report Preview (same as builder) -->
+                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                            <h3 class="font-semibold text-gray-900">Preview</h3>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                Same preview as report builder — template rendered with batch data
+                            </p>
+                        </div>
+
+                        <div class="min-h-[600px] p-6 overflow-auto">
+                            @if (isGenerating()) {
+                                <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+                                    <mat-spinner diameter="48" class="mb-4"></mat-spinner>
+                                    <p>Generating PDF...</p>
+                                </div>
+                            } @else if (selectedTemplate() && batch()?.rows?.length) {
+                                <report-preview
+                                    [template]="selectedTemplate()!"
+                                    [previewData]="previewData()"
+                                    [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
+                                    [orientation]="'portrait'"
+                                    [clickable]="false"
+                                />
+                            } @else {
+                                <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+                                    <mat-icon class="!text-6xl !w-16 !h-16 mb-4">description</mat-icon>
+                                    <p class="text-lg mb-2">No preview available</p>
+                                    <p class="text-sm">
+                                        Select a template and ensure the batch has processed rows
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

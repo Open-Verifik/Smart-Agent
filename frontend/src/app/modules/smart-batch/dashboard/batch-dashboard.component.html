@@ -227,23 +227,165 @@
         </div>
     </div>
 
-    <!-- Stats Row (if we have batches) -->
-    <div *ngIf="stats() && stats()!.totalBatches > 0" class="grid grid-cols-4 gap-4">
-        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-5 text-white">
-            <span class="block text-sm opacity-80">Total Batches</span>
-            <span class="text-3xl font-bold">{{ stats()!.totalBatches }}</span>
+    <!-- Stats Row (if we have batches) - Professional Design -->
+    <div
+        *ngIf="stats() && stats()!.totalBatches > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+    >
+        <!-- Total Batches -->
+        <div
+            class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 p-6 hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 hover:shadow-lg hover:shadow-slate-100 dark:hover:shadow-slate-950/20"
+        >
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center border border-slate-200/60 dark:border-slate-700/60"
+                    >
+                        <mat-icon class="text-slate-600 dark:text-slate-400 icon-size-5"
+                            >inbox</mat-icon
+                        >
+                    </div>
+                </div>
+                <div
+                    class="px-2.5 py-0.5 rounded-md bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700/60"
+                >
+                    <span
+                        class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                        >Total</span
+                    >
+                </div>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
+                    Total Batches
+                </p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {{ stats()!.totalBatches }}
+                </p>
+            </div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-slate-500/0 to-slate-500/0 group-hover:from-slate-500/[0.02] group-hover:to-slate-500/[0.01] transition-all duration-200 pointer-events-none"
+            ></div>
         </div>
-        <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-5 text-white">
-            <span class="block text-sm opacity-80">Completed Rows</span>
-            <span class="text-3xl font-bold">{{ stats()!.completedRows }}</span>
+
+        <!-- Completed Rows -->
+        <div
+            class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 p-6 hover:border-emerald-300/80 dark:hover:border-emerald-800/60 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-100/50 dark:hover:shadow-emerald-950/20"
+        >
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100/80 dark:from-emerald-950/50 dark:to-emerald-900/30 flex items-center justify-center border border-emerald-200/60 dark:border-emerald-800/60"
+                    >
+                        <mat-icon class="text-emerald-600 dark:text-emerald-400 icon-size-5"
+                            >check_circle</mat-icon
+                        >
+                    </div>
+                </div>
+                <div
+                    class="px-2.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/40"
+                >
+                    <span
+                        class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider"
+                        >Success</span
+                    >
+                </div>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
+                    Completed Rows
+                </p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {{ stats()!.completedRows }}
+                </p>
+            </div>
+            <!-- Subtle success indicator bar -->
+            <div
+                class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500/20 to-emerald-400/20 rounded-b-2xl"
+            ></div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-emerald-500/0 to-emerald-500/0 group-hover:from-emerald-500/[0.02] group-hover:to-emerald-500/[0.01] transition-all duration-200 pointer-events-none"
+            ></div>
         </div>
-        <div class="bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl p-5 text-white">
-            <span class="block text-sm opacity-80">Pending Rows</span>
-            <span class="text-3xl font-bold">{{ stats()!.pendingRows }}</span>
+
+        <!-- Pending Rows -->
+        <div
+            class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-amber-200/60 dark:border-amber-900/40 p-6 hover:border-amber-300/80 dark:hover:border-amber-800/60 transition-all duration-200 hover:shadow-lg hover:shadow-amber-100/50 dark:hover:shadow-amber-950/20"
+        >
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-50 to-amber-100/80 dark:from-amber-950/50 dark:to-amber-900/30 flex items-center justify-center border border-amber-200/60 dark:border-amber-800/60"
+                    >
+                        <mat-icon class="text-amber-600 dark:text-amber-400 icon-size-5"
+                            >schedule</mat-icon
+                        >
+                    </div>
+                </div>
+                <div
+                    class="px-2.5 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40"
+                >
+                    <span
+                        class="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider"
+                        >Queue</span
+                    >
+                </div>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
+                    Pending Rows
+                </p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {{ stats()!.pendingRows }}
+                </p>
+            </div>
+            <!-- Subtle pending indicator bar -->
+            <div
+                class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500/20 to-amber-400/20 rounded-b-2xl"
+            ></div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-amber-500/0 to-amber-500/0 group-hover:from-amber-500/[0.02] group-hover:to-amber-500/[0.01] transition-all duration-200 pointer-events-none"
+            ></div>
         </div>
-        <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-xl p-5 text-white">
-            <span class="block text-sm opacity-80">Failed Rows</span>
-            <span class="text-3xl font-bold">{{ stats()!.failedRows }}</span>
+
+        <!-- Failed Rows -->
+        <div
+            class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-rose-200/60 dark:border-rose-900/40 p-6 hover:border-rose-300/80 dark:hover:border-rose-800/60 transition-all duration-200 hover:shadow-lg hover:shadow-rose-100/50 dark:hover:shadow-rose-950/20"
+        >
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-11 h-11 rounded-xl bg-gradient-to-br from-rose-50 to-rose-100/80 dark:from-rose-950/50 dark:to-rose-900/30 flex items-center justify-center border border-rose-200/60 dark:border-rose-800/60"
+                    >
+                        <mat-icon class="text-rose-600 dark:text-rose-400 icon-size-5"
+                            >error_outline</mat-icon
+                        >
+                    </div>
+                </div>
+                <div
+                    class="px-2.5 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/30 border border-rose-200/60 dark:border-rose-800/40"
+                >
+                    <span
+                        class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider"
+                        >Error</span
+                    >
+                </div>
+            </div>
+            <div class="space-y-1">
+                <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
+                    Failed Rows
+                </p>
+                <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                    {{ stats()!.failedRows }}
+                </p>
+            </div>
+            <!-- Subtle error indicator bar -->
+            <div
+                class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500/20 to-rose-400/20 rounded-b-2xl"
+            ></div>
+            <div
+                class="absolute inset-0 rounded-2xl bg-gradient-to-br from-rose-500/0 to-rose-500/0 group-hover:from-rose-500/[0.02] group-hover:to-rose-500/[0.01] transition-all duration-200 pointer-events-none"
+            ></div>
         </div>
     </div>
 

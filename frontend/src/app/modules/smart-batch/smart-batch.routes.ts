@@ -34,4 +34,32 @@ export default [
                 (m) => m.CreateBatchComponent
             ),
     },
+    {
+        path: ':configId/batch/:batchId',
+        loadComponent: () =>
+            import(
+                'app/modules/smart-batch/dashboard/batch-processing/batch-processing.component'
+            ).then((m) => m.BatchProcessingComponent),
+    },
+    {
+        path: ':configId/report-builder',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-builder/report-builder.component').then(
+                (m) => m.ReportBuilderComponent
+            ),
+    },
+    {
+        path: ':configId/report-builder/:templateId',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-builder/report-builder.component').then(
+                (m) => m.ReportBuilderComponent
+            ),
+    },
+    {
+        path: ':configId/batch/:batchId/report',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-viewer/report-viewer.component').then(
+                (m) => m.ReportViewerComponent
+            ),
+    },
 ] as Routes;

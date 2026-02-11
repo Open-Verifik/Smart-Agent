@@ -24,15 +24,26 @@ export interface BatchConfiguration {
 }
 
 export interface BatchStep {
-    appFeature: string | any; // ID or expanded object
+    appFeature: string | AppFeature; // ID or expanded object
     sequence: number;
     enabled: boolean;
     parameterDefaults?: any;
-    inputFieldMapping?: any; // Map<string, string>
+    inputFieldMapping?: Map<string, string> | any;
     outputFieldsToKeep?: string[];
     maxRetries?: number;
     retryDelayBaseSeconds?: number;
     timeoutSeconds?: number;
+}
+
+export interface AppFeature {
+    _id: string;
+    code: string;
+    name: string;
+    description?: string;
+    endpoint?: string;
+    method?: string;
+    url?: string;
+    requiredParams?: string[];
 }
 
 @Injectable({
@@ -91,7 +102,8 @@ export class SmartBatchService {
 
     getConfiguration(id: string) {
         return this._httpClient.get<{ data: BatchConfiguration }>(
-            `${environment.apiUrl}/v2/batch-configurations/${id}`
+            `${environment.apiUrl}/v2/batch-configurations/${id}`,
+            { params: { populates: 'steps.appFeature' } }
         );
     }
 
@@ -110,10 +122,10 @@ export class SmartBatchService {
     }
 
     // SmartBatch methods
-    getSmartBatches(configId: string) {
+    getSmartBatches(configId: string, sort: string = '-createdAt') {
         return this._httpClient.get<{ data: SmartBatch[] }>(
             `${environment.apiUrl}/v2/smart-batches`,
-            { params: { batchConfiguration: configId } }
+            { params: { batchConfiguration: configId, sort } }
         );
     }
 
@@ -126,13 +138,57 @@ export class SmartBatchService {
 
     getSmartBatch(id: string) {
         return this._httpClient.get<{ data: SmartBatch }>(
-            `${environment.apiUrl}/v2/smart-batches/${id}`
+            `${environment.apiUrl}/v2/smart-batches/${id}`,
+            { params: { populates: 'batchConfiguration' } }
+        );
+    }
+
+    updateSmartBatch(id: string, data: Partial<SmartBatch>) {
+        return this._httpClient.put<{ data: SmartBatch }>(
+            `${environment.apiUrl}/v2/smart-batches/${id}`,
+            data
         );
     }
 
     getSmartBatchStats(configId: string) {
         return this._httpClient.get<{ data: SmartBatchStats }>(
             `${environment.apiUrl}/v2/smart-batches/stats/${configId}`
+        );
+    }
+
+    /**
+     * Execute a feature request using its configured URL and method
+     * This is used by the frontend to make API calls with the user's JWT
+     */
+    executeFeatureRequest(url: string, method: string = 'GET', params: any = {}) {
+        // Build the full URL. If url already starts with http/https, use it as is.
+        // Otherwise, prepend environment.apiUrl.
+        const fullUrl = url.startsWith('http')
+            ? url
+            : `${environment.apiUrl}/${url.replace(/^\//, '')}`;
+
+        if (method.toUpperCase() === 'GET') {
+            return this._httpClient.get<{ data: any }>(fullUrl, { params });
+        } else {
+            return this._httpClient.post<{ data: any }>(fullUrl, params);
+        }
+    }
+
+    /**
+     * Update a single row's status and results after processing
+     */
+    updateBatchRow(
+        batchId: string,
+        rowIndex: number,
+        update: {
+            status: 'pending' | 'processing' | 'completed' | 'failed';
+            results?: Record<number, any>;
+            errors?: { step: number; message: string; code: string }[];
+        }
+    ) {
+        return this._httpClient.put<{ data: SmartBatch }>(
+            `${environment.apiUrl}/v2/smart-batches/${batchId}/rows/${rowIndex}`,
+            update
         );
     }
 }
@@ -157,7 +213,7 @@ export interface SmartBatchRow {
     rowIndex: number;
     inputData: any;
     status: 'pending' | 'processing' | 'completed' | 'failed';
-    results: any;
+    results: Record<number, any>;
     errors: { step: number; message: string; code: string }[];
     processedAt?: string;
 }
