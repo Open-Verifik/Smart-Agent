@@ -798,30 +798,30 @@ export class ReportViewerComponent implements OnInit {
             });
             return;
         }
-        const wb = XLSX.utils.book_new();
+        const allFieldLabels = new Set<string>();
         for (const block of blocks) {
-            const sheetData: (string | number)[][] = [];
-            const hasMultipleRows = block.rowResults.length > 1;
-            sheetData.push(hasMultipleRows ? ['Row', 'Field', 'Value'] : ['Field', 'Value']);
             for (const rowResult of block.rowResults) {
-                const fields =
-                    rowResult.data != null
-                        ? this.getStepResultFields(rowResult.data)
-                        : [{ label: 'Result', value: '—' }];
-                for (const f of fields) {
-                    if (hasMultipleRows) {
-                        sheetData.push([rowResult.rowIndex + 1, f.label, f.value]);
-                    } else {
-                        sheetData.push([f.label, f.value]);
-                    }
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
                 }
             }
-            const ws = XLSX.utils.aoa_to_sheet(sheetData);
-            const sheetName = (block.label || `Step ${block.sequence}`)
-                .replace(/[\\/*?:\[\]]/g, '')
-                .slice(0, 31);
-            XLSX.utils.book_append_sheet(wb, ws, sheetName);
         }
+        const fieldLabels = Array.from(allFieldLabels);
+        const sheetData: (string | number)[][] = [];
+        sheetData.push(['Step', 'Row #', ...fieldLabels]);
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                const fieldsMap = new Map<string, string>();
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                }
+                const values = fieldLabels.map((label) => fieldsMap.get(label) ?? '');
+                sheetData.push([block.label, rowResult.rowIndex + 1, ...values]);
+            }
+        }
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(sheetData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Batch Records');
         const filename = `batch-records_${this.batch()?.name || 'export'}.xlsx`.replace(
             /[^a-z0-9_.-]/gi,
             '_'
