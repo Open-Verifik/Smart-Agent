@@ -11,9 +11,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { SampleReportData } from '../smart-report.service';
 import { fuseAnimations } from '@fuse/animations';
 import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { buildHelperDataPaths, HelperDataPath } from '../helper-data.util';
+import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
 
@@ -33,6 +36,7 @@ import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.
         MatSelectModule,
         MatTooltipModule,
         MatSnackBarModule,
+        TranslocoModule,
         ReportPreviewComponent,
     ],
     templateUrl: './report-builder.component.html',
@@ -45,6 +49,8 @@ export class ReportBuilderComponent implements OnInit {
     private _snack = inject(MatSnackBar);
     private _reportService = inject(SmartReportService);
     private _dialog = inject(MatDialog);
+    private _previewDataService = inject(ReportBuilderPreviewDataService);
+    private _transloco = inject(TranslocoService);
 
     configId = signal<string | null>(null);
     templateId = signal<string | null>(null);
@@ -67,13 +73,13 @@ export class ReportBuilderComponent implements OnInit {
     templateForm: FormGroup;
 
     sectionTypes = [
-        { type: 'header', label: 'Header', icon: 'title' },
-        { type: 'text', label: 'Text Block', icon: 'notes' },
-        { type: 'field', label: 'Data Field', icon: 'data_object' },
-        { type: 'table', label: 'Table', icon: 'table_chart' },
-        { type: 'image', label: 'Image', icon: 'image' },
-        { type: 'divider', label: 'Divider', icon: 'horizontal_rule' },
-        { type: 'spacer', label: 'Spacer', icon: 'space_bar' },
+        { type: 'header', labelKey: 'smartReport.sectionHeader', icon: 'title' },
+        { type: 'text', labelKey: 'smartReport.sectionText', icon: 'notes' },
+        { type: 'field', labelKey: 'smartReport.sectionField', icon: 'data_object' },
+        { type: 'table', labelKey: 'smartReport.sectionTable', icon: 'table_chart' },
+        { type: 'image', labelKey: 'smartReport.sectionImage', icon: 'image' },
+        { type: 'divider', labelKey: 'smartReport.sectionDivider', icon: 'horizontal_rule' },
+        { type: 'spacer', labelKey: 'smartReport.sectionSpacer', icon: 'space_bar' },
     ];
 
     /** Mock data used to render the live preview. */
@@ -135,14 +141,21 @@ export class ReportBuilderComponent implements OnInit {
         });
     }
 
+    /** True when we got preview data from report viewer navigation (don't overwrite with template.sampleData) */
+    private _hasPreviewDataFromNavigation = false;
+
     /**
      * When navigating from report viewer with batch data, use it as preview.
+     * Uses service first (reliable), then router state as fallback.
      */
     private _applyPreviewDataFromRouterState(): void {
-        const state = this._router.getCurrentNavigation()?.extras?.state as {
-            previewData?: SampleReportData;
-        } | undefined;
-        const data = state?.previewData;
+        let data = this._previewDataService.consumePendingPreviewData();
+        if (!data) {
+            const state = this._router.getCurrentNavigation()?.extras?.state as {
+                previewData?: SampleReportData;
+            } | undefined;
+            data = state?.previewData ?? undefined;
+        }
         if (data && (data.inputData || data.results)) {
             const preview: Record<string, any> = {
                 batchName: data.batchName ?? 'Batch',
@@ -151,6 +164,7 @@ export class ReportBuilderComponent implements OnInit {
                 results: data.results ?? {},
             };
             this.previewData.set(preview);
+            this._hasPreviewDataFromNavigation = true;
         }
     }
 
@@ -167,6 +181,18 @@ export class ReportBuilderComponent implements OnInit {
             next: (template) => {
                 this.template.set(template);
                 this.sections.set(template.sections || []);
+                if (
+                    !this._hasPreviewDataFromNavigation &&
+                    template.sampleData &&
+                    (template.sampleData.inputData || template.sampleData.results)
+                ) {
+                    this.previewData.set({
+                        batchName: template.sampleData.batchName ?? 'Batch',
+                        rowIndex: template.sampleData.rowIndex ?? 0,
+                        inputData: template.sampleData.inputData ?? {},
+                        results: template.sampleData.results ?? {},
+                    });
+                }
                 this.templateForm.patchValue({
                     name: template.name,
                     description: template.description,
@@ -342,6 +368,7 @@ export class ReportBuilderComponent implements OnInit {
             ...this.templateForm.value,
             sections: this.sections(),
             batchConfiguration: this.configId() || undefined,
+            sampleData: this.previewData(),
         };
 
         const id = this.templateId();
@@ -382,7 +409,7 @@ export class ReportBuilderComponent implements OnInit {
     sendSample(): void {
         const id = this.templateId();
         if (!id) {
-            this._snack.open('Save the template first before sending a sample', 'Close', {
+            this._snack.open(this._transloco.translate('smartReport.saveTemplateFirst'), 'Close', {
                 duration: 3500,
             });
             return;
@@ -391,11 +418,11 @@ export class ReportBuilderComponent implements OnInit {
         const defaultSubject = `Sample Report: ${this.templateForm.get('name')?.value || 'Template Preview'}`;
         const dialogRef = this._dialog.open(SendSampleModalComponent, {
             panelClass: 'send-sample-dialog',
-            maxWidth: '480px',
+            maxWidth: '560px',
             width: '95vw',
             disableClose: false,
             autoFocus: true,
-            data: { defaultSubject },
+            data: { defaultSubject, isSample: true },
         });
 
         dialogRef.afterClosed().subscribe((result) => {
@@ -412,11 +439,11 @@ export class ReportBuilderComponent implements OnInit {
                 .subscribe({
                     next: (res) => {
                         if (res.success) {
-                            this._snack.open('Sample PDF sent successfully', 'Close', {
+                            this._snack.open(this._transloco.translate('smartReport.samplePdfSentSuccess'), 'Close', {
                                 duration: 3500,
                             });
                         } else {
-                            this._snack.open(res.error || 'Failed to send sample PDF', 'Close', {
+                            this._snack.open(res.error || this._transloco.translate('smartReport.failedToSendSamplePdf'), 'Close', {
                                 duration: 4000,
                             });
                         }
@@ -424,7 +451,7 @@ export class ReportBuilderComponent implements OnInit {
                     },
                     error: (err) => {
                         console.error('Send sample failed:', err);
-                        this._snack.open('Failed to send sample PDF', 'Close', {
+                        this._snack.open(this._transloco.translate('smartReport.failedToSendSamplePdf'), 'Close', {
                             duration: 4000,
                         });
                         this.isSendingSample.set(false);
@@ -451,13 +478,24 @@ export class ReportBuilderComponent implements OnInit {
     }
 
     getSectionLabel(type: string): string {
-        return this.sectionTypes.find((t) => t.type === type)?.label || type;
+        const labelKey = this.sectionTypes.find((t) => t.type === type)?.labelKey;
+        return labelKey ? this._transloco.translate(labelKey) : type;
     }
 
     /** Wrapper for ReportPreviewComponent section click (preserves this context) */
     onPreviewSectionClick = (section: ReportSection): void => {
         this.selectSection(section);
     };
+
+    /** Flattened data paths for the helper panel (only leaf paths for fields) */
+    helperDataPaths = computed(() => buildHelperDataPaths(this.previewData()));
+
+    copyPathToClipboard(path: string): void {
+        navigator.clipboard.writeText(path).then(
+            () => this._snack.open(`${this._transloco.translate('smartReport.copied')}: ${path}`, 'Close', { duration: 2000 }),
+            () => this._snack.open(this._transloco.translate('smartReport.failedToCopy'), 'Close', { duration: 2000 })
+        );
+    }
 
     // ============================================
     // PRIVATE HELPERS

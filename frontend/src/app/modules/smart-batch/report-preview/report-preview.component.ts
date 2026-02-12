@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoModule } from '@jsverse/transloco';
 import { ReportSection, SmartReportTemplate } from '../smart-report.service';
 
 /**
@@ -10,7 +11,7 @@ import { ReportSection, SmartReportTemplate } from '../smart-report.service';
 @Component({
     selector: 'report-preview',
     standalone: true,
-    imports: [CommonModule, MatIconModule],
+    imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './report-preview.component.html',
 })
 export class ReportPreviewComponent {

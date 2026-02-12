@@ -8,7 +8,7 @@
         @if (template().sections?.length === 0) {
             <div class="flex flex-col items-center justify-center h-64 text-gray-300">
                 <mat-icon class="!text-5xl !w-14 !h-14 mb-3">description</mat-icon>
-                <p class="text-sm">No sections to preview</p>
+                <p class="text-sm">{{ 'smartReport.noSectionsToPreview' | transloco }}</p>
             </div>
         }
 
@@ -32,7 +32,7 @@
                             [style.color]="section.style?.color || primaryColor()"
                             class="leading-tight"
                         >
-                            {{ section.staticContent || section.label || 'Untitled' }}
+                            {{ section.staticContent || section.label || ('smartReport.untitled' | transloco) }}
                         </h2>
                     </div>
                 }
@@ -45,7 +45,7 @@
                             [style.text-align]="section.style?.textAlign || 'left'"
                             [style.color]="section.style?.color || '#374151'"
                             class="leading-relaxed whitespace-pre-wrap"
-                        >{{ section.staticContent || 'Text content...' }}</p>
+                        >{{ section.staticContent || ('smartReport.textContent' | transloco) }}</p>
                     </div>
                 }
 
@@ -57,12 +57,12 @@
                         <span
                             class="text-gray-500 min-w-[140px] shrink-0"
                             [style.font-size.px]="section.style?.fontSize || 12"
-                        >{{ section.label || 'Field' }}</span>
+                        >{{ section.label || ('smartReport.field' | transloco) }}</span>
                         <span
                             class="text-gray-900 font-medium"
                             [style.font-size.px]="section.style?.fontSize || 12"
                             [style.color]="section.style?.color || '#111827'"
-                        >{{ resolveDataPath(section.dataPath) || '---' }}</span>
+                        >{{ resolveDataPath(section.dataPath) || '—' }}</span>
                     </div>
                 }
 
@@ -85,7 +85,7 @@
                                 @if (resolveTableData(section.dataPath).length === 0) {
                                     <tr>
                                         <td colspan="2" class="py-4 text-center text-gray-300 text-xs">
-                                            No data at path "{{ section.dataPath }}"
+                                            {{ 'smartReport.noDataAtPath' | transloco: { path: section.dataPath } }}
                                         </td>
                                     </tr>
                                 }
@@ -102,7 +102,7 @@
                         @if (section.staticContent) {
                             <img
                                 [src]="section.staticContent"
-                                [alt]="section.label || 'Image'"
+                                [alt]="section.label || ('smartReport.image' | transloco)"
                                 class="max-h-32 inline-block rounded"
                                 style="max-width: 100%;"
                             />

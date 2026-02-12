@@ -54,6 +54,9 @@ export interface SmartReportTemplate {
     // PDF engine
     pdfEngine?: 'pdfkit' | 'puppeteer';
 
+    /** Sample data for Helper Data panel and preview (persisted from report viewer) */
+    sampleData?: SampleReportData;
+
     isActive?: boolean;
     createdAt?: string;
     updatedAt?: string;
@@ -238,7 +241,10 @@ export class SmartReportService {
         return this._httpClient.post<{
             data: SmartReport;
             pdf: { buffer: string; size: number };
-        }>(`${environment.apiUrl}/v2/smart-reports/${id}/generate`, Object.keys(body).length ? body : {});
+        }>(
+            `${environment.apiUrl}/v2/smart-reports/${id}/generate`,
+            Object.keys(body).length ? body : {}
+        );
     }
 
     sendReportEmail(
@@ -254,5 +260,15 @@ export class SmartReportService {
 
     getReportDownloadUrl(id: string): string {
         return `${environment.apiUrl}/v2/smart-reports/${id}/download`;
+    }
+
+    /**
+     * Download report PDF as blob (includes auth header).
+     * Use this instead of getReportDownloadUrl + window.open for protected endpoints.
+     */
+    downloadReport(id: string): Observable<Blob> {
+        return this._httpClient.get(`${environment.apiUrl}/v2/smart-reports/${id}/download`, {
+            responseType: 'blob',
+        });
     }
 }

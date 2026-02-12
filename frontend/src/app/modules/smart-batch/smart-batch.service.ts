@@ -18,6 +18,7 @@ export interface BatchConfiguration {
         emailOnCompletion?: string[];
     };
     scheduleExpression?: string;
+    preferredReportTemplate?: string | { _id: string };
     isActive?: boolean;
     createdAt?: string;
     updatedAt?: string;

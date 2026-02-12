@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -24,6 +25,8 @@ function emailsValidator(control: AbstractControl): ValidationErrors | null {
 
 export interface SendSampleModalData {
     defaultSubject: string;
+    /** When false, shows "Send Report" instead of "Send Sample Report" (Report Viewer sends real reports). */
+    isSample?: boolean;
 }
 
 export interface SendSampleModalResult {
@@ -42,9 +45,10 @@ export interface SendSampleModalResult {
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
+        TranslocoModule,
     ],
     template: `
-        <div class="flex flex-col w-full max-w-md">
+        <div class="flex flex-col w-full max-w-lg">
             <!-- Header -->
             <div class="px-6 pt-6 pb-4">
                 <div class="flex items-center justify-between">
@@ -55,9 +59,11 @@ export interface SendSampleModalResult {
                             <mat-icon class="!w-6 !h-6 text-white icon-size-6">send</mat-icon>
                         </div>
                         <div>
-                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Send Sample Report</h2>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+                                {{ (isSample ? 'smartReport.sendSampleReport' : 'smartReport.sendReport') | transloco }}
+                            </h2>
                             <p class="text-sm text-slate-500 dark:text-slate-400">
-                                Enter recipient email(s) and optional subject
+                                {{ 'smartReport.enterRecipientsAndSubject' | transloco }}
                             </p>
                         </div>
                     </div>
@@ -70,30 +76,30 @@ export interface SendSampleModalResult {
             <!-- Form -->
             <form [formGroup]="form" (ngSubmit)="onSubmit()" class="px-6 pb-6 space-y-4">
                 <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Recipient email(s)</mat-label>
+                    <mat-label>{{ 'smartReport.recipientEmails' | transloco }}</mat-label>
                     <textarea
                         matInput
                         formControlName="recipients"
-                        placeholder="email1@example.com, email2@example.com"
+                        [placeholder]="'smartReport.recipientsPlaceholder' | transloco"
                         rows="3"
                     ></textarea>
-                    <mat-hint>Separate multiple emails with commas</mat-hint>
+                    <mat-hint>{{ 'smartReport.separateEmailsWithCommas' | transloco }}</mat-hint>
                     @if (form.get('recipients')?.hasError('required') && form.get('recipients')?.touched) {
-                        <mat-error>At least one recipient is required</mat-error>
+                        <mat-error>{{ 'smartReport.atLeastOneRecipient' | transloco }}</mat-error>
                     }
                     @if (form.get('recipients')?.hasError('invalidEmails') && form.get('recipients')?.touched) {
-                        <mat-error>Please enter valid email address(es)</mat-error>
+                        <mat-error>{{ 'smartReport.enterValidEmails' | transloco }}</mat-error>
                     }
                 </mat-form-field>
 
                 <mat-form-field appearance="outline" class="w-full">
-                    <mat-label>Subject (optional)</mat-label>
-                    <input matInput formControlName="subject" placeholder="Sample Report: Template Preview" />
+                    <mat-label>{{ 'smartReport.subjectOptional' | transloco }}</mat-label>
+                    <input matInput formControlName="subject" [placeholder]="subjectPlaceholder" />
                 </mat-form-field>
 
                 <div class="flex gap-3 pt-2 justify-end border-t border-slate-200 dark:border-slate-700">
                     <button mat-button type="button" (click)="onCancel()" class="!text-slate-600">
-                        Cancel
+                        {{ 'smartReport.cancel' | transloco }}
                     </button>
                     <button
                         mat-flat-button
@@ -103,7 +109,7 @@ export interface SendSampleModalResult {
                         class="!rounded-xl !bg-indigo-600 !text-white"
                     >
                         <mat-icon class="!w-4 !h-4 mr-1">send</mat-icon>
-                        Send Sample
+                        {{ (isSample ? 'smartReport.sendSample' : 'smartReport.sendReport') | transloco }}
                     </button>
                 </div>
             </form>
@@ -121,13 +127,29 @@ export class SendSampleModalComponent {
     private _dialogRef = inject(MatDialogRef<SendSampleModalComponent>);
     private _fb = inject(FormBuilder);
     private _data = inject<SendSampleModalData>(MAT_DIALOG_DATA, { optional: true });
+    private _transloco = inject(TranslocoService);
 
     form: FormGroup;
 
+    get isSample(): boolean {
+        return this._data?.isSample !== false;
+    }
+
+    get subjectPlaceholder(): string {
+        return this.isSample
+            ? this._transloco.translate('smartReport.subjectOptionalPlaceholder')
+            : this._transloco.translate('smartReport.reportBatchPlaceholder');
+    }
+
     constructor() {
+        const defaultSubject =
+            this._data?.defaultSubject ||
+            (this._data?.isSample === false
+                ? this._transloco.translate('smartReport.reportBatchPlaceholder')
+                : this._transloco.translate('smartReport.subjectOptionalPlaceholder'));
         this.form = this._fb.group({
             recipients: ['', [emailsValidator]],
-            subject: [this._data?.defaultSubject || 'Sample Report: Template Preview', []],
+            subject: [defaultSubject, []],
         });
     }
 

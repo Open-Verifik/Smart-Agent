@@ -6,9 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { fuseAnimations } from '@fuse/animations';
 import {
     BatchConfiguration,
@@ -17,12 +19,14 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { ReportPreviewComponent } from '../report-preview/report-preview.component';
 import {
     buildRowDataForResolution,
     TemplateMatchResult,
     validateTemplateAgainstData,
 } from '../template-match.util';
+import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 
 export interface StepBlockDescriptor {
     sequence: number;
@@ -41,11 +45,13 @@ export interface StepResultBlock extends StepBlockDescriptor {
         RouterModule,
         DragDropModule,
         MatButtonModule,
+        MatDialogModule,
         MatIconModule,
         MatProgressSpinnerModule,
         MatSelectModule,
         MatTooltipModule,
         MatSnackBarModule,
+        TranslocoModule,
         ReportPreviewComponent,
     ],
     templateUrl: './report-viewer.component.html',
@@ -57,7 +63,10 @@ export class ReportViewerComponent implements OnInit {
     private _snack = inject(MatSnackBar);
     private _reportService = inject(SmartReportService);
     private _batchService = inject(SmartBatchService);
+    private _previewDataService = inject(ReportBuilderPreviewDataService);
     private _sanitizer = inject(DomSanitizer);
+    private _dialog = inject(MatDialog);
+    private _transloco = inject(TranslocoService);
 
     // Route params
     configId = signal<string | null>(null);
@@ -178,36 +187,66 @@ export class ReportViewerComponent implements OnInit {
         const configId = this.configId();
         const batchId = this.batchId();
 
-        // Load batch (with batchConfiguration populated)
-        if (batchId) {
-            this._batchService.getSmartBatch(batchId).subscribe({
-                next: (res) => this.batch.set(res.data),
+        const loadTemplates = (config?: { preferredReportTemplate?: string | { _id: string } } | null) => {
+            this._reportService.getTemplates(configId || undefined).subscribe({
+                next: (templates) => {
+                    this.templates.set(templates);
+                    if (templates.length > 0) {
+                        const preferredId = config
+                            ? typeof config.preferredReportTemplate === 'string'
+                                ? config.preferredReportTemplate
+                                : config.preferredReportTemplate?._id
+                            : null;
+                        const preferred = preferredId
+                            ? templates.find((t) => t._id === preferredId)
+                            : null;
+                        this.selectedTemplate.set(preferred ?? templates[0]);
+                    }
+                    this.isLoading.set(false);
+                },
+                error: () => {
+                    this.isLoading.set(false);
+                },
             });
-        }
+        };
 
-        // Load configuration for step names and to init step block order
+        // Load configuration first (has preferredReportTemplate for the whole group), then batch, then templates
         if (configId) {
             this._batchService.getConfiguration(configId).subscribe({
                 next: (res) => {
                     this.configuration.set(res.data);
                     this._initStepBlocksOrderFromConfig(res.data);
+                    if (batchId) {
+                        this._batchService.getSmartBatch(batchId).subscribe({
+                            next: (batchRes) => {
+                                this.batch.set(batchRes.data);
+                                loadTemplates(res.data);
+                            },
+                            error: () => loadTemplates(res.data),
+                        });
+                    } else {
+                        loadTemplates(res.data);
+                    }
+                },
+                error: () => {
+                    if (batchId) {
+                        this._batchService.getSmartBatch(batchId).subscribe({
+                            next: (batchRes) => this.batch.set(batchRes.data),
+                            error: () => {},
+                        });
+                    }
+                    loadTemplates(null);
                 },
             });
+        } else {
+            if (batchId) {
+                this._batchService.getSmartBatch(batchId).subscribe({
+                    next: (res) => this.batch.set(res.data),
+                    error: () => {},
+                });
+            }
+            loadTemplates(null);
         }
-
-        // Load templates
-        this._reportService.getTemplates(configId || undefined).subscribe({
-            next: (templates) => {
-                this.templates.set(templates);
-                if (templates.length > 0) {
-                    this.selectedTemplate.set(templates[0]);
-                }
-                this.isLoading.set(false);
-            },
-            error: () => {
-                this.isLoading.set(false);
-            },
-        });
     }
 
     private _initStepBlocksOrderFromConfig(config: BatchConfiguration): void {
@@ -253,6 +292,49 @@ export class ReportViewerComponent implements OnInit {
         return String(v);
     }
 
+    private async _isPdfBlob(blob: Blob): Promise<boolean> {
+        const slice = blob.slice(0, 5);
+        const buf = await slice.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46; // %PDF
+    }
+
+    /** Convert JSON-serialized byte object {0:37,1:80,...} back to PDF Blob (some backends return Buffer as JSON). */
+    private async _blobFromJsonBytes(blob: Blob): Promise<Blob | null> {
+        try {
+            const text = await blob.text();
+            const parsed = JSON.parse(text) as Record<string, number>;
+            const keys = Object.keys(parsed).filter((k) => /^\d+$/.test(k));
+            if (keys.length === 0) return null;
+            keys.sort((a, b) => Number(a) - Number(b));
+            const bytes = new Uint8Array(keys.length);
+            keys.forEach((k, i) => (bytes[i] = parsed[k] & 0xff));
+            if (bytes[0] !== 0x25 || bytes[1] !== 0x50 || bytes[2] !== 0x44 || bytes[3] !== 0x46) {
+                return null;
+            }
+            return new Blob([bytes], { type: 'application/pdf' });
+        } catch {
+            return null;
+        }
+    }
+
+    private async _parseBlobError(blob: Blob): Promise<string> {
+        try {
+            const text = await blob.text();
+            const parsed = JSON.parse(text) as Record<string, unknown>;
+            if (typeof parsed.error === 'string') return parsed.error;
+            if (typeof parsed.message === 'string') return parsed.message;
+            if (Object.keys(parsed).some((k) => /^\d+$/.test(k))) {
+                return 'Server returned PDF in unexpected format';
+            }
+            return text.slice(0, 80);
+        } catch {
+            return blob.type === 'application/json' || blob.type === 'text/plain'
+                ? 'Server returned an error'
+                : 'Invalid PDF content';
+        }
+    }
+
     /** Format missing paths for tooltip display */
     formatMissingPaths(missingPaths: { path: string; label?: string }[]): string {
         return missingPaths.map((m) => m.path).join(', ');
@@ -263,6 +345,21 @@ export class ReportViewerComponent implements OnInit {
         this.pdfDataUrl.set(null);
         this.pdfSafeUrl.set(null);
         this.report.set(null);
+
+        const configId = this.configId();
+        if (configId && template._id) {
+            this._batchService
+                .updateConfiguration(configId, {
+                    preferredReportTemplate: template._id,
+                })
+                .subscribe({
+                    next: (res) => this.configuration.set(res.data),
+                    error: () =>
+                        this._snack.open(this._transloco.translate('smartReport.failedToSaveTemplatePreference'), 'Close', {
+                            duration: 3000,
+                        }),
+                });
+        }
     }
 
     generateReport(): void {
@@ -270,7 +367,7 @@ export class ReportViewerComponent implements OnInit {
         const batchId = this.batchId();
 
         if (!template || !batchId) {
-            this._snack.open('Please select a template', 'Close', { duration: 3000 });
+            this._snack.open(this._transloco.translate('smartReport.pleaseSelectTemplate'), 'Close', { duration: 3000 });
             return;
         }
 
@@ -307,12 +404,12 @@ export class ReportViewerComponent implements OnInit {
                             }
 
                             this.isGenerating.set(false);
-                            this._snack.open('Report generated!', 'Close', { duration: 3000 });
+                            this._snack.open(this._transloco.translate('smartReport.reportGenerated'), 'Close', { duration: 3000 });
                         },
                         error: (err) => {
                             console.error('Failed to generate PDF:', err);
                             this.isGenerating.set(false);
-                            this._snack.open('Failed to generate report', 'Close', {
+                            this._snack.open(this._transloco.translate('smartReport.failedToGenerateReport'), 'Close', {
                                 duration: 3000,
                             });
                         },
@@ -321,7 +418,7 @@ export class ReportViewerComponent implements OnInit {
                 error: (err) => {
                     console.error('Failed to create report:', err);
                     this.isGenerating.set(false);
-                    this._snack.open('Failed to create report', 'Close', { duration: 3000 });
+                    this._snack.open(this._transloco.translate('smartReport.failedToCreateReport'), 'Close', { duration: 3000 });
                 },
             });
     }
@@ -329,46 +426,88 @@ export class ReportViewerComponent implements OnInit {
     sendEmail(): void {
         const report = this.report();
         if (!report?._id) {
-            this._snack.open('Generate a report first', 'Close', { duration: 3000 });
+            this._snack.open(this._transloco.translate('smartReport.generateReportFirst'), 'Close', { duration: 3000 });
             return;
         }
 
-        // For now, prompt for email
-        const email = prompt('Enter email address:');
-        if (!email) return;
+        const defaultSubject = `Report - ${this.batch()?.name ?? 'Batch'}`;
+        const dialogRef = this._dialog.open(SendSampleModalComponent, {
+            panelClass: 'send-sample-dialog',
+            maxWidth: '560px',
+            width: '95vw',
+            disableClose: false,
+            autoFocus: true,
+            data: { defaultSubject, isSample: false },
+        });
 
-        this.isSending.set(true);
+        dialogRef.afterClosed().subscribe((result) => {
+            if (!result?.recipients?.length) return;
 
-        this._reportService
-            .sendReportEmail(report._id, {
-                recipients: [email],
-                language: 'es',
-            })
-            .subscribe({
-                next: (result) => {
-                    this.isSending.set(false);
-                    if (result.success) {
-                        this._snack.open('Email sent!', 'Close', { duration: 3000 });
-                    } else {
-                        this._snack.open('Failed to send email', 'Close', { duration: 3000 });
-                    }
-                },
-                error: () => {
-                    this.isSending.set(false);
-                    this._snack.open('Failed to send email', 'Close', { duration: 3000 });
-                },
-            });
+            this.isSending.set(true);
+            this._reportService
+                .sendReportEmail(report._id, {
+                    recipients: result.recipients,
+                    subject: result.subject,
+                    language: 'es',
+                })
+                .subscribe({
+                    next: (res) => {
+                        this.isSending.set(false);
+                        if (res.success) {
+                            this._snack.open(this._transloco.translate('smartReport.emailSent'), 'Close', { duration: 3000 });
+                        } else {
+                            this._snack.open(res.error || this._transloco.translate('smartReport.failedToSendEmail'), 'Close', {
+                                duration: 3000,
+                            });
+                        }
+                    },
+                    error: () => {
+                        this.isSending.set(false);
+                        this._snack.open(this._transloco.translate('smartReport.failedToSendEmail'), 'Close', { duration: 3000 });
+                    },
+                });
+        });
     }
 
     downloadReport(): void {
         const report = this.report();
         if (!report?._id) {
-            this._snack.open('Generate a report first', 'Close', { duration: 3000 });
+            this._snack.open(this._transloco.translate('smartReport.generateReportFirst'), 'Close', { duration: 3000 });
             return;
         }
 
-        const url = this._reportService.getReportDownloadUrl(report._id);
-        window.open(url, '_blank');
+        this.isSending.set(true);
+        this._reportService.downloadReport(report._id).subscribe({
+            next: async (blob) => {
+                let pdfBlob = blob;
+
+                const hasPdfMagic = await this._isPdfBlob(blob);
+                if (!hasPdfMagic) {
+                    pdfBlob = await this._blobFromJsonBytes(blob);
+                    if (!pdfBlob) {
+                        const errorMsg = await this._parseBlobError(blob);
+                        this._snack.open(errorMsg || this._transloco.translate('smartReport.invalidPdfReceived'), 'Close', {
+                            duration: 4000,
+                        });
+                        return;
+                    }
+                }
+
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `SmartReport_${report._id}.pdf`;
+                a.click();
+                URL.revokeObjectURL(url);
+                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), 'Close', { duration: 2000 });
+            },
+            error: () => {
+                this._snack.open(this._transloco.translate('smartReport.failedToDownloadPdf'), 'Close', { duration: 3000 });
+            },
+            complete: () => {
+                this.isSending.set(false);
+            },
+        });
     }
 
     goBack(): void {
@@ -382,10 +521,10 @@ export class ReportViewerComponent implements OnInit {
     }
 
     /**
-     * Open report builder. When batch has rows, pass real data via router state
-     * so the builder can preview with actual batch responses.
+     * Open report builder.
+     * @param createNew - If true, always create a new template. If false, edit the selected template (if any).
      */
-    openReportBuilder(): void {
+    openReportBuilder(createNew = false): void {
         const configId = this.configId();
         if (!configId) return;
 
@@ -396,20 +535,24 @@ export class ReportViewerComponent implements OnInit {
             ? rows.find((r) => r.rowIndex === rowIndex)
             : rows[0];
 
-        const navigationExtras = row
+        const previewData = row
             ? {
-                  state: {
-                      previewData: {
-                          batchName: b?.name ?? 'Batch',
-                          rowIndex: row.rowIndex,
-                          inputData: row.inputData ?? {},
-                          results: row.results ?? {},
-                      },
-                  },
+                  batchName: b?.name ?? 'Batch',
+                  rowIndex: row.rowIndex,
+                  inputData: row.inputData ?? {},
+                  results: row.results ?? {},
               }
+            : null;
+
+        if (previewData) {
+            this._previewDataService.setPendingPreviewData(previewData);
+        }
+
+        const navigationExtras = previewData
+            ? { state: { previewData } }
             : {};
 
-        const templateId = this.selectedTemplate()?._id;
+        const templateId = createNew ? null : this.selectedTemplate()?._id;
         const route = templateId
             ? ['/smart-batch', configId, 'report-builder', templateId]
             : ['/smart-batch', configId, 'report-builder'];
