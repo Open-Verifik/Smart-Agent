@@ -394,69 +394,51 @@
                                         />
                                     </div>
                                 } @else {
-                                    <!-- Table or JSON view: block-by-block draggable layout -->
+                                    <!-- Table or JSON view: record-grouped layout (like PDF preview) -->
                                     <div
                                         class="mx-auto bg-[#fafafa] rounded-lg border border-gray-200 shadow-sm p-6 min-h-[400px]"
                                         style="max-width: 210mm"
                                     >
-                                        <div
-                                            cdkDropList
-                                            (cdkDropListDropped)="onStepBlocksDrop($event)"
-                                            class="space-y-4"
-                                        >
-                                            @for (block of stepResultBlocks(); track block.sequence) {
+                                        <div class="space-y-4">
+                                            @for (recordBlock of recordResultBlocks(); track recordBlock.rowIndex) {
                                                 <div
-                                                    cdkDrag
                                                     class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
                                                 >
                                                     <div
                                                         class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50"
                                                     >
-                                                        <div
-                                                            cdkDragHandle
-                                                            class="w-8 h-8 rounded flex items-center justify-center cursor-grab text-gray-400 hover:bg-gray-200 transition-colors"
+                                                        <mat-icon class="!text-base text-gray-400"
+                                                            >person</mat-icon
                                                         >
-                                                            <mat-icon class="!text-base"
-                                                                >drag_indicator</mat-icon
-                                                            >
-                                                        </div>
-                                                        <span class="font-medium text-gray-900">{{
-                                                            block.label
-                                                        }}</span>
-                                                        <span class="text-xs text-gray-500"
-                                                            >{{ 'smartReport.step' | transloco }}
-                                                            {{ block.sequence }}</span
-                                                        >
+                                                        <span class="font-medium text-gray-900">
+                                                            {{ 'smartReport.row' | transloco }}
+                                                            #{{ recordBlock.rowIndex + 1 }}
+                                                        </span>
                                                     </div>
                                                     @if (stepResultsViewMode() === 'table') {
-                                                        <!-- Table view: HTML table -->
+                                                        <!-- Table view: steps per record -->
                                                         <div
                                                             class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto"
                                                         >
-                                                            @for (
-                                                                row of block.rowResults;
-                                                                track row.rowIndex
-                                                            ) {
+                                                            @for (step of recordBlock.steps; track step.sequence) {
                                                                 <div class="mb-4 last:mb-0">
-                                                                    @if (block.rowResults.length > 1) {
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-500 mb-2"
+                                                                    <p
+                                                                        class="text-xs font-medium text-gray-500 mb-2"
+                                                                    >
+                                                                        {{ step.label }}
+                                                                        <span class="text-gray-400"
+                                                                            >({{ 'smartReport.step' | transloco }}
+                                                                            {{ step.sequence }})</span
                                                                         >
-                                                                            {{
-                                                                                'smartReport.row'
-                                                                                    | transloco
-                                                                            }}
-                                                                            #{{ row.rowIndex + 1 }}
-                                                                        </p>
-                                                                    }
-                                                                    @if (row.data != null) {
+                                                                    </p>
+                                                                    @if (step.data != null) {
                                                                         <table
                                                                             class="w-full text-sm border-collapse"
                                                                         >
                                                                             <tbody>
                                                                                 @for (
                                                                                     field of getStepResultFields(
-                                                                                        row.data
+                                                                                        step.data
                                                                                     );
                                                                                     track field.label
                                                                                 ) {
@@ -495,31 +477,26 @@
                                                             }
                                                         </div>
                                                     } @else {
-                                                        <!-- JSON view: raw formatted JSON -->
+                                                        <!-- JSON view: steps per record -->
                                                         <div
                                                             class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto"
                                                         >
-                                                            @for (
-                                                                row of block.rowResults;
-                                                                track row.rowIndex
-                                                            ) {
+                                                            @for (step of recordBlock.steps; track step.sequence) {
                                                                 <div
                                                                     class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
                                                                 >
-                                                                    @if (block.rowResults.length > 1) {
-                                                                        <p
-                                                                            class="text-xs font-medium text-gray-500 mb-2"
+                                                                    <p
+                                                                        class="text-xs font-medium text-gray-500 mb-2"
+                                                                    >
+                                                                        {{ step.label }}
+                                                                        <span class="text-gray-400"
+                                                                            >({{ 'smartReport.step' | transloco }}
+                                                                            {{ step.sequence }})</span
                                                                         >
-                                                                            {{
-                                                                                'smartReport.row'
-                                                                                    | transloco
-                                                                            }}
-                                                                            #{{ row.rowIndex + 1 }}
-                                                                        </p>
-                                                                    }
+                                                                    </p>
                                                                     <pre
                                                                         class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64"
-                                                                        >{{ formatJson(row.data) }}</pre
+                                                                        >{{ formatJson(step.data) }}</pre
                                                                     >
                                                                 </div>
                                                             }
@@ -557,11 +534,39 @@
                             } @else if (selectedTemplate() && batch()?.rows?.length) {
                                 <report-preview
                                     [template]="selectedTemplate()!"
-                                    [previewData]="previewData()"
+                                    [previewData]="previewDataForCurrentPage()"
                                     [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
                                     [orientation]="'portrait'"
                                     [clickable]="false"
                                 />
+                                @if (previewDataForAllRows().length > 1) {
+                                    <div
+                                        class="flex items-center justify-center gap-4 mt-6 pt-4 border-t border-gray-200"
+                                    >
+                                        <button
+                                            mat-icon-button
+                                            (click)="goToPreviewPage(previewPageIndex() - 1)"
+                                            [disabled]="previewPageIndex() <= 0"
+                                            [matTooltip]="'smartReport.previewPrevious' | transloco"
+                                        >
+                                            <mat-icon>chevron_left</mat-icon>
+                                        </button>
+                                        <span class="text-sm text-gray-600">
+                                            {{ 'smartReport.previewPage' | transloco }}
+                                            {{ previewPageIndex() + 1 }}
+                                            {{ 'smartReport.previewPageOf' | transloco }}
+                                            {{ previewDataForAllRows().length }}
+                                        </span>
+                                        <button
+                                            mat-icon-button
+                                            (click)="goToPreviewPage(previewPageIndex() + 1)"
+                                            [disabled]="previewPageIndex() >= previewDataForAllRows().length - 1"
+                                            [matTooltip]="'smartReport.previewNext' | transloco"
+                                        >
+                                            <mat-icon>chevron_right</mat-icon>
+                                        </button>
+                                    </div>
+                                }
                             } @else {
                                 <div
                                     class="flex flex-col items-center justify-center h-64 text-gray-400"

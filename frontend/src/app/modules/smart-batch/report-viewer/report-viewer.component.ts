@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -40,6 +40,12 @@ export interface StepBlockDescriptor {
 
 export interface StepResultBlock extends StepBlockDescriptor {
     rowResults: { rowIndex: number; data: any }[];
+}
+
+/** Record-grouped: each record has all its step results (for Table, JSON, Excel v1) */
+export interface RecordResultBlock {
+    rowIndex: number;
+    steps: { sequence: number; label: string; data: any }[];
 }
 
 @Component({
@@ -134,6 +140,28 @@ export class ReportViewerComponent implements OnInit {
         }));
     });
 
+    /**
+     * Record-grouped: each record has all its step results.
+     * Used for Table, JSON, Excel v1 (grouped by batch record like PDF preview).
+     */
+    recordResultBlocks = computed<RecordResultBlock[]>(() => {
+        const order = this.stepBlocksOrder();
+        const b = this.batch();
+        let rows = b?.rows ?? [];
+        const rowIndex = this.selectedRowIndex();
+        if (rowIndex != null) {
+            rows = rows.filter((r) => r.rowIndex === rowIndex);
+        }
+        return rows.map((row) => ({
+            rowIndex: row.rowIndex,
+            steps: order.map((block) => ({
+                sequence: block.sequence,
+                label: block.label,
+                data: row.results?.[block.sequence] ?? null,
+            })),
+        }));
+    });
+
     /** Whether any row has step results to show */
     hasStepResults = computed(() => {
         const b = this.batch();
@@ -164,6 +192,48 @@ export class ReportViewerComponent implements OnInit {
         };
     });
 
+    /**
+     * All preview data items (one per batch record) for multi-page preview.
+     * When selectedRowIndex is set, only that row. Otherwise all rows.
+     */
+    previewDataForAllRows = computed<Record<string, any>[]>(() => {
+        const b = this.batch();
+        const rows = b?.rows ?? [];
+        const rowIndex = this.selectedRowIndex();
+        const filtered = rowIndex != null ? rows.filter((r) => r.rowIndex === rowIndex) : rows;
+        return filtered.map((row) => ({
+            batchName: b?.name ?? 'Batch',
+            rowIndex: row.rowIndex,
+            inputData: row.inputData ?? {},
+            results: row.results ?? {},
+        }));
+    });
+
+    /** Current page index for preview (0-based). One page per record. */
+    previewPageIndex = signal(0);
+
+    /** Preview data for the currently selected page. */
+    previewDataForCurrentPage = computed<Record<string, any>>(() => {
+        const all = this.previewDataForAllRows();
+        const idx = Math.min(Math.max(0, this.previewPageIndex()), all.length - 1);
+        return all[idx] ?? { inputData: {}, results: {} };
+    });
+
+    goToPreviewPage(index: number): void {
+        const max = this.previewDataForAllRows().length - 1;
+        this.previewPageIndex.set(Math.min(Math.max(0, index), max));
+    }
+
+    constructor() {
+        effect(() => {
+            const all = this.previewDataForAllRows();
+            const current = this.previewPageIndex();
+            if (all.length > 0 && current >= all.length) {
+                this.previewPageIndex.set(0);
+            }
+        });
+    }
+
     templateMatch = computed<TemplateMatchResult | null>(() => {
         const template = this.selectedTemplate();
         const b = this.batch();
@@ -178,9 +248,9 @@ export class ReportViewerComponent implements OnInit {
         return validateTemplateAgainstData(template, rowData);
     });
 
-    /** AG Grid: column definitions and row data for Excel view */
+    /** AG Grid: column definitions and row data for Excel v1 (record-grouped like PDF preview) */
     gridColumnDefs = computed<ColDef[]>(() => this._buildGridColumnDefs());
-    gridRowData = computed<any[]>(() => this._buildGridRowData());
+    gridRowData = computed<any[]>(() => this._buildGridRowDataByRecord());
 
     /** Handsontable: 2D data array and settings for Excel view */
     handsontableData = computed<(string | number)[][]>(() => this._buildHandsontableData());
@@ -251,6 +321,33 @@ export class ReportViewerComponent implements OnInit {
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
                     this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                }
+                fieldLabels.forEach((label) => (row[label] = fieldsMap.get(label) ?? ''));
+                rows.push(row);
+            }
+        }
+        return rows;
+    }
+
+    /** Excel v1: record-first order (Record 1 Step 1, Record 1 Step 2, Record 2 Step 1, ...) */
+    private _buildGridRowDataByRecord(): any[] {
+        const recordBlocks = this.recordResultBlocks();
+        const allFieldLabels = new Set<string>();
+        for (const rec of recordBlocks) {
+            for (const step of rec.steps) {
+                if (step.data != null) {
+                    this.getStepResultFields(step.data).forEach((f) => allFieldLabels.add(f.label));
+                }
+            }
+        }
+        const fieldLabels = Array.from(allFieldLabels);
+        const rows: any[] = [];
+        for (const rec of recordBlocks) {
+            for (const step of rec.steps) {
+                const row: any = { step: step.label, rowNum: rec.rowIndex + 1 };
+                const fieldsMap = new Map<string, string>();
+                if (step.data != null) {
+                    this.getStepResultFields(step.data).forEach((f) => fieldsMap.set(f.label, f.value));
                 }
                 fieldLabels.forEach((label) => (row[label] = fieldsMap.get(label) ?? ''));
                 rows.push(row);
