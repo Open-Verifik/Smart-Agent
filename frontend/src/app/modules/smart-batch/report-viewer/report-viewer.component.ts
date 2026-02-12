@@ -732,47 +732,47 @@ export class ReportViewerComponent implements OnInit {
         });
     }
 
-    /** Build step result data as rows for CSV/Excel export */
-    private buildExportData(): {
-        step: string;
-        rowIndex: number;
-        fields: { label: string; value: string }[];
-    }[] {
-        const blocks = this.stepResultBlocks();
-        const rows: {
-            step: string;
-            rowIndex: number;
-            fields: { label: string; value: string }[];
-        }[] = [];
-        for (const block of blocks) {
-            for (const rowResult of block.rowResults) {
-                const fields =
-                    rowResult.data != null
-                        ? this.getStepResultFields(rowResult.data)
-                        : [{ label: 'Result', value: '—' }];
-                rows.push({ step: block.label, rowIndex: rowResult.rowIndex, fields });
-            }
-        }
-        return rows;
+    /** Escape a cell value for CSV (quote if contains comma, newline, or double quote) */
+    private _escapeCsvRow(cells: string[]): string {
+        return cells
+            .map((cell) => {
+                const s = String(cell ?? '');
+                if (s.includes(',') || s.includes('"') || s.includes('\n') || s.includes('\r')) {
+                    return `"${s.replace(/"/g, '""')}"`;
+                }
+                return s;
+            })
+            .join(',');
     }
 
     downloadAsCsv(): void {
-        const rows = this.buildExportData();
-        if (rows.length === 0) {
+        const blocks = this.stepResultBlocks();
+        if (blocks.length === 0) {
             this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), 'Close', {
                 duration: 3000,
             });
             return;
         }
-        const headers = ['Step', 'Row', 'Field', 'Value'];
-        const csvRows = [headers.join(',')];
-        for (const r of rows) {
-            for (const f of r.fields) {
-                const step = `"${(r.step || '').replace(/"/g, '""')}"`;
-                const rowNum = String(r.rowIndex + 1);
-                const field = `"${(f.label || '').replace(/"/g, '""')}"`;
-                const value = `"${(f.value || '').replace(/"/g, '""')}"`;
-                csvRows.push([step, rowNum, field, value].join(','));
+        const allFieldLabels = new Set<string>();
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                }
+            }
+        }
+        const fieldLabels = Array.from(allFieldLabels);
+        const headerRow = ['Step', 'Row #', ...fieldLabels];
+        const csvRows = [this._escapeCsvRow(headerRow)];
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                const fieldsMap = new Map<string, string>();
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                }
+                const values = fieldLabels.map((label) => fieldsMap.get(label) ?? '');
+                const row = [block.label, String(rowResult.rowIndex + 1), ...values];
+                csvRows.push(this._escapeCsvRow(row));
             }
         }
         const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8' });
