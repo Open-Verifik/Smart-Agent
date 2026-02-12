@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
+import { Component, computed, inject, signal, ViewChild, ViewEncapsulation } from '@angular/core';
 import {
     FormBuilder,
     FormGroup,
@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -45,6 +45,8 @@ import { BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch
     encapsulation: ViewEncapsulation.None,
 })
 export class CreateBatchConfigComponent {
+    @ViewChild('stepper') stepper!: MatStepper;
+
     private _formBuilder = inject(FormBuilder);
     private _smartBatchService = inject(SmartBatchService);
     private _router = inject(Router);
@@ -54,6 +56,7 @@ export class CreateBatchConfigComponent {
     isEditMode = signal(false);
     editConfigId = signal<string | null>(null);
     isLoadingConfig = signal(false);
+    isSavingStep = signal(false);
 
     // Data
     countries = signal([
@@ -142,18 +145,25 @@ export class CreateBatchConfigComponent {
             next: (res) => {
                 const config = res.data;
 
+                // Normalize country to match dropdown options (API may return "COLOMBIA", we need "Colombia")
+                const countryFromApi = (config.country || '').trim();
+                const matchingCountry = this.countries().find(
+                    (c) => c.code.toLowerCase() === countryFromApi.toLowerCase()
+                );
+                const countryValue = matchingCountry?.code ?? countryFromApi;
+
                 // Populate form
                 this.step1Form.patchValue({
                     name: config.name,
                     description: config.description || '',
-                    country: config.country,
+                    country: countryValue,
                     inputFormat: config.inputFormat,
                     outputFormat: config.outputFormat,
                     mergeStrategy: config.mergeStrategy,
                 });
 
-                // Load features first, then set selected
-                this.selectedCountryForEndpoints.set(config.country);
+                // Load features first, then set selected (use normalized country for filtering)
+                this.selectedCountryForEndpoints.set(countryValue);
                 this._smartBatchService.getAvailableFeatures().subscribe({
                     next: (featuresRes) => {
                         this.availableFeatures.set(featuresRes.data || []);
@@ -237,38 +247,62 @@ export class CreateBatchConfigComponent {
         this.selectedFeatures.set([...currentList]);
     }
 
-    // Submission
-    submit() {
-        if (this.step1Form.invalid) return;
-        if (this.selectedFeatures().length === 0) return;
-
+    /** Build config from current form state and selected features. */
+    private buildConfigFromCurrentState(): BatchConfiguration {
         const basicInfo = this.step1Form.value;
-
-        // Build steps with fixed defaults (enabled: true, maxRetries: 3)
-        const steps: BatchStep[] = this.selectedFeatures().map((feature, index) => {
-            return {
-                appFeature: feature._id,
-                sequence: index + 1,
-                enabled: true,
-                parameterDefaults: {},
-                maxRetries: 3,
-                inputFieldMapping: {},
-                outputFieldsToKeep: [],
-                retryDelayBaseSeconds: 4,
-                timeoutSeconds: 30,
-            };
-        });
-
-        const config: BatchConfiguration = {
+        const steps: BatchStep[] = this.selectedFeatures().map((feature, index) => ({
+            appFeature: feature._id,
+            sequence: index + 1,
+            enabled: true,
+            parameterDefaults: {},
+            maxRetries: 3,
+            inputFieldMapping: {},
+            outputFieldsToKeep: [],
+            retryDelayBaseSeconds: 4,
+            timeoutSeconds: 30,
+        }));
+        return {
             name: basicInfo.name,
             description: basicInfo.description,
             country: basicInfo.country,
             inputFormat: basicInfo.inputFormat,
             outputFormat: basicInfo.outputFormat,
             mergeStrategy: basicInfo.mergeStrategy,
-            steps: steps,
+            steps,
             isActive: true,
         };
+    }
+
+    /** Save current step and advance stepper (edit mode only). */
+    onNext(stepIndex: 1 | 2 | 3) {
+        if (this.isEditMode() && this.editConfigId()) {
+            const config = this.buildConfigFromCurrentState();
+            if (config.steps.length === 0) {
+                this.stepper?.next();
+                return;
+            }
+            this.isSavingStep.set(true);
+            this._smartBatchService.updateConfiguration(this.editConfigId()!, config).subscribe({
+                next: () => {
+                    this.isSavingStep.set(false);
+                    this.stepper?.next();
+                },
+                error: (err) => {
+                    console.error('Error saving step', err);
+                    this.isSavingStep.set(false);
+                },
+            });
+        } else {
+            this.stepper?.next();
+        }
+    }
+
+    /** Submit final step (create or full update). */
+    submit() {
+        if (this.step1Form.invalid) return;
+        if (this.selectedFeatures().length === 0) return;
+
+        const config = this.buildConfigFromCurrentState();
 
         if (this.isEditMode() && this.editConfigId()) {
             this._smartBatchService.updateConfiguration(this.editConfigId()!, config).subscribe({

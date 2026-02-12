@@ -4,12 +4,20 @@
         <div class="w-full px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <button mat-icon-button (click)="goBack()" [matTooltip]="'smartReport.back' | transloco">
+                    <button
+                        mat-icon-button
+                        (click)="goBack()"
+                        [matTooltip]="'smartReport.back' | transloco"
+                    >
                         <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900">{{ 'smartReport.generateReport' | transloco }}</h1>
-                        <p class="text-sm text-gray-500">{{ batch()?.name || ('smartReport.batchReport' | transloco) }}</p>
+                        <h1 class="text-xl font-bold text-gray-900">
+                            {{ 'smartReport.generateReport' | transloco }}
+                        </h1>
+                        <p class="text-sm text-gray-500">
+                            {{ batch()?.name || ('smartReport.batchReport' | transloco) }}
+                        </p>
                     </div>
                 </div>
 
@@ -33,12 +41,18 @@
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div class="p-6">
-                            <h3 class="font-semibold text-gray-900 mb-4">{{ 'smartReport.selectTemplate' | transloco }}</h3>
+                            <h3 class="font-semibold text-gray-900 mb-4">
+                                {{ 'smartReport.selectTemplate' | transloco }}
+                            </h3>
 
                             @if (templates().length === 0) {
                                 <div class="text-center py-8 text-gray-400">
-                                    <mat-icon class="!text-4xl !w-10 !h-10 mb-2">description</mat-icon>
-                                    <p class="text-sm">{{ 'smartReport.noTemplatesFound' | transloco }}</p>
+                                    <mat-icon class="!text-4xl !w-10 !h-10 mb-2"
+                                        >description</mat-icon
+                                    >
+                                    <p class="text-sm">
+                                        {{ 'smartReport.noTemplatesFound' | transloco }}
+                                    </p>
                                     <button
                                         mat-flat-button
                                         color="primary"
@@ -87,7 +101,8 @@
                                                         {{ template.name }}
                                                     </p>
                                                     <p class="text-xs text-gray-500">
-                                                        {{ template.sections?.length || 0 }} {{ 'smartReport.sections' | transloco }} •
+                                                        {{ template.sections?.length || 0 }}
+                                                        {{ 'smartReport.sections' | transloco }} •
                                                         {{ template.pdfEngine || 'puppeteer' }}
                                                     </p>
                                                     @if (
@@ -96,20 +111,43 @@
                                                         as match
                                                     ) {
                                                         @if (match.matches) {
-                                                            <span class="inline-flex items-center gap-1 mt-1 text-xs text-emerald-600">
-                                                                <mat-icon class="!text-sm !w-3.5 !h-3.5">check_circle</mat-icon>
-                                                                {{ 'smartReport.templateMatchesData' | transloco }}
+                                                            <span
+                                                                class="inline-flex items-center gap-1 mt-1 text-xs text-emerald-600"
+                                                            >
+                                                                <mat-icon
+                                                                    class="!text-sm !w-3.5 !h-3.5"
+                                                                    >check_circle</mat-icon
+                                                                >
+                                                                {{
+                                                                    'smartReport.templateMatchesData'
+                                                                        | transloco
+                                                                }}
                                                             </span>
                                                         } @else if (match.missingPaths.length > 0) {
                                                             <span
                                                                 class="inline-flex items-center gap-1 mt-1 text-xs text-amber-600"
                                                                 [matTooltip]="
-                                                                    ('smartReport.paths' | transloco) + ': ' +
-                                                                    formatMissingPaths(match.missingPaths)
+                                                                    ('smartReport.paths'
+                                                                        | transloco) +
+                                                                    ': ' +
+                                                                    formatMissingPaths(
+                                                                        match.missingPaths
+                                                                    )
                                                                 "
                                                             >
-                                                                <mat-icon class="!text-sm !w-3.5 !h-3.5">warning</mat-icon>
-                                                                {{ 'smartReport.missingFields' | transloco: { count: match.missingPaths.length } }}
+                                                                <mat-icon
+                                                                    class="!text-sm !w-3.5 !h-3.5"
+                                                                    >warning</mat-icon
+                                                                >
+                                                                {{
+                                                                    'smartReport.missingFields'
+                                                                        | transloco
+                                                                            : {
+                                                                                  count: match
+                                                                                      .missingPaths
+                                                                                      .length,
+                                                                              }
+                                                                }}
                                                             </span>
                                                         }
                                                     }
@@ -130,31 +168,45 @@
                             >
                                 @if (match.matches) {
                                     <p class="text-sm text-emerald-700 mb-3 flex items-start gap-2">
-                                        <mat-icon class="!text-lg !w-5 !h-5 shrink-0 mt-0.5">check_circle</mat-icon>
-                                        <span>{{ 'smartReport.templateReadyToUse' | transloco }}</span>
+                                        <mat-icon class="!text-lg !w-5 !h-5 shrink-0 mt-0.5"
+                                            >check_circle</mat-icon
+                                        >
+                                        <span>{{
+                                            'smartReport.templateReadyToUse' | transloco
+                                        }}</span>
                                     </p>
                                     <button
                                         mat-stroked-button
                                         (click)="openReportBuilder()"
                                         class="!rounded-xl !text-emerald-700 !border-emerald-300 !inline-flex !items-center !justify-center"
                                     >
-                                        <mat-icon class="mr-2 !text-lg !align-middle">edit</mat-icon>
+                                        <mat-icon class="mr-2 !text-lg !align-middle"
+                                            >edit</mat-icon
+                                        >
                                         {{ 'smartReport.editInBuilder' | transloco }}
                                     </button>
                                 } @else {
                                     <p class="text-sm text-amber-700 mb-2 flex items-start gap-2">
-                                        <mat-icon class="!text-lg !w-5 !h-5 shrink-0 mt-0.5">warning</mat-icon>
-                                        <span>{{ 'smartReport.missingFieldsEditInBuilder' | transloco: { count: match.missingPaths.length } }}</span>
+                                        <mat-icon class="!text-lg !w-5 !h-5 shrink-0 mt-0.5"
+                                            >warning</mat-icon
+                                        >
+                                        <span>{{
+                                            'smartReport.missingFieldsEditInBuilder'
+                                                | transloco: { count: match.missingPaths.length }
+                                        }}</span>
                                     </p>
                                     <p class="text-xs text-amber-600/80 mb-3 pl-7">
-                                        {{ 'smartReport.paths' | transloco }}: {{ formatMissingPaths(match.missingPaths) }}
+                                        {{ 'smartReport.paths' | transloco }}:
+                                        {{ formatMissingPaths(match.missingPaths) }}
                                     </p>
                                     <button
                                         mat-stroked-button
                                         (click)="openReportBuilder()"
                                         class="!rounded-xl !text-amber-700 !border-amber-300 !inline-flex !items-center !justify-center"
                                     >
-                                        <mat-icon class="mr-2 !text-lg !align-middle">edit</mat-icon>
+                                        <mat-icon class="mr-2 !text-lg !align-middle"
+                                            >edit</mat-icon
+                                        >
                                         {{ 'smartReport.editInBuilder' | transloco }}
                                     </button>
                                 }
@@ -165,7 +217,9 @@
                     <!-- Actions -->
                     @if (selectedTemplate()) {
                         <div class="bg-white rounded-2xl border border-gray-200 p-6 mt-6">
-                            <h3 class="font-semibold text-gray-900 mb-4">{{ 'smartReport.actions' | transloco }}</h3>
+                            <h3 class="font-semibold text-gray-900 mb-4">
+                                {{ 'smartReport.actions' | transloco }}
+                            </h3>
                             <div class="space-y-3">
                                 <button
                                     mat-flat-button
@@ -210,6 +264,31 @@
                                         }
                                     </button>
                                 }
+
+                                <!-- Data Export -->
+                                @if (stepResultBlocks().length > 0) {
+                                    <div class="border-t border-gray-100 pt-3 mt-3">
+                                        <p class="text-xs text-gray-500 mb-2 uppercase font-medium">{{ 'smartReport.exportData' | transloco }}</p>
+                                        <div class="space-y-2">
+                                            <button
+                                                mat-stroked-button
+                                                (click)="downloadAsCsv()"
+                                                class="w-full !rounded-xl !inline-flex !items-center !justify-center"
+                                            >
+                                                <mat-icon class="mr-2 !align-middle">download</mat-icon>
+                                                {{ 'smartReport.downloadAsCsv' | transloco }}
+                                            </button>
+                                            <button
+                                                mat-stroked-button
+                                                (click)="downloadAsExcel()"
+                                                class="w-full !rounded-xl !inline-flex !items-center !justify-center"
+                                            >
+                                                <mat-icon class="mr-2 !align-middle">table_chart</mat-icon>
+                                                {{ 'smartReport.downloadAsExcel' | transloco }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
@@ -222,31 +301,55 @@
                         <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <h3 class="font-semibold text-gray-900">{{ 'smartReport.stepResultsLayout' | transloco }}</h3>
+                                    <h3 class="font-semibold text-gray-900">
+                                        {{ 'smartReport.stepResultsLayout' | transloco }}
+                                    </h3>
                                     <p class="text-xs text-gray-500 mt-0.5">
                                         @if (selectedRowIndex() != null) {
-                                            {{ 'smartReport.reportForRecord' | transloco: { index: selectedRowIndex()! + 1 } }}
+                                            {{
+                                                'smartReport.reportForRecord'
+                                                    | transloco: { index: selectedRowIndex()! + 1 }
+                                            }}
                                         } @else {
                                             {{ 'smartReport.dragSectionsReorder' | transloco }}
                                         }
                                     </p>
                                 </div>
-                                @if (stepResultBlocks().length > 0) {
-                                    <mat-button-toggle-group
-                                        [value]="stepResultsViewMode()"
-                                        (change)="stepResultsViewMode.set($event.value)"
-                                        class="!rounded-lg"
+                                <div class="flex items-center gap-2">
+                                    @if (stepResultBlocks().length > 0) {
+                                        <mat-button-toggle-group
+                                            [value]="stepResultsViewMode()"
+                                            (change)="stepResultsViewMode.set($event.value)"
+                                            class="!rounded-lg"
+                                        >
+                                            <mat-button-toggle value="table">
+                                                {{ 'smartReport.viewModeTable' | transloco }}
+                                            </mat-button-toggle>
+                                            <mat-button-toggle value="json">
+                                                {{ 'smartReport.viewModeJson' | transloco }}
+                                            </mat-button-toggle>
+                                            <mat-button-toggle value="excel-ag">
+                                                {{ 'smartReport.viewModeExcelAg' | transloco }}
+                                            </mat-button-toggle>
+                                            <mat-button-toggle value="excel-ht">
+                                                {{ 'smartReport.viewModeExcelHt' | transloco }}
+                                            </mat-button-toggle>
+                                        </mat-button-toggle-group>
+                                    }
+                                    <button
+                                        mat-icon-button
+                                        (click)="toggleStepResultsContent()"
+                                        [matTooltip]="stepResultsContentExpanded() ? ('smartReport.collapseContent' | transloco) : ('smartReport.expandContent' | transloco)"
+                                        class="!w-8 !h-8"
                                     >
-                                        <mat-button-toggle value="readable">
-                                            {{ 'smartReport.viewModeReadable' | transloco }}
-                                        </mat-button-toggle>
-                                        <mat-button-toggle value="json">
-                                            {{ 'smartReport.viewModeJson' | transloco }}
-                                        </mat-button-toggle>
-                                    </mat-button-toggle-group>
-                                }
+                                        <mat-icon class="!text-lg">{{
+                                            stepResultsContentExpanded() ? 'expand_more' : 'expand_less'
+                                        }}</mat-icon>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        @if (stepResultsContentExpanded()) {
                         <div class="p-6">
                             @if (stepResultBlocks().length === 0) {
                                 <div
@@ -255,102 +358,189 @@
                                     <mat-icon class="!text-5xl !w-12 !h-12 mb-3"
                                         >table_chart</mat-icon
                                     >
-                                    <p class="text-sm font-medium">{{ 'smartReport.noStepResultsYet' | transloco }}</p>
+                                    <p class="text-sm font-medium">
+                                        {{ 'smartReport.noStepResultsYet' | transloco }}
+                                    </p>
                                     <p class="text-xs mt-1">
                                         {{ 'smartReport.processBatchToSeeResults' | transloco }}
                                     </p>
                                 </div>
                             } @else {
-                                <div
-                                    class="mx-auto bg-[#fafafa] rounded-lg border border-gray-200 shadow-sm p-6 min-h-[400px]"
-                                    style="max-width: 210mm"
-                                >
+                                @if (stepResultsViewMode() === 'excel-ag') {
+                                    <!-- Excel view: AG Grid -->
+                                    <div class="excel-view-container mx-auto rounded-xl overflow-hidden" style="height: 480px; width: 100%">
+                                        <ag-grid-angular
+                                            class="ag-theme-quartz"
+                                            style="width: 100%; height: 100%"
+                                            [rowData]="gridRowData()"
+                                            [columnDefs]="gridColumnDefs()"
+                                            [defaultColDef]="{
+                                                sortable: true,
+                                                resizable: true,
+                                                filter: true
+                                            }"
+                                            [rowHeight]="44"
+                                            [headerHeight]="44"
+                                            [suppressRowClickSelection]="true"
+                                            [domLayout]="'normal'"
+                                        />
+                                    </div>
+                                } @else if (stepResultsViewMode() === 'excel-ht') {
+                                    <!-- Excel view: Handsontable (non-commercial) -->
+                                    <div class="excel-view-container mx-auto rounded-xl overflow-hidden" style="height: 480px; width: 100%">
+                                        <hot-table
+                                            [data]="handsontableData()"
+                                            [settings]="handsontableSettings()"
+                                        />
+                                    </div>
+                                } @else {
+                                    <!-- Table or JSON view: block-by-block draggable layout -->
                                     <div
-                                        cdkDropList
-                                        (cdkDropListDropped)="onStepBlocksDrop($event)"
-                                        class="space-y-4"
+                                        class="mx-auto bg-[#fafafa] rounded-lg border border-gray-200 shadow-sm p-6 min-h-[400px]"
+                                        style="max-width: 210mm"
                                     >
-                                        @for (block of stepResultBlocks(); track block.sequence) {
-                                            <div
-                                                cdkDrag
-                                                class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
-                                            >
+                                        <div
+                                            cdkDropList
+                                            (cdkDropListDropped)="onStepBlocksDrop($event)"
+                                            class="space-y-4"
+                                        >
+                                            @for (block of stepResultBlocks(); track block.sequence) {
                                                 <div
-                                                    class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50"
+                                                    cdkDrag
+                                                    class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
                                                 >
                                                     <div
-                                                        cdkDragHandle
-                                                        class="w-8 h-8 rounded flex items-center justify-center cursor-grab text-gray-400 hover:bg-gray-200 transition-colors"
+                                                        class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50"
                                                     >
-                                                        <mat-icon class="!text-base"
-                                                            >drag_indicator</mat-icon
+                                                        <div
+                                                            cdkDragHandle
+                                                            class="w-8 h-8 rounded flex items-center justify-center cursor-grab text-gray-400 hover:bg-gray-200 transition-colors"
+                                                        >
+                                                            <mat-icon class="!text-base"
+                                                                >drag_indicator</mat-icon
+                                                            >
+                                                        </div>
+                                                        <span class="font-medium text-gray-900">{{
+                                                            block.label
+                                                        }}</span>
+                                                        <span class="text-xs text-gray-500"
+                                                            >{{ 'smartReport.step' | transloco }}
+                                                            {{ block.sequence }}</span
                                                         >
                                                     </div>
-                                                    <span class="font-medium text-gray-900">{{
-                                                        block.label
-                                                    }}</span>
-                                                    <span class="text-xs text-gray-500"
-                                                        >{{ 'smartReport.step' | transloco }} {{ block.sequence }}</span
-                                                    >
+                                                    @if (stepResultsViewMode() === 'table') {
+                                                        <!-- Table view: HTML table -->
+                                                        <div
+                                                            class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto"
+                                                        >
+                                                            @for (
+                                                                row of block.rowResults;
+                                                                track row.rowIndex
+                                                            ) {
+                                                                <div class="mb-4 last:mb-0">
+                                                                    @if (block.rowResults.length > 1) {
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-500 mb-2"
+                                                                        >
+                                                                            {{
+                                                                                'smartReport.row'
+                                                                                    | transloco
+                                                                            }}
+                                                                            #{{ row.rowIndex + 1 }}
+                                                                        </p>
+                                                                    }
+                                                                    @if (row.data != null) {
+                                                                        <table
+                                                                            class="w-full text-sm border-collapse"
+                                                                        >
+                                                                            <tbody>
+                                                                                @for (
+                                                                                    field of getStepResultFields(
+                                                                                        row.data
+                                                                                    );
+                                                                                    track field.label
+                                                                                ) {
+                                                                                    <tr
+                                                                                        class="border-b border-gray-100 last:border-0"
+                                                                                    >
+                                                                                        <td
+                                                                                            class="py-2 pr-4 align-top text-gray-500"
+                                                                                            style="
+                                                                                                min-width: 140px;
+                                                                                            "
+                                                                                        >
+                                                                                            {{
+                                                                                                field.label
+                                                                                            }}
+                                                                                        </td>
+                                                                                        <td
+                                                                                            class="py-2 break-words text-gray-900"
+                                                                                        >
+                                                                                            {{
+                                                                                                field.value
+                                                                                            }}
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                }
+                                                                            </tbody>
+                                                                        </table>
+                                                                    } @else {
+                                                                        <p
+                                                                            class="text-sm text-gray-400 py-2"
+                                                                        >
+                                                                            —
+                                                                        </p>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    } @else {
+                                                        <!-- JSON view: raw formatted JSON -->
+                                                        <div
+                                                            class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto"
+                                                        >
+                                                            @for (
+                                                                row of block.rowResults;
+                                                                track row.rowIndex
+                                                            ) {
+                                                                <div
+                                                                    class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
+                                                                >
+                                                                    @if (block.rowResults.length > 1) {
+                                                                        <p
+                                                                            class="text-xs font-medium text-gray-500 mb-2"
+                                                                        >
+                                                                            {{
+                                                                                'smartReport.row'
+                                                                                    | transloco
+                                                                            }}
+                                                                            #{{ row.rowIndex + 1 }}
+                                                                        </p>
+                                                                    }
+                                                                    <pre
+                                                                        class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64"
+                                                                        >{{ formatJson(row.data) }}</pre
+                                                                    >
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    }
                                                 </div>
-                                                @if (stepResultsViewMode() === 'readable') {
-                                                    <!-- Human-readable: label/value pairs (like batch-processing) -->
-                                                    <div class="px-4 py-3 bg-white border-t border-gray-100">
-                                                        @for (row of block.rowResults; track row.rowIndex) {
-                                                            <div
-                                                                class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
-                                                            >
-                                                                @if (block.rowResults.length > 1) {
-                                                                    <p class="text-xs font-medium text-gray-500 mb-2">
-                                                                        {{ 'smartReport.row' | transloco }} #{{ row.rowIndex + 1 }}
-                                                                    </p>
-                                                                }
-                                                                @if (row.data != null) {
-                                                                    <div class="space-y-0">
-                                                                        @for (field of getStepResultFields(row.data); track field.label) {
-                                                                            <div class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm">
-                                                                                <span class="text-gray-500 min-w-[140px] shrink-0">{{ field.label }}</span>
-                                                                                <span class="text-gray-900 font-medium break-words">{{ field.value }}</span>
-                                                                            </div>
-                                                                        }
-                                                                    </div>
-                                                                } @else {
-                                                                    <p class="text-sm text-gray-400 py-2">—</p>
-                                                                }
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                } @else {
-                                                    <!-- JSON view: raw formatted JSON -->
-                                                    <div class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto">
-                                                        @for (row of block.rowResults; track row.rowIndex) {
-                                                            <div
-                                                                class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
-                                                            >
-                                                                @if (block.rowResults.length > 1) {
-                                                                    <p class="text-xs font-medium text-gray-500 mb-2">
-                                                                        {{ 'smartReport.row' | transloco }} #{{ row.rowIndex + 1 }}
-                                                                    </p>
-                                                                }
-                                                                <pre class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64">{{
-                                                                    formatJson(row.data)
-                                                                }}</pre>
-                                                            </div>
-                                                        }
-                                                    </div>
-                                                }
-                                            </div>
-                                        }
+                                            }
+                                        </div>
                                     </div>
-                                </div>
+                                }
                             }
                         </div>
+                        }
                     </div>
 
                     <!-- Report Preview (same as builder) -->
                     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
-                            <h3 class="font-semibold text-gray-900">{{ 'smartReport.preview' | transloco }}</h3>
+                            <h3 class="font-semibold text-gray-900">
+                                {{ 'smartReport.preview' | transloco }}
+                            </h3>
                             <p class="text-xs text-gray-500 mt-0.5">
                                 {{ 'smartReport.previewSameAsBuilder' | transloco }}
                             </p>
@@ -379,7 +569,9 @@
                                     <mat-icon class="!text-6xl !w-16 !h-16 mb-4"
                                         >description</mat-icon
                                     >
-                                    <p class="text-lg mb-2">{{ 'smartReport.noPreviewAvailable' | transloco }}</p>
+                                    <p class="text-lg mb-2">
+                                        {{ 'smartReport.noPreviewAvailable' | transloco }}
+                                    </p>
                                     <p class="text-sm">
                                         {{ 'smartReport.selectTemplateAndBatch' | transloco }}
                                     </p>

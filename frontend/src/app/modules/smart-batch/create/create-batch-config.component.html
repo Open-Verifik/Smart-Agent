@@ -109,10 +109,11 @@
                                 <button
                                     mat-flat-button
                                     color="primary"
-                                    matStepperNext
-                                    [disabled]="step1Form.invalid"
+                                    (click)="onNext(1)"
+                                    [disabled]="step1Form.invalid || isSavingStep()"
                                 >
-                                    Next
+                                    <span *ngIf="isSavingStep()">Saving...</span>
+                                    <span *ngIf="!isSavingStep()">Next</span>
                                 </button>
                             </div>
                         </form>
@@ -312,10 +313,11 @@
                                 <button
                                     mat-flat-button
                                     color="primary"
-                                    matStepperNext
-                                    [disabled]="selectedFeatures().length === 0"
+                                    (click)="onNext(2)"
+                                    [disabled]="selectedFeatures().length === 0 || isSavingStep()"
                                 >
-                                    Next
+                                    <span *ngIf="isSavingStep()">Saving...</span>
+                                    <span *ngIf="!isSavingStep()">Next</span>
                                 </button>
                             </div>
                         </div>
@@ -407,7 +409,15 @@
 
                             <div class="pt-6 flex gap-3">
                                 <button mat-button matStepperPrevious>Back</button>
-                                <button mat-flat-button color="primary" matStepperNext>Next</button>
+                                <button
+                                    mat-flat-button
+                                    color="primary"
+                                    (click)="onNext(3)"
+                                    [disabled]="isSavingStep()"
+                                >
+                                    <span *ngIf="isSavingStep()">Saving...</span>
+                                    <span *ngIf="!isSavingStep()">Next</span>
+                                </button>
                             </div>
                         </div>
                     </mat-step>

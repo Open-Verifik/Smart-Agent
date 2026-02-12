@@ -1,18 +1,25 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { AgGridAngular } from 'ag-grid-angular';
+import { ColDef } from 'ag-grid-community';
+import { HotTableModule } from '@handsontable/angular-wrapper';
 import { fuseAnimations } from '@fuse/animations';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import * as XLSX from 'xlsx';
+import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
+import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
+import { ReportPreviewComponent } from '../report-preview/report-preview.component';
 import {
     BatchConfiguration,
     BatchStep,
@@ -20,14 +27,11 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
-import { ReportPreviewComponent } from '../report-preview/report-preview.component';
 import {
     buildRowDataForResolution,
     TemplateMatchResult,
     validateTemplateAgainstData,
 } from '../template-match.util';
-import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
 
 export interface StepBlockDescriptor {
     sequence: number;
@@ -55,6 +59,8 @@ export interface StepResultBlock extends StepBlockDescriptor {
         MatSnackBarModule,
         TranslocoModule,
         ReportPreviewComponent,
+        AgGridAngular,
+        HotTableModule,
     ],
     templateUrl: './report-viewer.component.html',
     animations: [fuseAnimations],
@@ -92,8 +98,15 @@ export class ReportViewerComponent implements OnInit {
     isGenerating = signal(false);
     isSending = signal(false);
 
-    /** Step results display: 'readable' (label/value pairs) or 'json' (raw JSON) */
-    stepResultsViewMode = signal<'readable' | 'json'>('readable');
+    /** Step results display: table, json, excel-ag (AG Grid), excel-ht (Handsontable) */
+    stepResultsViewMode = signal<'table' | 'json' | 'excel-ag' | 'excel-ht'>('table');
+
+    /** Whether step results content is expanded (collapsible to free space for PDF preview) */
+    stepResultsContentExpanded = signal(true);
+
+    toggleStepResultsContent(): void {
+        this.stepResultsContentExpanded.update((v) => !v);
+    }
 
     // PDF preview
     pdfDataUrl = signal<string | null>(null);
@@ -140,9 +153,7 @@ export class ReportViewerComponent implements OnInit {
         const b = this.batch();
         const rows = b?.rows ?? [];
         const rowIndex = this.selectedRowIndex();
-        const row = rowIndex != null
-            ? rows.find((r) => r.rowIndex === rowIndex)
-            : rows[0];
+        const row = rowIndex != null ? rows.find((r) => r.rowIndex === rowIndex) : rows[0];
         if (!row) return { inputData: {}, results: {} };
 
         return {
@@ -160,14 +171,29 @@ export class ReportViewerComponent implements OnInit {
 
         const rows = b.rows;
         const rowIndex = this.selectedRowIndex();
-        const row = rowIndex != null
-            ? rows.find((r) => r.rowIndex === rowIndex)
-            : rows[0];
+        const row = rowIndex != null ? rows.find((r) => r.rowIndex === rowIndex) : rows[0];
         if (!row) return null;
 
         const rowData = buildRowDataForResolution(row);
         return validateTemplateAgainstData(template, rowData);
     });
+
+    /** AG Grid: column definitions and row data for Excel view */
+    gridColumnDefs = computed<ColDef[]>(() => this._buildGridColumnDefs());
+    gridRowData = computed<any[]>(() => this._buildGridRowData());
+
+    /** Handsontable: 2D data array and settings for Excel view */
+    handsontableData = computed<(string | number)[][]>(() => this._buildHandsontableData());
+    handsontableSettings = computed(() => ({
+        colHeaders: true,
+        rowHeaders: true,
+        readOnly: true,
+        licenseKey: 'non-commercial-and-evaluation' as const,
+        height: 460,
+        width: '100%',
+        stretchH: 'all' as const,
+        columns: this._buildHandsontableColumns(),
+    }));
 
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
@@ -186,13 +212,109 @@ export class ReportViewerComponent implements OnInit {
         });
     }
 
+    private _buildGridColumnDefs(): ColDef[] {
+        const blocks = this.stepResultBlocks();
+        const allFieldLabels = new Set<string>();
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                }
+            }
+        }
+        const fieldLabels = Array.from(allFieldLabels);
+        const colDefs: ColDef[] = [
+            { field: 'step', headerName: 'Step', width: 220, flex: 0 },
+            { field: 'rowNum', headerName: 'Row #', width: 80, flex: 0 },
+        ];
+        fieldLabels.forEach((label) => {
+            colDefs.push({ field: label, headerName: label, minWidth: 130, flex: 1 });
+        });
+        return colDefs;
+    }
+
+    private _buildGridRowData(): any[] {
+        const blocks = this.stepResultBlocks();
+        const allFieldLabels = new Set<string>();
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                }
+            }
+        }
+        const fieldLabels = Array.from(allFieldLabels);
+        const rows: any[] = [];
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                const row: any = { step: block.label, rowNum: rowResult.rowIndex + 1 };
+                const fieldsMap = new Map<string, string>();
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                }
+                fieldLabels.forEach((label) => (row[label] = fieldsMap.get(label) ?? ''));
+                rows.push(row);
+            }
+        }
+        return rows;
+    }
+
+    private _buildHandsontableData(): (string | number)[][] {
+        const blocks = this.stepResultBlocks();
+        const allFieldLabels = new Set<string>();
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                }
+            }
+        }
+        const fieldLabels = Array.from(allFieldLabels);
+        const data: (string | number)[][] = [];
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                const row: (string | number)[] = [block.label, rowResult.rowIndex + 1];
+                const fieldsMap = new Map<string, string>();
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                }
+                fieldLabels.forEach((label) => row.push(fieldsMap.get(label) ?? ''));
+                data.push(row);
+            }
+        }
+        return data.length > 0 ? data : [['']];
+    }
+
+    private _buildHandsontableColumns(): any[] {
+        const blocks = this.stepResultBlocks();
+        const allFieldLabels = new Set<string>();
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                if (rowResult.data != null) {
+                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                }
+            }
+        }
+        const fieldLabels = Array.from(allFieldLabels);
+        const cols: any[] = [
+            { data: 0, title: 'Step', width: 220 },
+            { data: 1, title: 'Row #', width: 80 },
+        ];
+        fieldLabels.forEach((label, i) => {
+            cols.push({ data: i + 2, title: label, width: 150 });
+        });
+        return cols;
+    }
+
     private _loadData(): void {
         this.isLoading.set(true);
 
         const configId = this.configId();
         const batchId = this.batchId();
 
-        const loadTemplates = (config?: { preferredReportTemplate?: string | { _id: string } } | null) => {
+        const loadTemplates = (
+            config?: { preferredReportTemplate?: string | { _id: string } } | null
+        ) => {
             this._reportService.getTemplates(configId || undefined).subscribe({
                 next: (templates) => {
                     this.templates.set(templates);
@@ -289,13 +411,17 @@ export class ReportViewerComponent implements OnInit {
         }
         const entries: { label: string; value: string }[] = [];
         for (const key of Object.keys(data)) {
-            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()).trim();
+            const label = key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (s) => s.toUpperCase())
+                .trim();
             const raw = data[key];
             let value: string;
             if (raw == null) {
                 value = '—';
             } else if (Array.isArray(raw)) {
-                value = raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
+                value =
+                    raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
             } else if (typeof raw === 'object') {
                 value =
                     typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
@@ -400,9 +526,13 @@ export class ReportViewerComponent implements OnInit {
                 .subscribe({
                     next: (res) => this.configuration.set(res.data),
                     error: () =>
-                        this._snack.open(this._transloco.translate('smartReport.failedToSaveTemplatePreference'), 'Close', {
-                            duration: 3000,
-                        }),
+                        this._snack.open(
+                            this._transloco.translate('smartReport.failedToSaveTemplatePreference'),
+                            'Close',
+                            {
+                                duration: 3000,
+                            }
+                        ),
                 });
         }
     }
@@ -412,7 +542,11 @@ export class ReportViewerComponent implements OnInit {
         const batchId = this.batchId();
 
         if (!template || !batchId) {
-            this._snack.open(this._transloco.translate('smartReport.pleaseSelectTemplate'), 'Close', { duration: 3000 });
+            this._snack.open(
+                this._transloco.translate('smartReport.pleaseSelectTemplate'),
+                'Close',
+                { duration: 3000 }
+            );
             return;
         }
 
@@ -436,34 +570,46 @@ export class ReportViewerComponent implements OnInit {
                             ...(rowIndex != null ? { rowIndex } : {}),
                         })
                         .subscribe({
-                        next: (result) => {
-                            this.report.set(result.data);
+                            next: (result) => {
+                                this.report.set(result.data);
 
-                            // Convert base64 to data URL for preview (sanitize for iframe)
-                            if (result.pdf?.buffer) {
-                                const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
-                                this.pdfDataUrl.set(dataUrl);
-                                this.pdfSafeUrl.set(
-                                    this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl)
+                                // Convert base64 to data URL for preview (sanitize for iframe)
+                                if (result.pdf?.buffer) {
+                                    const dataUrl = `data:application/pdf;base64,${result.pdf.buffer}`;
+                                    this.pdfDataUrl.set(dataUrl);
+                                    this.pdfSafeUrl.set(
+                                        this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl)
+                                    );
+                                }
+
+                                this.isGenerating.set(false);
+                                this._snack.open(
+                                    this._transloco.translate('smartReport.reportGenerated'),
+                                    'Close',
+                                    { duration: 3000 }
                                 );
-                            }
-
-                            this.isGenerating.set(false);
-                            this._snack.open(this._transloco.translate('smartReport.reportGenerated'), 'Close', { duration: 3000 });
-                        },
-                        error: (err) => {
-                            console.error('Failed to generate PDF:', err);
-                            this.isGenerating.set(false);
-                            this._snack.open(this._transloco.translate('smartReport.failedToGenerateReport'), 'Close', {
-                                duration: 3000,
-                            });
-                        },
-                    });
+                            },
+                            error: (err) => {
+                                console.error('Failed to generate PDF:', err);
+                                this.isGenerating.set(false);
+                                this._snack.open(
+                                    this._transloco.translate('smartReport.failedToGenerateReport'),
+                                    'Close',
+                                    {
+                                        duration: 3000,
+                                    }
+                                );
+                            },
+                        });
                 },
                 error: (err) => {
                     console.error('Failed to create report:', err);
                     this.isGenerating.set(false);
-                    this._snack.open(this._transloco.translate('smartReport.failedToCreateReport'), 'Close', { duration: 3000 });
+                    this._snack.open(
+                        this._transloco.translate('smartReport.failedToCreateReport'),
+                        'Close',
+                        { duration: 3000 }
+                    );
                 },
             });
     }
@@ -471,7 +617,11 @@ export class ReportViewerComponent implements OnInit {
     sendEmail(): void {
         const report = this.report();
         if (!report?._id) {
-            this._snack.open(this._transloco.translate('smartReport.generateReportFirst'), 'Close', { duration: 3000 });
+            this._snack.open(
+                this._transloco.translate('smartReport.generateReportFirst'),
+                'Close',
+                { duration: 3000 }
+            );
             return;
         }
 
@@ -499,16 +649,29 @@ export class ReportViewerComponent implements OnInit {
                     next: (res) => {
                         this.isSending.set(false);
                         if (res.success) {
-                            this._snack.open(this._transloco.translate('smartReport.emailSent'), 'Close', { duration: 3000 });
+                            this._snack.open(
+                                this._transloco.translate('smartReport.emailSent'),
+                                'Close',
+                                { duration: 3000 }
+                            );
                         } else {
-                            this._snack.open(res.error || this._transloco.translate('smartReport.failedToSendEmail'), 'Close', {
-                                duration: 3000,
-                            });
+                            this._snack.open(
+                                res.error ||
+                                    this._transloco.translate('smartReport.failedToSendEmail'),
+                                'Close',
+                                {
+                                    duration: 3000,
+                                }
+                            );
                         }
                     },
                     error: () => {
                         this.isSending.set(false);
-                        this._snack.open(this._transloco.translate('smartReport.failedToSendEmail'), 'Close', { duration: 3000 });
+                        this._snack.open(
+                            this._transloco.translate('smartReport.failedToSendEmail'),
+                            'Close',
+                            { duration: 3000 }
+                        );
                     },
                 });
         });
@@ -517,7 +680,11 @@ export class ReportViewerComponent implements OnInit {
     downloadReport(): void {
         const report = this.report();
         if (!report?._id) {
-            this._snack.open(this._transloco.translate('smartReport.generateReportFirst'), 'Close', { duration: 3000 });
+            this._snack.open(
+                this._transloco.translate('smartReport.generateReportFirst'),
+                'Close',
+                { duration: 3000 }
+            );
             return;
         }
 
@@ -531,9 +698,13 @@ export class ReportViewerComponent implements OnInit {
                     pdfBlob = await this._blobFromJsonBytes(blob);
                     if (!pdfBlob) {
                         const errorMsg = await this._parseBlobError(blob);
-                        this._snack.open(errorMsg || this._transloco.translate('smartReport.invalidPdfReceived'), 'Close', {
-                            duration: 4000,
-                        });
+                        this._snack.open(
+                            errorMsg || this._transloco.translate('smartReport.invalidPdfReceived'),
+                            'Close',
+                            {
+                                duration: 4000,
+                            }
+                        );
                         return;
                     }
                 }
@@ -544,14 +715,120 @@ export class ReportViewerComponent implements OnInit {
                 a.download = `SmartReport_${report._id}.pdf`;
                 a.click();
                 URL.revokeObjectURL(url);
-                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), 'Close', { duration: 2000 });
+                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), 'Close', {
+                    duration: 2000,
+                });
             },
             error: () => {
-                this._snack.open(this._transloco.translate('smartReport.failedToDownloadPdf'), 'Close', { duration: 3000 });
+                this._snack.open(
+                    this._transloco.translate('smartReport.failedToDownloadPdf'),
+                    'Close',
+                    { duration: 3000 }
+                );
             },
             complete: () => {
                 this.isSending.set(false);
             },
+        });
+    }
+
+    /** Build step result data as rows for CSV/Excel export */
+    private buildExportData(): {
+        step: string;
+        rowIndex: number;
+        fields: { label: string; value: string }[];
+    }[] {
+        const blocks = this.stepResultBlocks();
+        const rows: {
+            step: string;
+            rowIndex: number;
+            fields: { label: string; value: string }[];
+        }[] = [];
+        for (const block of blocks) {
+            for (const rowResult of block.rowResults) {
+                const fields =
+                    rowResult.data != null
+                        ? this.getStepResultFields(rowResult.data)
+                        : [{ label: 'Result', value: '—' }];
+                rows.push({ step: block.label, rowIndex: rowResult.rowIndex, fields });
+            }
+        }
+        return rows;
+    }
+
+    downloadAsCsv(): void {
+        const rows = this.buildExportData();
+        if (rows.length === 0) {
+            this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), 'Close', {
+                duration: 3000,
+            });
+            return;
+        }
+        const headers = ['Step', 'Row', 'Field', 'Value'];
+        const csvRows = [headers.join(',')];
+        for (const r of rows) {
+            for (const f of r.fields) {
+                const step = `"${(r.step || '').replace(/"/g, '""')}"`;
+                const rowNum = String(r.rowIndex + 1);
+                const field = `"${(f.label || '').replace(/"/g, '""')}"`;
+                const value = `"${(f.value || '').replace(/"/g, '""')}"`;
+                csvRows.push([step, rowNum, field, value].join(','));
+            }
+        }
+        const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `batch-records_${this.batch()?.name || 'export'}.csv`.replace(
+            /[^a-z0-9_.-]/gi,
+            '_'
+        );
+        a.click();
+        URL.revokeObjectURL(url);
+        this._snack.open(this._transloco.translate('smartReport.csvDownloaded'), 'Close', {
+            duration: 2000,
+        });
+    }
+
+    downloadAsExcel(): void {
+        const blocks = this.stepResultBlocks();
+        if (blocks.length === 0) {
+            this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), 'Close', {
+                duration: 3000,
+            });
+            return;
+        }
+        const wb = XLSX.utils.book_new();
+        for (const block of blocks) {
+            const sheetData: (string | number)[][] = [];
+            const hasMultipleRows = block.rowResults.length > 1;
+            sheetData.push(hasMultipleRows ? ['Row', 'Field', 'Value'] : ['Field', 'Value']);
+            for (const rowResult of block.rowResults) {
+                const fields =
+                    rowResult.data != null
+                        ? this.getStepResultFields(rowResult.data)
+                        : [{ label: 'Result', value: '—' }];
+                for (const f of fields) {
+                    if (hasMultipleRows) {
+                        sheetData.push([rowResult.rowIndex + 1, f.label, f.value]);
+                    } else {
+                        sheetData.push([f.label, f.value]);
+                    }
+                }
+            }
+            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+            const sheetName = (block.label || `Step ${block.sequence}`)
+                .replace(/[\\/*?:\[\]]/g, '')
+                .slice(0, 31);
+            XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        }
+        const filename = `batch-records_${this.batch()?.name || 'export'}.xlsx`.replace(
+            /[^a-z0-9_.-]/gi,
+            '_'
+        );
+        XLSX.writeFile(wb, filename);
+        this._snack.open(this._transloco.translate('smartReport.excelDownloaded'), 'Close', {
+            duration: 2000,
         });
     }
 
@@ -576,9 +853,7 @@ export class ReportViewerComponent implements OnInit {
         const b = this.batch();
         const rows = b?.rows ?? [];
         const rowIndex = this.selectedRowIndex();
-        const row = rowIndex != null
-            ? rows.find((r) => r.rowIndex === rowIndex)
-            : rows[0];
+        const row = rowIndex != null ? rows.find((r) => r.rowIndex === rowIndex) : rows[0];
 
         const previewData = row
             ? {
@@ -593,9 +868,7 @@ export class ReportViewerComponent implements OnInit {
             this._previewDataService.setPendingPreviewData(previewData);
         }
 
-        const navigationExtras = previewData
-            ? { state: { previewData } }
-            : {};
+        const navigationExtras = previewData ? { state: { previewData } } : {};
 
         const templateId = createNew ? null : this.selectedTemplate()?._id;
         const route = templateId

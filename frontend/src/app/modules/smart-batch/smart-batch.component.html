@@ -1,134 +1,306 @@
 <div class="flex flex-col w-full h-full bg-[#f8fafc] dark:bg-[#0f172a] p-6 gap-6">
     <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Smart Batch
-            </h1>
-            <p class="mt-1 text-slate-500 dark:text-slate-400">
-                Manage your automated batch processing configurations.
-            </p>
-        </div>
-        <button
-            mat-flat-button
-            color="primary"
-            (click)="createConfiguration()"
-            class="!rounded-lg !px-6 !py-2"
-        >
-            <mat-icon class="mr-2 icon-size-5">add</mat-icon>
-            Create Configuration
-        </button>
-    </div>
-
-    <!-- Loading State -->
-    <div *ngIf="isLoading()" class="flex flex-col items-center justify-center flex-1">
-        <mat-spinner diameter="48"></mat-spinner>
-        <p class="mt-4 text-slate-500">Loading configurations...</p>
-    </div>
-
-    <!-- Empty State -->
-    <div
-        *ngIf="!isLoading() && configurations().length === 0"
-        class="flex flex-col items-center justify-center flex-1 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center"
-    >
-        <div
-            class="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6"
-        >
-            <mat-icon class="text-slate-400 icon-size-10">layers</mat-icon>
-        </div>
-        <h3 class="text-lg font-medium text-slate-900 dark:text-white">No configurations found</h3>
-        <p class="text-slate-500 dark:text-slate-400 max-w-sm mt-2 mb-6">
-            Create your first batch configuration to start automating data processing.
+    <div>
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+            {{ 'smartBatchLanding.title' | transloco }}
+        </h1>
+        <p class="mt-1 text-slate-500 dark:text-slate-400">
+            {{ 'smartBatchLanding.subtitle' | transloco }}
         </p>
-        <button mat-stroked-button color="primary" (click)="createConfiguration()">
-            Create Configuration
-        </button>
     </div>
 
-    <!-- List Grid -->
-    <div
-        *ngIf="!isLoading() && configurations().length > 0"
-        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-    >
-        <div
-            *ngFor="let config of configurations()"
-            (click)="openDashboard(config._id ?? config.id ?? '')"
-            class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 transition-all hover:shadow-md hover:border-blue-500/50 cursor-pointer"
+    <!-- Toggle + Actions -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <mat-button-toggle-group
+            [value]="activeTab()"
+            (change)="setActiveTab($event.value)"
+            class="!rounded-lg"
         >
-            <!-- Actions -->
-            <div
-                class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1"
-            >
+            <mat-button-toggle value="configurations">{{
+                'smartBatchLanding.configurationsTab' | transloco
+            }}</mat-button-toggle>
+            <mat-button-toggle value="templates">{{
+                'smartBatchLanding.reportTemplatesTab' | transloco
+            }}</mat-button-toggle>
+        </mat-button-toggle-group>
+        <div class="flex gap-2">
+            @if (activeTab() === 'configurations') {
                 <button
-                    mat-icon-button
-                    (click)="editConfiguration(config._id ?? config.id ?? '', $event)"
-                    matTooltip="Edit"
+                    mat-flat-button
+                    color="primary"
+                    (click)="createConfiguration()"
+                    class="!rounded-lg !px-6 !py-2"
                 >
-                    <mat-icon class="icon-size-5">edit</mat-icon>
+                    <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+                    {{ 'smartBatchLanding.createConfiguration' | transloco }}
                 </button>
-                <button
-                    mat-icon-button
-                    color="warn"
-                    (click)="deleteConfiguration(config._id ?? config.id ?? '', $event)"
-                    matTooltip="Delete"
+            }
+            @if (activeTab() === 'templates') {
+                @if (configurations().length === 0) {
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        disabled
+                        [matTooltip]="'smartBatchLanding.createTemplateFirstHint' | transloco"
+                        class="!rounded-lg !px-6 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+                        {{ 'smartBatchLanding.createTemplate' | transloco }}
+                    </button>
+                } @else if (configurations().length === 1) {
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="createTemplate(configurations()[0]._id ?? configurations()[0].id ?? '')"
+                        class="!rounded-lg !px-6 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+                        {{ 'smartBatchLanding.createTemplate' | transloco }}
+                    </button>
+                } @else {
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        [matMenuTriggerFor]="createTemplateMenu"
+                        class="!rounded-lg !px-6 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">add</mat-icon>
+                        {{ 'smartBatchLanding.createTemplate' | transloco }}
+                        <mat-icon class="ml-2 icon-size-5">arrow_drop_down</mat-icon>
+                    </button>
+                    <mat-menu #createTemplateMenu="matMenu">
+                        @for (config of configurations(); track config._id ?? config.id) {
+                            <button
+                                mat-menu-item
+                                (click)="createTemplate(config._id ?? config.id ?? '')"
+                            >
+                                {{ config.name }}
+                            </button>
+                        }
+                    </mat-menu>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Configurations Tab -->
+    @if (activeTab() === 'configurations') {
+        @if (isLoading()) {
+            <div class="flex flex-col items-center justify-center flex-1">
+                <mat-spinner diameter="48"></mat-spinner>
+                <p class="mt-4 text-slate-500">
+                    {{ 'smartBatchLanding.loadingConfigurations' | transloco }}
+                </p>
+            </div>
+        } @else if (configurations().length === 0) {
+            <div
+                class="flex flex-col items-center justify-center flex-1 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center"
+            >
+                <div
+                    class="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6"
                 >
-                    <mat-icon class="icon-size-5">delete</mat-icon>
+                    <mat-icon class="text-slate-400 icon-size-10">layers</mat-icon>
+                </div>
+                <h3 class="text-lg font-medium text-slate-900 dark:text-white">
+                    {{ 'smartBatchLanding.noConfigurations' | transloco }}
+                </h3>
+                <p class="text-slate-500 dark:text-slate-400 max-w-sm mt-2 mb-6">
+                    {{ 'smartBatchLanding.noConfigurationsDesc' | transloco }}
+                </p>
+                <button mat-stroked-button color="primary" (click)="createConfiguration()">
+                    {{ 'smartBatchLanding.createFirstConfiguration' | transloco }}
                 </button>
             </div>
+        } @else {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (config of configurations(); track config._id ?? config.id) {
+                    <div
+                        (click)="openDashboard(config._id ?? config.id ?? '')"
+                        class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 transition-all hover:shadow-md hover:border-blue-500/50 cursor-pointer"
+                    >
+                        <div
+                            class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1"
+                        >
+                            <button
+                                mat-icon-button
+                                (click)="editConfiguration(config._id ?? config.id ?? '', $event)"
+                                [matTooltip]="'smartBatchLanding.edit' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">edit</mat-icon>
+                            </button>
+                            <button
+                                mat-icon-button
+                                color="warn"
+                                (click)="deleteConfiguration(config._id ?? config.id ?? '', $event)"
+                                [matTooltip]="'smartBatchLanding.delete' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">delete</mat-icon>
+                            </button>
+                        </div>
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">{{ getCountryFlag(config.country) }}</span>
+                                <div>
+                                    <h3 class="font-semibold text-slate-900 dark:text-white line-clamp-1">
+                                        {{ config.name }}
+                                    </h3>
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        <span
+                                            class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                        >
+                                            {{ config.inputFormat | uppercase }} →
+                                            {{ config.outputFormat | uppercase }}
+                                        </span>
+                                        @if (!config.isActive) {
+                                            <span
+                                                class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                                            >
+                                                {{ 'smartBatchLanding.inactive' | transloco }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-2 min-h-[2.5rem]">
+                            {{ config.description || ('smartBatchLanding.noDescription' | transloco) }}
+                        </p>
+                        <div
+                            class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800"
+                        >
+                            <div>
+                                <span
+                                    class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
+                                    >{{ 'smartBatchLanding.steps' | transloco }}</span
+                                >
+                                <span class="text-lg font-semibold text-slate-900 dark:text-white">{{
+                                    config.steps.length
+                                }}</span>
+                            </div>
+                            <div>
+                                <span
+                                    class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
+                                    >{{ 'smartBatchLanding.strategy' | transloco }}</span
+                                >
+                                <span
+                                    class="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize truncate"
+                                    >{{ config.mergeStrategy.replace('-', ' ') }}</span
+                                >
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
 
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-4">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">{{ getCountryFlag(config.country) }}</span>
-                    <div>
-                        <h3 class="font-semibold text-slate-900 dark:text-white line-clamp-1">
-                            {{ config.name }}
+    <!-- Report Templates Tab -->
+    @if (activeTab() === 'templates') {
+        @if (isLoadingTemplates()) {
+            <div class="flex flex-col items-center justify-center flex-1">
+                <mat-spinner diameter="48"></mat-spinner>
+                <p class="mt-4 text-slate-500">
+                    {{ 'smartBatchLanding.loadingTemplates' | transloco }}
+                </p>
+            </div>
+        } @else if (templates().length === 0) {
+            <div
+                class="flex flex-col items-center justify-center flex-1 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl p-12 text-center"
+            >
+                <div
+                    class="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6"
+                >
+                    <mat-icon class="text-slate-400 icon-size-10">description</mat-icon>
+                </div>
+                <h3 class="text-lg font-medium text-slate-900 dark:text-white">
+                    {{ 'smartBatchLanding.noTemplates' | transloco }}
+                </h3>
+                <p class="text-slate-500 dark:text-slate-400 max-w-sm mt-2">
+                    {{ 'smartBatchLanding.noTemplatesDesc' | transloco }}
+                </p>
+                <p class="text-slate-400 dark:text-slate-500 text-sm max-w-sm mt-2">
+                    {{ 'smartBatchLanding.noTemplatesHint' | transloco }}
+                </p>
+            </div>
+        } @else {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (template of templates(); track template._id) {
+                    <div
+                        class="group relative bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 transition-all hover:shadow-md hover:border-blue-500/50"
+                    >
+                        <div
+                            class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1"
+                        >
+                            <button
+                                mat-icon-button
+                                (click)="openTemplateEditor(template, $event)"
+                                [matTooltip]="'smartBatchLanding.edit' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">edit</mat-icon>
+                            </button>
+                            <button
+                                mat-icon-button
+                                color="warn"
+                                (click)="deleteTemplate(template._id ?? '', $event)"
+                                [matTooltip]="'smartBatchLanding.delete' | transloco"
+                            >
+                                <mat-icon class="icon-size-5">delete</mat-icon>
+                            </button>
+                        </div>
+                        <h3 class="font-semibold text-slate-900 dark:text-white line-clamp-1 pr-16">
+                            {{ template.name }}
                         </h3>
-                        <div class="flex items-center gap-2 mt-0.5">
+                        <div class="flex flex-wrap gap-2 mt-2">
                             <span
                                 class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                             >
-                                {{ config.inputFormat | uppercase }} →
-                                {{ config.outputFormat | uppercase }}
+                                {{ (template.pdfEngine ?? 'pdfkit') | uppercase }}
                             </span>
-                            <span
-                                *ngIf="!config.isActive"
-                                class="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
-                            >
-                                Inactive
-                            </span>
+                            @if (template.pageSize) {
+                                <span
+                                    class="text-xs font-medium px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                                >
+                                    {{ template.pageSize }}
+                                </span>
+                            }
                         </div>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-4 mb-4 line-clamp-2 min-h-[2.5rem]">
+                            {{ template.description || ('smartBatchLanding.noDescription' | transloco) }}
+                        </p>
+                        <div
+                            class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800"
+                        >
+                            <div>
+                                <span
+                                    class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
+                                    >{{ 'smartBatchLanding.sections' | transloco }}</span
+                                >
+                                <span class="text-lg font-semibold text-slate-900 dark:text-white">{{
+                                    template.sections?.length ?? 0
+                                }}</span>
+                            </div>
+                            <div>
+                                <span
+                                    class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
+                                    >{{ 'smartBatchLanding.linkedTo' | transloco }}</span
+                                >
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300 truncate block">
+                                    @if (template.batchConfiguration) {
+                                        {{ getConfigName(template.batchConfiguration) }}
+                                    } @else {
+                                        {{ 'smartBatchLanding.standalone' | transloco }}
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        @if (template.createdAt) {
+                            <p class="text-xs text-slate-400 mt-3">
+                                {{ template.createdAt | date: 'medium' }}
+                            </p>
+                        }
                     </div>
-                </div>
+                }
             </div>
-
-            <!-- Description -->
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 line-clamp-2 min-h-[2.5rem]">
-                {{ config.description || 'No description provided.' }}
-            </p>
-
-            <!-- Stats -->
-            <div
-                class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800"
-            >
-                <div>
-                    <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
-                        >Steps</span
-                    >
-                    <span class="text-lg font-semibold text-slate-900 dark:text-white">{{
-                        config.steps.length
-                    }}</span>
-                </div>
-                <div>
-                    <span class="block text-xs text-slate-400 font-medium uppercase tracking-wider"
-                        >Strategy</span
-                    >
-                    <span
-                        class="text-sm font-medium text-slate-700 dark:text-slate-300 capitalize truncate"
-                        >{{ config.mergeStrategy.replace('-', ' ') }}</span
-                    >
-                </div>
-            </div>
-        </div>
-    </div>
+        }
+    }
 </div>

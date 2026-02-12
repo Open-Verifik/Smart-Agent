@@ -1,954 +1,993 @@
 {
-  "appFeatures": {
-    "colombia_special_api_identity_lookup": {
-      "title": "Colombia - Informação Privada de Cidadãos",
-      "description": "Acesse informações privadas de cidadãos de Colombian nationals. Este serviço fornece dados pessoais abrangentes incluindo verificação detalhada de identidade. Entre em contato com o atendimento ao cliente da Verifik para mais detalhes."
-    },
-    "colombia_api_identity_lookup": {
-      "title": "Colombia - Verificação de Identidade Nacional",
-      "description": "Verificar Colombian national ID (cédula) information. Obter nome completo, status do documento, e dados básicos de verificação de cidadão."
-    },
-    "colombia_special_api_police_identity_lookup": {
-      "title": "Colombia - Verificação de Registros Policiais",
-      "description": "Verificar registros policiais através do Colombia's sistema da Polícia Nacional. Verificar interactions with law enforcement and police registros. Requer tipo de documento, número de documento e data de expedição."
-    },
-    "world_api_dea": {
-      "title": "Global - Verificação de Antecedentes DEA",
-      "description": "Serviço abrangente de verificação de antecedentes usando DEA (Drug Enforcement Administration) bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against international de controle de drogas."
-    },
-    "colombia_api_military_situation": {
-      "title": "Colombia - Registros de Serviço Militar",
-      "description": "Verificar registros de serviço militar através do Colombia's sistema militar. Verificar status de serviço, obrigações militares e registros de serviço. Requer ID colombiano (CC) and document number."
-    },
-    "colombia_api_rethus": {
-      "title": "Colombia - Verificação de Registros de Saúde",
-      "description": "Acessar Colombian registros de saúde através do Rethus sistema. Verificar medical history, health status, and healthcare provider information. Requer document type (CC, CE, PPT) and document number."
-    },
-    "colombia_api_rues": {
-      "title": "Colombia - Verificação de Registro de Empresa",
-      "description": "Verificar registro de empresa através do Colombia's RUES (Registro Único Empresarial y Social) sistema. Verificar registro empresarial, status legal e informações da empresa. Requer document type and document number."
-    },
-    "colombia_api_dian": {
-      "title": "Colombia - Verificação de Informação Tributária",
-      "description": "Verificar informações tributárias através do Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) sistema. Verificar status tributário, obrigações e registros de conformidade. Requer document type and document number."
-    },
-    "peru_api_company_lookup": {
-      "title": "Peru - Consulta de Registro Empresarial",
-      "description": "Serviço de verificação empresarial para Peru. Fornece detalhes de registro da empresa, status legal e informações comerciais."
-    },
-    "colombia_api_judicial_process_details": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle_soat": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "usa_api_vehicle": {
-      "title": " - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para . Verifica registro do veículo e informações básicas."
-    },
-    "world_api_onu": {
-      "title": "Global - Verificação de Sanções ONU",
-      "description": "Check individuals and entities against United Nations listas de sanções. Pesquise por nome completo OU número de documento com tipo de documento. Verificar compliance with regimes de sanções internacionais."
-    },
-    "feature_kyc_solution": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "world_api_covid": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_affiliations": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_contraloria_certificate": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "peru_identity_lookup": {
-      "title": "Peru - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Peru cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "venezuela_api_identity_lookup": {
-      "title": "Venezuela - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Venezuela cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "colombia_api_vehicle_complete": {
-      "title": "Colombia - Complete Vehicle Information",
-      "description": "Obter informações abrangentes de veículo para Colombian veículos. Inclui detalhes de propriedade, especificações, status legal e dados de registro."
-    },
-    "mexico_api_vehicle": {
-      "title": "Mexico - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Mexico. Verifica registro do veículo e informações básicas."
-    },
-    "feature_passwordless_solution": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "world_api_interpol": {
-      "title": "Global - Verificação de Antecedentes Interpol",
-      "description": "International background check using Interpol bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against international registros criminais and listas de procurados."
-    },
-    "colombia_api_sena": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "world_api_ofac": {
-      "title": "Global - Verificação de Sanções OFAC",
-      "description": "Check individuals and entities against OFAC (Office of Foreign Assets Control) listas de sanções. Pesquise por nome completo OU número de documento com tipo de documento. Verificar compliance with US sanções econômicas."
-    },
-    "colombia_api_registraduria_certificate": {
-      "title": "Colombia - Verificação de Registros Eleitorais",
-      "description": "Serviço de verificação de registros eleitorais para Colombia cidadãos. Fornece status de votação e informações eleitorais."
-    },
-    "colombia_api_delinquent_debtors": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "world_api_fbi": {
-      "title": "Global - Verificação de Antecedentes FBI",
-      "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against federal registros criminais."
-    },
-    "mexico_identity_lookup": {
-      "title": "Mexico - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
-    },
-    "ecuador_api_identity_lookup": {
-      "title": "Ecuador - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Ecuador cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "colombia_api_driver": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "peru_api_vehicle": {
-      "title": "Peru - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Peru. Verifica registro do veículo e informações básicas."
-    },
-    "peru_api_vehicle_soat": {
-      "title": "Peru - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Peru. Verifica registro do veículo e informações básicas."
-    },
-    "ecuador_api_vehicle": {
-      "title": "Ecuador - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Ecuador. Verifica registro do veículo e informações básicas."
-    },
-    "feature_data_api": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_min_trabajo": {
-      "title": "Colombia - Verificação de Certificados Trabalhistas",
-      "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
-    },
-    "colombia_api_registraduria_voting": {
-      "title": "Colombia - Verificação de Registros Eleitorais",
-      "description": "Serviço de verificação de registros eleitorais para Colombia cidadãos. Fornece status de votação e informações eleitorais."
-    },
-    "world_api_europol": {
-      "title": "Global - Verificação de Antecedentes Europol",
-      "description": "European background check using Europol bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against European registros criminais and intelligence bancos de dados."
-    },
-    "colombia_api_criminal_history": {
-      "title": "Colombia - Verificação de Antecedentes Legais",
-      "description": "Serviço de verificação de antecedentes legais para Colombia cidadãos. Fornece informações sobre processos legais e registros judiciais."
-    },
-    "colombia_api_judicial_processes": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "colombia_api_pico_placa": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "feature_pdf_generator": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "panama_api_identity_full_lookup": {
-      "title": "Panama - Complete Verificação de Identidade",
-      "description": "Serviço abrangente de verificação de identidade para Panama cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
-    },
-    "chile_api_identity_lookup": {
-      "title": "Chile - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Chile cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "costarica_api_identity_lookup": {
-      "title": "Costa Rica - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Costa Rica cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "ecuador_api_criminal_history": {
-      "title": "Ecuador - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Ecuador cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "chile_api_vehicle": {
-      "title": "Chile - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Chile. Verifica registro do veículo e informações básicas."
-    },
-    "panama_api_identity_lookup": {
-      "title": "Panama - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Panama cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "panama_api_vehicle": {
-      "title": "Panama - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Panama. Verifica registro do veículo e informações básicas."
-    },
-    "chile_api_business_lookup": {
-      "title": "Chile - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
-    },
-    "spain_api_identity_lookup": {
-      "title": "Spain - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Spain cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "ecuador_api_vehicle_fines": {
-      "title": "Ecuador - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Ecuador. Verifica registro do veículo e informações básicas."
-    },
-    "colombia_api_vehicle_complete_by_plate": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "colombia_api_vehicle_complete_by_vin": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "peru_identity_extra_lookup": {
-      "title": "Peru - Complete Verificação de Identidade",
-      "description": "Serviço abrangente de verificação de identidade para Peru cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
-    },
-    "colombia_api_lawyers": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "brasil_api_identity_lookup": {
-      "title": "Brazil - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Brazil cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "usa_api_driver_license_lookup": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "consultar_procesos_judiciales": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "credit_intent": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "ip-lookup": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_judicial_records": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "communication_messaging_sms": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "communication_colombia_messaging_whatsapp": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "communication_global_messaging_whatsapp": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "communication_global_email_otp": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_liveness_3d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_estimate_age_3d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_check_age_3d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_enrollment_3d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_id_scan_only": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_liveness_2d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_estimate_age_2d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "biometrics_check_age_2d": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "credit_intent_kyc_passwordless": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "brasil_api_company_lookup": {
-      "title": "Brazil - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Brazil. Fornece verificação e validação confiável de informações."
-    },
-    "brasil_api_vehicle": {
-      "title": "Brazil - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Brazil. Verifica registro do veículo e informações básicas."
-    },
-    "argentina_api_identity_lookup": {
-      "title": "Argentina - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Argentina cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "ecuador_api_company_lookup": {
-      "title": "Ecuador - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Ecuador. Fornece verificação e validação confiável de informações."
-    },
-    "usa_api_ssn": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_dian_invoicer": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "api_colombia_contracts": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_police_rnmc": {
-      "title": "Colombia - Verificação de Registros Policiais",
-      "description": "Serviço de verificação de registros policiais para Colombia cidadãos. Fornece informações sobre interações policiais e registros."
-    },
-    "bolivia_api_identity_lookup": {
-      "title": "Bolivia - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Bolivia cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "colombia_pep_lookup": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "api_autodata_manufacturers": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "world_api_phone_lookup": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "Mexico_api_ine_model_e": {
-      "title": "Mexico - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
-    },
-    "Mexico_api_ine_model_d": {
-      "title": "Mexico - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
-    },
-    "Mexico_api_ine_model_c": {
-      "title": "Mexico - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
-    },
-    "api_autodata_enginer": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_rues_full": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "api_autodata_enginer_code": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "api_autodata_selection": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_sisconmp": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "data_finance_incomestatement": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "data_finance_balancesheet": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "data_finance_cashflow": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "data_finance_stockprice": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "paraguay_api_identity_lookup": {
-      "title": "Paraguay - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Paraguay. Fornece verificação e validação confiável de informações."
-    },
-    "canada_api_driver_license_alberta": {
-      "title": "Canada - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
-    },
-    "canada_api_driver_license_ontario": {
-      "title": "Canada - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle_complete_by_plate_simplified": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "canada_api_driver_license_quebec": {
-      "title": "Canada - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
-    },
-    "ocr_scan_pro": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "el_salvador_api_identity_lookup": {
-      "title": "El Salvador - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para El Salvador. Fornece verificação e validação confiável de informações."
-    },
-    "canada_api_driver_license_british-columbia": {
-      "title": "Canada - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
-    },
-    "ocr_scan_gpt": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_identity_lookup_extra": {
-      "title": "Colombia - Complete Verificação de Identidade",
-      "description": "Serviço abrangente de verificação de identidade para Colombia cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
-    },
-    "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
-    },
-    "ocr_scan_studio": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "canada_api_company": {
-      "title": "Canada - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
-    },
-    "us_api_passport_entries": {
-      "title": "United States - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para United States cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "mexico_api_company": {
-      "title": "Mexico - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_compare": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_compare_live": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_liveness": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_search_live_face": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_verify": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_detect": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_search_crops": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_search": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_plate": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_code": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "usa_api_company": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_runt_owners": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "chile_api_driver_license": {
-      "title": "Chile - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_lawyers_certificate": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "argentina_api_vehicle": {
-      "title": "Argentina - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Argentina. Verifica registro do veículo e informações básicas."
-    },
-    "argentina_api_company_lookup": {
-      "title": "Argentina - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Argentina. Fornece verificação e validação confiável de informações."
-    },
-    "bolivia_api_vehicle": {
-      "title": "Bolivia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Bolivia. Verifica registro do veículo e informações básicas."
-    },
-    "brasil_api_criminal_history": {
-      "title": "Brazil - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Brazil. Fornece verificação e validação confiável de informações."
-    },
-    "bolivia_api_business_lookup": {
-      "title": "Bolivia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Bolivia. Fornece verificação e validação confiável de informações."
-    },
-    "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Costa Rica. Fornece verificação e validação confiável de informações."
-    },
-    "paraguay_api_business_lookup": {
-      "title": "Paraguay - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Paraguay. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_vehicle_tax": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "colombia_api_vehicle_accidentality_bogota": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "api_data_sheet_vehicle": {
-      "title": " - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para . Verifica registro do veículo e informações básicas."
-    },
-    "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brazil - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Brazil. Verifica registro do veículo e informações básicas."
-    },
-    "face_recognition_search_active_user": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "matpis_appointments": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "chile_api_taxpayer_lookup": {
-      "title": "Chile - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
-    },
-    "chile_api_validate": {
-      "title": "Chile - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_agreements": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_suspensions": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_subpoenas": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_resolutions": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_complete": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_simit_plate": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "world_api_passport_entries": {
-      "title": "United States - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para United States cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "validate-document": {
-      "title": "Colombia - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Colombia cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "costa_rica_api_vehicle": {
-      "title": "Costa Rica - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Costa Rica. Verifica registro do veículo e informações básicas."
-    },
-    "paraguay_api_vehicle": {
-      "title": "Paraguay - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Paraguay. Verifica registro do veículo e informações básicas."
-    },
-    "usa_api_vehicle_lookup_by_vin": {
-      "title": " - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para . Verifica registro do veículo e informações básicas."
-    },
-    "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
-    },
-    "colombia_api_vehicle_fines_bogota": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "colombia_api_vehicle_fines_medellin": {
-      "title": "Colombia - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
-    },
-    "guatemala_api_identity_lookup": {
-      "title": "Guatemala - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Guatemala cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "honduras_api_identity_lookup": {
-      "title": "Honduras - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Honduras cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "republica_dominicana_api_citizen_lookup": {
-      "title": "Dominican Republic - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Dominican Republic cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "venezuela_foreigner_api": {
-      "title": "Venezuela - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Venezuela. Fornece status migratório e informações de registro de estrangeiros."
-    },
-    "colombia_sisben_api_lookup": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "spain_api_vehicle_lookup": {
-      "title": "Spain - Verificação de Veículo",
-      "description": "Serviço padrão de verificação de veículo para Spain. Verifica registro do veículo e informações básicas."
-    },
-    "spain_api_company_lookup": {
-      "title": "Spain - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Spain. Fornece verificação e validação confiável de informações."
-    },
-    "panama_api_business_lookup": {
-      "title": "Panama - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Panama. Fornece verificação e validação confiável de informações."
-    },
-    "uruguay_api_identity_lookup": {
-      "title": "Uruguay - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Uruguay cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Peru. Fornece status migratório e informações de registro de estrangeiros."
-    },
-    "colombia_api_rues_full_v3": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_rues_v3": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "peru_identity_lookup_v3": {
-      "title": "Peru - Verificação de Identidade",
-      "description": "Serviço padrão de verificação de identidade para Peru cidadãos. Verifica informações pessoais e autenticidade do documento."
-    },
-    "peru_identity_extra_lookup_v3": {
-      "title": "Peru - Complete Verificação de Identidade",
-      "description": "Serviço abrangente de verificação de identidade para Peru cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
-    },
-    "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
-    },
-    "colombia_api_min_trabajo_v3": {
-      "title": "Colombia - Verificação de Certificados Trabalhistas",
-      "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
-    },
-    "peru_api_company_lookup_v3": {
-      "title": "Peru - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Peru. Fornece verificação e validação confiável de informações."
-    },
-    "face_recognition_detect_face": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "document-liveness": {
-      "title": " - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
-    },
-    "colombia_api_inpec": {
-      "title": "Colombia - Serviço de Verificação de Dados",
-      "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
-    },
-    "colombia_sigep_by_name": {
-      "title": "Colombia - Pesquisa de Funcionários Públicos SIGEP",
-      "description": "Pesquisar Colombian funcionários públicos e contratados governamentais por nome completo. Acessar contact information, positions, and organizational details from the SIGEP banco de dados."
-    },
-    "colombia_sigep_by_number": {
-      "title": "Colombia - Consulta SIGEP por Documento",
-      "description": "Consultar Colombian funcionários públicos e contratados governamentais usando seu número de ID (CC or NIT). Obter informações profissionais completas de SIGEP registros."
-    },
-    "colombia_inpec_lookup": {
-      "title": "Colombia - INPEC Consulta de Registros Penitenciários",
-      "description": "Consultar Colombian prison registros and inmate information using ID number and surname. Obter status de admissão, status legal e detalhes da instalação penitenciária de INPEC registros."
-    },
-    "zelf-proofs": {
-      "title": "Zelf Proofs",
-      "description": "Zelf Proofs serviço para verificação de identidade e validação de documentos. Este serviço fornece capacidades abrangentes de geração de provas para vários documentos de identidade e processos de verificação."
-    },
-    "zelf-proof-liveness-active-user": {
-      "title": "Zelf Proof com Detecção de Vida (Usuário ativo)",
-      "description": "Zelf Proof com Detecção de Vida detection service for enhanced identity verification. Este serviço fornece geração de provas com detecção ativa de vida para garantir que a pessoa esteja fisicamente presente durante a verificação."
+    "appFeatures": {
+        "colombia_special_api_identity_lookup": {
+            "title": "Colombia - Informação Privada de Cidadãos",
+            "description": "Acesse informações privadas de cidadãos de Colombian nationals. Este serviço fornece dados pessoais abrangentes incluindo verificação detalhada de identidade. Entre em contato com o atendimento ao cliente da Verifik para mais detalhes."
+        },
+        "colombia_api_identity_lookup": {
+            "title": "Colombia - Verificação de Identidade Nacional",
+            "description": "Verificar Colombian national ID (cédula) information. Obter nome completo, status do documento, e dados básicos de verificação de cidadão."
+        },
+        "colombia_special_api_police_identity_lookup": {
+            "title": "Colombia - Verificação de Registros Policiais",
+            "description": "Verificar registros policiais através do Colombia's sistema da Polícia Nacional. Verificar interactions with law enforcement and police registros. Requer tipo de documento, número de documento e data de expedição."
+        },
+        "world_api_dea": {
+            "title": "Global - Verificação de Antecedentes DEA",
+            "description": "Serviço abrangente de verificação de antecedentes usando DEA (Drug Enforcement Administration) bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against international de controle de drogas."
+        },
+        "colombia_api_military_situation": {
+            "title": "Colombia - Registros de Serviço Militar",
+            "description": "Verificar registros de serviço militar através do Colombia's sistema militar. Verificar status de serviço, obrigações militares e registros de serviço. Requer ID colombiano (CC) and document number."
+        },
+        "colombia_api_rethus": {
+            "title": "Colombia - Verificação de Registros de Saúde",
+            "description": "Acessar Colombian registros de saúde através do Rethus sistema. Verificar medical history, health status, and healthcare provider information. Requer document type (CC, CE, PPT) and document number."
+        },
+        "colombia_api_rues": {
+            "title": "Colombia - Verificação de Registro de Empresa",
+            "description": "Verificar registro de empresa através do Colombia's RUES (Registro Único Empresarial y Social) sistema. Verificar registro empresarial, status legal e informações da empresa. Requer document type and document number."
+        },
+        "colombia_api_dian": {
+            "title": "Colombia - Verificação de Informação Tributária",
+            "description": "Verificar informações tributárias através do Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) sistema. Verificar status tributário, obrigações e registros de conformidade. Requer document type and document number."
+        },
+        "peru_api_company_lookup": {
+            "title": "Peru - Consulta de Registro Empresarial",
+            "description": "Serviço de verificação empresarial para Peru. Fornece detalhes de registro da empresa, status legal e informações comerciais."
+        },
+        "colombia_api_judicial_process_details": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle_soat": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "usa_api_vehicle": {
+            "title": " - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para . Verifica registro do veículo e informações básicas."
+        },
+        "world_api_onu": {
+            "title": "Global - Verificação de Sanções ONU",
+            "description": "Check individuals and entities against United Nations listas de sanções. Pesquise por nome completo OU número de documento com tipo de documento. Verificar compliance with regimes de sanções internacionais."
+        },
+        "feature_kyc_solution": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "world_api_covid": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_affiliations": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_contraloria_certificate": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "peru_identity_lookup": {
+            "title": "Peru - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Peru cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "venezuela_api_identity_lookup": {
+            "title": "Venezuela - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Venezuela cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "colombia_api_vehicle_complete": {
+            "title": "Colombia - Complete Vehicle Information",
+            "description": "Obter informações abrangentes de veículo para Colombian veículos. Inclui detalhes de propriedade, especificações, status legal e dados de registro."
+        },
+        "mexico_api_vehicle": {
+            "title": "Mexico - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Mexico. Verifica registro do veículo e informações básicas."
+        },
+        "feature_passwordless_solution": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "world_api_interpol": {
+            "title": "Global - Verificação de Antecedentes Interpol",
+            "description": "International background check using Interpol bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against international registros criminais and listas de procurados."
+        },
+        "colombia_api_sena": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "world_api_ofac": {
+            "title": "Global - Verificação de Sanções OFAC",
+            "description": "Check individuals and entities against OFAC (Office of Foreign Assets Control) listas de sanções. Pesquise por nome completo OU número de documento com tipo de documento. Verificar compliance with US sanções econômicas."
+        },
+        "colombia_api_registraduria_certificate": {
+            "title": "Colombia - Verificação de Registros Eleitorais",
+            "description": "Serviço de verificação de registros eleitorais para Colombia cidadãos. Fornece status de votação e informações eleitorais."
+        },
+        "colombia_api_delinquent_debtors": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "world_api_fbi": {
+            "title": "Global - Verificação de Antecedentes FBI",
+            "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against federal registros criminais."
+        },
+        "mexico_identity_lookup": {
+            "title": "Mexico - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
+        },
+        "ecuador_api_identity_lookup": {
+            "title": "Ecuador - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Ecuador cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "colombia_api_driver": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "peru_api_vehicle": {
+            "title": "Peru - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Peru. Verifica registro do veículo e informações básicas."
+        },
+        "peru_api_vehicle_soat": {
+            "title": "Peru - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Peru. Verifica registro do veículo e informações básicas."
+        },
+        "ecuador_api_vehicle": {
+            "title": "Ecuador - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Ecuador. Verifica registro do veículo e informações básicas."
+        },
+        "feature_data_api": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_min_trabajo": {
+            "title": "Colombia - Verificação de Certificados Trabalhistas",
+            "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
+        },
+        "colombia_api_registraduria_voting": {
+            "title": "Colombia - Verificação de Registros Eleitorais",
+            "description": "Serviço de verificação de registros eleitorais para Colombia cidadãos. Fornece status de votação e informações eleitorais."
+        },
+        "world_api_europol": {
+            "title": "Global - Verificação de Antecedentes Europol",
+            "description": "European background check using Europol bancos de dados. Pesquise por nome completo OU número de documento com tipo de documento. Verificar individuals against European registros criminais and intelligence bancos de dados."
+        },
+        "colombia_api_criminal_history": {
+            "title": "Colombia - Verificação de Antecedentes Legais",
+            "description": "Serviço de verificação de antecedentes legais para Colombia cidadãos. Fornece informações sobre processos legais e registros judiciais."
+        },
+        "colombia_api_judicial_processes": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "colombia_api_pico_placa": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "feature_pdf_generator": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "panama_api_identity_full_lookup": {
+            "title": "Panama - Complete Verificação de Identidade",
+            "description": "Serviço abrangente de verificação de identidade para Panama cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
+        },
+        "chile_api_identity_lookup": {
+            "title": "Chile - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Chile cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "costarica_api_identity_lookup": {
+            "title": "Costa Rica - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Costa Rica cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "ecuador_api_criminal_history": {
+            "title": "Ecuador - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Ecuador cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "chile_api_vehicle": {
+            "title": "Chile - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Chile. Verifica registro do veículo e informações básicas."
+        },
+        "panama_api_identity_lookup": {
+            "title": "Panama - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Panama cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "panama_api_vehicle": {
+            "title": "Panama - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Panama. Verifica registro do veículo e informações básicas."
+        },
+        "chile_api_business_lookup": {
+            "title": "Chile - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
+        },
+        "spain_api_identity_lookup": {
+            "title": "Spain - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Spain cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "ecuador_api_vehicle_fines": {
+            "title": "Ecuador - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Ecuador. Verifica registro do veículo e informações básicas."
+        },
+        "colombia_api_vehicle_complete_by_plate": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "colombia_api_vehicle_complete_by_vin": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "peru_identity_extra_lookup": {
+            "title": "Peru - Complete Verificação de Identidade",
+            "description": "Serviço abrangente de verificação de identidade para Peru cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
+        },
+        "colombia_api_lawyers": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "brasil_api_identity_lookup": {
+            "title": "Brazil - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Brazil cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "usa_api_driver_license_lookup": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "consultar_procesos_judiciales": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "credit_intent": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "ip-lookup": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_judicial_records": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "communication_messaging_sms": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "communication_colombia_messaging_whatsapp": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "communication_global_messaging_whatsapp": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "communication_global_email_otp": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_liveness_3d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_estimate_age_3d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_check_age_3d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_enrollment_3d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_id_scan_only": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_liveness_2d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_estimate_age_2d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "biometrics_check_age_2d": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "credit_intent_kyc_passwordless": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "brasil_api_company_lookup": {
+            "title": "Brazil - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Brazil. Fornece verificação e validação confiável de informações."
+        },
+        "brasil_api_vehicle": {
+            "title": "Brazil - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Brazil. Verifica registro do veículo e informações básicas."
+        },
+        "argentina_api_identity_lookup": {
+            "title": "Argentina - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Argentina cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "ecuador_api_company_lookup": {
+            "title": "Ecuador - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Ecuador. Fornece verificação e validação confiável de informações."
+        },
+        "usa_api_ssn": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_dian_invoicer": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "api_colombia_contracts": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_police_rnmc": {
+            "title": "Colombia - Verificação de Registros Policiais",
+            "description": "Serviço de verificação de registros policiais para Colombia cidadãos. Fornece informações sobre interações policiais e registros."
+        },
+        "bolivia_api_identity_lookup": {
+            "title": "Bolivia - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Bolivia cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "colombia_pep_lookup": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "api_autodata_manufacturers": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "world_api_phone_lookup": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "Mexico_api_ine_model_e": {
+            "title": "Mexico - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
+        },
+        "Mexico_api_ine_model_d": {
+            "title": "Mexico - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
+        },
+        "Mexico_api_ine_model_c": {
+            "title": "Mexico - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
+        },
+        "api_autodata_enginer": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_rues_full": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "api_autodata_enginer_code": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "api_autodata_selection": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_sisconmp": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "data_finance_incomestatement": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "data_finance_balancesheet": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "data_finance_cashflow": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "data_finance_stockprice": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "paraguay_api_identity_lookup": {
+            "title": "Paraguay - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Paraguay. Fornece verificação e validação confiável de informações."
+        },
+        "canada_api_driver_license_alberta": {
+            "title": "Canada - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
+        },
+        "canada_api_driver_license_ontario": {
+            "title": "Canada - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle_complete_by_plate_simplified": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "canada_api_driver_license_quebec": {
+            "title": "Canada - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
+        },
+        "ocr_scan_pro": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "el_salvador_api_identity_lookup": {
+            "title": "El Salvador - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para El Salvador. Fornece verificação e validação confiável de informações."
+        },
+        "canada_api_driver_license_british-columbia": {
+            "title": "Canada - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
+        },
+        "ocr_scan_gpt": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_identity_lookup_extra": {
+            "title": "Colombia - Complete Verificação de Identidade",
+            "description": "Serviço abrangente de verificação de identidade para Colombia cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
+        },
+        "colombia_api_identity_pep_foreigner_id": {
+            "title": "Colombia - Verificação de Status Migratório",
+            "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
+        },
+        "ocr_scan_studio": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "canada_api_company": {
+            "title": "Canada - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Canada. Fornece verificação e validação confiável de informações."
+        },
+        "us_api_passport_entries": {
+            "title": "United States - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para United States cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "mexico_api_company": {
+            "title": "Mexico - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Mexico. Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_compare": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_compare_live": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_liveness": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_search_live_face": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_verify": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_detect": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_search_crops": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_search": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_plate": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_code": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "usa_api_company": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_runt_owners": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "chile_api_driver_license": {
+            "title": "Chile - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_lawyers_certificate": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "argentina_api_vehicle": {
+            "title": "Argentina - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Argentina. Verifica registro do veículo e informações básicas."
+        },
+        "argentina_api_company_lookup": {
+            "title": "Argentina - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Argentina. Fornece verificação e validação confiável de informações."
+        },
+        "bolivia_api_vehicle": {
+            "title": "Bolivia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Bolivia. Verifica registro do veículo e informações básicas."
+        },
+        "brasil_api_criminal_history": {
+            "title": "Brazil - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Brazil. Fornece verificação e validação confiável de informações."
+        },
+        "bolivia_api_business_lookup": {
+            "title": "Bolivia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Bolivia. Fornece verificação e validação confiável de informações."
+        },
+        "costa_rica_api_business_lookup": {
+            "title": "Costa Rica - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Costa Rica. Fornece verificação e validação confiável de informações."
+        },
+        "paraguay_api_business_lookup": {
+            "title": "Paraguay - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Paraguay. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_vehicle_tax": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "colombia_api_vehicle_accidentality_bogota": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "api_data_sheet_vehicle": {
+            "title": " - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para . Verifica registro do veículo e informações básicas."
+        },
+        "api_data_sheet_vehicle_by-plate_br": {
+            "title": "Brazil - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Brazil. Verifica registro do veículo e informações básicas."
+        },
+        "face_recognition_search_active_user": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "matpis_appointments": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "chile_api_taxpayer_lookup": {
+            "title": "Chile - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
+        },
+        "chile_api_validate": {
+            "title": "Chile - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Chile. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_agreements": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_suspensions": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_subpoenas": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_subpoenas_details": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_resolutions": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_complete": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_simit_plate": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "world_api_passport_entries": {
+            "title": "United States - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para United States cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "validate-document": {
+            "title": "Colombia - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Colombia cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "costa_rica_api_vehicle": {
+            "title": "Costa Rica - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Costa Rica. Verifica registro do veículo e informações básicas."
+        },
+        "paraguay_api_vehicle": {
+            "title": "Paraguay - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Paraguay. Verifica registro do veículo e informações básicas."
+        },
+        "usa_api_vehicle_lookup_by_vin": {
+            "title": " - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para . Verifica registro do veículo e informações básicas."
+        },
+        "colombia_api_identity_ce_foreigner_id": {
+            "title": "Colombia - Verificação de Status Migratório",
+            "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
+        },
+        "colombia_api_vehicle_fines_bogota": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "colombia_api_vehicle_fines_medellin": {
+            "title": "Colombia - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+        },
+        "guatemala_api_identity_lookup": {
+            "title": "Guatemala - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Guatemala cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "honduras_api_identity_lookup": {
+            "title": "Honduras - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Honduras cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "republica_dominicana_api_citizen_lookup": {
+            "title": "Dominican Republic - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Dominican Republic cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "venezuela_foreigner_api": {
+            "title": "Venezuela - Verificação de Status Migratório",
+            "description": "Serviço de verificação de registros migratórios para Venezuela. Fornece status migratório e informações de registro de estrangeiros."
+        },
+        "colombia_sisben_api_lookup": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "spain_api_vehicle_lookup": {
+            "title": "Spain - Verificação de Veículo",
+            "description": "Serviço padrão de verificação de veículo para Spain. Verifica registro do veículo e informações básicas."
+        },
+        "spain_api_company_lookup": {
+            "title": "Spain - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Spain. Fornece verificação e validação confiável de informações."
+        },
+        "panama_api_business_lookup": {
+            "title": "Panama - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Panama. Fornece verificação e validação confiável de informações."
+        },
+        "uruguay_api_identity_lookup": {
+            "title": "Uruguay - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Uruguay cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "peru_api_identity_ce_foreigner_id": {
+            "title": "Peru - Verificação de Status Migratório",
+            "description": "Serviço de verificação de registros migratórios para Peru. Fornece status migratório e informações de registro de estrangeiros."
+        },
+        "colombia_api_rues_full_v3": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_rues_v3": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "peru_identity_lookup_v3": {
+            "title": "Peru - Verificação de Identidade",
+            "description": "Serviço padrão de verificação de identidade para Peru cidadãos. Verifica informações pessoais e autenticidade do documento."
+        },
+        "peru_identity_extra_lookup_v3": {
+            "title": "Peru - Complete Verificação de Identidade",
+            "description": "Serviço abrangente de verificação de identidade para Peru cidadãos. Fornece informações pessoais completas incluindo nome completo, detalhes do documento e dados adicionais de verificação."
+        },
+        "colombia_api_identity_ppt_foreigner_id": {
+            "title": "Colombia - Verificação de Status Migratório",
+            "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
+        },
+        "colombia_api_min_trabajo_v3": {
+            "title": "Colombia - Verificação de Certificados Trabalhistas",
+            "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
+        },
+        "peru_api_company_lookup_v3": {
+            "title": "Peru - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Peru. Fornece verificação e validação confiável de informações."
+        },
+        "face_recognition_detect_face": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "document-liveness": {
+            "title": " - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para . Fornece verificação e validação confiável de informações."
+        },
+        "colombia_api_inpec": {
+            "title": "Colombia - Serviço de Verificação de Dados",
+            "description": "Serviço geral de verificação de dados para Colombia. Fornece verificação e validação confiável de informações."
+        },
+        "colombia_sigep_by_name": {
+            "title": "Colombia - Pesquisa de Funcionários Públicos SIGEP",
+            "description": "Pesquisar Colombian funcionários públicos e contratados governamentais por nome completo. Acessar contact information, positions, and organizational details from the SIGEP banco de dados."
+        },
+        "colombia_sigep_by_number": {
+            "title": "Colombia - Consulta SIGEP por Documento",
+            "description": "Consultar Colombian funcionários públicos e contratados governamentais usando seu número de ID (CC or NIT). Obter informações profissionais completas de SIGEP registros."
+        },
+        "colombia_inpec_lookup": {
+            "title": "Colombia - INPEC Consulta de Registros Penitenciários",
+            "description": "Consultar Colombian prison registros and inmate information using ID number and surname. Obter status de admissão, status legal e detalhes da instalação penitenciária de INPEC registros."
+        },
+        "zelf-proofs": {
+            "title": "Zelf Proofs",
+            "description": "Zelf Proofs serviço para verificação de identidade e validação de documentos. Este serviço fornece capacidades abrangentes de geração de provas para vários documentos de identidade e processos de verificação."
+        },
+        "zelf-proof-liveness-active-user": {
+            "title": "Zelf Proof com Detecção de Vida (Usuário ativo)",
+            "description": "Zelf Proof com Detecção de Vida detection service for enhanced identity verification. Este serviço fornece geração de provas com detecção ativa de vida para garantir que a pessoa esteja fisicamente presente durante a verificação."
+        }
+    },
+    "smartBatchLanding": {
+        "title": "Smart Batch",
+        "subtitle": "Gerencie suas configurações de processamento em lote e modelos de relatórios.",
+        "configurationsTab": "Configurações",
+        "reportTemplatesTab": "Modelos de relatório",
+        "createConfiguration": "Criar configuração",
+        "createTemplate": "Criar modelo",
+        "createTemplateFirstHint": "Crie uma configuração primeiro para adicionar modelos de relatório",
+        "loadingConfigurations": "Carregando configurações...",
+        "loadingTemplates": "Carregando modelos...",
+        "noConfigurations": "Nenhuma configuração encontrada",
+        "noConfigurationsDesc": "Crie sua primeira configuração de lote para automatizar o processamento de dados.",
+        "createFirstConfiguration": "Criar configuração",
+        "noTemplates": "Nenhum modelo de relatório ainda",
+        "noTemplatesDesc": "Crie um modelo no editor de relatórios de uma configuração para criar suas exportações em PDF.",
+        "noTemplatesHint": "Abra uma configuração, execute um lote e use Gerar relatório para criar e editar modelos.",
+        "steps": "Etapas",
+        "strategy": "Estratégia",
+        "inactive": "Inativo",
+        "sections": "Seções",
+        "pageSize": "Tamanho da página",
+        "pdfEngine": "Motor PDF",
+        "linkedTo": "Vinculado a",
+        "standalone": "Independente",
+        "edit": "Editar",
+        "delete": "Excluir",
+        "deleteConfirmation": "Tem certeza de que deseja excluir este modelo?",
+        "noDescription": "Nenhuma descrição fornecida."
+    },
+    "smartReport": {
+        "generateReport": "Gerar Relatório",
+        "batchReport": "Relatório de Lote",
+        "createTemplate": "Criar Modelo",
+        "selectTemplate": "Selecionar Modelo",
+        "noTemplatesFound": "Nenhum modelo encontrado",
+        "sections": "seções",
+        "templateMatchesData": "O modelo corresponde aos dados",
+        "missingFields": "{{count}} campo(s) faltando(s)",
+        "dataMatch": "Correspondência de dados",
+        "templateMatchesBatchData": "O modelo corresponde aos dados do lote",
+        "templateReadyToUse": "Pronto para usar. Você pode personalizar este modelo no builder a qualquer momento.",
+        "editInBuilder": "Editar no builder",
+        "missingFieldsEditInBuilder": "{{count}} campo(s) faltando nos dados do lote. Edite o modelo no builder para corrigir.",
+        "editWithRealData": "Editar com dados reais",
+        "editTemplateWithRealData": "Editar modelo com dados reais",
+        "paths": "Caminhos",
+        "actions": "Ações",
+        "generatePdf": "Gerar PDF",
+        "generating": "Gerando...",
+        "downloadPdf": "Baixar PDF",
+        "sendViaEmail": "Enviar por email",
+        "sending": "Enviando...",
+        "stepResultsLayout": "Layout de resultados por etapa",
+        "reportForRecord": "Relatório do registro #{{index}}",
+        "dragSectionsReorder": "Arraste para reordenar. O layout está pronto para impressão.",
+        "collapseContent": "Recolher conteúdo",
+        "expandContent": "Expandir conteúdo",
+        "noStepResultsYet": "Sem resultados de etapas ainda",
+        "processBatchToSeeResults": "Processe o lote para ver os resultados de cada endpoint aqui.",
+        "row": "Linha",
+        "result": "Resultado",
+        "viewModeReadable": "Legível",
+        "viewModeTable": "Tabela",
+        "viewModeJson": "JSON",
+        "viewModeExcelAg": "Excel v1",
+        "viewModeExcelHt": "Excel v2",
+        "downloadAsCsv": "Download CSV",
+        "downloadAsExcel": "Download Excel",
+        "exportData": "Exportar Dados",
+        "csvDownloaded": "CSV baixado",
+        "excelDownloaded": "Excel baixado",
+        "step": "Etapa",
+        "preview": "Visualização",
+        "previewSameAsBuilder": "Mesma visualização do construtor — modelo renderizado com dados do lote",
+        "generatingPdf": "Gerando PDF...",
+        "noPreviewAvailable": "Nenhuma visualização disponível",
+        "selectTemplateAndBatch": "Selecione um modelo e certifique-se de que o lote tenha linhas processadas",
+        "back": "Voltar",
+        "generateReportFirst": "Gere um relatório primeiro",
+        "emailSent": "Email enviado!",
+        "failedToSendEmail": "Falha ao enviar email",
+        "pdfDownloaded": "PDF baixado",
+        "failedToDownloadPdf": "Falha ao baixar PDF",
+        "invalidPdfReceived": "PDF inválido recebido do servidor",
+        "editReportTemplate": "Editar Modelo de Relatório",
+        "newReportTemplate": "Novo Modelo de Relatório",
+        "designReportLayout": "Projete o layout do seu relatório com arrastar e soltar",
+        "sendSample": "Enviar Amostra",
+        "sendingSample": "Enviando amostra...",
+        "saveTemplateFirst": "Salve o modelo primeiro para habilitar o envio de amostra",
+        "saveTemplate": "Salvar Modelo",
+        "saving": "Salvando...",
+        "templateSettings": "Configurações do Modelo",
+        "templateName": "Nome do Modelo",
+        "templateNamePlaceholder": "Meu Modelo de Relatório",
+        "pageSize": "Tamanho da Página",
+        "orientation": "Orientação",
+        "portrait": "Retrato",
+        "landscape": "Paisagem",
+        "pdfEngine": "Motor PDF",
+        "primaryColor": "Cor Principal",
+        "helperData": "Dados de Ajuda",
+        "helperDataHint": "Use estes caminhos nas seções Campo ou Tabela",
+        "openFromReportViewer": "Abra do visualizador de relatórios com dados do lote para ver caminhos disponíveis",
+        "copyPath": "Copiar caminho",
+        "copyPathForTable": "Copiar caminho (usar para seção Tabela)",
+        "addSections": "Adicionar Seções",
+        "reportLayout": "Layout do Relatório",
+        "dragToReorder": "Arraste para reordenar seções",
+        "addSectionsFromAbove": "Adicione seções acima",
+        "section": "Seção",
+        "sectionNumber": "Seção #{{num}}",
+        "edit": "Editar",
+        "duplicate": "Duplicar",
+        "delete": "Excluir",
+        "titleText": "Texto do Título",
+        "reportTitle": "Título do Relatório",
+        "content": "Conteúdo",
+        "enterTextContent": "Digite o conteúdo do texto...",
+        "label": "Etiqueta",
+        "fieldLabel": "Etiqueta do campo",
+        "dataPath": "Caminho de Dados",
+        "dataPathPlaceholder": "results.1.fullName",
+        "dotSeparatedPath": "Caminho separado por pontos (ex. results.1.fullName)",
+        "tableTitle": "Título da Tabela",
+        "tableLabel": "Etiqueta da tabela",
+        "dataPathObject": "Caminho de Dados (objeto)",
+        "pathToObject": "Caminho para um objeto cujas chaves se tornam linhas",
+        "imageUrl": "URL da Imagem",
+        "altText": "Texto Alternativo",
+        "companyLogo": "Logo da Empresa",
+        "heightPx": "Altura (px)",
+        "color": "Cor",
+        "style": "Estilo",
+        "textAlign": "Alinhamento do Texto",
+        "fontSize": "Tamanho da Fonte",
+        "fontWeight": "Peso da Fonte",
+        "normal": "Normal",
+        "bold": "Negrito",
+        "textColor": "Cor do Texto",
+        "livePreviewWithSample": "Visualização ao vivo com dados de amostra",
+        "missing": "Faltando",
+        "sendSampleReport": "Enviar Amostra de Relatório",
+        "sendReport": "Enviar Relatório",
+        "enterRecipientsAndSubject": "Digite o(s) email(s) do(s) destinatário(s) e assunto opcional",
+        "recipientEmails": "Email(s) do destinatário",
+        "recipientsPlaceholder": "email1@exemplo.com, email2@exemplo.com",
+        "separateEmailsWithCommas": "Separe vários emails com vírgulas",
+        "atLeastOneRecipient": "Pelo menos um destinatário é obrigatório",
+        "enterValidEmails": "Digite endereço(s) de email válido(s)",
+        "subjectOptional": "Assunto (opcional)",
+        "subjectOptionalPlaceholder": "Amostra de Relatório: Visualização do Modelo",
+        "reportBatchPlaceholder": "Relatório - Lote",
+        "cancel": "Cancelar",
+        "noSectionsToPreview": "Nenhuma seção para visualizar",
+        "untitled": "Sem título",
+        "textContent": "Conteúdo do texto...",
+        "field": "Campo",
+        "noDataAtPath": "Sem dados no caminho \"{{path}}\"",
+        "image": "Imagem",
+        "failedToSaveTemplatePreference": "Falha ao salvar preferência do modelo",
+        "pleaseSelectTemplate": "Por favor selecione um modelo",
+        "reportGenerated": "Relatório gerado!",
+        "failedToGenerateReport": "Falha ao gerar relatório",
+        "failedToCreateReport": "Falha ao criar relatório",
+        "sectionHeader": "Cabeçalho",
+        "sectionText": "Bloco de Texto",
+        "sectionField": "Campo de Dados",
+        "sectionTable": "Tabela",
+        "sectionImage": "Imagem",
+        "sectionDivider": "Divisor",
+        "sectionSpacer": "Espaçador",
+        "samplePdfSentSuccess": "PDF de amostra enviado com sucesso",
+        "failedToSendSamplePdf": "Falha ao enviar PDF de amostra",
+        "copied": "Copiado",
+        "failedToCopy": "Falha ao copiar"
+    },
+    "batchProcessing": {
+        "backToDashboard": "Voltar ao painel",
+        "batchProcessing": "Processamento em lote",
+        "records": "registros",
+        "status": "Status",
+        "starting": "Iniciando...",
+        "startProcessing": "Iniciar processamento",
+        "pause": "Pausar",
+        "generateReport": "Gerar relatório",
+        "processing": "Processando...",
+        "processingSteps": "Etapas de processamento",
+        "credits": "créditos",
+        "pending": "Pendente",
+        "recordsWaiting": "{{count}} registros aguardando",
+        "allRecordsProcessed": "Todos os registros processados!",
+        "rowNumber": "Linha {{index}}",
+        "completed": "Concluído",
+        "failed": "Falhou",
+        "recordsVerified": "{{count}} registros verificados",
+        "noCompletedRecordsYet": "Nenhum registro concluído ainda",
+        "verified": "Verificado",
+        "skipped": "Ignorado",
+        "rowDetails": "Detalhes da linha #{{index}}",
+        "readable": "Legível",
+        "json": "JSON",
+        "generatePdfReport": "Gerar relatório PDF",
+        "inputData": "Dados de entrada",
+        "stepResults": "Resultados por etapa",
+        "errors": "Erros",
+        "stepError": "Etapa {{step}}: {{code}}",
+        "stepStatusCompleted": "{{step}}: Concluído",
+        "stepStatusFailed": "{{step}}: Falhou",
+        "stepStatusPending": "{{step}}: Pendente",
+        "stepStatusSkipped": "{{step}}: Ignorado",
+        "draft": "Rascunho",
+        "cancelled": "Cancelado"
+    },
+    "batchDashboard": {
+        "backToSmartBatch": "Voltar ao Smart Batch",
+        "loading": "Carregando...",
+        "batchProcessingDashboard": "Painel de processamento em lote",
+        "createBatch": "Criar lote",
+        "steps": "Etapas",
+        "strategy": "Estratégia",
+        "format": "Formato",
+        "costPerRow": "Custo/linha",
+        "processingSteps": "Etapas de processamento",
+        "disabled": "Desativado",
+        "costBreakdown": "Detalhamento de custos",
+        "totalPerRow": "Total por linha",
+        "total": "Total",
+        "totalBatches": "Lotes totais",
+        "success": "Sucesso",
+        "completedRows": "Linhas concluídas",
+        "queue": "Fila",
+        "pendingRows": "Linhas pendentes",
+        "error": "Erro",
+        "failedRows": "Linhas com falha",
+        "loadingBatches": "Carregando lotes...",
+        "noBatchesYet": "Nenhum lote ainda",
+        "createFirstBatchDescription": "Crie seu primeiro lote para começar a processar dados com esta configuração.",
+        "createFirstBatch": "Criar primeiro lote",
+        "batches": "Lotes",
+        "name": "Nome",
+        "status": "Status",
+        "progress": "Progresso",
+        "rows": "Linhas",
+        "created": "Criado",
+        "actions": "Ações",
+        "viewDetails": "Ver detalhes",
+        "failedCount": "({{count}} falharam)"
     }
-  },
-  "smartReport": {
-    "generateReport": "Gerar Relatório",
-    "batchReport": "Relatório de Lote",
-    "createTemplate": "Criar Modelo",
-    "selectTemplate": "Selecionar Modelo",
-    "noTemplatesFound": "Nenhum modelo encontrado",
-    "sections": "seções",
-    "templateMatchesData": "O modelo corresponde aos dados",
-    "missingFields": "{{count}} campo(s) faltando(s)",
-    "dataMatch": "Correspondência de dados",
-    "templateMatchesBatchData": "O modelo corresponde aos dados do lote",
-    "templateReadyToUse": "Pronto para usar. Você pode personalizar este modelo no builder a qualquer momento.",
-    "editInBuilder": "Editar no builder",
-    "missingFieldsEditInBuilder": "{{count}} campo(s) faltando nos dados do lote. Edite o modelo no builder para corrigir.",
-    "editWithRealData": "Editar com dados reais",
-    "editTemplateWithRealData": "Editar modelo com dados reais",
-    "paths": "Caminhos",
-    "actions": "Ações",
-    "generatePdf": "Gerar PDF",
-    "generating": "Gerando...",
-    "downloadPdf": "Baixar PDF",
-    "sendViaEmail": "Enviar por email",
-    "sending": "Enviando...",
-    "stepResultsLayout": "Layout de resultados por etapa",
-    "reportForRecord": "Relatório do registro #{{index}}",
-    "dragSectionsReorder": "Arraste para reordenar. O layout está pronto para impressão.",
-    "noStepResultsYet": "Sem resultados de etapas ainda",
-    "processBatchToSeeResults": "Processe o lote para ver os resultados de cada endpoint aqui.",
-    "row": "Linha",
-    "result": "Resultado",
-    "viewModeReadable": "Legível",
-    "viewModeJson": "JSON",
-    "step": "Etapa",
-    "preview": "Visualização",
-    "previewSameAsBuilder": "Mesma visualização do construtor — modelo renderizado com dados do lote",
-    "generatingPdf": "Gerando PDF...",
-    "noPreviewAvailable": "Nenhuma visualização disponível",
-    "selectTemplateAndBatch": "Selecione um modelo e certifique-se de que o lote tenha linhas processadas",
-    "back": "Voltar",
-    "generateReportFirst": "Gere um relatório primeiro",
-    "emailSent": "Email enviado!",
-    "failedToSendEmail": "Falha ao enviar email",
-    "pdfDownloaded": "PDF baixado",
-    "failedToDownloadPdf": "Falha ao baixar PDF",
-    "invalidPdfReceived": "PDF inválido recebido do servidor",
-    "editReportTemplate": "Editar Modelo de Relatório",
-    "newReportTemplate": "Novo Modelo de Relatório",
-    "designReportLayout": "Projete o layout do seu relatório com arrastar e soltar",
-    "sendSample": "Enviar Amostra",
-    "sendingSample": "Enviando amostra...",
-    "saveTemplateFirst": "Salve o modelo primeiro para habilitar o envio de amostra",
-    "saveTemplate": "Salvar Modelo",
-    "saving": "Salvando...",
-    "templateSettings": "Configurações do Modelo",
-    "templateName": "Nome do Modelo",
-    "templateNamePlaceholder": "Meu Modelo de Relatório",
-    "pageSize": "Tamanho da Página",
-    "orientation": "Orientação",
-    "portrait": "Retrato",
-    "landscape": "Paisagem",
-    "pdfEngine": "Motor PDF",
-    "primaryColor": "Cor Principal",
-    "helperData": "Dados de Ajuda",
-    "helperDataHint": "Use estes caminhos nas seções Campo ou Tabela",
-    "openFromReportViewer": "Abra do visualizador de relatórios com dados do lote para ver caminhos disponíveis",
-    "copyPath": "Copiar caminho",
-    "copyPathForTable": "Copiar caminho (usar para seção Tabela)",
-    "addSections": "Adicionar Seções",
-    "reportLayout": "Layout do Relatório",
-    "dragToReorder": "Arraste para reordenar seções",
-    "addSectionsFromAbove": "Adicione seções acima",
-    "section": "Seção",
-    "sectionNumber": "Seção #{{num}}",
-    "edit": "Editar",
-    "duplicate": "Duplicar",
-    "delete": "Excluir",
-    "titleText": "Texto do Título",
-    "reportTitle": "Título do Relatório",
-    "content": "Conteúdo",
-    "enterTextContent": "Digite o conteúdo do texto...",
-    "label": "Etiqueta",
-    "fieldLabel": "Etiqueta do campo",
-    "dataPath": "Caminho de Dados",
-    "dataPathPlaceholder": "results.1.fullName",
-    "dotSeparatedPath": "Caminho separado por pontos (ex. results.1.fullName)",
-    "tableTitle": "Título da Tabela",
-    "tableLabel": "Etiqueta da tabela",
-    "dataPathObject": "Caminho de Dados (objeto)",
-    "pathToObject": "Caminho para um objeto cujas chaves se tornam linhas",
-    "imageUrl": "URL da Imagem",
-    "altText": "Texto Alternativo",
-    "companyLogo": "Logo da Empresa",
-    "heightPx": "Altura (px)",
-    "color": "Cor",
-    "style": "Estilo",
-    "textAlign": "Alinhamento do Texto",
-    "fontSize": "Tamanho da Fonte",
-    "fontWeight": "Peso da Fonte",
-    "normal": "Normal",
-    "bold": "Negrito",
-    "textColor": "Cor do Texto",
-    "livePreviewWithSample": "Visualização ao vivo com dados de amostra",
-    "missing": "Faltando",
-    "sendSampleReport": "Enviar Amostra de Relatório",
-    "sendReport": "Enviar Relatório",
-    "enterRecipientsAndSubject": "Digite o(s) email(s) do(s) destinatário(s) e assunto opcional",
-    "recipientEmails": "Email(s) do destinatário",
-    "recipientsPlaceholder": "email1@exemplo.com, email2@exemplo.com",
-    "separateEmailsWithCommas": "Separe vários emails com vírgulas",
-    "atLeastOneRecipient": "Pelo menos um destinatário é obrigatório",
-    "enterValidEmails": "Digite endereço(s) de email válido(s)",
-    "subjectOptional": "Assunto (opcional)",
-    "subjectOptionalPlaceholder": "Amostra de Relatório: Visualização do Modelo",
-    "reportBatchPlaceholder": "Relatório - Lote",
-    "cancel": "Cancelar",
-    "noSectionsToPreview": "Nenhuma seção para visualizar",
-    "untitled": "Sem título",
-    "textContent": "Conteúdo do texto...",
-    "field": "Campo",
-    "noDataAtPath": "Sem dados no caminho \"{{path}}\"",
-    "image": "Imagem",
-    "failedToSaveTemplatePreference": "Falha ao salvar preferência do modelo",
-    "pleaseSelectTemplate": "Por favor selecione um modelo",
-    "reportGenerated": "Relatório gerado!",
-    "failedToGenerateReport": "Falha ao gerar relatório",
-    "failedToCreateReport": "Falha ao criar relatório",
-    "sectionHeader": "Cabeçalho",
-    "sectionText": "Bloco de Texto",
-    "sectionField": "Campo de Dados",
-    "sectionTable": "Tabela",
-    "sectionImage": "Imagem",
-    "sectionDivider": "Divisor",
-    "sectionSpacer": "Espaçador",
-    "samplePdfSentSuccess": "PDF de amostra enviado com sucesso",
-    "failedToSendSamplePdf": "Falha ao enviar PDF de amostra",
-    "copied": "Copiado",
-    "failedToCopy": "Falha ao copiar"
-  },
-  "batchProcessing": {
-    "backToDashboard": "Voltar ao painel",
-    "batchProcessing": "Processamento em lote",
-    "records": "registros",
-    "status": "Status",
-    "starting": "Iniciando...",
-    "startProcessing": "Iniciar processamento",
-    "pause": "Pausar",
-    "generateReport": "Gerar relatório",
-    "processing": "Processando...",
-    "processingSteps": "Etapas de processamento",
-    "credits": "créditos",
-    "pending": "Pendente",
-    "recordsWaiting": "{{count}} registros aguardando",
-    "allRecordsProcessed": "Todos os registros processados!",
-    "rowNumber": "Linha {{index}}",
-    "completed": "Concluído",
-    "failed": "Falhou",
-    "recordsVerified": "{{count}} registros verificados",
-    "noCompletedRecordsYet": "Nenhum registro concluído ainda",
-    "verified": "Verificado",
-    "skipped": "Ignorado",
-    "rowDetails": "Detalhes da linha #{{index}}",
-    "readable": "Legível",
-    "json": "JSON",
-    "generatePdfReport": "Gerar relatório PDF",
-    "inputData": "Dados de entrada",
-    "stepResults": "Resultados por etapa",
-    "errors": "Erros",
-    "stepError": "Etapa {{step}}: {{code}}",
-    "stepStatusCompleted": "{{step}}: Concluído",
-    "stepStatusFailed": "{{step}}: Falhou",
-    "stepStatusPending": "{{step}}: Pendente",
-    "stepStatusSkipped": "{{step}}: Ignorado",
-    "draft": "Rascunho",
-    "cancelled": "Cancelado"
-  },
-  "batchDashboard": {
-    "backToSmartBatch": "Voltar ao Smart Batch",
-    "loading": "Carregando...",
-    "batchProcessingDashboard": "Painel de processamento em lote",
-    "createBatch": "Criar lote",
-    "steps": "Etapas",
-    "strategy": "Estratégia",
-    "format": "Formato",
-    "costPerRow": "Custo/linha",
-    "processingSteps": "Etapas de processamento",
-    "disabled": "Desativado",
-    "costBreakdown": "Detalhamento de custos",
-    "totalPerRow": "Total por linha",
-    "total": "Total",
-    "totalBatches": "Lotes totais",
-    "success": "Sucesso",
-    "completedRows": "Linhas concluídas",
-    "queue": "Fila",
-    "pendingRows": "Linhas pendentes",
-    "error": "Erro",
-    "failedRows": "Linhas com falha",
-    "loadingBatches": "Carregando lotes...",
-    "noBatchesYet": "Nenhum lote ainda",
-    "createFirstBatchDescription": "Crie seu primeiro lote para começar a processar dados com esta configuração.",
-    "createFirstBatch": "Criar primeiro lote",
-    "batches": "Lotes",
-    "name": "Nome",
-    "status": "Status",
-    "progress": "Progresso",
-    "rows": "Linhas",
-    "created": "Criado",
-    "actions": "Ações",
-    "viewDetails": "Ver detalhes",
-    "failedCount": "({{count}} falharam)"
-  }
 }

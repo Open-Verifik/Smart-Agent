@@ -1,954 +1,993 @@
 {
-  "appFeatures": {
-    "colombia_special_api_identity_lookup": {
-      "title": "콜롬비아 - 개인 시민 정보",
-      "description": "개인 시민 정보 접근 를 위한 Colombian nationals. 이 서비스는 포괄적인 개인 데이터를 제공 포함 detailed identity verification. 자세한 내용은 Verifik 고객 서비스에 문의하세요."
-    },
-    "colombia_api_identity_lookup": {
-      "title": "콜롬비아 - 국민 신분증 확인",
-      "description": "확인 Colombian national ID (cédula) information. 가져오기 full name, document status, and basic citizen verification data."
-    },
-    "colombia_special_api_police_identity_lookup": {
-      "title": "콜롬비아 - 경찰 기록 조회",
-      "description": "조회 police records through Colombia's National Police system. 확인 interactions with law enforcement and police records. 필요 document type, document number, and expedition date."
-    },
-    "world_api_dea": {
-      "title": "글로벌 - DEA 신원 조회",
-      "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 검색 by full name OR document number with document type. 확인 individuals against international drug enforcement records."
-    },
-    "colombia_api_military_situation": {
-      "title": "Colombia - 군 복무 기록",
-      "description": "확인 military service records through Colombia's military system. 조회 service status, military obligations, and service records. 필요 Colombian ID (CC) and document number."
-    },
-    "colombia_api_rethus": {
-      "title": "Colombia - 건강 기록 확인",
-      "description": "Access Colombian health records through Rethus system. 확인 medical history, health status, and healthcare provider information. 필요 document type (CC, CE, PPT) and document number."
-    },
-    "colombia_api_rues": {
-      "title": "Colombia - 회사 등록 확인",
-      "description": "확인 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 조회 business registration, legal status, and company information. 필요 document type and document number."
-    },
-    "colombia_api_dian": {
-      "title": "Colombia - 세금 정보 확인",
-      "description": "확인 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 조회 tax status, obligations, and compliance records. 필요 document type and document number."
-    },
-    "peru_api_company_lookup": {
-      "title": "Peru - 사업자 등록 조회",
-      "description": "Business verification service 를 위한 Peru. 제공 company registration details, legal status, and business information."
-    },
-    "colombia_api_judicial_process_details": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle_soat": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "usa_api_vehicle": {
-      "title": " - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 . 차량 등록 및 기본 정보 확인."
-    },
-    "world_api_onu": {
-      "title": "글로벌 - 유엔 제재 확인",
-      "description": "조회 individuals and entities against United Nations sanctions lists. 검색 by full name OR document number with document type. 확인 compliance with international sanctions regimes."
-    },
-    "feature_kyc_solution": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "world_api_covid": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_affiliations": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_contraloria_certificate": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "peru_identity_lookup": {
-      "title": "Peru - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Peru 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "venezuela_api_identity_lookup": {
-      "title": "Venezuela - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Venezuela 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "colombia_api_vehicle_complete": {
-      "title": "Colombia - Complete Vehicle Information",
-      "description": "가져오기 comprehensive vehicle information 를 위한 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
-    },
-    "mexico_api_vehicle": {
-      "title": "Mexico - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Mexico. 차량 등록 및 기본 정보 확인."
-    },
-    "feature_passwordless_solution": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "world_api_interpol": {
-      "title": "글로벌 - 인터폴 신원 조회",
-      "description": "International background check using Interpol databases. 검색 by full name OR document number with document type. 확인 individuals against international criminal records and wanted lists."
-    },
-    "colombia_api_sena": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "world_api_ofac": {
-      "title": "글로벌 - OFAC 제재 확인",
-      "description": "조회 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 검색 by full name OR document number with document type. 확인 compliance with US economic sanctions."
-    },
-    "colombia_api_registraduria_certificate": {
-      "title": "Colombia - 선거 기록 확인",
-      "description": "Electoral records verification service 를 위한 Colombia 시민. 제공 voting status and electoral information."
-    },
-    "colombia_api_delinquent_debtors": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "world_api_fbi": {
-      "title": "글로벌 - FBI 신원 조회",
-      "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 검색 by full name OR document number with document type. 확인 individuals against federal criminal records."
-    },
-    "mexico_identity_lookup": {
-      "title": "Mexico - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "ecuador_api_identity_lookup": {
-      "title": "Ecuador - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Ecuador 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "colombia_api_driver": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "peru_api_vehicle": {
-      "title": "Peru - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Peru. 차량 등록 및 기본 정보 확인."
-    },
-    "peru_api_vehicle_soat": {
-      "title": "Peru - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Peru. 차량 등록 및 기본 정보 확인."
-    },
-    "ecuador_api_vehicle": {
-      "title": "Ecuador - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Ecuador. 차량 등록 및 기본 정보 확인."
-    },
-    "feature_data_api": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_min_trabajo": {
-      "title": "Colombia - 노동 증명서 확인",
-      "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
-    },
-    "colombia_api_registraduria_voting": {
-      "title": "Colombia - 선거 기록 확인",
-      "description": "Electoral records verification service 를 위한 Colombia 시민. 제공 voting status and electoral information."
-    },
-    "world_api_europol": {
-      "title": "글로벌 - 유로폴 신원 조회",
-      "description": "European background check using Europol databases. 검색 by full name OR document number with document type. 확인 individuals against European criminal records and intelligence databases."
-    },
-    "colombia_api_criminal_history": {
-      "title": "Colombia - 법적 신원 조회",
-      "description": "Legal background verification service 를 위한 Colombia 시민. 제공 information about legal proceedings and judicial records."
-    },
-    "colombia_api_judicial_processes": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "colombia_api_pico_placa": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "feature_pdf_generator": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "panama_api_identity_full_lookup": {
-      "title": "Panama - Complete 신원 확인",
-      "description": "종합 신원 확인 서비스 를 위한 Panama 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
-    },
-    "chile_api_identity_lookup": {
-      "title": "Chile - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Chile 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "costarica_api_identity_lookup": {
-      "title": "Costa Rica - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Costa Rica 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "ecuador_api_criminal_history": {
-      "title": "Ecuador - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Ecuador 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "chile_api_vehicle": {
-      "title": "Chile - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Chile. 차량 등록 및 기본 정보 확인."
-    },
-    "panama_api_identity_lookup": {
-      "title": "Panama - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Panama 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "panama_api_vehicle": {
-      "title": "Panama - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Panama. 차량 등록 및 기본 정보 확인."
-    },
-    "chile_api_business_lookup": {
-      "title": "Chile - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "spain_api_identity_lookup": {
-      "title": "Spain - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Spain 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "ecuador_api_vehicle_fines": {
-      "title": "Ecuador - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Ecuador. 차량 등록 및 기본 정보 확인."
-    },
-    "colombia_api_vehicle_complete_by_plate": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "colombia_api_vehicle_complete_by_vin": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "peru_identity_extra_lookup": {
-      "title": "Peru - Complete 신원 확인",
-      "description": "종합 신원 확인 서비스 를 위한 Peru 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
-    },
-    "colombia_api_lawyers": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "brasil_api_identity_lookup": {
-      "title": "Brazil - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Brazil 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "usa_api_driver_license_lookup": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "consultar_procesos_judiciales": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "credit_intent": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "ip-lookup": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_judicial_records": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "communication_messaging_sms": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "communication_colombia_messaging_whatsapp": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "communication_global_messaging_whatsapp": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "communication_global_email_otp": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_liveness_3d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_estimate_age_3d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_check_age_3d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_enrollment_3d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_id_scan_only": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_liveness_2d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_estimate_age_2d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "biometrics_check_age_2d": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "credit_intent_kyc_passwordless": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "brasil_api_company_lookup": {
-      "title": "Brazil - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Brazil. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "brasil_api_vehicle": {
-      "title": "Brazil - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Brazil. 차량 등록 및 기본 정보 확인."
-    },
-    "argentina_api_identity_lookup": {
-      "title": "Argentina - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Argentina 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "ecuador_api_company_lookup": {
-      "title": "Ecuador - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Ecuador. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "usa_api_ssn": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_dian_invoicer": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "api_colombia_contracts": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_police_rnmc": {
-      "title": "콜롬비아 - 경찰 기록 조회",
-      "description": "Police records verification service 를 위한 Colombia 시민. 제공 information about police interactions and records."
-    },
-    "bolivia_api_identity_lookup": {
-      "title": "Bolivia - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Bolivia 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "colombia_pep_lookup": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "api_autodata_manufacturers": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "world_api_phone_lookup": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "Mexico_api_ine_model_e": {
-      "title": "Mexico - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "Mexico_api_ine_model_d": {
-      "title": "Mexico - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "Mexico_api_ine_model_c": {
-      "title": "Mexico - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "api_autodata_enginer": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_rues_full": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "api_autodata_enginer_code": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "api_autodata_selection": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_sisconmp": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "data_finance_incomestatement": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "data_finance_balancesheet": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "data_finance_cashflow": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "data_finance_stockprice": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "paraguay_api_identity_lookup": {
-      "title": "Paraguay - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Paraguay. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "canada_api_driver_license_alberta": {
-      "title": "Canada - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "canada_api_driver_license_ontario": {
-      "title": "Canada - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle_complete_by_plate_simplified": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "canada_api_driver_license_quebec": {
-      "title": "Canada - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "ocr_scan_pro": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "el_salvador_api_identity_lookup": {
-      "title": "El Salvador - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 El Salvador. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "canada_api_driver_license_british-columbia": {
-      "title": "Canada - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "ocr_scan_gpt": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_identity_lookup_extra": {
-      "title": "Colombia - Complete 신원 확인",
-      "description": "종합 신원 확인 서비스 를 위한 Colombia 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
-    },
-    "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
-    },
-    "ocr_scan_studio": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "canada_api_company": {
-      "title": "Canada - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "us_api_passport_entries": {
-      "title": "United States - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 United States 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "mexico_api_company": {
-      "title": "Mexico - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_compare": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_compare_live": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_liveness": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_search_live_face": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_verify": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_detect": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_search_crops": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_search": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_plate": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_code": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "usa_api_company": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_runt_owners": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "chile_api_driver_license": {
-      "title": "Chile - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_lawyers_certificate": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "argentina_api_vehicle": {
-      "title": "Argentina - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Argentina. 차량 등록 및 기본 정보 확인."
-    },
-    "argentina_api_company_lookup": {
-      "title": "Argentina - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Argentina. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "bolivia_api_vehicle": {
-      "title": "Bolivia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Bolivia. 차량 등록 및 기본 정보 확인."
-    },
-    "brasil_api_criminal_history": {
-      "title": "Brazil - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Brazil. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "bolivia_api_business_lookup": {
-      "title": "Bolivia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Bolivia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Costa Rica. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "paraguay_api_business_lookup": {
-      "title": "Paraguay - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Paraguay. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_vehicle_tax": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "colombia_api_vehicle_accidentality_bogota": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "api_data_sheet_vehicle": {
-      "title": " - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 . 차량 등록 및 기본 정보 확인."
-    },
-    "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brazil - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Brazil. 차량 등록 및 기본 정보 확인."
-    },
-    "face_recognition_search_active_user": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "matpis_appointments": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "chile_api_taxpayer_lookup": {
-      "title": "Chile - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "chile_api_validate": {
-      "title": "Chile - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_agreements": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_suspensions": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_subpoenas": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_resolutions": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_complete": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_simit_plate": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "world_api_passport_entries": {
-      "title": "United States - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 United States 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "validate-document": {
-      "title": "Colombia - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Colombia 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "costa_rica_api_vehicle": {
-      "title": "Costa Rica - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Costa Rica. 차량 등록 및 기본 정보 확인."
-    },
-    "paraguay_api_vehicle": {
-      "title": "Paraguay - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Paraguay. 차량 등록 및 기본 정보 확인."
-    },
-    "usa_api_vehicle_lookup_by_vin": {
-      "title": " - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 . 차량 등록 및 기본 정보 확인."
-    },
-    "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
-    },
-    "colombia_api_vehicle_fines_bogota": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "colombia_api_vehicle_fines_medellin": {
-      "title": "Colombia - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
-    },
-    "guatemala_api_identity_lookup": {
-      "title": "Guatemala - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Guatemala 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "honduras_api_identity_lookup": {
-      "title": "Honduras - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Honduras 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "republica_dominicana_api_citizen_lookup": {
-      "title": "Dominican Republic - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Dominican Republic 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "venezuela_foreigner_api": {
-      "title": "Venezuela - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Venezuela. 제공 immigration status and foreigner registration information."
-    },
-    "colombia_sisben_api_lookup": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "spain_api_vehicle_lookup": {
-      "title": "Spain - 차량 확인",
-      "description": "표준 차량 확인 서비스 를 위한 Spain. 차량 등록 및 기본 정보 확인."
-    },
-    "spain_api_company_lookup": {
-      "title": "Spain - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Spain. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "panama_api_business_lookup": {
-      "title": "Panama - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Panama. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "uruguay_api_identity_lookup": {
-      "title": "Uruguay - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Uruguay 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Peru. 제공 immigration status and foreigner registration information."
-    },
-    "colombia_api_rues_full_v3": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_rues_v3": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "peru_identity_lookup_v3": {
-      "title": "Peru - 신원 확인",
-      "description": "표준 신원 확인 서비스 를 위한 Peru 시민. 개인 정보 및 문서 진위 확인."
-    },
-    "peru_identity_extra_lookup_v3": {
-      "title": "Peru - Complete 신원 확인",
-      "description": "종합 신원 확인 서비스 를 위한 Peru 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
-    },
-    "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
-    },
-    "colombia_api_min_trabajo_v3": {
-      "title": "Colombia - 노동 증명서 확인",
-      "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
-    },
-    "peru_api_company_lookup_v3": {
-      "title": "Peru - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Peru. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "face_recognition_detect_face": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "document-liveness": {
-      "title": " - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_api_inpec": {
-      "title": "Colombia - 데이터 검증 서비스",
-      "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
-    },
-    "colombia_sigep_by_name": {
-      "title": "Colombia - SIGEP Public Officials 검색",
-      "description": "검색 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
-    },
-    "colombia_sigep_by_number": {
-      "title": "Colombia - SIGEP Official 검색 by Document",
-      "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 가져오기 complete professional information from SIGEP records."
-    },
-    "colombia_inpec_lookup": {
-      "title": "Colombia - INPEC 교도소 기록 조회",
-      "description": "Look up Colombian prison records and inmate information using ID number and surname. 가져오기 admission status, legal status, and prison facility details from INPEC records."
-    },
-    "zelf-proofs": {
-      "title": "Zelf Proofs",
-      "description": "Zelf Proofs service 를 위한 identity verification and document validation. This service provides comprehensive proof generation capabilities 를 위한 various identity documents and verification processes."
-    },
-    "zelf-proof-liveness-active-user": {
-      "title": "Zelf Proof with Liveness (Active user)",
-      "description": "Zelf Proof with Liveness detection service 를 위한 enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+    "appFeatures": {
+        "colombia_special_api_identity_lookup": {
+            "title": "콜롬비아 - 개인 시민 정보",
+            "description": "개인 시민 정보 접근 를 위한 Colombian nationals. 이 서비스는 포괄적인 개인 데이터를 제공 포함 detailed identity verification. 자세한 내용은 Verifik 고객 서비스에 문의하세요."
+        },
+        "colombia_api_identity_lookup": {
+            "title": "콜롬비아 - 국민 신분증 확인",
+            "description": "확인 Colombian national ID (cédula) information. 가져오기 full name, document status, and basic citizen verification data."
+        },
+        "colombia_special_api_police_identity_lookup": {
+            "title": "콜롬비아 - 경찰 기록 조회",
+            "description": "조회 police records through Colombia's National Police system. 확인 interactions with law enforcement and police records. 필요 document type, document number, and expedition date."
+        },
+        "world_api_dea": {
+            "title": "글로벌 - DEA 신원 조회",
+            "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 검색 by full name OR document number with document type. 확인 individuals against international drug enforcement records."
+        },
+        "colombia_api_military_situation": {
+            "title": "Colombia - 군 복무 기록",
+            "description": "확인 military service records through Colombia's military system. 조회 service status, military obligations, and service records. 필요 Colombian ID (CC) and document number."
+        },
+        "colombia_api_rethus": {
+            "title": "Colombia - 건강 기록 확인",
+            "description": "Access Colombian health records through Rethus system. 확인 medical history, health status, and healthcare provider information. 필요 document type (CC, CE, PPT) and document number."
+        },
+        "colombia_api_rues": {
+            "title": "Colombia - 회사 등록 확인",
+            "description": "확인 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 조회 business registration, legal status, and company information. 필요 document type and document number."
+        },
+        "colombia_api_dian": {
+            "title": "Colombia - 세금 정보 확인",
+            "description": "확인 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 조회 tax status, obligations, and compliance records. 필요 document type and document number."
+        },
+        "peru_api_company_lookup": {
+            "title": "Peru - 사업자 등록 조회",
+            "description": "Business verification service 를 위한 Peru. 제공 company registration details, legal status, and business information."
+        },
+        "colombia_api_judicial_process_details": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle_soat": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "usa_api_vehicle": {
+            "title": " - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 . 차량 등록 및 기본 정보 확인."
+        },
+        "world_api_onu": {
+            "title": "글로벌 - 유엔 제재 확인",
+            "description": "조회 individuals and entities against United Nations sanctions lists. 검색 by full name OR document number with document type. 확인 compliance with international sanctions regimes."
+        },
+        "feature_kyc_solution": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "world_api_covid": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_affiliations": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_contraloria_certificate": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "peru_identity_lookup": {
+            "title": "Peru - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Peru 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "venezuela_api_identity_lookup": {
+            "title": "Venezuela - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Venezuela 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "colombia_api_vehicle_complete": {
+            "title": "Colombia - Complete Vehicle Information",
+            "description": "가져오기 comprehensive vehicle information 를 위한 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
+        },
+        "mexico_api_vehicle": {
+            "title": "Mexico - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Mexico. 차량 등록 및 기본 정보 확인."
+        },
+        "feature_passwordless_solution": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "world_api_interpol": {
+            "title": "글로벌 - 인터폴 신원 조회",
+            "description": "International background check using Interpol databases. 검색 by full name OR document number with document type. 확인 individuals against international criminal records and wanted lists."
+        },
+        "colombia_api_sena": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "world_api_ofac": {
+            "title": "글로벌 - OFAC 제재 확인",
+            "description": "조회 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 검색 by full name OR document number with document type. 확인 compliance with US economic sanctions."
+        },
+        "colombia_api_registraduria_certificate": {
+            "title": "Colombia - 선거 기록 확인",
+            "description": "Electoral records verification service 를 위한 Colombia 시민. 제공 voting status and electoral information."
+        },
+        "colombia_api_delinquent_debtors": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "world_api_fbi": {
+            "title": "글로벌 - FBI 신원 조회",
+            "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 검색 by full name OR document number with document type. 확인 individuals against federal criminal records."
+        },
+        "mexico_identity_lookup": {
+            "title": "Mexico - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "ecuador_api_identity_lookup": {
+            "title": "Ecuador - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Ecuador 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "colombia_api_driver": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "peru_api_vehicle": {
+            "title": "Peru - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Peru. 차량 등록 및 기본 정보 확인."
+        },
+        "peru_api_vehicle_soat": {
+            "title": "Peru - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Peru. 차량 등록 및 기본 정보 확인."
+        },
+        "ecuador_api_vehicle": {
+            "title": "Ecuador - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Ecuador. 차량 등록 및 기본 정보 확인."
+        },
+        "feature_data_api": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_min_trabajo": {
+            "title": "Colombia - 노동 증명서 확인",
+            "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
+        },
+        "colombia_api_registraduria_voting": {
+            "title": "Colombia - 선거 기록 확인",
+            "description": "Electoral records verification service 를 위한 Colombia 시민. 제공 voting status and electoral information."
+        },
+        "world_api_europol": {
+            "title": "글로벌 - 유로폴 신원 조회",
+            "description": "European background check using Europol databases. 검색 by full name OR document number with document type. 확인 individuals against European criminal records and intelligence databases."
+        },
+        "colombia_api_criminal_history": {
+            "title": "Colombia - 법적 신원 조회",
+            "description": "Legal background verification service 를 위한 Colombia 시민. 제공 information about legal proceedings and judicial records."
+        },
+        "colombia_api_judicial_processes": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "colombia_api_pico_placa": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "feature_pdf_generator": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "panama_api_identity_full_lookup": {
+            "title": "Panama - Complete 신원 확인",
+            "description": "종합 신원 확인 서비스 를 위한 Panama 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
+        },
+        "chile_api_identity_lookup": {
+            "title": "Chile - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Chile 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "costarica_api_identity_lookup": {
+            "title": "Costa Rica - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Costa Rica 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "ecuador_api_criminal_history": {
+            "title": "Ecuador - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Ecuador 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "chile_api_vehicle": {
+            "title": "Chile - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Chile. 차량 등록 및 기본 정보 확인."
+        },
+        "panama_api_identity_lookup": {
+            "title": "Panama - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Panama 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "panama_api_vehicle": {
+            "title": "Panama - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Panama. 차량 등록 및 기본 정보 확인."
+        },
+        "chile_api_business_lookup": {
+            "title": "Chile - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "spain_api_identity_lookup": {
+            "title": "Spain - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Spain 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "ecuador_api_vehicle_fines": {
+            "title": "Ecuador - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Ecuador. 차량 등록 및 기본 정보 확인."
+        },
+        "colombia_api_vehicle_complete_by_plate": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "colombia_api_vehicle_complete_by_vin": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "peru_identity_extra_lookup": {
+            "title": "Peru - Complete 신원 확인",
+            "description": "종합 신원 확인 서비스 를 위한 Peru 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
+        },
+        "colombia_api_lawyers": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "brasil_api_identity_lookup": {
+            "title": "Brazil - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Brazil 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "usa_api_driver_license_lookup": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "consultar_procesos_judiciales": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "credit_intent": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "ip-lookup": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_judicial_records": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "communication_messaging_sms": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "communication_colombia_messaging_whatsapp": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "communication_global_messaging_whatsapp": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "communication_global_email_otp": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_liveness_3d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_estimate_age_3d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_check_age_3d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_enrollment_3d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_id_scan_only": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_liveness_2d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_estimate_age_2d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "biometrics_check_age_2d": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "credit_intent_kyc_passwordless": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "brasil_api_company_lookup": {
+            "title": "Brazil - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Brazil. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "brasil_api_vehicle": {
+            "title": "Brazil - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Brazil. 차량 등록 및 기본 정보 확인."
+        },
+        "argentina_api_identity_lookup": {
+            "title": "Argentina - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Argentina 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "ecuador_api_company_lookup": {
+            "title": "Ecuador - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Ecuador. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "usa_api_ssn": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_dian_invoicer": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "api_colombia_contracts": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_police_rnmc": {
+            "title": "콜롬비아 - 경찰 기록 조회",
+            "description": "Police records verification service 를 위한 Colombia 시민. 제공 information about police interactions and records."
+        },
+        "bolivia_api_identity_lookup": {
+            "title": "Bolivia - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Bolivia 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "colombia_pep_lookup": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "api_autodata_manufacturers": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "world_api_phone_lookup": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "Mexico_api_ine_model_e": {
+            "title": "Mexico - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "Mexico_api_ine_model_d": {
+            "title": "Mexico - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "Mexico_api_ine_model_c": {
+            "title": "Mexico - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "api_autodata_enginer": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_rues_full": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "api_autodata_enginer_code": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "api_autodata_selection": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_sisconmp": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "data_finance_incomestatement": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "data_finance_balancesheet": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "data_finance_cashflow": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "data_finance_stockprice": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "paraguay_api_identity_lookup": {
+            "title": "Paraguay - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Paraguay. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "canada_api_driver_license_alberta": {
+            "title": "Canada - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "canada_api_driver_license_ontario": {
+            "title": "Canada - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle_complete_by_plate_simplified": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "canada_api_driver_license_quebec": {
+            "title": "Canada - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "ocr_scan_pro": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "el_salvador_api_identity_lookup": {
+            "title": "El Salvador - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 El Salvador. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "canada_api_driver_license_british-columbia": {
+            "title": "Canada - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "ocr_scan_gpt": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_identity_lookup_extra": {
+            "title": "Colombia - Complete 신원 확인",
+            "description": "종합 신원 확인 서비스 를 위한 Colombia 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
+        },
+        "colombia_api_identity_pep_foreigner_id": {
+            "title": "Colombia - 이민 상태 확인",
+            "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
+        },
+        "ocr_scan_studio": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "canada_api_company": {
+            "title": "Canada - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "us_api_passport_entries": {
+            "title": "United States - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 United States 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "mexico_api_company": {
+            "title": "Mexico - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_compare": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_compare_live": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_liveness": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_search_live_face": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_verify": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_detect": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_search_crops": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_search": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_plate": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_code": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "usa_api_company": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_runt_owners": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "chile_api_driver_license": {
+            "title": "Chile - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_lawyers_certificate": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "argentina_api_vehicle": {
+            "title": "Argentina - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Argentina. 차량 등록 및 기본 정보 확인."
+        },
+        "argentina_api_company_lookup": {
+            "title": "Argentina - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Argentina. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "bolivia_api_vehicle": {
+            "title": "Bolivia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Bolivia. 차량 등록 및 기본 정보 확인."
+        },
+        "brasil_api_criminal_history": {
+            "title": "Brazil - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Brazil. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "bolivia_api_business_lookup": {
+            "title": "Bolivia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Bolivia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "costa_rica_api_business_lookup": {
+            "title": "Costa Rica - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Costa Rica. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "paraguay_api_business_lookup": {
+            "title": "Paraguay - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Paraguay. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_vehicle_tax": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "colombia_api_vehicle_accidentality_bogota": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "api_data_sheet_vehicle": {
+            "title": " - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 . 차량 등록 및 기본 정보 확인."
+        },
+        "api_data_sheet_vehicle_by-plate_br": {
+            "title": "Brazil - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Brazil. 차량 등록 및 기본 정보 확인."
+        },
+        "face_recognition_search_active_user": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "matpis_appointments": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "chile_api_taxpayer_lookup": {
+            "title": "Chile - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "chile_api_validate": {
+            "title": "Chile - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Chile. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_agreements": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_suspensions": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_subpoenas": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_subpoenas_details": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_resolutions": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_complete": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_simit_plate": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "world_api_passport_entries": {
+            "title": "United States - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 United States 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "validate-document": {
+            "title": "Colombia - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Colombia 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "costa_rica_api_vehicle": {
+            "title": "Costa Rica - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Costa Rica. 차량 등록 및 기본 정보 확인."
+        },
+        "paraguay_api_vehicle": {
+            "title": "Paraguay - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Paraguay. 차량 등록 및 기본 정보 확인."
+        },
+        "usa_api_vehicle_lookup_by_vin": {
+            "title": " - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 . 차량 등록 및 기본 정보 확인."
+        },
+        "colombia_api_identity_ce_foreigner_id": {
+            "title": "Colombia - 이민 상태 확인",
+            "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
+        },
+        "colombia_api_vehicle_fines_bogota": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "colombia_api_vehicle_fines_medellin": {
+            "title": "Colombia - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+        },
+        "guatemala_api_identity_lookup": {
+            "title": "Guatemala - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Guatemala 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "honduras_api_identity_lookup": {
+            "title": "Honduras - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Honduras 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "republica_dominicana_api_citizen_lookup": {
+            "title": "Dominican Republic - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Dominican Republic 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "venezuela_foreigner_api": {
+            "title": "Venezuela - 이민 상태 확인",
+            "description": "Immigration records verification service 를 위한 Venezuela. 제공 immigration status and foreigner registration information."
+        },
+        "colombia_sisben_api_lookup": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "spain_api_vehicle_lookup": {
+            "title": "Spain - 차량 확인",
+            "description": "표준 차량 확인 서비스 를 위한 Spain. 차량 등록 및 기본 정보 확인."
+        },
+        "spain_api_company_lookup": {
+            "title": "Spain - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Spain. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "panama_api_business_lookup": {
+            "title": "Panama - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Panama. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "uruguay_api_identity_lookup": {
+            "title": "Uruguay - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Uruguay 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "peru_api_identity_ce_foreigner_id": {
+            "title": "Peru - 이민 상태 확인",
+            "description": "Immigration records verification service 를 위한 Peru. 제공 immigration status and foreigner registration information."
+        },
+        "colombia_api_rues_full_v3": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_rues_v3": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "peru_identity_lookup_v3": {
+            "title": "Peru - 신원 확인",
+            "description": "표준 신원 확인 서비스 를 위한 Peru 시민. 개인 정보 및 문서 진위 확인."
+        },
+        "peru_identity_extra_lookup_v3": {
+            "title": "Peru - Complete 신원 확인",
+            "description": "종합 신원 확인 서비스 를 위한 Peru 시민. 제공 complete personal information 포함 full name, document details, and additional verification data."
+        },
+        "colombia_api_identity_ppt_foreigner_id": {
+            "title": "Colombia - 이민 상태 확인",
+            "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
+        },
+        "colombia_api_min_trabajo_v3": {
+            "title": "Colombia - 노동 증명서 확인",
+            "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
+        },
+        "peru_api_company_lookup_v3": {
+            "title": "Peru - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Peru. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "face_recognition_detect_face": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "document-liveness": {
+            "title": " - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_api_inpec": {
+            "title": "Colombia - 데이터 검증 서비스",
+            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+        },
+        "colombia_sigep_by_name": {
+            "title": "Colombia - SIGEP Public Officials 검색",
+            "description": "검색 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
+        },
+        "colombia_sigep_by_number": {
+            "title": "Colombia - SIGEP Official 검색 by Document",
+            "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 가져오기 complete professional information from SIGEP records."
+        },
+        "colombia_inpec_lookup": {
+            "title": "Colombia - INPEC 교도소 기록 조회",
+            "description": "Look up Colombian prison records and inmate information using ID number and surname. 가져오기 admission status, legal status, and prison facility details from INPEC records."
+        },
+        "zelf-proofs": {
+            "title": "Zelf Proofs",
+            "description": "Zelf Proofs service 를 위한 identity verification and document validation. This service provides comprehensive proof generation capabilities 를 위한 various identity documents and verification processes."
+        },
+        "zelf-proof-liveness-active-user": {
+            "title": "Zelf Proof with Liveness (Active user)",
+            "description": "Zelf Proof with Liveness detection service 를 위한 enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+        }
+    },
+    "smartBatchLanding": {
+        "title": "Smart Batch",
+        "subtitle": "배치 처리 구성과 보고서 템플릿을 관리합니다.",
+        "configurationsTab": "구성",
+        "reportTemplatesTab": "보고서 템플릿",
+        "createConfiguration": "구성 만들기",
+        "createTemplate": "템플릿 만들기",
+        "createTemplateFirstHint": "보고서 템플릿을 추가하려면 먼저 구성을 만드세요",
+        "loadingConfigurations": "구성을 불러오는 중...",
+        "loadingTemplates": "템플릿을 불러오는 중...",
+        "noConfigurations": "구성을 찾을 수 없습니다",
+        "noConfigurationsDesc": "데이터 처리를 자동화하려면 첫 번째 배치 구성을 만드세요.",
+        "createFirstConfiguration": "구성 만들기",
+        "noTemplates": "아직 보고서 템플릿이 없습니다",
+        "noTemplatesDesc": "구성의 보고서 빌더에서 템플릿을 만들어 PDF 내보내기를 디자인하세요.",
+        "noTemplatesHint": "구성을 열고 배치를 실행한 다음 보고서 생성을 사용해 템플릿을 만들고 편집하세요.",
+        "steps": "단계",
+        "strategy": "전략",
+        "inactive": "비활성",
+        "sections": "섹션",
+        "pageSize": "용지 크기",
+        "pdfEngine": "PDF 엔진",
+        "linkedTo": "연결됨",
+        "standalone": "독립형",
+        "edit": "편집",
+        "delete": "삭제",
+        "deleteConfirmation": "이 템플릿을 삭제하시겠습니까?",
+        "noDescription": "설명이 없습니다."
+    },
+    "smartReport": {
+        "generateReport": "보고서 생성",
+        "batchReport": "배치 보고서",
+        "createTemplate": "템플릿 만들기",
+        "selectTemplate": "템플릿 선택",
+        "noTemplatesFound": "템플릿을 찾을 수 없습니다",
+        "sections": "섹션",
+        "templateMatchesData": "템플릿이 데이터와 일치합니다",
+        "missingFields": "{{count}}개 필드 누락",
+        "dataMatch": "데이터 일치",
+        "templateMatchesBatchData": "템플릿이 배치 데이터와 일치합니다",
+        "templateReadyToUse": "사용 준비 완료. 언제든지 빌더에서 이 템플릿을 수정할 수 있습니다.",
+        "editInBuilder": "빌더에서 편집",
+        "missingFieldsEditInBuilder": "배치 데이터에 {{count}}개 필드가 누락되었습니다. 빌더에서 템플릿을 수정하세요.",
+        "editWithRealData": "실제 데이터로 편집",
+        "editTemplateWithRealData": "실제 데이터로 템플릿 편집",
+        "paths": "경로",
+        "actions": "작업",
+        "generatePdf": "PDF 생성",
+        "generating": "생성 중...",
+        "downloadPdf": "PDF 다운로드",
+        "sendViaEmail": "이메일로 보내기",
+        "sending": "보내는 중...",
+        "stepResultsLayout": "단계 결과 레이아웃",
+        "reportForRecord": "레코드 #{{index}} 보고서",
+        "dragSectionsReorder": "드래그하여 순서 변경. 레이아웃은 인쇄 준비가 되어 있습니다.",
+        "collapseContent": "내용 접기",
+        "expandContent": "내용 펼치기",
+        "noStepResultsYet": "아직 단계 결과가 없습니다",
+        "processBatchToSeeResults": "배치를 처리하여 각 엔드포인트의 결과를 여기에서 확인하세요.",
+        "row": "행",
+        "result": "결과",
+        "viewModeReadable": "읽기 쉬움",
+        "viewModeTable": "테이블",
+        "viewModeJson": "JSON",
+        "viewModeExcelAg": "Excel v1",
+        "viewModeExcelHt": "Excel v2",
+        "downloadAsCsv": "CSV 다운로드",
+        "downloadAsExcel": "Excel 다운로드",
+        "exportData": "데이터 내보내기",
+        "csvDownloaded": "CSV 다운로드됨",
+        "excelDownloaded": "Excel 다운로드됨",
+        "step": "단계",
+        "preview": "미리보기",
+        "previewSameAsBuilder": "보고서 작성기와 동일한 미리보기 — 배치 데이터로 렌더링된 템플릿",
+        "generatingPdf": "PDF 생성 중...",
+        "noPreviewAvailable": "미리보기를 사용할 수 없습니다",
+        "selectTemplateAndBatch": "템플릿을 선택하고 배치에 처리된 행이 있는지 확인하세요",
+        "back": "뒤로",
+        "generateReportFirst": "먼저 보고서를 생성하세요",
+        "emailSent": "이메일을 보냈습니다!",
+        "failedToSendEmail": "이메일 전송 실패",
+        "pdfDownloaded": "PDF를 다운로드했습니다",
+        "failedToDownloadPdf": "PDF 다운로드 실패",
+        "invalidPdfReceived": "서버에서 잘못된 PDF를 받았습니다",
+        "editReportTemplate": "보고서 템플릿 편집",
+        "newReportTemplate": "새 보고서 템플릿",
+        "designReportLayout": "드래그 앤 드롭으로 보고서 레이아웃 디자인",
+        "sendSample": "샘플 보내기",
+        "sendingSample": "샘플 보내는 중...",
+        "saveTemplateFirst": "샘플 전송을 사용하려면 먼저 템플릿을 저장하세요",
+        "saveTemplate": "템플릿 저장",
+        "saving": "저장 중...",
+        "templateSettings": "템플릿 설정",
+        "templateName": "템플릿 이름",
+        "templateNamePlaceholder": "내 보고서 템플릿",
+        "pageSize": "페이지 크기",
+        "orientation": "방향",
+        "portrait": "세로",
+        "landscape": "가로",
+        "pdfEngine": "PDF 엔진",
+        "primaryColor": "기본 색상",
+        "helperData": "도우미 데이터",
+        "helperDataHint": "데이터 필드 또는 테이블 섹션에서 이 경로 사용",
+        "openFromReportViewer": "배치 데이터가 있는 보고서 뷰어에서 열어 사용 가능한 경로 확인",
+        "copyPath": "경로 복사",
+        "copyPathForTable": "경로 복사 (테이블 섹션용)",
+        "addSections": "섹션 추가",
+        "reportLayout": "보고서 레이아웃",
+        "dragToReorder": "드래그하여 섹션 순서 변경",
+        "addSectionsFromAbove": "위에서 섹션 추가",
+        "section": "섹션",
+        "sectionNumber": "섹션 #{{num}}",
+        "edit": "편집",
+        "duplicate": "복제",
+        "delete": "삭제",
+        "titleText": "제목 텍스트",
+        "reportTitle": "보고서 제목",
+        "content": "콘텐츠",
+        "enterTextContent": "텍스트 콘텐츠 입력...",
+        "label": "라벨",
+        "fieldLabel": "필드 라벨",
+        "dataPath": "데이터 경로",
+        "dataPathPlaceholder": "results.1.fullName",
+        "dotSeparatedPath": "점으로 구분된 데이터 경로 (예: results.1.fullName)",
+        "tableTitle": "테이블 제목",
+        "tableLabel": "테이블 라벨",
+        "dataPathObject": "데이터 경로 (객체)",
+        "pathToObject": "키가 행이 되는 객체의 경로",
+        "imageUrl": "이미지 URL",
+        "altText": "대체 텍스트",
+        "companyLogo": "회사 로고",
+        "heightPx": "높이 (px)",
+        "color": "색상",
+        "style": "스타일",
+        "textAlign": "텍스트 정렬",
+        "fontSize": "글꼴 크기",
+        "fontWeight": "글꼴 굵기",
+        "normal": "보통",
+        "bold": "굵게",
+        "textColor": "텍스트 색상",
+        "livePreviewWithSample": "샘플 데이터로 실시간 미리보기",
+        "missing": "누락",
+        "sendSampleReport": "샘플 보고서 보내기",
+        "sendReport": "보고서 보내기",
+        "enterRecipientsAndSubject": "수신자 이메일 및 선택적 제목 입력",
+        "recipientEmails": "수신자 이메일",
+        "recipientsPlaceholder": "email1@example.com, email2@example.com",
+        "separateEmailsWithCommas": "여러 이메일은 쉼표로 구분",
+        "atLeastOneRecipient": "최소 1명의 수신자가 필요합니다",
+        "enterValidEmails": "유효한 이메일 주소를 입력하세요",
+        "subjectOptional": "제목 (선택)",
+        "subjectOptionalPlaceholder": "샘플 보고서: 템플릿 미리보기",
+        "reportBatchPlaceholder": "보고서 - 배치",
+        "cancel": "취소",
+        "noSectionsToPreview": "미리보기할 섹션이 없습니다",
+        "untitled": "제목 없음",
+        "textContent": "텍스트 콘텐츠...",
+        "field": "필드",
+        "noDataAtPath": "경로 \"{{path}}\"에 데이터가 없습니다",
+        "image": "이미지",
+        "failedToSaveTemplatePreference": "템플릿 설정 저장 실패",
+        "pleaseSelectTemplate": "템플릿을 선택하세요",
+        "reportGenerated": "보고서를 생성했습니다!",
+        "failedToGenerateReport": "보고서 생성 실패",
+        "failedToCreateReport": "보고서 생성 실패",
+        "sectionHeader": "헤더",
+        "sectionText": "텍스트 블록",
+        "sectionField": "데이터 필드",
+        "sectionTable": "테이블",
+        "sectionImage": "이미지",
+        "sectionDivider": "구분선",
+        "sectionSpacer": "간격",
+        "samplePdfSentSuccess": "샘플 PDF를 성공적으로 보냈습니다",
+        "failedToSendSamplePdf": "샘플 PDF 전송 실패",
+        "copied": "복사됨",
+        "failedToCopy": "복사 실패"
+    },
+    "batchProcessing": {
+        "backToDashboard": "대시보드로 돌아가기",
+        "batchProcessing": "배치 처리",
+        "records": "건",
+        "status": "상태",
+        "starting": "시작 중...",
+        "startProcessing": "처리 시작",
+        "pause": "일시 중지",
+        "generateReport": "보고서 생성",
+        "processing": "처리 중...",
+        "processingSteps": "처리 단계",
+        "credits": "크레딧",
+        "pending": "대기 중",
+        "recordsWaiting": "{{count}}건 대기 중",
+        "allRecordsProcessed": "모든 레코드가 처리되었습니다!",
+        "rowNumber": "행 {{index}}",
+        "completed": "완료",
+        "failed": "실패",
+        "recordsVerified": "{{count}}건 검증됨",
+        "noCompletedRecordsYet": "아직 완료된 레코드가 없습니다",
+        "verified": "검증됨",
+        "skipped": "건너뜀",
+        "rowDetails": "행 #{{index}} 세부정보",
+        "readable": "읽기 쉬움",
+        "json": "JSON",
+        "generatePdfReport": "PDF 보고서 생성",
+        "inputData": "입력 데이터",
+        "stepResults": "단계 결과",
+        "errors": "오류",
+        "stepError": "단계 {{step}}: {{code}}",
+        "stepStatusCompleted": "{{step}}: 완료",
+        "stepStatusFailed": "{{step}}: 실패",
+        "stepStatusPending": "{{step}}: 대기 중",
+        "stepStatusSkipped": "{{step}}: 건너뜀",
+        "draft": "초안",
+        "cancelled": "취소됨"
+    },
+    "batchDashboard": {
+        "backToSmartBatch": "Smart Batch로 돌아가기",
+        "loading": "로딩 중...",
+        "batchProcessingDashboard": "배치 처리 대시보드",
+        "createBatch": "배치 만들기",
+        "steps": "단계",
+        "strategy": "전략",
+        "format": "형식",
+        "costPerRow": "행당 비용",
+        "processingSteps": "처리 단계",
+        "disabled": "비활성화",
+        "costBreakdown": "비용 분석",
+        "totalPerRow": "행당 합계",
+        "total": "합계",
+        "totalBatches": "총 배치",
+        "success": "성공",
+        "completedRows": "완료된 행",
+        "queue": "대기열",
+        "pendingRows": "대기 중인 행",
+        "error": "오류",
+        "failedRows": "실패한 행",
+        "loadingBatches": "배치 로딩 중...",
+        "noBatchesYet": "아직 배치가 없습니다",
+        "createFirstBatchDescription": "이 구성을 사용하여 데이터 처리를 시작하려면 첫 번째 배치를 만드세요.",
+        "createFirstBatch": "첫 번째 배치 만들기",
+        "batches": "배치",
+        "name": "이름",
+        "status": "상태",
+        "progress": "진행률",
+        "rows": "행",
+        "created": "생성일",
+        "actions": "작업",
+        "viewDetails": "자세히 보기",
+        "failedCount": "({{count}}개 실패)"
     }
-  },
-  "smartReport": {
-    "generateReport": "보고서 생성",
-    "batchReport": "배치 보고서",
-    "createTemplate": "템플릿 만들기",
-    "selectTemplate": "템플릿 선택",
-    "noTemplatesFound": "템플릿을 찾을 수 없습니다",
-    "sections": "섹션",
-    "templateMatchesData": "템플릿이 데이터와 일치합니다",
-    "missingFields": "{{count}}개 필드 누락",
-    "dataMatch": "데이터 일치",
-    "templateMatchesBatchData": "템플릿이 배치 데이터와 일치합니다",
-    "templateReadyToUse": "사용 준비 완료. 언제든지 빌더에서 이 템플릿을 수정할 수 있습니다.",
-    "editInBuilder": "빌더에서 편집",
-    "missingFieldsEditInBuilder": "배치 데이터에 {{count}}개 필드가 누락되었습니다. 빌더에서 템플릿을 수정하세요.",
-    "editWithRealData": "실제 데이터로 편집",
-    "editTemplateWithRealData": "실제 데이터로 템플릿 편집",
-    "paths": "경로",
-    "actions": "작업",
-    "generatePdf": "PDF 생성",
-    "generating": "생성 중...",
-    "downloadPdf": "PDF 다운로드",
-    "sendViaEmail": "이메일로 보내기",
-    "sending": "보내는 중...",
-    "stepResultsLayout": "단계 결과 레이아웃",
-    "reportForRecord": "레코드 #{{index}} 보고서",
-    "dragSectionsReorder": "드래그하여 순서 변경. 레이아웃은 인쇄 준비가 되어 있습니다.",
-    "noStepResultsYet": "아직 단계 결과가 없습니다",
-    "processBatchToSeeResults": "배치를 처리하여 각 엔드포인트의 결과를 여기에서 확인하세요.",
-    "row": "행",
-    "result": "결과",
-    "viewModeReadable": "읽기 쉬움",
-    "viewModeJson": "JSON",
-    "step": "단계",
-    "preview": "미리보기",
-    "previewSameAsBuilder": "보고서 작성기와 동일한 미리보기 — 배치 데이터로 렌더링된 템플릿",
-    "generatingPdf": "PDF 생성 중...",
-    "noPreviewAvailable": "미리보기를 사용할 수 없습니다",
-    "selectTemplateAndBatch": "템플릿을 선택하고 배치에 처리된 행이 있는지 확인하세요",
-    "back": "뒤로",
-    "generateReportFirst": "먼저 보고서를 생성하세요",
-    "emailSent": "이메일을 보냈습니다!",
-    "failedToSendEmail": "이메일 전송 실패",
-    "pdfDownloaded": "PDF를 다운로드했습니다",
-    "failedToDownloadPdf": "PDF 다운로드 실패",
-    "invalidPdfReceived": "서버에서 잘못된 PDF를 받았습니다",
-    "editReportTemplate": "보고서 템플릿 편집",
-    "newReportTemplate": "새 보고서 템플릿",
-    "designReportLayout": "드래그 앤 드롭으로 보고서 레이아웃 디자인",
-    "sendSample": "샘플 보내기",
-    "sendingSample": "샘플 보내는 중...",
-    "saveTemplateFirst": "샘플 전송을 사용하려면 먼저 템플릿을 저장하세요",
-    "saveTemplate": "템플릿 저장",
-    "saving": "저장 중...",
-    "templateSettings": "템플릿 설정",
-    "templateName": "템플릿 이름",
-    "templateNamePlaceholder": "내 보고서 템플릿",
-    "pageSize": "페이지 크기",
-    "orientation": "방향",
-    "portrait": "세로",
-    "landscape": "가로",
-    "pdfEngine": "PDF 엔진",
-    "primaryColor": "기본 색상",
-    "helperData": "도우미 데이터",
-    "helperDataHint": "데이터 필드 또는 테이블 섹션에서 이 경로 사용",
-    "openFromReportViewer": "배치 데이터가 있는 보고서 뷰어에서 열어 사용 가능한 경로 확인",
-    "copyPath": "경로 복사",
-    "copyPathForTable": "경로 복사 (테이블 섹션용)",
-    "addSections": "섹션 추가",
-    "reportLayout": "보고서 레이아웃",
-    "dragToReorder": "드래그하여 섹션 순서 변경",
-    "addSectionsFromAbove": "위에서 섹션 추가",
-    "section": "섹션",
-    "sectionNumber": "섹션 #{{num}}",
-    "edit": "편집",
-    "duplicate": "복제",
-    "delete": "삭제",
-    "titleText": "제목 텍스트",
-    "reportTitle": "보고서 제목",
-    "content": "콘텐츠",
-    "enterTextContent": "텍스트 콘텐츠 입력...",
-    "label": "라벨",
-    "fieldLabel": "필드 라벨",
-    "dataPath": "데이터 경로",
-    "dataPathPlaceholder": "results.1.fullName",
-    "dotSeparatedPath": "점으로 구분된 데이터 경로 (예: results.1.fullName)",
-    "tableTitle": "테이블 제목",
-    "tableLabel": "테이블 라벨",
-    "dataPathObject": "데이터 경로 (객체)",
-    "pathToObject": "키가 행이 되는 객체의 경로",
-    "imageUrl": "이미지 URL",
-    "altText": "대체 텍스트",
-    "companyLogo": "회사 로고",
-    "heightPx": "높이 (px)",
-    "color": "색상",
-    "style": "스타일",
-    "textAlign": "텍스트 정렬",
-    "fontSize": "글꼴 크기",
-    "fontWeight": "글꼴 굵기",
-    "normal": "보통",
-    "bold": "굵게",
-    "textColor": "텍스트 색상",
-    "livePreviewWithSample": "샘플 데이터로 실시간 미리보기",
-    "missing": "누락",
-    "sendSampleReport": "샘플 보고서 보내기",
-    "sendReport": "보고서 보내기",
-    "enterRecipientsAndSubject": "수신자 이메일 및 선택적 제목 입력",
-    "recipientEmails": "수신자 이메일",
-    "recipientsPlaceholder": "email1@example.com, email2@example.com",
-    "separateEmailsWithCommas": "여러 이메일은 쉼표로 구분",
-    "atLeastOneRecipient": "최소 1명의 수신자가 필요합니다",
-    "enterValidEmails": "유효한 이메일 주소를 입력하세요",
-    "subjectOptional": "제목 (선택)",
-    "subjectOptionalPlaceholder": "샘플 보고서: 템플릿 미리보기",
-    "reportBatchPlaceholder": "보고서 - 배치",
-    "cancel": "취소",
-    "noSectionsToPreview": "미리보기할 섹션이 없습니다",
-    "untitled": "제목 없음",
-    "textContent": "텍스트 콘텐츠...",
-    "field": "필드",
-    "noDataAtPath": "경로 \"{{path}}\"에 데이터가 없습니다",
-    "image": "이미지",
-    "failedToSaveTemplatePreference": "템플릿 설정 저장 실패",
-    "pleaseSelectTemplate": "템플릿을 선택하세요",
-    "reportGenerated": "보고서를 생성했습니다!",
-    "failedToGenerateReport": "보고서 생성 실패",
-    "failedToCreateReport": "보고서 생성 실패",
-    "sectionHeader": "헤더",
-    "sectionText": "텍스트 블록",
-    "sectionField": "데이터 필드",
-    "sectionTable": "테이블",
-    "sectionImage": "이미지",
-    "sectionDivider": "구분선",
-    "sectionSpacer": "간격",
-    "samplePdfSentSuccess": "샘플 PDF를 성공적으로 보냈습니다",
-    "failedToSendSamplePdf": "샘플 PDF 전송 실패",
-    "copied": "복사됨",
-    "failedToCopy": "복사 실패"
-  },
-  "batchProcessing": {
-    "backToDashboard": "대시보드로 돌아가기",
-    "batchProcessing": "배치 처리",
-    "records": "건",
-    "status": "상태",
-    "starting": "시작 중...",
-    "startProcessing": "처리 시작",
-    "pause": "일시 중지",
-    "generateReport": "보고서 생성",
-    "processing": "처리 중...",
-    "processingSteps": "처리 단계",
-    "credits": "크레딧",
-    "pending": "대기 중",
-    "recordsWaiting": "{{count}}건 대기 중",
-    "allRecordsProcessed": "모든 레코드가 처리되었습니다!",
-    "rowNumber": "행 {{index}}",
-    "completed": "완료",
-    "failed": "실패",
-    "recordsVerified": "{{count}}건 검증됨",
-    "noCompletedRecordsYet": "아직 완료된 레코드가 없습니다",
-    "verified": "검증됨",
-    "skipped": "건너뜀",
-    "rowDetails": "행 #{{index}} 세부정보",
-    "readable": "읽기 쉬움",
-    "json": "JSON",
-    "generatePdfReport": "PDF 보고서 생성",
-    "inputData": "입력 데이터",
-    "stepResults": "단계 결과",
-    "errors": "오류",
-    "stepError": "단계 {{step}}: {{code}}",
-    "stepStatusCompleted": "{{step}}: 완료",
-    "stepStatusFailed": "{{step}}: 실패",
-    "stepStatusPending": "{{step}}: 대기 중",
-    "stepStatusSkipped": "{{step}}: 건너뜀",
-    "draft": "초안",
-    "cancelled": "취소됨"
-  },
-  "batchDashboard": {
-    "backToSmartBatch": "Smart Batch로 돌아가기",
-    "loading": "로딩 중...",
-    "batchProcessingDashboard": "배치 처리 대시보드",
-    "createBatch": "배치 만들기",
-    "steps": "단계",
-    "strategy": "전략",
-    "format": "형식",
-    "costPerRow": "행당 비용",
-    "processingSteps": "처리 단계",
-    "disabled": "비활성화",
-    "costBreakdown": "비용 분석",
-    "totalPerRow": "행당 합계",
-    "total": "합계",
-    "totalBatches": "총 배치",
-    "success": "성공",
-    "completedRows": "완료된 행",
-    "queue": "대기열",
-    "pendingRows": "대기 중인 행",
-    "error": "오류",
-    "failedRows": "실패한 행",
-    "loadingBatches": "배치 로딩 중...",
-    "noBatchesYet": "아직 배치가 없습니다",
-    "createFirstBatchDescription": "이 구성을 사용하여 데이터 처리를 시작하려면 첫 번째 배치를 만드세요.",
-    "createFirstBatch": "첫 번째 배치 만들기",
-    "batches": "배치",
-    "name": "이름",
-    "status": "상태",
-    "progress": "진행률",
-    "rows": "행",
-    "created": "생성일",
-    "actions": "작업",
-    "viewDetails": "자세히 보기",
-    "failedCount": "({{count}}개 실패)"
-  }
 }

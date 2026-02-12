@@ -2,3 +2,18 @@
 /*  @ Import/write your custom styles here.
 /*  @ Styles from this file will override 'vendors.scss' and Fuse's base styles.
 /* ----------------------------------------------------------------------------------------------------- */
+
+/* ----------------------------------------------------------------------------------------------------- */
+/*  @ Excel view grids - AG Grid / Handsontable container
+/* ----------------------------------------------------------------------------------------------------- */
+.excel-view-container {
+    .ag-theme-quartz {
+        --ag-row-height: 44px;
+        --ag-header-height: 44px;
+        --ag-cell-horizontal-padding: 16px;
+    }
+
+    .handsontable {
+        --htBorderColor: #e5e7eb;
+    }
+}

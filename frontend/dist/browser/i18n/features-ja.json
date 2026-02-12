@@ -1,954 +1,993 @@
 {
-  "appFeatures": {
-    "colombia_special_api_identity_lookup": {
-      "title": "コロンビア - 個人市民情報",
-      "description": "個人市民情報へのアクセス のColombian nationals. このサービスは包括的な個人データを提供 含む detailed identity verification. 詳細についてはVerifikカスタマーサービスにお問い合わせください."
-    },
-    "colombia_api_identity_lookup": {
-      "title": "コロンビア - 国民ID検証",
-      "description": "検証 Colombian national ID (cédula) information. 取得 full name, document status, and basic citizen verification data."
-    },
-    "colombia_special_api_police_identity_lookup": {
-      "title": "コロンビア - 警察記録確認",
-      "description": "確認 police records through Colombia's National Police system. 検証 interactions with law enforcement and police records. 必要 document type, document number, and expedition date."
-    },
-    "world_api_dea": {
-      "title": "グローバル - DEA身元調査",
-      "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 検索 by full name OR document number with document type. 検証 individuals against international drug enforcement records."
-    },
-    "colombia_api_military_situation": {
-      "title": "Colombia - 軍事サービス記録",
-      "description": "検証 military service records through Colombia's military system. 確認 service status, military obligations, and service records. 必要 Colombian ID (CC) and document number."
-    },
-    "colombia_api_rethus": {
-      "title": "Colombia - 健康記録検証",
-      "description": "Access Colombian health records through Rethus system. 検証 medical history, health status, and healthcare provider information. 必要 document type (CC, CE, PPT) and document number."
-    },
-    "colombia_api_rues": {
-      "title": "Colombia - 会社登録検証",
-      "description": "検証 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 確認 business registration, legal status, and company information. 必要 document type and document number."
-    },
-    "colombia_api_dian": {
-      "title": "Colombia - 税務情報検証",
-      "description": "検証 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 確認 tax status, obligations, and compliance records. 必要 document type and document number."
-    },
-    "peru_api_company_lookup": {
-      "title": "Peru - 事業登録検索",
-      "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
-    },
-    "colombia_api_judicial_process_details": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle_soat": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "usa_api_vehicle": {
-      "title": " - 車両確認",
-      "description": "標準的な車両確認サービス の. 車両登録と基本情報を検証."
-    },
-    "world_api_onu": {
-      "title": "グローバル - 国連制裁確認",
-      "description": "確認 individuals and entities against United Nations sanctions lists. 検索 by full name OR document number with document type. 検証 compliance with international sanctions regimes."
-    },
-    "feature_kyc_solution": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "world_api_covid": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_affiliations": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_contraloria_certificate": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "peru_identity_lookup": {
-      "title": "Peru - 本人確認",
-      "description": "標準的な本人確認サービス のPeru 市民. 個人情報と文書の真正性を検証."
-    },
-    "venezuela_api_identity_lookup": {
-      "title": "Venezuela - 本人確認",
-      "description": "標準的な本人確認サービス のVenezuela 市民. 個人情報と文書の真正性を検証."
-    },
-    "colombia_api_vehicle_complete": {
-      "title": "Colombia - Complete Vehicle Information",
-      "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
-    },
-    "mexico_api_vehicle": {
-      "title": "Mexico - 車両確認",
-      "description": "標準的な車両確認サービス のMexico. 車両登録と基本情報を検証."
-    },
-    "feature_passwordless_solution": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "world_api_interpol": {
-      "title": "グローバル - インターポール身元調査",
-      "description": "International background check using Interpol databases. 検索 by full name OR document number with document type. 検証 individuals against international criminal records and wanted lists."
-    },
-    "colombia_api_sena": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "world_api_ofac": {
-      "title": "グローバル - OFAC制裁確認",
-      "description": "確認 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 検索 by full name OR document number with document type. 検証 compliance with US economic sanctions."
-    },
-    "colombia_api_registraduria_certificate": {
-      "title": "Colombia - 選挙記録検証",
-      "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
-    },
-    "colombia_api_delinquent_debtors": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "world_api_fbi": {
-      "title": "グローバル - FBI身元調査",
-      "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 検索 by full name OR document number with document type. 検証 individuals against federal criminal records."
-    },
-    "mexico_identity_lookup": {
-      "title": "Mexico - データ検証サービス",
-      "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
-    },
-    "ecuador_api_identity_lookup": {
-      "title": "Ecuador - 本人確認",
-      "description": "標準的な本人確認サービス のEcuador 市民. 個人情報と文書の真正性を検証."
-    },
-    "colombia_api_driver": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "peru_api_vehicle": {
-      "title": "Peru - 車両確認",
-      "description": "標準的な車両確認サービス のPeru. 車両登録と基本情報を検証."
-    },
-    "peru_api_vehicle_soat": {
-      "title": "Peru - 車両確認",
-      "description": "標準的な車両確認サービス のPeru. 車両登録と基本情報を検証."
-    },
-    "ecuador_api_vehicle": {
-      "title": "Ecuador - 車両確認",
-      "description": "標準的な車両確認サービス のEcuador. 車両登録と基本情報を検証."
-    },
-    "feature_data_api": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_min_trabajo": {
-      "title": "Colombia - 労働証明書検証",
-      "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
-    },
-    "colombia_api_registraduria_voting": {
-      "title": "Colombia - 選挙記録検証",
-      "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
-    },
-    "world_api_europol": {
-      "title": "グローバル - ユーロポール身元調査",
-      "description": "European background check using Europol databases. 検索 by full name OR document number with document type. 検証 individuals against European criminal records and intelligence databases."
-    },
-    "colombia_api_criminal_history": {
-      "title": "Colombia - 法的身元調査",
-      "description": "Legal background verification service のColombia 市民. 提供 information about legal proceedings and judicial records."
-    },
-    "colombia_api_judicial_processes": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "colombia_api_pico_placa": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "feature_pdf_generator": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "panama_api_identity_full_lookup": {
-      "title": "Panama - Complete 本人確認",
-      "description": "包括的な本人確認サービス のPanama 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
-    },
-    "chile_api_identity_lookup": {
-      "title": "Chile - 本人確認",
-      "description": "標準的な本人確認サービス のChile 市民. 個人情報と文書の真正性を検証."
-    },
-    "costarica_api_identity_lookup": {
-      "title": "Costa Rica - 本人確認",
-      "description": "標準的な本人確認サービス のCosta Rica 市民. 個人情報と文書の真正性を検証."
-    },
-    "ecuador_api_criminal_history": {
-      "title": "Ecuador - 本人確認",
-      "description": "標準的な本人確認サービス のEcuador 市民. 個人情報と文書の真正性を検証."
-    },
-    "chile_api_vehicle": {
-      "title": "Chile - 車両確認",
-      "description": "標準的な車両確認サービス のChile. 車両登録と基本情報を検証."
-    },
-    "panama_api_identity_lookup": {
-      "title": "Panama - 本人確認",
-      "description": "標準的な本人確認サービス のPanama 市民. 個人情報と文書の真正性を検証."
-    },
-    "panama_api_vehicle": {
-      "title": "Panama - 車両確認",
-      "description": "標準的な車両確認サービス のPanama. 車両登録と基本情報を検証."
-    },
-    "chile_api_business_lookup": {
-      "title": "Chile - データ検証サービス",
-      "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
-    },
-    "spain_api_identity_lookup": {
-      "title": "Spain - 本人確認",
-      "description": "標準的な本人確認サービス のSpain 市民. 個人情報と文書の真正性を検証."
-    },
-    "ecuador_api_vehicle_fines": {
-      "title": "Ecuador - 車両確認",
-      "description": "標準的な車両確認サービス のEcuador. 車両登録と基本情報を検証."
-    },
-    "colombia_api_vehicle_complete_by_plate": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "colombia_api_vehicle_complete_by_vin": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "peru_identity_extra_lookup": {
-      "title": "Peru - Complete 本人確認",
-      "description": "包括的な本人確認サービス のPeru 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
-    },
-    "colombia_api_lawyers": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "brasil_api_identity_lookup": {
-      "title": "Brazil - 本人確認",
-      "description": "標準的な本人確認サービス のBrazil 市民. 個人情報と文書の真正性を検証."
-    },
-    "usa_api_driver_license_lookup": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "consultar_procesos_judiciales": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "credit_intent": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "ip-lookup": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_judicial_records": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "communication_messaging_sms": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "communication_colombia_messaging_whatsapp": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "communication_global_messaging_whatsapp": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "communication_global_email_otp": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_liveness_3d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_estimate_age_3d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_check_age_3d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_enrollment_3d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_id_scan_only": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_liveness_2d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_estimate_age_2d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "biometrics_check_age_2d": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "credit_intent_kyc_passwordless": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "brasil_api_company_lookup": {
-      "title": "Brazil - データ検証サービス",
-      "description": "一般的なデータ検証サービス のBrazil. 信頼性の高い情報検証と確認を提供."
-    },
-    "brasil_api_vehicle": {
-      "title": "Brazil - 車両確認",
-      "description": "標準的な車両確認サービス のBrazil. 車両登録と基本情報を検証."
-    },
-    "argentina_api_identity_lookup": {
-      "title": "Argentina - 本人確認",
-      "description": "標準的な本人確認サービス のArgentina 市民. 個人情報と文書の真正性を検証."
-    },
-    "ecuador_api_company_lookup": {
-      "title": "Ecuador - データ検証サービス",
-      "description": "一般的なデータ検証サービス のEcuador. 信頼性の高い情報検証と確認を提供."
-    },
-    "usa_api_ssn": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_dian_invoicer": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "api_colombia_contracts": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_police_rnmc": {
-      "title": "コロンビア - 警察記録確認",
-      "description": "Police records verification service のColombia 市民. 提供 information about police interactions and records."
-    },
-    "bolivia_api_identity_lookup": {
-      "title": "Bolivia - 本人確認",
-      "description": "標準的な本人確認サービス のBolivia 市民. 個人情報と文書の真正性を検証."
-    },
-    "colombia_pep_lookup": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "api_autodata_manufacturers": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "world_api_phone_lookup": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "Mexico_api_ine_model_e": {
-      "title": "Mexico - データ検証サービス",
-      "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
-    },
-    "Mexico_api_ine_model_d": {
-      "title": "Mexico - データ検証サービス",
-      "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
-    },
-    "Mexico_api_ine_model_c": {
-      "title": "Mexico - データ検証サービス",
-      "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
-    },
-    "api_autodata_enginer": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_rues_full": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "api_autodata_enginer_code": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "api_autodata_selection": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_sisconmp": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "data_finance_incomestatement": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "data_finance_balancesheet": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "data_finance_cashflow": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "data_finance_stockprice": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "paraguay_api_identity_lookup": {
-      "title": "Paraguay - データ検証サービス",
-      "description": "一般的なデータ検証サービス のParaguay. 信頼性の高い情報検証と確認を提供."
-    },
-    "canada_api_driver_license_alberta": {
-      "title": "Canada - データ検証サービス",
-      "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
-    },
-    "canada_api_driver_license_ontario": {
-      "title": "Canada - データ検証サービス",
-      "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle_complete_by_plate_simplified": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "canada_api_driver_license_quebec": {
-      "title": "Canada - データ検証サービス",
-      "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
-    },
-    "ocr_scan_pro": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "el_salvador_api_identity_lookup": {
-      "title": "El Salvador - データ検証サービス",
-      "description": "一般的なデータ検証サービス のEl Salvador. 信頼性の高い情報検証と確認を提供."
-    },
-    "canada_api_driver_license_british-columbia": {
-      "title": "Canada - データ検証サービス",
-      "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
-    },
-    "ocr_scan_gpt": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_identity_lookup_extra": {
-      "title": "Colombia - Complete 本人確認",
-      "description": "包括的な本人確認サービス のColombia 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
-    },
-    "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - 入国管理状況検証",
-      "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
-    },
-    "ocr_scan_studio": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "canada_api_company": {
-      "title": "Canada - データ検証サービス",
-      "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
-    },
-    "us_api_passport_entries": {
-      "title": "United States - 本人確認",
-      "description": "標準的な本人確認サービス のUnited States 市民. 個人情報と文書の真正性を検証."
-    },
-    "mexico_api_company": {
-      "title": "Mexico - データ検証サービス",
-      "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_compare": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_compare_live": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_liveness": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_search_live_face": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_verify": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_detect": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_search_crops": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_search": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_plate": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_code": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "usa_api_company": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_runt_owners": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "chile_api_driver_license": {
-      "title": "Chile - データ検証サービス",
-      "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_lawyers_certificate": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "argentina_api_vehicle": {
-      "title": "Argentina - 車両確認",
-      "description": "標準的な車両確認サービス のArgentina. 車両登録と基本情報を検証."
-    },
-    "argentina_api_company_lookup": {
-      "title": "Argentina - データ検証サービス",
-      "description": "一般的なデータ検証サービス のArgentina. 信頼性の高い情報検証と確認を提供."
-    },
-    "bolivia_api_vehicle": {
-      "title": "Bolivia - 車両確認",
-      "description": "標準的な車両確認サービス のBolivia. 車両登録と基本情報を検証."
-    },
-    "brasil_api_criminal_history": {
-      "title": "Brazil - データ検証サービス",
-      "description": "一般的なデータ検証サービス のBrazil. 信頼性の高い情報検証と確認を提供."
-    },
-    "bolivia_api_business_lookup": {
-      "title": "Bolivia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のBolivia. 信頼性の高い情報検証と確認を提供."
-    },
-    "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - データ検証サービス",
-      "description": "一般的なデータ検証サービス のCosta Rica. 信頼性の高い情報検証と確認を提供."
-    },
-    "paraguay_api_business_lookup": {
-      "title": "Paraguay - データ検証サービス",
-      "description": "一般的なデータ検証サービス のParaguay. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_vehicle_tax": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "colombia_api_vehicle_accidentality_bogota": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "api_data_sheet_vehicle": {
-      "title": " - 車両確認",
-      "description": "標準的な車両確認サービス の. 車両登録と基本情報を検証."
-    },
-    "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brazil - 車両確認",
-      "description": "標準的な車両確認サービス のBrazil. 車両登録と基本情報を検証."
-    },
-    "face_recognition_search_active_user": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "matpis_appointments": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "chile_api_taxpayer_lookup": {
-      "title": "Chile - データ検証サービス",
-      "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
-    },
-    "chile_api_validate": {
-      "title": "Chile - データ検証サービス",
-      "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_agreements": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_suspensions": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_subpoenas": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_resolutions": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_complete": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_simit_plate": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "world_api_passport_entries": {
-      "title": "United States - 本人確認",
-      "description": "標準的な本人確認サービス のUnited States 市民. 個人情報と文書の真正性を検証."
-    },
-    "validate-document": {
-      "title": "Colombia - 本人確認",
-      "description": "標準的な本人確認サービス のColombia 市民. 個人情報と文書の真正性を検証."
-    },
-    "costa_rica_api_vehicle": {
-      "title": "Costa Rica - 車両確認",
-      "description": "標準的な車両確認サービス のCosta Rica. 車両登録と基本情報を検証."
-    },
-    "paraguay_api_vehicle": {
-      "title": "Paraguay - 車両確認",
-      "description": "標準的な車両確認サービス のParaguay. 車両登録と基本情報を検証."
-    },
-    "usa_api_vehicle_lookup_by_vin": {
-      "title": " - 車両確認",
-      "description": "標準的な車両確認サービス の. 車両登録と基本情報を検証."
-    },
-    "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - 入国管理状況検証",
-      "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
-    },
-    "colombia_api_vehicle_fines_bogota": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "colombia_api_vehicle_fines_medellin": {
-      "title": "Colombia - 車両確認",
-      "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
-    },
-    "guatemala_api_identity_lookup": {
-      "title": "Guatemala - 本人確認",
-      "description": "標準的な本人確認サービス のGuatemala 市民. 個人情報と文書の真正性を検証."
-    },
-    "honduras_api_identity_lookup": {
-      "title": "Honduras - 本人確認",
-      "description": "標準的な本人確認サービス のHonduras 市民. 個人情報と文書の真正性を検証."
-    },
-    "republica_dominicana_api_citizen_lookup": {
-      "title": "Dominican Republic - 本人確認",
-      "description": "標準的な本人確認サービス のDominican Republic 市民. 個人情報と文書の真正性を検証."
-    },
-    "venezuela_foreigner_api": {
-      "title": "Venezuela - 入国管理状況検証",
-      "description": "Immigration records verification service のVenezuela. 提供 immigration status and foreigner registration information."
-    },
-    "colombia_sisben_api_lookup": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "spain_api_vehicle_lookup": {
-      "title": "Spain - 車両確認",
-      "description": "標準的な車両確認サービス のSpain. 車両登録と基本情報を検証."
-    },
-    "spain_api_company_lookup": {
-      "title": "Spain - データ検証サービス",
-      "description": "一般的なデータ検証サービス のSpain. 信頼性の高い情報検証と確認を提供."
-    },
-    "panama_api_business_lookup": {
-      "title": "Panama - データ検証サービス",
-      "description": "一般的なデータ検証サービス のPanama. 信頼性の高い情報検証と確認を提供."
-    },
-    "uruguay_api_identity_lookup": {
-      "title": "Uruguay - 本人確認",
-      "description": "標準的な本人確認サービス のUruguay 市民. 個人情報と文書の真正性を検証."
-    },
-    "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - 入国管理状況検証",
-      "description": "Immigration records verification service のPeru. 提供 immigration status and foreigner registration information."
-    },
-    "colombia_api_rues_full_v3": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_rues_v3": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "peru_identity_lookup_v3": {
-      "title": "Peru - 本人確認",
-      "description": "標準的な本人確認サービス のPeru 市民. 個人情報と文書の真正性を検証."
-    },
-    "peru_identity_extra_lookup_v3": {
-      "title": "Peru - Complete 本人確認",
-      "description": "包括的な本人確認サービス のPeru 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
-    },
-    "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - 入国管理状況検証",
-      "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
-    },
-    "colombia_api_min_trabajo_v3": {
-      "title": "Colombia - 労働証明書検証",
-      "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
-    },
-    "peru_api_company_lookup_v3": {
-      "title": "Peru - データ検証サービス",
-      "description": "一般的なデータ検証サービス のPeru. 信頼性の高い情報検証と確認を提供."
-    },
-    "face_recognition_detect_face": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "document-liveness": {
-      "title": " - データ検証サービス",
-      "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_api_inpec": {
-      "title": "Colombia - データ検証サービス",
-      "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
-    },
-    "colombia_sigep_by_name": {
-      "title": "Colombia - SIGEP Public Officials 検索",
-      "description": "検索 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
-    },
-    "colombia_sigep_by_number": {
-      "title": "Colombia - SIGEP Official 検索 by Document",
-      "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 取得 complete professional information from SIGEP records."
-    },
-    "colombia_inpec_lookup": {
-      "title": "Colombia - INPEC 刑務所記録検索",
-      "description": "Look up Colombian prison records and inmate information using ID number and surname. 取得 admission status, legal status, and prison facility details from INPEC records."
-    },
-    "zelf-proofs": {
-      "title": "Zelf Proofs",
-      "description": "Zelf Proofs service のidentity verification and document validation. This service provides comprehensive proof generation capabilities のvarious identity documents and verification processes."
-    },
-    "zelf-proof-liveness-active-user": {
-      "title": "Zelf Proof with Liveness (Active user)",
-      "description": "Zelf Proof with Liveness detection service のenhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+    "appFeatures": {
+        "colombia_special_api_identity_lookup": {
+            "title": "コロンビア - 個人市民情報",
+            "description": "個人市民情報へのアクセス のColombian nationals. このサービスは包括的な個人データを提供 含む detailed identity verification. 詳細についてはVerifikカスタマーサービスにお問い合わせください."
+        },
+        "colombia_api_identity_lookup": {
+            "title": "コロンビア - 国民ID検証",
+            "description": "検証 Colombian national ID (cédula) information. 取得 full name, document status, and basic citizen verification data."
+        },
+        "colombia_special_api_police_identity_lookup": {
+            "title": "コロンビア - 警察記録確認",
+            "description": "確認 police records through Colombia's National Police system. 検証 interactions with law enforcement and police records. 必要 document type, document number, and expedition date."
+        },
+        "world_api_dea": {
+            "title": "グローバル - DEA身元調査",
+            "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 検索 by full name OR document number with document type. 検証 individuals against international drug enforcement records."
+        },
+        "colombia_api_military_situation": {
+            "title": "Colombia - 軍事サービス記録",
+            "description": "検証 military service records through Colombia's military system. 確認 service status, military obligations, and service records. 必要 Colombian ID (CC) and document number."
+        },
+        "colombia_api_rethus": {
+            "title": "Colombia - 健康記録検証",
+            "description": "Access Colombian health records through Rethus system. 検証 medical history, health status, and healthcare provider information. 必要 document type (CC, CE, PPT) and document number."
+        },
+        "colombia_api_rues": {
+            "title": "Colombia - 会社登録検証",
+            "description": "検証 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 確認 business registration, legal status, and company information. 必要 document type and document number."
+        },
+        "colombia_api_dian": {
+            "title": "Colombia - 税務情報検証",
+            "description": "検証 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 確認 tax status, obligations, and compliance records. 必要 document type and document number."
+        },
+        "peru_api_company_lookup": {
+            "title": "Peru - 事業登録検索",
+            "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
+        },
+        "colombia_api_judicial_process_details": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle_soat": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "usa_api_vehicle": {
+            "title": " - 車両確認",
+            "description": "標準的な車両確認サービス の. 車両登録と基本情報を検証."
+        },
+        "world_api_onu": {
+            "title": "グローバル - 国連制裁確認",
+            "description": "確認 individuals and entities against United Nations sanctions lists. 検索 by full name OR document number with document type. 検証 compliance with international sanctions regimes."
+        },
+        "feature_kyc_solution": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "world_api_covid": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_affiliations": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_contraloria_certificate": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "peru_identity_lookup": {
+            "title": "Peru - 本人確認",
+            "description": "標準的な本人確認サービス のPeru 市民. 個人情報と文書の真正性を検証."
+        },
+        "venezuela_api_identity_lookup": {
+            "title": "Venezuela - 本人確認",
+            "description": "標準的な本人確認サービス のVenezuela 市民. 個人情報と文書の真正性を検証."
+        },
+        "colombia_api_vehicle_complete": {
+            "title": "Colombia - Complete Vehicle Information",
+            "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
+        },
+        "mexico_api_vehicle": {
+            "title": "Mexico - 車両確認",
+            "description": "標準的な車両確認サービス のMexico. 車両登録と基本情報を検証."
+        },
+        "feature_passwordless_solution": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "world_api_interpol": {
+            "title": "グローバル - インターポール身元調査",
+            "description": "International background check using Interpol databases. 検索 by full name OR document number with document type. 検証 individuals against international criminal records and wanted lists."
+        },
+        "colombia_api_sena": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "world_api_ofac": {
+            "title": "グローバル - OFAC制裁確認",
+            "description": "確認 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 検索 by full name OR document number with document type. 検証 compliance with US economic sanctions."
+        },
+        "colombia_api_registraduria_certificate": {
+            "title": "Colombia - 選挙記録検証",
+            "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
+        },
+        "colombia_api_delinquent_debtors": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "world_api_fbi": {
+            "title": "グローバル - FBI身元調査",
+            "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 検索 by full name OR document number with document type. 検証 individuals against federal criminal records."
+        },
+        "mexico_identity_lookup": {
+            "title": "Mexico - データ検証サービス",
+            "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
+        },
+        "ecuador_api_identity_lookup": {
+            "title": "Ecuador - 本人確認",
+            "description": "標準的な本人確認サービス のEcuador 市民. 個人情報と文書の真正性を検証."
+        },
+        "colombia_api_driver": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "peru_api_vehicle": {
+            "title": "Peru - 車両確認",
+            "description": "標準的な車両確認サービス のPeru. 車両登録と基本情報を検証."
+        },
+        "peru_api_vehicle_soat": {
+            "title": "Peru - 車両確認",
+            "description": "標準的な車両確認サービス のPeru. 車両登録と基本情報を検証."
+        },
+        "ecuador_api_vehicle": {
+            "title": "Ecuador - 車両確認",
+            "description": "標準的な車両確認サービス のEcuador. 車両登録と基本情報を検証."
+        },
+        "feature_data_api": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_min_trabajo": {
+            "title": "Colombia - 労働証明書検証",
+            "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
+        },
+        "colombia_api_registraduria_voting": {
+            "title": "Colombia - 選挙記録検証",
+            "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
+        },
+        "world_api_europol": {
+            "title": "グローバル - ユーロポール身元調査",
+            "description": "European background check using Europol databases. 検索 by full name OR document number with document type. 検証 individuals against European criminal records and intelligence databases."
+        },
+        "colombia_api_criminal_history": {
+            "title": "Colombia - 法的身元調査",
+            "description": "Legal background verification service のColombia 市民. 提供 information about legal proceedings and judicial records."
+        },
+        "colombia_api_judicial_processes": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "colombia_api_pico_placa": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "feature_pdf_generator": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "panama_api_identity_full_lookup": {
+            "title": "Panama - Complete 本人確認",
+            "description": "包括的な本人確認サービス のPanama 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
+        },
+        "chile_api_identity_lookup": {
+            "title": "Chile - 本人確認",
+            "description": "標準的な本人確認サービス のChile 市民. 個人情報と文書の真正性を検証."
+        },
+        "costarica_api_identity_lookup": {
+            "title": "Costa Rica - 本人確認",
+            "description": "標準的な本人確認サービス のCosta Rica 市民. 個人情報と文書の真正性を検証."
+        },
+        "ecuador_api_criminal_history": {
+            "title": "Ecuador - 本人確認",
+            "description": "標準的な本人確認サービス のEcuador 市民. 個人情報と文書の真正性を検証."
+        },
+        "chile_api_vehicle": {
+            "title": "Chile - 車両確認",
+            "description": "標準的な車両確認サービス のChile. 車両登録と基本情報を検証."
+        },
+        "panama_api_identity_lookup": {
+            "title": "Panama - 本人確認",
+            "description": "標準的な本人確認サービス のPanama 市民. 個人情報と文書の真正性を検証."
+        },
+        "panama_api_vehicle": {
+            "title": "Panama - 車両確認",
+            "description": "標準的な車両確認サービス のPanama. 車両登録と基本情報を検証."
+        },
+        "chile_api_business_lookup": {
+            "title": "Chile - データ検証サービス",
+            "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
+        },
+        "spain_api_identity_lookup": {
+            "title": "Spain - 本人確認",
+            "description": "標準的な本人確認サービス のSpain 市民. 個人情報と文書の真正性を検証."
+        },
+        "ecuador_api_vehicle_fines": {
+            "title": "Ecuador - 車両確認",
+            "description": "標準的な車両確認サービス のEcuador. 車両登録と基本情報を検証."
+        },
+        "colombia_api_vehicle_complete_by_plate": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "colombia_api_vehicle_complete_by_vin": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "peru_identity_extra_lookup": {
+            "title": "Peru - Complete 本人確認",
+            "description": "包括的な本人確認サービス のPeru 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
+        },
+        "colombia_api_lawyers": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "brasil_api_identity_lookup": {
+            "title": "Brazil - 本人確認",
+            "description": "標準的な本人確認サービス のBrazil 市民. 個人情報と文書の真正性を検証."
+        },
+        "usa_api_driver_license_lookup": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "consultar_procesos_judiciales": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "credit_intent": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "ip-lookup": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_judicial_records": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "communication_messaging_sms": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "communication_colombia_messaging_whatsapp": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "communication_global_messaging_whatsapp": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "communication_global_email_otp": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_liveness_3d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_estimate_age_3d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_check_age_3d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_enrollment_3d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_id_scan_only": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_liveness_2d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_estimate_age_2d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "biometrics_check_age_2d": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "credit_intent_kyc_passwordless": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "brasil_api_company_lookup": {
+            "title": "Brazil - データ検証サービス",
+            "description": "一般的なデータ検証サービス のBrazil. 信頼性の高い情報検証と確認を提供."
+        },
+        "brasil_api_vehicle": {
+            "title": "Brazil - 車両確認",
+            "description": "標準的な車両確認サービス のBrazil. 車両登録と基本情報を検証."
+        },
+        "argentina_api_identity_lookup": {
+            "title": "Argentina - 本人確認",
+            "description": "標準的な本人確認サービス のArgentina 市民. 個人情報と文書の真正性を検証."
+        },
+        "ecuador_api_company_lookup": {
+            "title": "Ecuador - データ検証サービス",
+            "description": "一般的なデータ検証サービス のEcuador. 信頼性の高い情報検証と確認を提供."
+        },
+        "usa_api_ssn": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_dian_invoicer": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "api_colombia_contracts": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_police_rnmc": {
+            "title": "コロンビア - 警察記録確認",
+            "description": "Police records verification service のColombia 市民. 提供 information about police interactions and records."
+        },
+        "bolivia_api_identity_lookup": {
+            "title": "Bolivia - 本人確認",
+            "description": "標準的な本人確認サービス のBolivia 市民. 個人情報と文書の真正性を検証."
+        },
+        "colombia_pep_lookup": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "api_autodata_manufacturers": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "world_api_phone_lookup": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "Mexico_api_ine_model_e": {
+            "title": "Mexico - データ検証サービス",
+            "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
+        },
+        "Mexico_api_ine_model_d": {
+            "title": "Mexico - データ検証サービス",
+            "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
+        },
+        "Mexico_api_ine_model_c": {
+            "title": "Mexico - データ検証サービス",
+            "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
+        },
+        "api_autodata_enginer": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_rues_full": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "api_autodata_enginer_code": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "api_autodata_selection": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_sisconmp": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "data_finance_incomestatement": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "data_finance_balancesheet": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "data_finance_cashflow": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "data_finance_stockprice": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "paraguay_api_identity_lookup": {
+            "title": "Paraguay - データ検証サービス",
+            "description": "一般的なデータ検証サービス のParaguay. 信頼性の高い情報検証と確認を提供."
+        },
+        "canada_api_driver_license_alberta": {
+            "title": "Canada - データ検証サービス",
+            "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
+        },
+        "canada_api_driver_license_ontario": {
+            "title": "Canada - データ検証サービス",
+            "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle_complete_by_plate_simplified": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "canada_api_driver_license_quebec": {
+            "title": "Canada - データ検証サービス",
+            "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
+        },
+        "ocr_scan_pro": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "el_salvador_api_identity_lookup": {
+            "title": "El Salvador - データ検証サービス",
+            "description": "一般的なデータ検証サービス のEl Salvador. 信頼性の高い情報検証と確認を提供."
+        },
+        "canada_api_driver_license_british-columbia": {
+            "title": "Canada - データ検証サービス",
+            "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
+        },
+        "ocr_scan_gpt": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_identity_lookup_extra": {
+            "title": "Colombia - Complete 本人確認",
+            "description": "包括的な本人確認サービス のColombia 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
+        },
+        "colombia_api_identity_pep_foreigner_id": {
+            "title": "Colombia - 入国管理状況検証",
+            "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
+        },
+        "ocr_scan_studio": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "canada_api_company": {
+            "title": "Canada - データ検証サービス",
+            "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
+        },
+        "us_api_passport_entries": {
+            "title": "United States - 本人確認",
+            "description": "標準的な本人確認サービス のUnited States 市民. 個人情報と文書の真正性を検証."
+        },
+        "mexico_api_company": {
+            "title": "Mexico - データ検証サービス",
+            "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_compare": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_compare_live": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_liveness": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_search_live_face": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_verify": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_detect": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_search_crops": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_search": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_plate": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_code": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "usa_api_company": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_runt_owners": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "chile_api_driver_license": {
+            "title": "Chile - データ検証サービス",
+            "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_lawyers_certificate": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "argentina_api_vehicle": {
+            "title": "Argentina - 車両確認",
+            "description": "標準的な車両確認サービス のArgentina. 車両登録と基本情報を検証."
+        },
+        "argentina_api_company_lookup": {
+            "title": "Argentina - データ検証サービス",
+            "description": "一般的なデータ検証サービス のArgentina. 信頼性の高い情報検証と確認を提供."
+        },
+        "bolivia_api_vehicle": {
+            "title": "Bolivia - 車両確認",
+            "description": "標準的な車両確認サービス のBolivia. 車両登録と基本情報を検証."
+        },
+        "brasil_api_criminal_history": {
+            "title": "Brazil - データ検証サービス",
+            "description": "一般的なデータ検証サービス のBrazil. 信頼性の高い情報検証と確認を提供."
+        },
+        "bolivia_api_business_lookup": {
+            "title": "Bolivia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のBolivia. 信頼性の高い情報検証と確認を提供."
+        },
+        "costa_rica_api_business_lookup": {
+            "title": "Costa Rica - データ検証サービス",
+            "description": "一般的なデータ検証サービス のCosta Rica. 信頼性の高い情報検証と確認を提供."
+        },
+        "paraguay_api_business_lookup": {
+            "title": "Paraguay - データ検証サービス",
+            "description": "一般的なデータ検証サービス のParaguay. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_vehicle_tax": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "colombia_api_vehicle_accidentality_bogota": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "api_data_sheet_vehicle": {
+            "title": " - 車両確認",
+            "description": "標準的な車両確認サービス の. 車両登録と基本情報を検証."
+        },
+        "api_data_sheet_vehicle_by-plate_br": {
+            "title": "Brazil - 車両確認",
+            "description": "標準的な車両確認サービス のBrazil. 車両登録と基本情報を検証."
+        },
+        "face_recognition_search_active_user": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "matpis_appointments": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "chile_api_taxpayer_lookup": {
+            "title": "Chile - データ検証サービス",
+            "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
+        },
+        "chile_api_validate": {
+            "title": "Chile - データ検証サービス",
+            "description": "一般的なデータ検証サービス のChile. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_agreements": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_suspensions": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_subpoenas": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_subpoenas_details": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_resolutions": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_complete": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_simit_plate": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "world_api_passport_entries": {
+            "title": "United States - 本人確認",
+            "description": "標準的な本人確認サービス のUnited States 市民. 個人情報と文書の真正性を検証."
+        },
+        "validate-document": {
+            "title": "Colombia - 本人確認",
+            "description": "標準的な本人確認サービス のColombia 市民. 個人情報と文書の真正性を検証."
+        },
+        "costa_rica_api_vehicle": {
+            "title": "Costa Rica - 車両確認",
+            "description": "標準的な車両確認サービス のCosta Rica. 車両登録と基本情報を検証."
+        },
+        "paraguay_api_vehicle": {
+            "title": "Paraguay - 車両確認",
+            "description": "標準的な車両確認サービス のParaguay. 車両登録と基本情報を検証."
+        },
+        "usa_api_vehicle_lookup_by_vin": {
+            "title": " - 車両確認",
+            "description": "標準的な車両確認サービス の. 車両登録と基本情報を検証."
+        },
+        "colombia_api_identity_ce_foreigner_id": {
+            "title": "Colombia - 入国管理状況検証",
+            "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
+        },
+        "colombia_api_vehicle_fines_bogota": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "colombia_api_vehicle_fines_medellin": {
+            "title": "Colombia - 車両確認",
+            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+        },
+        "guatemala_api_identity_lookup": {
+            "title": "Guatemala - 本人確認",
+            "description": "標準的な本人確認サービス のGuatemala 市民. 個人情報と文書の真正性を検証."
+        },
+        "honduras_api_identity_lookup": {
+            "title": "Honduras - 本人確認",
+            "description": "標準的な本人確認サービス のHonduras 市民. 個人情報と文書の真正性を検証."
+        },
+        "republica_dominicana_api_citizen_lookup": {
+            "title": "Dominican Republic - 本人確認",
+            "description": "標準的な本人確認サービス のDominican Republic 市民. 個人情報と文書の真正性を検証."
+        },
+        "venezuela_foreigner_api": {
+            "title": "Venezuela - 入国管理状況検証",
+            "description": "Immigration records verification service のVenezuela. 提供 immigration status and foreigner registration information."
+        },
+        "colombia_sisben_api_lookup": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "spain_api_vehicle_lookup": {
+            "title": "Spain - 車両確認",
+            "description": "標準的な車両確認サービス のSpain. 車両登録と基本情報を検証."
+        },
+        "spain_api_company_lookup": {
+            "title": "Spain - データ検証サービス",
+            "description": "一般的なデータ検証サービス のSpain. 信頼性の高い情報検証と確認を提供."
+        },
+        "panama_api_business_lookup": {
+            "title": "Panama - データ検証サービス",
+            "description": "一般的なデータ検証サービス のPanama. 信頼性の高い情報検証と確認を提供."
+        },
+        "uruguay_api_identity_lookup": {
+            "title": "Uruguay - 本人確認",
+            "description": "標準的な本人確認サービス のUruguay 市民. 個人情報と文書の真正性を検証."
+        },
+        "peru_api_identity_ce_foreigner_id": {
+            "title": "Peru - 入国管理状況検証",
+            "description": "Immigration records verification service のPeru. 提供 immigration status and foreigner registration information."
+        },
+        "colombia_api_rues_full_v3": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_rues_v3": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "peru_identity_lookup_v3": {
+            "title": "Peru - 本人確認",
+            "description": "標準的な本人確認サービス のPeru 市民. 個人情報と文書の真正性を検証."
+        },
+        "peru_identity_extra_lookup_v3": {
+            "title": "Peru - Complete 本人確認",
+            "description": "包括的な本人確認サービス のPeru 市民. 提供 complete personal information 含む full name, document details, and additional verification data."
+        },
+        "colombia_api_identity_ppt_foreigner_id": {
+            "title": "Colombia - 入国管理状況検証",
+            "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
+        },
+        "colombia_api_min_trabajo_v3": {
+            "title": "Colombia - 労働証明書検証",
+            "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
+        },
+        "peru_api_company_lookup_v3": {
+            "title": "Peru - データ検証サービス",
+            "description": "一般的なデータ検証サービス のPeru. 信頼性の高い情報検証と確認を提供."
+        },
+        "face_recognition_detect_face": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "document-liveness": {
+            "title": " - データ検証サービス",
+            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_api_inpec": {
+            "title": "Colombia - データ検証サービス",
+            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+        },
+        "colombia_sigep_by_name": {
+            "title": "Colombia - SIGEP Public Officials 検索",
+            "description": "検索 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
+        },
+        "colombia_sigep_by_number": {
+            "title": "Colombia - SIGEP Official 検索 by Document",
+            "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 取得 complete professional information from SIGEP records."
+        },
+        "colombia_inpec_lookup": {
+            "title": "Colombia - INPEC 刑務所記録検索",
+            "description": "Look up Colombian prison records and inmate information using ID number and surname. 取得 admission status, legal status, and prison facility details from INPEC records."
+        },
+        "zelf-proofs": {
+            "title": "Zelf Proofs",
+            "description": "Zelf Proofs service のidentity verification and document validation. This service provides comprehensive proof generation capabilities のvarious identity documents and verification processes."
+        },
+        "zelf-proof-liveness-active-user": {
+            "title": "Zelf Proof with Liveness (Active user)",
+            "description": "Zelf Proof with Liveness detection service のenhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+        }
+    },
+    "smartBatchLanding": {
+        "title": "Smart Batch",
+        "subtitle": "バッチ処理の設定とレポートテンプレートを管理します。",
+        "configurationsTab": "設定",
+        "reportTemplatesTab": "レポートテンプレート",
+        "createConfiguration": "設定を作成",
+        "createTemplate": "テンプレートを作成",
+        "createTemplateFirstHint": "まず設定を作成してレポートテンプレートを追加してください",
+        "loadingConfigurations": "設定を読み込み中...",
+        "loadingTemplates": "テンプレートを読み込み中...",
+        "noConfigurations": "設定が見つかりません",
+        "noConfigurationsDesc": "データ処理を自動化する最初のバッチ設定を作成してください。",
+        "createFirstConfiguration": "設定を作成",
+        "noTemplates": "レポートテンプレートはまだありません",
+        "noTemplatesDesc": "PDFエクスポートをデザインするには、設定のレポートビルダーからテンプレートを作成してください。",
+        "noTemplatesHint": "設定を開き、バッチを実行してから「レポートを生成」でテンプレートの作成と編集ができます。",
+        "steps": "ステップ",
+        "strategy": "戦略",
+        "inactive": "無効",
+        "sections": "セクション",
+        "pageSize": "用紙サイズ",
+        "pdfEngine": "PDFエンジン",
+        "linkedTo": "リンク先",
+        "standalone": "スタンドアロン",
+        "edit": "編集",
+        "delete": "削除",
+        "deleteConfirmation": "このテンプレートを削除してもよろしいですか？",
+        "noDescription": "説明がありません。"
+    },
+    "smartReport": {
+        "generateReport": "レポートを生成",
+        "batchReport": "バッチレポート",
+        "createTemplate": "テンプレートを作成",
+        "selectTemplate": "テンプレートを選択",
+        "noTemplatesFound": "テンプレートが見つかりません",
+        "sections": "セクション",
+        "templateMatchesData": "テンプレートはデータと一致します",
+        "missingFields": "{{count}} フィールドが不足しています",
+        "dataMatch": "データ一致",
+        "templateMatchesBatchData": "テンプレートはバッチデータと一致します",
+        "templateReadyToUse": "すぐに使用できます。いつでもビルダーでこのテンプレートをカスタマイズできます。",
+        "editInBuilder": "ビルダーで編集",
+        "missingFieldsEditInBuilder": "バッチデータに{{count}}フィールドが不足しています。ビルダーでテンプレートを編集して修正してください。",
+        "editWithRealData": "実際のデータで編集",
+        "editTemplateWithRealData": "実際のデータでテンプレートを編集",
+        "paths": "パス",
+        "actions": "アクション",
+        "generatePdf": "PDFを生成",
+        "generating": "生成中...",
+        "downloadPdf": "PDFをダウンロード",
+        "sendViaEmail": "メールで送信",
+        "sending": "送信中...",
+        "stepResultsLayout": "ステップ結果レイアウト",
+        "reportForRecord": "レコード #{{index}} のレポート",
+        "dragSectionsReorder": "ドラッグして並べ替え。レイアウトは印刷可能です。",
+        "collapseContent": "コンテンツを折りたたむ",
+        "expandContent": "コンテンツを展開",
+        "noStepResultsYet": "ステップ結果はまだありません",
+        "processBatchToSeeResults": "バッチを処理して、各エンドポイントの結果をここで確認してください。",
+        "row": "行",
+        "result": "結果",
+        "viewModeReadable": "読みやすい",
+        "viewModeTable": "テーブル",
+        "viewModeJson": "JSON",
+        "viewModeExcelAg": "Excel v1",
+        "viewModeExcelHt": "Excel v2",
+        "downloadAsCsv": "CSVをダウンロード",
+        "downloadAsExcel": "Excelをダウンロード",
+        "exportData": "データをエクスポート",
+        "csvDownloaded": "CSVをダウンロードしました",
+        "excelDownloaded": "Excelをダウンロードしました",
+        "step": "ステップ",
+        "preview": "プレビュー",
+        "previewSameAsBuilder": "レポートビルダーと同じプレビュー — バッチデータでレンダリングされたテンプレート",
+        "generatingPdf": "PDFを生成中...",
+        "noPreviewAvailable": "プレビューがありません",
+        "selectTemplateAndBatch": "テンプレートを選択し、バッチに処理済みの行があることを確認してください",
+        "back": "戻る",
+        "generateReportFirst": "まずレポートを生成してください",
+        "emailSent": "メールを送信しました！",
+        "failedToSendEmail": "メールの送信に失敗しました",
+        "pdfDownloaded": "PDFをダウンロードしました",
+        "failedToDownloadPdf": "PDFのダウンロードに失敗しました",
+        "invalidPdfReceived": "サーバーから無効なPDFを受信しました",
+        "editReportTemplate": "レポートテンプレートを編集",
+        "newReportTemplate": "新しいレポートテンプレート",
+        "designReportLayout": "ドラッグ＆ドロップでレポートレイアウトをデザイン",
+        "sendSample": "サンプルを送信",
+        "sendingSample": "サンプルを送信中...",
+        "saveTemplateFirst": "サンプル送信を有効にするには、まずテンプレートを保存してください",
+        "saveTemplate": "テンプレートを保存",
+        "saving": "保存中...",
+        "templateSettings": "テンプレート設定",
+        "templateName": "テンプレート名",
+        "templateNamePlaceholder": "マイレポートテンプレート",
+        "pageSize": "用紙サイズ",
+        "orientation": "向き",
+        "portrait": "縦",
+        "landscape": "横",
+        "pdfEngine": "PDFエンジン",
+        "primaryColor": "メインカラー",
+        "helperData": "ヘルパーデータ",
+        "helperDataHint": "データフィールドまたはテーブルセクションでこれらのパスを使用",
+        "openFromReportViewer": "レポートビューアからバッチデータで開いて、利用可能なパスを確認",
+        "copyPath": "パスをコピー",
+        "copyPathForTable": "パスをコピー（テーブルセクション用）",
+        "addSections": "セクションを追加",
+        "reportLayout": "レポートレイアウト",
+        "dragToReorder": "ドラッグしてセクションを並べ替え",
+        "addSectionsFromAbove": "上からセクションを追加",
+        "section": "セクション",
+        "sectionNumber": "セクション #{{num}}",
+        "edit": "編集",
+        "duplicate": "複製",
+        "delete": "削除",
+        "titleText": "タイトルテキスト",
+        "reportTitle": "レポートタイトル",
+        "content": "コンテンツ",
+        "enterTextContent": "テキストコンテンツを入力...",
+        "label": "ラベル",
+        "fieldLabel": "フィールドラベル",
+        "dataPath": "データパス",
+        "dataPathPlaceholder": "results.1.fullName",
+        "dotSeparatedPath": "ドット区切りのデータパス（例：results.1.fullName）",
+        "tableTitle": "テーブルタイトル",
+        "tableLabel": "テーブルラベル",
+        "dataPathObject": "データパス（オブジェクト）",
+        "pathToObject": "キーが行になるオブジェクトへのパス",
+        "imageUrl": "画像URL",
+        "altText": "代替テキスト",
+        "companyLogo": "会社ロゴ",
+        "heightPx": "高さ（px）",
+        "color": "色",
+        "style": "スタイル",
+        "textAlign": "テキスト配置",
+        "fontSize": "フォントサイズ",
+        "fontWeight": "フォントの太さ",
+        "normal": "通常",
+        "bold": "太字",
+        "textColor": "テキスト色",
+        "livePreviewWithSample": "サンプルデータでのライブプレビュー",
+        "missing": "不足",
+        "sendSampleReport": "サンプルレポートを送信",
+        "sendReport": "レポートを送信",
+        "enterRecipientsAndSubject": "受信者のメールとオプションの件名を入力",
+        "recipientEmails": "受信者メール",
+        "recipientsPlaceholder": "email1@example.com, email2@example.com",
+        "separateEmailsWithCommas": "複数のメールはカンマで区切ってください",
+        "atLeastOneRecipient": "少なくとも1人の受信者が必要です",
+        "enterValidEmails": "有効なメールアドレスを入力してください",
+        "subjectOptional": "件名（任意）",
+        "subjectOptionalPlaceholder": "サンプルレポート：テンプレートプレビュー",
+        "reportBatchPlaceholder": "レポート - バッチ",
+        "cancel": "キャンセル",
+        "noSectionsToPreview": "プレビューするセクションがありません",
+        "untitled": "無題",
+        "textContent": "テキストコンテンツ...",
+        "field": "フィールド",
+        "noDataAtPath": "パス \"{{path}}\" にデータがありません",
+        "image": "画像",
+        "failedToSaveTemplatePreference": "テンプレートの設定の保存に失敗しました",
+        "pleaseSelectTemplate": "テンプレートを選択してください",
+        "reportGenerated": "レポートを生成しました！",
+        "failedToGenerateReport": "レポートの生成に失敗しました",
+        "failedToCreateReport": "レポートの作成に失敗しました",
+        "sectionHeader": "ヘッダー",
+        "sectionText": "テキストブロック",
+        "sectionField": "データフィールド",
+        "sectionTable": "テーブル",
+        "sectionImage": "画像",
+        "sectionDivider": "区切り線",
+        "sectionSpacer": "スペーサー",
+        "samplePdfSentSuccess": "サンプルPDFを正常に送信しました",
+        "failedToSendSamplePdf": "サンプルPDFの送信に失敗しました",
+        "copied": "コピーしました",
+        "failedToCopy": "コピーに失敗しました"
+    },
+    "batchProcessing": {
+        "backToDashboard": "ダッシュボードに戻る",
+        "batchProcessing": "バッチ処理",
+        "records": "件",
+        "status": "ステータス",
+        "starting": "開始中...",
+        "startProcessing": "処理を開始",
+        "pause": "一時停止",
+        "generateReport": "レポートを生成",
+        "processing": "処理中...",
+        "processingSteps": "処理ステップ",
+        "credits": "クレジット",
+        "pending": "保留中",
+        "recordsWaiting": "{{count}}件のレコードが待機中",
+        "allRecordsProcessed": "すべてのレコードが処理されました！",
+        "rowNumber": "行 {{index}}",
+        "completed": "完了",
+        "failed": "失敗",
+        "recordsVerified": "{{count}}件のレコードを検証済み",
+        "noCompletedRecordsYet": "まだ完了したレコードはありません",
+        "verified": "検証済み",
+        "skipped": "スキップ",
+        "rowDetails": "行 #{{index}} の詳細",
+        "readable": "読みやすい",
+        "json": "JSON",
+        "generatePdfReport": "PDFレポートを生成",
+        "inputData": "入力データ",
+        "stepResults": "ステップ結果",
+        "errors": "エラー",
+        "stepError": "ステップ {{step}}: {{code}}",
+        "stepStatusCompleted": "{{step}}: 完了",
+        "stepStatusFailed": "{{step}}: 失敗",
+        "stepStatusPending": "{{step}}: 保留中",
+        "stepStatusSkipped": "{{step}}: スキップ",
+        "draft": "下書き",
+        "cancelled": "キャンセル"
+    },
+    "batchDashboard": {
+        "backToSmartBatch": "Smart Batchに戻る",
+        "loading": "読み込み中...",
+        "batchProcessingDashboard": "バッチ処理ダッシュボード",
+        "createBatch": "バッチを作成",
+        "steps": "ステップ",
+        "strategy": "戦略",
+        "format": "形式",
+        "costPerRow": "行あたりのコスト",
+        "processingSteps": "処理ステップ",
+        "disabled": "無効",
+        "costBreakdown": "コスト内訳",
+        "totalPerRow": "1行あたりの合計",
+        "total": "合計",
+        "totalBatches": "バッチ総数",
+        "success": "成功",
+        "completedRows": "完了した行",
+        "queue": "キュー",
+        "pendingRows": "保留中の行",
+        "error": "エラー",
+        "failedRows": "失敗した行",
+        "loadingBatches": "バッチを読み込み中...",
+        "noBatchesYet": "まだバッチがありません",
+        "createFirstBatchDescription": "最初のバッチを作成して、この設定でデータの処理を開始してください。",
+        "createFirstBatch": "最初のバッチを作成",
+        "batches": "バッチ",
+        "name": "名前",
+        "status": "ステータス",
+        "progress": "進捗",
+        "rows": "行",
+        "created": "作成日",
+        "actions": "操作",
+        "viewDetails": "詳細を表示",
+        "failedCount": "({{count}}件失敗)"
     }
-  },
-  "smartReport": {
-    "generateReport": "レポートを生成",
-    "batchReport": "バッチレポート",
-    "createTemplate": "テンプレートを作成",
-    "selectTemplate": "テンプレートを選択",
-    "noTemplatesFound": "テンプレートが見つかりません",
-    "sections": "セクション",
-    "templateMatchesData": "テンプレートはデータと一致します",
-    "missingFields": "{{count}} フィールドが不足しています",
-    "dataMatch": "データ一致",
-    "templateMatchesBatchData": "テンプレートはバッチデータと一致します",
-    "templateReadyToUse": "すぐに使用できます。いつでもビルダーでこのテンプレートをカスタマイズできます。",
-    "editInBuilder": "ビルダーで編集",
-    "missingFieldsEditInBuilder": "バッチデータに{{count}}フィールドが不足しています。ビルダーでテンプレートを編集して修正してください。",
-    "editWithRealData": "実際のデータで編集",
-    "editTemplateWithRealData": "実際のデータでテンプレートを編集",
-    "paths": "パス",
-    "actions": "アクション",
-    "generatePdf": "PDFを生成",
-    "generating": "生成中...",
-    "downloadPdf": "PDFをダウンロード",
-    "sendViaEmail": "メールで送信",
-    "sending": "送信中...",
-    "stepResultsLayout": "ステップ結果レイアウト",
-    "reportForRecord": "レコード #{{index}} のレポート",
-    "dragSectionsReorder": "ドラッグして並べ替え。レイアウトは印刷可能です。",
-    "noStepResultsYet": "ステップ結果はまだありません",
-    "processBatchToSeeResults": "バッチを処理して、各エンドポイントの結果をここで確認してください。",
-    "row": "行",
-    "result": "結果",
-    "viewModeReadable": "読みやすい",
-    "viewModeJson": "JSON",
-    "step": "ステップ",
-    "preview": "プレビュー",
-    "previewSameAsBuilder": "レポートビルダーと同じプレビュー — バッチデータでレンダリングされたテンプレート",
-    "generatingPdf": "PDFを生成中...",
-    "noPreviewAvailable": "プレビューがありません",
-    "selectTemplateAndBatch": "テンプレートを選択し、バッチに処理済みの行があることを確認してください",
-    "back": "戻る",
-    "generateReportFirst": "まずレポートを生成してください",
-    "emailSent": "メールを送信しました！",
-    "failedToSendEmail": "メールの送信に失敗しました",
-    "pdfDownloaded": "PDFをダウンロードしました",
-    "failedToDownloadPdf": "PDFのダウンロードに失敗しました",
-    "invalidPdfReceived": "サーバーから無効なPDFを受信しました",
-    "editReportTemplate": "レポートテンプレートを編集",
-    "newReportTemplate": "新しいレポートテンプレート",
-    "designReportLayout": "ドラッグ＆ドロップでレポートレイアウトをデザイン",
-    "sendSample": "サンプルを送信",
-    "sendingSample": "サンプルを送信中...",
-    "saveTemplateFirst": "サンプル送信を有効にするには、まずテンプレートを保存してください",
-    "saveTemplate": "テンプレートを保存",
-    "saving": "保存中...",
-    "templateSettings": "テンプレート設定",
-    "templateName": "テンプレート名",
-    "templateNamePlaceholder": "マイレポートテンプレート",
-    "pageSize": "用紙サイズ",
-    "orientation": "向き",
-    "portrait": "縦",
-    "landscape": "横",
-    "pdfEngine": "PDFエンジン",
-    "primaryColor": "メインカラー",
-    "helperData": "ヘルパーデータ",
-    "helperDataHint": "データフィールドまたはテーブルセクションでこれらのパスを使用",
-    "openFromReportViewer": "レポートビューアからバッチデータで開いて、利用可能なパスを確認",
-    "copyPath": "パスをコピー",
-    "copyPathForTable": "パスをコピー（テーブルセクション用）",
-    "addSections": "セクションを追加",
-    "reportLayout": "レポートレイアウト",
-    "dragToReorder": "ドラッグしてセクションを並べ替え",
-    "addSectionsFromAbove": "上からセクションを追加",
-    "section": "セクション",
-    "sectionNumber": "セクション #{{num}}",
-    "edit": "編集",
-    "duplicate": "複製",
-    "delete": "削除",
-    "titleText": "タイトルテキスト",
-    "reportTitle": "レポートタイトル",
-    "content": "コンテンツ",
-    "enterTextContent": "テキストコンテンツを入力...",
-    "label": "ラベル",
-    "fieldLabel": "フィールドラベル",
-    "dataPath": "データパス",
-    "dataPathPlaceholder": "results.1.fullName",
-    "dotSeparatedPath": "ドット区切りのデータパス（例：results.1.fullName）",
-    "tableTitle": "テーブルタイトル",
-    "tableLabel": "テーブルラベル",
-    "dataPathObject": "データパス（オブジェクト）",
-    "pathToObject": "キーが行になるオブジェクトへのパス",
-    "imageUrl": "画像URL",
-    "altText": "代替テキスト",
-    "companyLogo": "会社ロゴ",
-    "heightPx": "高さ（px）",
-    "color": "色",
-    "style": "スタイル",
-    "textAlign": "テキスト配置",
-    "fontSize": "フォントサイズ",
-    "fontWeight": "フォントの太さ",
-    "normal": "通常",
-    "bold": "太字",
-    "textColor": "テキスト色",
-    "livePreviewWithSample": "サンプルデータでのライブプレビュー",
-    "missing": "不足",
-    "sendSampleReport": "サンプルレポートを送信",
-    "sendReport": "レポートを送信",
-    "enterRecipientsAndSubject": "受信者のメールとオプションの件名を入力",
-    "recipientEmails": "受信者メール",
-    "recipientsPlaceholder": "email1@example.com, email2@example.com",
-    "separateEmailsWithCommas": "複数のメールはカンマで区切ってください",
-    "atLeastOneRecipient": "少なくとも1人の受信者が必要です",
-    "enterValidEmails": "有効なメールアドレスを入力してください",
-    "subjectOptional": "件名（任意）",
-    "subjectOptionalPlaceholder": "サンプルレポート：テンプレートプレビュー",
-    "reportBatchPlaceholder": "レポート - バッチ",
-    "cancel": "キャンセル",
-    "noSectionsToPreview": "プレビューするセクションがありません",
-    "untitled": "無題",
-    "textContent": "テキストコンテンツ...",
-    "field": "フィールド",
-    "noDataAtPath": "パス \"{{path}}\" にデータがありません",
-    "image": "画像",
-    "failedToSaveTemplatePreference": "テンプレートの設定の保存に失敗しました",
-    "pleaseSelectTemplate": "テンプレートを選択してください",
-    "reportGenerated": "レポートを生成しました！",
-    "failedToGenerateReport": "レポートの生成に失敗しました",
-    "failedToCreateReport": "レポートの作成に失敗しました",
-    "sectionHeader": "ヘッダー",
-    "sectionText": "テキストブロック",
-    "sectionField": "データフィールド",
-    "sectionTable": "テーブル",
-    "sectionImage": "画像",
-    "sectionDivider": "区切り線",
-    "sectionSpacer": "スペーサー",
-    "samplePdfSentSuccess": "サンプルPDFを正常に送信しました",
-    "failedToSendSamplePdf": "サンプルPDFの送信に失敗しました",
-    "copied": "コピーしました",
-    "failedToCopy": "コピーに失敗しました"
-  },
-  "batchProcessing": {
-    "backToDashboard": "ダッシュボードに戻る",
-    "batchProcessing": "バッチ処理",
-    "records": "件",
-    "status": "ステータス",
-    "starting": "開始中...",
-    "startProcessing": "処理を開始",
-    "pause": "一時停止",
-    "generateReport": "レポートを生成",
-    "processing": "処理中...",
-    "processingSteps": "処理ステップ",
-    "credits": "クレジット",
-    "pending": "保留中",
-    "recordsWaiting": "{{count}}件のレコードが待機中",
-    "allRecordsProcessed": "すべてのレコードが処理されました！",
-    "rowNumber": "行 {{index}}",
-    "completed": "完了",
-    "failed": "失敗",
-    "recordsVerified": "{{count}}件のレコードを検証済み",
-    "noCompletedRecordsYet": "まだ完了したレコードはありません",
-    "verified": "検証済み",
-    "skipped": "スキップ",
-    "rowDetails": "行 #{{index}} の詳細",
-    "readable": "読みやすい",
-    "json": "JSON",
-    "generatePdfReport": "PDFレポートを生成",
-    "inputData": "入力データ",
-    "stepResults": "ステップ結果",
-    "errors": "エラー",
-    "stepError": "ステップ {{step}}: {{code}}",
-    "stepStatusCompleted": "{{step}}: 完了",
-    "stepStatusFailed": "{{step}}: 失敗",
-    "stepStatusPending": "{{step}}: 保留中",
-    "stepStatusSkipped": "{{step}}: スキップ",
-    "draft": "下書き",
-    "cancelled": "キャンセル"
-  },
-  "batchDashboard": {
-    "backToSmartBatch": "Smart Batchに戻る",
-    "loading": "読み込み中...",
-    "batchProcessingDashboard": "バッチ処理ダッシュボード",
-    "createBatch": "バッチを作成",
-    "steps": "ステップ",
-    "strategy": "戦略",
-    "format": "形式",
-    "costPerRow": "行あたりのコスト",
-    "processingSteps": "処理ステップ",
-    "disabled": "無効",
-    "costBreakdown": "コスト内訳",
-    "totalPerRow": "1行あたりの合計",
-    "total": "合計",
-    "totalBatches": "バッチ総数",
-    "success": "成功",
-    "completedRows": "完了した行",
-    "queue": "キュー",
-    "pendingRows": "保留中の行",
-    "error": "エラー",
-    "failedRows": "失敗した行",
-    "loadingBatches": "バッチを読み込み中...",
-    "noBatchesYet": "まだバッチがありません",
-    "createFirstBatchDescription": "最初のバッチを作成して、この設定でデータの処理を開始してください。",
-    "createFirstBatch": "最初のバッチを作成",
-    "batches": "バッチ",
-    "name": "名前",
-    "status": "ステータス",
-    "progress": "進捗",
-    "rows": "行",
-    "created": "作成日",
-    "actions": "操作",
-    "viewDetails": "詳細を表示",
-    "failedCount": "({{count}}件失敗)"
-  }
 }
