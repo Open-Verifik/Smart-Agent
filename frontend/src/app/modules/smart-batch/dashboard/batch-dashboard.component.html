@@ -5,6 +5,7 @@
             <button
                 mat-icon-button
                 routerLink="/smart-batch"
+                [matTooltip]="'batchDashboard.backToSmartBatch' | transloco"
                 class="!bg-white dark:!bg-slate-800 !shadow-sm"
             >
                 <mat-icon>arrow_back</mat-icon>
@@ -15,10 +16,10 @@
                 }}</span>
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                        {{ configuration()?.name || 'Loading...' }}
+                        {{ configuration()?.name || ('batchDashboard.loading' | transloco) }}
                     </h1>
                     <p class="text-slate-500 dark:text-slate-400">
-                        {{ configuration()?.description || 'Batch processing dashboard' }}
+                        {{ configuration()?.description || ('batchDashboard.batchProcessingDashboard' | transloco) }}
                     </p>
                 </div>
             </div>
@@ -30,7 +31,7 @@
             class="!rounded-lg !px-6 !py-2"
         >
             <mat-icon class="mr-2 icon-size-5">add</mat-icon>
-            Create Batch
+            {{ 'batchDashboard.createBatch' | transloco }}
         </button>
     </div>
 
@@ -52,7 +53,7 @@
                     >
                 </div>
                 <div class="flex-1">
-                    <span class="block text-xs text-slate-500 uppercase font-medium">Steps</span>
+                    <span class="block text-xs text-slate-500 uppercase font-medium">{{ 'batchDashboard.steps' | transloco }}</span>
                     <span class="text-xl font-bold text-slate-900 dark:text-white">{{
                         stepsCount()
                     }}</span>
@@ -76,7 +77,7 @@
                     >
                 </div>
                 <div>
-                    <span class="block text-xs text-slate-500 uppercase font-medium">Strategy</span>
+                    <span class="block text-xs text-slate-500 uppercase font-medium">{{ 'batchDashboard.strategy' | transloco }}</span>
                     <span class="text-lg font-semibold text-slate-900 dark:text-white capitalize">
                         {{ configuration()?.mergeStrategy?.replace('-', ' ') }}
                     </span>
@@ -97,7 +98,7 @@
                     >
                 </div>
                 <div>
-                    <span class="block text-xs text-slate-500 uppercase font-medium">Format</span>
+                    <span class="block text-xs text-slate-500 uppercase font-medium">{{ 'batchDashboard.format' | transloco }}</span>
                     <span class="text-lg font-semibold text-slate-900 dark:text-white uppercase">
                         {{ configuration()?.inputFormat }} → {{ configuration()?.outputFormat }}
                     </span>
@@ -121,7 +122,7 @@
                     >
                 </div>
                 <div class="flex-1">
-                    <span class="block text-xs text-slate-500 uppercase font-medium">Cost/Row</span>
+                    <span class="block text-xs text-slate-500 uppercase font-medium">{{ 'batchDashboard.costPerRow' | transloco }}</span>
                     <span class="text-xl font-bold text-green-600 dark:text-green-400">
                         ${{ estimatedCostPerRow().toFixed(2) }}
                     </span>
@@ -143,7 +144,7 @@
                 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2"
             >
                 <mat-icon class="text-indigo-600 dark:text-indigo-400">layers</mat-icon>
-                Processing Steps
+                {{ 'batchDashboard.processingSteps' | transloco }}
             </h3>
             <button mat-icon-button (click)="toggleStepsPanel()">
                 <mat-icon>close</mat-icon>
@@ -177,7 +178,7 @@
                     *ngIf="!step.enabled"
                     class="text-xs px-2 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400"
                 >
-                    Disabled
+                    {{ 'batchDashboard.disabled' | transloco }}
                 </span>
             </div>
         </div>
@@ -193,7 +194,7 @@
                 class="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2"
             >
                 <mat-icon class="text-green-600 dark:text-green-400">attach_money</mat-icon>
-                Cost Breakdown
+                {{ 'batchDashboard.costBreakdown' | transloco }}
             </h3>
             <button mat-icon-button (click)="toggleCostPanel()">
                 <mat-icon>close</mat-icon>
@@ -220,7 +221,7 @@
         <div
             class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between"
         >
-            <span class="font-semibold text-slate-900 dark:text-white">Total per row</span>
+            <span class="font-semibold text-slate-900 dark:text-white">{{ 'batchDashboard.totalPerRow' | transloco }}</span>
             <span class="text-2xl font-bold text-green-600 dark:text-green-400"
                 >${{ estimatedCostPerRow().toFixed(2) }}</span
             >
@@ -251,13 +252,13 @@
                 >
                     <span
                         class="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
-                        >Total</span
+                        >{{ 'batchDashboard.total' | transloco }}</span
                     >
                 </div>
             </div>
             <div class="space-y-1">
                 <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
-                    Total Batches
+                    {{ 'batchDashboard.totalBatches' | transloco }}
                 </p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {{ stats()!.totalBatches }}
@@ -287,13 +288,13 @@
                 >
                     <span
                         class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider"
-                        >Success</span
+                        >{{ 'batchDashboard.success' | transloco }}</span
                     >
                 </div>
             </div>
             <div class="space-y-1">
                 <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
-                    Completed Rows
+                    {{ 'batchDashboard.completedRows' | transloco }}
                 </p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {{ stats()!.completedRows }}
@@ -327,13 +328,13 @@
                 >
                     <span
                         class="text-[10px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wider"
-                        >Queue</span
+                        >{{ 'batchDashboard.queue' | transloco }}</span
                     >
                 </div>
             </div>
             <div class="space-y-1">
                 <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
-                    Pending Rows
+                    {{ 'batchDashboard.pendingRows' | transloco }}
                 </p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {{ stats()!.pendingRows }}
@@ -367,13 +368,13 @@
                 >
                     <span
                         class="text-[10px] font-semibold text-rose-600 dark:text-rose-400 uppercase tracking-wider"
-                        >Error</span
+                        >{{ 'batchDashboard.error' | transloco }}</span
                     >
                 </div>
             </div>
             <div class="space-y-1">
                 <p class="text-[13px] font-medium text-slate-500 dark:text-slate-400 tracking-wide">
-                    Failed Rows
+                    {{ 'batchDashboard.failedRows' | transloco }}
                 </p>
                 <p class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                     {{ stats()!.failedRows }}
@@ -392,7 +393,7 @@
     <!-- Loading State -->
     <div *ngIf="isLoading()" class="flex flex-col items-center justify-center flex-1">
         <mat-spinner diameter="48"></mat-spinner>
-        <p class="mt-4 text-slate-500">Loading batches...</p>
+        <p class="mt-4 text-slate-500">{{ 'batchDashboard.loadingBatches' | transloco }}</p>
     </div>
 
     <!-- Empty State -->
@@ -405,19 +406,19 @@
         >
             <mat-icon class="text-slate-400 icon-size-10">inbox</mat-icon>
         </div>
-        <h3 class="text-lg font-medium text-slate-900 dark:text-white">No batches yet</h3>
+        <h3 class="text-lg font-medium text-slate-900 dark:text-white">{{ 'batchDashboard.noBatchesYet' | transloco }}</h3>
         <p class="text-slate-500 dark:text-slate-400 max-w-sm mt-2 mb-6">
-            Create your first batch to start processing data with this configuration.
+            {{ 'batchDashboard.createFirstBatchDescription' | transloco }}
         </p>
         <button mat-flat-button color="primary" (click)="createBatch()">
             <mat-icon class="mr-2">add</mat-icon>
-            Create First Batch
+            {{ 'batchDashboard.createFirstBatch' | transloco }}
         </button>
     </div>
 
     <!-- Batches List -->
     <div *ngIf="!isLoading() && batches().length > 0" class="flex flex-col gap-4">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Batches</h2>
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-white">{{ 'batchDashboard.batches' | transloco }}</h2>
 
         <div
             class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
@@ -428,32 +429,32 @@
                         <th
                             class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider"
                         >
-                            Name
+                            {{ 'batchDashboard.name' | transloco }}
                         </th>
                         <th
                             class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider"
                         >
-                            Status
+                            {{ 'batchDashboard.status' | transloco }}
                         </th>
                         <th
                             class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider"
                         >
-                            Progress
+                            {{ 'batchDashboard.progress' | transloco }}
                         </th>
                         <th
                             class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider"
                         >
-                            Rows
+                            {{ 'batchDashboard.rows' | transloco }}
                         </th>
                         <th
                             class="text-left px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider"
                         >
-                            Created
+                            {{ 'batchDashboard.created' | transloco }}
                         </th>
                         <th
                             class="text-right px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider"
                         >
-                            Actions
+                            {{ 'batchDashboard.actions' | transloco }}
                         </th>
                     </tr>
                 </thead>
@@ -473,7 +474,7 @@
                                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize"
                                 [ngClass]="getStatusColor(batch.status)"
                             >
-                                {{ batch.status }}
+                                {{ ('batchProcessing.' + batch.status) | transloco }}
                             </span>
                         </td>
                         <td class="px-6 py-4 w-48">
@@ -496,7 +497,7 @@
                                     batch.totalRows
                                 }}</span>
                                 <span *ngIf="batch.failedRows > 0" class="text-red-500 ml-1"
-                                    >({{ batch.failedRows }} failed)</span
+                                    >({{ 'batchDashboard.failedCount' | transloco: { count: batch.failedRows } }})</span
                                 >
                             </div>
                         </td>
@@ -506,7 +507,7 @@
                         <td class="px-6 py-4 text-right">
                             <button
                                 mat-icon-button
-                                matTooltip="View Details"
+                                [matTooltip]="'batchDashboard.viewDetails' | transloco"
                                 (click)="viewBatch(batch._id!); $event.stopPropagation()"
                             >
                                 <mat-icon class="icon-size-5">visibility</mat-icon>

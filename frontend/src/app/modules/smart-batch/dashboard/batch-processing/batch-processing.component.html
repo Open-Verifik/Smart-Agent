@@ -4,17 +4,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <button mat-icon-button (click)="goBack()" matTooltip="Back to Dashboard">
+                    <button mat-icon-button (click)="goBack()" [matTooltip]="'batchProcessing.backToDashboard' | transloco">
                         <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div>
                         <h1 class="text-xl font-bold text-gray-900">
-                            {{ batch()?.name || 'Batch Processing' }}
+                            {{ batch()?.name || ('batchProcessing.batchProcessing' | transloco) }}
                         </h1>
                         <p class="text-sm text-gray-500">
-                            {{ batch()?.totalRows || 0 }} records • Status:
+                            {{ batch()?.totalRows || 0 }} {{ 'batchProcessing.records' | transloco }} • {{ 'batchProcessing.status' | transloco }}:
                             <span [class]="getStatusColor(batch()?.status || 'pending')">
-                                {{ batch()?.status | titlecase }}
+                                {{ ('batchProcessing.' + (batch()?.status || 'pending')) | transloco }}
                             </span>
                         </p>
                     </div>
@@ -33,10 +33,10 @@
                             <span class="inline-flex items-center gap-2">
                                 @if (isStarting()) {
                                     <mat-icon class="animate-spin">refresh</mat-icon>
-                                    Starting...
+                                    {{ 'batchProcessing.starting' | transloco }}
                                 } @else {
                                     <mat-icon>play_arrow</mat-icon>
-                                    Start Processing
+                                    {{ 'batchProcessing.startProcessing' | transloco }}
                                 }
                             </span>
                         </button>
@@ -45,7 +45,7 @@
                         <button mat-stroked-button (click)="pauseProcessing()" class="!rounded-xl">
                             <span class="inline-flex items-center gap-2">
                                 <mat-icon>pause</mat-icon>
-                                Pause
+                                {{ 'batchProcessing.pause' | transloco }}
                             </span>
                         </button>
                     }
@@ -58,7 +58,7 @@
                         >
                             <span class="inline-flex items-center gap-2">
                                 <mat-icon>description</mat-icon>
-                                Generate Report
+                                {{ 'batchProcessing.generateReport' | transloco }}
                             </span>
                         </button>
                     }
@@ -69,7 +69,7 @@
             @if (isProcessing()) {
                 <div class="mt-4">
                     <div class="flex justify-between text-sm text-gray-600 mb-1">
-                        <span>Processing...</span>
+                        <span>{{ 'batchProcessing.processing' | transloco }}</span>
                         <span>{{ progress() }}%</span>
                     </div>
                     <mat-progress-bar
@@ -87,7 +87,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="bg-white rounded-xl border border-gray-200 p-4">
                 <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-                    Processing Steps
+                    {{ 'batchProcessing.processingSteps' | transloco }}
                 </h3>
                 <div class="flex items-stretch gap-2 flex-wrap">
                     @for (step of configSteps(); track step.sequence; let idx = $index) {
@@ -114,7 +114,7 @@
                                 }
                                 @if (getStepPrice(step) > 0) {
                                     <span class="text-xs text-indigo-600 font-medium mt-0.5">
-                                        {{ getStepPrice(step) | number: '1.2-2' }} credits
+                                        {{ getStepPrice(step) | number: '1.2-2' }} {{ 'batchProcessing.credits' | transloco }}
                                     </span>
                                 }
                             </div>
@@ -147,9 +147,9 @@
                                 <mat-icon class="text-amber-600">pending</mat-icon>
                             </div>
                             <div>
-                                <h2 class="font-semibold text-gray-900">Pending</h2>
+                                <h2 class="font-semibold text-gray-900">{{ 'batchProcessing.pending' | transloco }}</h2>
                                 <p class="text-sm text-gray-500">
-                                    {{ pendingRows().length }} records waiting
+                                    {{ 'batchProcessing.recordsWaiting' | transloco: { count: pendingRows().length } }}
                                 </p>
                             </div>
                         </div>
@@ -159,7 +159,7 @@
                         @if (pendingRows().length === 0) {
                             <div class="p-8 text-center text-gray-400">
                                 <mat-icon class="!text-5xl !w-12 !h-12 mb-2">check_circle</mat-icon>
-                                <p>All records processed!</p>
+                                <p>{{ 'batchProcessing.allRecordsProcessed' | transloco }}</p>
                             </div>
                         } @else {
                             @for (row of pendingRows(); track row.rowIndex) {
@@ -180,11 +180,11 @@
                                                     {{
                                                         row.inputData?.documentNumber ||
                                                             row.inputData?.name ||
-                                                            'Row ' + (row.rowIndex + 1)
+                                                            ('batchProcessing.rowNumber' | transloco: { index: row.rowIndex + 1 })
                                                     }}
                                                 </p>
                                                 <p class="text-xs text-gray-400">
-                                                    {{ row.status | titlecase }}
+                                                    {{ ('batchProcessing.' + row.status) | transloco }}
                                                 </p>
                                             </div>
                                         </div>
@@ -196,7 +196,7 @@
                                                         <div
                                                             class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center"
                                                             [matTooltip]="
-                                                                getStepName(step) + ': Completed'
+                                                                'batchProcessing.stepStatusCompleted' | transloco: { step: getStepName(step) }
                                                             "
                                                         >
                                                             <mat-icon
@@ -209,7 +209,7 @@
                                                         <div
                                                             class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center"
                                                             [matTooltip]="
-                                                                getStepName(step) + ': Failed'
+                                                                'batchProcessing.stepStatusFailed' | transloco: { step: getStepName(step) }
                                                             "
                                                         >
                                                             <mat-icon
@@ -222,7 +222,7 @@
                                                         <div
                                                             class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center"
                                                             [matTooltip]="
-                                                                getStepName(step) + ': Pending'
+                                                                'batchProcessing.stepStatusPending' | transloco: { step: getStepName(step) }
                                                             "
                                                         >
                                                             <mat-icon
@@ -251,9 +251,9 @@
                                 <mat-icon class="text-emerald-600">check_circle</mat-icon>
                             </div>
                             <div>
-                                <h2 class="font-semibold text-gray-900">Completed</h2>
+                                <h2 class="font-semibold text-gray-900">{{ 'batchProcessing.completed' | transloco }}</h2>
                                 <p class="text-sm text-gray-500">
-                                    {{ completedRows().length }} records verified
+                                    {{ 'batchProcessing.recordsVerified' | transloco: { count: completedRows().length } }}
                                 </p>
                             </div>
                         </div>
@@ -265,7 +265,7 @@
                                 <mat-icon class="!text-5xl !w-12 !h-12 mb-2"
                                     >hourglass_empty</mat-icon
                                 >
-                                <p>No completed records yet</p>
+                                <p>{{ 'batchProcessing.noCompletedRecordsYet' | transloco }}</p>
                             </div>
                         } @else {
                             <!-- Completed -->
@@ -289,10 +289,10 @@
                                                     {{
                                                         row.inputData?.documentNumber ||
                                                             row.inputData?.name ||
-                                                            'Row ' + (row.rowIndex + 1)
+                                                            ('batchProcessing.rowNumber' | transloco: { index: row.rowIndex + 1 })
                                                     }}
                                                 </p>
-                                                <p class="text-xs text-emerald-600">Verified</p>
+                                                <p class="text-xs text-emerald-600">{{ 'batchProcessing.verified' | transloco }}</p>
                                             </div>
                                         </div>
                                         <!-- Step Status Icons for completed rows -->
@@ -334,11 +334,11 @@
                                                     {{
                                                         row.inputData?.documentNumber ||
                                                             row.inputData?.name ||
-                                                            'Row ' + (row.rowIndex + 1)
+                                                            ('batchProcessing.rowNumber' | transloco: { index: row.rowIndex + 1 })
                                                     }}
                                                 </p>
                                                 <p class="text-xs text-red-600">
-                                                    {{ row.errors?.[0]?.message || 'Failed' }}
+                                                    {{ row.errors?.[0]?.message || ('batchProcessing.failed' | transloco) }}
                                                 </p>
                                             </div>
                                         </div>
@@ -350,7 +350,7 @@
                                                         <div
                                                             class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center"
                                                             [matTooltip]="
-                                                                getStepName(step) + ': Completed'
+                                                                'batchProcessing.stepStatusCompleted' | transloco: { step: getStepName(step) }
                                                             "
                                                         >
                                                             <mat-icon
@@ -363,7 +363,7 @@
                                                         <div
                                                             class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center"
                                                             [matTooltip]="
-                                                                getStepName(step) + ': Failed'
+                                                                'batchProcessing.stepStatusFailed' | transloco: { step: getStepName(step) }
                                                             "
                                                         >
                                                             <mat-icon
@@ -376,7 +376,7 @@
                                                         <div
                                                             class="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center"
                                                             [matTooltip]="
-                                                                getStepName(step) + ': Skipped'
+                                                                'batchProcessing.stepStatusSkipped' | transloco: { step: getStepName(step) }
                                                             "
                                                         >
                                                             <mat-icon
@@ -401,9 +401,17 @@
                 <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-semibold text-gray-900">
-                            Row #{{ (selectedRow()?.rowIndex ?? 0) + 1 }} Details
+                            {{ 'batchProcessing.rowDetails' | transloco: { index: (selectedRow()?.rowIndex ?? 0) + 1 } }}
                         </h3>
                         <div class="flex items-center gap-2">
+                            <mat-button-toggle-group
+                                [value]="detailsViewMode()"
+                                (change)="detailsViewMode.set($event.value)"
+                                class="!rounded-lg"
+                            >
+                                <mat-button-toggle value="readable">{{ 'batchProcessing.readable' | transloco }}</mat-button-toggle>
+                                <mat-button-toggle value="json">{{ 'batchProcessing.json' | transloco }}</mat-button-toggle>
+                            </mat-button-toggle-group>
                             @if (selectedRow()?.status === 'completed') {
                                 <button
                                     mat-flat-button
@@ -412,7 +420,7 @@
                                     class="!rounded-lg"
                                 >
                                     <mat-icon class="mr-2 icon-size-4">picture_as_pdf</mat-icon>
-                                    Generate PDF Report
+                                    {{ 'batchProcessing.generatePdfReport' | transloco }}
                                 </button>
                             }
                             <button mat-icon-button (click)="selectedRow.set(null)">
@@ -421,10 +429,37 @@
                         </div>
                     </div>
 
-                    <!-- Step-by-Step Results -->
+                    <!-- Input Data (first) -->
+                    <div class="mb-6">
+                        <h4 class="text-sm font-medium text-gray-500 mb-3">{{ 'batchProcessing.inputData' | transloco }}</h4>
+                        <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                            @if (detailsViewMode() === 'readable') {
+                                <div class="px-4 py-3">
+                                    @if (getInputDataFields().length > 0) {
+                                        <div class="space-y-0">
+                                            @for (field of getInputDataFields(); track field.label) {
+                                                <div class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm">
+                                                    <span class="text-gray-500 min-w-[140px] shrink-0">{{ field.label }}</span>
+                                                    <span class="text-gray-900 font-medium break-words">{{ field.value }}</span>
+                                                </div>
+                                            }
+                                        </div>
+                                    } @else {
+                                        <p class="text-sm text-gray-400 py-2">—</p>
+                                    }
+                                </div>
+                            } @else {
+                                <pre class="bg-gray-50 rounded-lg p-4 text-sm font-mono text-gray-800 overflow-auto max-h-64 m-0">{{
+                                    formatJson(selectedRow()?.inputData)
+                                }}</pre>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Step Results (second) -->
                     @if (configSteps().length > 0 && selectedRow()?.results) {
                         <div class="mb-6">
-                            <h4 class="text-sm font-medium text-gray-500 mb-3">Step Results</h4>
+                            <h4 class="text-sm font-medium text-gray-500 mb-3">{{ 'batchProcessing.stepResults' | transloco }}</h4>
                             <div class="space-y-3">
                                 @for (step of configSteps(); track step.sequence) {
                                     <div class="border border-gray-200 rounded-lg overflow-hidden">
@@ -471,22 +506,29 @@
                                                 "
                                             >
                                                 {{
-                                                    getRowStepStatus(selectedRow()!, step.sequence)
-                                                        | titlecase
+                                                    ('batchProcessing.' + getRowStepStatus(selectedRow()!, step.sequence)) | transloco
                                                 }}
                                             </span>
                                         </div>
                                         @if (selectedRow()?.results?.[step.sequence]) {
-                                            <div class="px-4 py-3 bg-white border-t border-gray-100">
-                                                <div class="space-y-0">
-                                                    @for (field of getStepResultFields(selectedRow()?.results?.[step.sequence]); track field.label) {
-                                                        <div class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm">
-                                                            <span class="text-gray-500 min-w-[140px] shrink-0">{{ field.label }}</span>
-                                                            <span class="text-gray-900 font-medium break-words">{{ field.value }}</span>
-                                                        </div>
-                                                    }
+                                            @if (detailsViewMode() === 'readable') {
+                                                <div class="px-4 py-3 bg-white border-t border-gray-100">
+                                                    <div class="space-y-0">
+                                                        @for (field of getStepResultFields(selectedRow()?.results?.[step.sequence]); track field.label) {
+                                                            <div class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm">
+                                                                <span class="text-gray-500 min-w-[140px] shrink-0">{{ field.label }}</span>
+                                                                <span class="text-gray-900 font-medium break-words">{{ field.value }}</span>
+                                                            </div>
+                                                        }
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            } @else {
+                                                <div class="px-4 py-3 bg-white border-t border-gray-100">
+                                                    <pre class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64 m-0">{{
+                                                        formatJson(selectedRow()?.results?.[step.sequence])
+                                                    }}</pre>
+                                                </div>
+                                            }
                                         }
                                     </div>
                                 }
@@ -494,34 +536,24 @@
                         </div>
                     }
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Input Data -->
+                    <!-- Errors (if any) -->
+                    @if (selectedRow()?.errors && selectedRow()!.errors.length > 0) {
                         <div>
-                            <h4 class="text-sm font-medium text-gray-500 mb-2">Input Data</h4>
-                            <pre class="bg-gray-50 rounded-xl p-4 text-sm overflow-auto max-h-64">{{
-                                selectedRow()?.inputData | json
-                            }}</pre>
-                        </div>
-
-                        <!-- Errors (if any) -->
-                        @if (selectedRow()?.errors && selectedRow()!.errors.length > 0) {
-                            <div>
-                                <h4 class="text-sm font-medium text-red-500 mb-2">Errors</h4>
-                                <div class="space-y-2">
-                                    @for (error of selectedRow()!.errors; track error.step) {
-                                        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                                            <p class="text-sm font-medium text-red-700">
-                                                Step {{ error.step }}: {{ error.code }}
-                                            </p>
-                                            <p class="text-sm text-red-600">
-                                                {{ error.message }}
-                                            </p>
-                                        </div>
-                                    }
-                                </div>
+                            <h4 class="text-sm font-medium text-red-500 mb-3">{{ 'batchProcessing.errors' | transloco }}</h4>
+                            <div class="space-y-2">
+                                @for (error of selectedRow()!.errors; track error.step) {
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                        <p class="text-sm font-medium text-red-700">
+                                            {{ 'batchProcessing.stepError' | transloco: { step: error.step, code: error.code } }}
+                                        </p>
+                                        <p class="text-sm text-red-600">
+                                            {{ error.message }}
+                                        </p>
+                                    </div>
+                                }
                             </div>
-                        }
-                    </div>
+                        </div>
+                    }
                 </div>
             }
         }

@@ -220,14 +220,32 @@
                     <!-- Step results layout (print-style, drag-and-drop) -->
                     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
                         <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
-                            <h3 class="font-semibold text-gray-900">{{ 'smartReport.stepResultsLayout' | transloco }}</h3>
-                            <p class="text-xs text-gray-500 mt-0.5">
-                                @if (selectedRowIndex() != null) {
-                                    {{ 'smartReport.reportForRecord' | transloco: { index: selectedRowIndex()! + 1 } }}
-                                } @else {
-                                    {{ 'smartReport.dragSectionsReorder' | transloco }}
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">{{ 'smartReport.stepResultsLayout' | transloco }}</h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">
+                                        @if (selectedRowIndex() != null) {
+                                            {{ 'smartReport.reportForRecord' | transloco: { index: selectedRowIndex()! + 1 } }}
+                                        } @else {
+                                            {{ 'smartReport.dragSectionsReorder' | transloco }}
+                                        }
+                                    </p>
+                                </div>
+                                @if (stepResultBlocks().length > 0) {
+                                    <mat-button-toggle-group
+                                        [value]="stepResultsViewMode()"
+                                        (change)="stepResultsViewMode.set($event.value)"
+                                        class="!rounded-lg"
+                                    >
+                                        <mat-button-toggle value="readable">
+                                            {{ 'smartReport.viewModeReadable' | transloco }}
+                                        </mat-button-toggle>
+                                        <mat-button-toggle value="json">
+                                            {{ 'smartReport.viewModeJson' | transloco }}
+                                        </mat-button-toggle>
+                                    </mat-button-toggle-group>
                                 }
-                            </p>
+                            </div>
                         </div>
                         <div class="p-6">
                             @if (stepResultBlocks().length === 0) {
@@ -275,56 +293,52 @@
                                                         >{{ 'smartReport.step' | transloco }} {{ block.sequence }}</span
                                                     >
                                                 </div>
-                                                <div class="overflow-x-auto">
-                                                    <table class="w-full text-sm">
-                                                        <thead>
-                                                            <tr
-                                                                class="border-b border-gray-200 bg-gray-50"
+                                                @if (stepResultsViewMode() === 'readable') {
+                                                    <!-- Human-readable: label/value pairs (like batch-processing) -->
+                                                    <div class="px-4 py-3 bg-white border-t border-gray-100">
+                                                        @for (row of block.rowResults; track row.rowIndex) {
+                                                            <div
+                                                                class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
                                                             >
-                                                                <th
-                                                                    class="text-left py-2 px-3 font-medium text-gray-700"
-                                                                >
-                                                                    {{ 'smartReport.row' | transloco }}
-                                                                </th>
-                                                                <th
-                                                                    class="text-left py-2 px-3 font-medium text-gray-700"
-                                                                >
-                                                                    {{ 'smartReport.result' | transloco }}
-                                                                </th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (
-                                                                row of block.rowResults;
-                                                                track row.rowIndex
-                                                            ) {
-                                                                <tr
-                                                                    class="border-b border-gray-100 last:border-0"
-                                                                >
-                                                                    <td
-                                                                        class="py-2 px-3 text-gray-600"
-                                                                    >
-                                                                        #{{ row.rowIndex + 1 }}
-                                                                    </td>
-                                                                    <td
-                                                                        class="py-2 px-3 text-gray-800 max-w-md truncate"
-                                                                        [matTooltip]="
-                                                                            row.data != null
-                                                                                ? (row.data | json)
-                                                                                : '—'
-                                                                        "
-                                                                    >
-                                                                        {{
-                                                                            getResultSummary(
-                                                                                row.data
-                                                                            )
-                                                                        }}
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                                @if (block.rowResults.length > 1) {
+                                                                    <p class="text-xs font-medium text-gray-500 mb-2">
+                                                                        {{ 'smartReport.row' | transloco }} #{{ row.rowIndex + 1 }}
+                                                                    </p>
+                                                                }
+                                                                @if (row.data != null) {
+                                                                    <div class="space-y-0">
+                                                                        @for (field of getStepResultFields(row.data); track field.label) {
+                                                                            <div class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm">
+                                                                                <span class="text-gray-500 min-w-[140px] shrink-0">{{ field.label }}</span>
+                                                                                <span class="text-gray-900 font-medium break-words">{{ field.value }}</span>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                } @else {
+                                                                    <p class="text-sm text-gray-400 py-2">—</p>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                } @else {
+                                                    <!-- JSON view: raw formatted JSON -->
+                                                    <div class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto">
+                                                        @for (row of block.rowResults; track row.rowIndex) {
+                                                            <div
+                                                                class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
+                                                            >
+                                                                @if (block.rowResults.length > 1) {
+                                                                    <p class="text-xs font-medium text-gray-500 mb-2">
+                                                                        {{ 'smartReport.row' | transloco }} #{{ row.rowIndex + 1 }}
+                                                                    </p>
+                                                                }
+                                                                <pre class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64">{{
+                                                                    formatJson(row.data)
+                                                                }}</pre>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                }
                                             </div>
                                         }
                                     </div>

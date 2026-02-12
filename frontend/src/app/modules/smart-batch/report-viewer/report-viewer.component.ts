@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
@@ -45,6 +46,7 @@ export interface StepResultBlock extends StepBlockDescriptor {
         RouterModule,
         DragDropModule,
         MatButtonModule,
+        MatButtonToggleModule,
         MatDialogModule,
         MatIconModule,
         MatProgressSpinnerModule,
@@ -89,6 +91,9 @@ export class ReportViewerComponent implements OnInit {
     isLoading = signal(false);
     isGenerating = signal(false);
     isSending = signal(false);
+
+    /** Step results display: 'readable' (label/value pairs) or 'json' (raw JSON) */
+    stepResultsViewMode = signal<'readable' | 'json'>('readable');
 
     // PDF preview
     pdfDataUrl = signal<string | null>(null);
@@ -272,6 +277,46 @@ export class ReportViewerComponent implements OnInit {
         const current = [...this.stepBlocksOrder()];
         moveItemInArray(current, event.previousIndex, event.currentIndex);
         this.stepBlocksOrder.set(current);
+    }
+
+    /**
+     * Flatten a step result object into label/value rows for human-readable display.
+     * Same logic as batch-processing component.
+     */
+    getStepResultFields(data: any): { label: string; value: string }[] {
+        if (data == null || typeof data !== 'object') {
+            return [{ label: 'Result', value: data != null ? String(data) : '—' }];
+        }
+        const entries: { label: string; value: string }[] = [];
+        for (const key of Object.keys(data)) {
+            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()).trim();
+            const raw = data[key];
+            let value: string;
+            if (raw == null) {
+                value = '—';
+            } else if (Array.isArray(raw)) {
+                value = raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
+            } else if (typeof raw === 'object') {
+                value =
+                    typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
+                        ? `{ ${Object.keys(raw).slice(0, 3).join(', ')}${Object.keys(raw).length > 3 ? '…' : ''} }`
+                        : '—';
+            } else {
+                value = String(raw);
+            }
+            entries.push({ label, value });
+        }
+        return entries;
+    }
+
+    /** Format object as pretty-printed JSON for display */
+    formatJson(obj: any): string {
+        if (obj == null) return '—';
+        try {
+            return JSON.stringify(obj, null, 2);
+        } catch {
+            return String(obj);
+        }
     }
 
     /** Short summary of a step result for table display */

@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TranslocoModule } from '@jsverse/transloco';
 import { fuseAnimations } from '@fuse/animations';
 import { firstValueFrom, Subject } from 'rxjs';
 import {
@@ -24,10 +26,12 @@ import {
         CommonModule,
         RouterModule,
         MatButtonModule,
+        MatButtonToggleModule,
         MatIconModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
+        TranslocoModule,
     ],
     templateUrl: './batch-processing.component.html',
     animations: [fuseAnimations],
@@ -89,6 +93,9 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     // Selected row for detail view
     selectedRow = signal<SmartBatchRow | null>(null);
+
+    /** Row details display: 'readable' (label/value pairs) or 'json' (raw JSON) - applies to Input and Step Results */
+    detailsViewMode = signal<'readable' | 'json'>('readable');
 
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
@@ -403,6 +410,23 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             entries.push({ label, value });
         }
         return entries;
+    }
+
+    /** Input data as label/value pairs for readable display; empty if not an object */
+    getInputDataFields(): { label: string; value: string }[] {
+        const input = this.selectedRow()?.inputData;
+        if (input == null || typeof input !== 'object') return [];
+        return this.getStepResultFields(input);
+    }
+
+    /** Format object as pretty-printed JSON for display */
+    formatJson(obj: any): string {
+        if (obj == null) return '—';
+        try {
+            return JSON.stringify(obj, null, 2);
+        } catch {
+            return String(obj);
+        }
     }
 
     getRowStepStatus(row: SmartBatchRow, stepSequence: number): 'pending' | 'completed' | 'failed' {
