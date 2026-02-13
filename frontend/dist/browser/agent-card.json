@@ -20,12 +20,12 @@
   },
   "metadata": {
     "blockchain": "Avalanche C-Chain",
-    "network": "Fuji Testnet",
-    "contractAddress": "0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6",
+    "network": "Mainnet",
+    "contractAddress": "0xbcab451d6FEdc98f486E12e479287E3B67cbF9A1",
     "tokenId": "1",
     "agentAddress": "0x787389C8ec43D94362648310316F4348A4dE8C83",
     "standard": "ERC8004",
-    "registeredAt": "2025-11-30T23:02:29.075Z"
+    "registeredAt": "2026-01-24T16:34:05.462Z"
   },
   "ai": {
     "model": "Google Gemini 2.5 Flash Lite",
@@ -35,15 +35,23 @@
   "payment": {
     "protocol": "x402",
     "currency": "AVAX",
-    "contract": "0xD2597F288A0bCdcD4957e75Dc942AC59Ade27b4F"
+    "contract": "0x5e3C7c44e5d76fa5517378582B824046cBDcFfCD"
   },
   "reputation": {
-    "registry": "0xc8AF65010D6Bf85e4DC89D9D13E9cC185df919B1",
-    "validationRegistry": "0x10485d0aC4382c49E0d0583315C81fe15D92899d"
+    "registry": "0x310247955605c357628F51e94b3E5A20225C71a4",
+    "validationRegistry": "0xAfCb9b9bEAe7395Af6920bbA597d9602995660c5"
   },
   "links": {
-    "website": "https://verifik.app",
-    "documentation": "https://verifik.app/docs",
-    "explorer": "https://testnet.snowtrace.io/token/0x7c6a168455C94092f8d51aBC515B73f4Ed9813a6?a=1"
+    "website": "https://x402.verifik.co",
+    "documentation": "https://docs.verifik.co",
+    "explorer": "https://snowtrace.io",
+    "agentNft": "https://snowtrace.io/token/0xbcab451d6FEdc98f486E12e479287E3B67cbF9A1?a=1",
+    "contracts": {
+      "identityRegistry": "https://snowtrace.io/address/0xbcab451d6FEdc98f486E12e479287E3B67cbF9A1",
+      "reputationRegistry": "https://snowtrace.io/address/0x310247955605c357628F51e94b3E5A20225C71a4",
+      "validationRegistry": "https://snowtrace.io/address/0xAfCb9b9bEAe7395Af6920bbA597d9602995660c5",
+      "payment": "https://snowtrace.io/address/0x5e3C7c44e5d76fa5517378582B824046cBDcFfCD"
+    },
+    "agentAddress": "https://snowtrace.io/address/0x787389C8ec43D94362648310316F4348A4dE8C83"
   }
 }
