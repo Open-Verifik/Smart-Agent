@@ -920,7 +920,9 @@
         "samplePdfSentSuccess": "サンプルPDFを正常に送信しました",
         "failedToSendSamplePdf": "サンプルPDFの送信に失敗しました",
         "copied": "コピーしました",
-        "failedToCopy": "コピーに失敗しました"
+        "failedToCopy": "コピーに失敗しました",
+        "searchRecords": "レコードを検索...",
+        "typeToFind": "入力して検索..."
     },
     "batchProcessing": {
         "backToDashboard": "ダッシュボードに戻る",

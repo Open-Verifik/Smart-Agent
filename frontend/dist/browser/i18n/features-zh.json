@@ -920,7 +920,9 @@
         "samplePdfSentSuccess": "样本 PDF 发送成功",
         "failedToSendSamplePdf": "发送样本 PDF 失败",
         "copied": "已复制",
-        "failedToCopy": "复制失败"
+        "failedToCopy": "复制失败",
+        "searchRecords": "搜索记录...",
+        "typeToFind": "输入并搜索..."
     },
     "batchProcessing": {
         "backToDashboard": "返回仪表板",

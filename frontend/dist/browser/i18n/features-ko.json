@@ -920,7 +920,9 @@
         "samplePdfSentSuccess": "샘플 PDF를 성공적으로 보냈습니다",
         "failedToSendSamplePdf": "샘플 PDF 전송 실패",
         "copied": "복사됨",
-        "failedToCopy": "복사 실패"
+        "failedToCopy": "복사 실패",
+        "searchRecords": "레코드 검색...",
+        "typeToFind": "검색하려면 입력하세요..."
     },
     "batchProcessing": {
         "backToDashboard": "대시보드로 돌아가기",

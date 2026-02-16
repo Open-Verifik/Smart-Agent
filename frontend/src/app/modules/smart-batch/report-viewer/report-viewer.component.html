@@ -431,12 +431,16 @@
                                                 <mat-icon matPrefix class="text-gray-400 mr-2"
                                                     >search</mat-icon
                                                 >
-                                                <mat-label>Search records...</mat-label>
+                                                <mat-label>{{
+                                                    'smartReport.searchRecords' | transloco
+                                                }}</mat-label>
                                                 <input
                                                     matInput
                                                     [ngModel]="searchQuery()"
                                                     (ngModelChange)="updateSearchQuery($event)"
-                                                    placeholder="Type to find..."
+                                                    [placeholder]="
+                                                        'smartReport.typeToFind' | transloco
+                                                    "
                                                 />
                                                 <button
                                                     mat-icon-button

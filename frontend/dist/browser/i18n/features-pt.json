@@ -920,7 +920,9 @@
         "samplePdfSentSuccess": "PDF de amostra enviado com sucesso",
         "failedToSendSamplePdf": "Falha ao enviar PDF de amostra",
         "copied": "Copiado",
-        "failedToCopy": "Falha ao copiar"
+        "failedToCopy": "Falha ao copiar",
+        "searchRecords": "Pesquisar registros...",
+        "typeToFind": "Digite para encontrar..."
     },
     "batchProcessing": {
         "backToDashboard": "Voltar ao painel",

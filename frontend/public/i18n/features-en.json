@@ -920,7 +920,9 @@
         "samplePdfSentSuccess": "Sample PDF sent successfully",
         "failedToSendSamplePdf": "Failed to send sample PDF",
         "copied": "Copied",
-        "failedToCopy": "Failed to copy"
+        "failedToCopy": "Failed to copy",
+        "searchRecords": "Search records...",
+        "typeToFind": "Type to find..."
     },
     "batchProcessing": {
         "backToDashboard": "Back to Dashboard",
