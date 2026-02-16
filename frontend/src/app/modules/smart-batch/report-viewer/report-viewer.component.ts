@@ -11,11 +11,11 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { fuseAnimations } from '@fuse/animations';
+import { HotTableModule } from '@handsontable/angular-wrapper';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
-import { HotTableModule } from '@handsontable/angular-wrapper';
-import { fuseAnimations } from '@fuse/animations';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import * as XLSX from 'xlsx';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { SendSampleModalComponent } from '../report-builder/send-sample-modal/send-sample-modal.component';
@@ -39,7 +39,7 @@ export interface StepBlockDescriptor {
 }
 
 export interface StepResultBlock extends StepBlockDescriptor {
-    rowResults: { rowIndex: number; data: any }[];
+    rowResults: { rowIndex: number; data: any; inputData?: any }[];
 }
 
 /** Record-grouped: each record has all its step results (for Table, JSON, Excel v1) */
@@ -136,6 +136,7 @@ export class ReportViewerComponent implements OnInit {
             rowResults: rows.map((row) => ({
                 rowIndex: row.rowIndex,
                 data: row.results?.[block.sequence] ?? null,
+                inputData: row.inputData,
             })),
         }));
     });
@@ -288,7 +289,9 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
             }
         }
@@ -309,7 +312,9 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
             }
         }
@@ -320,7 +325,9 @@ export class ReportViewerComponent implements OnInit {
                 const row: any = { step: block.label, rowNum: rowResult.rowIndex + 1 };
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        fieldsMap.set(f.label, f.value)
+                    );
                 }
                 fieldLabels.forEach((label) => (row[label] = fieldsMap.get(label) ?? ''));
                 rows.push(row);
@@ -347,7 +354,9 @@ export class ReportViewerComponent implements OnInit {
                 const row: any = { step: step.label, rowNum: rec.rowIndex + 1 };
                 const fieldsMap = new Map<string, string>();
                 if (step.data != null) {
-                    this.getStepResultFields(step.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                    this.getStepResultFields(step.data).forEach((f) =>
+                        fieldsMap.set(f.label, f.value)
+                    );
                 }
                 fieldLabels.forEach((label) => (row[label] = fieldsMap.get(label) ?? ''));
                 rows.push(row);
@@ -362,7 +371,9 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
             }
         }
@@ -373,7 +384,9 @@ export class ReportViewerComponent implements OnInit {
                 const row: (string | number)[] = [block.label, rowResult.rowIndex + 1];
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        fieldsMap.set(f.label, f.value)
+                    );
                 }
                 fieldLabels.forEach((label) => row.push(fieldsMap.get(label) ?? ''));
                 data.push(row);
@@ -388,7 +401,9 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
             }
         }
@@ -854,8 +869,13 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
+                // Check if documentNumber and documentType are available in inputData
+                if (rowResult.inputData?.documentNumber) allFieldLabels.add('Document Number');
+                if (rowResult.inputData?.documentType) allFieldLabels.add('Document Type');
             }
         }
         const fieldLabels = Array.from(allFieldLabels);
@@ -865,8 +885,19 @@ export class ReportViewerComponent implements OnInit {
             for (const rowResult of block.rowResults) {
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        fieldsMap.set(f.label, f.value)
+                    );
                 }
+
+                // Fill blanks with inputData for Document Number and Document Type
+                if (!fieldsMap.has('Document Number') && rowResult.inputData?.documentNumber) {
+                    fieldsMap.set('Document Number', String(rowResult.inputData.documentNumber));
+                }
+                if (!fieldsMap.has('Document Type') && rowResult.inputData?.documentType) {
+                    fieldsMap.set('Document Type', String(rowResult.inputData.documentType));
+                }
+
                 const values = fieldLabels.map((label) => fieldsMap.get(label) ?? '');
                 const row = [block.label, String(rowResult.rowIndex + 1), ...values];
                 csvRows.push(this._escapeCsvRow(row));
@@ -899,8 +930,13 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
+                // Check if documentNumber and documentType are available in inputData
+                if (rowResult.inputData?.documentNumber) allFieldLabels.add('Document Number');
+                if (rowResult.inputData?.documentType) allFieldLabels.add('Document Type');
             }
         }
         const fieldLabels = Array.from(allFieldLabels);
@@ -910,8 +946,19 @@ export class ReportViewerComponent implements OnInit {
             for (const rowResult of block.rowResults) {
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) => fieldsMap.set(f.label, f.value));
+                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                        fieldsMap.set(f.label, f.value)
+                    );
                 }
+
+                // Fill blanks with inputData for Document Number and Document Type
+                if (!fieldsMap.has('Document Number') && rowResult.inputData?.documentNumber) {
+                    fieldsMap.set('Document Number', String(rowResult.inputData.documentNumber));
+                }
+                if (!fieldsMap.has('Document Type') && rowResult.inputData?.documentType) {
+                    fieldsMap.set('Document Type', String(rowResult.inputData.documentType));
+                }
+
                 const values = fieldLabels.map((label) => fieldsMap.get(label) ?? '');
                 sheetData.push([block.label, rowResult.rowIndex + 1, ...values]);
             }
