@@ -959,7 +959,14 @@
         "stepStatusPending": "{{step}}: 保留中",
         "stepStatusSkipped": "{{step}}: スキップ",
         "draft": "下書き",
-        "cancelled": "キャンセル"
+        "cancelled": "キャンセル",
+        "totalCost": "合計コスト",
+        "successful": "成功",
+        "requestsFailed": "リクエスト失敗",
+        "requestsSuccessful": "リクエスト成功",
+        "all": "すべて",
+        "status": "ステータス",
+        "noResultsFound": "結果が見つかりません"
     },
     "batchDashboard": {
         "backToSmartBatch": "Smart Batchに戻る",

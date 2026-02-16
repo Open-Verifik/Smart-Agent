@@ -959,7 +959,14 @@
         "stepStatusPending": "{{step}}: 대기 중",
         "stepStatusSkipped": "{{step}}: 건너뜀",
         "draft": "초안",
-        "cancelled": "취소됨"
+        "cancelled": "취소됨",
+        "totalCost": "총 비용",
+        "successful": "성공",
+        "requestsFailed": "요청 실패",
+        "requestsSuccessful": "요청 성공",
+        "all": "전체",
+        "status": "상태",
+        "noResultsFound": "결과를 찾을 수 없습니다"
     },
     "batchDashboard": {
         "backToSmartBatch": "Smart Batch로 돌아가기",

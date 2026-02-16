@@ -959,7 +959,14 @@
         "stepStatusPending": "{{step}} : En attente",
         "stepStatusSkipped": "{{step}} : Ignoré",
         "draft": "Brouillon",
-        "cancelled": "Annulé"
+        "cancelled": "Annulé",
+        "totalCost": "Coût Total",
+        "successful": "Réussis",
+        "requestsFailed": "requêtes échouées",
+        "requestsSuccessful": "requêtes réussies",
+        "all": "Tous",
+        "status": "Statut",
+        "noResultsFound": "Aucun résultat trouvé"
     },
     "batchDashboard": {
         "backToSmartBatch": "Retour à Smart Batch",

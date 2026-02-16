@@ -959,7 +959,14 @@
         "stepStatusPending": "{{step}}：待处理",
         "stepStatusSkipped": "{{step}}：已跳过",
         "draft": "草稿",
-        "cancelled": "已取消"
+        "cancelled": "已取消",
+        "totalCost": "总费用",
+        "successful": "成功",
+        "requestsFailed": "请求失败",
+        "requestsSuccessful": "请求成功",
+        "all": "全部",
+        "status": "状态",
+        "noResultsFound": "未找到结果"
     },
     "batchDashboard": {
         "backToSmartBatch": "返回 Smart Batch",

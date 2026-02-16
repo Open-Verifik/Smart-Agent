@@ -77,7 +77,7 @@ export class SmartBatchService {
             params = { country };
         }
         return this._httpClient
-            .get<{ data: any[] }>(`${environment.apiUrl}/v2/app-features`, { params })
+            .get<{ data: any[] }>(`${environment.apiUrl}/v2/app-features/my-list`, { params })
             .pipe(tap((res) => console.log('Features loaded', res)));
     }
 

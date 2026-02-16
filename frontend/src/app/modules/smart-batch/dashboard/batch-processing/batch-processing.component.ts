@@ -1,14 +1,26 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+    ViewChild,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
 import { fuseAnimations } from '@fuse/animations';
+import { TranslocoModule } from '@jsverse/transloco';
 import { firstValueFrom, Subject } from 'rxjs';
 import {
     AppFeature,
@@ -24,10 +36,13 @@ import {
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule,
         MatButtonModule,
         MatButtonToggleModule,
+        MatFormFieldModule,
         MatIconModule,
+        MatInputModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
@@ -69,19 +84,37 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     pendingRows = computed(() => {
         const b = this.batch();
         if (!b?.rows) return [];
-        return b.rows.filter((r) => r.status === 'pending' || r.status === 'processing');
+        const query = this.searchQuery().toLowerCase().trim();
+        let rows = b.rows.filter((r) => r.status === 'pending' || r.status === 'processing');
+        if (query) rows = rows.filter((r) => this._matchesSearch(r, query));
+        return rows;
     });
 
     completedRows = computed(() => {
         const b = this.batch();
         if (!b?.rows) return [];
-        return b.rows.filter((r) => r.status === 'completed');
+        const query = this.searchQuery().toLowerCase().trim();
+        let rows = b.rows.filter((r) => r.status === 'completed');
+        if (query) rows = rows.filter((r) => this._matchesSearch(r, query));
+        return rows;
     });
 
     failedRows = computed(() => {
         const b = this.batch();
         if (!b?.rows) return [];
-        return b.rows.filter((r) => r.status === 'failed');
+        const query = this.searchQuery().toLowerCase().trim();
+        let rows = b.rows.filter((r) => r.status === 'failed');
+        if (query) rows = rows.filter((r) => this._matchesSearch(r, query));
+        return rows;
+    });
+
+    // Total credits consumed: completedRows × sum of all step prices
+    totalCreditsCost = computed(() => {
+        const completed = this.completedRows().length;
+        if (completed === 0) return 0;
+        const steps = this.configSteps();
+        const costPerRow = steps.reduce((sum, step) => sum + this.getStepPrice(step), 0);
+        return completed * costPerRow;
     });
 
     // Progress
@@ -96,6 +129,17 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     /** Row details display: 'readable' (label/value pairs) or 'json' (raw JSON) - applies to Input and Step Results */
     detailsViewMode = signal<'readable' | 'json'>('readable');
+
+    /** Brief loading state for the detail panel to avoid perceived lag */
+    isLoadingDetail = signal(false);
+
+    /** Filter for record list: 'all' shows both panels, 'completed' or 'failed' shows filtered view */
+    recordFilter = signal<'all' | 'completed' | 'failed'>('all');
+
+    /** Search query for record filtering */
+    searchQuery = signal('');
+
+    @ViewChild('rowDetailPanel') rowDetailPanel!: ElementRef;
 
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
@@ -331,6 +375,20 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     }
 
+    updateSearchQuery(query: string): void {
+        this.searchQuery.set(query);
+    }
+
+    private _matchesSearch(row: SmartBatchRow, query: string): boolean {
+        if (row.inputData && JSON.stringify(row.inputData).toLowerCase().includes(query)) {
+            return true;
+        }
+        if (row.results) {
+            return JSON.stringify(row.results).toLowerCase().includes(query);
+        }
+        return false;
+    }
+
     goBack(): void {
         const configId = this.configId();
         if (configId) {
@@ -340,6 +398,23 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     selectRow(row: SmartBatchRow): void {
         this.selectedRow.set(row);
+        this.isLoadingDetail.set(true);
+
+        // Brief loading state for perceived performance, then scroll
+        setTimeout(() => {
+            this.isLoadingDetail.set(false);
+            setTimeout(() => {
+                this.rowDetailPanel?.nativeElement?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                });
+            }, 50);
+        }, 150);
+    }
+
+    /** Set record filter from tab clicks */
+    setRecordFilter(filter: 'all' | 'completed' | 'failed'): void {
+        this.recordFilter.set(filter);
     }
 
     getStatusColor(status: string): string {
@@ -379,7 +454,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     getStepPrice(step: BatchStep): number {
-        const feature = step.appFeature as AppFeature & { price?: number; smartCheckPrice?: number };
+        const feature = step.appFeature as AppFeature & {
+            price?: number;
+            smartCheckPrice?: number;
+        };
         return feature?.price ?? feature?.smartCheckPrice ?? 0;
     }
 
@@ -393,17 +471,22 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
         const entries: { label: string; value: string }[] = [];
         for (const key of Object.keys(data)) {
-            const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, (s) => s.toUpperCase()).trim();
+            const label = key
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (s) => s.toUpperCase())
+                .trim();
             const raw = data[key];
             let value: string;
             if (raw == null) {
                 value = '—';
             } else if (Array.isArray(raw)) {
-                value = raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
+                value =
+                    raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
             } else if (typeof raw === 'object') {
-                value = typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
-                    ? `{ ${Object.keys(raw).slice(0, 3).join(', ')}${Object.keys(raw).length > 3 ? '…' : ''} }`
-                    : '—';
+                value =
+                    typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
+                        ? `{ ${Object.keys(raw).slice(0, 3).join(', ')}${Object.keys(raw).length > 3 ? '…' : ''} }`
+                        : '—';
             } else {
                 value = String(raw);
             }
