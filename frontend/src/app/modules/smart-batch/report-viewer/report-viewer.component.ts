@@ -1,10 +1,14 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -67,6 +71,10 @@ export interface RecordResultBlock {
         ReportPreviewComponent,
         AgGridAngular,
         HotTableModule,
+        MatPaginatorModule,
+        MatFormFieldModule,
+        MatInputModule,
+        FormsModule,
     ],
     templateUrl: './report-viewer.component.html',
     animations: [fuseAnimations],
@@ -114,22 +122,66 @@ export class ReportViewerComponent implements OnInit {
         this.stepResultsContentExpanded.update((v) => !v);
     }
 
+    // Pagination for Table/JSON view
+    pageIndex = signal(0);
+    pageSize = signal(10);
+
+    handlePageEvent(e: PageEvent) {
+        this.pageIndex.set(e.pageIndex);
+        this.pageSize.set(e.pageSize);
+    }
+
     // PDF preview
     pdfDataUrl = signal<string | null>(null);
 
     /** Sanitized PDF URL for iframe (Angular requires bypass for data URLs) */
     pdfSafeUrl = signal<SafeResourceUrl | null>(null);
 
+    // Search
+    searchQuery = signal('');
+
+    updateSearchQuery(query: string): void {
+        this.searchQuery.set(query);
+        this.pageIndex.set(0); // Reset to first page on search
+    }
+
+    /**
+     * Filtered rows based on batch data, selected row index (single view), and search query.
+     */
+    filteredRows = computed(() => {
+        const b = this.batch();
+        let rows = b?.rows ?? [];
+        const rowIndex = this.selectedRowIndex();
+        const query = this.searchQuery().toLowerCase().trim();
+
+        // 1. Filter by selected row (if any)
+        if (rowIndex != null) {
+            rows = rows.filter((r) => r.rowIndex === rowIndex);
+        }
+
+        // 2. Filter by search query
+        if (query) {
+            rows = rows.filter((row) => {
+                // Search in inputData
+                if (row.inputData && JSON.stringify(row.inputData).toLowerCase().includes(query)) {
+                    return true;
+                }
+                // Search in results
+                if (row.results) {
+                    return JSON.stringify(row.results).toLowerCase().includes(query);
+                }
+                return false;
+            });
+        }
+
+        return rows;
+    });
+
     // Step result blocks for display: each block has step label + row results for that step.
     // When selectedRowIndex is set, only that row is included (single-record mode).
     stepResultBlocks = computed<StepResultBlock[]>(() => {
         const order = this.stepBlocksOrder();
-        const b = this.batch();
-        let rows = b?.rows ?? [];
-        const rowIndex = this.selectedRowIndex();
-        if (rowIndex != null) {
-            rows = rows.filter((r) => r.rowIndex === rowIndex);
-        }
+        const rows = this.filteredRows();
         return order.map((block) => ({
             sequence: block.sequence,
             label: block.label,
@@ -142,18 +194,27 @@ export class ReportViewerComponent implements OnInit {
     });
 
     /**
+     * Total number of records to show in pagination (or total records for Single Record mode = 1)
+     */
+    totalRecords = computed(() => {
+        return this.filteredRows().length;
+    });
+
+    /**
      * Record-grouped: each record has all its step results.
      * Used for Table, JSON, Excel v1 (grouped by batch record like PDF preview).
+     * SLICED for pagination to prevent rendering 14k rows at once.
      */
     recordResultBlocks = computed<RecordResultBlock[]>(() => {
         const order = this.stepBlocksOrder();
-        const b = this.batch();
-        let rows = b?.rows ?? [];
-        const rowIndex = this.selectedRowIndex();
-        if (rowIndex != null) {
-            rows = rows.filter((r) => r.rowIndex === rowIndex);
-        }
-        return rows.map((row) => ({
+        const rows = this.filteredRows();
+
+        // Slice for pagination (only affecting this view)
+        const start = this.pageIndex() * this.pageSize();
+        const end = start + this.pageSize();
+        const paginatedRows = rows.slice(start, end);
+
+        return paginatedRows.map((row) => ({
             rowIndex: row.rowIndex,
             steps: order.map((block) => ({
                 sequence: block.sequence,
@@ -338,31 +399,53 @@ export class ReportViewerComponent implements OnInit {
 
     /** Excel v1: record-first order (Record 1 Step 1, Record 1 Step 2, Record 2 Step 1, ...) */
     private _buildGridRowDataByRecord(): any[] {
-        const recordBlocks = this.recordResultBlocks();
+        const filteredRows = this.filteredRows();
+        const order = this.stepBlocksOrder();
+
         const allFieldLabels = new Set<string>();
-        for (const rec of recordBlocks) {
-            for (const step of rec.steps) {
-                if (step.data != null) {
-                    this.getStepResultFields(step.data).forEach((f) => allFieldLabels.add(f.label));
+        // Sample first 50 rows for columns to avoid iterating 14k rows just for columns
+        const sampleRows = filteredRows.slice(0, 50);
+        for (const row of sampleRows) {
+            for (const block of order) {
+                const data = row.results?.[block.sequence];
+                if (data != null) {
+                    this.getStepResultFields(data).forEach((f) => allFieldLabels.add(f.label));
                 }
+                // Check if documentNumber and documentType are available in inputData
+                if (row.inputData?.documentNumber) allFieldLabels.add('Document Number');
+                if (row.inputData?.documentType) allFieldLabels.add('Document Type');
             }
         }
+
         const fieldLabels = Array.from(allFieldLabels);
-        const rows: any[] = [];
-        for (const rec of recordBlocks) {
-            for (const step of rec.steps) {
-                const row: any = { step: step.label, rowNum: rec.rowIndex + 1 };
+        const gridRows: any[] = [];
+
+        for (const row of filteredRows) {
+            for (const block of order) {
+                const stepData = row.results?.[block.sequence];
+
+                const gridRow: any = { step: block.label, rowNum: row.rowIndex + 1 };
                 const fieldsMap = new Map<string, string>();
-                if (step.data != null) {
-                    this.getStepResultFields(step.data).forEach((f) =>
+
+                if (stepData != null) {
+                    this.getStepResultFields(stepData).forEach((f) =>
                         fieldsMap.set(f.label, f.value)
                     );
                 }
-                fieldLabels.forEach((label) => (row[label] = fieldsMap.get(label) ?? ''));
-                rows.push(row);
+
+                // Fill blanks with inputData for Document Number and Document Type
+                if (!fieldsMap.has('Document Number') && row.inputData?.documentNumber) {
+                    fieldsMap.set('Document Number', String(row.inputData.documentNumber));
+                }
+                if (!fieldsMap.has('Document Type') && row.inputData?.documentType) {
+                    fieldsMap.set('Document Type', String(row.inputData.documentType));
+                }
+
+                fieldLabels.forEach((label) => (gridRow[label] = fieldsMap.get(label) ?? ''));
+                gridRows.push(gridRow);
             }
         }
-        return rows;
+        return gridRows;
     }
 
     private _buildHandsontableData(): (string | number)[][] {
