@@ -24,6 +24,7 @@ import {
     SmartReportTemplate,
 } from '../smart-report.service';
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
+import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pad-dialog.component';
 
 @Component({
     selector: 'report-builder',
@@ -144,6 +145,13 @@ export class ReportBuilderComponent implements OnInit {
             watermarkPattern: ['single'],
             securityEnabled: [false],
             securityPassword: [''],
+            // Signature
+            signatureEnabled: [false],
+            signatureImage: [null],
+            signatureX: [0],
+            signatureY: [0],
+            signatureWidth: [100],
+            signatureHeight: [50],
         });
     }
 
@@ -234,6 +242,13 @@ export class ReportBuilderComponent implements OnInit {
                     securityEnabled: template.security?.enabled || false,
                     // If enabled, assume password exists and mask it. If not, empty.
                     securityPassword: template.security?.enabled ? '******' : '',
+                    // Signature
+                    signatureEnabled: template.signature?.enabled || false,
+                    signatureImage: template.signature?.image || null,
+                    signatureX: template.signature?.x || 0,
+                    signatureY: template.signature?.y || 0,
+                    signatureWidth: template.signature?.width || 100,
+                    signatureHeight: template.signature?.height || 50,
                 });
                 this.logoUrl.set(template.logo || null);
                 this.isLoading.set(false);
@@ -390,7 +405,7 @@ export class ReportBuilderComponent implements OnInit {
     // SAVE
     // ============================================
 
-    save(): void {
+    save(onSuccess?: () => void): void {
         if (this.templateForm.invalid) {
             this._snack.open('Please fill in all required fields', 'Close', { duration: 3000 });
             return;
@@ -417,6 +432,14 @@ export class ReportBuilderComponent implements OnInit {
                 enabled: formVal.securityEnabled ?? false,
                 password: formVal.securityPassword || '',
             },
+            signature: {
+                enabled: formVal.signatureEnabled ?? false,
+                image: formVal.signatureImage || '',
+                x: formVal.signatureX || 0,
+                y: formVal.signatureY || 0,
+                width: formVal.signatureWidth || 100,
+                height: formVal.signatureHeight || 50,
+            },
         };
 
         // Remove flat watermark fields from the spread
@@ -427,6 +450,12 @@ export class ReportBuilderComponent implements OnInit {
         delete (templateData as any).watermarkPattern;
         delete (templateData as any).securityEnabled;
         delete (templateData as any).securityPassword;
+        delete (templateData as any).signatureEnabled;
+        delete (templateData as any).signatureImage;
+        delete (templateData as any).signatureX;
+        delete (templateData as any).signatureY;
+        delete (templateData as any).signatureWidth;
+        delete (templateData as any).signatureHeight;
 
         const id = this.templateId();
 
@@ -435,6 +464,7 @@ export class ReportBuilderComponent implements OnInit {
                 next: () => {
                     this._snack.open('Template saved!', 'Close', { duration: 3000 });
                     this.isSaving.set(false);
+                    if (onSuccess) onSuccess();
                 },
                 error: (err) => {
                     console.error('Save failed:', err);
@@ -447,6 +477,7 @@ export class ReportBuilderComponent implements OnInit {
                 next: (created) => {
                     this._snack.open('Template created!', 'Close', { duration: 3000 });
                     this.isSaving.set(false);
+                    if (onSuccess) onSuccess();
                     this._router.navigate([
                         '/smart-batch',
                         this.configId(),
@@ -485,48 +516,61 @@ export class ReportBuilderComponent implements OnInit {
         dialogRef.afterClosed().subscribe((result) => {
             if (!result?.recipients?.length) return;
 
-            this.isSendingSample.set(true);
-            this._reportService
-                .sendTemplateSample(id, {
-                    recipients: result.recipients,
-                    subject: result.subject,
-                    language: 'en',
-                    sampleData: this.previewData(),
-                })
-                .subscribe({
-                    next: (res) => {
-                        if (res.success) {
+            const performSend = () => {
+                this.isSendingSample.set(true);
+                const id = this.templateId(); // Get ID again in case it was just created
+                if (!id) return;
+
+                this._reportService
+                    .sendTemplateSample(id, {
+                        recipients: result.recipients,
+                        subject: result.subject,
+                        language: 'en',
+                        sampleData: this.previewData(),
+                    })
+                    .subscribe({
+                        next: (res) => {
+                            if (res.success) {
+                                this._snack.open(
+                                    this._transloco.translate('smartReport.samplePdfSentSuccess'),
+                                    'Close',
+                                    {
+                                        duration: 3500,
+                                    }
+                                );
+                            } else {
+                                this._snack.open(
+                                    res.error ||
+                                        this._transloco.translate(
+                                            'smartReport.failedToSendSamplePdf'
+                                        ),
+                                    'Close',
+                                    {
+                                        duration: 4000,
+                                    }
+                                );
+                            }
+                            this.isSendingSample.set(false);
+                        },
+                        error: (err) => {
+                            console.error('Send sample failed:', err);
                             this._snack.open(
-                                this._transloco.translate('smartReport.samplePdfSentSuccess'),
-                                'Close',
-                                {
-                                    duration: 3500,
-                                }
-                            );
-                        } else {
-                            this._snack.open(
-                                res.error ||
-                                    this._transloco.translate('smartReport.failedToSendSamplePdf'),
+                                this._transloco.translate('smartReport.failedToSendSamplePdf'),
                                 'Close',
                                 {
                                     duration: 4000,
                                 }
                             );
-                        }
-                        this.isSendingSample.set(false);
-                    },
-                    error: (err) => {
-                        console.error('Send sample failed:', err);
-                        this._snack.open(
-                            this._transloco.translate('smartReport.failedToSendSamplePdf'),
-                            'Close',
-                            {
-                                duration: 4000,
-                            }
-                        );
-                        this.isSendingSample.set(false);
-                    },
-                });
+                            this.isSendingSample.set(false);
+                        },
+                    });
+            };
+
+            if (this.templateForm.dirty) {
+                this.save(() => performSend());
+            } else {
+                performSend();
+            }
         });
     }
 
@@ -599,6 +643,45 @@ export class ReportBuilderComponent implements OnInit {
 
     removeLogo(): void {
         this.logoUrl.set(null);
+    }
+
+    // ============================================
+    // SIGNATURE METHODS
+    // ============================================
+
+    onSignaturePositionChange(pos: { x: number; y: number }): void {
+        this.templateForm.patchValue({
+            signatureX: Math.round(pos.x),
+            signatureY: Math.round(pos.y),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onSignatureSizeChange(size: { width: number; height: number }): void {
+        this.templateForm.patchValue({
+            signatureWidth: Math.round(size.width),
+            signatureHeight: Math.round(size.height),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    openSignatureDialog(): void {
+        this._dialog
+            .open(SignaturePadDialogComponent, {
+                width: '640px',
+                disableClose: true,
+                autoFocus: false,
+            })
+            .afterClosed()
+            .subscribe((result) => {
+                if (result) {
+                    this.templateForm.patchValue({
+                        signatureImage: result,
+                        signatureEnabled: true,
+                    });
+                    this.templateForm.markAsDirty();
+                }
+            });
     }
 
     // ============================================

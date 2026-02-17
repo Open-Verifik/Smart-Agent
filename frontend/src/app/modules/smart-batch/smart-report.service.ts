@@ -79,6 +79,16 @@ export interface SmartReportTemplate {
         password?: string;
     };
 
+    // Signature
+    signature?: {
+        enabled: boolean;
+        image?: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+    };
+
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
 

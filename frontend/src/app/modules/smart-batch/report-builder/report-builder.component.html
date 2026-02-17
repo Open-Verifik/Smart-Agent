@@ -420,6 +420,64 @@
                                 </div>
                             }
                         </div>
+
+                        <!-- Signature Configuration -->
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400 !w-5 !h-5 !text-[20px]"
+                                        >draw</mat-icon
+                                    >
+                                    <span class="text-sm font-medium text-gray-700">Signature</span>
+                                </div>
+                                <mat-slide-toggle
+                                    formControlName="signatureEnabled"
+                                    color="primary"
+                                ></mat-slide-toggle>
+                            </div>
+
+                            @if (templateForm.get('signatureEnabled')?.value) {
+                                <div class="space-y-4 pt-2 border-t border-gray-200">
+                                    @if (templateForm.get('signatureImage')?.value) {
+                                        <div
+                                            class="relative group border border-gray-200 rounded-lg p-2 bg-white flex justify-center"
+                                        >
+                                            <img
+                                                [src]="templateForm.get('signatureImage')?.value"
+                                                class="h-16 object-contain"
+                                            />
+                                            <button
+                                                type="button"
+                                                (click)="
+                                                    templateForm.patchValue({
+                                                        signatureImage: null,
+                                                    })
+                                                "
+                                                class="absolute top-1 right-1 p-1 bg-red-50 text-red-500 rounded-full hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <mat-icon class="!w-4 !h-4 !text-[16px]"
+                                                    >close</mat-icon
+                                                >
+                                            </button>
+                                        </div>
+                                        <p class="text-xs text-gray-400">
+                                            Drag signature in preview to position it.
+                                        </p>
+                                    } @else {
+                                        <button
+                                            type="button"
+                                            mat-stroked-button
+                                            color="primary"
+                                            class="w-full"
+                                            (click)="openSignatureDialog()"
+                                        >
+                                            <mat-icon class="mr-2">edit</mat-icon>
+                                            Draw Signature
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
                     </form>
                 </div>
 
@@ -972,6 +1030,14 @@
                         [watermarkText]="templateForm.get('watermarkText')?.value || 'CONFIDENTIAL'"
                         [watermarkOpacity]="templateForm.get('watermarkOpacity')?.value ?? 0.08"
                         [watermarkPattern]="templateForm.get('watermarkPattern')?.value || 'single'"
+                        [signatureEnabled]="templateForm.get('signatureEnabled')?.value || false"
+                        [signatureImage]="templateForm.get('signatureImage')?.value || null"
+                        [signatureX]="templateForm.get('signatureX')?.value || 0"
+                        [signatureY]="templateForm.get('signatureY')?.value || 0"
+                        [signatureWidth]="templateForm.get('signatureWidth')?.value || 100"
+                        [signatureHeight]="templateForm.get('signatureHeight')?.value || 50"
+                        (signaturePositionChange)="onSignaturePositionChange($event)"
+                        (signatureSizeChange)="onSignatureSizeChange($event)"
                     />
                 </div>
             </div>
