@@ -73,6 +73,12 @@ export interface SmartReportTemplate {
         pattern?: 'single' | 'repeated';
     };
 
+    // Security
+    security?: {
+        enabled: boolean;
+        password?: string;
+    };
+
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
 

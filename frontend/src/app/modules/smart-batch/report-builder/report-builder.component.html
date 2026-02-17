@@ -368,6 +368,58 @@
                                 </div>
                             }
                         </div>
+
+                        <!-- Security Configuration -->
+                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <mat-icon class="text-gray-400 !w-5 !h-5 !text-[20px]"
+                                        >lock</mat-icon
+                                    >
+                                    <span class="text-sm font-medium text-gray-700">{{
+                                        'smartReport.securityTitle' | transloco
+                                    }}</span>
+                                </div>
+                                <mat-slide-toggle
+                                    formControlName="securityEnabled"
+                                    color="primary"
+                                ></mat-slide-toggle>
+                            </div>
+
+                            @if (templateForm.get('securityEnabled')?.value) {
+                                <div class="space-y-4 pt-2 border-t border-gray-200">
+                                    <!-- Password -->
+                                    <div>
+                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            'smartReport.securityPassword' | transloco
+                                        }}</label>
+                                        <div class="relative">
+                                            <input
+                                                [type]="showPassword ? 'text' : 'password'"
+                                                formControlName="securityPassword"
+                                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm pr-10"
+                                                [placeholder]="
+                                                    'smartReport.securityPasswordPlaceholder'
+                                                        | transloco
+                                                "
+                                            />
+                                            <button
+                                                type="button"
+                                                (click)="showPassword = !showPassword"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                            >
+                                                <mat-icon class="!w-4 !h-4 !text-[16px]">{{
+                                                    showPassword ? 'visibility_off' : 'visibility'
+                                                }}</mat-icon>
+                                            </button>
+                                        </div>
+                                        <p class="text-[10px] text-gray-400 mt-1">
+                                            {{ 'smartReport.securityPasswordHint' | transloco }}
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </form>
                 </div>
 

@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -40,6 +41,7 @@ import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.
         MatSelectModule,
         MatTooltipModule,
         MatSnackBarModule,
+        MatSlideToggleModule,
         TranslocoModule,
         ReportPreviewComponent,
     ],
@@ -60,12 +62,15 @@ export class ReportBuilderComponent implements OnInit {
     templateId = signal<string | null>(null);
 
     template = signal<SmartReportTemplate | null>(null);
-    isLoading = signal(false);
-    isSaving = signal(false);
+    // State
+    isLoading = signal<boolean>(false);
+    isSaving = signal<boolean>(false);
     isSendingSample = signal(false);
 
     // Logo
     logoUrl = signal<string | null>(null);
+    activeTab = signal<'design' | 'data'>('design');
+    showPassword = false;
 
     sections = signal<ReportSection[]>([]);
     selectedSection = signal<ReportSection | null>(null);
@@ -137,6 +142,8 @@ export class ReportBuilderComponent implements OnInit {
             watermarkText: ['CONFIDENTIAL'],
             watermarkOpacity: [0.08],
             watermarkPattern: ['single'],
+            securityEnabled: [false],
+            securityPassword: [''],
         });
     }
 
@@ -224,6 +231,9 @@ export class ReportBuilderComponent implements OnInit {
                     watermarkText: template.watermark?.text || 'CONFIDENTIAL',
                     watermarkOpacity: template.watermark?.opacity ?? 0.08,
                     watermarkPattern: template.watermark?.pattern || 'single',
+                    securityEnabled: template.security?.enabled || false,
+                    // If enabled, assume password exists and mask it. If not, empty.
+                    securityPassword: template.security?.enabled ? '******' : '',
                 });
                 this.logoUrl.set(template.logo || null);
                 this.isLoading.set(false);
@@ -403,6 +413,10 @@ export class ReportBuilderComponent implements OnInit {
                 opacity: formVal.watermarkOpacity ?? 0.08,
                 pattern: formVal.watermarkPattern || 'single',
             },
+            security: {
+                enabled: formVal.securityEnabled ?? false,
+                password: formVal.securityPassword || '',
+            },
         };
 
         // Remove flat watermark fields from the spread
@@ -411,6 +425,8 @@ export class ReportBuilderComponent implements OnInit {
         delete (templateData as any).watermarkText;
         delete (templateData as any).watermarkOpacity;
         delete (templateData as any).watermarkPattern;
+        delete (templateData as any).securityEnabled;
+        delete (templateData as any).securityPassword;
 
         const id = this.templateId();
 
