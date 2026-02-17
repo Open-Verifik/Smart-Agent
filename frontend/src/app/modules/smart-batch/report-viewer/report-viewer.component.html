@@ -629,6 +629,12 @@
                                     [primaryColor]="selectedTemplate()!.primaryColor || '#4F46E5'"
                                     [orientation]="'portrait'"
                                     [clickable]="false"
+                                    [logoUrl]="selectedTemplate()!.logo || null"
+                                    [legend]="selectedTemplate()!.legend || ''"
+                                    [showPageNumbers]="selectedTemplate()!.showPageNumbers || false"
+                                    [pageNumberPosition]="
+                                        selectedTemplate()!.pageNumberPosition || 'bottom-center'
+                                    "
                                 />
                                 @if (previewDataForAllRows().length > 1) {
                                     <div

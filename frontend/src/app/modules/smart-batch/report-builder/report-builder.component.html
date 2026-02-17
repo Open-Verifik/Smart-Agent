@@ -4,14 +4,25 @@
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <button mat-icon-button (click)="goBack()" [matTooltip]="'smartReport.back' | transloco">
+                    <button
+                        mat-icon-button
+                        (click)="goBack()"
+                        [matTooltip]="'smartReport.back' | transloco"
+                    >
                         <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div>
                         <h1 class="text-lg font-bold text-gray-900">
-                            {{ (templateId() ? 'smartReport.editReportTemplate' : 'smartReport.newReportTemplate') | transloco }}
+                            {{
+                                (templateId()
+                                    ? 'smartReport.editReportTemplate'
+                                    : 'smartReport.newReportTemplate'
+                                ) | transloco
+                            }}
                         </h1>
-                        <p class="text-xs text-gray-500">{{ 'smartReport.designReportLayout' | transloco }}</p>
+                        <p class="text-xs text-gray-500">
+                            {{ 'smartReport.designReportLayout' | transloco }}
+                        </p>
                     </div>
                 </div>
 
@@ -20,7 +31,9 @@
                         mat-stroked-button
                         (click)="sendSample()"
                         [disabled]="!templateId() || isSendingSample()"
-                        [matTooltip]="!templateId() ? ('smartReport.saveTemplateFirst' | transloco) : ''"
+                        [matTooltip]="
+                            !templateId() ? ('smartReport.saveTemplateFirst' | transloco) : ''
+                        "
                         class="!rounded-xl"
                     >
                         <span class="inline-flex items-center gap-2">
@@ -63,11 +76,17 @@
             <div class="w-full lg:w-[440px] shrink-0 space-y-4">
                 <!-- Template Settings -->
                 <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-4">{{ 'smartReport.templateSettings' | transloco }}</h3>
+                    <h3 class="text-sm font-semibold text-gray-900 mb-4">
+                        {{ 'smartReport.templateSettings' | transloco }}
+                    </h3>
                     <form [formGroup]="templateForm" class="space-y-4">
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-label>{{ 'smartReport.templateName' | transloco }}</mat-label>
-                            <input matInput formControlName="name" [placeholder]="'smartReport.templateNamePlaceholder' | transloco" />
+                            <input
+                                matInput
+                                formControlName="name"
+                                [placeholder]="'smartReport.templateNamePlaceholder' | transloco"
+                            />
                         </mat-form-field>
 
                         <div class="grid grid-cols-3 gap-3">
@@ -83,8 +102,12 @@
                             <mat-form-field appearance="outline">
                                 <mat-label>{{ 'smartReport.orientation' | transloco }}</mat-label>
                                 <mat-select formControlName="orientation">
-                                    <mat-option value="portrait">{{ 'smartReport.portrait' | transloco }}</mat-option>
-                                    <mat-option value="landscape">{{ 'smartReport.landscape' | transloco }}</mat-option>
+                                    <mat-option value="portrait">{{
+                                        'smartReport.portrait' | transloco
+                                    }}</mat-option>
+                                    <mat-option value="landscape">{{
+                                        'smartReport.landscape' | transloco
+                                    }}</mat-option>
                                 </mat-select>
                             </mat-form-field>
 
@@ -98,22 +121,118 @@
                         </div>
 
                         <div class="flex items-center gap-4">
-                            <label class="text-sm text-gray-600">{{ 'smartReport.primaryColor' | transloco }}:</label>
+                            <label class="text-sm text-gray-600"
+                                >{{ 'smartReport.primaryColor' | transloco }}:</label
+                            >
                             <input
                                 type="color"
                                 formControlName="primaryColor"
                                 class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer"
                             />
                         </div>
+
+                        <!-- Workspace Logo -->
+                        <div class="pt-3 border-t border-gray-100">
+                            <label class="text-xs font-medium text-gray-500 mb-2 block">{{
+                                'smartReport.workspaceLogo' | transloco
+                            }}</label>
+                            @if (logoUrl()) {
+                                <div class="flex items-center gap-3">
+                                    <img
+                                        [src]="logoUrl()"
+                                        alt="Logo"
+                                        class="h-10 max-w-[160px] object-contain rounded border border-gray-200 bg-gray-50 p-1"
+                                    />
+                                    <button
+                                        type="button"
+                                        (click)="removeLogo()"
+                                        class="text-xs text-red-500 hover:text-red-700 transition-colors"
+                                    >
+                                        {{ 'smartReport.remove' | transloco }}
+                                    </button>
+                                </div>
+                            } @else {
+                                <label
+                                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer text-sm text-gray-500"
+                                >
+                                    <mat-icon class="!text-base">upload</mat-icon>
+                                    {{ 'smartReport.uploadLogo' | transloco }}
+                                    <input
+                                        type="file"
+                                        accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                                        (change)="onLogoUpload($event)"
+                                        class="hidden"
+                                    />
+                                </label>
+                                <p class="text-xs text-gray-400 mt-1">PNG, JPG, SVG · max 500KB</p>
+                            }
+                        </div>
+
+                        <!-- Footer Legend -->
+                        <div class="pt-3 border-t border-gray-100">
+                            <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                'smartReport.footerLegend' | transloco
+                            }}</label>
+                            <textarea
+                                formControlName="legend"
+                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 resize-none"
+                                rows="2"
+                                [placeholder]="'smartReport.footerLegendPlaceholder' | transloco"
+                            ></textarea>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="pt-3 border-t border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-medium text-gray-500">{{
+                                    'smartReport.pageNumbers' | transloco
+                                }}</label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        formControlName="showPageNumbers"
+                                        class="sr-only peer"
+                                    />
+                                    <div
+                                        class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"
+                                    ></div>
+                                </label>
+                            </div>
+                            @if (templateForm.get('showPageNumbers')?.value) {
+                                <mat-form-field appearance="outline" class="w-full !text-xs">
+                                    <mat-label>{{
+                                        'smartReport.pageNumberPosition' | transloco
+                                    }}</mat-label>
+                                    <mat-select formControlName="pageNumberPosition">
+                                        <mat-option value="top-left">↖ Top Left</mat-option>
+                                        <mat-option value="top-center">↑ Top Center</mat-option>
+                                        <mat-option value="top-right">↗ Top Right</mat-option>
+                                        <mat-option value="bottom-left">↙ Bottom Left</mat-option>
+                                        <mat-option value="bottom-center"
+                                            >↓ Bottom Center</mat-option
+                                        >
+                                        <mat-option value="bottom-right"
+                                            >↘ Bottom Right</mat-option
+                                        >
+                                    </mat-select>
+                                </mat-form-field>
+                            }
+                        </div>
                     </form>
                 </div>
 
                 <!-- Helper Data - available paths from preview -->
                 <div class="bg-white rounded-2xl border border-gray-200 p-4">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-2">{{ 'smartReport.helperData' | transloco }}</h3>
-                    <p class="text-xs text-gray-500 mb-3">{{ 'smartReport.helperDataHint' | transloco }}</p>
+                    <h3 class="text-sm font-semibold text-gray-900 mb-2">
+                        {{ 'smartReport.helperData' | transloco }}
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-3">
+                        {{ 'smartReport.helperDataHint' | transloco }}
+                    </p>
                     @if (helperDataPaths().length === 0) {
-                        <p class="text-xs text-gray-400 italic">{{ 'smartReport.openFromReportViewer' | transloco }}</p>
+                        <p class="text-xs text-gray-400 italic">
+                            {{ 'smartReport.openFromReportViewer' | transloco }}
+                        </p>
                     } @else {
                         <div class="max-h-[240px] overflow-y-auto space-y-1 pr-1">
                             @for (item of helperDataPaths(); track item.path) {
@@ -121,27 +240,42 @@
                                     <div
                                         class="group flex items-center gap-2 py-1.5 px-2 rounded hover:bg-gray-50 text-xs"
                                     >
-                                        <code class="flex-1 min-w-0 truncate text-gray-700 font-mono">{{ item.path }}</code>
-                                        <span class="text-gray-400 truncate max-w-[120px]" [title]="item.value">{{ item.value }}</span>
+                                        <code
+                                            class="flex-1 min-w-0 truncate text-gray-700 font-mono"
+                                            >{{ item.path }}</code
+                                        >
+                                        <span
+                                            class="text-gray-400 truncate max-w-[120px]"
+                                            [title]="item.value"
+                                            >{{ item.value }}</span
+                                        >
                                         <button
                                             mat-icon-button
                                             (click)="copyPathToClipboard(item.path)"
                                             class="!w-6 !h-6 !rounded opacity-0 group-hover:opacity-100 transition-opacity"
                                             [matTooltip]="'smartReport.copyPath' | transloco"
                                         >
-                                            <mat-icon class="!text-sm !w-4 !h-4">content_copy</mat-icon>
+                                            <mat-icon class="!text-sm !w-4 !h-4"
+                                                >content_copy</mat-icon
+                                            >
                                         </button>
                                     </div>
                                 } @else {
                                     <div class="group flex items-center gap-2 pt-1.5 pb-0.5">
-                                        <span class="text-xs font-medium text-gray-500">{{ item.path }}</span>
+                                        <span class="text-xs font-medium text-gray-500">{{
+                                            item.path
+                                        }}</span>
                                         <button
                                             mat-icon-button
                                             (click)="copyPathToClipboard(item.path)"
                                             class="!w-6 !h-6 !rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                                            [matTooltip]="'smartReport.copyPathForTable' | transloco"
+                                            [matTooltip]="
+                                                'smartReport.copyPathForTable' | transloco
+                                            "
                                         >
-                                            <mat-icon class="!text-sm !w-4 !h-4">content_copy</mat-icon>
+                                            <mat-icon class="!text-sm !w-4 !h-4"
+                                                >content_copy</mat-icon
+                                            >
                                         </button>
                                     </div>
                                 }
@@ -152,14 +286,18 @@
 
                 <!-- Add Sections toolbar -->
                 <div class="bg-white rounded-2xl border border-gray-200 p-4">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-3">{{ 'smartReport.addSections' | transloco }}</h3>
+                    <h3 class="text-sm font-semibold text-gray-900 mb-3">
+                        {{ 'smartReport.addSections' | transloco }}
+                    </h3>
                     <div class="flex flex-wrap gap-2">
                         @for (sectionType of sectionTypes; track sectionType.type) {
                             <button
                                 (click)="addSection(sectionType.type)"
                                 class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors text-sm text-gray-700"
                             >
-                                <mat-icon class="!text-base text-gray-400">{{ sectionType.icon }}</mat-icon>
+                                <mat-icon class="!text-base text-gray-400">{{
+                                    sectionType.icon
+                                }}</mat-icon>
                                 {{ sectionType.labelKey | transloco }}
                             </button>
                         }
@@ -168,12 +306,20 @@
 
                 <!-- Section List (drag & drop) -->
                 <div class="bg-white rounded-2xl border border-gray-200">
-                    <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <div
+                        class="px-5 py-3 border-b border-gray-100 flex items-center justify-between"
+                    >
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-900">{{ 'smartReport.reportLayout' | transloco }}</h3>
-                            <p class="text-xs text-gray-400">{{ 'smartReport.dragToReorder' | transloco }}</p>
+                            <h3 class="text-sm font-semibold text-gray-900">
+                                {{ 'smartReport.reportLayout' | transloco }}
+                            </h3>
+                            <p class="text-xs text-gray-400">
+                                {{ 'smartReport.dragToReorder' | transloco }}
+                            </p>
                         </div>
-                        <span class="text-xs font-medium text-gray-400">{{ sections().length }} {{ 'smartReport.sections' | transloco }}</span>
+                        <span class="text-xs font-medium text-gray-400"
+                            >{{ sections().length }} {{ 'smartReport.sections' | transloco }}</span
+                        >
                     </div>
 
                     <div
@@ -182,9 +328,13 @@
                         class="p-3 min-h-[200px]"
                     >
                         @if (sections().length === 0) {
-                            <div class="flex flex-col items-center justify-center h-40 text-gray-300">
+                            <div
+                                class="flex flex-col items-center justify-center h-40 text-gray-300"
+                            >
                                 <mat-icon class="!text-4xl !w-10 !h-10 mb-2">add_box</mat-icon>
-                                <p class="text-sm">{{ 'smartReport.addSectionsFromAbove' | transloco }}</p>
+                                <p class="text-sm">
+                                    {{ 'smartReport.addSectionsFromAbove' | transloco }}
+                                </p>
                             </div>
                         }
 
@@ -193,7 +343,9 @@
                                 cdkDrag
                                 class="flex items-center gap-2 bg-white border rounded-lg px-3 py-2.5 mb-2 cursor-pointer hover:border-indigo-300 transition-colors group"
                                 [class.ring-2]="currentSelectedSection()?.id === section.id"
-                                [class.ring-indigo-500]="currentSelectedSection()?.id === section.id"
+                                [class.ring-indigo-500]="
+                                    currentSelectedSection()?.id === section.id
+                                "
                                 [class.bg-indigo-50]="currentSelectedSection()?.id === section.id"
                                 (click)="selectSection(section)"
                             >
@@ -206,12 +358,15 @@
 
                                 <div
                                     class="shrink-0 w-7 h-7 rounded-md flex items-center justify-center"
-                                    [style.background]="templateForm.get('primaryColor')?.value + '15'"
+                                    [style.background]="
+                                        templateForm.get('primaryColor')?.value + '15'
+                                    "
                                 >
                                     <mat-icon
                                         [style.color]="templateForm.get('primaryColor')?.value"
                                         class="!text-base"
-                                    >{{ getSectionIcon(section.type) }}</mat-icon>
+                                        >{{ getSectionIcon(section.type) }}</mat-icon
+                                    >
                                 </div>
 
                                 <div class="min-w-0 flex-1">
@@ -222,28 +377,40 @@
                                         @if (section.label) {
                                             {{ section.label }}
                                         } @else if (section.staticContent) {
-                                            {{ section.staticContent | slice: 0 : 30 }}{{ section.staticContent.length > 30 ? '...' : '' }}
+                                            {{ section.staticContent | slice: 0 : 30
+                                            }}{{ section.staticContent.length > 30 ? '...' : '' }}
                                         } @else if (section.dataPath) {
                                             {{ section.dataPath }}
                                         } @else {
-                                            {{ 'smartReport.sectionNumber' | transloco: { num: section.order + 1 } }}
+                                            {{
+                                                'smartReport.sectionNumber'
+                                                    | transloco: { num: section.order + 1 }
+                                            }}
                                         }
                                     </p>
                                 </div>
 
-                                <div class="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div
+                                    class="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
                                     <button
                                         mat-icon-button
-                                        (click)="duplicateSection(section); $event.stopPropagation()"
-                                            [matTooltip]="'smartReport.duplicate' | transloco"
+                                        (click)="
+                                            duplicateSection(section); $event.stopPropagation()
+                                        "
+                                        [matTooltip]="'smartReport.duplicate' | transloco"
                                         class="!w-7 !h-7"
                                     >
-                                        <mat-icon class="!text-sm text-gray-400">content_copy</mat-icon>
+                                        <mat-icon class="!text-sm text-gray-400"
+                                            >content_copy</mat-icon
+                                        >
                                     </button>
                                     <button
                                         mat-icon-button
-                                        (click)="deleteSection(section.id); $event.stopPropagation()"
-                                            [matTooltip]="'smartReport.delete' | transloco"
+                                        (click)="
+                                            deleteSection(section.id); $event.stopPropagation()
+                                        "
+                                        [matTooltip]="'smartReport.delete' | transloco"
                                         class="!w-7 !h-7"
                                     >
                                         <mat-icon class="!text-sm text-red-400">delete</mat-icon>
@@ -274,11 +441,18 @@
                             <!-- HEADER EDITOR -->
                             @if (sel.type === 'header') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.titleText' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.titleText' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.staticContent || ''"
-                                        (input)="updateSection(sel.id, { staticContent: $any($event.target).value, label: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                staticContent: $any($event.target).value,
+                                                label: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                                         [placeholder]="'smartReport.reportTitle' | transloco"
                                     />
@@ -288,10 +462,16 @@
                             <!-- TEXT EDITOR -->
                             @if (sel.type === 'text') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.content' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.content' | transloco
+                                    }}</label>
                                     <textarea
                                         [value]="sel.staticContent || ''"
-                                        (input)="updateSection(sel.id, { staticContent: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                staticContent: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                                         rows="4"
                                         [placeholder]="'smartReport.enterTextContent' | transloco"
@@ -302,23 +482,37 @@
                             <!-- FIELD EDITOR -->
                             @if (sel.type === 'field') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.label' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.label' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.label || ''"
-                                        (input)="updateSection(sel.id, { label: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                label: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                                         [placeholder]="'smartReport.fieldLabel' | transloco"
                                     />
                                 </div>
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.dataPath' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.dataPath' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.dataPath || ''"
-                                        (input)="updateSection(sel.id, { dataPath: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                dataPath: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
-                                        [placeholder]="'smartReport.dataPathPlaceholder' | transloco"
+                                        [placeholder]="
+                                            'smartReport.dataPathPlaceholder' | transloco
+                                        "
                                     />
                                     <p class="text-xs text-gray-400 mt-1">
                                         {{ 'smartReport.dotSeparatedPath' | transloco }}
@@ -329,21 +523,33 @@
                             <!-- TABLE EDITOR -->
                             @if (sel.type === 'table') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.tableTitle' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.tableTitle' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.label || ''"
-                                        (input)="updateSection(sel.id, { label: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                label: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                                         [placeholder]="'smartReport.tableLabel' | transloco"
                                     />
                                 </div>
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.dataPathObject' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.dataPathObject' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.dataPath || ''"
-                                        (input)="updateSection(sel.id, { dataPath: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                dataPath: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
                                         placeholder="results.1"
                                     />
@@ -356,21 +562,33 @@
                             <!-- IMAGE EDITOR -->
                             @if (sel.type === 'image') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.imageUrl' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.imageUrl' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.staticContent || ''"
-                                        (input)="updateSection(sel.id, { staticContent: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                staticContent: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
                                         placeholder="https://example.com/logo.png"
                                     />
                                 </div>
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.altText' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.altText' | transloco
+                                    }}</label>
                                     <input
                                         type="text"
                                         [value]="sel.label || ''"
-                                        (input)="updateSection(sel.id, { label: $any($event.target).value })"
+                                        (input)="
+                                            updateSection(sel.id, {
+                                                label: $any($event.target).value,
+                                            })
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                                         [placeholder]="'smartReport.companyLogo' | transloco"
                                     />
@@ -380,11 +598,15 @@
                             <!-- SPACER EDITOR -->
                             @if (sel.type === 'spacer') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.heightPx' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.heightPx' | transloco
+                                    }}</label>
                                     <input
                                         type="number"
                                         [value]="sel.style?.padding || 16"
-                                        (input)="updateSectionStyle('padding', $any($event.target).value)"
+                                        (input)="
+                                            updateSectionStyle('padding', $any($event.target).value)
+                                        "
                                         class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                                         min="4"
                                         max="200"
@@ -395,7 +617,9 @@
                             <!-- DIVIDER EDITOR -->
                             @if (sel.type === 'divider') {
                                 <div>
-                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{ 'smartReport.color' | transloco }}</label>
+                                    <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                                        'smartReport.color' | transloco
+                                    }}</label>
                                     <input
                                         type="color"
                                         [value]="sel.style?.color || '#E5E7EB'"
@@ -406,22 +630,37 @@
                             }
 
                             <!-- STYLE OPTIONS (for text-bearing sections) -->
-                            @if (sel.type === 'header' || sel.type === 'text' || sel.type === 'field') {
+                            @if (
+                                sel.type === 'header' || sel.type === 'text' || sel.type === 'field'
+                            ) {
                                 <div class="pt-3 border-t border-gray-100 space-y-3">
-                                    <h4 class="text-xs font-medium text-gray-500">{{ 'smartReport.style' | transloco }}</h4>
+                                    <h4 class="text-xs font-medium text-gray-500">
+                                        {{ 'smartReport.style' | transloco }}
+                                    </h4>
 
                                     <!-- Text Align -->
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">{{ 'smartReport.textAlign' | transloco }}</label>
+                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            'smartReport.textAlign' | transloco
+                                        }}</label>
                                         <div class="flex gap-1">
-                                            @for (align of ['left', 'center', 'right']; track align) {
+                                            @for (
+                                                align of ['left', 'center', 'right'];
+                                                track align
+                                            ) {
                                                 <button
                                                     (click)="updateTextAlign(align)"
                                                     class="flex-1 py-2 rounded-lg border text-sm transition-colors"
-                                                    [class.bg-indigo-50]="sel.style?.textAlign === align"
-                                                    [class.border-indigo-300]="sel.style?.textAlign === align"
+                                                    [class.bg-indigo-50]="
+                                                        sel.style?.textAlign === align
+                                                    "
+                                                    [class.border-indigo-300]="
+                                                        sel.style?.textAlign === align
+                                                    "
                                                 >
-                                                    <mat-icon class="!text-base">format_align_{{ align }}</mat-icon>
+                                                    <mat-icon class="!text-base"
+                                                        >format_align_{{ align }}</mat-icon
+                                                    >
                                                 </button>
                                             }
                                         </div>
@@ -429,7 +668,9 @@
 
                                     <!-- Font Size -->
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">{{ 'smartReport.fontSize' | transloco }}</label>
+                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            'smartReport.fontSize' | transloco
+                                        }}</label>
                                         <input
                                             type="number"
                                             [value]="sel.style?.fontSize || 14"
@@ -442,26 +683,42 @@
 
                                     <!-- Font Weight -->
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">{{ 'smartReport.fontWeight' | transloco }}</label>
+                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            'smartReport.fontWeight' | transloco
+                                        }}</label>
                                         <div class="flex gap-1">
                                             <button
                                                 (click)="updateFontWeight('normal')"
                                                 class="flex-1 py-2 rounded-lg border text-sm transition-colors"
-                                                [class.bg-indigo-50]="sel.style?.fontWeight !== 'bold'"
-                                                [class.border-indigo-300]="sel.style?.fontWeight !== 'bold'"
-                                            >{{ 'smartReport.normal' | transloco }}</button>
+                                                [class.bg-indigo-50]="
+                                                    sel.style?.fontWeight !== 'bold'
+                                                "
+                                                [class.border-indigo-300]="
+                                                    sel.style?.fontWeight !== 'bold'
+                                                "
+                                            >
+                                                {{ 'smartReport.normal' | transloco }}
+                                            </button>
                                             <button
                                                 (click)="updateFontWeight('bold')"
                                                 class="flex-1 py-2 rounded-lg border text-sm font-bold transition-colors"
-                                                [class.bg-indigo-50]="sel.style?.fontWeight === 'bold'"
-                                                [class.border-indigo-300]="sel.style?.fontWeight === 'bold'"
-                                            >{{ 'smartReport.bold' | transloco }}</button>
+                                                [class.bg-indigo-50]="
+                                                    sel.style?.fontWeight === 'bold'
+                                                "
+                                                [class.border-indigo-300]="
+                                                    sel.style?.fontWeight === 'bold'
+                                                "
+                                            >
+                                                {{ 'smartReport.bold' | transloco }}
+                                            </button>
                                         </div>
                                     </div>
 
                                     <!-- Text Color -->
                                     <div class="flex items-center gap-3">
-                                        <label class="text-xs text-gray-400">{{ 'smartReport.textColor' | transloco }}</label>
+                                        <label class="text-xs text-gray-400">{{
+                                            'smartReport.textColor' | transloco
+                                        }}</label>
                                         <input
                                             type="color"
                                             [value]="sel.style?.color || '#111827'"
@@ -482,19 +739,32 @@
             <div class="flex-1 min-w-0">
                 <div class="sticky top-20">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-gray-500">{{ 'smartReport.preview' | transloco }}</h3>
-                        <span class="text-xs text-gray-400">{{ 'smartReport.livePreviewWithSample' | transloco }}</span>
+                        <h3 class="text-sm font-semibold text-gray-500">
+                            {{ 'smartReport.preview' | transloco }}
+                        </h3>
+                        <span class="text-xs text-gray-400">{{
+                            'smartReport.livePreviewWithSample' | transloco
+                        }}</span>
                     </div>
 
                     <!-- Paper container - shared ReportPreviewComponent -->
                     <report-preview
-                        [template]="{ sections: sections(), primaryColor: templateForm.get('primaryColor')?.value }"
+                        [template]="{
+                            sections: sections(),
+                            primaryColor: templateForm.get('primaryColor')?.value,
+                        }"
                         [previewData]="previewData()"
                         [primaryColor]="templateForm.get('primaryColor')?.value || '#4F46E5'"
                         [orientation]="templateForm.get('orientation')?.value || 'portrait'"
                         [clickable]="true"
                         [selectedSectionId]="currentSelectedSection()?.id ?? null"
                         [sectionClick]="onPreviewSectionClick"
+                        [logoUrl]="logoUrl()"
+                        [legend]="templateForm.get('legend')?.value || ''"
+                        [showPageNumbers]="templateForm.get('showPageNumbers')?.value || false"
+                        [pageNumberPosition]="
+                            templateForm.get('pageNumberPosition')?.value || 'bottom-center'
+                        "
                     />
                 </div>
             </div>

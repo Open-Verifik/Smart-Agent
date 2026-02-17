@@ -11,13 +11,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { SampleReportData } from '../smart-report.service';
 import { fuseAnimations } from '@fuse/animations';
-import { ReportSection, SmartReportService, SmartReportTemplate } from '../smart-report.service';
-import { buildHelperDataPaths, HelperDataPath } from '../helper-data.util';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import {
+    ReportSection,
+    SampleReportData,
+    SmartReportService,
+    SmartReportTemplate,
+} from '../smart-report.service';
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
 
 @Component({
@@ -59,6 +63,9 @@ export class ReportBuilderComponent implements OnInit {
     isLoading = signal(false);
     isSaving = signal(false);
     isSendingSample = signal(false);
+
+    // Logo
+    logoUrl = signal<string | null>(null);
 
     sections = signal<ReportSection[]>([]);
     selectedSection = signal<ReportSection | null>(null);
@@ -123,6 +130,8 @@ export class ReportBuilderComponent implements OnInit {
             orientation: ['portrait'],
             pdfEngine: ['puppeteer'],
             legend: [''],
+            showPageNumbers: [false],
+            pageNumberPosition: ['bottom-center'],
         });
     }
 
@@ -151,9 +160,11 @@ export class ReportBuilderComponent implements OnInit {
     private _applyPreviewDataFromRouterState(): void {
         let data = this._previewDataService.consumePendingPreviewData();
         if (!data) {
-            const state = this._router.getCurrentNavigation()?.extras?.state as {
-                previewData?: SampleReportData;
-            } | undefined;
+            const state = this._router.getCurrentNavigation()?.extras?.state as
+                | {
+                      previewData?: SampleReportData;
+                  }
+                | undefined;
             data = state?.previewData ?? undefined;
         }
         if (data && (data.inputData || data.results)) {
@@ -201,7 +212,10 @@ export class ReportBuilderComponent implements OnInit {
                     orientation: template.orientation || 'portrait',
                     pdfEngine: template.pdfEngine || 'puppeteer',
                     legend: template.legend || '',
+                    showPageNumbers: template.showPageNumbers || false,
+                    pageNumberPosition: template.pageNumberPosition || 'bottom-center',
                 });
+                this.logoUrl.set(template.logo || null);
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -369,6 +383,7 @@ export class ReportBuilderComponent implements OnInit {
             sections: this.sections(),
             batchConfiguration: this.configId() || undefined,
             sampleData: this.previewData(),
+            logo: this.logoUrl() || undefined,
         };
 
         const id = this.templateId();
@@ -439,21 +454,34 @@ export class ReportBuilderComponent implements OnInit {
                 .subscribe({
                     next: (res) => {
                         if (res.success) {
-                            this._snack.open(this._transloco.translate('smartReport.samplePdfSentSuccess'), 'Close', {
-                                duration: 3500,
-                            });
+                            this._snack.open(
+                                this._transloco.translate('smartReport.samplePdfSentSuccess'),
+                                'Close',
+                                {
+                                    duration: 3500,
+                                }
+                            );
                         } else {
-                            this._snack.open(res.error || this._transloco.translate('smartReport.failedToSendSamplePdf'), 'Close', {
-                                duration: 4000,
-                            });
+                            this._snack.open(
+                                res.error ||
+                                    this._transloco.translate('smartReport.failedToSendSamplePdf'),
+                                'Close',
+                                {
+                                    duration: 4000,
+                                }
+                            );
                         }
                         this.isSendingSample.set(false);
                     },
                     error: (err) => {
                         console.error('Send sample failed:', err);
-                        this._snack.open(this._transloco.translate('smartReport.failedToSendSamplePdf'), 'Close', {
-                            duration: 4000,
-                        });
+                        this._snack.open(
+                            this._transloco.translate('smartReport.failedToSendSamplePdf'),
+                            'Close',
+                            {
+                                duration: 4000,
+                            }
+                        );
                         this.isSendingSample.set(false);
                     },
                 });
@@ -492,9 +520,43 @@ export class ReportBuilderComponent implements OnInit {
 
     copyPathToClipboard(path: string): void {
         navigator.clipboard.writeText(path).then(
-            () => this._snack.open(`${this._transloco.translate('smartReport.copied')}: ${path}`, 'Close', { duration: 2000 }),
-            () => this._snack.open(this._transloco.translate('smartReport.failedToCopy'), 'Close', { duration: 2000 })
+            () =>
+                this._snack.open(
+                    `${this._transloco.translate('smartReport.copied')}: ${path}`,
+                    'Close',
+                    { duration: 2000 }
+                ),
+            () =>
+                this._snack.open(this._transloco.translate('smartReport.failedToCopy'), 'Close', {
+                    duration: 2000,
+                })
         );
+    }
+
+    // ============================================
+    // LOGO HELPERS
+    // ============================================
+
+    onLogoUpload(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (!file) return;
+
+        // Validate file size (max 500KB for base64 storage)
+        if (file.size > 512_000) {
+            this._snack.open('Logo file must be less than 500KB', 'Close', { duration: 3500 });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            this.logoUrl.set(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    removeLogo(): void {
+        this.logoUrl.set(null);
     }
 
     // ============================================

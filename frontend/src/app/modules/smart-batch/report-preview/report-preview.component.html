@@ -1,10 +1,33 @@
 <div
-    class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden"
+    class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col"
     [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
     [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
-    style="border: 1px solid #e5e7eb;"
+    style="border: 1px solid #e5e7eb"
 >
-    <div class="p-8 sm:p-10 lg:p-12">
+    <!-- Top page number -->
+    @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
+        <div
+            class="px-8 pt-4 text-[10px] text-gray-400"
+            [style.text-align]="
+                pageNumberPosition() === 'top-left'
+                    ? 'left'
+                    : pageNumberPosition() === 'top-right'
+                      ? 'right'
+                      : 'center'
+            "
+        >
+            Page 1 of 1
+        </div>
+    }
+
+    <div class="p-8 sm:p-10 lg:p-12 flex-1">
+        <!-- Logo -->
+        @if (logoUrl()) {
+            <div class="mb-6">
+                <img [src]="logoUrl()" alt="Logo" class="h-10 max-w-[180px] object-contain" />
+            </div>
+        }
+
         @if (template().sections?.length === 0) {
             <div class="flex flex-col items-center justify-center h-64 text-gray-300">
                 <mat-icon class="!text-5xl !w-14 !h-14 mb-3">description</mat-icon>
@@ -22,17 +45,18 @@
                 (click)="clickable() && sectionClick() ? sectionClick()!(section) : null"
             >
                 @if (section.type === 'header') {
-                    <div
-                        class="mb-4"
-                        [style.text-align]="section.style?.textAlign || 'left'"
-                    >
+                    <div class="mb-4" [style.text-align]="section.style?.textAlign || 'left'">
                         <h2
                             [style.font-size.px]="section.style?.fontSize || 22"
                             [style.font-weight]="section.style?.fontWeight || 'bold'"
                             [style.color]="section.style?.color || primaryColor()"
                             class="leading-tight"
                         >
-                            {{ section.staticContent || section.label || ('smartReport.untitled' | transloco) }}
+                            {{
+                                section.staticContent ||
+                                    section.label ||
+                                    ('smartReport.untitled' | transloco)
+                            }}
                         </h2>
                     </div>
                 }
@@ -45,7 +69,9 @@
                             [style.text-align]="section.style?.textAlign || 'left'"
                             [style.color]="section.style?.color || '#374151'"
                             class="leading-relaxed whitespace-pre-wrap"
-                        >{{ section.staticContent || ('smartReport.textContent' | transloco) }}</p>
+                        >
+                            {{ section.staticContent || ('smartReport.textContent' | transloco) }}
+                        </p>
                     </div>
                 }
 
@@ -57,12 +83,14 @@
                         <span
                             class="text-gray-500 min-w-[140px] shrink-0"
                             [style.font-size.px]="section.style?.fontSize || 12"
-                        >{{ section.label || ('smartReport.field' | transloco) }}</span>
+                            >{{ section.label || ('smartReport.field' | transloco) }}</span
+                        >
                         <span
                             class="text-gray-900 font-medium"
                             [style.font-size.px]="section.style?.fontSize || 12"
                             [style.color]="section.style?.color || '#111827'"
-                        >{{ resolveDataPath(section.dataPath) || '—' }}</span>
+                            >{{ resolveDataPath(section.dataPath) || '—' }}</span
+                        >
                     </div>
                 }
 
@@ -72,20 +100,30 @@
                             <h4
                                 class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
                                 [style.color]="primaryColor()"
-                            >{{ section.label }}</h4>
+                            >
+                                {{ section.label }}
+                            </h4>
                         }
                         <table class="w-full text-sm">
                             <tbody>
                                 @for (row of resolveTableData(section.dataPath); track row.key) {
                                     <tr class="border-b border-gray-100">
                                         <td class="py-2 pr-4 text-gray-500 w-1/3">{{ row.key }}</td>
-                                        <td class="py-2 text-gray-900 font-medium">{{ row.value }}</td>
+                                        <td class="py-2 text-gray-900 font-medium">
+                                            {{ row.value }}
+                                        </td>
                                     </tr>
                                 }
                                 @if (resolveTableData(section.dataPath).length === 0) {
                                     <tr>
-                                        <td colspan="2" class="py-4 text-center text-gray-300 text-xs">
-                                            {{ 'smartReport.noDataAtPath' | transloco: { path: section.dataPath } }}
+                                        <td
+                                            colspan="2"
+                                            class="py-4 text-center text-gray-300 text-xs"
+                                        >
+                                            {{
+                                                'smartReport.noDataAtPath'
+                                                    | transloco: { path: section.dataPath }
+                                            }}
                                         </td>
                                     </tr>
                                 }
@@ -95,19 +133,18 @@
                 }
 
                 @if (section.type === 'image') {
-                    <div
-                        class="mb-4"
-                        [style.text-align]="section.style?.textAlign || 'center'"
-                    >
+                    <div class="mb-4" [style.text-align]="section.style?.textAlign || 'center'">
                         @if (section.staticContent) {
                             <img
                                 [src]="section.staticContent"
                                 [alt]="section.label || ('smartReport.image' | transloco)"
                                 class="max-h-32 inline-block rounded"
-                                style="max-width: 100%;"
+                                style="max-width: 100%"
                             />
                         } @else {
-                            <div class="inline-flex items-center justify-center w-48 h-24 bg-gray-100 rounded-lg text-gray-300">
+                            <div
+                                class="inline-flex items-center justify-center w-48 h-24 bg-gray-100 rounded-lg text-gray-300"
+                            >
                                 <mat-icon class="!text-3xl">image</mat-icon>
                             </div>
                         }
@@ -118,7 +155,7 @@
                     <hr
                         class="my-4"
                         [style.border-color]="section.style?.color || '#E5E7EB'"
-                        style="border-width: 1px;"
+                        style="border-width: 1px"
                     />
                 }
 
@@ -128,4 +165,34 @@
             </div>
         }
     </div>
+
+    <!-- Footer area: legend + bottom page numbers -->
+    @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
+        <div class="px-8 sm:px-10 lg:px-12 pb-6 mt-auto">
+            @if (legend()) {
+                <div class="border-t border-gray-200 pt-3 mb-2">
+                    <p class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap">
+                        {{ legend() }}
+                    </p>
+                </div>
+            }
+            @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
+                <div
+                    class="text-[10px] text-gray-400"
+                    [class.border-t]="!legend()"
+                    [class.border-gray-200]="!legend()"
+                    [class.pt-3]="!legend()"
+                    [style.text-align]="
+                        pageNumberPosition() === 'bottom-left'
+                            ? 'left'
+                            : pageNumberPosition() === 'bottom-right'
+                              ? 'right'
+                              : 'center'
+                    "
+                >
+                    Page 1 of 1
+                </div>
+            }
+        </div>
+    }
 </div>

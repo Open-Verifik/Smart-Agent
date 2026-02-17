@@ -54,6 +54,16 @@ export interface SmartReportTemplate {
     // PDF engine
     pdfEngine?: 'pdfkit' | 'puppeteer';
 
+    // Page numbering
+    showPageNumbers?: boolean;
+    pageNumberPosition?:
+        | 'top-left'
+        | 'top-center'
+        | 'top-right'
+        | 'bottom-left'
+        | 'bottom-center'
+        | 'bottom-right';
+
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
 

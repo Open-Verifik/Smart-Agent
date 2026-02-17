@@ -30,6 +30,15 @@ export class ReportPreviewComponent {
     /** Section click handler (optional) */
     sectionClick = input<((section: ReportSection) => void) | null>(null);
 
+    /** Logo URL or base64 */
+    logoUrl = input<string | null>(null);
+    /** Footer legend text */
+    legend = input<string>('');
+    /** Show page numbers */
+    showPageNumbers = input<boolean>(false);
+    /** Page number position */
+    pageNumberPosition = input<string>('bottom-center');
+
     resolveDataPath(path: string | undefined): string {
         if (!path) return '';
         const source = this.previewData();
