@@ -218,6 +218,156 @@
                                 </mat-form-field>
                             }
                         </div>
+
+                        <!-- Watermark -->
+                        <div class="pt-3 border-t border-gray-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-xs font-medium text-gray-500">{{
+                                    'smartReport.watermark' | transloco
+                                }}</label>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        formControlName="watermarkEnabled"
+                                        class="sr-only peer"
+                                    />
+                                    <div
+                                        class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"
+                                    ></div>
+                                </label>
+                            </div>
+                            @if (templateForm.get('watermarkEnabled')?.value) {
+                                <div class="space-y-3">
+                                    <!-- Watermark type -->
+                                    <div class="flex gap-1">
+                                        <button
+                                            type="button"
+                                            (click)="
+                                                templateForm.get('watermarkType')?.setValue('text')
+                                            "
+                                            class="flex-1 py-2 rounded-lg border text-xs transition-colors"
+                                            [class.bg-indigo-50]="
+                                                templateForm.get('watermarkType')?.value === 'text'
+                                            "
+                                            [class.border-indigo-300]="
+                                                templateForm.get('watermarkType')?.value === 'text'
+                                            "
+                                        >
+                                            {{ 'smartReport.watermarkText' | transloco }}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            (click)="
+                                                templateForm.get('watermarkType')?.setValue('logo')
+                                            "
+                                            class="flex-1 py-2 rounded-lg border text-xs transition-colors"
+                                            [class.bg-indigo-50]="
+                                                templateForm.get('watermarkType')?.value === 'logo'
+                                            "
+                                            [class.border-indigo-300]="
+                                                templateForm.get('watermarkType')?.value === 'logo'
+                                            "
+                                        >
+                                            {{ 'smartReport.watermarkLogo' | transloco }}
+                                        </button>
+                                    </div>
+
+                                    <!-- Text input (only for text type) -->
+                                    @if (templateForm.get('watermarkType')?.value === 'text') {
+                                        <div>
+                                            <input
+                                                type="text"
+                                                formControlName="watermarkText"
+                                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs"
+                                                [placeholder]="
+                                                    'smartReport.watermarkTextPlaceholder'
+                                                        | transloco
+                                                "
+                                                maxlength="100"
+                                            />
+                                        </div>
+                                    }
+                                    @if (
+                                        templateForm.get('watermarkType')?.value === 'logo' &&
+                                        !logoUrl()
+                                    ) {
+                                        <p class="text-xs text-amber-500">
+                                            {{ 'smartReport.watermarkLogoHint' | transloco }}
+                                        </p>
+                                    }
+
+                                    <!-- Opacity slider -->
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1">
+                                            <label class="text-xs text-gray-400">{{
+                                                'smartReport.watermarkOpacity' | transloco
+                                            }}</label>
+                                            <span class="text-xs text-gray-500 font-mono"
+                                                >{{
+                                                    templateForm.get('watermarkOpacity')?.value *
+                                                        100 | number: '1.0-0'
+                                                }}%</span
+                                            >
+                                        </div>
+                                        <input
+                                            type="range"
+                                            formControlName="watermarkOpacity"
+                                            min="0.01"
+                                            max="0.5"
+                                            step="0.01"
+                                            class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                        />
+                                    </div>
+
+                                    <!-- Pattern -->
+                                    <div>
+                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            'smartReport.watermarkPattern' | transloco
+                                        }}</label>
+                                        <div class="flex gap-1">
+                                            <button
+                                                type="button"
+                                                (click)="
+                                                    templateForm
+                                                        .get('watermarkPattern')
+                                                        ?.setValue('single')
+                                                "
+                                                class="flex-1 py-2 rounded-lg border text-xs transition-colors"
+                                                [class.bg-indigo-50]="
+                                                    templateForm.get('watermarkPattern')?.value ===
+                                                    'single'
+                                                "
+                                                [class.border-indigo-300]="
+                                                    templateForm.get('watermarkPattern')?.value ===
+                                                    'single'
+                                                "
+                                            >
+                                                {{ 'smartReport.watermarkSingle' | transloco }}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                (click)="
+                                                    templateForm
+                                                        .get('watermarkPattern')
+                                                        ?.setValue('repeated')
+                                                "
+                                                class="flex-1 py-2 rounded-lg border text-xs transition-colors"
+                                                [class.bg-indigo-50]="
+                                                    templateForm.get('watermarkPattern')?.value ===
+                                                    'repeated'
+                                                "
+                                                [class.border-indigo-300]="
+                                                    templateForm.get('watermarkPattern')?.value ===
+                                                    'repeated'
+                                                "
+                                            >
+                                                {{ 'smartReport.watermarkRepeated' | transloco }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </form>
                 </div>
 
@@ -765,6 +915,11 @@
                         [pageNumberPosition]="
                             templateForm.get('pageNumberPosition')?.value || 'bottom-center'
                         "
+                        [watermarkEnabled]="templateForm.get('watermarkEnabled')?.value || false"
+                        [watermarkType]="templateForm.get('watermarkType')?.value || 'text'"
+                        [watermarkText]="templateForm.get('watermarkText')?.value || 'CONFIDENTIAL'"
+                        [watermarkOpacity]="templateForm.get('watermarkOpacity')?.value ?? 0.08"
+                        [watermarkPattern]="templateForm.get('watermarkPattern')?.value || 'single'"
                     />
                 </div>
             </div>

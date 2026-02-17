@@ -1,9 +1,71 @@
 <div
-    class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col"
+    class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative"
     [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
     [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
     style="border: 1px solid #e5e7eb"
 >
+    <!-- Watermark overlay -->
+    @if (watermarkEnabled()) {
+        @if (watermarkPattern() === 'single') {
+            <!-- Single centered watermark -->
+            <div
+                class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
+            >
+                @if (watermarkType() === 'text') {
+                    <span
+                        class="text-gray-500 font-bold select-none whitespace-nowrap"
+                        [style.opacity]="watermarkOpacity()"
+                        style="font-size: 72px; transform: rotate(-35deg); letter-spacing: 8px"
+                        >{{ watermarkText() }}</span
+                    >
+                } @else if (watermarkType() === 'logo' && logoUrl()) {
+                    <img
+                        [src]="logoUrl()"
+                        alt="Watermark"
+                        class="select-none max-w-[60%] max-h-[40%] object-contain"
+                        [style.opacity]="watermarkOpacity()"
+                        style="transform: rotate(-15deg)"
+                    />
+                }
+            </div>
+        } @else {
+            <!-- Repeated tiled watermark -->
+            <div
+                class="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+                style="
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    grid-template-rows: repeat(5, 1fr);
+                    gap: 0;
+                "
+            >
+                @for (i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; track i) {
+                    <div class="flex items-center justify-center">
+                        @if (watermarkType() === 'text') {
+                            <span
+                                class="text-gray-500 font-bold select-none whitespace-nowrap"
+                                [style.opacity]="watermarkOpacity()"
+                                style="
+                                    font-size: 18px;
+                                    transform: rotate(-35deg);
+                                    letter-spacing: 3px;
+                                "
+                                >{{ watermarkText() }}</span
+                            >
+                        } @else if (watermarkType() === 'logo' && logoUrl()) {
+                            <img
+                                [src]="logoUrl()"
+                                alt=""
+                                class="select-none w-16 h-16 object-contain"
+                                [style.opacity]="watermarkOpacity()"
+                                style="transform: rotate(-15deg)"
+                            />
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
     <!-- Top page number -->
     @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
         <div

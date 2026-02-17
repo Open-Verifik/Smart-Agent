@@ -39,6 +39,17 @@ export class ReportPreviewComponent {
     /** Page number position */
     pageNumberPosition = input<string>('bottom-center');
 
+    /** Watermark enabled */
+    watermarkEnabled = input<boolean>(false);
+    /** Watermark type (text or logo) */
+    watermarkType = input<string>('text');
+    /** Watermark text */
+    watermarkText = input<string>('CONFIDENTIAL');
+    /** Watermark opacity (0.01–0.5) */
+    watermarkOpacity = input<number>(0.08);
+    /** Watermark pattern (single or repeated) */
+    watermarkPattern = input<string>('single');
+
     resolveDataPath(path: string | undefined): string {
         if (!path) return '';
         const source = this.previewData();

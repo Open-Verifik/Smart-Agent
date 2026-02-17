@@ -132,6 +132,11 @@ export class ReportBuilderComponent implements OnInit {
             legend: [''],
             showPageNumbers: [false],
             pageNumberPosition: ['bottom-center'],
+            watermarkEnabled: [false],
+            watermarkType: ['text'],
+            watermarkText: ['CONFIDENTIAL'],
+            watermarkOpacity: [0.08],
+            watermarkPattern: ['single'],
         });
     }
 
@@ -214,6 +219,11 @@ export class ReportBuilderComponent implements OnInit {
                     legend: template.legend || '',
                     showPageNumbers: template.showPageNumbers || false,
                     pageNumberPosition: template.pageNumberPosition || 'bottom-center',
+                    watermarkEnabled: template.watermark?.enabled || false,
+                    watermarkType: template.watermark?.type || 'text',
+                    watermarkText: template.watermark?.text || 'CONFIDENTIAL',
+                    watermarkOpacity: template.watermark?.opacity ?? 0.08,
+                    watermarkPattern: template.watermark?.pattern || 'single',
                 });
                 this.logoUrl.set(template.logo || null);
                 this.isLoading.set(false);
@@ -378,13 +388,29 @@ export class ReportBuilderComponent implements OnInit {
 
         this.isSaving.set(true);
 
+        const formVal = this.templateForm.value;
+
         const templateData: Partial<SmartReportTemplate> = {
-            ...this.templateForm.value,
+            ...formVal,
             sections: this.sections(),
             batchConfiguration: this.configId() || undefined,
             sampleData: this.previewData(),
             logo: this.logoUrl() || undefined,
+            watermark: {
+                enabled: formVal.watermarkEnabled ?? false,
+                type: formVal.watermarkType || 'text',
+                text: formVal.watermarkText || 'CONFIDENTIAL',
+                opacity: formVal.watermarkOpacity ?? 0.08,
+                pattern: formVal.watermarkPattern || 'single',
+            },
         };
+
+        // Remove flat watermark fields from the spread
+        delete (templateData as any).watermarkEnabled;
+        delete (templateData as any).watermarkType;
+        delete (templateData as any).watermarkText;
+        delete (templateData as any).watermarkOpacity;
+        delete (templateData as any).watermarkPattern;
 
         const id = this.templateId();
 

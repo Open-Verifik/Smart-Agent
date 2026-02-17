@@ -64,6 +64,15 @@ export interface SmartReportTemplate {
         | 'bottom-center'
         | 'bottom-right';
 
+    // Watermark
+    watermark?: {
+        enabled: boolean;
+        type: 'logo' | 'text';
+        text?: string;
+        opacity?: number;
+        pattern?: 'single' | 'repeated';
+    };
+
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
 

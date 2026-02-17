@@ -635,6 +635,19 @@
                                     [pageNumberPosition]="
                                         selectedTemplate()!.pageNumberPosition || 'bottom-center'
                                     "
+                                    [watermarkEnabled]="
+                                        selectedTemplate()!.watermark?.enabled || false
+                                    "
+                                    [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
+                                    [watermarkText]="
+                                        selectedTemplate()!.watermark?.text || 'CONFIDENTIAL'
+                                    "
+                                    [watermarkOpacity]="
+                                        selectedTemplate()!.watermark?.opacity ?? 0.08
+                                    "
+                                    [watermarkPattern]="
+                                        selectedTemplate()!.watermark?.pattern || 'single'
+                                    "
                                 />
                                 @if (previewDataForAllRows().length > 1) {
                                     <div
