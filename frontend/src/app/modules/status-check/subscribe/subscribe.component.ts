@@ -105,6 +105,19 @@ export class SubscribeComponent implements OnInit {
     }
 
     save(): void {
+        // Check if there is a pending input value that is valid
+        const pendingInput = document.querySelector('input[matChipInputFor]') as HTMLInputElement;
+        if (pendingInput && pendingInput.value) {
+            const value = pendingInput.value.trim();
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (emailRegex.test(value) && !this.emails.includes(value)) {
+                if (this.emails.length < 5) {
+                    this.emails.push(value);
+                    pendingInput.value = '';
+                }
+            }
+        }
+
         if (this.emails.length === 0) {
             this._snackBar.open(
                 this._translocoService.translate('network.alerts.at_least_one'),
@@ -129,7 +142,11 @@ export class SubscribeComponent implements OnInit {
             };
             this._statusCheckService.putIncidentsSubscriptions(updatePayload).subscribe({
                 next: (res) => {
-                    this._dialogRef.close({ update: true, subscription: res.data || res });
+                    const subscription = res.data || res;
+                    if (!subscription.emails || subscription.emails.length === 0) {
+                        subscription.emails = this.emails;
+                    }
+                    this._dialogRef.close({ update: true, subscription });
                     this.loading = false;
                 },
                 error: () => {
@@ -145,7 +162,11 @@ export class SubscribeComponent implements OnInit {
             // Create
             this._statusCheckService.postIncidentsSubscriptions(payload).subscribe({
                 next: (res) => {
-                    this._dialogRef.close({ create: true, subscription: res.data || res });
+                    const subscription = res.data || res;
+                    if (!subscription.emails || subscription.emails.length === 0) {
+                        subscription.emails = this.emails;
+                    }
+                    this._dialogRef.close({ create: true, subscription });
                     this.loading = false;
                 },
                 error: () => {

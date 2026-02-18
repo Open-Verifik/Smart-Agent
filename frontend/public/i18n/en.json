@@ -35,7 +35,7 @@
         "alerts": {
             "header_update": "Update Alert",
             "header_subscribe": "Subscribe to Alerts",
-            "subtitle": "Get notified when {name} experiences downtime or performance shifts.",
+            "subtitle": "Get notified when {{ name }} experiences downtime or performance shifts.",
             "how_it_works": "How it works",
             "instruction_1": "We monitor this API every few minutes.",
             "instruction_2": "If the status changes from OK to Down or Degraded, an alert is sent.",

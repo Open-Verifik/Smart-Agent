@@ -133,6 +133,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
                                     country: e.country,
                                     currentTranslation: '', // Will be set by updateTranslations
                                     baseCategory: e.baseCategory,
+                                    group: e.group,
                                     price: e.price,
                                 });
                             }
@@ -217,6 +218,10 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         this.featureCodes.forEach((f) => {
             if (f.baseCategory) {
                 cats.add(f.baseCategory);
+            }
+            // Add Biometrics category if it matches
+            if (['biometrics', 'faceRecognition', 'faceVerification'].includes(f.group)) {
+                cats.add('Biometrics');
             }
         });
         this.categories = Array.from(cats).sort();
@@ -441,9 +446,17 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // Category
         if (this.selectedCategory) {
-            data = data.filter(
-                (item) => item.subject.method.baseCategory === this.selectedCategory
-            );
+            if (this.selectedCategory === 'Biometrics') {
+                data = data.filter((item) =>
+                    ['biometrics', 'faceRecognition', 'faceVerification'].includes(
+                        item.subject.method.group
+                    )
+                );
+            } else {
+                data = data.filter(
+                    (item) => item.subject.method.baseCategory === this.selectedCategory
+                );
+            }
         }
 
         this.filteredData = data;
