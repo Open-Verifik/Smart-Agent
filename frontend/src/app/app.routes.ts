@@ -62,9 +62,9 @@ export const appRoutes: Route[] = [
                     import('app/modules/add-credits/add-credits.routes').then((m) => m.default),
             },
             {
-                path: 'status-check',
+                path: 'smart-monitor',
                 loadChildren: () =>
-                    import('app/modules/status-check/status-check.routes').then((m) => m.default),
+                    import('app/modules/smart-monitor/smart-monitor.routes').then((m) => m.default),
             },
         ],
     },

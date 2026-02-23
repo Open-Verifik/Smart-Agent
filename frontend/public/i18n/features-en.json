@@ -37,8 +37,8 @@
             "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
         },
         "colombia_api_judicial_process_details": {
-            "title": "Colombia - Data Verification Service",
-            "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+            "title": "Colombia - Judicial Process Details",
+            "description": "Get detailed information about judicial processes in Colombia. Includes status, history, and court details."
         },
         "colombia_api_vehicle_soat": {
             "title": "Colombia - Vehicle Verification",
@@ -421,8 +421,8 @@
             "description": "General data verification service for Canada. Provides reliable information verification and validation."
         },
         "ocr_scan_pro": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "OCR - Professional Scan",
+            "description": "Professional-grade OCR service for high-quality document scanning and processing. Optimized for studio-captured images and documents."
         },
         "el_salvador_api_identity_lookup": {
             "title": "El Salvador - Data Verification Service",
@@ -433,8 +433,8 @@
             "description": "General data verification service for Canada. Provides reliable information verification and validation."
         },
         "ocr_scan_gpt": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "OCR - GPT Vision Analysis",
+            "description": "Advanced document analysis using GPT-4o vision. Extracts structured data from any identity document or form."
         },
         "colombia_api_identity_lookup_extra": {
             "title": "Colombia - Complete Identity Verification",
@@ -445,8 +445,8 @@
             "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
         },
         "ocr_scan_studio": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "OCR - Studio Scanner",
+            "description": "High-fidelity document scanning optimized for professional studio environments and high-resolution captures."
         },
         "canada_api_company": {
             "title": "Canada - Data Verification Service",
@@ -461,36 +461,36 @@
             "description": "General data verification service for Mexico. Provides reliable information verification and validation."
         },
         "face_recognition_compare": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Compare Faces",
+            "description": "Biometric face comparison service. Compares two facial images to determine mapping score and identity match."
         },
         "face_recognition_compare_live": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Compare Live Faces",
+            "description": "Live face comparison with matching person records. Compares a live capture against indexed identities."
         },
         "face_recognition_liveness": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Liveness Detection",
+            "description": "Passive liveness detection to verify the presence of a real person using a single image."
         },
         "face_recognition_search_live_face": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Search Live Face",
+            "description": "Facial identification using a live camera feed. Searches for matching individuals in real-time."
         },
         "face_recognition_verify": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Face Verification",
+            "description": "Identity verification using face recognition. Compare two faces to determine if they belong to the same person."
         },
         "face_recognition_detect": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Face Detection",
+            "description": "Detect faces and facial features within an image. Extracts attributes like landmarks and head pose."
         },
         "face_recognition_search_crops": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Face Search (Crops)",
+            "description": "Search and identify individuals from cropped face images against a database."
         },
         "face_recognition_search": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Face Search",
+            "description": "Advanced face identification service. Search for matching individuals across indexed person records."
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Colombia - Data Verification Service",
@@ -565,8 +565,8 @@
             "description": "Standard vehicle verification service for Brazil. Verifies vehicle registration and basic information."
         },
         "face_recognition_search_active_user": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Active User Search",
+            "description": "Premium biometric search service for identifying active users with high accuracy and liveness validation."
         },
         "matpis_appointments": {
             "title": " - Data Verification Service",
@@ -709,12 +709,12 @@
             "description": "General data verification service for Peru. Provides reliable information verification and validation."
         },
         "face_recognition_detect_face": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Face Validation",
+            "description": "Basic face detection and validation service. Confirms the presence of a face and basic attributes."
         },
         "document-liveness": {
-            "title": " - Data Verification Service",
-            "description": "General data verification service for . Provides reliable information verification and validation."
+            "title": "Biometrics - Document Liveness Verification",
+            "description": "Verify the liveness of identity documents to prevent use of copies or digital screens."
         },
         "colombia_api_inpec": {
             "title": "Colombia - Data Verification Service",
@@ -739,6 +739,18 @@
         "zelf-proof-liveness-active-user": {
             "title": "Zelf Proof with Liveness (Active user)",
             "description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+        },
+        "biometrics_api_create_person": {
+            "title": "Biometrics - Create Person (no liveness)",
+            "description": "Create a new person record for identity management. Used for indexing and future face recognition search."
+        },
+        "biometrics_api_create_person_liveness": {
+            "title": "Biometrics - Create Person with Liveness Detection",
+            "description": "Create a new person record with integrated liveness detection. Ensures the user is physically present during enrollment."
+        },
+        "guatemala_api_identity_extra_lookup": {
+            "title": "Guatemala - Identity Extra Lookup",
+            "description": "Comprehensive identity verification for Guatemala citizens including additional data points."
         }
     },
     "smartBatchLanding": {
@@ -985,7 +997,6 @@
         "requestsFailed": "requests failed",
         "requestsSuccessful": "requests successful",
         "all": "All",
-        "status": "Status",
         "noResultsFound": "No results found"
     },
     "batchDashboard": {

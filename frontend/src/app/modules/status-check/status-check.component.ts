@@ -111,7 +111,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
     getFeatures(): void {
         this._statusCheckService
             .getAppFeatures({
-                where_group: 'apiRequest',
+                in_group: ['apiRequest', 'biometrics', 'faceRecognition'],
                 where_isAvailable: true,
                 wherenot_legacy: true,
                 sort: 'code',
@@ -217,11 +217,17 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         const cats = new Set<string>();
         this.featureCodes.forEach((f) => {
             if (f.baseCategory) {
-                cats.add(f.baseCategory);
+                cats.add(f.baseCategory.toLowerCase());
             }
-            // Add Biometrics category if it matches
-            if (['biometrics', 'faceRecognition', 'faceVerification'].includes(f.group)) {
-                cats.add('Biometrics');
+            // Add Biometrics category if it matches or is explicitly named biometrics
+            if (
+                ['biometrics', 'facerecognition', 'faceverification'].includes(
+                    f.group?.toLowerCase()
+                ) ||
+                f.baseCategory?.toLowerCase() === 'biometrics' ||
+                f.baseCategory?.toLowerCase() === 'faceverification'
+            ) {
+                cats.add('biometrics');
             }
         });
         this.categories = Array.from(cats).sort();
@@ -446,15 +452,20 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
 
         // Category
         if (this.selectedCategory) {
-            if (this.selectedCategory === 'Biometrics') {
-                data = data.filter((item) =>
-                    ['biometrics', 'faceRecognition', 'faceVerification'].includes(
-                        item.subject.method.group
-                    )
+            if (this.selectedCategory === 'biometrics') {
+                data = data.filter(
+                    (item) =>
+                        ['biometrics', 'facerecognition', 'faceverification'].includes(
+                            item.subject.method.group?.toLowerCase()
+                        ) ||
+                        item.subject.method.baseCategory?.toLowerCase() === 'biometrics' ||
+                        item.subject.method.baseCategory?.toLowerCase() === 'faceverification'
                 );
             } else {
                 data = data.filter(
-                    (item) => item.subject.method.baseCategory === this.selectedCategory
+                    (item) =>
+                        item.subject.method.baseCategory?.toLowerCase() ===
+                        this.selectedCategory.toLowerCase()
                 );
             }
         }

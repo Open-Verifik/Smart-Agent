@@ -37,8 +37,8 @@
             "description": "Business verification service 为 Peru. 提供 company registration details, legal status, and business information."
         },
         "colombia_api_judicial_process_details": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
+            "title": "哥伦比亚 - 司法程序细节",
+            "description": "获取有关哥伦比亚司法程序的详细信息。包括状态、历史记录和法院详情。"
         },
         "colombia_api_vehicle_soat": {
             "title": "Colombia - 车辆验证",
@@ -421,8 +421,8 @@
             "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
         },
         "ocr_scan_pro": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "OCR - 专业扫描",
+            "description": "专业级 OCR 服务，用于高质量文档扫描和处理。针对影棚拍摄的图像和文档进行了优化。"
         },
         "el_salvador_api_identity_lookup": {
             "title": "El Salvador - 数据验证服务",
@@ -433,8 +433,8 @@
             "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
         },
         "ocr_scan_gpt": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "OCR - GPT 视觉分析",
+            "description": "使用 GPT-4o 视觉技术进行高级文档分析。从任何身份文档或表格中提取结构化数据。"
         },
         "colombia_api_identity_lookup_extra": {
             "title": "Colombia - Complete 身份验证",
@@ -445,8 +445,8 @@
             "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
         },
         "ocr_scan_studio": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "OCR - 工作室扫描仪",
+            "description": "针对专业工作室环境和高分辨率捕获进行了优化的高保真文档扫描。"
         },
         "canada_api_company": {
             "title": "Canada - 数据验证服务",
@@ -461,36 +461,36 @@
             "description": "通用数据验证服务 为 Mexico. 提供可靠的信息验证和确认."
         },
         "face_recognition_compare": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 人脸对比",
+            "description": "生物识别面部比较服务。比较两张面部图像以确定映射分值和身份匹配度。"
         },
         "face_recognition_compare_live": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 活体人脸对比",
+            "description": "实时人脸与匹配的人员记录进行比较。将实时捕获的面部与索引身份进行比较。"
         },
         "face_recognition_liveness": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 活体检测",
+            "description": "被动活体检测，使用单张图像验证真人是否存在。"
         },
         "face_recognition_search_live_face": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 实时人脸搜索",
+            "description": "使用实时摄像头流进行面部识别。实时搜索匹配的个人。"
         },
         "face_recognition_verify": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 人脸验证",
+            "description": "使用面部识别进行身份验证。比较两张脸以确定它们是否属于同一个人。"
         },
         "face_recognition_detect": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 人脸检测",
+            "description": "检测图像中的人脸和面部特征。提取地标和头部姿势等属性。"
         },
         "face_recognition_search_crops": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 人脸搜索（裁剪图）",
+            "description": "根据面部裁剪图像在数据库中搜索并识别个人。"
         },
         "face_recognition_search": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 人脸搜索",
+            "description": "高级人脸搜索服务。在索引的人员记录中搜索匹配的个人。"
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Colombia - 数据验证服务",
@@ -565,8 +565,8 @@
             "description": "标准车辆验证服务 为 Brazil. 验证车辆登记和基本信息."
         },
         "face_recognition_search_active_user": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 活跃用户搜索",
+            "description": "高级生物识别搜索服务，以高精度和活体验证识别活跃用户。"
         },
         "matpis_appointments": {
             "title": " - 数据验证服务",
@@ -709,12 +709,12 @@
             "description": "通用数据验证服务 为 Peru. 提供可靠的信息验证和确认."
         },
         "face_recognition_detect_face": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 人脸验证",
+            "description": "基础人脸检测和验证服务。确认面部的存在和基础属性。"
         },
         "document-liveness": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "生物识别 - 证件活体验证",
+            "description": "验证身份文件的活体状态，以防止使用副本或数字屏幕。"
         },
         "colombia_api_inpec": {
             "title": "Colombia - 数据验证服务",
@@ -737,8 +737,20 @@
             "description": "Zelf Proofs service 为 identity verification and document validation. This service provides comprehensive proof generation capabilities 为 various identity documents and verification processes."
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof with Liveness (Active user)",
-            "description": "Zelf Proof with Liveness detection service 为 enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+            "title": "Zelf Proof 活体检测",
+            "description": "具有活体检测功能的 Zelf Proof 服务，用于增强身份验证。 该服务提供具有主动活体检测的证明生成，以确保人员在验证期间亲身在场。"
+        },
+        "biometrics_api_create_person": {
+            "title": "生物识别 - 创建人员（无活体检测）",
+            "description": "创建用于身份管理的新人员记录。用于索引和未来的面部识别搜索。"
+        },
+        "biometrics_api_create_person_liveness": {
+            "title": "生物识别 - 带活体检测的人员创建",
+            "description": "创建带有集成活体检测的新人员记录。确保用户在注册过程中亲身在场。"
+        },
+        "guatemala_api_identity_extra_lookup": {
+            "title": "危地马拉 - 身份额外查询",
+            "description": "针对危地马拉公民的全面身份验证，包括额外的数据点。"
         }
     },
     "smartBatchLanding": {
@@ -965,7 +977,6 @@
         "requestsFailed": "请求失败",
         "requestsSuccessful": "请求成功",
         "all": "全部",
-        "status": "状态",
         "noResultsFound": "未找到结果"
     },
     "batchDashboard": {

@@ -37,8 +37,8 @@
             "description": "Business verification service 를 위한 Peru. 제공 company registration details, legal status, and business information."
         },
         "colombia_api_judicial_process_details": {
-            "title": "Colombia - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 Colombia. 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "콜롬비아 - 사법 절차 세부 정보",
+            "description": "콜롬비아의 사법 절차에 대한 상세 정보를 가져옵니다. 상태, 기록 및 법원 세부 정보를 포함합니다."
         },
         "colombia_api_vehicle_soat": {
             "title": "Colombia - 차량 확인",
@@ -421,8 +421,8 @@
             "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
         },
         "ocr_scan_pro": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "OCR - 전문가용 스캔",
+            "description": "고품질 문서 스캔 및 처리를 위한 전문가급 OCR 서비스. 스튜디오에서 캡처한 이미지 및 문서에 최적화되었습니다."
         },
         "el_salvador_api_identity_lookup": {
             "title": "El Salvador - 데이터 검증 서비스",
@@ -433,8 +433,8 @@
             "description": "일반 데이터 검증 서비스 를 위한 Canada. 신뢰할 수 있는 정보 검증 및 확인 제공."
         },
         "ocr_scan_gpt": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "OCR - GPT 비전 분석",
+            "description": "GPT-4o 비전을 이용한 고급 문서 분석. 모든 신분증이나 양식에서 구조화된 데이터를 추출합니다."
         },
         "colombia_api_identity_lookup_extra": {
             "title": "Colombia - Complete 신원 확인",
@@ -445,8 +445,8 @@
             "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
         },
         "ocr_scan_studio": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "OCR - 스튜디오 스캐너",
+            "description": "전문 스튜디오 환경 및 고해상도 캡처에 최적화된 고충실도 문서 스캔."
         },
         "canada_api_company": {
             "title": "Canada - 데이터 검증 서비스",
@@ -461,36 +461,36 @@
             "description": "일반 데이터 검증 서비스 를 위한 Mexico. 신뢰할 수 있는 정보 검증 및 확인 제공."
         },
         "face_recognition_compare": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 얼굴 비교",
+            "description": "생체 인식 얼굴 비교 서비스. 두 얼굴 이미지를 비교하여 매핑 점수와 신원 일치 여부를 판단합니다."
         },
         "face_recognition_compare_live": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 실시간 얼굴 비교",
+            "description": "실제 얼굴과 일치하는 인물 기록을 비교합니다. 실시간 캡처된 얼굴을 색인된 신원과 비교합니다."
         },
         "face_recognition_liveness": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 라이브니스 감지",
+            "description": "단일 이미지를 사용하여 실제 사람이 존재하는지 확인하는 패시브 라이브니스 감지."
         },
         "face_recognition_search_live_face": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 실시간 얼굴 검색",
+            "description": "실시간 카메라 스트림을 이용한 얼굴 인식. 일치하는 개인을 실시간으로 검색합니다."
         },
         "face_recognition_verify": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 얼굴 인증",
+            "description": "얼굴 인식을 이용한 신원 확인. 두 얼굴을 비교하여 동일인인지 판단합니다."
         },
         "face_recognition_detect": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 얼굴 감지",
+            "description": "이미지 내 얼굴과 안면 특징을 감지합니다. 랜드마크, 머리 자세 등의 속성을 추출합니다."
         },
         "face_recognition_search_crops": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 얼굴 검색 (크롭)",
+            "description": "크롭된 얼굴 이미지를 바탕으로 데이터베이스에서 개인을 검색하고 식별합니다."
         },
         "face_recognition_search": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 얼굴 검색",
+            "description": "고급 얼굴 검색 서비스. 색인된 인물 기록에서 일치하는 개인을 검색합니다."
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Colombia - 데이터 검증 서비스",
@@ -565,8 +565,8 @@
             "description": "표준 차량 확인 서비스 를 위한 Brazil. 차량 등록 및 기본 정보 확인."
         },
         "face_recognition_search_active_user": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 활성 사용자 검색",
+            "description": "높은 정확도와 라이브니스 검증을 통해 활성 사용자를 식별하는 프리미엄 생체 인식 검색 서비스。"
         },
         "matpis_appointments": {
             "title": " - 데이터 검증 서비스",
@@ -709,12 +709,12 @@
             "description": "일반 데이터 검증 서비스 를 위한 Peru. 신뢰할 수 있는 정보 검증 및 확인 제공."
         },
         "face_recognition_detect_face": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 얼굴 검증",
+            "description": "기본 얼굴 감지 및 검증 서비스. 얼굴의 존재와 기본 속성을 확인합니다。"
         },
         "document-liveness": {
-            "title": " - 데이터 검증 서비스",
-            "description": "일반 데이터 검증 서비스 를 위한 . 신뢰할 수 있는 정보 검증 및 확인 제공."
+            "title": "생체 인식 - 문서 라이브니스 검증",
+            "description": "신분증의 라이브니스 상태를 검증하여 사본이나 디지털 화면 사용을 방지합니다。"
         },
         "colombia_api_inpec": {
             "title": "Colombia - 데이터 검증 서비스",
@@ -737,8 +737,20 @@
             "description": "Zelf Proofs service 를 위한 identity verification and document validation. This service provides comprehensive proof generation capabilities 를 위한 various identity documents and verification processes."
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof with Liveness (Active user)",
-            "description": "Zelf Proof with Liveness detection service 를 위한 enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+            "title": "활성 감지 포함 Zelf Proof",
+            "description": "강화된 신원 확인을 위한 활성 감지 기능이 포함된 Zelf Proof 서비스입니다. 이 서비스는 확인 중에 사람이 실제로 있는지 확인하기 위해 능동적인 활성 감지 기능을 갖춘 증명 생성을 제공합니다."
+        },
+        "biometrics_api_create_person": {
+            "title": "생체 인식 - 사람 생성 (활성 감지 없음)",
+            "description": "신원 관리를위한 새로운 사람 기록을 작성하십시오. 인덱싱 및 향후 얼굴 인식 검색에 사용됩니다."
+        },
+        "biometrics_api_create_person_liveness": {
+            "title": "생체 인식 - 활성 감지 포함 사람 생성",
+            "description": "통합 활성 감지 기능으로 새로운 사람 기록을 작성하십시오. 등록하는 동안 사용자가 실제로 있는지 확인합니다."
+        },
+        "guatemala_api_identity_extra_lookup": {
+            "title": "과테말라 - 추가 신원 조회",
+            "description": "추가 데이터 포인트를 포함한 과테말라 시민을 위한 포괄적 신원 확인."
         }
     },
     "smartBatchLanding": {
@@ -965,7 +977,6 @@
         "requestsFailed": "요청 실패",
         "requestsSuccessful": "요청 성공",
         "all": "전체",
-        "status": "상태",
         "noResultsFound": "결과를 찾을 수 없습니다"
     },
     "batchDashboard": {

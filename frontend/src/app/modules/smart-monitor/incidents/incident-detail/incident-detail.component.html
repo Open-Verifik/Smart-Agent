@@ -1,0 +1,191 @@
+<div class="flex flex-col flex-auto min-w-0 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="flex flex-col w-full max-w-3xl mx-auto p-6 md:p-8">
+        <!-- Back button -->
+        <div class="mb-6">
+            <button
+                mat-button
+                (click)="goBack()"
+                class="-ml-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
+            >
+                <mat-icon class="icon-size-4 mr-1">arrow_back</mat-icon>
+                Back to Incidents
+            </button>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="flex flex-auto justify-center items-center py-24">
+            <mat-spinner diameter="56"></mat-spinner>
+        </div>
+
+        <!-- Not Found -->
+        <div
+            *ngIf="!loading && !incident"
+            class="flex flex-col items-center justify-center py-24 text-center"
+        >
+            <mat-icon class="icon-size-16 text-gray-300 dark:text-gray-600 mb-4"
+                >search_off</mat-icon
+            >
+            <p class="text-lg font-medium text-gray-600 dark:text-gray-400">Incident not found</p>
+        </div>
+
+        <!-- Incident Detail -->
+        <ng-container *ngIf="!loading && incident">
+            <!-- Incident Header Card -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden mb-8"
+            >
+                <div class="p-6 border-b border-gray-100 dark:border-gray-700/50">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="min-w-0">
+                            <h2
+                                class="text-xl font-bold text-gray-900 dark:text-white leading-tight"
+                            >
+                                {{ getServiceName() }}
+                            </h2>
+                            <p class="text-sm text-gray-400 font-mono mt-0.5">
+                                {{ incident.code }}
+                            </p>
+                        </div>
+                        <span
+                            class="flex-shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-semibold"
+                            [ngClass]="getStatusCfg(incident.status).classes"
+                        >
+                            <span
+                                class="w-2 h-2 rounded-full"
+                                [ngClass]="getStatusCfg(incident.status).dotClass"
+                            ></span>
+                            {{ getStatusCfg(incident.status).label }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Metadata grid -->
+                <div
+                    class="grid grid-cols-2 sm:grid-cols-3 gap-0 divide-x divide-y divide-gray-100 dark:divide-gray-700/50"
+                >
+                    <div class="px-5 py-4 flex flex-col gap-0.5">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-400"
+                            >Started</span
+                        >
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{
+                            formatDate(incident.startDate)
+                        }}</span>
+                    </div>
+                    <div class="px-5 py-4 flex flex-col gap-0.5">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-400"
+                            >Duration</span
+                        >
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{
+                            formatDuration(incident.duration)
+                        }}</span>
+                    </div>
+                    <div *ngIf="incident.endDate" class="px-5 py-4 flex flex-col gap-0.5">
+                        <span class="text-xs font-semibold uppercase tracking-wide text-gray-400"
+                            >Resolved</span
+                        >
+                        <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{
+                            formatDate(incident.endDate)
+                        }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Section -->
+            <div class="mb-4">
+                <h3
+                    class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-5 flex items-center gap-2"
+                >
+                    <mat-icon class="icon-size-5 text-gray-400">timeline</mat-icon>
+                    Incident Log
+                    <span
+                        class="ml-2 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full"
+                    >
+                        {{ logs.length }} update{{ logs.length !== 1 ? 's' : '' }}
+                    </span>
+                </h3>
+
+                <!-- No logs -->
+                <div
+                    *ngIf="logs.length === 0"
+                    class="flex flex-col items-center justify-center py-12 text-center bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700"
+                >
+                    <mat-icon class="icon-size-12 text-gray-300 dark:text-gray-600 mb-3"
+                        >article</mat-icon
+                    >
+                    <p class="text-gray-500 dark:text-gray-400">
+                        No public updates yet for this incident.
+                    </p>
+                    <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">
+                        Our team is actively investigating. Stay tuned.
+                    </p>
+                </div>
+
+                <!-- Timeline entries -->
+                <div *ngIf="logs.length > 0" class="relative flex flex-col gap-0">
+                    <ng-container *ngFor="let log of logs; let i = index; let last = last">
+                        <div class="flex gap-4">
+                            <!-- Left rail: icon + connector -->
+                            <div class="flex flex-col items-center flex-shrink-0">
+                                <!-- Icon circle -->
+                                <div
+                                    class="flex items-center justify-center w-8 h-8 rounded-full border-2 z-10"
+                                    [ngClass]="getCategoryCfg(log.category).classes"
+                                >
+                                    <mat-icon class="icon-size-4">{{
+                                        getCategoryCfg(log.category).icon
+                                    }}</mat-icon>
+                                </div>
+                                <!-- Connector line -->
+                                <div
+                                    *ngIf="!last"
+                                    class="timeline-connector w-0.5 flex-auto my-1 min-h-[1.5rem]"
+                                    [ngClass]="getCategoryCfg(log.category).connectorClass"
+                                ></div>
+                            </div>
+
+                            <!-- Content -->
+                            <div class="flex-auto pb-6" [class.pb-0]="last">
+                                <!-- Category badge + timestamp -->
+                                <div class="flex flex-wrap items-center gap-2 mb-2">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border"
+                                        [ngClass]="getCategoryCfg(log.category).classes"
+                                    >
+                                        {{ getCategoryCfg(log.category).label }}
+                                    </span>
+                                    <span
+                                        class="text-xs text-gray-400 dark:text-gray-500"
+                                        [matTooltip]="formatDate(log.createdAt)"
+                                    >
+                                        {{ formatRelative(log.createdAt) }}
+                                    </span>
+                                </div>
+
+                                <!-- Public log message -->
+                                <div
+                                    class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 px-4 py-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed"
+                                >
+                                    <p *ngIf="log.publicLog" class="whitespace-pre-wrap">
+                                        {{ log.publicLog }}
+                                    </p>
+                                    <p
+                                        *ngIf="!log.publicLog && log.automaticMessage"
+                                        class="text-gray-400 italic text-xs"
+                                    >
+                                        Automatic system update
+                                    </p>
+                                    <p
+                                        *ngIf="!log.publicLog && !log.automaticMessage"
+                                        class="text-gray-400 italic text-xs"
+                                    >
+                                        No details provided.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>

@@ -1,0 +1,151 @@
+<div class="flex flex-col flex-auto min-w-0 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div class="flex flex-col w-full max-w-5xl mx-auto p-6 md:p-8">
+        <!-- Header -->
+        <div class="flex flex-col py-6 mb-8 border-b border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-3 mb-1">
+                <div
+                    class="flex items-center justify-center w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30"
+                >
+                    <mat-icon class="text-red-600 dark:text-red-400 icon-size-5"
+                        >warning_amber</mat-icon
+                    >
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        Active Incidents
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Services you're subscribed to that are currently experiencing issues
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="flex flex-auto justify-center items-center py-24">
+            <mat-spinner diameter="56"></mat-spinner>
+        </div>
+
+        <!-- All-Clear Empty State (subscribed but no active incidents) -->
+        <div
+            *ngIf="!loading && subscriptions.length > 0 && incidents.length === 0"
+            class="flex flex-col items-center justify-center py-24 text-center"
+        >
+            <div
+                class="flex items-center justify-center w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 mb-5"
+            >
+                <mat-icon class="icon-size-10 text-green-500">check_circle</mat-icon>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">
+                All systems operational
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 max-w-sm">
+                No active incidents detected for your subscribed services. Everything is running
+                smoothly.
+            </p>
+        </div>
+
+        <!-- No Subscriptions Empty State -->
+        <div
+            *ngIf="!loading && subscriptions.length === 0"
+            class="flex flex-col items-center justify-center py-24 text-center"
+        >
+            <div
+                class="flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-5"
+            >
+                <mat-icon class="icon-size-10 text-gray-400">notifications_off</mat-icon>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">
+                No subscriptions yet
+            </h3>
+            <p class="text-gray-500 dark:text-gray-400 max-w-sm">
+                Subscribe to services in Status Check to receive incident alerts and see them here.
+            </p>
+            <button
+                mat-stroked-button
+                class="mt-6"
+                (click)="openDetail({ _id: null })"
+                routerLink="/smart-monitor/status-check"
+            >
+                Go to Status Check
+            </button>
+        </div>
+
+        <!-- Incidents List -->
+        <div *ngIf="!loading && incidents.length > 0" class="flex flex-col gap-4">
+            <!-- Summary banner -->
+            <div
+                class="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400"
+            >
+                <mat-icon class="icon-size-4 flex-shrink-0">error_outline</mat-icon>
+                <span class="text-sm font-medium">
+                    {{ incidents.length }} active incident{{ incidents.length > 1 ? 's' : '' }}
+                    affecting your subscribed services
+                </span>
+            </div>
+
+            <!-- Incident Cards -->
+            <div
+                *ngFor="let incident of incidents"
+                class="incident-card flex flex-col bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer"
+                (click)="openDetail(incident)"
+            >
+                <!-- Card Header -->
+                <div
+                    class="flex items-start justify-between p-5 border-b border-gray-100 dark:border-gray-700/50"
+                >
+                    <div class="flex items-start gap-4 min-w-0">
+                        <!-- Status dot -->
+                        <div class="flex-shrink-0 pt-1">
+                            <span
+                                class="inline-block w-3 h-3 rounded-full"
+                                [ngClass]="getStatusCfg(incident.status).dotClass"
+                            ></span>
+                        </div>
+
+                        <div class="min-w-0">
+                            <h3
+                                class="text-base font-semibold text-gray-900 dark:text-white leading-tight"
+                            >
+                                {{ getServiceName(incident) }}
+                            </h3>
+                            <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-mono">
+                                {{ incident.code }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Status Badge -->
+                    <span
+                        class="ml-4 flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                        [ngClass]="getStatusCfg(incident.status).classes"
+                    >
+                        {{ getStatusCfg(incident.status).label }}
+                    </span>
+                </div>
+
+                <!-- Card Footer -->
+                <div
+                    class="flex items-center justify-between px-5 py-3 bg-gray-50/50 dark:bg-gray-800/30"
+                >
+                    <div class="flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center gap-1.5">
+                            <mat-icon class="icon-size-3.5">schedule</mat-icon>
+                            <span>Started {{ formatDate(incident.startDate) }}</span>
+                        </div>
+                        <div *ngIf="incident.duration" class="flex items-center gap-1.5">
+                            <mat-icon class="icon-size-3.5">timelapse</mat-icon>
+                            <span>{{ formatDuration(incident.duration) }}</span>
+                        </div>
+                    </div>
+                    <div
+                        class="flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400"
+                    >
+                        View logs
+                        <mat-icon class="icon-size-3.5">arrow_forward</mat-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
