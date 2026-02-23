@@ -37,8 +37,8 @@
             "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
         },
         "colombia_api_judicial_process_details": {
-            "title": "Colombia - データ検証サービス",
-            "description": "一般的なデータ検証サービス のColombia. 信頼性の高い情報検証と確認を提供."
+            "title": "コロンビア - 司法手続きの詳細",
+            "description": "コロンビアの司法手続きに関する詳細情報を取得します。ステータス、履歴、裁判所の詳細を含みます。"
         },
         "colombia_api_vehicle_soat": {
             "title": "Colombia - 車両確認",
@@ -421,8 +421,8 @@
             "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
         },
         "ocr_scan_pro": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "OCR - プロフェッショナルスキャン",
+            "description": "高品質なドキュメントスキャンと処理のためのプロフェッショナルグレードのOCRサービス。スタジオで撮影された画像やドキュメントに最適化されています。"
         },
         "el_salvador_api_identity_lookup": {
             "title": "El Salvador - データ検証サービス",
@@ -433,8 +433,8 @@
             "description": "一般的なデータ検証サービス のCanada. 信頼性の高い情報検証と確認を提供."
         },
         "ocr_scan_gpt": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "OCR - GPTビジョン分析",
+            "description": "GPT-4oビジョンを使用した高度なドキュメント分析。あらゆる身分証明書やフォームから構造化データを抽出します。"
         },
         "colombia_api_identity_lookup_extra": {
             "title": "Colombia - Complete 本人確認",
@@ -445,8 +445,8 @@
             "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
         },
         "ocr_scan_studio": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "OCR - スタジオスキャナー",
+            "description": "プロフェッショナルなスタジオ環境や高解像度キャプチャに最適化された、高忠実度のドキュメントスキャン。"
         },
         "canada_api_company": {
             "title": "Canada - データ検証サービス",
@@ -461,36 +461,36 @@
             "description": "一般的なデータ検証サービス のMexico. 信頼性の高い情報検証と確認を提供."
         },
         "face_recognition_compare": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - 顔比較",
+            "description": "生体認証による顔比較サービス。2つの顔画像を比較して、マッピングスコアとアイデンティティの一致度を判断します。"
         },
         "face_recognition_compare_live": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - ライブ顔比較",
+            "description": "ライブの顔と一致する人物記録を比較します。ライブキャプチャをインデックス化されたアイデンティティと比較します。"
         },
         "face_recognition_liveness": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - ライフネス検出",
+            "description": "単一の画像を使用して、実在の人物が存在することを確認するパッシブライフネス検出。"
         },
         "face_recognition_search_live_face": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - ライブ顔検索",
+            "description": "ライブカメラフィードを使用した顔識別。一致する個人をリアルタイムで検索します。"
         },
         "face_recognition_verify": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - 顔検証",
+            "description": "顔認識を使用した本人確認。2つの顔を比較して、同一人物のものであるかどうかを判断します。"
         },
         "face_recognition_detect": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - 顔検出",
+            "description": "画像内の顔と顔の特徴を検出します。ランドマークや頭部のポーズなどの属性を抽出します。"
         },
         "face_recognition_search_crops": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - 顔検索（クロップ）",
+            "description": "クロップされた顔画像からデータベースと照合して個人を検索および特定します。"
         },
         "face_recognition_search": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - 顔検索",
+            "description": "高度な顔検索サービス。インデックス化された人物記録から一致する個人を検索します。"
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Colombia - データ検証サービス",
@@ -565,8 +565,8 @@
             "description": "標準的な車両確認サービス のBrazil. 車両登録と基本情報を検証."
         },
         "face_recognition_search_active_user": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - アクティブユーザー検索",
+            "description": "高い精度とライフネス検証でアクティブユーザーを識別するプレミアムな生体認証検索サービス。"
         },
         "matpis_appointments": {
             "title": " - データ検証サービス",
@@ -709,12 +709,12 @@
             "description": "一般的なデータ検証サービス のPeru. 信頼性の高い情報検証と確認を提供."
         },
         "face_recognition_detect_face": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - 顔バリデーション",
+            "description": "基本的な顔検出およびバリデーションサービス。顔の存在と基本属性を確認します。"
         },
         "document-liveness": {
-            "title": " - データ検証サービス",
-            "description": "一般的なデータ検証サービス の. 信頼性の高い情報検証と確認を提供."
+            "title": "生体認証 - ドキュメントライフネス検証",
+            "description": "身分証明書のライフネスを検証し、コピーやデジタル画面の使用を防止します。"
         },
         "colombia_api_inpec": {
             "title": "Colombia - データ検証サービス",
@@ -737,8 +737,20 @@
             "description": "Zelf Proofs service のidentity verification and document validation. This service provides comprehensive proof generation capabilities のvarious identity documents and verification processes."
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof with Liveness (Active user)",
-            "description": "Zelf Proof with Liveness detection service のenhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+            "title": "生体検知付き Zelf Proof",
+            "description": "強化された本人確認のための生体検知機能付き Zelf Proof サービス。 このサービスは、本人が確認時に物理的に存在することを保証するために、アクティブな生体検知による証明生成を提供します。"
+        },
+        "biometrics_api_create_person": {
+            "title": "生体認証 - 人物の作成（生体検知なし）",
+            "description": "身元管理のための新しい人物レコードを作成します。インデックス作成と将来の顔認証検索に使用されます。"
+        },
+        "biometrics_api_create_person_liveness": {
+            "title": "生体認証 - 生体検知付き人物의 작성",
+            "description": "統合された生体検知を使用して、新しい人物レコードを作成します。登録中にユーザーが物理的に存在することを保証します。"
+        },
+        "guatemala_api_identity_extra_lookup": {
+            "title": "グアテマラ - 身元追加検索",
+            "description": "追加のデータポイントを含む、グアテマラ市民向けの包括的な身元確認。"
         }
     },
     "smartBatchLanding": {
@@ -965,7 +977,6 @@
         "requestsFailed": "リクエスト失敗",
         "requestsSuccessful": "リクエスト成功",
         "all": "すべて",
-        "status": "ステータス",
         "noResultsFound": "結果が見つかりません"
     },
     "batchDashboard": {
