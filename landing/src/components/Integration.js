@@ -167,7 +167,7 @@ export const renderIntegration = () => {
                         Our agent swarm processes records in parallel, cleaning your database and 
  enriching it with verified official government data overnight.
                     </p>
-                    <a href="#" class="text-link">Start a Batch Job -></a>
+                    <a href="https://x402-agent.verifik.co" target="_blank" rel="noopener noreferrer" class="text-link">Start a Batch Job -></a>
                 </div>
             </div>
         </div>

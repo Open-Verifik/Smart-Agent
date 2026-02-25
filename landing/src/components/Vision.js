@@ -2,7 +2,7 @@ export const renderVision = () => {
     return `
     <section id="vision" class="vision-section" aria-labelledby="vision-heading">
         <div class="vision-header">
-            <span class="section-label" style="color: #71717a">WHY IT MATTERS</span>
+            <span class="section-label" style="color: #71717a">THE PROBLEM</span>
             <h2 id="vision-heading">The agent economy runs on trust.</h2>
         </div>
 

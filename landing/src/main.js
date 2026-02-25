@@ -16,13 +16,14 @@ import { renderFooter } from "./components/Footer.js";
 import { initGateway, renderGateway } from "./components/Gateway.js";
 import { renderHero } from "./components/Hero.js";
 import { initIntegration, renderIntegration } from "./components/Integration.js";
-import { renderNavbar } from "./components/Navbar.js";
+import { initNavbar, renderNavbar } from "./components/Navbar.js";
 import { renderRoadmap } from "./components/Roadmap.js";
 import { renderVision } from "./components/Vision.js";
 import { renderWhyAvalanche } from "./components/WhyAvalanche.js";
 
 // Inject HTML
 document.getElementById("navbar-container").innerHTML = renderNavbar();
+initNavbar();
 document.getElementById("hero-container").innerHTML = renderHero();
 document.getElementById("customers-container").innerHTML = renderCustomers();
 document.getElementById("vision-container").innerHTML = renderVision();

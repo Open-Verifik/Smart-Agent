@@ -135,6 +135,62 @@ export const renderCapabilities = () => {
                     </div>
                 </div>
             </div>
+
+            <!-- 5. AGENT IDENTITY (ERC-8004) -->
+            <div class="feature-highlight">
+                <div class="feature-content">
+                    <h3>Agent Identity (ERC-8004)</h3>
+                    <p>
+                        Every AI agent gets an on-chain identity linked to a verified human or company. Reputation, validation history, and trust scores -- all immutable on Avalanche.
+                    </p>
+                    <a href="https://docs.verifik.co/intro" target="_blank" class="docs-link">
+                        Learn about ERC-8004 ↗
+                    </a>
+                </div>
+                <div class="marquee-container">
+                    <div class="marquee-track reverse">
+                        <div class="country-pill">🤖 Agent NFT</div>
+                        <div class="country-pill">👤 Human Link</div>
+                        <div class="country-pill">⭐ Reputation</div>
+                        <div class="country-pill">🔐 Validation</div>
+                        <div class="country-pill">📜 Agent Card</div>
+                        <!-- DUP -->
+                        <div class="country-pill">🤖 Agent NFT</div>
+                        <div class="country-pill">👤 Human Link</div>
+                        <div class="country-pill">⭐ Reputation</div>
+                        <div class="country-pill">🔐 Validation</div>
+                        <div class="country-pill">📜 Agent Card</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. T-REX PROTOCOL (ERC-3643) -->
+            <div class="feature-highlight">
+                <div class="feature-content">
+                    <h3>T-REX Protocol (ERC-3643)</h3>
+                    <p>
+                        Permissioned tokens for the agentic economy. Only verified agents can hold, transfer, or interact with regulated digital assets. Compliance built into every transaction.
+                    </p>
+                    <a href="https://docs.verifik.co/intro" target="_blank" class="docs-link">
+                        Explore T-REX ↗
+                    </a>
+                </div>
+                <div class="marquee-container">
+                    <div class="marquee-track slow">
+                        <div class="country-pill">🔒 Permissioned</div>
+                        <div class="country-pill">📋 Compliant</div>
+                        <div class="country-pill">🏛️ Regulated</div>
+                        <div class="country-pill">🌐 Cross-Chain</div>
+                        <div class="country-pill">⚡ On-Chain KYC</div>
+                        <!-- DUP -->
+                        <div class="country-pill">🔒 Permissioned</div>
+                        <div class="country-pill">📋 Compliant</div>
+                        <div class="country-pill">🏛️ Regulated</div>
+                        <div class="country-pill">🌐 Cross-Chain</div>
+                        <div class="country-pill">⚡ On-Chain KYC</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
     `;

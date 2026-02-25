@@ -18,6 +18,12 @@ export const renderCustomers = () => {
                     <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/jardines-del-renacer.png" alt="Jardines del Renacer - Logo" /></li>
                     <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/juztp.png" alt="Juzto - Logo" /></li>
                     <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/Supre.png" alt="Supre - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/lexin.png" alt="Lexin - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/webdox.png" alt="Webdox - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/didit.png" alt="Didit - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/idmerit.png" alt="IDMerit - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/blue-dot.png" alt="BlueDot - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/green-star.png" alt="GreenStar - Logo" /></li>
                 </ul>
             </div>
             <!-- Duplicated for infinite scroll illusion -->
@@ -33,6 +39,12 @@ export const renderCustomers = () => {
                     <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/jardines-del-renacer.png" alt="Jardines del Renacer - Logo" /></li>
                     <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/juztp.png" alt="Juzto - Logo" /></li>
                     <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/Supre.png" alt="Supre - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/lexin.png" alt="Lexin - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/webdox.png" alt="Webdox - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/didit.png" alt="Didit - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/idmerit.png" alt="IDMerit - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/blue-dot.png" alt="BlueDot - Logo" /></li>
+                    <li><img width="300" height="300" decoding="async" loading="lazy" src="/customers/green-star.png" alt="GreenStar - Logo" /></li>
                 </ul>
             </div>
         </article>

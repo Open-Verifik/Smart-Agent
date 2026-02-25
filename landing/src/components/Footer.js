@@ -53,7 +53,7 @@ export const renderFooter = () => {
         </div>
 
         <div class="footer-bottom">
-            <div class="copyright">© 2025 Verifik. All rights reserved.</div>
+            <div class="copyright">© 2026 Verifik. All rights reserved.</div>
             <div class="social-links">
                 <a href="https://www.linkedin.com/company/verifik-co/" target="_blank" rel="noopener noreferrer">
                     <img class="social-icon" src="/icons/linkedin.svg" alt="LinkedIn" width="24" height="24" loading="lazy" decoding="async" />

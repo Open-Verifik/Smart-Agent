@@ -1,0 +1,201 @@
+# Verifik x402 — The Trust Layer for AI Agents
+
+> Verifik is a trust layer that verifies the humans and companies behind autonomous AI agents using 100+ official government database integrations across 20+ countries, powered by x402 payments on Avalanche.
+
+## Overview
+
+Verifik provides government-grade identity verification as a service. AI agents and developers can verify people, companies, vehicles, criminal records, and sanctions lists in real-time. Payments are handled via the x402 protocol (HTTP 402 Payment Required) on the Avalanche C-Chain, enabling pay-per-verification with AVAX — no API keys or credit cards needed.
+
+### Mission
+
+Build the compliance and identity layer the autonomous agent economy needs. Every AI agent should have a verifiable on-chain identity linked to a real human or company.
+
+### Key Stats
+
+- 23M+ identities verified
+- 45 enterprise clients
+- 14+ official government database sources
+- 100+ verification endpoints
+- 20+ countries covered
+- <1s average response time
+- $0.02 average verification cost via x402
+- Live on Avalanche C-Chain (Mainnet)
+
+## Products
+
+### smartCHECK
+Real-time identity and data verification via API. Validate people, companies, vehicles, voting records, health registries, lawyers, drivers, and more across 20+ countries in the Americas and beyond.
+
+### smartBATCH
+Bulk verification processing. Upload CSV or Excel files with millions of records. Our system processes them in parallel, enriching and validating each row against official government databases.
+
+### smartENROLL
+KYC (Know Your Customer) and KYB (Know Your Business) onboarding. Combines document verification, biometric validation (face recognition + liveness detection), and data validation against government registries.
+
+### smartACCESS
+Passwordless authentication and login. OTP-based verification via SMS, WhatsApp, or email for frictionless user access.
+
+## x402 Payment Protocol
+
+x402 enables pay-per-request API access using cryptocurrency. Instead of API keys and credit systems, agents pay per verification on-chain.
+
+### How It Works
+
+1. Agent sends a verification request to the Verifik gateway
+2. Gateway responds with HTTP 402 Payment Required, including price and payment address
+3. Agent sends AVAX payment to the VerifikPayment smart contract
+4. Agent resubmits the request with the transaction hash in the `x-payment-tx` header
+5. Gateway validates the payment on-chain (recipient, amount, replay protection)
+6. Verified data is returned to the agent
+
+### Payment Details
+
+- Currency: AVAX (native) or VKA token (ERC-20, 1:1 USD equivalent)
+- Network: Avalanche C-Chain (Chain ID: 43114)
+- Average cost: ~0.02 AVAX per verification
+- Finality: <1 second
+
+## ERC-8004 Agent Standard
+
+On-chain identity, reputation, and validation registries for autonomous agents. Three smart contracts deployed on Avalanche Mainnet:
+
+### Identity Registry (ERC-721)
+Each agent receives a unique NFT representing its on-chain identity, with metadata including name, capabilities, and Agent Card URI.
+- Contract: `0xbcab451d6FEdc98f486E12e479287E3B67cbF9A1`
+
+### Reputation Registry
+On-chain feedback and ratings system. Ratings (1-5 scale) are linked to payment proofs, preventing fake reviews.
+- Contract: `0x310247955605c357628F51e94b3E5A20225C71a4`
+
+### Validation Registry
+Stores validation proofs for completed tasks. Supports multiple validation types (re-execution, ZK proofs, consensus, oracle).
+- Contract: `0xAfCb9b9bEAe7395Af6920bbA597d9602995660c5`
+
+### Payment Contract
+Accepts AVAX payments for x402 verification requests.
+- Contract: `0x5e3C7c44e5d76fa5517378582B824046cBDcFfCD`
+
+## API Endpoints
+
+All endpoints follow the pattern: `GET /v2/{country-code}/{service}`
+
+### Countries & Services
+
+#### Colombia (CO) — 57+ endpoints
+- `/v2/co/cedula` — National ID verification
+- `/v2/co/cedula/completo` — Complete citizen information
+- `/v2/co/company/dian` — Tax information (DIAN)
+- `/v2/co/company/rues` — Business registry (RUES)
+- `/v2/co/runt/propietarios` — Vehicle owners
+- `/v2/co/runt/vehiculo` — Vehicle details
+- `/v2/co/policia/consultar` — Police records
+- `/v2/co/rama/proceso` — Judicial processes
+- `/v2/co/afiliaciones` — Social security
+- `/v2/co/cedula/rethus` — Health records
+- `/v2/co/situacion-militar` — Military service
+- And 46+ more endpoints
+
+#### Mexico (MX)
+- `/v2/mx/curp` — CURP identity verification
+- `/v2/mx/company` — Business verification
+- `/v2/mx/vehicle` — Vehicle verification
+
+#### Peru (PE)
+- `/v2/pe/cedula` — DNI verification
+- `/v2/pe/company` — Business verification (SUNAT)
+- `/v2/pe/vehicle` — Vehicle verification
+
+#### Brazil (BR)
+- `/v2/br/cedula` — CPF verification
+- `/v2/br/empresa` — Business verification (CNPJ)
+- `/v2/br/vehicle` — Vehicle verification
+
+#### Chile (CL)
+- `/v2/cl/cedula` — RUN verification
+- `/v2/cl/company` — Business verification
+- `/v2/cl/vehicle` — Vehicle verification
+- `/v2/cl/driver-license` — Driver license
+
+#### United States (US)
+- `/v2/us/ssn` — SSN verification
+- `/v2/us/company` — Business verification
+- `/v2/us/vehicle` — Vehicle verification
+- `/v2/us/driver-license` — Driver license
+
+#### Argentina (AR)
+- `/v2/ar/cedula` — DNI verification
+- `/v2/ar/vehicle` — Vehicle verification
+- `/v2/ar/company` — Business verification
+
+#### Ecuador (EC), Costa Rica (CR), Panama (PA), Paraguay (PY), Bolivia (BO), Uruguay (UY), Venezuela (VE), El Salvador (SV), Guatemala (GT), Honduras (HN), Dominican Republic (DO), Canada (CA), Spain (ES)
+- Identity, vehicle, and company verification endpoints available per country.
+
+#### Global (World)
+- `/v2/world/ofac` — OFAC sanctions list
+- `/v2/world/interpol` — Interpol red notices
+- `/v2/world/fbi` — FBI most wanted
+- `/v2/world/dea` — DEA fugitives
+- `/v2/world/europol` — Europol most wanted
+- `/v2/world/un` — UN sanctions
+
+## Authentication
+
+### Method 1: JWT Token (Traditional)
+Standard Bearer token authentication for enterprise clients with credit-based billing.
+```
+Authorization: Bearer <jwt-token>
+```
+
+### Method 2: x402 Payment (Crypto-Native)
+Pay-per-request via AVAX on Avalanche. No API keys needed.
+```
+x-payment-tx: <transaction-hash>
+```
+
+## Pricing
+
+### Credit-Based (Traditional)
+- Credits are prepaid and deducted per verification
+- Price varies by endpoint (1-50 credits per check)
+- Enterprise plans with volume discounts
+
+### x402 (Crypto)
+- Pay-per-verification in AVAX
+- Average cost: ~$0.02 per check
+- No minimum commitment or subscription required
+
+## T-REX Protocol (ERC-3643) — Vision
+
+Permissioned tokens for the agentic economy. Integration with the T-REX standard (ERC-3643) will enable:
+
+- Only verified agents can hold, transfer, or interact with regulated digital assets
+- Compliance checks triggered automatically on token transfers
+- On-chain KYC/AML verification as a prerequisite for token operations
+- Sovereign identity layer for regulated DeFi
+
+## Architecture
+
+```
+AI Agent → x402 Gateway → Avalanche C-Chain → Verifik API → Government Databases
+                ↓                    ↓
+        Payment Verification    ERC-8004 Registry
+                                     ↓
+                              Identity + Reputation
+```
+
+## Links
+
+- Landing Page: https://x402-agent.verifik.co
+- Smart Agent Chat: https://x402-agent.verifik.co/chat
+- API Explorer: https://x402-agent.verifik.co/postman
+- Documentation: https://docs.verifik.co
+- Agent Card: https://x402-agent.verifik.co/agent-card.json
+- Main Website: https://verifik.co
+- Snowtrace (Contracts): https://snowtrace.io
+
+## Contact
+
+- Company: Verifik Inc.
+- Address: 30 N Gould St Ste 30338, Sheridan, WY 82801
+- LinkedIn: https://www.linkedin.com/company/verifik-co/
+- Email: Contact via https://verifik.co/en/book-meeting
