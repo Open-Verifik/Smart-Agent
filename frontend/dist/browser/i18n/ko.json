@@ -15,7 +15,10 @@
         "add_credits": "크레딧 추가",
         "purchase_credits": "추가 크레딧 구매",
         "status_check": "상태 확인",
-        "system_health": "시스템 상태 및 가용성"
+        "system_health": "시스템 상태 및 가용성",
+        "smart_monitor": "SmartMonitor",
+        "incidents": "사고",
+        "active_incidents": "활성 서비스 사고"
     },
     "network": {
         "title": "상태 확인",
@@ -54,6 +57,38 @@
             "error_create": "구독 생성 중 오류 발생",
             "error_delete": "구독 삭제 중 오류 발생"
         }
+    },
+    "smartMonitor": {
+        "activeIncidents": "활성 사고",
+        "incidentsSubtitle": "현재 문제가 발생한 구독 중인 서비스",
+        "allSystemsOperational": "모든 시스템이 정상 작동 중입니다",
+        "allSystemsDesc": "구독 중인 서비스에서 활성 사고가 감지되지 않았습니다. 모든 것이 원활하게 작동하고 있습니다.",
+        "noSubscriptionsYet": "아직 구독이 없습니다",
+        "noSubscriptionsDesc": "상태 확인에서 서비스를 구독하여 사고 알림을 받고 여기에서 확인하세요.",
+        "goToStatusCheck": "상태 확인으로 이동",
+        "activeIncidentsCount": "구독 중인 서비스에 영향을 미치는 {{count}}개의 활성 사고",
+        "viewLogs": "로그 보기",
+        "started": "시작됨",
+        "unknownService": "알 수 없는 서비스",
+        "backToIncidents": "사고로 돌아가기",
+        "incidentNotFound": "사고를 찾을 수 없습니다",
+        "duration": "지속 시간",
+        "resolved": "해결됨",
+        "incidentLog": "사고 로그",
+        "updatesCount": "{{count}}개 업데이트",
+        "noPublicUpdates": "이 사고에 대한 공개 업데이트가 아직 없습니다.",
+        "investigatingMessage": "팀이 적극적으로 조사 중입니다. 기대해 주세요.",
+        "automaticSystemUpdate": "자동 시스템 업데이트",
+        "noDetailsProvided": "제공된 세부 정보가 없습니다.",
+        "statusDown": "다운",
+        "statusReview": "검토 중",
+        "statusUp": "해결됨",
+        "statusClosed": "종료됨",
+        "categoryInvestigating": "조사 중",
+        "categoryIdentified": "식별됨",
+        "categoryFixing": "수정 중",
+        "categoryResolved": "해결됨",
+        "categoryNote": "메모"
     },
     "categories": {
         "label": "카테고리",

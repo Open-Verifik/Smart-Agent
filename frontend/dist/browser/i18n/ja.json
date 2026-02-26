@@ -15,7 +15,10 @@
         "add_credits": "クレジットを追加",
         "purchase_credits": "追加クレジットを購入",
         "status_check": "ステータスチェック",
-        "system_health": "システムの健全性と可用性"
+        "system_health": "システムの健全性と可用性",
+        "smart_monitor": "SmartMonitor",
+        "incidents": "インシデント",
+        "active_incidents": "アクティブなサービスインシデント"
     },
     "network": {
         "title": "ステータスチェック",
@@ -54,6 +57,38 @@
             "error_create": "購読の作成中にエラーが発生しました",
             "error_delete": "購読の削除中にエラーが発生しました"
         }
+    },
+    "smartMonitor": {
+        "activeIncidents": "アクティブなインシデント",
+        "incidentsSubtitle": "現在問題が発生している購読中のサービス",
+        "allSystemsOperational": "すべてのシステムが正常に動作しています",
+        "allSystemsDesc": "購読中のサービスでアクティブなインシデントは検出されませんでした。すべて正常に動作しています。",
+        "noSubscriptionsYet": "まだ購読がありません",
+        "noSubscriptionsDesc": "ステータスチェックでサービスに購読して、インシデントアラートを受け取り、ここで確認してください。",
+        "goToStatusCheck": "ステータスチェックへ",
+        "activeIncidentsCount": "購読中のサービスに影響する{{count}}件のアクティブなインシデント",
+        "viewLogs": "ログを表示",
+        "started": "開始",
+        "unknownService": "不明なサービス",
+        "backToIncidents": "インシデントに戻る",
+        "incidentNotFound": "インシデントが見つかりません",
+        "duration": "期間",
+        "resolved": "解決済み",
+        "incidentLog": "インシデントログ",
+        "updatesCount": "{{count}}件の更新",
+        "noPublicUpdates": "このインシデントの公開更新はまだありません。",
+        "investigatingMessage": "チームが積極的に調査しています。ご期待ください。",
+        "automaticSystemUpdate": "自動システム更新",
+        "noDetailsProvided": "詳細は提供されていません。",
+        "statusDown": "ダウン",
+        "statusReview": "レビュー中",
+        "statusUp": "解決済み",
+        "statusClosed": "クローズ",
+        "categoryInvestigating": "調査中",
+        "categoryIdentified": "特定済み",
+        "categoryFixing": "修正中",
+        "categoryResolved": "解決済み",
+        "categoryNote": "メモ"
     },
     "categories": {
         "label": "カテゴリー",

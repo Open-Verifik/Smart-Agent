@@ -4,16 +4,12 @@
 /* ----------------------------------------------------------------------------------------------------- */
 
 /* ----------------------------------------------------------------------------------------------------- */
-/*  @ Excel view grids - AG Grid / Handsontable container
+/*  @ Excel view grids - AG Grid container
 /* ----------------------------------------------------------------------------------------------------- */
 .excel-view-container {
     .ag-theme-quartz {
         --ag-row-height: 44px;
         --ag-header-height: 44px;
         --ag-cell-horizontal-padding: 16px;
-    }
-
-    .handsontable {
-        --htBorderColor: #e5e7eb;
     }
 }

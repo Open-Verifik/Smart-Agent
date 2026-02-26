@@ -57,7 +57,6 @@
                             "src/styles/tailwind.scss",
                             "ag-grid-community/styles/ag-grid.css",
                             "ag-grid-community/styles/ag-theme-quartz.css",
-                            "handsontable/dist/handsontable.full.min.css"
                         ],
                         "scripts": []
                     },

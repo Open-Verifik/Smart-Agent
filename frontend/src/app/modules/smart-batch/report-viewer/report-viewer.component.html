@@ -344,9 +344,6 @@
                                             <mat-button-toggle value="excel-ag">
                                                 {{ 'smartReport.viewModeExcelAg' | transloco }}
                                             </mat-button-toggle>
-                                            <mat-button-toggle value="excel-ht">
-                                                {{ 'smartReport.viewModeExcelHt' | transloco }}
-                                            </mat-button-toggle>
                                         </mat-button-toggle-group>
                                     }
                                     <button
@@ -405,17 +402,6 @@
                                                 [headerHeight]="44"
                                                 [suppressRowClickSelection]="true"
                                                 [domLayout]="'normal'"
-                                            />
-                                        </div>
-                                    } @else if (stepResultsViewMode() === 'excel-ht') {
-                                        <!-- Excel view: Handsontable (non-commercial) -->
-                                        <div
-                                            class="excel-view-container mx-auto rounded-xl overflow-hidden"
-                                            style="height: 480px; width: 100%"
-                                        >
-                                            <hot-table
-                                                [data]="handsontableData()"
-                                                [settings]="handsontableSettings()"
                                             />
                                         </div>
                                     } @else {

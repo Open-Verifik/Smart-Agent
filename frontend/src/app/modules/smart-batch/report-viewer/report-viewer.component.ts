@@ -16,7 +16,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
-import { HotTableModule } from '@handsontable/angular-wrapper';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { AgGridAngular } from 'ag-grid-angular';
 import { ColDef } from 'ag-grid-community';
@@ -70,7 +69,6 @@ export interface RecordResultBlock {
         TranslocoModule,
         ReportPreviewComponent,
         AgGridAngular,
-        HotTableModule,
         MatPaginatorModule,
         MatFormFieldModule,
         MatInputModule,
@@ -112,8 +110,8 @@ export class ReportViewerComponent implements OnInit {
     isGenerating = signal(false);
     isSending = signal(false);
 
-    /** Step results display: table, json, excel-ag (AG Grid), excel-ht (Handsontable) */
-    stepResultsViewMode = signal<'table' | 'json' | 'excel-ag' | 'excel-ht'>('table');
+    /** Step results display: table, json, excel-ag (AG Grid) */
+    stepResultsViewMode = signal<'table' | 'json' | 'excel-ag'>('table');
 
     /** Whether step results content is expanded (collapsible to free space for PDF preview) */
     stepResultsContentExpanded = signal(true);
@@ -314,19 +312,6 @@ export class ReportViewerComponent implements OnInit {
     gridColumnDefs = computed<ColDef[]>(() => this._buildGridColumnDefs());
     gridRowData = computed<any[]>(() => this._buildGridRowDataByRecord());
 
-    /** Handsontable: 2D data array and settings for Excel view */
-    handsontableData = computed<(string | number)[][]>(() => this._buildHandsontableData());
-    handsontableSettings = computed(() => ({
-        colHeaders: true,
-        rowHeaders: true,
-        readOnly: true,
-        licenseKey: 'non-commercial-and-evaluation' as const,
-        height: 460,
-        width: '100%',
-        stretchH: 'all' as const,
-        columns: this._buildHandsontableColumns(),
-    }));
-
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
             this.configId.set(params['configId']);
@@ -446,59 +431,6 @@ export class ReportViewerComponent implements OnInit {
             }
         }
         return gridRows;
-    }
-
-    private _buildHandsontableData(): (string | number)[][] {
-        const blocks = this.stepResultBlocks();
-        const allFieldLabels = new Set<string>();
-        for (const block of blocks) {
-            for (const rowResult of block.rowResults) {
-                if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
-                        allFieldLabels.add(f.label)
-                    );
-                }
-            }
-        }
-        const fieldLabels = Array.from(allFieldLabels);
-        const data: (string | number)[][] = [];
-        for (const block of blocks) {
-            for (const rowResult of block.rowResults) {
-                const row: (string | number)[] = [block.label, rowResult.rowIndex + 1];
-                const fieldsMap = new Map<string, string>();
-                if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
-                        fieldsMap.set(f.label, f.value)
-                    );
-                }
-                fieldLabels.forEach((label) => row.push(fieldsMap.get(label) ?? ''));
-                data.push(row);
-            }
-        }
-        return data.length > 0 ? data : [['']];
-    }
-
-    private _buildHandsontableColumns(): any[] {
-        const blocks = this.stepResultBlocks();
-        const allFieldLabels = new Set<string>();
-        for (const block of blocks) {
-            for (const rowResult of block.rowResults) {
-                if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
-                        allFieldLabels.add(f.label)
-                    );
-                }
-            }
-        }
-        const fieldLabels = Array.from(allFieldLabels);
-        const cols: any[] = [
-            { data: 0, title: 'Step', width: 220 },
-            { data: 1, title: 'Row #', width: 80 },
-        ];
-        fieldLabels.forEach((label, i) => {
-            cols.push({ data: i + 2, title: label, width: 150 });
-        });
-        return cols;
     }
 
     private _loadData(): void {

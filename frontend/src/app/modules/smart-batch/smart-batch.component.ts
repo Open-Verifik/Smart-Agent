@@ -42,20 +42,7 @@ export class SmartBatchComponent implements OnInit {
 
     ngOnInit() {
         this._smartBatchService.getConfigurations().subscribe({
-            next: () => {
-                const configs = this.configurations();
-                console.log('[SmartBatch] configurations loaded', {
-                    count: configs?.length,
-                    configs: configs?.map((c) => ({
-                        _id: c._id,
-                        id: c.id,
-                        name: c.name,
-                        country: c.country,
-                        countryType: typeof c.country,
-                        countryJson: JSON.stringify(c.country),
-                    })),
-                });
-            },
+            next: () => {},
             error: (err) => console.error('[SmartBatch] getConfigurations error', err),
         });
         this._smartReportService.getTemplates().subscribe({
@@ -95,7 +82,9 @@ export class SmartBatchComponent implements OnInit {
         event.stopPropagation();
         const configId = template.batchConfiguration;
         if (!configId) {
-            alert('This template is not linked to a configuration. Open it from a configuration\'s report builder.');
+            alert(
+                "This template is not linked to a configuration. Open it from a configuration's report builder."
+            );
             return;
         }
         const templateId = template._id ?? (template as { id?: string }).id ?? '';
@@ -104,9 +93,7 @@ export class SmartBatchComponent implements OnInit {
     }
 
     getConfigName(configId: string): string {
-        const config = this.configurations().find(
-            (c) => (c._id ?? c.id) === configId
-        );
+        const config = this.configurations().find((c) => (c._id ?? c.id) === configId);
         return config?.name ?? configId;
     }
 
@@ -117,20 +104,13 @@ export class SmartBatchComponent implements OnInit {
 
     openDashboard(id: string) {
         const targetUrl = `/smart-batch/${id}`;
-        console.log('[SmartBatch] openDashboard called', {
-            id,
-            idType: typeof id,
-            idLength: id?.length,
-            targetUrl,
-            currentUrl: this._router.url,
-        });
+
         if (!id) {
             console.warn('[SmartBatch] openDashboard: id is falsy, skipping navigation');
             return;
         }
         this._router.navigateByUrl(targetUrl).then(
             (success) => {
-                console.log('[SmartBatch] navigateByUrl result', { success, targetUrl });
                 if (!success) {
                     console.warn(
                         '[SmartBatch] navigateByUrl returned false - route may not have matched'
@@ -193,14 +173,7 @@ export class SmartBatchComponent implements OnInit {
         };
         const key = (country || '').trim().toLowerCase();
         const flag = map[key] ?? '🏳️';
-        if (!country || flag === '🏳️') {
-            console.log('[SmartBatch] getCountryFlag', {
-                raw: country,
-                key,
-                resolved: flag,
-                hasMatch: key in map,
-            });
-        }
+
         return flag;
     }
 }
