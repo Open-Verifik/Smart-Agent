@@ -43,41 +43,41 @@ export class IncidentDetailComponent implements OnInit, OnDestroy {
     public incident: any = null;
     public logs: any[] = [];
 
-    // Category display config
+    // Category display config (labelKey: transloco key)
     readonly categoryConfig: Record<
         string,
-        { label: string; icon: string; classes: string; connectorClass: string }
+        { labelKey: string; icon: string; classes: string; connectorClass: string }
     > = {
         investigating: {
-            label: 'Investigating',
+            labelKey: 'smartMonitor.categoryInvestigating',
             icon: 'search',
             classes:
                 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800',
             connectorClass: 'bg-blue-300 dark:bg-blue-700',
         },
         identified: {
-            label: 'Identified',
+            labelKey: 'smartMonitor.categoryIdentified',
             icon: 'manage_search',
             classes:
                 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800',
             connectorClass: 'bg-orange-300 dark:bg-orange-700',
         },
         fixing: {
-            label: 'Fixing',
+            labelKey: 'smartMonitor.categoryFixing',
             icon: 'build',
             classes:
                 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800',
             connectorClass: 'bg-yellow-300 dark:bg-yellow-700',
         },
         resolved: {
-            label: 'Resolved',
+            labelKey: 'smartMonitor.categoryResolved',
             icon: 'check_circle',
             classes:
                 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800',
             connectorClass: 'bg-green-300 dark:bg-green-700',
         },
         privateNote: {
-            label: 'Note',
+            labelKey: 'smartMonitor.categoryNote',
             icon: 'sticky_note_2',
             classes:
                 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700',
@@ -85,24 +85,24 @@ export class IncidentDetailComponent implements OnInit, OnDestroy {
         },
     };
 
-    readonly statusConfig: Record<string, { label: string; classes: string; dotClass: string }> = {
+    readonly statusConfig: Record<string, { labelKey: string; classes: string; dotClass: string }> = {
         down: {
-            label: 'Down',
+            labelKey: 'smartMonitor.statusDown',
             classes: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
             dotClass: 'bg-red-500 animate-pulse',
         },
         review: {
-            label: 'Under Review',
+            labelKey: 'smartMonitor.statusReview',
             classes: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
             dotClass: 'bg-yellow-500 animate-pulse',
         },
         up: {
-            label: 'Resolved',
+            labelKey: 'smartMonitor.statusUp',
             classes: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
             dotClass: 'bg-green-500',
         },
         closed: {
-            label: 'Closed',
+            labelKey: 'smartMonitor.statusClosed',
             classes: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
             dotClass: 'bg-gray-400',
         },
@@ -168,7 +168,7 @@ export class IncidentDetailComponent implements OnInit, OnDestroy {
     }
 
     getServiceName(): string {
-        return this.incident?.appFeature?.name || this.incident?.code || 'Unknown Service';
+        return this.incident?.appFeature?.name || this.incident?.code || '';
     }
 
     formatDate(dateStr: string): string {

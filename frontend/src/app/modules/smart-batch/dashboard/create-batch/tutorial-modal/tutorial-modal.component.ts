@@ -3,18 +3,19 @@ import { Component, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoModule } from '@jsverse/transloco';
 
 interface TutorialStep {
     icon: string;
-    title: string;
-    description: string;
-    tip?: string;
+    titleKey: string;
+    descriptionKey: string;
+    tipKey?: string;
 }
 
 @Component({
     selector: 'batch-tutorial-modal',
     standalone: true,
-    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+    imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, TranslocoModule],
     template: `
         <div class="flex flex-col w-full max-w-lg">
             <!-- Header with progress -->
@@ -27,7 +28,7 @@ interface TutorialStep {
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-medium text-slate-500 dark:text-slate-400">
-                        Step {{ currentStep() + 1 }} of {{ steps.length }}
+                        {{ 'batchTutorial.stepOf' | transloco: { current: currentStep() + 1, total: steps.length } }}
                     </span>
                     <button mat-icon-button (click)="close()" class="!-mr-2">
                         <mat-icon>close</mat-icon>
@@ -49,24 +50,24 @@ interface TutorialStep {
 
                     <!-- Title -->
                     <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                        {{ currentStepData().title }}
+                        {{ currentStepData().titleKey | transloco }}
                     </h2>
 
                     <!-- Description -->
                     <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed max-w-md">
-                        {{ currentStepData().description }}
+                        {{ currentStepData().descriptionKey | transloco }}
                     </p>
 
                     <!-- Tip -->
                     <div
-                        *ngIf="currentStepData().tip"
+                        *ngIf="currentStepData().tipKey"
                         class="mt-4 flex items-start gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 text-left"
                     >
                         <mat-icon class="text-amber-500 !w-5 !h-5 shrink-0 icon-size-5"
                             >lightbulb</mat-icon
                         >
                         <span class="text-xs text-amber-700 dark:text-amber-300">{{
-                            currentStepData().tip
+                            currentStepData().tipKey | transloco
                         }}</span>
                     </div>
                 </div>
@@ -82,7 +83,7 @@ interface TutorialStep {
                         class="!text-slate-600"
                     >
                         <mat-icon class="mr-1">arrow_back</mat-icon>
-                        Back
+                        {{ 'batchTutorial.back' | transloco }}
                     </button>
 
                     <div class="flex gap-1.5">
@@ -101,7 +102,7 @@ interface TutorialStep {
                         color="primary"
                         (click)="nextStep()"
                     >
-                        Next
+                        {{ 'batchTutorial.next' | transloco }}
                         <mat-icon class="ml-1">arrow_forward</mat-icon>
                     </button>
                     <button
@@ -110,7 +111,7 @@ interface TutorialStep {
                         color="primary"
                         (click)="close()"
                     >
-                        Get Started
+                        {{ 'batchTutorial.getStarted' | transloco }}
                         <mat-icon class="ml-1">rocket_launch</mat-icon>
                     </button>
                 </div>
@@ -133,43 +134,37 @@ export class TutorialModalComponent {
     steps: TutorialStep[] = [
         {
             icon: 'waving_hand',
-            title: 'Welcome to Batch Creation!',
-            description:
-                "This wizard will help you upload and process data in bulk. Let's walk through the key steps together.",
-            tip: 'You can replay this tutorial anytime by clicking the help button in the top right corner.',
+            titleKey: 'batchTutorial.welcomeTitle',
+            descriptionKey: 'batchTutorial.welcomeDesc',
+            tipKey: 'batchTutorial.welcomeTip',
         },
         {
             icon: 'edit',
-            title: 'Step 1: Name Your Batch',
-            description:
-                'Give your batch a descriptive name so you can easily identify it later. For example: "January 2026 Verifications" or "HR Background Checks Q1".',
+            titleKey: 'batchTutorial.step1Title',
+            descriptionKey: 'batchTutorial.step1Desc',
         },
         {
             icon: 'download',
-            title: 'Step 2: Download the Template',
-            description:
-                'Before uploading, download the CSV template. This template includes all the required columns based on your batch configuration.',
-            tip: 'The template ensures your data has the correct format and all required fields are present.',
+            titleKey: 'batchTutorial.step2Title',
+            descriptionKey: 'batchTutorial.step2Desc',
+            tipKey: 'batchTutorial.step2Tip',
         },
         {
             icon: 'table_chart',
-            title: 'Step 3: Fill Your Data',
-            description:
-                'Open the template in Excel or Google Sheets and fill in your data. Each row represents one record to be processed.',
-            tip: 'Make sure all required fields (marked with *) are filled in. Empty required fields will cause errors.',
+            titleKey: 'batchTutorial.step3Title',
+            descriptionKey: 'batchTutorial.step3Desc',
+            tipKey: 'batchTutorial.step3Tip',
         },
         {
             icon: 'cloud_upload',
-            title: 'Step 4: Upload Your File',
-            description:
-                "Drag and drop your completed CSV file into the upload area, or click to browse. We'll validate the data and show you a preview.",
+            titleKey: 'batchTutorial.step4Title',
+            descriptionKey: 'batchTutorial.step4Desc',
         },
         {
             icon: 'visibility',
-            title: 'Step 5: Review & Submit',
-            description:
-                'Check the data preview to make sure everything looks correct. Review the estimated cost, then click "Create Batch" to start processing!',
-            tip: 'You can remove the file and upload a different one if you spot any issues.',
+            titleKey: 'batchTutorial.step5Title',
+            descriptionKey: 'batchTutorial.step5Desc',
+            tipKey: 'batchTutorial.step5Tip',
         },
     ];
 

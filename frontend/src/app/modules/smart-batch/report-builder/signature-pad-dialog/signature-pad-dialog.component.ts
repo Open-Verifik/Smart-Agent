@@ -3,14 +3,15 @@ import { AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
     selector: 'signature-pad-dialog',
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule],
+    imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule, TranslocoModule],
     template: `
         <h2 mat-dialog-title class="flex items-center justify-between">
-            Draw Signature
+            {{ 'smartReport.drawSignature' | transloco }}
             <button mat-icon-button mat-dialog-close>
                 <mat-icon>close</mat-icon>
             </button>
@@ -32,12 +33,12 @@ import { MatIconModule } from '@angular/material/icon';
                 ></canvas>
             </div>
             <p class="text-xs text-gray-500 mt-2 text-center">
-                Use your mouse or finger to sign above.
+                {{ 'smartReport.useMouseOrFingerToSign' | transloco }}
             </p>
         </mat-dialog-content>
         <mat-dialog-actions align="end" class="gap-2">
-            <button mat-button (click)="clearCanvas()">Clear</button>
-            <button mat-flat-button color="primary" (click)="save()">Save Signature</button>
+            <button mat-button (click)="clearCanvas()">{{ 'smartReport.clear' | transloco }}</button>
+            <button mat-flat-button color="primary" (click)="save()">{{ 'smartReport.saveSignature' | transloco }}</button>
         </mat-dialog-actions>
     `,
     styles: [

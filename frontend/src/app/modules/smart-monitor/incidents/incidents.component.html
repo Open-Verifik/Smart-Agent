@@ -12,10 +12,10 @@
                 </div>
                 <div>
                     <h2 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                        Active Incidents
+                        {{ 'smartMonitor.activeIncidents' | transloco }}
                     </h2>
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                        Services you're subscribed to that are currently experiencing issues
+                        {{ 'smartMonitor.incidentsSubtitle' | transloco }}
                     </p>
                 </div>
             </div>
@@ -37,11 +37,10 @@
                 <mat-icon class="icon-size-10 text-green-500">check_circle</mat-icon>
             </div>
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">
-                All systems operational
+                {{ 'smartMonitor.allSystemsOperational' | transloco }}
             </h3>
             <p class="text-gray-500 dark:text-gray-400 max-w-sm">
-                No active incidents detected for your subscribed services. Everything is running
-                smoothly.
+                {{ 'smartMonitor.allSystemsDesc' | transloco }}
             </p>
         </div>
 
@@ -56,10 +55,10 @@
                 <mat-icon class="icon-size-10 text-gray-400">notifications_off</mat-icon>
             </div>
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">
-                No subscriptions yet
+                {{ 'smartMonitor.noSubscriptionsYet' | transloco }}
             </h3>
             <p class="text-gray-500 dark:text-gray-400 max-w-sm">
-                Subscribe to services in Status Check to receive incident alerts and see them here.
+                {{ 'smartMonitor.noSubscriptionsDesc' | transloco }}
             </p>
             <button
                 mat-stroked-button
@@ -67,7 +66,7 @@
                 (click)="openDetail({ _id: null })"
                 routerLink="/smart-monitor/status-check"
             >
-                Go to Status Check
+                {{ 'smartMonitor.goToStatusCheck' | transloco }}
             </button>
         </div>
 
@@ -79,8 +78,7 @@
             >
                 <mat-icon class="icon-size-4 flex-shrink-0">error_outline</mat-icon>
                 <span class="text-sm font-medium">
-                    {{ incidents.length }} active incident{{ incidents.length > 1 ? 's' : '' }}
-                    affecting your subscribed services
+                    {{ 'smartMonitor.activeIncidentsCount' | transloco: { count: incidents.length } }}
                 </span>
             </div>
 
@@ -107,7 +105,7 @@
                             <h3
                                 class="text-base font-semibold text-gray-900 dark:text-white leading-tight"
                             >
-                                {{ getServiceName(incident) }}
+                                {{ getServiceName(incident) || ('smartMonitor.unknownService' | transloco) }}
                             </h3>
                             <p class="text-xs text-gray-400 dark:text-gray-500 mt-0.5 font-mono">
                                 {{ incident.code }}
@@ -120,7 +118,7 @@
                         class="ml-4 flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
                         [ngClass]="getStatusCfg(incident.status).classes"
                     >
-                        {{ getStatusCfg(incident.status).label }}
+                        {{ getStatusCfg(incident.status).labelKey | transloco }}
                     </span>
                 </div>
 
@@ -131,7 +129,7 @@
                     <div class="flex items-center gap-6 text-xs text-gray-500 dark:text-gray-400">
                         <div class="flex items-center gap-1.5">
                             <mat-icon class="icon-size-3.5">schedule</mat-icon>
-                            <span>Started {{ formatDate(incident.startDate) }}</span>
+                            <span>{{ 'smartMonitor.started' | transloco }} {{ formatDate(incident.startDate) }}</span>
                         </div>
                         <div *ngIf="incident.duration" class="flex items-center gap-1.5">
                             <mat-icon class="icon-size-3.5">timelapse</mat-icon>
@@ -141,7 +139,7 @@
                     <div
                         class="flex items-center gap-1 text-xs font-medium text-primary-600 dark:text-primary-400"
                     >
-                        View logs
+                        {{ 'smartMonitor.viewLogs' | transloco }}
                         <mat-icon class="icon-size-3.5">arrow_forward</mat-icon>
                     </div>
                 </div>

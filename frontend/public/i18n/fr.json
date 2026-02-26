@@ -15,7 +15,10 @@
         "add_credits": "Ajouter des crédits",
         "purchase_credits": "Acheter des crédits supplémentaires",
         "status_check": "Vérification du statut",
-        "system_health": "Santé et disponibilité du système"
+        "system_health": "Santé et disponibilité du système",
+        "smart_monitor": "SmartMonitor",
+        "incidents": "Incidents",
+        "active_incidents": "Incidents de service actifs"
     },
     "network": {
         "title": "Vérification de l'état",
@@ -54,6 +57,38 @@
             "error_create": "Erreur lors de la création de l'abonnement",
             "error_delete": "Erreur lors de la suppression de l'abonnement"
         }
+    },
+    "smartMonitor": {
+        "activeIncidents": "Incidents actifs",
+        "incidentsSubtitle": "Services auxquels vous êtes abonné qui rencontrent actuellement des problèmes",
+        "allSystemsOperational": "Tous les systèmes opérationnels",
+        "allSystemsDesc": "Aucun incident actif détecté pour vos services abonnés. Tout fonctionne correctement.",
+        "noSubscriptionsYet": "Pas encore d'abonnements",
+        "noSubscriptionsDesc": "Abonnez-vous aux services dans Vérification du statut pour recevoir des alertes d'incidents et les voir ici.",
+        "goToStatusCheck": "Aller à la vérification du statut",
+        "activeIncidentsCount": "{{count}} incident(s) actif(s) affectant vos services abonnés",
+        "viewLogs": "Voir les journaux",
+        "started": "Démarré",
+        "unknownService": "Service inconnu",
+        "backToIncidents": "Retour aux incidents",
+        "incidentNotFound": "Incident introuvable",
+        "duration": "Durée",
+        "resolved": "Résolu",
+        "incidentLog": "Journal de l'incident",
+        "updatesCount": "{{count}} mise(s) à jour",
+        "noPublicUpdates": "Pas encore de mises à jour publiques pour cet incident.",
+        "investigatingMessage": "Notre équipe enquête activement. Restez à l'écoute.",
+        "automaticSystemUpdate": "Mise à jour automatique du système",
+        "noDetailsProvided": "Aucun détail fourni.",
+        "statusDown": "Indisponible",
+        "statusReview": "En cours d'examen",
+        "statusUp": "Résolu",
+        "statusClosed": "Fermé",
+        "categoryInvestigating": "Enquête",
+        "categoryIdentified": "Identifié",
+        "categoryFixing": "Correction",
+        "categoryResolved": "Résolu",
+        "categoryNote": "Note"
     },
     "categories": {
         "label": "Catégorie",

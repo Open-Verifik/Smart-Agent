@@ -428,7 +428,7 @@
                                     <mat-icon class="text-gray-400 !w-5 !h-5 !text-[20px]"
                                         >draw</mat-icon
                                     >
-                                    <span class="text-sm font-medium text-gray-700">Signature</span>
+                                    <span class="text-sm font-medium text-gray-700">{{ 'smartReport.signature' | transloco }}</span>
                                 </div>
                                 <mat-slide-toggle
                                     formControlName="signatureEnabled"
@@ -461,7 +461,7 @@
                                             </button>
                                         </div>
                                         <p class="text-xs text-gray-400">
-                                            Drag signature in preview to position it.
+                                            {{ 'smartReport.dragSignatureToPosition' | transloco }}
                                         </p>
                                     } @else {
                                         <button
@@ -472,7 +472,7 @@
                                             (click)="openSignatureDialog()"
                                         >
                                             <mat-icon class="mr-2">edit</mat-icon>
-                                            Draw Signature
+                                            {{ 'smartReport.drawSignature' | transloco }}
                                         </button>
                                     }
                                 </div>

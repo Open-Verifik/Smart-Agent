@@ -15,7 +15,10 @@
         "add_credits": "添加积分",
         "purchase_credits": "购买额外积分",
         "status_check": "状态检查",
-        "system_health": "系统健康与可用性"
+        "system_health": "系统健康与可用性",
+        "smart_monitor": "SmartMonitor",
+        "incidents": "事件",
+        "active_incidents": "活跃服务事件"
     },
     "network": {
         "title": "系统状态检查",
@@ -54,6 +57,38 @@
             "error_create": "创建订阅时出错",
             "error_delete": "删除订阅时出错"
         }
+    },
+    "smartMonitor": {
+        "activeIncidents": "活跃事件",
+        "incidentsSubtitle": "您订阅的当前遇到问题的服务",
+        "allSystemsOperational": "所有系统正常运行",
+        "allSystemsDesc": "未检测到您订阅服务的活跃事件。一切运行顺利。",
+        "noSubscriptionsYet": "尚无订阅",
+        "noSubscriptionsDesc": "在状态检查中订阅服务以接收事件警报并在此处查看。",
+        "goToStatusCheck": "前往状态检查",
+        "activeIncidentsCount": "{{count}} 个活跃事件影响您订阅的服务",
+        "viewLogs": "查看日志",
+        "started": "开始时间",
+        "unknownService": "未知服务",
+        "backToIncidents": "返回事件",
+        "incidentNotFound": "未找到事件",
+        "duration": "持续时间",
+        "resolved": "已解决",
+        "incidentLog": "事件日志",
+        "updatesCount": "{{count}} 条更新",
+        "noPublicUpdates": "此事件尚无公开更新。",
+        "investigatingMessage": "我们的团队正在积极调查。请保持关注。",
+        "automaticSystemUpdate": "自动系统更新",
+        "noDetailsProvided": "未提供详细信息。",
+        "statusDown": "故障",
+        "statusReview": "审查中",
+        "statusUp": "已解决",
+        "statusClosed": "已关闭",
+        "categoryInvestigating": "调查中",
+        "categoryIdentified": "已识别",
+        "categoryFixing": "修复中",
+        "categoryResolved": "已解决",
+        "categoryNote": "备注"
     },
     "categories": {
         "label": "类别",

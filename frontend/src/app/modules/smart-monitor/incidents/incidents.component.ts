@@ -42,25 +42,25 @@ export class IncidentsComponent implements OnInit, OnDestroy {
     public incidents: any[] = [];
     public subscriptions: any[] = [];
 
-    // Status config for UI badges
-    readonly statusConfig: Record<string, { label: string; classes: string; dotClass: string }> = {
+    // Status config for UI badges (labelKey: transloco key)
+    readonly statusConfig: Record<string, { labelKey: string; classes: string; dotClass: string }> = {
         down: {
-            label: 'Down',
+            labelKey: 'smartMonitor.statusDown',
             classes: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
             dotClass: 'bg-red-500 animate-pulse',
         },
         review: {
-            label: 'Under Review',
+            labelKey: 'smartMonitor.statusReview',
             classes: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
             dotClass: 'bg-yellow-500 animate-pulse',
         },
         up: {
-            label: 'Resolved',
+            labelKey: 'smartMonitor.statusUp',
             classes: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
             dotClass: 'bg-green-500',
         },
         closed: {
-            label: 'Closed',
+            labelKey: 'smartMonitor.statusClosed',
             classes: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
             dotClass: 'bg-gray-400',
         },
@@ -148,7 +148,7 @@ export class IncidentsComponent implements OnInit, OnDestroy {
     }
 
     getServiceName(incident: any): string {
-        return incident.appFeature?.name || incident.code || 'Unknown Service';
+        return incident.appFeature?.name || incident.code || '';
     }
 
     openDetail(incident: any): void {

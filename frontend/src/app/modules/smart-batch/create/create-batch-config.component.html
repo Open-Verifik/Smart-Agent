@@ -19,7 +19,7 @@
                     <mat-icon>arrow_back</mat-icon>
                 </button>
                 <h1 class="text-xl font-bold text-slate-900 dark:text-white">
-                    {{ isEditMode() ? 'Edit' : 'Create' }} Batch Configuration
+                    {{ (isEditMode() ? 'createBatchConfig.edit' : 'createBatchConfig.create') | transloco }} {{ 'createBatchConfig.batchConfiguration' | transloco }}
                 </h1>
             </div>
         </div>
@@ -32,33 +32,33 @@
                 <mat-stepper #stepper orientation="vertical" class="bg-transparent" [linear]="true">
                     <!-- Step 1: Basic Info -->
                     <mat-step [stepControl]="step1Form">
-                        <ng-template matStepLabel>Basic Information</ng-template>
+                        <ng-template matStepLabel>{{ 'createBatchConfig.basicInformation' | transloco }}</ng-template>
                         <form
                             [formGroup]="step1Form"
                             class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4"
                         >
                             <mat-form-field appearance="outline" class="w-full col-span-2">
-                                <mat-label>Configuration Name</mat-label>
+                                <mat-label>{{ 'createBatchConfig.configurationName' | transloco }}</mat-label>
                                 <input
                                     matInput
                                     formControlName="name"
-                                    placeholder="e.g. Colombian ID Verification Batch"
+                                    [placeholder]="'createBatchConfig.namePlaceholder' | transloco"
                                 />
-                                <mat-error>Name is required</mat-error>
+                                <mat-error>{{ 'createBatchConfig.nameRequired' | transloco }}</mat-error>
                             </mat-form-field>
 
                             <mat-form-field appearance="outline" class="w-full col-span-2">
-                                <mat-label>Description</mat-label>
+                                <mat-label>{{ 'createBatchConfig.description' | transloco }}</mat-label>
                                 <textarea
                                     matInput
                                     formControlName="description"
                                     rows="3"
-                                    placeholder="Describe the purpose of this batch..."
+                                    [placeholder]="'createBatchConfig.descriptionPlaceholder' | transloco"
                                 ></textarea>
                             </mat-form-field>
 
                             <mat-form-field appearance="outline" class="w-full">
-                                <mat-label>Country</mat-label>
+                                <mat-label>{{ 'createBatchConfig.country' | transloco }}</mat-label>
                                 <mat-select formControlName="country">
                                     <mat-option
                                         *ngFor="let country of countries()"
@@ -67,27 +67,27 @@
                                         {{ country.name }}
                                     </mat-option>
                                 </mat-select>
-                                <mat-error>Country is required</mat-error>
+                                <mat-error>{{ 'createBatchConfig.countryRequired' | transloco }}</mat-error>
                             </mat-form-field>
 
                             <mat-form-field appearance="outline" class="w-full">
-                                <mat-label>Merge Strategy</mat-label>
+                                <mat-label>{{ 'createBatchConfig.mergeStrategy' | transloco }}</mat-label>
                                 <mat-select formControlName="mergeStrategy">
                                     <mat-option value="sequential"
-                                        >Sequential (One by one)</mat-option
+                                        >{{ 'createBatchConfig.sequential' | transloco }}</mat-option
                                     >
                                     <mat-option value="parallel-independent"
-                                        >Parallel Independent</mat-option
+                                        >{{ 'createBatchConfig.parallelIndependent' | transloco }}</mat-option
                                     >
                                     <mat-option value="parallel-with-fallback"
-                                        >Parallel with Fallback</mat-option
+                                        >{{ 'createBatchConfig.parallelWithFallback' | transloco }}</mat-option
                                     >
                                 </mat-select>
                             </mat-form-field>
 
                             <div class="col-span-2 grid grid-cols-2 gap-6">
                                 <mat-form-field appearance="outline">
-                                    <mat-label>Input Fields Format</mat-label>
+                                    <mat-label>{{ 'createBatchConfig.inputFieldsFormat' | transloco }}</mat-label>
                                     <mat-select formControlName="inputFormat">
                                         <mat-option value="csv">CSV</mat-option>
                                         <mat-option value="xlsx">Excel (XLSX)</mat-option>
@@ -96,7 +96,7 @@
                                 </mat-form-field>
 
                                 <mat-form-field appearance="outline">
-                                    <mat-label>Result Output Format</mat-label>
+                                    <mat-label>{{ 'createBatchConfig.resultOutputFormat' | transloco }}</mat-label>
                                     <mat-select formControlName="outputFormat">
                                         <mat-option value="csv">CSV</mat-option>
                                         <mat-option value="xlsx">Excel (XLSX)</mat-option>
@@ -112,8 +112,8 @@
                                     (click)="onNext(1)"
                                     [disabled]="step1Form.invalid || isSavingStep()"
                                 >
-                                    <span *ngIf="isSavingStep()">Saving...</span>
-                                    <span *ngIf="!isSavingStep()">Next</span>
+                                    <span *ngIf="isSavingStep()">{{ 'createBatchConfig.saving' | transloco }}</span>
+                                    <span *ngIf="!isSavingStep()">{{ 'createBatchConfig.next' | transloco }}</span>
                                 </button>
                             </div>
                         </form>
@@ -121,13 +121,13 @@
 
                     <!-- Step 2: Feature Selection -->
                     <mat-step>
-                        <ng-template matStepLabel>Select Endpoints</ng-template>
+                        <ng-template matStepLabel>{{ 'createBatchConfig.selectEndpoints' | transloco }}</ng-template>
                         <div class="flex flex-col gap-6 pt-4 h-[600px]">
                             <!-- Fixed height for layout -->
 
                             <div class="flex items-center justify-between">
                                 <h3 class="text-sm font-medium text-slate-500 uppercase">
-                                    Available Features
+                                    {{ 'createBatchConfig.availableFeatures' | transloco }}
                                     <span *ngIf="endpointSearchQuery()"
                                         >({{ filteredAvailableFeatures().length }} of
                                         {{ availableFeaturesForCountry().length }})</span
@@ -137,7 +137,7 @@
                                     >
                                 </h3>
                                 <div *ngIf="isLoadingFeatures()" class="text-xs text-blue-500">
-                                    Loading features...
+                                    {{ 'createBatchConfig.loadingFeatures' | transloco }}
                                 </div>
                             </div>
 
@@ -149,7 +149,7 @@
                                     <div
                                         class="bg-slate-50/80 dark:bg-slate-900/50 px-4 py-3 border-b border-slate-200/80 dark:border-slate-700/80 font-medium text-sm"
                                     >
-                                        Available
+                                        {{ 'createBatchConfig.available' | transloco }}
                                     </div>
                                     <div
                                         class="p-2 border-b border-slate-200/80 dark:border-slate-700/80"
@@ -167,7 +167,7 @@
                                                 type="text"
                                                 [ngModel]="endpointSearchQuery()"
                                                 (ngModelChange)="endpointSearchQuery.set($event)"
-                                                placeholder="Search by title or endpoint..."
+                                                [placeholder]="'createBatchConfig.searchPlaceholder' | transloco"
                                                 class="!py-1"
                                             />
                                             <button
@@ -234,9 +234,7 @@
                                                 >search_off</mat-icon
                                             >
                                             <span
-                                                >No endpoints match "{{
-                                                    endpointSearchQuery()
-                                                }}"</span
+                                                >{{ 'createBatchConfig.noEndpointsMatch' | transloco: { query: endpointSearchQuery() } }}</span
                                             >
                                         </div>
                                     </div>
@@ -249,7 +247,7 @@
                                     <div
                                         class="bg-blue-100/60 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-200/80 dark:border-blue-800/50 font-medium text-sm text-blue-700 dark:text-blue-300"
                                     >
-                                        Selected Steps (Drag to reorder)
+                                        {{ 'createBatchConfig.selectedSteps' | transloco }}
                                     </div>
                                     <div
                                         cdkDropList
@@ -301,7 +299,7 @@
                                                 >playlist_add</mat-icon
                                             >
                                             <span class="text-sm"
-                                                >Select features to add steps</span
+                                                >{{ 'createBatchConfig.selectFeaturesToAdd' | transloco }}</span
                                             >
                                         </div>
                                     </div>
@@ -309,15 +307,15 @@
                             </div>
 
                             <div class="pt-4 flex gap-3">
-                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperPrevious>{{ 'createBatchConfig.back' | transloco }}</button>
                                 <button
                                     mat-flat-button
                                     color="primary"
                                     (click)="onNext(2)"
                                     [disabled]="selectedFeatures().length === 0 || isSavingStep()"
                                 >
-                                    <span *ngIf="isSavingStep()">Saving...</span>
-                                    <span *ngIf="!isSavingStep()">Next</span>
+                                    <span *ngIf="isSavingStep()">{{ 'createBatchConfig.saving' | transloco }}</span>
+                                    <span *ngIf="!isSavingStep()">{{ 'createBatchConfig.next' | transloco }}</span>
                                 </button>
                             </div>
                         </div>
@@ -325,11 +323,10 @@
 
                     <!-- Step 3: Review Parameters -->
                     <mat-step>
-                        <ng-template matStepLabel>Review Parameters</ng-template>
+                        <ng-template matStepLabel>{{ 'createBatchConfig.reviewParameters' | transloco }}</ng-template>
                         <div class="pt-4 flex flex-col gap-4">
                             <p class="text-sm text-slate-500 mb-2">
-                                Review the required parameters for each endpoint. These will be
-                                provided when running the batch.
+                                {{ 'createBatchConfig.reviewParamsIntro' | transloco }}
                             </p>
 
                             <mat-accordion multi>
@@ -368,7 +365,7 @@
                                             <h4
                                                 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3"
                                             >
-                                                Required Parameters
+                                                {{ 'createBatchConfig.requiredParameters' | transloco }}
                                             </h4>
                                             <div class="flex flex-wrap gap-2">
                                                 <ng-container
@@ -384,14 +381,13 @@
                                                         <span
                                                             *ngIf="dep.required"
                                                             class="text-xs text-orange-500 font-medium"
-                                                            >Required</span
+                                                            >{{ 'createBatchConfig.required' | transloco }}</span
                                                         >
                                                     </span>
                                                 </ng-container>
                                             </div>
                                             <p class="text-xs text-slate-400 mt-3">
-                                                These parameters will be mapped from your input file
-                                                when running the batch.
+                                                {{ 'createBatchConfig.parametersMappedHint' | transloco }}
                                             </p>
                                         </div>
                                         <div
@@ -401,22 +397,22 @@
                                             "
                                             class="text-sm text-slate-400 italic"
                                         >
-                                            No parameters required for this endpoint.
+                                            {{ 'createBatchConfig.noParametersRequired' | transloco }}
                                         </div>
                                     </div>
                                 </mat-expansion-panel>
                             </mat-accordion>
 
                             <div class="pt-6 flex gap-3">
-                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperPrevious>{{ 'createBatchConfig.back' | transloco }}</button>
                                 <button
                                     mat-flat-button
                                     color="primary"
                                     (click)="onNext(3)"
                                     [disabled]="isSavingStep()"
                                 >
-                                    <span *ngIf="isSavingStep()">Saving...</span>
-                                    <span *ngIf="!isSavingStep()">Next</span>
+                                    <span *ngIf="isSavingStep()">{{ 'createBatchConfig.saving' | transloco }}</span>
+                                    <span *ngIf="!isSavingStep()">{{ 'createBatchConfig.next' | transloco }}</span>
                                 </button>
                             </div>
                         </div>
@@ -424,9 +420,9 @@
 
                     <!-- Step 4: Review -->
                     <mat-step>
-                        <ng-template matStepLabel>Review & Create</ng-template>
+                        <ng-template matStepLabel>{{ 'createBatchConfig.reviewAndCreate' | transloco }}</ng-template>
                         <div class="pt-6 max-w-2xl">
-                            <h3 class="text-lg font-bold mb-4">Summary</h3>
+                            <h3 class="text-lg font-bold mb-4">{{ 'createBatchConfig.summary' | transloco }}</h3>
 
                             <div
                                 class="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 space-y-4"
@@ -434,7 +430,7 @@
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <span class="block text-xs text-slate-500 uppercase"
-                                            >Configuration Name</span
+                                            >{{ 'createBatchConfig.configurationName' | transloco }}</span
                                         >
                                         <span class="font-medium text-slate-900 dark:text-white">{{
                                             step1Form.get('name')?.value
@@ -442,7 +438,7 @@
                                     </div>
                                     <div>
                                         <span class="block text-xs text-slate-500 uppercase"
-                                            >Country</span
+                                            >{{ 'createBatchConfig.country' | transloco }}</span
                                         >
                                         <span class="font-medium text-slate-900 dark:text-white">{{
                                             step1Form.get('country')?.value
@@ -450,7 +446,7 @@
                                     </div>
                                     <div>
                                         <span class="block text-xs text-slate-500 uppercase"
-                                            >Strategy</span
+                                            >{{ 'createBatchConfig.mergeStrategy' | transloco }}</span
                                         >
                                         <span
                                             class="font-medium text-slate-900 dark:text-white capitalize"
@@ -459,10 +455,10 @@
                                     </div>
                                     <div>
                                         <span class="block text-xs text-slate-500 uppercase"
-                                            >Total Steps</span
+                                            >{{ 'createBatchConfig.totalSteps' | transloco }}</span
                                         >
                                         <span class="font-medium text-slate-900 dark:text-white"
-                                            >{{ selectedFeatures().length }} steps</span
+                                            >{{ 'createBatchConfig.stepsCount' | transloco: { count: selectedFeatures().length } }}</span
                                         >
                                     </div>
                                 </div>
@@ -472,7 +468,7 @@
                                 <h4
                                     class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3"
                                 >
-                                    Estimated Cost per Record
+                                    {{ 'createBatchConfig.estimatedCostPerRecord' | transloco }}
                                 </h4>
                                 <div
                                     class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 rounded-xl p-5"
@@ -502,7 +498,7 @@
                                         class="flex justify-between items-center pt-3 border-t border-green-200 dark:border-green-800/50"
                                     >
                                         <span class="font-medium text-green-700 dark:text-green-300"
-                                            >Total per record</span
+                                            >{{ 'createBatchConfig.totalPerRecord' | transloco }}</span
                                         >
                                         <span
                                             class="text-2xl font-bold text-green-700 dark:text-green-300"
@@ -513,9 +509,9 @@
                             </div>
 
                             <div class="pt-8 flex gap-3">
-                                <button mat-button matStepperPrevious>Back</button>
+                                <button mat-button matStepperPrevious>{{ 'createBatchConfig.back' | transloco }}</button>
                                 <button mat-flat-button color="primary" (click)="submit()">
-                                    {{ isEditMode() ? 'Update' : 'Create' }} Configuration
+                                    {{ (isEditMode() ? 'createBatchConfig.updateConfiguration' : 'createBatchConfig.createConfiguration') | transloco }}
                                 </button>
                             </div>
                         </div>

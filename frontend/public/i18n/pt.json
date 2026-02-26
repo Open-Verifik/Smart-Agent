@@ -15,7 +15,10 @@
         "add_credits": "Adicionar créditos",
         "purchase_credits": "Comprar créditos adicionais",
         "status_check": "Verificação de status",
-        "system_health": "Saúde e disponibilidade do sistema"
+        "system_health": "Saúde e disponibilidade do sistema",
+        "smart_monitor": "SmartMonitor",
+        "incidents": "Incidentes",
+        "active_incidents": "Incidentes de serviço ativos"
     },
     "network": {
         "title": "Verificação de status",
@@ -54,6 +57,38 @@
             "error_create": "Erro ao criar a assinatura",
             "error_delete": "Erro ao excluir a assinatura"
         }
+    },
+    "smartMonitor": {
+        "activeIncidents": "Incidentes Ativos",
+        "incidentsSubtitle": "Serviços que você assina que estão com problemas no momento",
+        "allSystemsOperational": "Todos os sistemas operacionais",
+        "allSystemsDesc": "Nenhum incidente ativo detectado nos seus serviços assinados. Tudo funcionando normalmente.",
+        "noSubscriptionsYet": "Nenhuma assinatura ainda",
+        "noSubscriptionsDesc": "Assine serviços na Verificação de Status para receber alertas de incidentes e vê-los aqui.",
+        "goToStatusCheck": "Ir para Verificação de Status",
+        "activeIncidentsCount": "{{count}} incidente(s) ativo(s) afetando seus serviços assinados",
+        "viewLogs": "Ver registros",
+        "started": "Iniciado",
+        "unknownService": "Serviço desconhecido",
+        "backToIncidents": "Voltar aos Incidentes",
+        "incidentNotFound": "Incidente não encontrado",
+        "duration": "Duração",
+        "resolved": "Resolvido",
+        "incidentLog": "Registro do Incidente",
+        "updatesCount": "{{count}} atualização(ões)",
+        "noPublicUpdates": "Ainda não há atualizações públicas para este incidente.",
+        "investigatingMessage": "Nossa equipe está investigando ativamente. Fique atento.",
+        "automaticSystemUpdate": "Atualização automática do sistema",
+        "noDetailsProvided": "Nenhum detalhe fornecido.",
+        "statusDown": "Indisponível",
+        "statusReview": "Em Revisão",
+        "statusUp": "Resolvido",
+        "statusClosed": "Fechado",
+        "categoryInvestigating": "Investigando",
+        "categoryIdentified": "Identificado",
+        "categoryFixing": "Corrigindo",
+        "categoryResolved": "Resolvido",
+        "categoryNote": "Nota"
     },
     "categories": {
         "label": "Categoria",

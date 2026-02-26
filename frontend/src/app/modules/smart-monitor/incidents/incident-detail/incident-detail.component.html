@@ -8,7 +8,7 @@
                 class="-ml-2 text-gray-500 hover:text-gray-900 dark:hover:text-white"
             >
                 <mat-icon class="icon-size-4 mr-1">arrow_back</mat-icon>
-                Back to Incidents
+                {{ 'smartMonitor.backToIncidents' | transloco }}
             </button>
         </div>
 
@@ -25,7 +25,7 @@
             <mat-icon class="icon-size-16 text-gray-300 dark:text-gray-600 mb-4"
                 >search_off</mat-icon
             >
-            <p class="text-lg font-medium text-gray-600 dark:text-gray-400">Incident not found</p>
+            <p class="text-lg font-medium text-gray-600 dark:text-gray-400">{{ 'smartMonitor.incidentNotFound' | transloco }}</p>
         </div>
 
         <!-- Incident Detail -->
@@ -40,7 +40,7 @@
                             <h2
                                 class="text-xl font-bold text-gray-900 dark:text-white leading-tight"
                             >
-                                {{ getServiceName() }}
+                                {{ getServiceName() || ('smartMonitor.unknownService' | transloco) }}
                             </h2>
                             <p class="text-sm text-gray-400 font-mono mt-0.5">
                                 {{ incident.code }}
@@ -54,7 +54,7 @@
                                 class="w-2 h-2 rounded-full"
                                 [ngClass]="getStatusCfg(incident.status).dotClass"
                             ></span>
-                            {{ getStatusCfg(incident.status).label }}
+                            {{ getStatusCfg(incident.status).labelKey | transloco }}
                         </span>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                 >
                     <div class="px-5 py-4 flex flex-col gap-0.5">
                         <span class="text-xs font-semibold uppercase tracking-wide text-gray-400"
-                            >Started</span
+                            >{{ 'smartMonitor.started' | transloco }}</span
                         >
                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{
                             formatDate(incident.startDate)
@@ -73,7 +73,7 @@
                     </div>
                     <div class="px-5 py-4 flex flex-col gap-0.5">
                         <span class="text-xs font-semibold uppercase tracking-wide text-gray-400"
-                            >Duration</span
+                            >{{ 'smartMonitor.duration' | transloco }}</span
                         >
                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{
                             formatDuration(incident.duration)
@@ -81,7 +81,7 @@
                     </div>
                     <div *ngIf="incident.endDate" class="px-5 py-4 flex flex-col gap-0.5">
                         <span class="text-xs font-semibold uppercase tracking-wide text-gray-400"
-                            >Resolved</span
+                            >{{ 'smartMonitor.resolved' | transloco }}</span
                         >
                         <span class="text-sm font-medium text-gray-800 dark:text-gray-200">{{
                             formatDate(incident.endDate)
@@ -96,11 +96,11 @@
                     class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-5 flex items-center gap-2"
                 >
                     <mat-icon class="icon-size-5 text-gray-400">timeline</mat-icon>
-                    Incident Log
+                    {{ 'smartMonitor.incidentLog' | transloco }}
                     <span
                         class="ml-2 text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full"
                     >
-                        {{ logs.length }} update{{ logs.length !== 1 ? 's' : '' }}
+                        {{ 'smartMonitor.updatesCount' | transloco: { count: logs.length } }}
                     </span>
                 </h3>
 
@@ -113,10 +113,10 @@
                         >article</mat-icon
                     >
                     <p class="text-gray-500 dark:text-gray-400">
-                        No public updates yet for this incident.
+                        {{ 'smartMonitor.noPublicUpdates' | transloco }}
                     </p>
                     <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">
-                        Our team is actively investigating. Stay tuned.
+                        {{ 'smartMonitor.investigatingMessage' | transloco }}
                     </p>
                 </div>
 
@@ -151,7 +151,7 @@
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border"
                                         [ngClass]="getCategoryCfg(log.category).classes"
                                     >
-                                        {{ getCategoryCfg(log.category).label }}
+                                        {{ getCategoryCfg(log.category).labelKey | transloco }}
                                     </span>
                                     <span
                                         class="text-xs text-gray-400 dark:text-gray-500"
@@ -172,13 +172,13 @@
                                         *ngIf="!log.publicLog && log.automaticMessage"
                                         class="text-gray-400 italic text-xs"
                                     >
-                                        Automatic system update
+                                        {{ 'smartMonitor.automaticSystemUpdate' | transloco }}
                                     </p>
                                     <p
                                         *ngIf="!log.publicLog && !log.automaticMessage"
                                         class="text-gray-400 italic text-xs"
                                     >
-                                        No details provided.
+                                        {{ 'smartMonitor.noDetailsProvided' | transloco }}
                                     </p>
                                 </div>
                             </div>
