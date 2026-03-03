@@ -81,3 +81,14 @@ export type BillingConfig = {
         hasAutoCharge: boolean;
     };
 };
+
+export type AppFeature = {
+    _id: string;
+    code: string;
+    name: string;
+    price: number;
+    group?: string;
+    baseCategory?: string;
+    country?: string;
+    url?: string;
+};

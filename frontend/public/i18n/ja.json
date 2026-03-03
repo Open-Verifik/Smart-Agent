@@ -850,7 +850,28 @@
             "cancelNote": "設定からいつでもプランの変更・キャンセルが可能です。",
             "cancel": "キャンセル",
             "confirmChange": "変更を確認",
-            "secureTransaction": "安全な取引"
+            "secureTransaction": "安全な取引",
+            "estimatedTotal": "お支払い合計",
+            "usageNote": "最終請求額は実際の使用量によって異なります。"
+        },
+        "requestSlider": {
+            "label": "月間の推定リクエスト数",
+            "requests": "リクエスト",
+            "requestsPerYear": "リクエスト/年",
+            "perRequest": "リクエストあたり",
+            "monthlySpend": "推定月額支出",
+            "bestValue": "ご利用量に最適なプラン",
+            "basePrice": "基本料金: $0.30/リクエスト — プランの割引でコスト削減",
+            "estimatedTotal": "お支払い"
+        },
+        "apiBreakdown": {
+            "button": "API価格を比較",
+            "title": "プラン別API価格",
+            "apiName": "API",
+            "basePrice": "基本 $/リクエスト",
+            "backToPlans": "プランに戻る",
+            "empty": "利用可能なAPIがありません。",
+            "searchPlaceholder": "名前またはエンドポイントURLで検索"
         }
     }
 }

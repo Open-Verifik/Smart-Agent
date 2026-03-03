@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { HttpWrapperService } from 'app/core/services/http-wrapper.service';
 import { environment } from 'environments/environment';
@@ -10,13 +11,25 @@ import { ClientSubscription, SubscriptionPlan } from './subscription-plan.types'
 export class SubscriptionService {
   private baseUrl = environment.apiUrl;
 
-  constructor(private _httpWrapper: HttpWrapperService) {}
+  constructor(
+    private _httpWrapper: HttpWrapperService,
+    private _httpClient: HttpClient
+  ) {}
 
   /**
-   * Get all available subscription plans
+   * Get all available subscription plans (legacy - returns all plans)
    */
   getSubscriptions(params: any = {}): Observable<{ data: SubscriptionPlan[] }> {
     return this._httpWrapper.sendRequest('get', `${this.baseUrl}/v2/subscription-plans`, params);
+  }
+
+  /**
+   * Get plans from the client's pricing table (only plans assigned to their pricing table)
+   */
+  getPricingTableDisplay(params: { lang?: string } = {}): Observable<{
+    data: { pricingTable: any; plans: SubscriptionPlan[]; planNameOverrides?: Record<string, any> } | null;
+  }> {
+    return this._httpWrapper.sendRequest('get', `${this.baseUrl}/v2/pricing-tables/display`, params);
   }
 
   /**
@@ -29,10 +42,10 @@ export class SubscriptionService {
   /**
    * Change user's subscription plan
    */
-  changeMySubscription(data: { id: string }): Observable<any> {
+  changeMySubscription(data: { id: string; requestsPerMonth?: number }): Observable<any> {
     const requestData = {
       ...data,
-      source: 'smart_agent' // Indicate this request comes from Smart Agent
+      source: 'smart_agent'
     };
     return this._httpWrapper.sendRequest('put', `${this.baseUrl}/v2/subscription-plans/${data.id}/subscribe`, requestData);
   }
@@ -74,5 +87,15 @@ export class SubscriptionService {
    */
   getFeatures(params: any = {}): Observable<any> {
     return this._httpWrapper.sendRequest('get', `${this.baseUrl}/v2/app-features`, params);
+  }
+
+  /**
+   * Get public app features (no auth required, same as Postman).
+   * Used for API price breakdown on subscription plans.
+   */
+  getPublicAppFeatures(params: Record<string, string> = {}): Observable<{ data: any[] }> {
+    return this._httpClient.get<{ data: any[] }>(`${this.baseUrl}/v2/public/app-features`, {
+      params,
+    });
   }
 }

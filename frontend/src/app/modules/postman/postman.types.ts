@@ -20,6 +20,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
   {
     id: 'auth-email',
     label: 'API Key Access via Email',
+    code: 'feature_email_login',
     category: 'AUTHENTICATION',
     country: 'world',
     method: 'POST',
@@ -38,6 +39,7 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
   {
     id: 'biometrics-liveness',
     label: 'Liveness Detection',
+    code: 'face_recognition_liveness',
     category: "BIOMETRICS API'S",
     country: 'world',
     method: 'POST',

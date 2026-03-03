@@ -1,5 +1,6 @@
-import { Component, computed, effect, HostListener, inject } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -253,48 +254,35 @@ export class PostmanComponent {
     return map[country] || '🏳️';
   }
 
+  private _queryParamMap = toSignal(this._route.queryParamMap, { initialValue: this._route.snapshot.queryParamMap });
+
   constructor() {
-    // Effect: Sync URL -> Selected Endpoint (Initial Load / Refresh)
+    // Effect: Sync URL code param -> Selected Endpoint (route is source of truth for code)
     effect(
       () => {
+        const params = this._queryParamMap();
+        const codeParam = params?.get('code');
         const endpoints = this._postmanService.endpoints();
-        if (endpoints.length > 0 && !this._postmanService.selectedEndpoint()) {
-          // Check query param
-          const urlParam = this._route.snapshot.queryParamMap.get('url');
-          if (urlParam) {
-            const found = endpoints.find((ep) => ep.url.endsWith(urlParam) || ep.url === urlParam);
-            if (found) {
-              this._postmanService.selectEndpoint(found);
-            }
+        if (endpoints.length > 0 && codeParam) {
+          const found = endpoints.find((ep) => ep.code === codeParam);
+          if (found) {
+            this._postmanService.selectEndpoint(found);
           }
         }
       },
       { allowSignalWrites: true },
     );
 
-    // Effect: Selected Endpoint -> Sync URL
+    // Effect: Selected Endpoint -> Sync URL (use code, not url, for clean query params)
     effect(() => {
       const selected = this._postmanService.selectedEndpoint();
-      if (selected) {
-        // Extract the relative part if possible or use full URL
-        // User asked for 'v2/co/cedula'
-
-        let urlToSet = selected.url;
-        // Simple heuristic: if it contains /v2/, take from there
-        if (urlToSet.includes('/v2/')) {
-          urlToSet = urlToSet.substring(urlToSet.indexOf('v2/'));
-        }
-
-        // Manually construct URL to avoid %2F encoding of slashes
+      if (selected?.code) {
         const urlTree = this._router.createUrlTree([], {
           relativeTo: this._route,
-          queryParams: { url: urlToSet },
+          queryParams: { code: selected.code },
           queryParamsHandling: 'merge',
         });
-
-        // Convert to string and unescape slashes
-        const urlString = this._router.serializeUrl(urlTree).replace(/%2F/g, '/');
-
+        const urlString = this._router.serializeUrl(urlTree);
         this._router.navigateByUrl(urlString, {
           replaceUrl: true,
         });

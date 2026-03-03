@@ -493,6 +493,106 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   gap: 40px;
 }
 
+// Two-column layout: slider left, cards right
+.explore-split {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 28px;
+  align-items: start;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Slider panel (left column)
+.slider-panel {
+  @include glass-card-light;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 24px;
+
+  :host-context(.dark) & {
+    @include glass-card-dark;
+  }
+}
+
+// Plans grid wrapper (right column, replaces old .explore-section direct child)
+.plans-grid-wrapper {
+  width: 100%;
+}
+
+// Slider cost breakdown rows inside slider panel
+.slider-cost-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+
+  .breakdown-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(99, 102, 241, 0.04);
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    &.breakdown-best {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(99, 102, 241, 0.08));
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+  }
+
+  .breakdown-name {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: $light-text-secondary;
+    min-width: 50px;
+
+    :host-context(.dark) & { color: $dark-text-secondary; }
+  }
+
+  .breakdown-nums {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .breakdown-rate {
+    font-size: 11px;
+    color: $light-text-muted;
+
+    :host-context(.dark) & { color: $dark-text-muted; }
+  }
+
+  .breakdown-total {
+    font-size: 13px;
+    font-weight: 700;
+    color: $light-text-primary;
+
+    :host-context(.dark) & { color: $dark-text-primary; }
+  }
+
+  .breakdown-best-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $accent-green;
+    letter-spacing: 0.04em;
+  }
+}
+
 .interval-toggle {
   display: flex;
   justify-content: center;
@@ -749,47 +849,132 @@ $glow-blue: rgba(59, 130, 246, 0.3);
         color: $dark-text-muted;
       }
     }
-  }
 
-  .plan-discount-highlight {
-    padding: 20px;
-    margin-bottom: auto;
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
-    border-radius: 16px;
-    border: 1px solid rgba(16, 185, 129, 0.15);
-
-    :host-context(.dark) & {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
-      border-color: rgba(16, 185, 129, 0.2);
-    }
-
-    .discount-badge {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-
-      svg {
-        width: 24px;
-        height: 24px;
-        color: $accent-green;
-      }
-
-      .discount-value {
-        font-size: 20px;
-        font-weight: 700;
-        color: $accent-green;
-      }
-    }
-
-    .discount-description {
-      font-size: 14px;
-      color: $light-text-secondary;
-      margin: 0;
-      line-height: 1.5;
+    // Muted base price when slider active
+    &.price-muted {
+      .price-amount { font-size: 24px !important; color: $light-text-muted !important; }
+      .currency { font-size: 16px !important; color: $light-text-muted !important; }
+      .price-period { color: $light-text-muted !important; }
 
       :host-context(.dark) & {
-        color: $dark-text-secondary;
+        .price-amount, .currency, .price-period { color: $dark-text-muted !important; }
+      }
+    }
+  }
+
+  // Add-on line: "+ $164  ~2.8k requests"
+  .plan-addon-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    margin-top: 6px;
+
+    .addon-plus {
+      font-weight: 700;
+      color: $accent-green;
+    }
+
+    .addon-amount {
+      font-weight: 700;
+      color: $accent-green;
+    }
+
+    .addon-label {
+      font-size: 12px;
+      color: $light-text-muted;
+
+      :host-context(.dark) & { color: $dark-text-muted; }
+    }
+  }
+
+  // Estimated total block
+  .plan-estimated-total {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid $light-card-border;
+
+    :host-context(.dark) & { border-color: $dark-card-border; }
+
+    .total-label {
+      display: block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $light-text-muted;
+      margin-bottom: 4px;
+
+      :host-context(.dark) & { color: $dark-text-muted; }
+    }
+
+    .total-amount {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+
+    .total-currency {
+      font-size: 20px;
+      font-weight: 600;
+      color: $light-text-primary;
+
+      :host-context(.dark) & { color: $dark-text-primary; }
+    }
+
+    .total-number {
+      font-size: 36px;
+      font-weight: 800;
+      color: $light-text-primary;
+      line-height: 1;
+      letter-spacing: -0.02em;
+
+      :host-context(.dark) & {
+        background: linear-gradient(135deg, #ffffff, rgba(255,255,255,0.85));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .total-period {
+      font-size: 14px;
+      color: $light-text-muted;
+      margin-left: 2px;
+
+      :host-context(.dark) & { color: $dark-text-muted; }
+    }
+  }
+
+  .plan-discount-chip {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    padding: 6px 12px;
+    margin-bottom: auto;
+    background: rgba(16, 185, 129, 0.08);
+    border-radius: 8px;
+    font-size: 13px;
+
+    :host-context(.dark) & {
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .discount-chip-value {
+      font-weight: 600;
+      color: #059669;
+
+      :host-context(.dark) & {
+        color: #34d399;
+      }
+    }
+
+    .discount-chip-context {
+      color: $light-text-muted;
+      font-size: 12px;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
       }
     }
   }
@@ -925,6 +1110,460 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     padding: 10px 20px;
     font-size: 14px;
   }
+}
+
+// ================================
+// REQUEST SLIDER SECTION
+// ================================
+.slider-section {
+  @include glass-card-light;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  :host-context(.dark) & {
+    @include glass-card-dark;
+  }
+}
+
+.slider-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .slider-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  .slider-value-pill {
+    padding: 6px 14px;
+    background: $primary-gradient;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+  }
+}
+
+.slider-hint {
+  font-size: 13px;
+  color: $light-text-muted;
+  margin: 0;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+}
+
+.slider-track-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: visible;
+  padding: 12px 0;
+}
+
+.slider-input {
+  width: 100%;
+  height: 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 100px;
+  cursor: pointer;
+  outline: none;
+  display: block;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    background: $primary-gradient;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+    @include smooth-transition;
+
+    &:hover {
+      transform: scale(1.15);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: $primary-gradient;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    cursor: pointer;
+  }
+}
+
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+
+  span {
+    font-size: 11px;
+    color: $light-text-muted;
+    font-weight: 500;
+
+    :host-context(.dark) & {
+      color: $dark-text-muted;
+    }
+  }
+}
+
+// ================================
+// PLAN COST CHIPS
+// ================================
+.plan-cost-chips {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  @media (min-width: 640px) {
+    flex-wrap: nowrap;
+  }
+}
+
+.plan-cost-chip {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: rgba(99, 102, 241, 0.04);
+  border: 1px solid $light-card-border;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  @include smooth-transition;
+  position: relative;
+  overflow: hidden;
+
+  :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: $dark-card-border;
+  }
+
+  &.best-value {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+    border-color: rgba(16, 185, 129, 0.3);
+
+    :host-context(.dark) & {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .chip-plan-name {
+      color: $accent-green;
+    }
+  }
+
+  .chip-plan-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: $light-text-primary;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  .chip-cost-per-req {
+    font-size: 16px;
+    font-weight: 700;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: 500;
+      color: $light-text-muted;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+  }
+
+  .chip-monthly-spend {
+    font-size: 13px;
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+
+    span {
+      font-size: 11px;
+      color: $light-text-muted;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+  }
+
+  .chip-best-value-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    color: $accent-green;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+
+    svg {
+      width: 13px;
+      height: 13px;
+    }
+  }
+}
+
+// ================================
+// SLIDER ACTIONS (Compare API prices button)
+// ================================
+.slider-actions {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.btn-api-breakdown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 14px;
+  cursor: pointer;
+  background: transparent;
+  color: $light-text-primary;
+  border: 1px solid $light-card-border;
+  @include smooth-transition;
+
+  :host-context(.dark) & {
+    color: $dark-text-primary;
+    border-color: $dark-card-border;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.3);
+    color: $accent-purple;
+  }
+}
+
+// ================================
+// API BREAKDOWN SECTION
+// ================================
+.api-breakdown-section {
+  @include glass-card-light;
+  padding: 28px 32px;
+  margin-top: 24px;
+
+  :host-context(.dark) & {
+    @include glass-card-dark;
+  }
+}
+
+.api-breakdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin: 0;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  .btn-sm {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}
+
+.api-breakdown-empty {
+  padding: 32px;
+  text-align: center;
+  color: $light-text-muted;
+  font-size: 14px;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+}
+
+.api-breakdown-table-wrapper {
+  overflow-x: auto;
+}
+
+.api-breakdown-search {
+  margin-bottom: 16px;
+}
+
+.api-breakdown-search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid $light-card-border;
+  border-radius: 8px;
+  background: $light-surface;
+  color: $light-text-primary;
+
+  &::placeholder {
+    color: $light-text-muted;
+  }
+
+  :host-context(.dark) & {
+    border-color: $dark-card-border;
+    background: $dark-surface;
+    color: $dark-text-primary;
+
+    &::placeholder {
+      color: $dark-text-muted;
+    }
+  }
+}
+
+.api-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th,
+  td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid $light-card-border;
+
+    :host-context(.dark) & {
+      border-color: $dark-card-border;
+    }
+  }
+
+  th {
+    font-weight: 600;
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+  }
+
+  td {
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  tbody tr:hover {
+    background: rgba(99, 102, 241, 0.04);
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
+}
+
+.api-breakdown-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid $light-card-border;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  font-size: 14px;
+
+  :host-context(.dark) & {
+    border-color: $dark-card-border;
+  }
+
+  .footer-label {
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & {
+      color: $dark-text-primary;
+    }
+  }
+
+  .footer-plan {
+    color: $light-text-secondary;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+  }
+}
+
+// ================================
+// BEST VALUE CARD HIGHLIGHT
+// ================================
+.plan-card.best-value-card {
+  border-color: rgba(16, 185, 129, 0.35);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+
+  :host-context(.dark) & {
+    border-color: rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+}
+
+.best-value-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+  background: $success-gradient;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  white-space: nowrap;
 }
 // ============================================
 // UI VERSION TOGGLE (Dev only)
@@ -1312,30 +1951,35 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   }
 
   .v2-card-discount {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px;
-    margin-bottom: 20px;
-    background: #f0fdf4;
-    border-radius: 8px;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+    padding: 6px 12px;
+    margin-bottom: 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 6px;
+    font-size: 13px;
 
     :host-context(.dark) & {
-      background: #052e1f;
+      background: rgba(16, 185, 129, 0.15);
     }
 
-    .discount-percent {
-      font-size: 14px;
+    .discount-value {
       font-weight: 600;
-      color: #10b981;
-    }
-
-    .discount-desc {
-      font-size: 13px;
-      color: #666;
+      color: #059669;
 
       :host-context(.dark) & {
-        color: #888;
+        color: #34d399;
+      }
+    }
+
+    .discount-context {
+      font-size: 12px;
+      color: #64748b;
+
+      :host-context(.dark) & {
+        color: #94a3b8;
       }
     }
   }

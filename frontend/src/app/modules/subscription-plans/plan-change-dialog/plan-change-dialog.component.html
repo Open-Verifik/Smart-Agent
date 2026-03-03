@@ -13,7 +13,7 @@
       <div class="plan-details">
         <div class="plan-header">
           <h2>{{ formattedPlan?.name }}</h2>
-          <span class="interval-badge" *ngIf="formattedPlan?.name !== 'PAYG'">
+          <span class="interval-badge" *ngIf="formattedPlan?.interval">
             {{ formattedPlan?.interval === 'year' ? ('subscriptionPlans.yearly' | transloco) : ('subscriptionPlans.monthly' | transloco) }}
           </span>
         </div>
@@ -49,17 +49,38 @@
       <div class="order-summary">
         <h3>{{ 'subscriptionPlans.dialog.orderSummary' | transloco }}</h3>
 
-        <!-- Price -->
+        <!-- Price section -->
         <div class="price-section">
+          <!-- Base plan row -->
           <div class="price-row">
             <span>{{ formattedPlan?.name }} {{ 'subscriptionPlans.dialog.planLabel' | transloco }}</span>
-            <span class="price">${{ formattedPlan?.amount | number:'1.0-0' }}</span>
+            <span class="price">${{ formattedPlan?.amountByMonth | number:'1.0-0' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
           </div>
-          <div class="price-row subtotal" *ngIf="formattedPlan?.interval === 'year'">
+
+          <!-- Request add-on row (only when usage slider was set) -->
+          <div class="price-row addon-row" *ngIf="formattedPlan?.hasUsageAddon">
+            <span>~{{ formatNumber(formattedPlan?.requestsPerMonth) }} {{ 'subscriptionPlans.requestSlider.requests' | transloco }}</span>
+            <span class="price addon-price">+${{ formattedPlan?.requestAddOn | number:'1.0-0' }}</span>
+          </div>
+
+          <!-- Divider + estimated total -->
+          <div class="price-divider" *ngIf="formattedPlan?.hasUsageAddon"></div>
+          <div class="price-row total-row" *ngIf="formattedPlan?.hasUsageAddon">
+            <span class="total-label-text">{{ 'subscriptionPlans.dialog.estimatedTotal' | transloco }}</span>
+            <span class="price total-price">${{ formattedPlan?.estimatedTotal | number:'1.0-0' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
+          </div>
+
+          <!-- Annual billing note -->
+          <div class="price-row subtotal" *ngIf="formattedPlan?.interval === 'year' && !formattedPlan?.hasUsageAddon">
             <span>{{ 'subscriptionPlans.dialog.monthlyEquivalent' | transloco }}</span>
             <span>${{ formattedPlan?.amountByMonth | number:'1.2-2' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
           </div>
         </div>
+
+        <!-- Usage note -->
+        <p class="usage-note" *ngIf="formattedPlan?.hasUsageAddon">
+          {{ 'subscriptionPlans.dialog.usageNote' | transloco }}
+        </p>
 
         <!-- Dates -->
         <div class="dates-section">
@@ -77,7 +98,7 @@
         <div class="plan-change-indicator" *ngIf="currentPlan">
           <div class="plan-from">
             <span class="plan-label">{{ 'subscriptionPlans.dialog.from' | transloco }}</span>
-            <span class="plan-name">{{ currentPlan.name || 'PAYG' }}</span>
+            <span class="plan-name">{{ currentPlan?.name || '' }}</span>
           </div>
           <div class="arrow">
             <svg viewBox="0 0 20 20" fill="currentColor">

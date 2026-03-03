@@ -850,7 +850,28 @@
             "cancelNote": "설정에서 언제든지 플랜을 변경하거나 취소할 수 있습니다.",
             "cancel": "취소",
             "confirmChange": "변경 확인",
-            "secureTransaction": "안전한 거래"
+            "secureTransaction": "안전한 거래",
+            "estimatedTotal": "총 결제 금액",
+            "usageNote": "최종 청구 금액은 실제 사용량에 따라 달라집니다."
+        },
+        "requestSlider": {
+            "label": "월 예상 요청 수",
+            "requests": "요청",
+            "requestsPerYear": "요청/년",
+            "perRequest": "요청당",
+            "monthlySpend": "예상 월 지출",
+            "bestValue": "사용량에 맞는 최적의 가치",
+            "basePrice": "기본 가격: $0.30/요청 — 플랜 할인으로 비용 절감",
+            "estimatedTotal": "결제 금액"
+        },
+        "apiBreakdown": {
+            "button": "API 가격 비교",
+            "title": "플랜별 API 가격",
+            "apiName": "API",
+            "basePrice": "기본 $/요청",
+            "backToPlans": "플랜으로 돌아가기",
+            "empty": "사용 가능한 API가 없습니다.",
+            "searchPlaceholder": "이름 또는 엔드포인트 URL로 검색"
         }
     }
 }

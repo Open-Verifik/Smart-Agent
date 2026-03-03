@@ -851,7 +851,28 @@
             "cancelNote": "Você pode cancelar ou alterar seu plano a qualquer momento nas configurações.",
             "cancel": "Cancelar",
             "confirmChange": "Confirmar alteração",
-            "secureTransaction": "Transação segura"
+            "secureTransaction": "Transação segura",
+            "estimatedTotal": "Total a pagar",
+            "usageNote": "O valor final faturado depende do uso real."
+        },
+        "requestSlider": {
+            "label": "Solicitações estimadas por mês",
+            "requests": "solicitações",
+            "requestsPerYear": "solicitações/ano",
+            "perRequest": "por solicitação",
+            "monthlySpend": "gasto mensal est.",
+            "bestValue": "Melhor custo-benefício para seu uso",
+            "basePrice": "Preço base: $0.30/solicitação — o desconto do seu plano reduz o custo",
+            "estimatedTotal": "A pagar"
+        },
+        "apiBreakdown": {
+            "button": "Comparar preços de API",
+            "title": "Preços de API por plano",
+            "apiName": "API",
+            "basePrice": "Base $/req",
+            "backToPlans": "Voltar aos planos",
+            "empty": "Nenhuma API disponível.",
+            "searchPlaceholder": "Pesquisar por nome ou URL do endpoint"
         }
     }
 }

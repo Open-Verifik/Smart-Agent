@@ -10,8 +10,10 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
@@ -23,8 +25,11 @@ import { ApiEndpoint } from '../postman.types';
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
+    RouterLinkActive,
     MatButtonModule,
     MatIconModule,
+    MatSnackBarModule,
     MatTooltipModule,
     TranslocoPipe,
   ],
@@ -91,10 +96,16 @@ import { ApiEndpoint } from '../postman.types';
               !collapsed && collapsedCategories().has(category.name) && !searchQuery()
             "
           >
-            <button
+            <a
               *ngFor="let endpoint of category.endpoints; trackBy: trackByEndpoint"
+              [routerLink]="['/postman']"
+              [queryParams]="endpoint.code ? { code: endpoint.code } : {}"
+              queryParamsHandling="merge"
+              routerLinkActive="bg-blue-100 dark:bg-blue-900"
+              [routerLinkActiveOptions]="{ exact: false }"
               (click)="select(endpoint)"
-              class="w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors hover:bg-slate-200 dark:hover:bg-slate-800 text-left group relative"
+              (mouseenter)="showEndpointUrlToast(endpoint)"
+              class="w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors hover:bg-slate-200 dark:hover:bg-slate-800 text-left group relative no-underline text-inherit"
               [class.bg-blue-100]="selectedEndpoint()?.id === endpoint.id"
               [class.dark:bg-blue-900]="selectedEndpoint()?.id === endpoint.id"
               [matTooltip]="
@@ -126,7 +137,7 @@ import { ApiEndpoint } from '../postman.types';
                     : endpoint.label
                 }}
               </span>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -146,6 +157,7 @@ export class SidebarComponent {
   @Output() toggleCollapsed = new EventEmitter<void>();
 
   private _postmanService = inject(PostmanService);
+  private _snackBar = inject(MatSnackBar);
 
   searchQuery = signal('');
   selectedEndpoint = this._postmanService.selectedEndpoint;
@@ -173,7 +185,8 @@ export class SidebarComponent {
         if (
           !query ||
           endpoint.label.toLowerCase().includes(query) ||
-          endpoint.url.toLowerCase().includes(query)
+          endpoint.url.toLowerCase().includes(query) ||
+          (endpoint.code && endpoint.code.toLowerCase().includes(query))
         ) {
           acc[category].push(endpoint);
         }
@@ -202,6 +215,16 @@ export class SidebarComponent {
 
   select(endpoint: ApiEndpoint) {
     this._postmanService.selectEndpoint(endpoint);
+  }
+
+  showEndpointUrlToast(endpoint: ApiEndpoint) {
+    if (!endpoint?.code) return;
+    const shareableUrl = `${window.location.origin}/postman?code=${encodeURIComponent(endpoint.code)}`;
+    this._snackBar.open(shareableUrl, undefined, {
+      duration: 4000,
+      horizontalPosition: 'start',
+      verticalPosition: 'bottom',
+    });
   }
 
   // TrackBy functions for performance

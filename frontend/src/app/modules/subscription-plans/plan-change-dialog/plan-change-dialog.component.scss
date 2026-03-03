@@ -576,6 +576,52 @@ $accent-green: #10b981;
   }
 }
 
+.usage-note {
+  font-size: 12px;
+  color: $light-text-muted;
+  margin: 8px 0 0;
+  line-height: 1.5;
+  font-style: italic;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+}
+
+// Add-on row styling in order summary
+.addon-row {
+  .addon-price {
+    color: #10b981 !important;
+  }
+}
+
+// Divider between base+addon and total
+.price-divider {
+  height: 1px;
+  background: $light-card-border;
+  margin: 4px 0;
+
+  :host-context(.dark) & {
+    background: $dark-card-border;
+  }
+}
+
+// Total row styling
+.total-row {
+  .total-label-text {
+    font-weight: 600;
+    color: $light-text-primary;
+
+    :host-context(.dark) & { color: $dark-text-primary; }
+  }
+
+  .total-price {
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: $accent-purple !important;
+  }
+}
+
 // ================================
 // RESPONSIVE
 // ================================

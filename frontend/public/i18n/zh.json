@@ -850,7 +850,28 @@
             "cancelNote": "您可以随时在设置中取消或更改计划。",
             "cancel": "取消",
             "confirmChange": "确认更改",
-            "secureTransaction": "安全交易"
+            "secureTransaction": "安全交易",
+            "estimatedTotal": "应付总额",
+            "usageNote": "最终账单金额取决于实际使用量。"
+        },
+        "requestSlider": {
+            "label": "每月预估请求数",
+            "requests": "请求",
+            "requestsPerYear": "请求/年",
+            "perRequest": "每次请求",
+            "monthlySpend": "预估月支出",
+            "bestValue": "最适合您的用量",
+            "basePrice": "基础价格：$0.30/请求 — 您的计划折扣可降低成本",
+            "estimatedTotal": "应付"
+        },
+        "apiBreakdown": {
+            "button": "比较API价格",
+            "title": "各计划API定价",
+            "apiName": "API",
+            "basePrice": "基础 $/次",
+            "backToPlans": "返回计划",
+            "empty": "暂无API功能。",
+            "searchPlaceholder": "按名称或端点URL搜索"
         }
     }
 }
