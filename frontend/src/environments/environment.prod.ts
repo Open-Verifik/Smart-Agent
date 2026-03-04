@@ -1,17 +1,29 @@
+const isStaging = () =>
+    typeof window !== 'undefined' && window.location?.hostname === 'x402.on-forge.com';
+
 export const environment = {
     production: true,
-    baseUrl: 'https://prod.verifik.co',
-    smartAgentUrl: 'https://x402-agent.verifik.co',
-    get apiUrl(): string {
-        if (typeof window !== 'undefined' && window.location?.hostname === 'x402.on-forge.com') {
-            return 'https://staging-api.verifik.co';
-        }
-        return 'https://prod.verifik.co';
+    get baseUrl(): string {
+        return isStaging() ? 'https://x402.on-forge.com' : 'https://prod.verifik.co';
     },
-    appUrl: 'https://prod.verifik.co',
-    projectId: '6332941ccde4f719d9c00f9e',
-    loginProjectFlowId: '6332941ccde4f719d9c00f9f',
-    kycBaseUrl: 'https://access.verifik.co',
+    get smartAgentUrl(): string {
+        return isStaging() ? 'https://x402.on-forge.com' : 'https://x402-agent.verifik.co';
+    },
+    get apiUrl(): string {
+        return isStaging() ? 'https://staging-api.verifik.co' : 'https://prod.verifik.co';
+    },
+    get appUrl(): string {
+        return isStaging() ? 'https://x402.on-forge.com' : 'https://prod.verifik.co';
+    },
+    get projectId(): string {
+        return isStaging() ? '6266193db77ccc8111730c90' : '6332941ccde4f719d9c00f9e';
+    },
+    get loginProjectFlowId(): string {
+        return isStaging() ? '658ed28b0990f300134d7b78' : '6332941ccde4f719d9c00f9f';
+    },
+    get kycBaseUrl(): string {
+        return isStaging() ? 'https://access.app' : 'https://access.verifik.co';
+    },
     // Blockchain Config
     rpcUrl: 'https://wild-bitter-meadow.avalanche-mainnet.quiknode.pro/e2565749ca44c2873fe2a0a747f5ac68ae7eb14f/ext/bc/C/rpc/',
     tokenTicker: 'VKA',
