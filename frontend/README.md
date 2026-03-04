@@ -161,23 +161,50 @@ A conversational AI agent that:
 
 ### Installation
 
-```bash
-# Install dependencies
-npm install
+1. **Clone the repository** and navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 
-# Start development server
-npm start
-```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-The app will be available at `http://localhost:4200/`
+3. **Start the development server**:
+   ```bash
+   npm start
+   ```
+
+4. **Open the app** at `http://localhost:4201/`
+
+5. **Build for production** (optional):
+   ```bash
+   npm run build
+   ```
+   The output will be in the `dist/browser` folder.
 
 ### Configuration
 
-Update the API URL in `src/app/app.ts`:
+API URLs and other environment variables are configured in:
 
-```typescript
-baseUrl = 'https://staging-api.verifik.co'; // or 'http://localhost:3000' for local dev
-```
+- **Development**: `src/environments/environment.ts`
+- **Production**: `src/environments/environment.prod.ts` (used when building with `--configuration=production`)
+
+Key configuration options:
+
+| Variable | Description |
+|----------|-------------|
+| `apiUrl` | Verifik API backend (e.g. `https://staging-api.verifik.co` for staging) |
+| `smartAgentUrl` | Agent backend URL |
+| `baseUrl` | App base URL |
+
+For local development, `environment.ts` uses `https://verifik.app` as the API. For production builds, the app automatically uses `https://staging-api.verifik.co` when deployed at **x402.on-forge.com** (staging) and `https://prod.verifik.co` otherwise.
+
+### Deployment
+
+- **Staging** (`x402.on-forge.com`): Uses `https://staging-api.verifik.co` for all API requests. The same production build detects the host at runtime.
+- **Production** (`x402-agent.verifik.co`): Uses `https://prod.verifik.co` for API requests.
 
 ## 📖 How It Works
 
@@ -247,14 +274,19 @@ Our contract is a simple payment contract that follows the x402 pattern: API ret
 ## 📁 Project Structure
 
 ```
-avalanche-agent/
+frontend/
 ├── src/
 │   ├── app/
-│   │   ├── services/
-│   │   │   └── agent-wallet.service.ts  # Wallet & blockchain logic
-│   │   ├── app.ts                        # Main component
-│   │   ├── app.html                      # Chat UI
-│   │   └── app.scss                      # Styles
+│   │   ├── core/                         # Auth, HTTP, services
+│   │   ├── modules/
+│   │   │   ├── chat/                     # Chat UI & agent wallet
+│   │   │   ├── postman/                  # API testing
+│   │   │   ├── smart-batch/              # Batch processing
+│   │   │   └── ...
+│   │   └── ...
+│   ├── environments/
+│   │   ├── environment.ts                # Development config
+│   │   └── environment.prod.ts          # Production config
 │   ├── index.html
 │   └── main.ts
 ├── package.json
