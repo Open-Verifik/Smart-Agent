@@ -62,6 +62,11 @@ export const appRoutes: Route[] = [
                     import('app/modules/add-credits/add-credits.routes').then((m) => m.default),
             },
             {
+                path: 'smart-enroll',
+                loadChildren: () =>
+                    import('./modules/smart-enroll/smart-enroll.routes').then((m) => m.default),
+            },
+            {
                 path: 'smart-monitor',
                 loadChildren: () =>
                     import('app/modules/smart-monitor/smart-monitor.routes').then((m) => m.default),

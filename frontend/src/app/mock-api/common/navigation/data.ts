@@ -62,6 +62,22 @@ export const defaultNavigation: FuseNavigationItem[] = [
         ],
     },
     {
+        id: 'smart-enroll',
+        title: 'nav.smart_enroll',
+        type: 'collapsable',
+        icon: 'heroicons_outline:document-magnifying-glass',
+        children: [
+            {
+                id: 'smart-scan',
+                title: 'nav.smart_scan',
+                subtitle: 'nav.scan_documents',
+                type: 'basic',
+                icon: 'heroicons_outline:document-text',
+                link: '/smart-enroll/smart-scan',
+            },
+        ],
+    },
+    {
         id: 'smart-monitor',
         title: 'nav.smart_monitor',
         type: 'collapsable',
@@ -187,6 +203,22 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:plus-circle',
                 link: '/add-credits',
+            },
+        ],
+    },
+    {
+        id: 'smart-enroll',
+        title: 'nav.smart_enroll',
+        type: 'collapsable',
+        icon: 'heroicons_outline:document-magnifying-glass',
+        children: [
+            {
+                id: 'smart-scan',
+                title: 'nav.smart_scan',
+                subtitle: 'nav.scan_documents',
+                type: 'basic',
+                icon: 'heroicons_outline:document-text',
+                link: '/smart-enroll/smart-scan',
             },
         ],
     },

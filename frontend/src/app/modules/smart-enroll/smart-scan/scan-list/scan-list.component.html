@@ -1,0 +1,296 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <!-- Header -->
+    <div
+        class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent"
+    >
+        <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center font-medium text-xs text-secondary leading-none">
+                <a routerLink="/chat" class="cursor-pointer text-primary-500 hover:underline">Verifik</a>
+                <mat-icon class="icon-size-4 mx-2 text-secondary" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <span class="cursor-default">{{ 'nav.smart_scan' | transloco }}</span>
+            </div>
+            <div class="mt-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                        {{ 'smartScan.title' | transloco }}
+                    </h2>
+                    <p class="mt-1 text-secondary">{{ 'smartScan.subtitle' | transloco }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <mat-button-toggle-group
+                        [value]="viewMode()"
+                        (valueChange)="setViewMode($event)"
+                        class="rounded-lg border border-slate-200 dark:border-slate-700"
+                    >
+                        <mat-button-toggle value="cards">
+                            <mat-icon class="icon-size-4 mr-1" [svgIcon]="'heroicons_outline:squares-2x2'"></mat-icon>
+                            {{ 'smartScan.viewCards' | transloco }}
+                        </mat-button-toggle>
+                        <mat-button-toggle value="table">
+                            <mat-icon class="icon-size-4 mr-1" [svgIcon]="'heroicons_outline:table-cells'"></mat-icon>
+                            {{ 'smartScan.viewTable' | transloco }}
+                        </mat-button-toggle>
+                    </mat-button-toggle-group>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="goToNewScan()"
+                        class="rounded-xl"
+                    >
+                        <mat-icon class="icon-size-5 mr-2" [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                        {{ 'smartScan.newScan' | transloco }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-auto p-6 sm:p-10">
+        <!-- Search + Filters toolbar -->
+        <div class="mb-6 space-y-4">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <mat-form-field appearance="outline" class="flex-1" subscriptSizing="dynamic">
+                    <mat-icon matPrefix class="mr-2">search</mat-icon>
+                    <input
+                        matInput
+                        [(ngModel)]="quickSearch"
+                        [placeholder]="'smartScan.searchHistoryPlaceholder' | transloco"
+                    />
+                    @if (quickSearch) {
+                        <button matSuffix mat-icon-button (click)="quickSearch = ''">
+                            <mat-icon>close</mat-icon>
+                        </button>
+                    }
+                </mat-form-field>
+                <button
+                    mat-stroked-button
+                    (click)="showFilters = !showFilters"
+                    class="rounded-xl whitespace-nowrap h-[56px]"
+                >
+                    <mat-icon class="icon-size-4 mr-1">filter_list</mat-icon>
+                    {{ 'smartScan.filters' | transloco }}
+                    @if (activeFilterCount > 0) {
+                        <span class="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-on-primary text-xs font-bold">
+                            {{ activeFilterCount }}
+                        </span>
+                    }
+                </button>
+            </div>
+
+            <!-- Advanced filters panel -->
+            @if (showFilters) {
+                <div class="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-card dark:bg-gray-800 space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.filterDocumentType' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="activeFilters.documentType" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.filterDocumentNumber' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="activeFilters.documentNumber" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.filterCountry' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="activeFilters.country" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.filterStatus' | transloco }}</mat-label>
+                            <mat-select [(ngModel)]="activeFilters.status">
+                                <mat-option value="">--</mat-option>
+                                @for (s of STATUS_OPTIONS; track s) {
+                                    <mat-option [value]="s">{{ s }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.filterDocumentCategory' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="activeFilters.documentCategory" />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartScan.filterNationality' | transloco }}</mat-label>
+                            <input matInput [(ngModel)]="activeFilters.nationality" />
+                        </mat-form-field>
+                    </div>
+                    <div class="flex items-center gap-3 justify-end">
+                        <button mat-stroked-button (click)="resetFilters()" class="rounded-xl text-sm">
+                            {{ 'smartScan.resetFilters' | transloco }}
+                        </button>
+                        <button mat-flat-button color="primary" (click)="applyFilters()" class="rounded-xl text-sm">
+                            {{ 'smartScan.applyFilters' | transloco }}
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (loading()) {
+            <div class="flex items-center justify-center py-20">
+                <mat-spinner diameter="40"></mat-spinner>
+            </div>
+        } @else if (filteredScans.length === 0 && scans().length === 0) {
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+                <mat-icon
+                    class="icon-size-16 mb-4 text-hint"
+                    [svgIcon]="'heroicons_outline:document-magnifying-glass'"
+                ></mat-icon>
+                <h3 class="text-xl font-semibold text-secondary">{{ 'smartScan.noScans' | transloco }}</h3>
+                <p class="mt-2 text-secondary max-w-md">{{ 'smartScan.noScansDesc' | transloco }}</p>
+                <button mat-flat-button color="primary" (click)="goToNewScan()" class="mt-6 rounded-xl">
+                    {{ 'smartScan.newScan' | transloco }}
+                </button>
+            </div>
+        } @else if (filteredScans.length === 0 && quickSearch) {
+            <div class="flex flex-col items-center justify-center py-20 text-center">
+                <mat-icon class="icon-size-16 mb-4 text-hint" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
+                <h3 class="text-xl font-semibold text-secondary">{{ 'smartScan.noResults' | transloco }}</h3>
+            </div>
+        } @else {
+            @if (viewMode() === 'cards') {
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    @for (scan of filteredScans; track scan._id) {
+                        <div
+                            class="bg-card dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                            (click)="goToDetail(scan._id)"
+                        >
+                            <div class="aspect-[4/3] bg-slate-100 dark:bg-slate-900 relative overflow-hidden">
+                                @if (scan.url) {
+                                    <img
+                                        [src]="scan.url"
+                                        [alt]="scan.documentType"
+                                        class="w-full h-full object-cover"
+                                        loading="lazy"
+                                    />
+                                } @else {
+                                    <div class="flex items-center justify-center h-full">
+                                        <mat-icon
+                                            class="icon-size-16 text-hint"
+                                            [svgIcon]="'heroicons_outline:document'"
+                                        ></mat-icon>
+                                    </div>
+                                }
+                                <div class="absolute top-2 right-2">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                        [ngClass]="getStatusColor(scan.status)"
+                                    >
+                                        {{ getStatusLabel(scan.status) | transloco }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="font-mono text-sm font-medium text-primary-500">{{ scan.documentType }}</span>
+                                    <span class="text-xs text-secondary">{{ getMethodLabel(scan.validationMethod) | transloco }}</span>
+                                </div>
+                                @if (getScanName(scan); as name) {
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">{{ name }}</p>
+                                }
+                                @if (scan.documentNumber) {
+                                    <p class="text-sm text-secondary truncate" [title]="scan.documentNumber">
+                                        {{ scan.documentNumber }}
+                                    </p>
+                                }
+                                <p class="text-xs text-secondary mt-2">{{ formatDate(scan.createdAt) }}</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <mat-paginator
+                    class="mt-6 border rounded-2xl"
+                    [length]="total()"
+                    [pageSize]="pageSize()"
+                    [pageIndex]="pageIndex()"
+                    [pageSizeOptions]="[6, 12, 24, 48]"
+                    [showFirstLastButtons]="true"
+                    (page)="onPaginatorEvent($event)"
+                    aria-label="Select page of scans"
+                ></mat-paginator>
+            } @else {
+                <div class="flex flex-col bg-card shadow overflow-hidden rounded-2xl w-full">
+                    <div class="overflow-x-auto">
+                        <table mat-table [dataSource]="dataSource" class="w-full bg-transparent">
+                            <ng-container matColumnDef="image">
+                                <th mat-header-cell *matHeaderCellDef class="pl-6 w-20"></th>
+                                <td mat-cell *matCellDef="let scan" class="pl-6 py-3">
+                                    @if (scan.url) {
+                                        <img
+                                            [src]="scan.url"
+                                            [alt]="scan.documentType"
+                                            class="w-14 h-10 object-cover rounded"
+                                            loading="lazy"
+                                        />
+                                    } @else {
+                                        <div class="w-14 h-10 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center">
+                                            <mat-icon class="icon-size-5 text-hint" [svgIcon]="'heroicons_outline:document'"></mat-icon>
+                                        </div>
+                                    }
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="documentType">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.documentType' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan" class="font-mono text-sm">{{ scan.documentType }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="documentNumber">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.documentNumber' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan" class="text-secondary">{{ scan.documentNumber || '-' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.name' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan" class="text-secondary">{{ getScanName(scan) || '-' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="status">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.status' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan">
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                                        [ngClass]="getStatusColor(scan.status)"
+                                    >
+                                        {{ getStatusLabel(scan.status) | transloco }}
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="method">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.method' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan" class="text-secondary text-sm">
+                                    {{ getMethodLabel(scan.validationMethod) | transloco }}
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="country">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.country' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan" class="text-secondary">{{ scan.country || '-' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="date">
+                                <th mat-header-cell *matHeaderCellDef>{{ 'smartScan.date' | transloco }}</th>
+                                <td mat-cell *matCellDef="let scan" class="text-secondary whitespace-nowrap">
+                                    {{ formatDate(scan.createdAt) }}
+                                </td>
+                            </ng-container>
+                            <tr
+                                mat-header-row
+                                *matHeaderRowDef="displayedColumns"
+                                class="h-12 text-xs font-semibold uppercase text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+                            ></tr>
+                            <tr
+                                mat-row
+                                *matRowDef="let row; columns: displayedColumns"
+                                class="hover:bg-gray-50 dark:hover:bg-black dark:hover:bg-opacity-5 transition-colors cursor-pointer"
+                                (click)="goToDetail(row._id)"
+                            ></tr>
+                        </table>
+                    </div>
+                    <mat-paginator
+                        class="border-t"
+                        [length]="total()"
+                        [pageSize]="pageSize()"
+                        [pageIndex]="pageIndex()"
+                        [pageSizeOptions]="[6, 12, 24, 48]"
+                        [showFirstLastButtons]="true"
+                        (page)="onPaginatorEvent($event)"
+                        aria-label="Select page of scans"
+                    ></mat-paginator>
+                </div>
+            }
+        }
+    </div>
+</div>
