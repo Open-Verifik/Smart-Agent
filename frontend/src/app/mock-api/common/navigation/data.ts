@@ -85,6 +85,22 @@ export const defaultNavigation: FuseNavigationItem[] = [
             },
         ],
     },
+    {
+        id: 'smart-tools',
+        title: 'nav.smart_tools',
+        type: 'collapsable',
+        icon: 'heroicons_outline:wrench-screwdriver',
+        children: [
+            {
+                id: 'smart-reduce',
+                title: 'nav.smart_reduce',
+                subtitle: 'nav.resize_compress_images',
+                type: 'basic',
+                icon: 'heroicons_outline:photo',
+                link: '/smart-tools/smart-reduce',
+            },
+        ],
+    },
     // {
     //   id: 'zelf-id',
     //   title: 'Zelf ID',
@@ -195,6 +211,22 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:exclamation-triangle',
                 link: '/smart-monitor/incidents',
+            },
+        ],
+    },
+    {
+        id: 'smart-tools',
+        title: 'nav.smart_tools',
+        type: 'collapsable',
+        icon: 'heroicons_outline:wrench-screwdriver',
+        children: [
+            {
+                id: 'smart-reduce',
+                title: 'nav.smart_reduce',
+                subtitle: 'nav.resize_compress_images',
+                type: 'basic',
+                icon: 'heroicons_outline:photo',
+                link: '/smart-tools/smart-reduce',
             },
         ],
     },

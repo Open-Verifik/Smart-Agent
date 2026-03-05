@@ -66,6 +66,11 @@ export const appRoutes: Route[] = [
                 loadChildren: () =>
                     import('app/modules/smart-monitor/smart-monitor.routes').then((m) => m.default),
             },
+            {
+                path: 'smart-tools',
+                loadChildren: () =>
+                    import('app/modules/smart-tools/smart-tools.routes').then((m) => m.default),
+            },
         ],
     },
 
