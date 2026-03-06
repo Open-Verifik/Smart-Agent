@@ -47,81 +47,21 @@
 
     <!-- Main Content -->
     <div class="flex flex-col flex-auto p-6 sm:p-10">
-        <!-- Search + Filters toolbar -->
-        <div class="mb-6 space-y-4">
-            <div class="flex flex-col sm:flex-row gap-3">
-                <mat-form-field appearance="outline" class="flex-1" subscriptSizing="dynamic">
-                    <mat-icon matPrefix class="mr-2">search</mat-icon>
-                    <input
-                        matInput
-                        [(ngModel)]="quickSearch"
-                        [placeholder]="'smartScan.searchHistoryPlaceholder' | transloco"
-                    />
-                    @if (quickSearch) {
-                        <button matSuffix mat-icon-button (click)="quickSearch = ''">
-                            <mat-icon>close</mat-icon>
-                        </button>
-                    }
-                </mat-form-field>
-                <button
-                    mat-stroked-button
-                    (click)="showFilters = !showFilters"
-                    class="rounded-xl whitespace-nowrap h-[56px]"
-                >
-                    <mat-icon class="icon-size-4 mr-1">filter_list</mat-icon>
-                    {{ 'smartScan.filters' | transloco }}
-                    @if (activeFilterCount > 0) {
-                        <span class="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-on-primary text-xs font-bold">
-                            {{ activeFilterCount }}
-                        </span>
-                    }
-                </button>
-            </div>
-
-            <!-- Advanced filters panel -->
-            @if (showFilters) {
-                <div class="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-card dark:bg-gray-800 space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.filterDocumentType' | transloco }}</mat-label>
-                            <input matInput [(ngModel)]="activeFilters.documentType" />
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.filterDocumentNumber' | transloco }}</mat-label>
-                            <input matInput [(ngModel)]="activeFilters.documentNumber" />
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.filterCountry' | transloco }}</mat-label>
-                            <input matInput [(ngModel)]="activeFilters.country" />
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.filterStatus' | transloco }}</mat-label>
-                            <mat-select [(ngModel)]="activeFilters.status">
-                                <mat-option value="">--</mat-option>
-                                @for (s of STATUS_OPTIONS; track s) {
-                                    <mat-option [value]="s">{{ s }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.filterDocumentCategory' | transloco }}</mat-label>
-                            <input matInput [(ngModel)]="activeFilters.documentCategory" />
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                            <mat-label>{{ 'smartScan.filterNationality' | transloco }}</mat-label>
-                            <input matInput [(ngModel)]="activeFilters.nationality" />
-                        </mat-form-field>
-                    </div>
-                    <div class="flex items-center gap-3 justify-end">
-                        <button mat-stroked-button (click)="resetFilters()" class="rounded-xl text-sm">
-                            {{ 'smartScan.resetFilters' | transloco }}
-                        </button>
-                        <button mat-flat-button color="primary" (click)="applyFilters()" class="rounded-xl text-sm">
-                            {{ 'smartScan.applyFilters' | transloco }}
-                        </button>
-                    </div>
-                </div>
-            }
+        <!-- Search toolbar (advanced filters disabled for now) -->
+        <div class="mb-6">
+            <mat-form-field appearance="outline" class="w-full max-w-md" subscriptSizing="dynamic">
+                <mat-icon matPrefix class="mr-2">search</mat-icon>
+                <input
+                    matInput
+                    [(ngModel)]="quickSearch"
+                    [placeholder]="'smartScan.searchHistoryPlaceholder' | transloco"
+                />
+                @if (quickSearch) {
+                    <button matSuffix mat-icon-button (click)="quickSearch = ''">
+                        <mat-icon>close</mat-icon>
+                    </button>
+                }
+            </mat-form-field>
         </div>
 
         @if (loading()) {
