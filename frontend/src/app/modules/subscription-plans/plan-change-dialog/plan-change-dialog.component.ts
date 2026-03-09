@@ -75,7 +75,7 @@ export class PlanChangeDialogComponent implements OnInit {
             requestsPerMonth: this.requestsPerMonth,
             requestAddOn,
             estimatedTotal: baseMonthly + requestAddOn,
-            hasUsageAddon: this.requestsPerMonth > 0 && discount > 0,
+            hasUsageAddon: this.requestsPerMonth > 0 && requestAddOn > 0,
             benefits: this._formatBenefits(this.newPlan.changesInPrices || []),
         };
     }

@@ -413,7 +413,7 @@
                         <!-- Base price (muted when slider is active) -->
                         <div
                             class="price-display"
-                            [class.price-muted]="requestsPerMonth > 0 && plan.discount?.discount"
+                            [class.price-muted]="requestsPerMonth > 0 && getDisplayRequestAddOn(plan) > 0"
                         >
                             <span class="currency">$</span>
                             <span class="price-amount">{{ plan.amount | number: '1.0-0' }}</span>
@@ -427,7 +427,7 @@
                             class="price-note"
                             *ngIf="
                                 plan.interval === 'year' &&
-                                !(requestsPerMonth > 0 && plan.discount?.discount)
+                                !(requestsPerMonth > 0 && getDisplayRequestAddOn(plan) > 0)
                             "
                         >
                             ${{ getAmountByMonth(plan) }}/{{
@@ -436,10 +436,10 @@
                             {{ 'subscriptionPlans.billedAnnually' | transloco }}
                         </p>
 
-                        <!-- Add-on line (only when slider > 0 and plan has discount) -->
+                        <!-- Add-on line (only when there is extra cost beyond base price) -->
                         <div
                             class="plan-addon-line"
-                            *ngIf="requestsPerMonth > 0 && plan.discount?.discount"
+                            *ngIf="requestsPerMonth > 0 && getDisplayRequestAddOn(plan) > 0"
                         >
                             <span class="addon-plus">+</span>
                             <span class="addon-amount"
@@ -456,10 +456,10 @@
                             >
                         </div>
 
-                        <!-- Estimated total (only when slider > 0 and plan has discount) -->
+                        <!-- Estimated total (only when there is extra cost beyond base price) -->
                         <div
                             class="plan-estimated-total"
-                            *ngIf="requestsPerMonth > 0 && plan.discount?.discount"
+                            *ngIf="requestsPerMonth > 0 && getDisplayRequestAddOn(plan) > 0"
                         >
                             <span class="total-label">{{
                                 'subscriptionPlans.requestSlider.estimatedTotal' | transloco
