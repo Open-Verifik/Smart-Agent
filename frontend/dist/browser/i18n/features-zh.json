@@ -1,5 +1,9 @@
 {
     "appFeatures": {
+        "feature_email_login": {
+            "title": "通过电子邮件获取API密钥",
+            "description": "请求向客户电子邮件发送一次性密码（OTP）以进行API身份验证。"
+        },
         "colombia_special_api_identity_lookup": {
             "title": "哥伦比亚 - 私人公民信息",
             "description": "访问私人公民信息 为 Colombian nationals. 此服务提供全面的个人数据 包括 detailed identity verification. 联系Verifik客户服务了解更多详情."
@@ -45,8 +49,8 @@
             "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
         },
         "usa_api_vehicle": {
-            "title": " - 车辆验证",
-            "description": "标准车辆验证服务 为 . 验证车辆登记和基本信息."
+            "title": "美国 - 车辆验证",
+            "description": "验证美国车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
         },
         "world_api_onu": {
             "title": "全球 - 联合国制裁检查",
@@ -81,8 +85,8 @@
             "description": "获取 comprehensive vehicle information 为 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "Mexico - 车辆验证",
-            "description": "标准车辆验证服务 为 Mexico. 验证车辆登记和基本信息."
+            "title": "墨西哥 - 车辆验证",
+            "description": "验证墨西哥车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
         },
         "feature_passwordless_solution": {
             "title": " - 数据验证服务",
@@ -113,12 +117,12 @@
             "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 搜索 by full name OR document number with document type. 验证 individuals against federal criminal records."
         },
         "mexico_identity_lookup": {
-            "title": "Mexico - 数据验证服务",
-            "description": "通用数据验证服务 为 Mexico. 提供可靠的信息验证和确认."
+            "title": "墨西哥 - 身份验证",
+            "description": "使用 CURP 验证墨西哥公民身份。从官方来源获取个人信息、证件真实性和身份验证。"
         },
         "ecuador_api_identity_lookup": {
-            "title": "Ecuador - 身份验证",
-            "description": "标准身份验证服务 为 Ecuador 公民. 验证个人信息和文件真实性."
+            "title": "厄瓜多尔 - 身份验证",
+            "description": "使用身份证（cédula）验证厄瓜多尔公民身份。从官方来源获取个人信息、证件真实性和身份验证。"
         },
         "colombia_api_driver": {
             "title": "Colombia - 数据验证服务",
@@ -133,8 +137,8 @@
             "description": "标准车辆验证服务 为 Peru. 验证车辆登记和基本信息."
         },
         "ecuador_api_vehicle": {
-            "title": "Ecuador - 车辆验证",
-            "description": "标准车辆验证服务 为 Ecuador. 验证车辆登记和基本信息."
+            "title": "厄瓜多尔 - 车辆验证",
+            "description": "验证厄瓜多尔车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
         },
         "feature_data_api": {
             "title": " - 数据验证服务",
@@ -173,44 +177,44 @@
             "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
         },
         "panama_api_identity_full_lookup": {
-            "title": "Panama - Complete 身份验证",
-            "description": "综合身份验证服务 为 Panama 公民. 提供 complete personal information 包括 full name, document details, and additional verification data."
+            "title": "巴拿马 - 完整身份验证",
+            "description": "巴拿马公民的完整身份验证。从官方来源获取完整个人资料、证件信息和扩展验证数据。"
         },
         "chile_api_identity_lookup": {
-            "title": "Chile - 身份验证",
-            "description": "标准身份验证服务 为 Chile 公民. 验证个人信息和文件真实性."
+            "title": "智利 - 身份验证",
+            "description": "使用 RUT 验证智利公民身份。从民事登记处获取全名、个人信息和身份验证。"
         },
         "costarica_api_identity_lookup": {
             "title": "Costa Rica - 身份验证",
             "description": "标准身份验证服务 为 Costa Rica 公民. 验证个人信息和文件真实性."
         },
         "ecuador_api_criminal_history": {
-            "title": "Ecuador - 身份验证",
-            "description": "标准身份验证服务 为 Ecuador 公民. 验证个人信息和文件真实性."
+            "title": "厄瓜多尔 - 犯罪记录查询",
+            "description": "查询厄瓜多尔公民的犯罪记录和法律背景。从官方来源验证司法历史和犯罪前科。"
         },
         "chile_api_vehicle": {
-            "title": "Chile - 车辆验证",
-            "description": "标准车辆验证服务 为 Chile. 验证车辆登记和基本信息."
+            "title": "智利 - 车辆验证",
+            "description": "验证智利车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
         },
         "panama_api_identity_lookup": {
-            "title": "Panama - 身份验证",
-            "description": "标准身份验证服务 为 Panama 公民. 验证个人信息和文件真实性."
+            "title": "巴拿马 - 身份验证",
+            "description": "通过身份证验证巴拿马公民身份。从官方来源获取全名、个人信息和身份验证。"
         },
         "panama_api_vehicle": {
-            "title": "Panama - 车辆验证",
-            "description": "标准车辆验证服务 为 Panama. 验证车辆登记和基本信息."
+            "title": "巴拿马 - 车辆验证",
+            "description": "验证巴拿马车辆登记和所有权。按车牌搜索获取车辆详情、规格和登记状态。"
         },
         "chile_api_business_lookup": {
-            "title": "Chile - 数据验证服务",
-            "description": "通用数据验证服务 为 Chile. 提供可靠的信息验证和确认."
+            "title": "智利 - 企业验证",
+            "description": "验证智利公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
         },
         "spain_api_identity_lookup": {
             "title": "Spain - 身份验证",
             "description": "标准身份验证服务 为 Spain 公民. 验证个人信息和文件真实性."
         },
         "ecuador_api_vehicle_fines": {
-            "title": "Ecuador - 车辆验证",
-            "description": "标准车辆验证服务 为 Ecuador. 验证车辆登记和基本信息."
+            "title": "厄瓜多尔 - 车辆罚款查询",
+            "description": "查询厄瓜多尔车辆的交通罚款和处罚。通过车牌搜索获取未缴罚款、支付状态和违规详情。"
         },
         "colombia_api_vehicle_complete_by_plate": {
             "title": "Colombia - 车辆验证",
@@ -229,12 +233,12 @@
             "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
         },
         "brasil_api_identity_lookup": {
-            "title": "Brazil - 身份验证",
-            "description": "标准身份验证服务 为 Brazil 公民. 验证个人信息和文件真实性."
+            "title": "巴西 - 身份验证",
+            "description": "通过CPF验证巴西公民身份。从官方来源获取全名、个人信息和身份验证。"
         },
         "usa_api_driver_license_lookup": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "美国 - 佛罗里达驾照查询",
+            "description": "验证佛罗里达州驾照信息。获取持有人详情、驾照状态、有效期及州记录验证数据。"
         },
         "consultar_procesos_judiciales": {
             "title": "Colombia - 数据验证服务",
@@ -305,24 +309,24 @@
             "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
         },
         "brasil_api_company_lookup": {
-            "title": "Brazil - 数据验证服务",
-            "description": "通用数据验证服务 为 Brazil. 提供可靠的信息验证和确认."
+            "title": "巴西 - 企业验证",
+            "description": "验证巴西企业信息和工商登记（CNPJ）。从官方来源获取企业详情、法律状态和商业数据。"
         },
         "brasil_api_vehicle": {
-            "title": "Brazil - 车辆验证",
-            "description": "标准车辆验证服务 为 Brazil. 验证车辆登记和基本信息."
+            "title": "巴西 - 车辆验证",
+            "description": "验证巴西车辆登记和所有权。按车牌搜索获取车辆详情、规格和登记状态。"
         },
         "argentina_api_identity_lookup": {
-            "title": "Argentina - 身份验证",
-            "description": "标准身份验证服务 为 Argentina 公民. 验证个人信息和文件真实性."
+            "title": "阿根廷 - 身份验证",
+            "description": "通过DNI或CUIT验证阿根廷公民身份。从官方来源获取全名、个人信息和身份验证。"
         },
         "ecuador_api_company_lookup": {
-            "title": "Ecuador - 数据验证服务",
-            "description": "通用数据验证服务 为 Ecuador. 提供可靠的信息验证和确认."
+            "title": "厄瓜多尔 - 企业验证",
+            "description": "验证厄瓜多尔公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
         },
         "usa_api_ssn": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "美国 - SSN 验证",
+            "description": "验证美国公民或居民的社安号（SSN）。用于合规和入职的身份及 SSN 状态验证。"
         },
         "colombia_api_dian_invoicer": {
             "title": "Colombia - 数据验证服务",
@@ -353,16 +357,16 @@
             "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
         },
         "Mexico_api_ine_model_e": {
-            "title": "Mexico - 数据验证服务",
-            "description": "通用数据验证服务 为 Mexico. 提供可靠的信息验证和确认."
+            "title": "墨西哥 - INE 证件验证（E 型）",
+            "description": "验证墨西哥 INE（选民证）E 型真实性并提取数据。使用 clave de elector、签发编号和 OCR 进行身份验证。"
         },
         "Mexico_api_ine_model_d": {
-            "title": "Mexico - 数据验证服务",
-            "description": "通用数据验证服务 为 Mexico. 提供可靠的信息验证和确认."
+            "title": "墨西哥 - INE 证件验证（D 型）",
+            "description": "验证墨西哥 INE（选民证）D 型真实性并提取数据。使用 clave de elector、签发编号和 OCR 进行身份验证。"
         },
         "Mexico_api_ine_model_c": {
-            "title": "Mexico - 数据验证服务",
-            "description": "通用数据验证服务 为 Mexico. 提供可靠的信息验证和确认."
+            "title": "墨西哥 - INE 证件验证（C 型）",
+            "description": "验证墨西哥 INE（选民证）C 型真实性并提取数据。使用 clave de elector、签发编号和 OCR 进行身份验证。"
         },
         "api_autodata_enginer": {
             "title": " - 数据验证服务",
@@ -405,20 +409,20 @@
             "description": "通用数据验证服务 为 Paraguay. 提供可靠的信息验证和确认."
         },
         "canada_api_driver_license_alberta": {
-            "title": "Canada - 数据验证服务",
-            "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
+            "title": "加拿大 - 阿尔伯塔驾照查询",
+            "description": "验证阿尔伯塔省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
         },
         "canada_api_driver_license_ontario": {
-            "title": "Canada - 数据验证服务",
-            "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
+            "title": "加拿大 - 安大略驾照查询",
+            "description": "验证安大略省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "Colombia - 车辆验证",
             "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
         },
         "canada_api_driver_license_quebec": {
-            "title": "Canada - 数据验证服务",
-            "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
+            "title": "加拿大 - 魁北克驾照查询",
+            "description": "验证魁北克省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
         },
         "ocr_scan_pro": {
             "title": "OCR - 专业扫描",
@@ -429,8 +433,8 @@
             "description": "通用数据验证服务 为 El Salvador. 提供可靠的信息验证和确认."
         },
         "canada_api_driver_license_british-columbia": {
-            "title": "Canada - 数据验证服务",
-            "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
+            "title": "加拿大 - 不列颠哥伦比亚驾照查询",
+            "description": "验证不列颠哥伦比亚省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
         },
         "ocr_scan_gpt": {
             "title": "OCR - GPT 视觉分析",
@@ -449,16 +453,16 @@
             "description": "针对专业工作室环境和高分辨率捕获进行了优化的高保真文档扫描。"
         },
         "canada_api_company": {
-            "title": "Canada - 数据验证服务",
-            "description": "通用数据验证服务 为 Canada. 提供可靠的信息验证和确认."
+            "title": "加拿大 - 企业验证",
+            "description": "验证加拿大企业信息和工商登记。从官方来源获取企业详情、法律状态和商业数据。"
         },
         "us_api_passport_entries": {
             "title": "United States - 身份验证",
             "description": "标准身份验证服务 为 United States 公民. 验证个人信息和文件真实性."
         },
         "mexico_api_company": {
-            "title": "Mexico - 数据验证服务",
-            "description": "通用数据验证服务 为 Mexico. 提供可靠的信息验证和确认."
+            "title": "墨西哥 - 企业验证",
+            "description": "验证墨西哥公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
         },
         "face_recognition_compare": {
             "title": "生物识别 - 人脸对比",
@@ -501,36 +505,36 @@
             "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
         },
         "usa_api_company": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
+            "title": "美国 - 企业验证",
+            "description": "验证美国公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
         },
         "colombia_api_runt_owners": {
             "title": "Colombia - 数据验证服务",
             "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
         },
         "chile_api_driver_license": {
-            "title": "Chile - 数据验证服务",
-            "description": "通用数据验证服务 为 Chile. 提供可靠的信息验证和确认."
+            "title": "智利 - 驾照查询",
+            "description": "验证智利驾照信息。获取持有人详情、驾照状态、有效期及官方记录的验证数据。"
         },
         "colombia_api_lawyers_certificate": {
             "title": "Colombia - 数据验证服务",
             "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
         },
         "argentina_api_vehicle": {
-            "title": "Argentina - 车辆验证",
-            "description": "标准车辆验证服务 为 Argentina. 验证车辆登记和基本信息."
+            "title": "阿根廷 - 车辆验证",
+            "description": "验证阿根廷车辆登记和所有权。按车牌搜索获取车辆详情、规格和登记状态。"
         },
         "argentina_api_company_lookup": {
-            "title": "Argentina - 数据验证服务",
-            "description": "通用数据验证服务 为 Argentina. 提供可靠的信息验证和确认."
+            "title": "阿根廷 - 企业验证",
+            "description": "验证阿根廷企业信息和工商登记（CUIT）。从官方来源获取企业详情、法律状态和商业数据。"
         },
         "bolivia_api_vehicle": {
             "title": "Bolivia - 车辆验证",
             "description": "标准车辆验证服务 为 Bolivia. 验证车辆登记和基本信息."
         },
         "brasil_api_criminal_history": {
-            "title": "Brazil - 数据验证服务",
-            "description": "通用数据验证服务 为 Brazil. 提供可靠的信息验证和确认."
+            "title": "巴西 - 犯罪记录查询",
+            "description": "查询巴西公民的犯罪记录和司法背景。从官方来源验证司法历史和犯罪前科。"
         },
         "bolivia_api_business_lookup": {
             "title": "Bolivia - 数据验证服务",
@@ -573,12 +577,12 @@
             "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
         },
         "chile_api_taxpayer_lookup": {
-            "title": "Chile - 数据验证服务",
-            "description": "通用数据验证服务 为 Chile. 提供可靠的信息验证和确认."
+            "title": "智利 - 纳税人查询",
+            "description": "通过 RUT 查询智利纳税人信息。从 SII（税务局）记录获取全名、税务状态和身份验证。"
         },
         "chile_api_validate": {
-            "title": "Chile - 数据验证服务",
-            "description": "通用数据验证服务 为 Chile. 提供可靠的信息验证和确认."
+            "title": "智利 - 纳税人验证",
+            "description": "验证智利纳税人身份和状态。对照 SII 记录验证 RUT，用于合规和入职。"
         },
         "colombia_api_simit_agreements": {
             "title": "Colombia - 数据验证服务",
@@ -625,8 +629,8 @@
             "description": "标准车辆验证服务 为 Paraguay. 验证车辆登记和基本信息."
         },
         "usa_api_vehicle_lookup_by_vin": {
-            "title": " - 车辆验证",
-            "description": "标准车辆验证服务 为 . 验证车辆登记和基本信息."
+            "title": "美国 - 按 VIN 查询车辆",
+            "description": "通过 VIN（车辆识别号）查询美国车辆信息。无需车牌即可获取规格、历史和登记详情。"
         },
         "colombia_api_identity_ce_foreigner_id": {
             "title": "Colombia - 移民状态验证",
@@ -669,8 +673,8 @@
             "description": "通用数据验证服务 为 Spain. 提供可靠的信息验证和确认."
         },
         "panama_api_business_lookup": {
-            "title": "Panama - 数据验证服务",
-            "description": "通用数据验证服务 为 Panama. 提供可靠的信息验证和确认."
+            "title": "巴拿马 - 企业验证",
+            "description": "验证巴拿马企业信息和工商登记（RUC）。从官方来源获取企业详情、法律状态和商业数据。"
         },
         "uruguay_api_identity_lookup": {
             "title": "Uruguay - 身份验证",
