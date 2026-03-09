@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,7 +20,7 @@ const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
 @Component({
     selector: 'subscription-plans',
     standalone: true,
-    imports: [CommonModule, TranslocoModule, PlanChangeDialogComponent, MatSnackBarModule],
+    imports: [CommonModule, FormsModule, TranslocoModule, PlanChangeDialogComponent, MatSnackBarModule],
     templateUrl: './subscription-plans.component.html',
     styleUrls: ['./subscription-plans.component.scss'],
     encapsulation: ViewEncapsulation.None,
@@ -65,6 +66,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     appFeatures: AppFeature[] = [];
     loadingFeatures = false;
     apiBreakdownSearchQuery = '';
+    apiBreakdownCountryFilter = '';
+    apiBreakdownCategoryFilter = '';
 
     constructor(
         private _subscriptionService: SubscriptionService,
@@ -421,17 +424,70 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         return this.visiblePlans.filter((p) => /smart/i.test(p.name));
     }
 
-    /** API features filtered by search query (name, code, or url) */
-    get filteredAppFeatures(): AppFeature[] {
-        const q = (this.apiBreakdownSearchQuery || '').trim().toLowerCase();
-        if (!q) return this.appFeatures;
-        return this.appFeatures.filter((f) => {
-            const displayName = this.getFeatureDisplayName(f).toLowerCase();
-            const name = (f.name || '').toLowerCase();
-            const code = (f.code || '').toLowerCase();
-            const url = (f.url || '').toLowerCase();
-            return displayName.includes(q) || name.includes(q) || code.includes(q) || url.includes(q);
+    /** Unique countries from app features for filter dropdown */
+    get apiBreakdownCountries(): string[] {
+        const set = new Set<string>();
+        this.appFeatures.forEach((f) => {
+            const c = f.country?.trim();
+            if (c) set.add(c);
         });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    /** Unique baseCategories from app features for filter dropdown */
+    get apiBreakdownCategories(): string[] {
+        const set = new Set<string>();
+        this.appFeatures.forEach((f) => {
+            const c = f.baseCategory?.trim();
+            if (c) set.add(c);
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    /** API features filtered by search, country, and category */
+    get filteredAppFeatures(): AppFeature[] {
+        let list = this.appFeatures;
+
+        const q = (this.apiBreakdownSearchQuery || '').trim().toLowerCase();
+        if (q) {
+            list = list.filter((f) => {
+                const displayName = this.getFeatureDisplayName(f).toLowerCase();
+                const name = (f.name || '').toLowerCase();
+                const code = (f.code || '').toLowerCase();
+                const url = (f.url || '').toLowerCase();
+                return displayName.includes(q) || name.includes(q) || code.includes(q) || url.includes(q);
+            });
+        }
+
+        if (this.apiBreakdownCountryFilter) {
+            list = list.filter((f) => (f.country || '').trim() === this.apiBreakdownCountryFilter);
+        }
+
+        if (this.apiBreakdownCategoryFilter) {
+            list = list.filter((f) => (f.baseCategory || '').trim() === this.apiBreakdownCategoryFilter);
+        }
+
+        return list;
+    }
+
+    /** Filtered features grouped by baseCategory for display */
+    get groupedFilteredFeatures(): { category: string; features: AppFeature[] }[] {
+        const features = this.filteredAppFeatures;
+        const map = new Map<string, AppFeature[]>();
+        features.forEach((f) => {
+            const cat = (f.baseCategory || '').trim() || '_uncategorized';
+            if (!map.has(cat)) map.set(cat, []);
+            map.get(cat)!.push(f);
+        });
+        const categories = Array.from(map.keys()).sort((a, b) => {
+            if (a === '_uncategorized') return 1;
+            if (b === '_uncategorized') return -1;
+            return a.localeCompare(b);
+        });
+        return categories.map((category) => ({
+            category: category === '_uncategorized' ? '' : category,
+            features: map.get(category)!,
+        }));
     }
 
     /** Add-on cost in the display unit (monthly or yearly) */
@@ -640,9 +696,26 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         return feature._id || feature.code || index.toString();
     }
 
+    trackByGroup(index: number, group: { category: string; features: AppFeature[] }): string {
+        return group.category || `group-${index}`;
+    }
+
     getFeatureDisplayName(feature: AppFeature): string {
         const key = `appFeatures.${feature.code}.title`;
         const translated = this._translocoService.translate(key);
         return translated !== key ? translated : feature.name;
+    }
+
+    getCategoryDisplayName(category: string): string {
+        if (!category) return '';
+        const key = `pricing.categories.${category}`;
+        const translated = this._translocoService.translate(key);
+        return translated !== key ? translated : category.replace(/_/g, ' ');
+    }
+
+    getCountryDisplayName(country: string): string {
+        if (!country) return '';
+        if (country.toLowerCase() === 'world') return 'Global';
+        return country;
     }
 }

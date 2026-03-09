@@ -322,7 +322,7 @@
                     *ngIf="!loadingFeatures && appFeatures.length > 0"
                     class="api-breakdown-table-wrapper"
                 >
-                    <div class="api-breakdown-search">
+                    <div class="api-breakdown-filters">
                         <input
                             type="text"
                             class="api-breakdown-search-input"
@@ -332,6 +332,30 @@
                             [value]="apiBreakdownSearchQuery"
                             (input)="apiBreakdownSearchQuery = $any($event.target).value"
                         />
+                        <select
+                            class="api-breakdown-filter-select"
+                            [(ngModel)]="apiBreakdownCountryFilter"
+                        >
+                            <option value="">All countries</option>
+                            <option
+                                *ngFor="let c of apiBreakdownCountries"
+                                [value]="c"
+                            >
+                                {{ getCountryDisplayName(c) }}
+                            </option>
+                        </select>
+                        <select
+                            class="api-breakdown-filter-select"
+                            [(ngModel)]="apiBreakdownCategoryFilter"
+                        >
+                            <option value="">All categories</option>
+                            <option
+                                *ngFor="let cat of apiBreakdownCategories"
+                                [value]="cat"
+                            >
+                                {{ getCategoryDisplayName(cat) }}
+                            </option>
+                        </select>
                     </div>
                     <table class="api-breakdown-table">
                         <thead>
@@ -343,17 +367,29 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr
-                                *ngFor="let feature of filteredAppFeatures; trackBy: trackByFeature"
-                                (click)="openPostmanForFeature(feature)"
-                                (mouseenter)="showEndpointUrlToast(feature)"
-                                [class.cursor-pointer]="!!feature?.code"
+                            <ng-container
+                                *ngFor="let group of groupedFilteredFeatures; trackBy: trackByGroup"
                             >
-                                <td>{{ getFeatureDisplayName(feature) }}</td>
-                                <td *ngFor="let plan of apiBreakdownPlans; trackBy: trackByPlan">
-                                    ${{ getEffectivePriceForApi(feature, plan).toFixed(4) }}/req
-                                </td>
-                            </tr>
+                                <tr
+                                    *ngIf="group.category"
+                                    class="api-breakdown-category-row"
+                                >
+                                    <td [attr.colspan]="apiBreakdownPlans.length + 1">
+                                        {{ getCategoryDisplayName(group.category) }}
+                                    </td>
+                                </tr>
+                                <tr
+                                    *ngFor="let feature of group.features; trackBy: trackByFeature"
+                                    (click)="openPostmanForFeature(feature)"
+                                    (mouseenter)="showEndpointUrlToast(feature)"
+                                    [class.cursor-pointer]="!!feature?.code"
+                                >
+                                    <td>{{ getFeatureDisplayName(feature) }}</td>
+                                    <td *ngFor="let plan of apiBreakdownPlans; trackBy: trackByPlan">
+                                        ${{ getEffectivePriceForApi(feature, plan).toFixed(4) }}/req
+                                    </td>
+                                </tr>
+                            </ng-container>
                         </tbody>
                     </table>
 

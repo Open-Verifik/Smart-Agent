@@ -1,5 +1,6 @@
 // Subscription Plans Component - Premium Modern UI
 // Matches Add Credits design system
+@use "sass:color";
 
 // ================================
 // LIGHT MODE COLOR PALETTE (Default)
@@ -1376,10 +1377,10 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
   &:hover:not(:disabled) {
     text-decoration: underline;
-    color: darken($accent-purple, 8%);
+    color: color.adjust($accent-purple, $lightness: -8%);
 
     :host-context(.dark) & {
-      color: lighten($accent-purple, 12%);
+      color: color.adjust($accent-purple, $lightness: 12%);
     }
   }
 }
@@ -1437,13 +1438,35 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   overflow-x: auto;
 }
 
-.api-breakdown-search {
+.api-breakdown-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
   margin-bottom: 16px;
+}
+
+.api-breakdown-filter-select {
+  padding: 10px 14px;
+  font-size: 14px;
+  border: 1px solid $light-card-border;
+  border-radius: 8px;
+  background: $light-surface;
+  color: $light-text-primary;
+  min-width: 160px;
+
+  :host-context(.dark) & {
+    border-color: $dark-card-border;
+    background: $dark-surface;
+    color: $dark-text-primary;
+  }
 }
 
 .api-breakdown-search-input {
   width: 100%;
   max-width: 400px;
+  flex: 1;
+  min-width: 200px;
   padding: 10px 14px;
   font-size: 14px;
   border: 1px solid $light-card-border;
@@ -1499,11 +1522,32 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     }
   }
 
-  tbody tr:hover {
+  tbody tr:not(.api-breakdown-category-row):hover {
     background: rgba(99, 102, 241, 0.04);
 
     :host-context(.dark) & {
       background: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  .api-breakdown-category-row {
+    background: rgba(99, 102, 241, 0.08);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    td {
+      padding: 10px 16px;
+      border-bottom: 1px solid $light-card-border;
+    }
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.06);
+
+      td {
+        border-color: $dark-card-border;
+      }
     }
   }
 }
