@@ -13,7 +13,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
@@ -29,7 +28,6 @@ import { ApiEndpoint } from '../postman.types';
     RouterLinkActive,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
     MatTooltipModule,
     TranslocoPipe,
   ],
@@ -104,7 +102,6 @@ import { ApiEndpoint } from '../postman.types';
               routerLinkActive="bg-blue-100 dark:bg-blue-900"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="select(endpoint)"
-              (mouseenter)="showEndpointUrlToast(endpoint)"
               class="w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors hover:bg-slate-200 dark:hover:bg-slate-800 text-left group relative no-underline text-inherit"
               [class.bg-blue-100]="selectedEndpoint()?.id === endpoint.id"
               [class.dark:bg-blue-900]="selectedEndpoint()?.id === endpoint.id"
@@ -157,7 +154,6 @@ export class SidebarComponent {
   @Output() toggleCollapsed = new EventEmitter<void>();
 
   private _postmanService = inject(PostmanService);
-  private _snackBar = inject(MatSnackBar);
 
   searchQuery = signal('');
   selectedEndpoint = this._postmanService.selectedEndpoint;
@@ -215,16 +211,6 @@ export class SidebarComponent {
 
   select(endpoint: ApiEndpoint) {
     this._postmanService.selectEndpoint(endpoint);
-  }
-
-  showEndpointUrlToast(endpoint: ApiEndpoint) {
-    if (!endpoint?.code) return;
-    const shareableUrl = `${window.location.origin}/postman?code=${encodeURIComponent(endpoint.code)}`;
-    this._snackBar.open(shareableUrl, undefined, {
-      duration: 4000,
-      horizontalPosition: 'start',
-      verticalPosition: 'bottom',
-    });
   }
 
   // TrackBy functions for performance
