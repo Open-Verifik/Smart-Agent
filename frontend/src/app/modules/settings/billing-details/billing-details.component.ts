@@ -415,7 +415,12 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                 const value = control?.value;
                 const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
                 return filterValue
-                    ? source.filter((opt) => opt.label.toLowerCase().includes(filterValue))
+                    ? source.filter((opt) =>
+                          this._translocoService
+                              .translate(opt.label)
+                              .toLowerCase()
+                              .includes(filterValue)
+                      )
                     : source;
             })
         );
@@ -457,9 +462,12 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         return country && country.code ? `${country.code} ${country.name}` : '';
     }
 
-    displayDocumentTypeFn(value: string): string {
-        return value;
-    }
+    displayDocumentTypeFn = (value: string): string => {
+        if (!value) return '';
+        return (
+            this._translocoService?.translate('settings.billing.document_types.' + value) ?? value
+        );
+    };
 
     onCountryBlur(type: 'business' | 'person'): void {
         const controlName = type === 'business' ? 'business_countryCode' : 'person_countryCode';

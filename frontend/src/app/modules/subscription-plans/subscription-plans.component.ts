@@ -685,7 +685,13 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         // Check billing configuration and payment methods
         this._subscriptionService.getBillingConfig({ findOne: true }).subscribe({
             next: (response) => {
-                this.hasBillingSetup = !!response?.data?.invoiceSettings?.invoiceType;
+                const inv = response?.data?.invoiceSettings;
+                this.hasBillingSetup = !!(
+                    inv &&
+                    inv.type &&
+                    (inv.person || inv.business) &&
+                    inv.address
+                );
                 if (!this.hasBillingSetup) {
                     this.showBillingRequiredModal = true;
                 }

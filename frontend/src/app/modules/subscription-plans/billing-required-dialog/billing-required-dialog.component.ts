@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 
 @Component({
     selector: 'billing-required-dialog',
     standalone: true,
-    imports: [CommonModule, TranslocoModule],
+    imports: [CommonModule, MatIconModule, TranslocoModule],
     templateUrl: './billing-required-dialog.component.html',
     styleUrls: ['./billing-required-dialog.component.scss'],
 })

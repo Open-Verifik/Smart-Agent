@@ -159,7 +159,7 @@
                                         *ngFor="let type of filteredDocumentTypes | async"
                                         [value]="type.value"
                                     >
-                                        {{ type.label }}
+                                        {{ type.label | transloco }}
                                     </mat-option>
                                 </mat-autocomplete>
                             </div>
@@ -297,7 +297,7 @@
                                         *ngFor="let type of filteredDocumentTypes | async"
                                         [value]="type.value"
                                     >
-                                        {{ type.label }}
+                                        {{ type.label | transloco }}
                                     </mat-option>
                                 </mat-autocomplete>
                             </div>
