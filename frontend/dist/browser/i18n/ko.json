@@ -541,6 +541,9 @@
     "requestEditor": {
       "title": "요청",
       "send": "전송",
+      "costPerRequest": "요청당 비용",
+      "includedInPlan": "플랜에 포함됨",
+      "credits": "크레딧",
       "sending": "전송 중...",
       "selectEndpoint": "시작할 엔드포인트를 선택하세요",
       "tabs": {
@@ -957,6 +960,8 @@
     "manageBilling": "청구 관리",
     "changePlan": "플랜 변경",
     "whatsIncluded": "플랜에 포함된 내용",
+    "yourApiPrices": "API 가격",
+    "credits": "크레딧",
     "monthly": "월간",
     "yearly": "연간",
     "save20": "20% 절약",

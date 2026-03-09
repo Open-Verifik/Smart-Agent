@@ -541,6 +541,9 @@
     "requestEditor": {
       "title": "请求",
       "send": "发送",
+      "costPerRequest": "每次请求成本",
+      "includedInPlan": "已包含在计划中",
+      "credits": "积分",
       "sending": "发送中...",
       "selectEndpoint": "选择一个端点开始",
       "tabs": {
@@ -957,6 +960,8 @@
     "manageBilling": "管理账单",
     "changePlan": "更改计划",
     "whatsIncluded": "您的计划包含",
+    "yourApiPrices": "您的API价格",
+    "credits": "积分",
     "monthly": "月付",
     "yearly": "年付",
     "save20": "节省20%",

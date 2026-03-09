@@ -541,6 +541,9 @@
     "requestEditor": {
       "title": "Requête",
       "send": "Envoyer",
+      "costPerRequest": "Coût par requête",
+      "includedInPlan": "Inclus dans le plan",
+      "credits": "CRÉDITS",
       "sending": "Envoi...",
       "selectEndpoint": "Sélectionnez un endpoint pour commencer",
       "tabs": {
@@ -964,6 +967,8 @@
     "manageBilling": "Gérer la facturation",
     "changePlan": "Changer de plan",
     "whatsIncluded": "Ce qui est inclus dans votre plan",
+    "yourApiPrices": "Prix de votre API",
+    "credits": "CRÉDITS",
     "monthly": "Mensuel",
     "yearly": "Annuel",
     "save20": "Économisez 20%",

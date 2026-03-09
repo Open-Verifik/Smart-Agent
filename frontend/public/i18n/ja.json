@@ -541,6 +541,9 @@
     "requestEditor": {
       "title": "リクエスト",
       "send": "送信",
+      "costPerRequest": "リクエストごとの費用",
+      "includedInPlan": "プランに含まれる",
+      "credits": "クレジット",
       "sending": "送信中...",
       "selectEndpoint": "開始するエンドポイントを選択",
       "tabs": {
@@ -957,6 +960,8 @@
     "manageBilling": "請求管理",
     "changePlan": "プラン変更",
     "whatsIncluded": "プランに含まれるもの",
+    "yourApiPrices": "API価格",
+    "credits": "クレジット",
     "monthly": "月額",
     "yearly": "年額",
     "save20": "20%オフ",

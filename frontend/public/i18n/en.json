@@ -541,6 +541,9 @@
     "requestEditor": {
       "title": "Request",
       "send": "Send",
+      "costPerRequest": "Cost per request",
+      "includedInPlan": "Included in plan",
+      "credits": "CREDITS",
       "sending": "Sending...",
       "selectEndpoint": "Select an endpoint to start",
       "tabs": {
@@ -964,6 +967,8 @@
     "manageBilling": "Manage billing",
     "changePlan": "Change plan",
     "whatsIncluded": "What's included in your plan",
+    "yourApiPrices": "Your API prices",
+    "credits": "CREDITS",
     "monthly": "Monthly",
     "yearly": "Yearly",
     "save20": "Save 20%",

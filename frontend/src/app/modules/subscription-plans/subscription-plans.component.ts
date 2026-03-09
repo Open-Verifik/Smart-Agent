@@ -78,6 +78,13 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     apiBreakdownCountryFilter = '';
     apiBreakdownCategoryFilter = '';
 
+    // My-list features (current user prices) for current plan view
+    myListFeatures: AppFeature[] = [];
+    loadingMyListFeatures = false;
+    myListSearchQuery = '';
+    myListCountryFilter = '';
+    myListCategoryFilter = '';
+
     constructor(
         private _subscriptionService: SubscriptionService,
         private _router: Router,
@@ -506,6 +513,72 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         }));
     }
 
+    /** Unique countries from my-list features for filter dropdown */
+    get myListCountries(): string[] {
+        const set = new Set<string>();
+        this.myListFeatures.forEach((f) => {
+            const c = f.country?.trim();
+            if (c) set.add(c);
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    /** Unique baseCategories from my-list features for filter dropdown */
+    get myListCategories(): string[] {
+        const set = new Set<string>();
+        this.myListFeatures.forEach((f) => {
+            const c = f.baseCategory?.trim();
+            if (c) set.add(c);
+        });
+        return Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    /** My-list features filtered by search, country, and category */
+    get filteredMyListFeatures(): AppFeature[] {
+        let list = this.myListFeatures;
+
+        const q = (this.myListSearchQuery || '').trim().toLowerCase();
+        if (q) {
+            list = list.filter((f) => {
+                const displayName = this.getFeatureDisplayName(f).toLowerCase();
+                const name = (f.name || '').toLowerCase();
+                const code = (f.code || '').toLowerCase();
+                const url = (f.url || '').toLowerCase();
+                return displayName.includes(q) || name.includes(q) || code.includes(q) || url.includes(q);
+            });
+        }
+
+        if (this.myListCountryFilter) {
+            list = list.filter((f) => (f.country || '').trim() === this.myListCountryFilter);
+        }
+
+        if (this.myListCategoryFilter) {
+            list = list.filter((f) => (f.baseCategory || '').trim() === this.myListCategoryFilter);
+        }
+
+        return list;
+    }
+
+    /** My-list features grouped by baseCategory for current plan view */
+    get groupedMyListFeatures(): { category: string; features: AppFeature[] }[] {
+        const features = this.filteredMyListFeatures;
+        const map = new Map<string, AppFeature[]>();
+        features.forEach((f) => {
+            const cat = (f.baseCategory || '').trim() || '_uncategorized';
+            if (!map.has(cat)) map.set(cat, []);
+            map.get(cat)!.push(f);
+        });
+        const categories = Array.from(map.keys()).sort((a, b) => {
+            if (a === '_uncategorized') return 1;
+            if (b === '_uncategorized') return -1;
+            return a.localeCompare(b);
+        });
+        return categories.map((category) => ({
+            category: category === '_uncategorized' ? '' : category,
+            features: map.get(category)!,
+        }));
+    }
+
     /** Add-on cost in the display unit (monthly or yearly) */
     getDisplayRequestAddOn(plan: SubscriptionPlan): number {
         const monthlyAddOn = this.getRequestAddOn(plan);
@@ -532,6 +605,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                     this.currentSubscription = response.data;
                     this._formatCurrentSubscription();
                     this.currentView = 'current';
+                    this._loadMyListFeatures();
                 } else {
                     this.currentView = 'explore';
                     this._loadPlans();
@@ -541,6 +615,23 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                 console.error('Error loading subscription:', error);
                 this.currentView = 'explore';
                 this._loadPlans();
+            },
+        });
+    }
+
+    private _loadMyListFeatures(): void {
+        this.loadingMyListFeatures = true;
+        this._subscriptionService.getMyListAppFeatures().subscribe({
+            next: (response) => {
+                const raw = response?.data as any;
+                const list = Array.isArray(raw) ? raw : (raw?.docs ?? []);
+                this.myListFeatures = list.filter((f: AppFeature) => f.group === 'apiRequest');
+                this.loadingMyListFeatures = false;
+            },
+            error: (error) => {
+                console.error('Error loading my-list features:', error);
+                this.myListFeatures = [];
+                this.loadingMyListFeatures = false;
             },
         });
     }

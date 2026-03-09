@@ -142,4 +142,12 @@ export class SubscriptionService {
             params,
         });
     }
+
+    /**
+     * Get app features with current user prices (authenticated).
+     * Merges ClientFeature overrides for the logged-in client.
+     */
+    getMyListAppFeatures(params: Record<string, string> = {}): Observable<{ data: any[] }> {
+        return this._httpWrapper.sendRequest('get', `${this.baseUrl}/v2/app-features/my-list`, params);
+    }
 }

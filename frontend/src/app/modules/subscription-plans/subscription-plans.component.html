@@ -179,6 +179,81 @@
                     </ng-container>
                 </div>
             </div>
+
+            <!-- Your API prices (same table design as API breakdown in explore view) -->
+            <div class="api-breakdown-section api-prices-card" *ngIf="currentSubscription && (myListFeatures.length > 0 || loadingMyListFeatures)">
+                <div class="api-breakdown-header">
+                    <h3>{{ 'subscriptionPlans.yourApiPrices' | transloco }}</h3>
+                </div>
+                <div *ngIf="loadingMyListFeatures" class="loading-state">
+                    <div class="spinner"></div>
+                </div>
+                <div class="api-breakdown-empty" *ngIf="!loadingMyListFeatures && filteredMyListFeatures.length === 0">
+                    {{ 'subscriptionPlans.apiBreakdown.empty' | transloco }}
+                </div>
+                <div
+                    *ngIf="!loadingMyListFeatures && myListFeatures.length > 0"
+                    class="api-breakdown-table-wrapper"
+                >
+                    <div class="api-breakdown-filters">
+                        <input
+                            type="text"
+                            class="api-breakdown-search-input"
+                            [placeholder]="'subscriptionPlans.apiBreakdown.searchPlaceholder' | transloco"
+                            [value]="myListSearchQuery"
+                            (input)="myListSearchQuery = $any($event.target).value"
+                        />
+                        <select
+                            class="api-breakdown-filter-select"
+                            [(ngModel)]="myListCountryFilter"
+                        >
+                            <option value="">All countries</option>
+                            <option *ngFor="let c of myListCountries" [value]="c">
+                                {{ getCountryDisplayName(c) }}
+                            </option>
+                        </select>
+                        <select
+                            class="api-breakdown-filter-select"
+                            [(ngModel)]="myListCategoryFilter"
+                        >
+                            <option value="">All categories</option>
+                            <option *ngFor="let cat of myListCategories" [value]="cat">
+                                {{ getCategoryDisplayName(cat) }}
+                            </option>
+                        </select>
+                    </div>
+                    <table class="api-breakdown-table">
+                        <thead>
+                            <tr>
+                                <th>{{ 'subscriptionPlans.apiBreakdown.apiName' | transloco }}</th>
+                                <th>{{ currentSubscription?.subscriptionPlan?.name || ('subscriptionPlans.credits' | transloco) }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ng-container *ngFor="let group of groupedMyListFeatures; trackBy: trackByGroup">
+                                <tr
+                                    *ngIf="group.category"
+                                    class="api-breakdown-category-row"
+                                >
+                                    <td colspan="2">{{ getCategoryDisplayName(group.category) }}</td>
+                                </tr>
+                                <tr
+                                    *ngFor="let feature of group.features; trackBy: trackByFeature"
+                                    (click)="openPostmanForFeature(feature)"
+                                    (mouseenter)="showEndpointUrlToast(feature)"
+                                    [class.cursor-pointer]="!!feature?.code"
+                                >
+                                    <td>{{ getFeatureDisplayName(feature) }}</td>
+                                    <td>
+                                        {{ getEffectivePriceForApi(feature, currentSubscription.subscriptionPlan) | number:'1.2-4' }}
+                                        {{ 'subscriptionPlans.credits' | transloco }}
+                                    </td>
+                                </tr>
+                            </ng-container>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <!-- Explore Plans View -->

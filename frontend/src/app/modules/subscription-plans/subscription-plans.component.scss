@@ -96,7 +96,7 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 40px 24px;
 
@@ -183,6 +183,11 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     grid-template-columns: 1fr 1fr;
     gap: 32px;
     align-items: start;
+  }
+
+  .features-card.api-prices-card,
+  .api-breakdown-section.api-prices-card {
+    grid-column: 1 / -1;
   }
 }
 
@@ -369,6 +374,25 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     }
   }
 
+  .feature-category-label {
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: $light-text-muted;
+    margin-top: 12px;
+    margin-bottom: 4px;
+
+    :host-context(.dark) & {
+      color: $dark-text-muted;
+    }
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
   .feature-item {
     display: flex;
     align-items: center;
@@ -412,6 +436,10 @@ $glow-blue: rgba(59, 130, 246, 0.3);
       font-weight: 600;
       color: $accent-purple;
       flex-shrink: 0;
+    }
+
+    &.cursor-pointer {
+      cursor: pointer;
     }
   }
 }
@@ -1528,6 +1556,10 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     :host-context(.dark) & {
       background: rgba(255, 255, 255, 0.04);
     }
+  }
+
+  tbody tr.cursor-pointer {
+    cursor: pointer;
   }
 
   .api-breakdown-category-row {

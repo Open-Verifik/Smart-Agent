@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslocoService } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
 import { AgentWalletService } from '../../chat/services/agent-wallet.service';
+import { SubscriptionService } from '../../subscription-plans/subscription.service';
+import { ClientSubscription, SubscriptionPlan } from '../../subscription-plans/subscription-plan.types';
 
 import { TranslocoPipe } from '@jsverse/transloco';
 
@@ -54,26 +56,55 @@ import { TranslocoPipe } from '@jsverse/transloco';
             {{ ep.description }}
           </p>
         </ng-template>
+
+        @if (priceDisplay(); as pd) {
+          <div
+            class="mt-3 inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
+          >
+            <div
+              class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-violet-600 shadow-sm dark:bg-slate-900 dark:text-violet-400"
+            >
+              <mat-icon class="icon-size-4">sell</mat-icon>
+            </div>
+            <div class="leading-tight">
+              <div class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400">
+                {{ 'postman.requestEditor.costPerRequest' | transloco }}
+              </div>
+              <div class="text-sm font-semibold text-slate-700 dark:text-slate-100">
+                @switch (pd.type) {
+                  @case ('credits') {
+                    {{ pd.value }} {{ 'postman.requestEditor.credits' | transloco }}
+                  }
+                  @case ('avax') {
+                    {{ pd.value }} AVAX
+                  }
+                }
+              </div>
+            </div>
+          </div>
+        }
       </div>
 
       <!-- Request Bar -->
-      <div class="flex items-center gap-2 p-4 pt-2">
-        <div
-          class="flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800 flex-1"
-        >
-          <span class="mr-3 font-bold text-blue-600">{{ endpoint()?.method }}</span>
-          <input
-            type="text"
-            readonly
-            [value]="endpoint()?.url"
-            class="w-full min-w-[300px] bg-transparent text-slate-700 outline-none dark:text-slate-200"
-          />
-        </div>
+      <div class="p-4 pt-2">
+        <div class="flex items-center gap-2">
+          <div
+            class="flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800 flex-1"
+          >
+            <span class="mr-3 font-bold text-blue-600">{{ endpoint()?.method }}</span>
+            <input
+              type="text"
+              readonly
+              [value]="endpoint()?.url"
+              class="w-full min-w-[300px] bg-transparent text-slate-700 outline-none dark:text-slate-200"
+            />
+          </div>
 
-        <button mat-flat-button color="primary" (click)="sendRequest()" [disabled]="isLoading()">
-          <span *ngIf="!isLoading()">{{ 'postman.requestEditor.send' | transloco }}</span>
-          <span *ngIf="isLoading()">{{ 'postman.requestEditor.sending' | transloco }}</span>
-        </button>
+          <button mat-flat-button color="primary" (click)="sendRequest()" [disabled]="isLoading()">
+            <span *ngIf="!isLoading()">{{ 'postman.requestEditor.send' | transloco }}</span>
+            <span *ngIf="isLoading()">{{ 'postman.requestEditor.sending' | transloco }}</span>
+          </button>
+        </div>
       </div>
 
       <!-- Tabs: About, Params, Headers, Body -->
@@ -357,11 +388,13 @@ export class RequestEditorComponent {
   private _postmanService = inject(PostmanService);
   private _httpClient = inject(HttpClient);
   private _walletService = inject(AgentWalletService);
+  private _subscriptionService = inject(SubscriptionService);
   translocoService = inject(TranslocoService);
 
   endpoint = this._postmanService.selectedEndpoint;
   isLoading = this._postmanService.isLoading;
   documentationContent = signal<string>('');
+  currentSubscription = signal<ClientSubscription | null>(null);
 
   // Payment method state - connected to service
   paymentMethod = this._postmanService.paymentMethod;
@@ -373,7 +406,27 @@ export class RequestEditorComponent {
 
   bodyString = '';
 
+  priceDisplay = computed(() => {
+    const ep = this.endpoint();
+    const method = this.paymentMethod();
+    if (!ep) return null;
+    if (method === 'x402') {
+      const cost = ep.estimatedCost ?? 0;
+      return { type: 'avax' as const, value: cost.toFixed(5) };
+    }
+    const basePrice = ep.estimatedCost ?? 0;
+    const sub = this.currentSubscription();
+    const plan = sub?.subscriptionPlan;
+    const effective = this.getEffectivePrice(basePrice, plan);
+    return { type: 'credits' as const, value: effective };
+  });
+
   constructor() {
+    this._subscriptionService.getMySubscription().subscribe({
+      next: (res) => this.currentSubscription.set(res?.data ?? null),
+      error: () => this.currentSubscription.set(null),
+    });
+
     // Effect to handle 402 Payment Required errors from backend
     effect(() => {
       const error = this._postmanService.error();
@@ -659,6 +712,17 @@ export class RequestEditorComponent {
 
   formatBalance(balance: string): string {
     return parseFloat(balance).toFixed(5);
+  }
+
+  getEffectivePrice(basePrice: number, plan: SubscriptionPlan | undefined): number {
+    if (!basePrice || !plan?.discount) return basePrice;
+    const d = plan.discount;
+    const discount = d.discount ?? 0;
+    if (!discount) return basePrice;
+    if (d.type === 'amount') {
+      return Math.max(0, basePrice - discount);
+    }
+    return Math.max(0, basePrice * (1 - discount / 100));
   }
 
   renderMarkdown(text: string): string {
