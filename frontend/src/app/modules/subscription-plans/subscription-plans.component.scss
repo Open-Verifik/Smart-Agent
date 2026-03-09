@@ -1349,34 +1349,38 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 // SLIDER ACTIONS (Compare API prices button)
 // ================================
 .slider-actions {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 16px;
-  margin-bottom: 8px;
 }
 
 .btn-api-breakdown {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 10px 20px;
-  font-size: 14px;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
   font-weight: 600;
-  border-radius: 14px;
+  border-radius: 10px;
   cursor: pointer;
   background: transparent;
-  color: $light-text-primary;
-  border: 1px solid $light-card-border;
+  color: $accent-purple;
+  border: none;
+  text-decoration: none;
   @include smooth-transition;
 
   :host-context(.dark) & {
-    color: $dark-text-primary;
-    border-color: $dark-card-border;
+    color: $accent-purple;
   }
 
   &:hover:not(:disabled) {
-    background: rgba(99, 102, 241, 0.08);
-    border-color: rgba(99, 102, 241, 0.3);
-    color: $accent-purple;
+    text-decoration: underline;
+    color: darken($accent-purple, 8%);
+
+    :host-context(.dark) & {
+      color: lighten($accent-purple, 12%);
+    }
   }
 }
 

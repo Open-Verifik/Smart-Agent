@@ -63,7 +63,7 @@
                     <div class="plan-price">
                         <span class="amount"
                             >${{
-                                currentSubscription.subscriptionPlan.amount | number: '1.0-0'
+                                (currentSubscription.amount || currentSubscription.subscriptionPlan.amount) | number: '1.0-0'
                             }}</span
                         >
                         <span class="period"
@@ -281,17 +281,17 @@
                         </div>
                     </ng-container>
                 </div>
-            </div>
 
-            <!-- Compare API prices button -->
-            <div class="slider-actions">
-                <button
-                    type="button"
-                    class="btn btn-api-breakdown"
-                    (click)="showApiBreakdownView()"
-                >
-                    {{ 'subscriptionPlans.apiBreakdown.button' | transloco }}
-                </button>
+                <!-- Compare API prices button -->
+                <div class="slider-actions" *ngIf="!showApiBreakdown">
+                    <button
+                        type="button"
+                        class="btn btn-api-breakdown"
+                        (click)="showApiBreakdownView()"
+                    >
+                        {{ 'subscriptionPlans.apiBreakdown.button' | transloco }}
+                    </button>
+                </div>
             </div>
 
             <!-- API Price Breakdown Table (replaces plans when active) -->

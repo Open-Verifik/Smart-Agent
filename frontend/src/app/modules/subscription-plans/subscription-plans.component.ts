@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject } from 'rxjs';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
@@ -69,6 +69,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     constructor(
         private _subscriptionService: SubscriptionService,
         private _router: Router,
+        private _route: ActivatedRoute,
         private _translocoService: TranslocoService,
         private _snackBar: MatSnackBar
     ) {}
@@ -76,6 +77,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._loadCurrentSubscription();
         this._checkBillingSetup();
+        this._confirmSessionIfPresent();
     }
 
     ngOnDestroy(): void {
@@ -547,7 +549,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         subscription.changesRight = changes.slice(middleIndex);
 
         this.currentSubscription.amountByMonth =
-            subscription.amount / (subscription.intervalCount * 12);
+            (this.currentSubscription.amount || subscription.amount) / (subscription.intervalCount * 12);
 
         // Set interval for UI
         this.selectedInterval = subscription.interval as 'month' | 'year';
@@ -580,6 +582,31 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         }
 
         return null;
+    }
+
+    private _confirmSessionIfPresent(): void {
+        const sessionId = this._route.snapshot.queryParamMap.get('session_id');
+        if (!sessionId?.trim()) return;
+
+        this._subscriptionService.confirmCheckoutSession(sessionId).subscribe({
+            next: () => {
+                this._router.navigate([], {
+                    queryParams: {},
+                    queryParamsHandling: 'merge',
+                    replaceUrl: true,
+                });
+                this._loadCurrentSubscription();
+            },
+            error: (error) => {
+                console.error('Error confirming checkout session:', error);
+                this._snackBar.open(
+                    this._translocoService.translate('subscriptionPlans.sessionConfirmError') ||
+                        'Could not confirm subscription. Please try again.',
+                    undefined,
+                    { duration: 5000 }
+                );
+            },
+        });
     }
 
     private _checkBillingSetup(): void {

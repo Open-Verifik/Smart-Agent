@@ -54,7 +54,8 @@ export type ClientSubscription = {
     autoRenew: boolean;
     active: boolean;
     paymentFailedAt?: string;
-    amount: number;
+    amount?: number;
+    limit?: number;
     name: string;
     interval: string;
     amountByMonth?: number;
