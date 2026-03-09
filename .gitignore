@@ -57,7 +57,7 @@ pids/
 *.seed
 *.pid.lock
 
-# OS System files
+# OS System files (macOS creates .DS_Store when browsing folders)
 .DS_Store
 Thumbs.db
 
