@@ -1,0 +1,161 @@
+// Billing Required Dialog - Matches plan-change-dialog design system
+
+$light-card: #ffffff;
+$light-card-border: #e2e8f0;
+$light-text-primary: #0f172a;
+$light-text-secondary: #475569;
+$light-text-muted: #94a3b8;
+
+$dark-card: rgba(30, 41, 59, 0.95);
+$dark-card-border: rgba(255, 255, 255, 0.08);
+$dark-text-primary: #ffffff;
+$dark-text-secondary: rgba(255, 255, 255, 0.7);
+$dark-text-muted: rgba(255, 255, 255, 0.4);
+
+$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+$accent-purple: #8b5cf6;
+
+@mixin smooth-transition($duration: 0.3s) {
+  transition: all $duration cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialog-container {
+  position: relative;
+  background: $light-card;
+  border-radius: 24px;
+  max-width: 480px;
+  width: 100%;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: slideUp 0.3s ease-out;
+
+  :host-context(.dark) & {
+    background: $dark-card;
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.5),
+      0 0 0 1px $dark-card-border;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dialog-content {
+  padding: 40px;
+}
+
+.content-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: $accent-purple;
+
+  svg {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+  color: $light-text-primary;
+  margin: 0 0 12px;
+  letter-spacing: -0.02em;
+
+  :host-context(.dark) & {
+    color: $dark-text-primary;
+  }
+}
+
+.message {
+  font-size: 15px;
+  color: $light-text-secondary;
+  line-height: 1.6;
+  margin: 0 0 28px;
+
+  :host-context(.dark) & {
+    color: $dark-text-secondary;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+
+  .btn {
+    padding: 16px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 14px;
+    cursor: pointer;
+    @include smooth-transition;
+    border: none;
+    position: relative;
+    overflow: hidden;
+
+    &.btn-confirm {
+      background: $primary-gradient;
+      color: white;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+        opacity: 0;
+        @include smooth-transition;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(99, 102, 241, 0.4);
+
+        &::before {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}

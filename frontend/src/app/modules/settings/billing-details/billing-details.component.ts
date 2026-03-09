@@ -24,6 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -126,7 +127,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         private _settingsService: SettingsService,
         private _cdr: ChangeDetectorRef,
         private _snackBar: MatSnackBar,
-        private _translocoService: TranslocoService
+        private _translocoService: TranslocoService,
+        private _route: ActivatedRoute,
+        private _router: Router
     ) {
         this._initBillingForms();
         this._initDocumentTypes();
@@ -372,6 +375,11 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                     this._snackBar.open(message, null, { duration: 3000 });
                     this.isSavingBilling = false;
                     this._cdr.markForCheck();
+
+                    const returnUrl = this._route.snapshot.queryParams['returnUrl'];
+                    if (returnUrl && returnUrl.startsWith('/') && !returnUrl.includes('//')) {
+                        this._router.navigateByUrl(returnUrl);
+                    }
                 },
                 error: (error) => {
                     const message =

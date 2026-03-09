@@ -5,6 +5,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject } from 'rxjs';
+import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
     AppFeature,
@@ -20,7 +21,14 @@ const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
 @Component({
     selector: 'subscription-plans',
     standalone: true,
-    imports: [CommonModule, FormsModule, TranslocoModule, PlanChangeDialogComponent, MatSnackBarModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        TranslocoModule,
+        PlanChangeDialogComponent,
+        BillingRequiredDialogComponent,
+        MatSnackBarModule,
+    ],
     templateUrl: './subscription-plans.component.html',
     styleUrls: ['./subscription-plans.component.scss'],
     encapsulation: ViewEncapsulation.None,
@@ -54,6 +62,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
     // Dialog state
     showPlanChangeDialog = false;
+    showBillingRequiredModal = false;
     selectedPlanForChange: SubscriptionPlan | null = null;
     selectedPlanRequests = 0;
 
@@ -96,6 +105,13 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     // Navigation
     navigateToAddCredits(): void {
         this._router.navigate(['/add-credits']);
+    }
+
+    goToBillingDetails(): void {
+        this.showBillingRequiredModal = false;
+        this._router.navigate(['/settings', 'billing-details'], {
+            queryParams: { returnUrl: '/subscription-plans' },
+        });
     }
 
     // View switching
@@ -670,6 +686,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         this._subscriptionService.getBillingConfig({ findOne: true }).subscribe({
             next: (response) => {
                 this.hasBillingSetup = !!response?.data?.invoiceSettings?.invoiceType;
+                if (!this.hasBillingSetup) {
+                    this.showBillingRequiredModal = true;
+                }
             },
             error: (error) => {
                 console.error('Error loading billing config:', error);
