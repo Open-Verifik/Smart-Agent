@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Início",
     "chat": "Chat",
     "history": "Histórico",
     "settings": "Configurações",
@@ -25,6 +26,60 @@
     "smart_enroll": "SmartEnroll",
     "smart_scan": "SmartScan",
     "scan_documents": "Digitalizar e extrair dados de documentos"
+  },
+  "home": {
+    "welcome": {
+      "title": "A Camada de Confiança para Agentes de IA",
+      "subtitle": "Verifique humanos e empresas por trás de agentes autônomos. Alimentado por mais de 14 integrações oficiais de bancos de dados governamentais e o protocolo de pagamento x402."
+    },
+    "stats": {
+      "title": "Suas Estatísticas",
+      "loading": "Carregando...",
+      "totalValidations": "Total de validações",
+      "successful": "Bem-sucedidas",
+      "failed": "Falhas",
+      "creditsUsed": "Créditos usados",
+      "topApis": "APIs mais usadas",
+      "requests": "solicitações",
+      "signInPrompt": "Entre para ver suas estatísticas de validação e uso.",
+      "signIn": "Entrar"
+    },
+    "shortcuts": {
+      "title": "Acesso rápido",
+      "chat": "Chat",
+      "postman": "Postman",
+      "smartBatch": "Smart Batch",
+      "history": "Histórico",
+      "smartScan": "Smart Scan",
+      "statusCheck": "Verificação de status",
+      "incidents": "Incidentes",
+      "smartReduce": "Smart Reduce",
+      "subscriptionPlans": "Planos de assinatura",
+      "addCredits": "Adicionar créditos"
+    },
+    "tutorial": {
+      "title": "Primeiros passos",
+      "description": "Novo no Smart Agent? Faça um tour rápido para aprender o que você pode fazer.",
+      "start": "Iniciar tutorial",
+      "stepOf": "Passo {{ current }} de {{ total }}",
+      "back": "Voltar",
+      "next": "Próximo",
+      "getStarted": "Começar",
+      "step0Title": "Bem-vindo à Camada de Confiança",
+      "step0Desc": "O Smart Agent fornece verificação de identidade para agentes de IA. Pagamento por verificação via protocolo x402 na Avalanche. Mais de 14 integrações de bancos de dados governamentais, padrão de agente ERC-8004.",
+      "step0Tip": "Você pode usar créditos ou x402 (cripto) para pagar validações.",
+      "step1Title": "Chat Smart Agent",
+      "step1Desc": "Experimente o fluxo x402 nativamente. O agente identifica endpoints pagos, solicita autorização via assinatura de carteira e executa verificação on-chain. Um loop completo de pagamento por verdade.",
+      "step2Title": "Explorador de API (Postman)",
+      "step2Desc": "Teste nossos endpoints diretamente do seu navegador. Explore cada capacidade, personalize parâmetros e veja respostas em tempo real com um clique.",
+      "step3Title": "Processamento SmartBatch",
+      "step3Desc": "Precisa validar milhões de usuários? Envie arquivos CSV ou Excel. Nosso agente processa registros em paralelo, limpando seu banco de dados e enriquecendo-o com dados verificados oficiais do governo.",
+      "step3Tip": "Suporta arquivos grandes e múltiplas colunas para validação em lote.",
+      "step4Title": "Outras ferramentas",
+      "step4Desc": "Smart Scan para extração de documentos, Verificação de Status para monitoramento de saúde da API, Incidentes para alertas de serviço e Smart Reduce para otimização de imagens.",
+      "step5Title": "Créditos e faturamento",
+      "step5Desc": "Gerencie sua assinatura e adicione créditos. Pagamento por verificação sem assinatura fixa necessária."
+    }
   },
   "network": {
     "title": "Verificação de status",

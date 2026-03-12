@@ -1,0 +1,106 @@
+<div class="home-container">
+    <!-- Welcome / Hero -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            {{ 'home.welcome.title' | transloco }}
+        </h1>
+        <p class="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
+            {{ 'home.welcome.subtitle' | transloco }}
+        </p>
+    </div>
+
+    <!-- Statistics Section -->
+    <section class="mb-8">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
+            {{ 'home.stats.title' | transloco }}
+        </h2>
+
+        @if (isAuthenticated()) {
+            @if (loading()) {
+                <div class="flex items-center gap-2 py-8">
+                    <mat-spinner diameter="24"></mat-spinner>
+                    <span class="text-slate-500 text-sm">{{ 'home.stats.loading' | transloco }}</span>
+                </div>
+            } @else {
+                @let totals = getTotals();
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ totals.total }}</div>
+                        <div class="stat-label">{{ 'home.stats.totalValidations' | transloco }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value text-green-600 dark:text-green-400">{{ totals.ok }}</div>
+                        <div class="stat-label">{{ 'home.stats.successful' | transloco }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value text-red-600 dark:text-red-400">{{ totals.failed }}</div>
+                        <div class="stat-label">{{ 'home.stats.failed' | transloco }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ totals.credits | number: '1.0-3' }}</div>
+                        <div class="stat-label">{{ 'home.stats.creditsUsed' | transloco }}</div>
+                    </div>
+                </div>
+
+                @if (getTopApis().length > 0) {
+                    <div class="mt-6">
+                        <h3 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">
+                            {{ 'home.stats.topApis' | transloco }}
+                        </h3>
+                        <ul class="top-apis-list">
+                            @for (api of getTopApis(); track api._id) {
+                                <li>
+                                    <span class="text-sm text-slate-700 dark:text-slate-300">{{ getApiDisplayName(api._id) }}</span>
+                                    <span class="api-count-badge">{{ api.total }} {{ 'home.stats.requests' | transloco }}</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+        } @else {
+            <div class="stat-card p-6 text-center">
+                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                    {{ 'home.stats.signInPrompt' | transloco }}
+                </p>
+                <button mat-flat-button color="primary" (click)="openAuthModal()">
+                    {{ 'home.stats.signIn' | transloco }}
+                </button>
+            </div>
+        }
+    </section>
+
+    <!-- Helper Shortcuts -->
+    <section class="shortcuts-section">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
+            {{ 'home.shortcuts.title' | transloco }}
+        </h2>
+        <div class="shortcuts-grid">
+            @for (item of shortcuts; track item.id) {
+                <a [routerLink]="item.link" class="shortcut-card">
+                    <div class="shortcut-icon">
+                        <mat-icon>{{ item.icon }}</mat-icon>
+                    </div>
+                    <div>
+                        <div class="shortcut-title">{{ item.titleKey | transloco }}</div>
+                        <div class="shortcut-subtitle">{{ item.subtitleKey | transloco }}</div>
+                    </div>
+                </a>
+            }
+        </div>
+    </section>
+
+    <!-- Tutorial Section -->
+    <section class="tutorial-section">
+        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">
+            {{ 'home.tutorial.title' | transloco }}
+        </h2>
+        <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+            {{ 'home.tutorial.description' | transloco }}
+        </p>
+        <button mat-flat-button color="primary" (click)="openTutorial()">
+            <mat-icon class="mr-2">school</mat-icon>
+            {{ 'home.tutorial.start' | transloco }}
+        </button>
+    </section>
+</div>

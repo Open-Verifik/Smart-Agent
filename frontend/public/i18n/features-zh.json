@@ -1,1135 +1,1135 @@
 {
-    "appFeatures": {
-        "feature_email_login": {
-            "title": "通过电子邮件获取API密钥",
-            "description": "请求向客户电子邮件发送一次性密码（OTP）以进行API身份验证。"
-        },
-        "colombia_special_api_identity_lookup": {
-            "title": "哥伦比亚 - 私人公民信息",
-            "description": "访问私人公民信息 为 Colombian nationals. 此服务提供全面的个人数据 包括 detailed identity verification. 联系Verifik客户服务了解更多详情."
-        },
-        "colombia_api_identity_lookup": {
-            "title": "哥伦比亚 - 国民身份证验证",
-            "description": "验证 Colombian national ID (cédula) information. 获取 full name, document status, and basic citizen verification data."
-        },
-        "colombia_special_api_police_identity_lookup": {
-            "title": "哥伦比亚 - 警察记录查询",
-            "description": "检查 police records through Colombia's National Police system. 验证 interactions with law enforcement and police records. 需要 document type, document number, and expedition date."
-        },
-        "world_api_dea": {
-            "title": "全球 - DEA背景调查",
-            "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 搜索 by full name OR document number with document type. 验证 individuals against international drug enforcement records."
-        },
-        "colombia_api_military_situation": {
-            "title": "Colombia - 军事服务记录",
-            "description": "验证 military service records through Colombia's military system. 检查 service status, military obligations, and service records. 需要 Colombian ID (CC) and document number."
-        },
-        "colombia_api_rethus": {
-            "title": "Colombia - 健康记录验证",
-            "description": "Access Colombian health records through Rethus system. 验证 medical history, health status, and healthcare provider information. 需要 document type (CC, CE, PPT) and document number."
-        },
-        "colombia_api_rues": {
-            "title": "Colombia - 公司注册验证",
-            "description": "验证 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 检查 business registration, legal status, and company information. 需要 document type and document number."
-        },
-        "colombia_api_dian": {
-            "title": "Colombia - 税务信息验证",
-            "description": "验证 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 检查 tax status, obligations, and compliance records. 需要 document type and document number."
-        },
-        "peru_api_company_lookup": {
-            "title": "Peru - 企业注册查询",
-            "description": "Business verification service 为 Peru. 提供 company registration details, legal status, and business information."
-        },
-        "colombia_api_judicial_process_details": {
-            "title": "哥伦比亚 - 司法程序细节",
-            "description": "获取有关哥伦比亚司法程序的详细信息。包括状态、历史记录和法院详情。"
-        },
-        "colombia_api_vehicle_soat": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "usa_api_vehicle": {
-            "title": "美国 - 车辆验证",
-            "description": "验证美国车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "world_api_onu": {
-            "title": "全球 - 联合国制裁检查",
-            "description": "检查 individuals and entities against United Nations sanctions lists. 搜索 by full name OR document number with document type. 验证 compliance with international sanctions regimes."
-        },
-        "feature_kyc_solution": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "world_api_covid": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "colombia_api_affiliations": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_contraloria_certificate": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "peru_identity_lookup": {
-            "title": "Peru - 身份验证",
-            "description": "标准身份验证服务 为 Peru 公民. 验证个人信息和文件真实性."
-        },
-        "venezuela_api_identity_lookup": {
-            "title": "Venezuela - 身份验证",
-            "description": "标准身份验证服务 为 Venezuela 公民. 验证个人信息和文件真实性."
-        },
-        "colombia_api_vehicle_complete": {
-            "title": "Colombia - Complete Vehicle Information",
-            "description": "获取 comprehensive vehicle information 为 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
-        },
-        "mexico_api_vehicle": {
-            "title": "墨西哥 - 车辆验证",
-            "description": "验证墨西哥车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "feature_passwordless_solution": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "world_api_interpol": {
-            "title": "全球 - 国际刑警背景调查",
-            "description": "International background check using Interpol databases. 搜索 by full name OR document number with document type. 验证 individuals against international criminal records and wanted lists."
-        },
-        "colombia_api_sena": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "world_api_ofac": {
-            "title": "全球 - OFAC制裁检查",
-            "description": "检查 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 搜索 by full name OR document number with document type. 验证 compliance with US economic sanctions."
-        },
-        "colombia_api_registraduria_certificate": {
-            "title": "Colombia - 选举记录验证",
-            "description": "Electoral records verification service 为 Colombia 公民. 提供 voting status and electoral information."
-        },
-        "colombia_api_delinquent_debtors": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "world_api_fbi": {
-            "title": "全球 - FBI背景调查",
-            "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 搜索 by full name OR document number with document type. 验证 individuals against federal criminal records."
-        },
-        "mexico_identity_lookup": {
-            "title": "墨西哥 - 身份验证",
-            "description": "使用 CURP 验证墨西哥公民身份。从官方来源获取个人信息、证件真实性和身份验证。"
-        },
-        "ecuador_api_identity_lookup": {
-            "title": "厄瓜多尔 - 身份验证",
-            "description": "使用身份证（cédula）验证厄瓜多尔公民身份。从官方来源获取个人信息、证件真实性和身份验证。"
-        },
-        "colombia_api_driver": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "peru_api_vehicle": {
-            "title": "Peru - 车辆验证",
-            "description": "标准车辆验证服务 为 Peru. 验证车辆登记和基本信息."
-        },
-        "peru_api_vehicle_soat": {
-            "title": "Peru - 车辆验证",
-            "description": "标准车辆验证服务 为 Peru. 验证车辆登记和基本信息."
-        },
-        "ecuador_api_vehicle": {
-            "title": "厄瓜多尔 - 车辆验证",
-            "description": "验证厄瓜多尔车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "feature_data_api": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "colombia_api_min_trabajo": {
-            "title": "Colombia - 劳动证书验证",
-            "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
-        },
-        "colombia_api_registraduria_voting": {
-            "title": "Colombia - 选举记录验证",
-            "description": "Electoral records verification service 为 Colombia 公民. 提供 voting status and electoral information."
-        },
-        "world_api_europol": {
-            "title": "全球 - 欧洲刑警背景调查",
-            "description": "European background check using Europol databases. 搜索 by full name OR document number with document type. 验证 individuals against European criminal records and intelligence databases."
-        },
-        "colombia_api_criminal_history": {
-            "title": "Colombia - 法律背景调查",
-            "description": "Legal background verification service 为 Colombia 公民. 提供 information about legal proceedings and judicial records."
-        },
-        "colombia_api_judicial_processes": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_vehicle": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "colombia_api_pico_placa": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "feature_pdf_generator": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "panama_api_identity_full_lookup": {
-            "title": "巴拿马 - 完整身份验证",
-            "description": "巴拿马公民的完整身份验证。从官方来源获取完整个人资料、证件信息和扩展验证数据。"
-        },
-        "chile_api_identity_lookup": {
-            "title": "智利 - 身份验证",
-            "description": "使用 RUT 验证智利公民身份。从民事登记处获取全名、个人信息和身份验证。"
-        },
-        "costarica_api_identity_lookup": {
-            "title": "Costa Rica - 身份验证",
-            "description": "标准身份验证服务 为 Costa Rica 公民. 验证个人信息和文件真实性."
-        },
-        "ecuador_api_criminal_history": {
-            "title": "厄瓜多尔 - 犯罪记录查询",
-            "description": "查询厄瓜多尔公民的犯罪记录和法律背景。从官方来源验证司法历史和犯罪前科。"
-        },
-        "chile_api_vehicle": {
-            "title": "智利 - 车辆验证",
-            "description": "验证智利车辆登记和所有权。通过车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "panama_api_identity_lookup": {
-            "title": "巴拿马 - 身份验证",
-            "description": "通过身份证验证巴拿马公民身份。从官方来源获取全名、个人信息和身份验证。"
-        },
-        "panama_api_vehicle": {
-            "title": "巴拿马 - 车辆验证",
-            "description": "验证巴拿马车辆登记和所有权。按车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "chile_api_business_lookup": {
-            "title": "智利 - 企业验证",
-            "description": "验证智利公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
-        },
-        "spain_api_identity_lookup": {
-            "title": "Spain - 身份验证",
-            "description": "标准身份验证服务 为 Spain 公民. 验证个人信息和文件真实性."
-        },
-        "ecuador_api_vehicle_fines": {
-            "title": "厄瓜多尔 - 车辆罚款查询",
-            "description": "查询厄瓜多尔车辆的交通罚款和处罚。通过车牌搜索获取未缴罚款、支付状态和违规详情。"
-        },
-        "colombia_api_vehicle_complete_by_plate": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "colombia_api_vehicle_complete_by_vin": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "peru_identity_extra_lookup": {
-            "title": "Peru - Complete 身份验证",
-            "description": "综合身份验证服务 为 Peru 公民. 提供 complete personal information 包括 full name, document details, and additional verification data."
-        },
-        "colombia_api_lawyers": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "brasil_api_identity_lookup": {
-            "title": "巴西 - 身份验证",
-            "description": "通过CPF验证巴西公民身份。从官方来源获取全名、个人信息和身份验证。"
-        },
-        "usa_api_driver_license_lookup": {
-            "title": "美国 - 佛罗里达驾照查询",
-            "description": "验证佛罗里达州驾照信息。获取持有人详情、驾照状态、有效期及州记录验证数据。"
-        },
-        "consultar_procesos_judiciales": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "credit_intent": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "ip-lookup": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "colombia_api_judicial_records": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "communication_messaging_sms": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "communication_colombia_messaging_whatsapp": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "communication_global_messaging_whatsapp": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "communication_global_email_otp": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_liveness_3d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_estimate_age_3d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_check_age_3d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_enrollment_3d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_id_scan_only": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_liveness_2d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_estimate_age_2d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "biometrics_check_age_2d": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "credit_intent_kyc_passwordless": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "brasil_api_company_lookup": {
-            "title": "巴西 - 企业验证",
-            "description": "验证巴西企业信息和工商登记（CNPJ）。从官方来源获取企业详情、法律状态和商业数据。"
-        },
-        "brasil_api_vehicle": {
-            "title": "巴西 - 车辆验证",
-            "description": "验证巴西车辆登记和所有权。按车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "argentina_api_identity_lookup": {
-            "title": "阿根廷 - 身份验证",
-            "description": "通过DNI或CUIT验证阿根廷公民身份。从官方来源获取全名、个人信息和身份验证。"
-        },
-        "ecuador_api_company_lookup": {
-            "title": "厄瓜多尔 - 企业验证",
-            "description": "验证厄瓜多尔公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
-        },
-        "usa_api_ssn": {
-            "title": "美国 - SSN 验证",
-            "description": "验证美国公民或居民的社安号（SSN）。用于合规和入职的身份及 SSN 状态验证。"
-        },
-        "colombia_api_dian_invoicer": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "api_colombia_contracts": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_police_rnmc": {
-            "title": "哥伦比亚 - 警察记录查询",
-            "description": "Police records verification service 为 Colombia 公民. 提供 information about police interactions and records."
-        },
-        "bolivia_api_identity_lookup": {
-            "title": "Bolivia - 身份验证",
-            "description": "标准身份验证服务 为 Bolivia 公民. 验证个人信息和文件真实性."
-        },
-        "colombia_pep_lookup": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "api_autodata_manufacturers": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "world_api_phone_lookup": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "Mexico_api_ine_model_e": {
-            "title": "墨西哥 - INE 证件验证（E 型）",
-            "description": "验证墨西哥 INE（选民证）E 型真实性并提取数据。使用 clave de elector、签发编号和 OCR 进行身份验证。"
-        },
-        "Mexico_api_ine_model_d": {
-            "title": "墨西哥 - INE 证件验证（D 型）",
-            "description": "验证墨西哥 INE（选民证）D 型真实性并提取数据。使用 clave de elector、签发编号和 OCR 进行身份验证。"
-        },
-        "Mexico_api_ine_model_c": {
-            "title": "墨西哥 - INE 证件验证（C 型）",
-            "description": "验证墨西哥 INE（选民证）C 型真实性并提取数据。使用 clave de elector、签发编号和 OCR 进行身份验证。"
-        },
-        "api_autodata_enginer": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "colombia_api_rues_full": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "api_autodata_enginer_code": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "api_autodata_selection": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "colombia_api_sisconmp": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "data_finance_incomestatement": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "data_finance_balancesheet": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "data_finance_cashflow": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "data_finance_stockprice": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "paraguay_api_identity_lookup": {
-            "title": "Paraguay - 数据验证服务",
-            "description": "通用数据验证服务 为 Paraguay. 提供可靠的信息验证和确认."
-        },
-        "canada_api_driver_license_alberta": {
-            "title": "加拿大 - 阿尔伯塔驾照查询",
-            "description": "验证阿尔伯塔省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
-        },
-        "canada_api_driver_license_ontario": {
-            "title": "加拿大 - 安大略驾照查询",
-            "description": "验证安大略省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
-        },
-        "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "canada_api_driver_license_quebec": {
-            "title": "加拿大 - 魁北克驾照查询",
-            "description": "验证魁北克省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
-        },
-        "ocr_scan_pro": {
-            "title": "OCR - 专业扫描",
-            "description": "专业级 OCR 服务，用于高质量文档扫描和处理。针对影棚拍摄的图像和文档进行了优化。"
-        },
-        "el_salvador_api_identity_lookup": {
-            "title": "El Salvador - 数据验证服务",
-            "description": "通用数据验证服务 为 El Salvador. 提供可靠的信息验证和确认."
-        },
-        "canada_api_driver_license_british-columbia": {
-            "title": "加拿大 - 不列颠哥伦比亚驾照查询",
-            "description": "验证不列颠哥伦比亚省驾照信息。从省级记录获取持有人详情、驾照状态、有效期和验证数据。"
-        },
-        "ocr_scan_gpt": {
-            "title": "OCR - GPT 视觉分析",
-            "description": "使用 GPT-4o 视觉技术进行高级文档分析。从任何身份文档或表格中提取结构化数据。"
-        },
-        "colombia_api_identity_lookup_extra": {
-            "title": "Colombia - Complete 身份验证",
-            "description": "综合身份验证服务 为 Colombia 公民. 提供 complete personal information 包括 full name, document details, and additional verification data."
-        },
-        "colombia_api_identity_pep_foreigner_id": {
-            "title": "Colombia - 移民状态验证",
-            "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
-        },
-        "ocr_scan_studio": {
-            "title": "OCR - 工作室扫描仪",
-            "description": "针对专业工作室环境和高分辨率捕获进行了优化的高保真文档扫描。"
-        },
-        "canada_api_company": {
-            "title": "加拿大 - 企业验证",
-            "description": "验证加拿大企业信息和工商登记。从官方来源获取企业详情、法律状态和商业数据。"
-        },
-        "us_api_passport_entries": {
-            "title": "United States - 身份验证",
-            "description": "标准身份验证服务 为 United States 公民. 验证个人信息和文件真实性."
-        },
-        "mexico_api_company": {
-            "title": "墨西哥 - 企业验证",
-            "description": "验证墨西哥公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
-        },
-        "face_recognition_compare": {
-            "title": "生物识别 - 人脸对比",
-            "description": "生物识别面部比较服务。比较两张面部图像以确定映射分值和身份匹配度。"
-        },
-        "face_recognition_compare_live": {
-            "title": "生物识别 - 活体人脸对比",
-            "description": "实时人脸与匹配的人员记录进行比较。将实时捕获的面部与索引身份进行比较。"
-        },
-        "face_recognition_liveness": {
-            "title": "生物识别 - 活体检测",
-            "description": "被动活体检测，使用单张图像验证真人是否存在。"
-        },
-        "face_recognition_search_live_face": {
-            "title": "生物识别 - 实时人脸搜索",
-            "description": "使用实时摄像头流进行面部识别。实时搜索匹配的个人。"
-        },
-        "face_recognition_verify": {
-            "title": "生物识别 - 人脸验证",
-            "description": "使用面部识别进行身份验证。比较两张脸以确定它们是否属于同一个人。"
-        },
-        "face_recognition_detect": {
-            "title": "生物识别 - 人脸检测",
-            "description": "检测图像中的人脸和面部特征。提取地标和头部姿势等属性。"
-        },
-        "face_recognition_search_crops": {
-            "title": "生物识别 - 人脸搜索（裁剪图）",
-            "description": "根据面部裁剪图像在数据库中搜索并识别个人。"
-        },
-        "face_recognition_search": {
-            "title": "生物识别 - 人脸搜索",
-            "description": "高级人脸搜索服务。在索引的人员记录中搜索匹配的个人。"
-        },
-        "colombia_api_vehicle_valores_fasecolda_by_plate": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_vehicle_valores_fasecolda_by_code": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "usa_api_company": {
-            "title": "美国 - 企业验证",
-            "description": "验证美国公司信息和工商登记。从官方来源获取公司详情、法律状态和商业数据。"
-        },
-        "colombia_api_runt_owners": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "chile_api_driver_license": {
-            "title": "智利 - 驾照查询",
-            "description": "验证智利驾照信息。获取持有人详情、驾照状态、有效期及官方记录的验证数据。"
-        },
-        "colombia_api_lawyers_certificate": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "argentina_api_vehicle": {
-            "title": "阿根廷 - 车辆验证",
-            "description": "验证阿根廷车辆登记和所有权。按车牌搜索获取车辆详情、规格和登记状态。"
-        },
-        "argentina_api_company_lookup": {
-            "title": "阿根廷 - 企业验证",
-            "description": "验证阿根廷企业信息和工商登记（CUIT）。从官方来源获取企业详情、法律状态和商业数据。"
-        },
-        "bolivia_api_vehicle": {
-            "title": "Bolivia - 车辆验证",
-            "description": "标准车辆验证服务 为 Bolivia. 验证车辆登记和基本信息."
-        },
-        "brasil_api_criminal_history": {
-            "title": "巴西 - 犯罪记录查询",
-            "description": "查询巴西公民的犯罪记录和司法背景。从官方来源验证司法历史和犯罪前科。"
-        },
-        "bolivia_api_business_lookup": {
-            "title": "Bolivia - 数据验证服务",
-            "description": "通用数据验证服务 为 Bolivia. 提供可靠的信息验证和确认."
-        },
-        "costa_rica_api_business_lookup": {
-            "title": "Costa Rica - 数据验证服务",
-            "description": "通用数据验证服务 为 Costa Rica. 提供可靠的信息验证和确认."
-        },
-        "paraguay_api_business_lookup": {
-            "title": "Paraguay - 数据验证服务",
-            "description": "通用数据验证服务 为 Paraguay. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_vehicle_tax": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "colombia_api_vehicle_accidentality_bogota": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "api_data_sheet_vehicle": {
-            "title": " - 车辆验证",
-            "description": "标准车辆验证服务 为 . 验证车辆登记和基本信息."
-        },
-        "api_data_sheet_vehicle_by-plate_br": {
-            "title": "Brazil - 车辆验证",
-            "description": "标准车辆验证服务 为 Brazil. 验证车辆登记和基本信息."
-        },
-        "face_recognition_search_active_user": {
-            "title": "生物识别 - 活跃用户搜索",
-            "description": "高级生物识别搜索服务，以高精度和活体验证识别活跃用户。"
-        },
-        "matpis_appointments": {
-            "title": " - 数据验证服务",
-            "description": "通用数据验证服务 为 . 提供可靠的信息验证和确认."
-        },
-        "chile_api_taxpayer_lookup": {
-            "title": "智利 - 纳税人查询",
-            "description": "通过 RUT 查询智利纳税人信息。从 SII（税务局）记录获取全名、税务状态和身份验证。"
-        },
-        "chile_api_validate": {
-            "title": "智利 - 纳税人验证",
-            "description": "验证智利纳税人身份和状态。对照 SII 记录验证 RUT，用于合规和入职。"
-        },
-        "colombia_api_simit_agreements": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_simit_suspensions": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_simit_subpoenas": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_simit_subpoenas_details": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_simit_resolutions": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_simit_complete": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_simit_plate": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "world_api_passport_entries": {
-            "title": "United States - 身份验证",
-            "description": "标准身份验证服务 为 United States 公民. 验证个人信息和文件真实性."
-        },
-        "validate-document": {
-            "title": "Colombia - 身份验证",
-            "description": "标准身份验证服务 为 Colombia 公民. 验证个人信息和文件真实性."
-        },
-        "costa_rica_api_vehicle": {
-            "title": "Costa Rica - 车辆验证",
-            "description": "标准车辆验证服务 为 Costa Rica. 验证车辆登记和基本信息."
-        },
-        "paraguay_api_vehicle": {
-            "title": "Paraguay - 车辆验证",
-            "description": "标准车辆验证服务 为 Paraguay. 验证车辆登记和基本信息."
-        },
-        "usa_api_vehicle_lookup_by_vin": {
-            "title": "美国 - 按 VIN 查询车辆",
-            "description": "通过 VIN（车辆识别号）查询美国车辆信息。无需车牌即可获取规格、历史和登记详情。"
-        },
-        "colombia_api_identity_ce_foreigner_id": {
-            "title": "Colombia - 移民状态验证",
-            "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
-        },
-        "colombia_api_vehicle_fines_bogota": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "colombia_api_vehicle_fines_medellin": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
-        },
-        "guatemala_api_identity_lookup": {
-            "title": "Guatemala - 身份验证",
-            "description": "标准身份验证服务 为 Guatemala 公民. 验证个人信息和文件真实性."
-        },
-        "honduras_api_identity_lookup": {
-            "title": "Honduras - 身份验证",
-            "description": "标准身份验证服务 为 Honduras 公民. 验证个人信息和文件真实性."
-        },
-        "republica_dominicana_api_citizen_lookup": {
-            "title": "Dominican Republic - 身份验证",
-            "description": "标准身份验证服务 为 Dominican Republic 公民. 验证个人信息和文件真实性."
-        },
-        "venezuela_foreigner_api": {
-            "title": "Venezuela - 移民状态验证",
-            "description": "Immigration records verification service 为 Venezuela. 提供 immigration status and foreigner registration information."
-        },
-        "colombia_sisben_api_lookup": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "spain_api_vehicle_lookup": {
-            "title": "Spain - 车辆验证",
-            "description": "标准车辆验证服务 为 Spain. 验证车辆登记和基本信息."
-        },
-        "spain_api_company_lookup": {
-            "title": "Spain - 数据验证服务",
-            "description": "通用数据验证服务 为 Spain. 提供可靠的信息验证和确认."
-        },
-        "panama_api_business_lookup": {
-            "title": "巴拿马 - 企业验证",
-            "description": "验证巴拿马企业信息和工商登记（RUC）。从官方来源获取企业详情、法律状态和商业数据。"
-        },
-        "uruguay_api_identity_lookup": {
-            "title": "Uruguay - 身份验证",
-            "description": "标准身份验证服务 为 Uruguay 公民. 验证个人信息和文件真实性."
-        },
-        "peru_api_identity_ce_foreigner_id": {
-            "title": "Peru - 移民状态验证",
-            "description": "Immigration records verification service 为 Peru. 提供 immigration status and foreigner registration information."
-        },
-        "colombia_api_rues_full_v3": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_api_rues_v3": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "peru_identity_lookup_v3": {
-            "title": "Peru - 身份验证",
-            "description": "标准身份验证服务 为 Peru 公民. 验证个人信息和文件真实性."
-        },
-        "peru_identity_extra_lookup_v3": {
-            "title": "Peru - Complete 身份验证",
-            "description": "综合身份验证服务 为 Peru 公民. 提供 complete personal information 包括 full name, document details, and additional verification data."
-        },
-        "colombia_api_identity_ppt_foreigner_id": {
-            "title": "Colombia - 移民状态验证",
-            "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
-        },
-        "colombia_api_min_trabajo_v3": {
-            "title": "Colombia - 劳动证书验证",
-            "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
-        },
-        "peru_api_company_lookup_v3": {
-            "title": "Peru - 数据验证服务",
-            "description": "通用数据验证服务 为 Peru. 提供可靠的信息验证和确认."
-        },
-        "face_recognition_detect_face": {
-            "title": "生物识别 - 人脸验证",
-            "description": "基础人脸检测和验证服务。确认面部的存在和基础属性。"
-        },
-        "document-liveness": {
-            "title": "生物识别 - 证件活体验证",
-            "description": "验证身份文件的活体状态，以防止使用副本或数字屏幕。"
-        },
-        "colombia_api_inpec": {
-            "title": "Colombia - 数据验证服务",
-            "description": "通用数据验证服务 为 Colombia. 提供可靠的信息验证和确认."
-        },
-        "colombia_sigep_by_name": {
-            "title": "Colombia - SIGEP Public Officials 搜索",
-            "description": "搜索 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
-        },
-        "colombia_sigep_by_number": {
-            "title": "Colombia - SIGEP Official 查询 by Document",
-            "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 获取 complete professional information from SIGEP records."
-        },
-        "colombia_inpec_lookup": {
-            "title": "Colombia - INPEC 监狱记录查询",
-            "description": "Look up Colombian prison records and inmate information using ID number and surname. 获取 admission status, legal status, and prison facility details from INPEC records."
-        },
-        "zelf-proofs": {
-            "title": "Zelf Proofs",
-            "description": "Zelf Proofs service 为 identity verification and document validation. This service provides comprehensive proof generation capabilities 为 various identity documents and verification processes."
-        },
-        "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof 活体检测",
-            "description": "具有活体检测功能的 Zelf Proof 服务，用于增强身份验证。 该服务提供具有主动活体检测的证明生成，以确保人员在验证期间亲身在场。"
-        },
-        "biometrics_api_create_person": {
-            "title": "生物识别 - 创建人员（无活体检测）",
-            "description": "创建用于身份管理的新人员记录。用于索引和未来的面部识别搜索。"
-        },
-        "biometrics_api_create_person_liveness": {
-            "title": "生物识别 - 带活体检测的人员创建",
-            "description": "创建带有集成活体检测的新人员记录。确保用户在注册过程中亲身在场。"
-        },
-        "guatemala_api_identity_extra_lookup": {
-            "title": "危地马拉 - 身份额外查询",
-            "description": "针对危地马拉公民的全面身份验证，包括额外的数据点。"
-        }
+  "appFeatures": {
+    "feature_email_login": {
+      "title": "通过电子邮件获取API密钥",
+      "description": "请求向客户电子邮件发送一次性密码（OTP）以进行API身份验证。"
     },
-    "smartBatchLanding": {
-        "title": "Smart Batch",
-        "subtitle": "管理您的批次处理配置和报告模板。",
-        "configurationsTab": "配置",
-        "reportTemplatesTab": "报告模板",
-        "createConfiguration": "创建配置",
-        "createTemplate": "创建模板",
-        "createTemplateFirstHint": "请先创建配置以添加报告模板",
-        "loadingConfigurations": "正在加载配置...",
-        "loadingTemplates": "正在加载模板...",
-        "noConfigurations": "未找到配置",
-        "noConfigurationsDesc": "创建您的第一个批次配置以开始自动化数据处理。",
-        "createFirstConfiguration": "创建配置",
-        "noTemplates": "暂无报告模板",
-        "noTemplatesDesc": "在配置的报告构建器中创建模板以设计您的 PDF 导出。",
-        "noTemplatesHint": "打开配置、运行批次，然后使用“生成报告”来创建和编辑模板。",
-        "steps": "步骤",
-        "strategy": "策略",
-        "inactive": "未启用",
-        "sections": "章节",
-        "pageSize": "页面大小",
-        "pdfEngine": "PDF 引擎",
-        "linkedTo": "关联到",
-        "standalone": "独立",
-        "edit": "编辑",
-        "delete": "删除",
-        "deleteConfirmation": "确定要删除此模板吗？",
-        "noDescription": "未提供描述。"
+    "colombia_special_api_identity_lookup": {
+      "title": "哥伦比亚 - 私人公民信息",
+      "description": "访问私人公民信息 为 Colombian nationals. 此服务提供全面的个人数据 包括 detailed identity verification. 联系Verifik客户服务了解更多详情."
     },
-    "createBatchConfig": {
-        "edit": "编辑",
-        "create": "创建",
-        "batchConfiguration": "批次配置",
-        "basicInformation": "基本信息",
-        "configurationName": "配置名称",
-        "namePlaceholder": "例如：哥伦比亚身份证验证批次",
-        "nameRequired": "名称为必填项",
-        "description": "描述",
-        "descriptionPlaceholder": "描述此批次的用途...",
-        "country": "国家",
-        "countryRequired": "国家为必填项",
-        "mergeStrategy": "合并策略",
-        "sequential": "顺序（逐一）",
-        "parallelIndependent": "并行独立",
-        "parallelWithFallback": "带回退的并行",
-        "inputFieldsFormat": "输入字段格式",
-        "resultOutputFormat": "结果输出格式",
-        "saving": "保存中...",
-        "next": "下一步",
-        "selectEndpoints": "选择端点",
-        "availableFeatures": "可用功能",
-        "loadingFeatures": "加载功能中...",
-        "available": "可用",
-        "searchPlaceholder": "按标题或端点搜索...",
-        "noEndpointsMatch": "没有与 \"{{query}}\" 匹配的端点",
-        "selectedSteps": "已选步骤（拖拽以重新排序）",
-        "selectFeaturesToAdd": "选择要添加步骤的功能",
-        "back": "返回",
-        "reviewParameters": "审查参数",
-        "reviewParamsIntro": "审查每个端点所需的参数。运行批次时将提供这些参数。",
-        "requiredParameters": "必需参数",
-        "parametersMappedHint": "运行批次时，这些参数将从您的输入文件中映射。",
-        "noParametersRequired": "此端点不需要参数。",
-        "required": "必需",
-        "reviewAndCreate": "审查并创建",
-        "summary": "摘要",
-        "totalSteps": "总步骤数",
-        "stepsCount": "{{count}} 个步骤",
-        "estimatedCostPerRecord": "每记录预估成本",
-        "totalPerRecord": "每记录总计",
-        "updateConfiguration": "更新配置",
-        "createConfiguration": "创建配置"
+    "colombia_api_identity_lookup": {
+      "title": "哥伦比亚 - 国民身份证验证",
+      "description": "验证 Colombian national ID (cédula) information. 获取 full name, document status, and basic citizen verification data."
     },
-    "createBatch": {
-        "createNewBatch": "创建新批次",
-        "uploadDataWith": "上传数据以使用 \"{{name}}\" 进行处理",
-        "showTutorial": "显示教程",
-        "loadingConfiguration": "加载配置中...",
-        "csvFileRequirements": "CSV 文件要求",
-        "requiredFieldsCount": "根据您的配置需要 {{count}} 个必填字段",
-        "quickStart": "快速开始",
-        "quickStartDesc": "下载我们预配置的模板（包含所有必需列），填写您的数据，然后在此处上传。",
-        "downloadCsvTemplate": "下载 CSV 模板",
-        "requiredFields": "必填字段",
-        "required": "必需",
-        "optional": "可选",
-        "options": "选项",
-        "usedBy": "用于：{{stepName}}",
-        "noFieldsRequired": "无需特定字段。您可以上传任何 CSV 结构。",
-        "proTip": "提示：确保您的 CSV 表头与字段名称完全匹配。列顺序无关紧要，但名称必须匹配。",
-        "batchDetails": "批次详情",
-        "batchName": "批次名称",
-        "batchNamePlaceholder": "例如：2026年1月背景调查",
-        "batchNameHint": "为您的批次起一个描述性名称",
-        "uploadData": "上传数据",
-        "template": "模板",
-        "dropOrClick": "将文件拖放到此处或点击浏览",
-        "acceptsFiles": "接受 {{formats}} 文件",
-        "removeFile": "移除文件",
-        "rowsParsedSuccess": "成功解析 {{count}} 行",
-        "columnsDetected": "检测到 {{count}} 列",
-        "dataPreview": "数据预览",
-        "issuesCount": "{{count}} 个问题",
-        "fixHighlightedCells": "修复高亮单元格以继续",
-        "missingValues": "{{count}} 个缺失值",
-        "invalidValues": "{{count}} 个无效值",
-        "moreRowsHaveErrors": "还有 {{count}} 行有错误（预览中未显示）",
-        "estimatedCost": "预估成本",
-        "rows": "行",
-        "steps": "步骤",
-        "cancel": "取消",
-        "creating": "创建中...",
-        "createBatch": "创建批次",
-        "errorsInRow": "此行有 {{count}} 个错误"
+    "colombia_special_api_police_identity_lookup": {
+      "title": "哥伦比亚 - 警察记录查询",
+      "description": "检查 police records through Colombia's National Police system. 验证 interactions with law enforcement and police records. 需要 document type, document number, and expedition date."
     },
-    "batchTutorial": {
-        "stepOf": "第 {{current}} 步，共 {{total}} 步",
-        "back": "返回",
-        "next": "下一步",
-        "getStarted": "开始",
-        "welcomeTitle": "欢迎使用批次创建！",
-        "welcomeDesc": "本向导将帮助您批量上传和处理数据。让我们一起完成关键步骤。",
-        "welcomeTip": "您可以随时点击右上角的帮助按钮重播本教程。",
-        "step1Title": "步骤 1：命名您的批次",
-        "step1Desc": "为您的批次起一个描述性名称，以便日后识别。例如：\"2026年1月验证\" 或 \"人力资源背景调查 Q1\"。",
-        "step2Title": "步骤 2：下载模板",
-        "step2Desc": "上传前，请下载 CSV 模板。该模板根据您的批次配置包含所有必需列。",
-        "step2Tip": "模板确保您的数据格式正确且包含所有必需字段。",
-        "step3Title": "步骤 3：填写数据",
-        "step3Desc": "在 Excel 或 Google Sheets 中打开模板并填写数据。每行代表一个要处理的记录。",
-        "step3Tip": "确保所有必填字段（标有 *）都已填写。空白的必填字段将导致错误。",
-        "step4Title": "步骤 4：上传文件",
-        "step4Desc": "将完成的 CSV 文件拖放到上传区域，或点击浏览。我们将验证数据并显示预览。",
-        "step5Title": "步骤 5：审查并提交",
-        "step5Desc": "检查数据预览以确保一切正确。审查预估成本，然后点击「创建批次」开始处理！",
-        "step5Tip": "如果发现任何问题，您可以移除文件并上传不同的文件。"
+    "world_api_dea": {
+      "title": "全球 - DEA背景调查",
+      "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 搜索 by full name OR document number with document type. 验证 individuals against international drug enforcement records."
     },
-    "smartReport": {
-        "generateReport": "生成报告",
-        "batchReport": "批次报告",
-        "createTemplate": "创建模板",
-        "selectTemplate": "选择模板",
-        "noTemplatesFound": "未找到模板",
-        "sections": "章节",
-        "templateMatchesData": "模板与数据匹配",
-        "missingFields": "缺少 {{count}} 个字段",
-        "dataMatch": "数据匹配",
-        "templateMatchesBatchData": "模板与批次数据匹配",
-        "templateReadyToUse": "可以使用。您随时可以在构建器中自定义此模板。",
-        "editInBuilder": "在构建器中编辑",
-        "missingFieldsEditInBuilder": "批次数据缺少 {{count}} 个字段。请在构建器中编辑模板以修复。",
-        "editWithRealData": "使用真实数据编辑",
-        "editTemplateWithRealData": "使用真实数据编辑模板",
-        "paths": "路径",
-        "actions": "操作",
-        "generatePdf": "生成 PDF",
-        "generating": "生成中...",
-        "downloadPdf": "下载 PDF",
-        "sendViaEmail": "通过邮件发送",
-        "sending": "发送中...",
-        "stepResultsLayout": "步骤结果布局",
-        "reportForRecord": "记录 #{{index}} 的报告",
-        "dragSectionsReorder": "拖动以重新排序。布局已准备好打印。",
-        "collapseContent": "收起内容",
-        "expandContent": "展开内容",
-        "noStepResultsYet": "尚无步骤结果",
-        "processBatchToSeeResults": "处理批次以在此处查看每个端点的结果。",
-        "row": "行",
-        "result": "结果",
-        "viewModeReadable": "可读",
-        "viewModeTable": "表格",
-        "viewModeJson": "JSON",
-        "viewModeExcelAg": "Excel v1",
-        "viewModeExcelHt": "Excel v2",
-        "downloadAsCsv": "下载 CSV",
-        "downloadAsExcel": "下载 Excel",
-        "exportData": "导出数据",
-        "csvDownloaded": "CSV 已下载",
-        "excelDownloaded": "Excel 已下载",
-        "step": "步骤",
-        "preview": "预览",
-        "previewSameAsBuilder": "与报告构建器相同的预览 — 使用批次数据渲染的模板",
-        "previewPage": "第",
-        "previewPageOf": "页，共",
-        "previewPrevious": "上一页",
-        "previewNext": "下一页",
-        "generatingPdf": "正在生成 PDF...",
-        "noPreviewAvailable": "无可用预览",
-        "selectTemplateAndBatch": "选择模板并确保批次有已处理的行",
-        "back": "返回",
-        "generateReportFirst": "请先生成报告",
-        "emailSent": "邮件已发送！",
-        "failedToSendEmail": "发送邮件失败",
-        "pdfDownloaded": "PDF 已下载",
-        "failedToDownloadPdf": "下载 PDF 失败",
-        "invalidPdfReceived": "从服务器收到无效的 PDF",
-        "editReportTemplate": "编辑报告模板",
-        "newReportTemplate": "新建报告模板",
-        "designReportLayout": "通过拖放设计报告布局",
-        "sendSample": "发送样本",
-        "sendingSample": "正在发送样本...",
-        "saveTemplateFirst": "请先保存模板以启用样本发送",
-        "saveTemplate": "保存模板",
-        "saving": "保存中...",
-        "templateSettings": "模板设置",
-        "templateName": "模板名称",
-        "templateNamePlaceholder": "我的报告模板",
-        "pageSize": "页面大小",
-        "orientation": "方向",
-        "portrait": "纵向",
-        "landscape": "横向",
-        "pdfEngine": "PDF 引擎",
-        "primaryColor": "主色",
-        "helperData": "辅助数据",
-        "helperDataHint": "在数据字段或表格章节中使用这些路径",
-        "openFromReportViewer": "从报告查看器打开批次数据以查看可用路径",
-        "copyPath": "复制路径",
-        "copyPathForTable": "复制路径（用于表格章节）",
-        "addSections": "添加章节",
-        "reportLayout": "报告布局",
-        "dragToReorder": "拖动以重新排序章节",
-        "addSectionsFromAbove": "从上方添加章节",
-        "section": "章节",
-        "sectionNumber": "章节 #{{num}}",
-        "edit": "编辑",
-        "duplicate": "复制",
-        "delete": "删除",
-        "titleText": "标题文本",
-        "reportTitle": "报告标题",
-        "content": "内容",
-        "enterTextContent": "输入文本内容...",
-        "label": "标签",
-        "fieldLabel": "字段标签",
-        "dataPath": "数据路径",
-        "dataPathPlaceholder": "results.1.fullName",
-        "dotSeparatedPath": "点分隔的数据路径（例如 results.1.fullName）",
-        "tableTitle": "表格标题",
-        "tableLabel": "表格标签",
-        "dataPathObject": "数据路径（对象）",
-        "pathToObject": "指向键变为行的对象的路径",
-        "imageUrl": "图片 URL",
-        "altText": "替代文本",
-        "companyLogo": "公司徽标",
-        "heightPx": "高度 (px)",
-        "color": "颜色",
-        "style": "样式",
-        "textAlign": "文本对齐",
-        "fontSize": "字体大小",
-        "fontWeight": "字重",
-        "normal": "正常",
-        "bold": "粗体",
-        "textColor": "文本颜色",
-        "livePreviewWithSample": "使用样本数据的实时预览",
-        "missing": "缺失",
-        "sendSampleReport": "发送样本报告",
-        "sendReport": "发送报告",
-        "enterRecipientsAndSubject": "输入收件人邮箱和可选主题",
-        "recipientEmails": "收件人邮箱",
-        "recipientsPlaceholder": "email1@example.com, email2@example.com",
-        "separateEmailsWithCommas": "用逗号分隔多个邮箱",
-        "atLeastOneRecipient": "至少需要一位收件人",
-        "enterValidEmails": "请输入有效的邮箱地址",
-        "subjectOptional": "主题（可选）",
-        "subjectOptionalPlaceholder": "样本报告：模板预览",
-        "reportBatchPlaceholder": "报告 - 批次",
-        "cancel": "取消",
-        "noSectionsToPreview": "无可预览的章节",
-        "untitled": "无标题",
-        "textContent": "文本内容...",
-        "field": "字段",
-        "noDataAtPath": "路径 \"{{path}}\" 无数据",
-        "image": "图片",
-        "failedToSaveTemplatePreference": "保存模板偏好设置失败",
-        "pleaseSelectTemplate": "请选择模板",
-        "reportGenerated": "报告已生成！",
-        "failedToGenerateReport": "生成报告失败",
-        "failedToCreateReport": "创建报告失败",
-        "sectionHeader": "标题",
-        "sectionText": "文本块",
-        "sectionField": "数据字段",
-        "sectionTable": "表格",
-        "sectionImage": "图片",
-        "sectionDivider": "分隔线",
-        "sectionSpacer": "间距",
-        "samplePdfSentSuccess": "样本 PDF 发送成功",
-        "failedToSendSamplePdf": "发送样本 PDF 失败",
-        "copied": "已复制",
-        "failedToCopy": "复制失败",
-        "searchRecords": "搜索记录...",
-        "typeToFind": "输入并搜索...",
-        "signature": "签名",
-        "dragSignatureToPosition": "在预览中拖拽签名以定位。",
-        "drawSignature": "绘制签名",
-        "saveSignature": "保存签名",
-        "useMouseOrFingerToSign": "使用鼠标或手指在上方签名。",
-        "clear": "清除"
+    "colombia_api_military_situation": {
+      "title": "Colombia - 军事服务记录",
+      "description": "验证 military service records through Colombia's military system. 检查 service status, military obligations, and service records. 需要 Colombian ID (CC) and document number."
     },
-    "batchProcessing": {
-        "backToDashboard": "返回仪表板",
-        "batchProcessing": "批量处理",
-        "records": "条记录",
-        "status": "状态",
-        "starting": "正在启动...",
-        "startProcessing": "开始处理",
-        "pause": "暂停",
-        "generateReport": "生成报告",
-        "processing": "处理中...",
-        "processingSteps": "处理步骤",
-        "credits": "积分",
-        "pending": "待处理",
-        "recordsWaiting": "{{count}} 条记录等待中",
-        "allRecordsProcessed": "所有记录已处理完成！",
-        "rowNumber": "第 {{index}} 行",
-        "completed": "已完成",
-        "failed": "失败",
-        "recordsVerified": "{{count}} 条记录已验证",
-        "noCompletedRecordsYet": "尚无已完成的记录",
-        "verified": "已验证",
-        "skipped": "已跳过",
-        "rowDetails": "第 #{{index}} 行详情",
-        "readable": "可读",
-        "json": "JSON",
-        "generatePdfReport": "生成 PDF 报告",
-        "inputData": "输入数据",
-        "stepResults": "步骤结果",
-        "errors": "错误",
-        "stepError": "步骤 {{step}}：{{code}}",
-        "stepStatusCompleted": "{{step}}：已完成",
-        "stepStatusFailed": "{{step}}：失败",
-        "stepStatusPending": "{{step}}：待处理",
-        "stepStatusSkipped": "{{step}}：已跳过",
-        "draft": "草稿",
-        "cancelled": "已取消",
-        "totalCost": "总费用",
-        "successful": "成功",
-        "requestsFailed": "请求失败",
-        "requestsSuccessful": "请求成功",
-        "all": "全部",
-        "noResultsFound": "未找到结果"
+    "colombia_api_rethus": {
+      "title": "Colombia - 健康记录验证",
+      "description": "Access Colombian health records through Rethus system. 验证 medical history, health status, and healthcare provider information. 需要 document type (CC, CE, PPT) and document number."
     },
-    "batchDashboard": {
-        "backToSmartBatch": "返回 Smart Batch",
-        "loading": "加载中...",
-        "batchProcessingDashboard": "批量处理仪表板",
-        "createBatch": "创建批次",
-        "steps": "步骤",
-        "strategy": "策略",
-        "format": "格式",
-        "costPerRow": "每行成本",
-        "processingSteps": "处理步骤",
-        "disabled": "已禁用",
-        "costBreakdown": "成本明细",
-        "totalPerRow": "每行总计",
-        "total": "总计",
-        "totalBatches": "总批次数",
-        "success": "成功",
-        "completedRows": "已完成行",
-        "queue": "队列",
-        "pendingRows": "待处理行",
-        "error": "错误",
-        "failedRows": "失败行",
-        "loadingBatches": "正在加载批次...",
-        "noBatchesYet": "尚无批次",
-        "createFirstBatchDescription": "创建您的第一个批次以使用此配置开始处理数据。",
-        "createFirstBatch": "创建第一个批次",
-        "batches": "批次",
-        "name": "名称",
-        "status": "状态",
-        "progress": "进度",
-        "rows": "行",
-        "created": "创建时间",
-        "actions": "操作",
-        "viewDetails": "查看详情",
-        "failedCount": "（{{count}} 个失败）"
+    "colombia_api_rues": {
+      "title": "Colombia - 公司注册验证",
+      "description": "验证 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 检查 business registration, legal status, and company information. 需要 document type and document number."
+    },
+    "colombia_api_dian": {
+      "title": "Colombia - 税务信息验证",
+      "description": "验证 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 检查 tax status, obligations, and compliance records. 需要 document type and document number."
+    },
+    "peru_api_company_lookup": {
+      "title": "Peru - 企业注册查询",
+      "description": "Business verification service 为 Peru. 提供 company registration details, legal status, and business information."
+    },
+    "colombia_api_judicial_process_details": {
+      "title": "哥伦比亚 - 司法程序细节",
+      "description": "获取有关哥伦比亚司法程序的详细信息。包括状态、历史记录和法院详情。"
+    },
+    "colombia_api_vehicle_soat": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "usa_api_vehicle": {
+      "title": "美国 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "world_api_onu": {
+      "title": "全球 - 联合国制裁检查",
+      "description": "检查 individuals and entities against United Nations sanctions lists. 搜索 by full name OR document number with document type. 验证 compliance with international sanctions regimes."
+    },
+    "feature_kyc_solution": {
+      "title": "KYC Solution",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "world_api_covid": {
+      "title": "全球 - COVID Statistics",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_affiliations": {
+      "title": "哥伦比亚 - 健康和社会保障",
+      "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
+    },
+    "colombia_api_contraloria_certificate": {
+      "title": "哥伦比亚 - 财政责任证明",
+      "description": "Certificate of fiscal responsibility from the Contraloría General de la República."
+    },
+    "peru_identity_lookup": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "venezuela_api_identity_lookup": {
+      "title": "委内瑞拉 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_vehicle_complete": {
+      "title": "Colombia - Complete Vehicle Information",
+      "description": "获取 comprehensive vehicle information 为 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
+    },
+    "mexico_api_vehicle": {
+      "title": "墨西哥 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "feature_passwordless_solution": {
+      "title": "Passwordless Authentication",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "world_api_interpol": {
+      "title": "全球 - 国际刑警背景调查",
+      "description": "International background check using Interpol databases. 搜索 by full name OR document number with document type. 验证 individuals against international criminal records and wanted lists."
+    },
+    "colombia_api_sena": {
+      "title": "哥伦比亚 - SENA证书",
+      "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+    },
+    "world_api_ofac": {
+      "title": "全球 - OFAC制裁检查",
+      "description": "检查 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 搜索 by full name OR document number with document type. 验证 compliance with US economic sanctions."
+    },
+    "colombia_api_registraduria_certificate": {
+      "title": "Colombia - 选举记录验证",
+      "description": "Electoral records verification service 为 Colombia 公民. 提供 voting status and electoral information."
+    },
+    "colombia_api_delinquent_debtors": {
+      "title": "哥伦比亚 - 拖欠债务人(BDME)",
+      "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
+    },
+    "world_api_fbi": {
+      "title": "全球 - FBI背景调查",
+      "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 搜索 by full name OR document number with document type. 验证 individuals against federal criminal records."
+    },
+    "mexico_identity_lookup": {
+      "title": "墨西哥 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ecuador_api_identity_lookup": {
+      "title": "厄瓜多尔 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_driver": {
+      "title": "哥伦比亚 - 驾驶证(RUNT)",
+      "description": "Verify Colombian driver license status and validity through the RUNT system."
+    },
+    "peru_api_vehicle": {
+      "title": "秘鲁 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "peru_api_vehicle_soat": {
+      "title": "秘鲁 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ecuador_api_vehicle": {
+      "title": "厄瓜多尔 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "feature_data_api": {
+      "title": "Data API",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_min_trabajo": {
+      "title": "Colombia - 劳动证书验证",
+      "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
+    },
+    "colombia_api_registraduria_voting": {
+      "title": "Colombia - 选举记录验证",
+      "description": "Electoral records verification service 为 Colombia 公民. 提供 voting status and electoral information."
+    },
+    "world_api_europol": {
+      "title": "全球 - 欧洲刑警背景调查",
+      "description": "European background check using Europol databases. 搜索 by full name OR document number with document type. 验证 individuals against European criminal records and intelligence databases."
+    },
+    "colombia_api_criminal_history": {
+      "title": "Colombia - 法律背景调查",
+      "description": "Legal background verification service 为 Colombia 公民. 提供 information about legal proceedings and judicial records."
+    },
+    "colombia_api_judicial_processes": {
+      "title": "哥伦比亚 - 司法程序",
+      "description": "Search for judicial processes using document number across Colombian courts."
+    },
+    "colombia_api_vehicle": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "colombia_api_pico_placa": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "feature_pdf_generator": {
+      "title": "PDF Report Generator",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "panama_api_identity_full_lookup": {
+      "title": "巴拿马 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "chile_api_identity_lookup": {
+      "title": "智利 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "costarica_api_identity_lookup": {
+      "title": "哥斯达黎加 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ecuador_api_criminal_history": {
+      "title": "厄瓜多尔 - 犯罪记录",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "chile_api_vehicle": {
+      "title": "智利 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "panama_api_identity_lookup": {
+      "title": "巴拿马 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "panama_api_vehicle": {
+      "title": "巴拿马 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "chile_api_business_lookup": {
+      "title": "智利 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "spain_api_identity_lookup": {
+      "title": "西班牙 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ecuador_api_vehicle_fines": {
+      "title": "厄瓜多尔 - 车辆罚款",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_vehicle_complete_by_plate": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "colombia_api_vehicle_complete_by_vin": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "peru_identity_extra_lookup": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_lawyers": {
+      "title": "哥伦比亚 - 律师验证",
+      "description": "Verify lawyer registration and professional status with the Colombian bar."
+    },
+    "brasil_api_identity_lookup": {
+      "title": "巴西 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "usa_api_driver_license_lookup": {
+      "title": "美国 - Driver License Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "consultar_procesos_judiciales": {
+      "title": "哥伦比亚 - 司法程序",
+      "description": "Check complete judicial history and active legal processes."
+    },
+    "credit_intent": {
+      "title": "Credit Purchase Intent",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ip-lookup": {
+      "title": "IP Geolocation Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_judicial_records": {
+      "title": "哥伦比亚 - 司法记录",
+      "description": "Access judicial background records and legal history for Colombian citizens."
+    },
+    "communication_messaging_sms": {
+      "title": "SMS Messaging",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "communication_colombia_messaging_whatsapp": {
+      "title": "哥伦比亚 - WhatsApp Messaging",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "communication_global_messaging_whatsapp": {
+      "title": "全球 - WhatsApp Messaging",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "communication_global_email_otp": {
+      "title": "Email OTP",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_liveness_3d": {
+      "title": "3D Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_estimate_age_3d": {
+      "title": "3D Age Estimation",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_check_age_3d": {
+      "title": "3D Age Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_enrollment_3d": {
+      "title": "3D Biometric Enrollment",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_id_scan_only": {
+      "title": "ID Document Scan",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_liveness_2d": {
+      "title": "2D Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_estimate_age_2d": {
+      "title": "2D Age Estimation",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "biometrics_check_age_2d": {
+      "title": "2D Age Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "credit_intent_kyc_passwordless": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "brasil_api_company_lookup": {
+      "title": "巴西 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "brasil_api_vehicle": {
+      "title": "巴西 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "argentina_api_identity_lookup": {
+      "title": "阿根廷 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ecuador_api_company_lookup": {
+      "title": "厄瓜多尔 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "usa_api_ssn": {
+      "title": "美国 - SSN Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_dian_invoicer": {
+      "title": "哥伦比亚 - DIAN电子发票",
+      "description": "Verify electronic invoicing (facturación electrónica) registration status with DIAN."
+    },
+    "api_colombia_contracts": {
+      "title": "哥伦比亚 - 政府合同",
+      "description": "Verify government contracts and procurement records in Colombia."
+    },
+    "colombia_api_police_rnmc": {
+      "title": "哥伦比亚 - 警察记录查询",
+      "description": "Police records verification service 为 Colombia 公民. 提供 information about police interactions and records."
+    },
+    "bolivia_api_identity_lookup": {
+      "title": "玻利维亚 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_pep_lookup": {
+      "title": "哥伦比亚 - PEP查询",
+      "description": "Check if a person is listed as politically exposed (PEP) for compliance purposes."
+    },
+    "api_autodata_manufacturers": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "world_api_phone_lookup": {
+      "title": "全球 - Phone Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "Mexico_api_ine_model_e": {
+      "title": "墨西哥 - INE Model E",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "Mexico_api_ine_model_d": {
+      "title": "墨西哥 - INE Model D",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "Mexico_api_ine_model_c": {
+      "title": "墨西哥 - INE Model C",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "api_autodata_enginer": {
+      "title": "Vehicle Engine Database",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_rues_full": {
+      "title": "哥伦比亚 - RUES企业验证",
+      "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
+    },
+    "api_autodata_enginer_code": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "api_autodata_selection": {
+      "title": "Vehicle Selection Database",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_sisconmp": {
+      "title": "哥伦比亚 - SISCONMP运输验证",
+      "description": "Verify transport and cargo operator registration in the SISCONMP system."
+    },
+    "data_finance_incomestatement": {
+      "title": "Financial - Income Statement",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "data_finance_balancesheet": {
+      "title": "Financial - Balance Sheet",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "data_finance_cashflow": {
+      "title": "Financial - Cash Flow",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "data_finance_stockprice": {
+      "title": "Financial - Stock Price",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "paraguay_api_identity_lookup": {
+      "title": "巴拉圭 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "canada_api_driver_license_alberta": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "canada_api_driver_license_ontario": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_vehicle_complete_by_plate_simplified": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "canada_api_driver_license_quebec": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ocr_scan_pro": {
+      "title": "OCR Document Scan Pro",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "el_salvador_api_identity_lookup": {
+      "title": "萨尔瓦多 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "canada_api_driver_license_british-columbia": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "ocr_scan_gpt": {
+      "title": "OCR 文档扫描 GPT",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_identity_lookup_extra": {
+      "title": "哥伦比亚 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_identity_pep_foreigner_id": {
+      "title": "Colombia - 移民状态验证",
+      "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
+    },
+    "ocr_scan_studio": {
+      "title": "OCR Document Scan Studio",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "canada_api_company": {
+      "title": "加拿大 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "us_api_passport_entries": {
+      "title": "us api passport entries",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "mexico_api_company": {
+      "title": "墨西哥 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_compare": {
+      "title": "Face Comparison",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_compare_live": {
+      "title": "Live Face Comparison",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_liveness": {
+      "title": "Face Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_search_live_face": {
+      "title": "Live Face Search",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_verify": {
+      "title": "Face Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_detect": {
+      "title": "Face Detection",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_search_crops": {
+      "title": "Face Search (Crops)",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_search": {
+      "title": "Face Search",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_vehicle_valores_fasecolda_by_plate": {
+      "title": "哥伦比亚 - Fasecolda车辆价值(车牌)",
+      "description": "Get vehicle commercial values from Fasecolda by license plate."
+    },
+    "colombia_api_vehicle_valores_fasecolda_by_code": {
+      "title": "哥伦比亚 - Fasecolda车辆价值(代码)",
+      "description": "Get vehicle commercial values from Fasecolda by vehicle code."
+    },
+    "usa_api_company": {
+      "title": "美国 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_runt_owners": {
+      "title": "哥伦比亚 - 车辆所有者(RUNT)",
+      "description": "Verify vehicle ownership and registered owners through the RUNT system."
+    },
+    "chile_api_driver_license": {
+      "title": "智利 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_lawyers_certificate": {
+      "title": "哥伦比亚 - 律师验证",
+      "description": "Obtain lawyer certification and professional status verification."
+    },
+    "argentina_api_vehicle": {
+      "title": "阿根廷 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "argentina_api_company_lookup": {
+      "title": "阿根廷 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "bolivia_api_vehicle": {
+      "title": "玻利维亚 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "brasil_api_criminal_history": {
+      "title": "brasil api criminal history",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "bolivia_api_business_lookup": {
+      "title": "玻利维亚 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "costa_rica_api_business_lookup": {
+      "title": " - Company Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "paraguay_api_business_lookup": {
+      "title": "巴拉圭 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+      "title": "哥伦比亚 - Fasecolda事故历史",
+      "description": "Check vehicle accident and claim history from Fasecolda by plate."
+    },
+    "colombia_api_vehicle_tax": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "colombia_api_vehicle_accidentality_bogota": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "api_data_sheet_vehicle": {
+      "title": "Vehicle Data Sheet",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "api_data_sheet_vehicle_by-plate_br": {
+      "title": " - Vehicle Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_search_active_user": {
+      "title": "Face Search (Active User)",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "matpis_appointments": {
+      "title": "MATPIS Appointments",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "chile_api_taxpayer_lookup": {
+      "title": "chile api taxpayer lookup",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "chile_api_validate": {
+      "title": "chile api validate",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_simit_agreements": {
+      "title": "哥伦比亚 - SIMIT付款协议",
+      "description": "Verify active payment agreements for transit fines registered in SIMIT."
+    },
+    "colombia_api_simit_suspensions": {
+      "title": "哥伦比亚 - SIMIT驾照暂停",
+      "description": "Check for driver license suspensions or cancellations in the SIMIT system."
+    },
+    "colombia_api_simit_subpoenas": {
+      "title": "哥伦比亚 - SIMIT交通传票",
+      "description": "Look up active transit subpoenas (comparendos) associated with an ID or vehicle."
+    },
+    "colombia_api_simit_subpoenas_details": {
+      "title": "哥伦比亚 - SIMIT传票详情",
+      "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+    },
+    "colombia_api_simit_resolutions": {
+      "title": "哥伦比亚 - SIMIT决议",
+      "description": "Access formal resolutions for traffic infractions that have reached the sanction stage."
+    },
+    "colombia_api_simit_complete": {
+      "title": "哥伦比亚 - SIMIT完整历史",
+      "description": "Comprehensive transit background check including fines, agreements, and suspensions by ID."
+    },
+    "colombia_api_simit_plate": {
+      "title": "哥伦比亚 - SIMIT按车牌罚款",
+      "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate."
+    },
+    "world_api_passport_entries": {
+      "title": "world api passport entries",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "validate-document": {
+      "title": "validate-document",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "costa_rica_api_vehicle": {
+      "title": " - Vehicle Verification",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "paraguay_api_vehicle": {
+      "title": "巴拉圭 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "usa_api_vehicle_lookup_by_vin": {
+      "title": "美国 - Vehicle Lookup by VIN",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_identity_ce_foreigner_id": {
+      "title": "Colombia - 移民状态验证",
+      "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
+    },
+    "colombia_api_vehicle_fines_bogota": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "colombia_api_vehicle_fines_medellin": {
+      "title": "Colombia - 车辆验证",
+      "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+    },
+    "guatemala_api_identity_lookup": {
+      "title": "危地马拉 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "honduras_api_identity_lookup": {
+      "title": "洪都拉斯 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "republica_dominicana_api_citizen_lookup": {
+      "title": "多米尼加共和国 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "venezuela_foreigner_api": {
+      "title": "Venezuela - 移民状态验证",
+      "description": "Immigration records verification service 为 Venezuela. 提供 immigration status and foreigner registration information."
+    },
+    "colombia_sisben_api_lookup": {
+      "title": "哥伦比亚 - SISBEN评分",
+      "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios) score and classification."
+    },
+    "spain_api_vehicle_lookup": {
+      "title": "西班牙 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "spain_api_company_lookup": {
+      "title": "西班牙 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "panama_api_business_lookup": {
+      "title": "巴拿马 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "uruguay_api_identity_lookup": {
+      "title": "乌拉圭 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "peru_api_identity_ce_foreigner_id": {
+      "title": "Peru - 移民状态验证",
+      "description": "Immigration records verification service 为 Peru. 提供 immigration status and foreigner registration information."
+    },
+    "colombia_api_rues_full_v3": {
+      "title": "哥伦比亚 - RUES企业验证",
+      "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing."
+    },
+    "colombia_api_rues_v3": {
+      "title": "哥伦比亚 - RUES企业验证",
+      "description": "RUES V3 business verification with comprehensive company data."
+    },
+    "peru_identity_lookup_v3": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "peru_identity_extra_lookup_v3": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_identity_ppt_foreigner_id": {
+      "title": "Colombia - 移民状态验证",
+      "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
+    },
+    "colombia_api_min_trabajo_v3": {
+      "title": "Colombia - 劳动证书验证",
+      "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
+    },
+    "peru_api_company_lookup_v3": {
+      "title": "秘鲁 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "face_recognition_detect_face": {
+      "title": "Face Detection",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "document-liveness": {
+      "title": "Document Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    },
+    "colombia_api_inpec": {
+      "title": "哥伦比亚 - INPEC监狱记录",
+      "description": "Verify penitentiary and incarceration records through the INPEC system."
+    },
+    "colombia_sigep_by_name": {
+      "title": "Colombia - SIGEP Public Officials 搜索",
+      "description": "搜索 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
+    },
+    "colombia_sigep_by_number": {
+      "title": "Colombia - SIGEP Official 查询 by Document",
+      "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 获取 complete professional information from SIGEP records."
+    },
+    "colombia_inpec_lookup": {
+      "title": "哥伦比亚 - INPEC监狱记录",
+      "description": "Look up penitentiary records and incarceration history."
+    },
+    "zelf-proofs": {
+      "title": "Zelf Proofs",
+      "description": "Zelf Proofs service 为 identity verification and document validation. This service provides comprehensive proof generation capabilities 为 various identity documents and verification processes."
+    },
+    "zelf-proof-liveness-active-user": {
+      "title": "Zelf Proof 活体检测",
+      "description": "具有活体检测功能的 Zelf Proof 服务，用于增强身份验证。 该服务提供具有主动活体检测的证明生成，以确保人员在验证期间亲身在场。"
+    },
+    "biometrics_api_create_person": {
+      "title": "生物识别 - 创建人员（无活体检测）",
+      "description": "创建用于身份管理的新人员记录。用于索引和未来的面部识别搜索。"
+    },
+    "biometrics_api_create_person_liveness": {
+      "title": "生物识别 - 带活体检测的人员创建",
+      "description": "创建带有集成活体检测的新人员记录。确保用户在注册过程中亲身在场。"
+    },
+    "guatemala_api_identity_extra_lookup": {
+      "title": "危地马拉 - 身份额外查询",
+      "description": "针对危地马拉公民的全面身份验证，包括额外的数据点。"
     }
+  },
+  "smartBatchLanding": {
+    "title": "Smart Batch",
+    "subtitle": "管理您的批次处理配置和报告模板。",
+    "configurationsTab": "配置",
+    "reportTemplatesTab": "报告模板",
+    "createConfiguration": "创建配置",
+    "createTemplate": "创建模板",
+    "createTemplateFirstHint": "请先创建配置以添加报告模板",
+    "loadingConfigurations": "正在加载配置...",
+    "loadingTemplates": "正在加载模板...",
+    "noConfigurations": "未找到配置",
+    "noConfigurationsDesc": "创建您的第一个批次配置以开始自动化数据处理。",
+    "createFirstConfiguration": "创建配置",
+    "noTemplates": "暂无报告模板",
+    "noTemplatesDesc": "在配置的报告构建器中创建模板以设计您的 PDF 导出。",
+    "noTemplatesHint": "打开配置、运行批次，然后使用“生成报告”来创建和编辑模板。",
+    "steps": "步骤",
+    "strategy": "策略",
+    "inactive": "未启用",
+    "sections": "章节",
+    "pageSize": "页面大小",
+    "pdfEngine": "PDF 引擎",
+    "linkedTo": "关联到",
+    "standalone": "独立",
+    "edit": "编辑",
+    "delete": "删除",
+    "deleteConfirmation": "确定要删除此模板吗？",
+    "noDescription": "未提供描述。"
+  },
+  "createBatchConfig": {
+    "edit": "编辑",
+    "create": "创建",
+    "batchConfiguration": "批次配置",
+    "basicInformation": "基本信息",
+    "configurationName": "配置名称",
+    "namePlaceholder": "例如：哥伦比亚身份证验证批次",
+    "nameRequired": "名称为必填项",
+    "description": "描述",
+    "descriptionPlaceholder": "描述此批次的用途...",
+    "country": "国家",
+    "countryRequired": "国家为必填项",
+    "mergeStrategy": "合并策略",
+    "sequential": "顺序（逐一）",
+    "parallelIndependent": "并行独立",
+    "parallelWithFallback": "带回退的并行",
+    "inputFieldsFormat": "输入字段格式",
+    "resultOutputFormat": "结果输出格式",
+    "saving": "保存中...",
+    "next": "下一步",
+    "selectEndpoints": "选择端点",
+    "availableFeatures": "可用功能",
+    "loadingFeatures": "加载功能中...",
+    "available": "可用",
+    "searchPlaceholder": "按标题或端点搜索...",
+    "noEndpointsMatch": "没有与 \"{{query}}\" 匹配的端点",
+    "selectedSteps": "已选步骤（拖拽以重新排序）",
+    "selectFeaturesToAdd": "选择要添加步骤的功能",
+    "back": "返回",
+    "reviewParameters": "审查参数",
+    "reviewParamsIntro": "审查每个端点所需的参数。运行批次时将提供这些参数。",
+    "requiredParameters": "必需参数",
+    "parametersMappedHint": "运行批次时，这些参数将从您的输入文件中映射。",
+    "noParametersRequired": "此端点不需要参数。",
+    "required": "必需",
+    "reviewAndCreate": "审查并创建",
+    "summary": "摘要",
+    "totalSteps": "总步骤数",
+    "stepsCount": "{{count}} 个步骤",
+    "estimatedCostPerRecord": "每记录预估成本",
+    "totalPerRecord": "每记录总计",
+    "updateConfiguration": "更新配置",
+    "createConfiguration": "创建配置"
+  },
+  "createBatch": {
+    "createNewBatch": "创建新批次",
+    "uploadDataWith": "上传数据以使用 \"{{name}}\" 进行处理",
+    "showTutorial": "显示教程",
+    "loadingConfiguration": "加载配置中...",
+    "csvFileRequirements": "CSV 文件要求",
+    "requiredFieldsCount": "根据您的配置需要 {{count}} 个必填字段",
+    "quickStart": "快速开始",
+    "quickStartDesc": "下载我们预配置的模板（包含所有必需列），填写您的数据，然后在此处上传。",
+    "downloadCsvTemplate": "下载 CSV 模板",
+    "requiredFields": "必填字段",
+    "required": "必需",
+    "optional": "可选",
+    "options": "选项",
+    "usedBy": "用于：{{stepName}}",
+    "noFieldsRequired": "无需特定字段。您可以上传任何 CSV 结构。",
+    "proTip": "提示：确保您的 CSV 表头与字段名称完全匹配。列顺序无关紧要，但名称必须匹配。",
+    "batchDetails": "批次详情",
+    "batchName": "批次名称",
+    "batchNamePlaceholder": "例如：2026年1月背景调查",
+    "batchNameHint": "为您的批次起一个描述性名称",
+    "uploadData": "上传数据",
+    "template": "模板",
+    "dropOrClick": "将文件拖放到此处或点击浏览",
+    "acceptsFiles": "接受 {{formats}} 文件",
+    "removeFile": "移除文件",
+    "rowsParsedSuccess": "成功解析 {{count}} 行",
+    "columnsDetected": "检测到 {{count}} 列",
+    "dataPreview": "数据预览",
+    "issuesCount": "{{count}} 个问题",
+    "fixHighlightedCells": "修复高亮单元格以继续",
+    "missingValues": "{{count}} 个缺失值",
+    "invalidValues": "{{count}} 个无效值",
+    "moreRowsHaveErrors": "还有 {{count}} 行有错误（预览中未显示）",
+    "estimatedCost": "预估成本",
+    "rows": "行",
+    "steps": "步骤",
+    "cancel": "取消",
+    "creating": "创建中...",
+    "createBatch": "创建批次",
+    "errorsInRow": "此行有 {{count}} 个错误"
+  },
+  "batchTutorial": {
+    "stepOf": "第 {{current}} 步，共 {{total}} 步",
+    "back": "返回",
+    "next": "下一步",
+    "getStarted": "开始",
+    "welcomeTitle": "欢迎使用批次创建！",
+    "welcomeDesc": "本向导将帮助您批量上传和处理数据。让我们一起完成关键步骤。",
+    "welcomeTip": "您可以随时点击右上角的帮助按钮重播本教程。",
+    "step1Title": "步骤 1：命名您的批次",
+    "step1Desc": "为您的批次起一个描述性名称，以便日后识别。例如：\"2026年1月验证\" 或 \"人力资源背景调查 Q1\"。",
+    "step2Title": "步骤 2：下载模板",
+    "step2Desc": "上传前，请下载 CSV 模板。该模板根据您的批次配置包含所有必需列。",
+    "step2Tip": "模板确保您的数据格式正确且包含所有必需字段。",
+    "step3Title": "步骤 3：填写数据",
+    "step3Desc": "在 Excel 或 Google Sheets 中打开模板并填写数据。每行代表一个要处理的记录。",
+    "step3Tip": "确保所有必填字段（标有 *）都已填写。空白的必填字段将导致错误。",
+    "step4Title": "步骤 4：上传文件",
+    "step4Desc": "将完成的 CSV 文件拖放到上传区域，或点击浏览。我们将验证数据并显示预览。",
+    "step5Title": "步骤 5：审查并提交",
+    "step5Desc": "检查数据预览以确保一切正确。审查预估成本，然后点击「创建批次」开始处理！",
+    "step5Tip": "如果发现任何问题，您可以移除文件并上传不同的文件。"
+  },
+  "smartReport": {
+    "generateReport": "生成报告",
+    "batchReport": "批次报告",
+    "createTemplate": "创建模板",
+    "selectTemplate": "选择模板",
+    "noTemplatesFound": "未找到模板",
+    "sections": "章节",
+    "templateMatchesData": "模板与数据匹配",
+    "missingFields": "缺少 {{count}} 个字段",
+    "dataMatch": "数据匹配",
+    "templateMatchesBatchData": "模板与批次数据匹配",
+    "templateReadyToUse": "可以使用。您随时可以在构建器中自定义此模板。",
+    "editInBuilder": "在构建器中编辑",
+    "missingFieldsEditInBuilder": "批次数据缺少 {{count}} 个字段。请在构建器中编辑模板以修复。",
+    "editWithRealData": "使用真实数据编辑",
+    "editTemplateWithRealData": "使用真实数据编辑模板",
+    "paths": "路径",
+    "actions": "操作",
+    "generatePdf": "生成 PDF",
+    "generating": "生成中...",
+    "downloadPdf": "下载 PDF",
+    "sendViaEmail": "通过邮件发送",
+    "sending": "发送中...",
+    "stepResultsLayout": "步骤结果布局",
+    "reportForRecord": "记录 #{{index}} 的报告",
+    "dragSectionsReorder": "拖动以重新排序。布局已准备好打印。",
+    "collapseContent": "收起内容",
+    "expandContent": "展开内容",
+    "noStepResultsYet": "尚无步骤结果",
+    "processBatchToSeeResults": "处理批次以在此处查看每个端点的结果。",
+    "row": "行",
+    "result": "结果",
+    "viewModeReadable": "可读",
+    "viewModeTable": "表格",
+    "viewModeJson": "JSON",
+    "viewModeExcelAg": "Excel v1",
+    "viewModeExcelHt": "Excel v2",
+    "downloadAsCsv": "下载 CSV",
+    "downloadAsExcel": "下载 Excel",
+    "exportData": "导出数据",
+    "csvDownloaded": "CSV 已下载",
+    "excelDownloaded": "Excel 已下载",
+    "step": "步骤",
+    "preview": "预览",
+    "previewSameAsBuilder": "与报告构建器相同的预览 — 使用批次数据渲染的模板",
+    "previewPage": "第",
+    "previewPageOf": "页，共",
+    "previewPrevious": "上一页",
+    "previewNext": "下一页",
+    "generatingPdf": "正在生成 PDF...",
+    "noPreviewAvailable": "无可用预览",
+    "selectTemplateAndBatch": "选择模板并确保批次有已处理的行",
+    "back": "返回",
+    "generateReportFirst": "请先生成报告",
+    "emailSent": "邮件已发送！",
+    "failedToSendEmail": "发送邮件失败",
+    "pdfDownloaded": "PDF 已下载",
+    "failedToDownloadPdf": "下载 PDF 失败",
+    "invalidPdfReceived": "从服务器收到无效的 PDF",
+    "editReportTemplate": "编辑报告模板",
+    "newReportTemplate": "新建报告模板",
+    "designReportLayout": "通过拖放设计报告布局",
+    "sendSample": "发送样本",
+    "sendingSample": "正在发送样本...",
+    "saveTemplateFirst": "请先保存模板以启用样本发送",
+    "saveTemplate": "保存模板",
+    "saving": "保存中...",
+    "templateSettings": "模板设置",
+    "templateName": "模板名称",
+    "templateNamePlaceholder": "我的报告模板",
+    "pageSize": "页面大小",
+    "orientation": "方向",
+    "portrait": "纵向",
+    "landscape": "横向",
+    "pdfEngine": "PDF 引擎",
+    "primaryColor": "主色",
+    "helperData": "辅助数据",
+    "helperDataHint": "在数据字段或表格章节中使用这些路径",
+    "openFromReportViewer": "从报告查看器打开批次数据以查看可用路径",
+    "copyPath": "复制路径",
+    "copyPathForTable": "复制路径（用于表格章节）",
+    "addSections": "添加章节",
+    "reportLayout": "报告布局",
+    "dragToReorder": "拖动以重新排序章节",
+    "addSectionsFromAbove": "从上方添加章节",
+    "section": "章节",
+    "sectionNumber": "章节 #{{num}}",
+    "edit": "编辑",
+    "duplicate": "复制",
+    "delete": "删除",
+    "titleText": "标题文本",
+    "reportTitle": "报告标题",
+    "content": "内容",
+    "enterTextContent": "输入文本内容...",
+    "label": "标签",
+    "fieldLabel": "字段标签",
+    "dataPath": "数据路径",
+    "dataPathPlaceholder": "results.1.fullName",
+    "dotSeparatedPath": "点分隔的数据路径（例如 results.1.fullName）",
+    "tableTitle": "表格标题",
+    "tableLabel": "表格标签",
+    "dataPathObject": "数据路径（对象）",
+    "pathToObject": "指向键变为行的对象的路径",
+    "imageUrl": "图片 URL",
+    "altText": "替代文本",
+    "companyLogo": "公司徽标",
+    "heightPx": "高度 (px)",
+    "color": "颜色",
+    "style": "样式",
+    "textAlign": "文本对齐",
+    "fontSize": "字体大小",
+    "fontWeight": "字重",
+    "normal": "正常",
+    "bold": "粗体",
+    "textColor": "文本颜色",
+    "livePreviewWithSample": "使用样本数据的实时预览",
+    "missing": "缺失",
+    "sendSampleReport": "发送样本报告",
+    "sendReport": "发送报告",
+    "enterRecipientsAndSubject": "输入收件人邮箱和可选主题",
+    "recipientEmails": "收件人邮箱",
+    "recipientsPlaceholder": "email1@example.com, email2@example.com",
+    "separateEmailsWithCommas": "用逗号分隔多个邮箱",
+    "atLeastOneRecipient": "至少需要一位收件人",
+    "enterValidEmails": "请输入有效的邮箱地址",
+    "subjectOptional": "主题（可选）",
+    "subjectOptionalPlaceholder": "样本报告：模板预览",
+    "reportBatchPlaceholder": "报告 - 批次",
+    "cancel": "取消",
+    "noSectionsToPreview": "无可预览的章节",
+    "untitled": "无标题",
+    "textContent": "文本内容...",
+    "field": "字段",
+    "noDataAtPath": "路径 \"{{path}}\" 无数据",
+    "image": "图片",
+    "failedToSaveTemplatePreference": "保存模板偏好设置失败",
+    "pleaseSelectTemplate": "请选择模板",
+    "reportGenerated": "报告已生成！",
+    "failedToGenerateReport": "生成报告失败",
+    "failedToCreateReport": "创建报告失败",
+    "sectionHeader": "标题",
+    "sectionText": "文本块",
+    "sectionField": "数据字段",
+    "sectionTable": "表格",
+    "sectionImage": "图片",
+    "sectionDivider": "分隔线",
+    "sectionSpacer": "间距",
+    "samplePdfSentSuccess": "样本 PDF 发送成功",
+    "failedToSendSamplePdf": "发送样本 PDF 失败",
+    "copied": "已复制",
+    "failedToCopy": "复制失败",
+    "searchRecords": "搜索记录...",
+    "typeToFind": "输入并搜索...",
+    "signature": "签名",
+    "dragSignatureToPosition": "在预览中拖拽签名以定位。",
+    "drawSignature": "绘制签名",
+    "saveSignature": "保存签名",
+    "useMouseOrFingerToSign": "使用鼠标或手指在上方签名。",
+    "clear": "清除"
+  },
+  "batchProcessing": {
+    "backToDashboard": "返回仪表板",
+    "batchProcessing": "批量处理",
+    "records": "条记录",
+    "status": "状态",
+    "starting": "正在启动...",
+    "startProcessing": "开始处理",
+    "pause": "暂停",
+    "generateReport": "生成报告",
+    "processing": "处理中...",
+    "processingSteps": "处理步骤",
+    "credits": "积分",
+    "pending": "待处理",
+    "recordsWaiting": "{{count}} 条记录等待中",
+    "allRecordsProcessed": "所有记录已处理完成！",
+    "rowNumber": "第 {{index}} 行",
+    "completed": "已完成",
+    "failed": "失败",
+    "recordsVerified": "{{count}} 条记录已验证",
+    "noCompletedRecordsYet": "尚无已完成的记录",
+    "verified": "已验证",
+    "skipped": "已跳过",
+    "rowDetails": "第 #{{index}} 行详情",
+    "readable": "可读",
+    "json": "JSON",
+    "generatePdfReport": "生成 PDF 报告",
+    "inputData": "输入数据",
+    "stepResults": "步骤结果",
+    "errors": "错误",
+    "stepError": "步骤 {{step}}：{{code}}",
+    "stepStatusCompleted": "{{step}}：已完成",
+    "stepStatusFailed": "{{step}}：失败",
+    "stepStatusPending": "{{step}}：待处理",
+    "stepStatusSkipped": "{{step}}：已跳过",
+    "draft": "草稿",
+    "cancelled": "已取消",
+    "totalCost": "总费用",
+    "successful": "成功",
+    "requestsFailed": "请求失败",
+    "requestsSuccessful": "请求成功",
+    "all": "全部",
+    "noResultsFound": "未找到结果"
+  },
+  "batchDashboard": {
+    "backToSmartBatch": "返回 Smart Batch",
+    "loading": "加载中...",
+    "batchProcessingDashboard": "批量处理仪表板",
+    "createBatch": "创建批次",
+    "steps": "步骤",
+    "strategy": "策略",
+    "format": "格式",
+    "costPerRow": "每行成本",
+    "processingSteps": "处理步骤",
+    "disabled": "已禁用",
+    "costBreakdown": "成本明细",
+    "totalPerRow": "每行总计",
+    "total": "总计",
+    "totalBatches": "总批次数",
+    "success": "成功",
+    "completedRows": "已完成行",
+    "queue": "队列",
+    "pendingRows": "待处理行",
+    "error": "错误",
+    "failedRows": "失败行",
+    "loadingBatches": "正在加载批次...",
+    "noBatchesYet": "尚无批次",
+    "createFirstBatchDescription": "创建您的第一个批次以使用此配置开始处理数据。",
+    "createFirstBatch": "创建第一个批次",
+    "batches": "批次",
+    "name": "名称",
+    "status": "状态",
+    "progress": "进度",
+    "rows": "行",
+    "created": "创建时间",
+    "actions": "操作",
+    "viewDetails": "查看详情",
+    "failedCount": "（{{count}} 个失败）"
+  }
 }

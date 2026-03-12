@@ -37,12 +37,12 @@
       "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
     },
     "colombia_api_judicial_process_details": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Judicial Process Details",
+      "description": "Comprehensive details of a specific judicial process in Colombia using its process number."
     },
     "colombia_api_vehicle_soat": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Vehicle SOAT Status",
+      "description": "Verify the active SOAT (Compulsory Traffic Accident Insurance) policies and details for a given vehicle plate."
     },
     "usa_api_vehicle": {
       "title": " - Vehicle Verification",
@@ -61,12 +61,12 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_affiliations": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Health Affiliations",
+      "description": "Health and social security affiliations verification for Colombia. Access EPS, ARL, and pension information."
     },
     "colombia_api_contraloria_certificate": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Contraloria Certificate",
+      "description": "Certificate of fiscal responsibility from the Contraloría General de la República."
     },
     "peru_identity_lookup": {
       "title": "Peru - Identity Verification",
@@ -93,8 +93,8 @@
       "description": "International background check using Interpol databases. Search by full name OR document number with document type. Verify individuals against international criminal records and wanted lists."
     },
     "colombia_api_sena": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SENA Certificates",
+      "description": "Verification of academic and training certificates from SENA (Servicio Nacional de Aprendizaje)."
     },
     "world_api_ofac": {
       "title": "Global - OFAC Sanctions Check",
@@ -105,15 +105,15 @@
       "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information."
     },
     "colombia_api_delinquent_debtors": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Delinquent Debtors (BDME)",
+      "description": "Check if an individual or company is registered in the Bulletin of State Delinquent Debtors (BDME)."
     },
     "world_api_fbi": {
       "title": "Global - FBI Background Check",
       "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. Search by full name OR document number with document type. Verify individuals against federal criminal records."
     },
     "mexico_identity_lookup": {
-      "title": "Mexico - Data Verification Service",
+      "title": "Mexico - Identity Lookup",
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "ecuador_api_identity_lookup": {
@@ -121,8 +121,8 @@
       "description": "Standard identity verification service for Ecuador citizens. Verifies personal information and document authenticity."
     },
     "colombia_api_driver": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Driver License Lookup",
+      "description": "Verify driver license status, categories, and restrictions through the RUNT system."
     },
     "peru_api_vehicle": {
       "title": "Peru - Vehicle Verification",
@@ -157,16 +157,16 @@
       "description": "Legal background verification service for Colombia citizens. Provides information about legal proceedings and judicial records."
     },
     "colombia_api_judicial_processes": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Judicial Processes Search",
+      "description": "Search for judicial processes using document number across Colombian courts."
     },
     "colombia_api_vehicle": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Basic Vehicle Information",
+      "description": "Retrieve general registration data and basic characteristics of a Colombian vehicle by its license plate."
     },
     "colombia_api_pico_placa": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Pico y Placa Restrictions",
+      "description": "Check current transit restrictions (Pico y Placa) for a specific vehicle across various Colombian cities."
     },
     "feature_pdf_generator": {
       "title": " - Data Verification Service",
@@ -201,7 +201,7 @@
       "description": "Standard vehicle verification service for Panama. Verifies vehicle registration and basic information."
     },
     "chile_api_business_lookup": {
-      "title": "Chile - Data Verification Service",
+      "title": "Chile - Business Lookup",
       "description": "General data verification service for Chile. Provides reliable information verification and validation."
     },
     "spain_api_identity_lookup": {
@@ -213,20 +213,20 @@
       "description": "Standard vehicle verification service for Ecuador. Verifies vehicle registration and basic information."
     },
     "colombia_api_vehicle_complete_by_plate": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Complete Vehicle Report (By Plate)",
+      "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its license plate number."
     },
     "colombia_api_vehicle_complete_by_vin": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Complete Vehicle Report (By VIN)",
+      "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its Vehicle Identification Number (VIN)."
     },
     "peru_identity_extra_lookup": {
       "title": "Peru - Complete Identity Verification",
       "description": "Comprehensive identity verification service for Peru citizens. Provides complete personal information including full name, document details, and additional verification data."
     },
     "colombia_api_lawyers": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Lawyers National Registry",
+      "description": "Verify lawyer credentials, active status, and sanctions in the national registry."
     },
     "brasil_api_identity_lookup": {
       "title": "Brazil - Identity Verification",
@@ -237,8 +237,8 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "consultar_procesos_judiciales": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Judicial Processes History",
+      "description": "Check complete judicial history and active legal processes."
     },
     "credit_intent": {
       "title": " - Data Verification Service",
@@ -249,8 +249,8 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_judicial_records": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Judicial Records Database",
+      "description": "Check individual judicial records and background information from official sources."
     },
     "communication_messaging_sms": {
       "title": " - Data Verification Service",
@@ -268,35 +268,7 @@
       "title": " - Data Verification Service",
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
-    "biometrics_liveness_3d": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
-    "biometrics_estimate_age_3d": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
-    "biometrics_check_age_3d": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
-    "biometrics_enrollment_3d": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
     "biometrics_id_scan_only": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
-    "biometrics_liveness_2d": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
-    "biometrics_estimate_age_2d": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
-    },
-    "biometrics_check_age_2d": {
       "title": " - Data Verification Service",
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
@@ -305,7 +277,7 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "brasil_api_company_lookup": {
-      "title": "Brazil - Data Verification Service",
+      "title": "Brazil - Brasil Api Company Lookup",
       "description": "General data verification service for Brazil. Provides reliable information verification and validation."
     },
     "brasil_api_vehicle": {
@@ -317,7 +289,7 @@
       "description": "Standard identity verification service for Argentina citizens. Verifies personal information and document authenticity."
     },
     "ecuador_api_company_lookup": {
-      "title": "Ecuador - Data Verification Service",
+      "title": "Ecuador - Company Lookup",
       "description": "General data verification service for Ecuador. Provides reliable information verification and validation."
     },
     "usa_api_ssn": {
@@ -325,12 +297,12 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_dian_invoicer": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - DIAN Electronic Invoicer Data",
+      "description": "Verify if a company or individual is registered as an electronic invoice issuer with DIAN."
     },
     "api_colombia_contracts": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Government Contracts (SECOP)",
+      "description": "Look up government contracts, proposals, and contractor information in SECOP."
     },
     "colombia_api_police_rnmc": {
       "title": "Colombia - Police Records Check",
@@ -341,8 +313,8 @@
       "description": "Standard identity verification service for Bolivia citizens. Verifies personal information and document authenticity."
     },
     "colombia_pep_lookup": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - PEP Lookup (Politically Exposed Persons)",
+      "description": "Verify if an individual is classified as a Politically Exposed Person (PEP) in Colombia."
     },
     "api_autodata_manufacturers": {
       "title": " - Data Verification Service",
@@ -353,15 +325,15 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "Mexico_api_ine_model_e": {
-      "title": "Mexico - Data Verification Service",
+      "title": "Mexico - Ine Model E",
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "Mexico_api_ine_model_d": {
-      "title": "Mexico - Data Verification Service",
+      "title": "Mexico - Ine Model D",
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "Mexico_api_ine_model_c": {
-      "title": "Mexico - Data Verification Service",
+      "title": "Mexico - Ine Model C",
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "api_autodata_enginer": {
@@ -369,8 +341,8 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_rues_full": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Complete Business Details (RUES)",
+      "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
     },
     "api_autodata_enginer_code": {
       "title": " - Data Verification Service",
@@ -381,8 +353,8 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_sisconmp": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Passenger Transport Registry (SISCONMP)",
+      "description": "Verify driver suitability and vehicle operation capabilities for public transport operations."
     },
     "data_finance_incomestatement": {
       "title": " - Data Verification Service",
@@ -401,23 +373,23 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "paraguay_api_identity_lookup": {
-      "title": "Paraguay - Data Verification Service",
+      "title": "Paraguay - Identity Lookup",
       "description": "General data verification service for Paraguay. Provides reliable information verification and validation."
     },
     "canada_api_driver_license_alberta": {
-      "title": "Canada - Data Verification Service",
+      "title": "Canada - Driver License Alberta",
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "canada_api_driver_license_ontario": {
-      "title": "Canada - Data Verification Service",
+      "title": "Canada - Driver License Ontario",
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "colombia_api_vehicle_complete_by_plate_simplified": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Simplified Vehicle Report",
+      "description": "A streamlined version of the vehicle background check focusing on essential legal and physical status markers."
     },
     "canada_api_driver_license_quebec": {
-      "title": "Canada - Data Verification Service",
+      "title": "Canada - Driver License Quebec",
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "ocr_scan_pro": {
@@ -425,11 +397,11 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "el_salvador_api_identity_lookup": {
-      "title": "El Salvador - Data Verification Service",
+      "title": "El Salvador - El Salvador Api Identity Lookup",
       "description": "General data verification service for El Salvador. Provides reliable information verification and validation."
     },
     "canada_api_driver_license_british-columbia": {
-      "title": "Canada - Data Verification Service",
+      "title": "Canada - Driver License British-columbia",
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "ocr_scan_gpt": {
@@ -449,7 +421,7 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "canada_api_company": {
-      "title": "Canada - Data Verification Service",
+      "title": "Canada - Company",
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "us_api_passport_entries": {
@@ -457,7 +429,7 @@
       "description": "Standard identity verification service for United States citizens. Verifies personal information and document authenticity."
     },
     "mexico_api_company": {
-      "title": "Mexico - Data Verification Service",
+      "title": "Mexico - Company",
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "face_recognition_compare": {
@@ -493,35 +465,35 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_vehicle_valores_fasecolda_by_plate": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Vehicle Reference Value by Plate",
+      "description": "Determine the commercial value (Fasecolda) of a vehicle using its license plate."
     },
     "colombia_api_vehicle_valores_fasecolda_by_code": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Vehicle Reference Value by Code",
+      "description": "Determine the commercial value of a vehicle using its specific Fasecolda code."
     },
     "usa_api_company": {
       "title": " - Data Verification Service",
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_runt_owners": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Vehicle Owners History",
+      "description": "Retrieve the complete chain of ownership and current owners of a vehicle from RUNT."
     },
     "chile_api_driver_license": {
-      "title": "Chile - Data Verification Service",
+      "title": "Chile - Driver License",
       "description": "General data verification service for Chile. Provides reliable information verification and validation."
     },
     "colombia_api_lawyers_certificate": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Lawyer Disciplinary Certificate",
+      "description": "Obtain the official disciplinary background certificate for legal professionals."
     },
     "argentina_api_vehicle": {
       "title": "Argentina - Vehicle Verification",
       "description": "Standard vehicle verification service for Argentina. Verifies vehicle registration and basic information."
     },
     "argentina_api_company_lookup": {
-      "title": "Argentina - Data Verification Service",
+      "title": "Argentina - Argentina Api Company Lookup",
       "description": "General data verification service for Argentina. Provides reliable information verification and validation."
     },
     "bolivia_api_vehicle": {
@@ -529,32 +501,32 @@
       "description": "Standard vehicle verification service for Bolivia. Verifies vehicle registration and basic information."
     },
     "brasil_api_criminal_history": {
-      "title": "Brazil - Data Verification Service",
+      "title": "Brazil - Brasil Api Criminal History",
       "description": "General data verification service for Brazil. Provides reliable information verification and validation."
     },
     "bolivia_api_business_lookup": {
-      "title": "Bolivia - Data Verification Service",
+      "title": "Bolivia - Bolivia Api Business Lookup",
       "description": "General data verification service for Bolivia. Provides reliable information verification and validation."
     },
     "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - Data Verification Service",
+      "title": "Costa Rica - Costa Rica Api Business Lookup",
       "description": "General data verification service for Costa Rica. Provides reliable information verification and validation."
     },
     "paraguay_api_business_lookup": {
-      "title": "Paraguay - Data Verification Service",
+      "title": "Paraguay - Business Lookup",
       "description": "General data verification service for Paraguay. Provides reliable information verification and validation."
     },
     "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Vehicle Accident History (Fasecolda)",
+      "description": "Check for total loss and accident claim history of a vehicle registered in Fasecolda."
     },
     "colombia_api_vehicle_tax": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Vehicle Tax Status",
+      "description": "Check the payment status and history of annual vehicular taxes (Impuesto de Vehículos)."
     },
     "colombia_api_vehicle_accidentality_bogota": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Bogota Vehicle Accidents",
+      "description": "Look up accident records and traffic incidents registered specifically within the Bogota municipal transit database."
     },
     "api_data_sheet_vehicle": {
       "title": " - Vehicle Verification",
@@ -573,40 +545,40 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "chile_api_taxpayer_lookup": {
-      "title": "Chile - Data Verification Service",
+      "title": "Chile - Taxpayer Lookup",
       "description": "General data verification service for Chile. Provides reliable information verification and validation."
     },
     "chile_api_validate": {
-      "title": "Chile - Data Verification Service",
+      "title": "Chile - Validate",
       "description": "General data verification service for Chile. Provides reliable information verification and validation."
     },
     "colombia_api_simit_agreements": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SIMIT Payment Agreements",
+      "description": "Verify active payment agreements for transit fines registered in SIMIT."
     },
     "colombia_api_simit_suspensions": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SIMIT License Suspensions",
+      "description": "Check for driver license suspensions or cancellations in the SIMIT system."
     },
     "colombia_api_simit_subpoenas": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SIMIT Subpoenas lookup",
+      "description": "Look up active transit subpoenas (comparendos) associated with an ID or vehicle."
     },
     "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SIMIT Subpoena Details",
+      "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
     },
     "colombia_api_simit_resolutions": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SIMIT Sancionatory Resolutions",
+      "description": "Access formal resolutions for traffic infractions that have reached the sanction stage."
     },
     "colombia_api_simit_complete": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Complete SIMIT Report",
+      "description": "Comprehensive transit background check including fines, agreements, and suspensions by ID."
     },
     "colombia_api_simit_plate": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SIMIT by License Plate",
+      "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate."
     },
     "world_api_passport_entries": {
       "title": "United States - Identity Verification",
@@ -633,12 +605,12 @@
       "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
     },
     "colombia_api_vehicle_fines_bogota": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Bogota Transit Fines",
+      "description": "Verify outstanding local traffic penalties and fines restricted to the city of Bogota."
     },
     "colombia_api_vehicle_fines_medellin": {
-      "title": "Colombia - Vehicle Verification",
-      "description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information."
+      "title": "Colombia - Medellin Transit Fines",
+      "description": "Verify outstanding local traffic penalties and fines restricted to the city of Medellin."
     },
     "guatemala_api_identity_lookup": {
       "title": "Guatemala - Identity Verification",
@@ -657,19 +629,19 @@
       "description": "Immigration records verification service for Venezuela. Provides immigration status and foreigner registration information."
     },
     "colombia_sisben_api_lookup": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - SISBEN Score Verification",
+      "description": "Verify an individual's classification group and status in the SISBEN social support system."
     },
     "spain_api_vehicle_lookup": {
       "title": "Spain - Vehicle Verification",
       "description": "Standard vehicle verification service for Spain. Verifies vehicle registration and basic information."
     },
     "spain_api_company_lookup": {
-      "title": "Spain - Data Verification Service",
+      "title": "Spain - Spain Api Company Lookup",
       "description": "General data verification service for Spain. Provides reliable information verification and validation."
     },
     "panama_api_business_lookup": {
-      "title": "Panama - Data Verification Service",
+      "title": "Panama - Panama Api Business Lookup",
       "description": "General data verification service for Panama. Provides reliable information verification and validation."
     },
     "uruguay_api_identity_lookup": {
@@ -681,12 +653,12 @@
       "description": "Immigration records verification service for Peru. Provides immigration status and foreigner registration information."
     },
     "colombia_api_rues_full_v3": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Detailed Business Report (RUES V3)",
+      "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing."
     },
     "colombia_api_rues_v3": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Basic Business Registry (RUES V3)",
+      "description": "Latest V3 API to verify active business status and basic registration details in RUES."
     },
     "peru_identity_lookup_v3": {
       "title": "Peru - Identity Verification",
@@ -705,7 +677,7 @@
       "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
     },
     "peru_api_company_lookup_v3": {
-      "title": "Peru - Data Verification Service",
+      "title": "Peru - Company Lookup V3",
       "description": "General data verification service for Peru. Provides reliable information verification and validation."
     },
     "face_recognition_detect_face": {
@@ -717,8 +689,8 @@
       "description": "General data verification service for . Provides reliable information verification and validation."
     },
     "colombia_api_inpec": {
-      "title": "Colombia - Data Verification Service",
-      "description": "General data verification service for Colombia. Provides reliable information verification and validation."
+      "title": "Colombia - Penitentiary Records (INPEC)",
+      "description": "Search penitentiary institutional records and incarceration status through INPEC."
     },
     "colombia_sigep_by_name": {
       "title": "Colombia - SIGEP Public Officials Search",

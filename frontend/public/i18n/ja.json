@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "ホーム",
     "chat": "チャット",
     "history": "履歴",
     "settings": "設定",
@@ -25,6 +26,60 @@
     "smart_enroll": "SmartEnroll",
     "smart_scan": "SmartScan",
     "scan_documents": "ドキュメントをスキャンしてデータを抽出"
+  },
+  "home": {
+    "welcome": {
+      "title": "AIエージェントのための信頼レイヤー",
+      "subtitle": "自律エージェントの背後にある人と企業を検証。14以上の公式政府データベース連携とx402決済プロトコルで駆動。"
+    },
+    "stats": {
+      "title": "統計",
+      "loading": "読み込み中...",
+      "totalValidations": "総検証数",
+      "successful": "成功",
+      "failed": "失敗",
+      "creditsUsed": "使用クレジット",
+      "topApis": "最も使用されたAPI",
+      "requests": "リクエスト",
+      "signInPrompt": "ログインして検証統計と使用状況を確認してください。",
+      "signIn": "ログイン"
+    },
+    "shortcuts": {
+      "title": "クイックアクセス",
+      "chat": "チャット",
+      "postman": "Postman",
+      "smartBatch": "Smart Batch",
+      "history": "履歴",
+      "smartScan": "Smart Scan",
+      "statusCheck": "ステータスチェック",
+      "incidents": "インシデント",
+      "smartReduce": "Smart Reduce",
+      "subscriptionPlans": "サブスクリプションプラン",
+      "addCredits": "クレジットを追加"
+    },
+    "tutorial": {
+      "title": "はじめに",
+      "description": "Smart Agentは初めてですか？できることを学ぶクイックツアーをご利用ください。",
+      "start": "チュートリアルを開始",
+      "stepOf": "ステップ {{ current }} / {{ total }}",
+      "back": "戻る",
+      "next": "次へ",
+      "getStarted": "始める",
+      "step0Title": "信頼レイヤーへようこそ",
+      "step0Desc": "Smart AgentはAIエージェント向けの本人確認を提供。Avalanche上のx402プロトコルによる検証ごとの支払い。14以上の政府データベース連携、ERC-8004エージェント標準。",
+      "step0Tip": "クレジットまたはx402（暗号）で検証の支払いができます。",
+      "step1Title": "Smart Agentチャット",
+      "step1Desc": "x402フローをネイティブに体験。エージェントが有料エンドポイントを識別し、ウォレット署名で認可を要求し、オンチェーンで検証を実行。完全な真実のための支払いループ。",
+      "step2Title": "APIエクスプローラー（Postman）",
+      "step2Desc": "ブラウザから直接エンドポイントをテスト。すべての機能を探索し、パラメータをカスタマイズし、ワンクリックでリアルタイムレスポンスを確認。",
+      "step3Title": "SmartBatch処理",
+      "step3Desc": "数百万のユーザーを検証する必要がありますか？CSVまたはExcelファイルをアップロード。エージェントがレコードを並列処理し、データベースをクリーンアップし、検証済みの公式政府データで充実させます。",
+      "step3Tip": "大容量ファイルと複数列のバッチ検証に対応。",
+      "step4Title": "その他のツール",
+      "step4Desc": "ドキュメント抽出用Smart Scan、API健全性監視用ステータスチェック、サービスアラート用インシデント、画像最適化用Smart Reduce。",
+      "step5Title": "クレジットと請求",
+      "step5Desc": "サブスクリプションを管理し、クレジットを追加。固定サブスクリプション不要の検証ごとの支払い。"
+    }
   },
   "network": {
     "title": "ステータスチェック",

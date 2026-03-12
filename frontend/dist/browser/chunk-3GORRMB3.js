@@ -1,1 +1,0 @@
-import"./chunk-MG3ERZGY.js";var o=[{path:"",redirectTo:"list",pathMatch:"full"},{path:"list",loadComponent:()=>import("./chunk-CAYUTD23.js").then(t=>t.ScanListComponent)},{path:"new",loadComponent:()=>import("./chunk-2FFJEQP5.js").then(t=>t.ScanToolComponent)},{path:":id",loadComponent:()=>import("./chunk-GRVNPAHV.js").then(t=>t.ScanDetailComponent)}];export{o as default};

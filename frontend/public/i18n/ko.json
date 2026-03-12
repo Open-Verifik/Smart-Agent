@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "홈",
     "chat": "채팅",
     "history": "기록",
     "settings": "설정",
@@ -25,6 +26,60 @@
     "smart_enroll": "SmartEnroll",
     "smart_scan": "SmartScan",
     "scan_documents": "문서 스캔 및 데이터 추출"
+  },
+  "home": {
+    "welcome": {
+      "title": "AI 에이전트를 위한 신뢰 레이어",
+      "subtitle": "자율 에이전트 뒤의 사람과 회사를 검증하세요. 14개 이상의 공식 정부 데이터베이스 통합과 x402 결제 프로토콜로 구동됩니다."
+    },
+    "stats": {
+      "title": "통계",
+      "loading": "로딩 중...",
+      "totalValidations": "총 검증 수",
+      "successful": "성공",
+      "failed": "실패",
+      "creditsUsed": "사용된 크레딧",
+      "topApis": "가장 많이 사용된 API",
+      "requests": "요청",
+      "signInPrompt": "로그인하여 검증 통계 및 사용량을 확인하세요.",
+      "signIn": "로그인"
+    },
+    "shortcuts": {
+      "title": "빠른 액세스",
+      "chat": "채팅",
+      "postman": "Postman",
+      "smartBatch": "Smart Batch",
+      "history": "기록",
+      "smartScan": "Smart Scan",
+      "statusCheck": "상태 확인",
+      "incidents": "사고",
+      "smartReduce": "Smart Reduce",
+      "subscriptionPlans": "구독 플랜",
+      "addCredits": "크레딧 추가"
+    },
+    "tutorial": {
+      "title": "시작하기",
+      "description": "Smart Agent가 처음이신가요? 할 수 있는 것을 배우는 빠른 투어를 이용하세요.",
+      "start": "튜토리얼 시작",
+      "stepOf": "{{ total }}단계 중 {{ current }}단계",
+      "back": "뒤로",
+      "next": "다음",
+      "getStarted": "시작하기",
+      "step0Title": "신뢰 레이어에 오신 것을 환영합니다",
+      "step0Desc": "Smart Agent는 AI 에이전트를 위한 신원 검증을 제공합니다. Avalanche의 x402 프로토콜을 통한 검증당 결제. 14개 이상의 정부 데이터베이스 통합, ERC-8004 에이전트 표준.",
+      "step0Tip": "크레딧 또는 x402(암호화폐)로 검증 비용을 지불할 수 있습니다.",
+      "step1Title": "Smart Agent 채팅",
+      "step1Desc": "x402 플로우를 네이티브로 경험하세요. 에이전트가 유료 엔드포인트를 식별하고, 지갑 서명을 통해 인증을 요청하며, 온체인에서 검증을 실행합니다. 완전한 진실을 위한 결제 루프.",
+      "step2Title": "API 탐색기 (Postman)",
+      "step2Desc": "브라우저에서 직접 엔드포인트를 테스트하세요. 모든 기능을 탐색하고, 매개변수를 사용자 지정하고, 한 번의 클릭으로 실시간 응답을 확인하세요.",
+      "step3Title": "SmartBatch 처리",
+      "step3Desc": "수백만 사용자를 검증해야 하나요? CSV 또는 Excel 파일을 업로드하세요. 에이전트가 레코드를 병렬로 처리하고, 데이터베이스를 정리하며, 검증된 공식 정부 데이터로 풍부하게 만듭니다.",
+      "step3Tip": "대용량 파일 및 다중 열 배치 검증을 지원합니다.",
+      "step4Title": "기타 도구",
+      "step4Desc": "문서 추출용 Smart Scan, API 상태 모니터링용 상태 확인, 서비스 알림용 사고, 이미지 최적화용 Smart Reduce.",
+      "step5Title": "크레딧 및 결제",
+      "step5Desc": "구독을 관리하고 크레딧을 추가하세요. 고정 구독 없이 검증당 결제."
+    }
   },
   "network": {
     "title": "상태 확인",

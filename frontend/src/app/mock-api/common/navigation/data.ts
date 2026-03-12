@@ -3,6 +3,13 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 
 export const defaultNavigation: FuseNavigationItem[] = [
     {
+        id: 'home',
+        title: 'nav.home',
+        type: 'basic',
+        icon: 'heroicons_outline:home',
+        link: '/home',
+    },
+    {
         id: 'smart-check',
         title: 'nav.smart_check',
         type: 'collapsable',
@@ -147,6 +154,13 @@ export const futuristicNavigation: FuseNavigationItem[] = [
 ];
 
 export const horizontalNavigation: FuseNavigationItem[] = [
+    {
+        id: 'home',
+        title: 'nav.home',
+        type: 'basic',
+        icon: 'heroicons_outline:home',
+        link: '/home',
+    },
     {
         id: 'smart-check',
         title: 'nav.smart_check',

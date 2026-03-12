@@ -1,0 +1,3392 @@
+{
+  "usa_api_vehicle": {
+    "en": {
+      "title": "USA - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estados Unidos - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "États-Unis - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "EUA - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アメリカ - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "미국 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "美国 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "feature_kyc_solution": {
+    "en": {
+      "title": "KYC Solution",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Solución KYC",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "KYC Solution",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "KYC Solution",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "KYC Solution",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "KYC Solution",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "KYC Solution",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "world_api_covid": {
+    "en": {
+      "title": "Global - COVID Statistics",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Global - Estadísticas COVID",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mondial - COVID Statistics",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Global - COVID Statistics",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "グローバル - COVID Statistics",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "글로벌 - COVID Statistics",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "全球 - COVID Statistics",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_identity_lookup": {
+    "en": {
+      "title": "Peru - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "venezuela_api_identity_lookup": {
+    "en": {
+      "title": "Venezuela - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Venezuela - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Venezuela - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Venezuela - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ベネズエラ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "베네수엘라 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "委内瑞拉 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "mexico_api_vehicle": {
+    "en": {
+      "title": "Mexico - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "México - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mexique - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "México - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "メキシコ - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "멕시코 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "墨西哥 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "feature_passwordless_solution": {
+    "en": {
+      "title": "Passwordless Authentication",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Autenticación sin Contraseña",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Passwordless Authentication",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Passwordless Authentication",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Passwordless Authentication",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Passwordless Authentication",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Passwordless Authentication",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "mexico_identity_lookup": {
+    "en": {
+      "title": "Mexico - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "México - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mexique - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "México - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "メキシコ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "멕시코 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "墨西哥 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ecuador_api_identity_lookup": {
+    "en": {
+      "title": "Ecuador - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Ecuador - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Équateur - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Equador - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "エクアドル - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "에콰도르 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "厄瓜多尔 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_api_vehicle": {
+    "en": {
+      "title": "Peru - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_api_vehicle_soat": {
+    "en": {
+      "title": "Peru - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ecuador_api_vehicle": {
+    "en": {
+      "title": "Ecuador - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Ecuador - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Équateur - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Equador - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "エクアドル - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "에콰도르 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "厄瓜多尔 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "feature_data_api": {
+    "en": {
+      "title": "Data API",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "API de Datos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Data API",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Data API",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Data API",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Data API",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Data API",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "feature_pdf_generator": {
+    "en": {
+      "title": "PDF Report Generator",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Generador de Informes PDF",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "PDF Report Generator",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "PDF Report Generator",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "PDF Report Generator",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "PDF Report Generator",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "PDF Report Generator",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "panama_api_identity_full_lookup": {
+    "en": {
+      "title": "Panama - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Panamá - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Panama - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Panamá - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パナマ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파나마 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拿马 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "chile_api_identity_lookup": {
+    "en": {
+      "title": "Chile - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Chile - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Chili - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Chile - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "チリ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "칠레 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "智利 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "costarica_api_identity_lookup": {
+    "en": {
+      "title": "Costa Rica - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Costa Rica - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Costa Rica - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Costa Rica - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "コスタリカ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "코스타리카 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "哥斯达黎加 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ecuador_api_criminal_history": {
+    "en": {
+      "title": "Ecuador - Criminal History",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Ecuador - Antecedentes Penales",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Équateur - Antécédents Criminels",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Equador - Antecedentes Criminais",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "エクアドル - 犯罪歴",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "에콰도르 - 범죄 이력",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "厄瓜多尔 - 犯罪记录",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "chile_api_vehicle": {
+    "en": {
+      "title": "Chile - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Chile - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Chili - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Chile - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "チリ - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "칠레 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "智利 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "panama_api_identity_lookup": {
+    "en": {
+      "title": "Panama - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Panamá - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Panama - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Panamá - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パナマ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파나마 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拿马 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "panama_api_vehicle": {
+    "en": {
+      "title": "Panama - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Panamá - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Panama - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Panamá - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パナマ - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파나마 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拿马 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "chile_api_business_lookup": {
+    "en": {
+      "title": "Chile - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Chile - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Chili - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Chile - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "チリ - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "칠레 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "智利 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "spain_api_identity_lookup": {
+    "en": {
+      "title": "Spain - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "España - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Espagne - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Espanha - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "スペイン - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "스페인 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "西班牙 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ecuador_api_vehicle_fines": {
+    "en": {
+      "title": "Ecuador - Vehicle Fines",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Ecuador - Multas Vehiculares",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Équateur - Amendes Véhiculaires",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Equador - Multas Veiculares",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "エクアドル - 車両罰金",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "에콰도르 - 차량 벌금",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "厄瓜多尔 - 车辆罚款",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_identity_extra_lookup": {
+    "en": {
+      "title": "Peru - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "brasil_api_identity_lookup": {
+    "en": {
+      "title": "Brazil - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Brasil - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Brésil - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Brasil - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ブラジル - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "브라질 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴西 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "usa_api_driver_license_lookup": {
+    "en": {
+      "title": "USA - Driver License Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estados Unidos - Verificación de Licencia de Conducción",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "États-Unis - Driver License Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "EUA - Driver License Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アメリカ - Driver License Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "미국 - Driver License Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "美国 - Driver License Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "credit_intent": {
+    "en": {
+      "title": "Credit Purchase Intent",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Intención de Compra de Créditos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Credit Purchase Intent",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Credit Purchase Intent",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Credit Purchase Intent",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Credit Purchase Intent",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Credit Purchase Intent",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ip-lookup": {
+    "en": {
+      "title": "IP Geolocation Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Consulta de Geoubicación IP",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "IP Geolocation Lookup",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "IP Geolocation Lookup",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "IP Geolocation Lookup",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "IP Geolocation Lookup",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "IP Geolocation Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "communication_messaging_sms": {
+    "en": {
+      "title": "SMS Messaging",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Mensajería SMS",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "SMS Messaging",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "SMS Messaging",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "SMS Messaging",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "SMS Messaging",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "SMS Messaging",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "communication_colombia_messaging_whatsapp": {
+    "en": {
+      "title": "Colombia - WhatsApp Messaging",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Colombia - Mensajería WhatsApp",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Colombie - WhatsApp Messaging",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Colômbia - WhatsApp Messaging",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "コロンビア - WhatsApp Messaging",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "콜롬비아 - WhatsApp Messaging",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "哥伦比亚 - WhatsApp Messaging",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "communication_global_messaging_whatsapp": {
+    "en": {
+      "title": "Global - WhatsApp Messaging",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Global - Mensajería WhatsApp",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mondial - WhatsApp Messaging",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Global - WhatsApp Messaging",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "グローバル - WhatsApp Messaging",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "글로벌 - WhatsApp Messaging",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "全球 - WhatsApp Messaging",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "communication_global_email_otp": {
+    "en": {
+      "title": "Email OTP",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "OTP por Correo",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Email OTP",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Email OTP",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Email OTP",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Email OTP",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Email OTP",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_liveness_3d": {
+    "en": {
+      "title": "3D Liveness Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Detección de Vitalidad 3D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "3D Liveness Detection",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "3D Liveness Detection",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "3D Liveness Detection",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "3D Liveness Detection",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "3D Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_estimate_age_3d": {
+    "en": {
+      "title": "3D Age Estimation",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estimación de Edad 3D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "3D Age Estimation",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "3D Age Estimation",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "3D Age Estimation",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "3D Age Estimation",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "3D Age Estimation",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_check_age_3d": {
+    "en": {
+      "title": "3D Age Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Verificación de Edad 3D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "3D Age Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "3D Age Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "3D Age Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "3D Age Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "3D Age Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_enrollment_3d": {
+    "en": {
+      "title": "3D Biometric Enrollment",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Inscripción Biométrica 3D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "3D Biometric Enrollment",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "3D Biometric Enrollment",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "3D Biometric Enrollment",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "3D Biometric Enrollment",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "3D Biometric Enrollment",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_id_scan_only": {
+    "en": {
+      "title": "ID Document Scan",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Escaneo de Documento de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "ID Document Scan",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "ID Document Scan",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ID Document Scan",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "ID Document Scan",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "ID Document Scan",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_liveness_2d": {
+    "en": {
+      "title": "2D Liveness Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Detección de Vitalidad 2D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "2D Liveness Detection",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "2D Liveness Detection",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "2D Liveness Detection",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "2D Liveness Detection",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "2D Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_estimate_age_2d": {
+    "en": {
+      "title": "2D Age Estimation",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estimación de Edad 2D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "2D Age Estimation",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "2D Age Estimation",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "2D Age Estimation",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "2D Age Estimation",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "2D Age Estimation",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "biometrics_check_age_2d": {
+    "en": {
+      "title": "2D Age Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Verificación de Edad 2D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "2D Age Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "2D Age Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "2D Age Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "2D Age Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "2D Age Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "credit_intent_kyc_passwordless": {
+    "en": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Intención de Crédito KYC sin Contraseña",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "KYC Passwordless Credit Intent",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "brasil_api_company_lookup": {
+    "en": {
+      "title": "Brazil - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Brasil - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Brésil - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Brasil - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ブラジル - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "브라질 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴西 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "brasil_api_vehicle": {
+    "en": {
+      "title": "Brazil - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Brasil - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Brésil - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Brasil - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ブラジル - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "브라질 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴西 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "argentina_api_identity_lookup": {
+    "en": {
+      "title": "Argentina - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Argentina - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Argentine - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Argentina - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アルゼンチン - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "아르헨티나 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "阿根廷 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ecuador_api_company_lookup": {
+    "en": {
+      "title": "Ecuador - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Ecuador - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Équateur - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Equador - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "エクアドル - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "에콰도르 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "厄瓜多尔 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "usa_api_ssn": {
+    "en": {
+      "title": "USA - SSN Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estados Unidos - Verificación de SSN",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "États-Unis - SSN Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "EUA - SSN Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アメリカ - SSN Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "미국 - SSN Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "美国 - SSN Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "bolivia_api_identity_lookup": {
+    "en": {
+      "title": "Bolivia - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Bolivia - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Bolivie - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Bolívia - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ボリビア - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "볼리비아 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "玻利维亚 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "api_autodata_manufacturers": {
+    "en": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Base de Datos de Fabricantes de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Vehicle Manufacturers Database",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "world_api_phone_lookup": {
+    "en": {
+      "title": "Global - Phone Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Global - Consulta de Teléfono",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mondial - Phone Lookup",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Global - Phone Lookup",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "グローバル - Phone Lookup",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "글로벌 - Phone Lookup",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "全球 - Phone Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "Mexico_api_ine_model_e": {
+    "en": {
+      "title": "Mexico - INE Model E",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "México - INE Modelo E",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mexique - INE Model E",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "México - INE Model E",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "メキシコ - INE Model E",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "멕시코 - INE Model E",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "墨西哥 - INE Model E",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "Mexico_api_ine_model_d": {
+    "en": {
+      "title": "Mexico - INE Model D",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "México - INE Modelo D",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mexique - INE Model D",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "México - INE Model D",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "メキシコ - INE Model D",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "멕시코 - INE Model D",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "墨西哥 - INE Model D",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "Mexico_api_ine_model_c": {
+    "en": {
+      "title": "Mexico - INE Model C",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "México - INE Modelo C",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mexique - INE Model C",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "México - INE Model C",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "メキシコ - INE Model C",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "멕시코 - INE Model C",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "墨西哥 - INE Model C",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "api_autodata_enginer": {
+    "en": {
+      "title": "Vehicle Engine Database",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Base de Datos de Motores de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Vehicle Engine Database",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Vehicle Engine Database",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Vehicle Engine Database",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Vehicle Engine Database",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Vehicle Engine Database",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "api_autodata_enginer_code": {
+    "en": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Consulta de Código de Motor",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Vehicle Engine Code Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "api_autodata_selection": {
+    "en": {
+      "title": "Vehicle Selection Database",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Base de Datos de Selección de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Vehicle Selection Database",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Vehicle Selection Database",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Vehicle Selection Database",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Vehicle Selection Database",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Vehicle Selection Database",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "data_finance_incomestatement": {
+    "en": {
+      "title": "Financial - Income Statement",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Financiero - Estado de Resultados",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Financial - Income Statement",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Financial - Income Statement",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Financial - Income Statement",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Financial - Income Statement",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Financial - Income Statement",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "data_finance_balancesheet": {
+    "en": {
+      "title": "Financial - Balance Sheet",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Financiero - Balance General",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Financial - Balance Sheet",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Financial - Balance Sheet",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Financial - Balance Sheet",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Financial - Balance Sheet",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Financial - Balance Sheet",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "data_finance_cashflow": {
+    "en": {
+      "title": "Financial - Cash Flow",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Financiero - Flujo de Caja",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Financial - Cash Flow",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Financial - Cash Flow",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Financial - Cash Flow",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Financial - Cash Flow",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Financial - Cash Flow",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "data_finance_stockprice": {
+    "en": {
+      "title": "Financial - Stock Price",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Financiero - Precio de Acciones",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Financial - Stock Price",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Financial - Stock Price",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Financial - Stock Price",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Financial - Stock Price",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Financial - Stock Price",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "paraguay_api_identity_lookup": {
+    "en": {
+      "title": "Paraguay - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Paraguay - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Paraguay - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Paraguai - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パラグアイ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파라과이 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拉圭 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "canada_api_driver_license_alberta": {
+    "en": {
+      "title": "Canada - Driver License",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Canada - Permis de Conduire",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Canadá - Licença de Condução",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "カナダ - 運転免許",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "캐나다 - 운전면허",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "canada_api_driver_license_ontario": {
+    "en": {
+      "title": "Canada - Driver License",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Canada - Permis de Conduire",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Canadá - Licença de Condução",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "カナダ - 運転免許",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "캐나다 - 운전면허",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "canada_api_driver_license_quebec": {
+    "en": {
+      "title": "Canada - Driver License",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Canada - Permis de Conduire",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Canadá - Licença de Condução",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "カナダ - 運転免許",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "캐나다 - 운전면허",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ocr_scan_pro": {
+    "en": {
+      "title": "OCR Document Scan Pro",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Escaneo OCR de Documentos Pro",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "OCR Document Scan Pro",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "OCR Document Scan Pro",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "OCR Document Scan Pro",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "OCR Document Scan Pro",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "OCR Document Scan Pro",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "el_salvador_api_identity_lookup": {
+    "en": {
+      "title": "El Salvador - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "El Salvador - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Salvador - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "El Salvador - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "エルサルバドル - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "엘살바도르 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "萨尔瓦多 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "canada_api_driver_license_british-columbia": {
+    "en": {
+      "title": "Canada - Driver License",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Canada - Permis de Conduire",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Canadá - Licença de Condução",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "カナダ - 運転免許",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "캐나다 - 운전면허",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "加拿大 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ocr_scan_gpt": {
+    "en": {
+      "title": "OCR Document Scan GPT",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Escaneo OCR de Documentos GPT",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Scan OCR de Documents GPT",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Scan OCR de Documentos GPT",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "OCR文書スキャンGPT",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "OCR 문서 스캔 GPT",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "OCR 文档扫描 GPT",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "colombia_api_identity_lookup_extra": {
+    "en": {
+      "title": "Colombia - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Colombia - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Colombie - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Colômbia - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "コロンビア - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "콜롬비아 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "哥伦比亚 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "ocr_scan_studio": {
+    "en": {
+      "title": "OCR Document Scan Studio",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Escaneo OCR de Documentos Studio",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "OCR Document Scan Studio",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "OCR Document Scan Studio",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "OCR Document Scan Studio",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "OCR Document Scan Studio",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "OCR Document Scan Studio",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "canada_api_company": {
+    "en": {
+      "title": "Canada - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Canadá - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Canada - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Canadá - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "カナダ - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "캐나다 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "加拿大 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "us_api_passport_entries": {
+    "en": {
+      "title": "us api passport entries",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "us api passport entries",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "us api passport entries",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "us api passport entries",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "us api passport entries",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "us api passport entries",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "us api passport entries",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "mexico_api_company": {
+    "en": {
+      "title": "Mexico - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "México - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mexique - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "México - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "メキシコ - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "멕시코 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "墨西哥 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_compare": {
+    "en": {
+      "title": "Face Comparison",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Comparación Facial",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Comparison",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Comparison",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Comparison",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Comparison",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Comparison",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_compare_live": {
+    "en": {
+      "title": "Live Face Comparison",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Comparación Facial en Vivo",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Live Face Comparison",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Live Face Comparison",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Live Face Comparison",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Live Face Comparison",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Live Face Comparison",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_liveness": {
+    "en": {
+      "title": "Face Liveness Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Detección de Vitalidad Facial",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Liveness Detection",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Liveness Detection",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Liveness Detection",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Liveness Detection",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_search_live_face": {
+    "en": {
+      "title": "Live Face Search",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Búsqueda Facial en Vivo",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Live Face Search",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Live Face Search",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Live Face Search",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Live Face Search",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Live Face Search",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_verify": {
+    "en": {
+      "title": "Face Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Verificación Facial",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_detect": {
+    "en": {
+      "title": "Face Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Detección Facial",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Detection",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Detection",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Detection",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Detection",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Detection",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_search_crops": {
+    "en": {
+      "title": "Face Search (Crops)",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Búsqueda Facial (Recortes)",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Search (Crops)",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Search (Crops)",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Search (Crops)",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Search (Crops)",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Search (Crops)",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_search": {
+    "en": {
+      "title": "Face Search",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Búsqueda Facial",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Search",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Search",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Search",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Search",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Search",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "usa_api_company": {
+    "en": {
+      "title": "USA - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estados Unidos - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "États-Unis - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "EUA - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アメリカ - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "미국 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "美国 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "chile_api_driver_license": {
+    "en": {
+      "title": "Chile - Driver License",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Chile - Licencia de Conducción",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Chili - Permis de Conduire",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Chile - Licença de Condução",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "チリ - 運転免許",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "칠레 - 운전면허",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "智利 - 驾驶证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "argentina_api_vehicle": {
+    "en": {
+      "title": "Argentina - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Argentina - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Argentine - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Argentina - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アルゼンチン - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "아르헨티나 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "阿根廷 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "argentina_api_company_lookup": {
+    "en": {
+      "title": "Argentina - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Argentina - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Argentine - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Argentina - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アルゼンチン - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "아르헨티나 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "阿根廷 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "bolivia_api_vehicle": {
+    "en": {
+      "title": "Bolivia - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Bolivia - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Bolivie - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Bolívia - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ボリビア - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "볼리비아 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "玻利维亚 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "brasil_api_criminal_history": {
+    "en": {
+      "title": "brasil api criminal history",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "brasil api criminal history",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "brasil api criminal history",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "brasil api criminal history",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "brasil api criminal history",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "brasil api criminal history",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "brasil api criminal history",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "bolivia_api_business_lookup": {
+    "en": {
+      "title": "Bolivia - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Bolivia - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Bolivie - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Bolívia - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ボリビア - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "볼리비아 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "玻利维亚 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "costa_rica_api_business_lookup": {
+    "en": {
+      "title": " - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": " - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": " - Company Lookup",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": " - Company Lookup",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": " - Company Lookup",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": " - Company Lookup",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": " - Company Lookup",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "paraguay_api_business_lookup": {
+    "en": {
+      "title": "Paraguay - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Paraguay - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Paraguay - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Paraguai - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パラグアイ - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파라과이 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拉圭 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "api_data_sheet_vehicle": {
+    "en": {
+      "title": "Vehicle Data Sheet",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Ficha Técnica de Vehículo",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Vehicle Data Sheet",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Vehicle Data Sheet",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Vehicle Data Sheet",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Vehicle Data Sheet",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Vehicle Data Sheet",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "api_data_sheet_vehicle_by-plate_br": {
+    "en": {
+      "title": " - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": " - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": " - Vehicle Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": " - Vehicle Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": " - Vehicle Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": " - Vehicle Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": " - Vehicle Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_search_active_user": {
+    "en": {
+      "title": "Face Search (Active User)",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Búsqueda Facial (Usuario Activo)",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Search (Active User)",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Search (Active User)",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Search (Active User)",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Search (Active User)",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Search (Active User)",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "matpis_appointments": {
+    "en": {
+      "title": "MATPIS Appointments",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Citas MATPIS",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "MATPIS Appointments",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "MATPIS Appointments",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "MATPIS Appointments",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "MATPIS Appointments",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "MATPIS Appointments",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "chile_api_taxpayer_lookup": {
+    "en": {
+      "title": "chile api taxpayer lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "chile api taxpayer lookup",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "chile api taxpayer lookup",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "chile api taxpayer lookup",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "chile api taxpayer lookup",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "chile api taxpayer lookup",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "chile api taxpayer lookup",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "chile_api_validate": {
+    "en": {
+      "title": "chile api validate",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "chile api validate",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "chile api validate",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "chile api validate",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "chile api validate",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "chile api validate",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "chile api validate",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "world_api_passport_entries": {
+    "en": {
+      "title": "world api passport entries",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "world api passport entries",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "world api passport entries",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "world api passport entries",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "world api passport entries",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "world api passport entries",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "world api passport entries",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "validate-document": {
+    "en": {
+      "title": "validate-document",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "validate-document",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "validate-document",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "validate-document",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "validate-document",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "validate-document",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "validate-document",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "costa_rica_api_vehicle": {
+    "en": {
+      "title": " - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": " - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": " - Vehicle Verification",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": " - Vehicle Verification",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": " - Vehicle Verification",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": " - Vehicle Verification",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": " - Vehicle Verification",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "paraguay_api_vehicle": {
+    "en": {
+      "title": "Paraguay - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Paraguay - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Paraguay - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Paraguai - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パラグアイ - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파라과이 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拉圭 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "usa_api_vehicle_lookup_by_vin": {
+    "en": {
+      "title": "USA - Vehicle Lookup by VIN",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Estados Unidos - Consulta de Vehículo por VIN",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "États-Unis - Vehicle Lookup by VIN",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "EUA - Vehicle Lookup by VIN",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "アメリカ - Vehicle Lookup by VIN",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "미국 - Vehicle Lookup by VIN",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "美国 - Vehicle Lookup by VIN",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "guatemala_api_identity_lookup": {
+    "en": {
+      "title": "Guatemala - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Guatemala - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Guatemala - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Guatemala - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "グアテマラ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "과테말라 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "危地马拉 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "honduras_api_identity_lookup": {
+    "en": {
+      "title": "Honduras - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Honduras - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Honduras - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Honduras - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ホンジュラス - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "온두라스 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "洪都拉斯 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "republica_dominicana_api_citizen_lookup": {
+    "en": {
+      "title": "Dominican Republic - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "República Dominicana - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "République Dominicaine - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "República Dominicana - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ドミニカ共和国 - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "도미니카 공화국 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "多米尼加共和国 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "spain_api_vehicle_lookup": {
+    "en": {
+      "title": "Spain - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "España - Verificación de Vehículos",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Espagne - Vérification de Véhicule",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Espanha - Verificação de Veículo",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "スペイン - 車両検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "스페인 - 차량 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "西班牙 - 车辆验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "spain_api_company_lookup": {
+    "en": {
+      "title": "Spain - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "España - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Espagne - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Espanha - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "スペイン - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "스페인 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "西班牙 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "panama_api_business_lookup": {
+    "en": {
+      "title": "Panama - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Panamá - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Panama - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Panamá - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "パナマ - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "파나마 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "巴拿马 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "uruguay_api_identity_lookup": {
+    "en": {
+      "title": "Uruguay - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Uruguay - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Uruguay - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Uruguai - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ウルグアイ - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "우루과이 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "乌拉圭 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_identity_lookup_v3": {
+    "en": {
+      "title": "Peru - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_identity_extra_lookup_v3": {
+    "en": {
+      "title": "Peru - National ID Verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Vérification d'Identité Nationale",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Verificação de Identidade Nacional",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 国民ID検証",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 국민ID 검증",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 国民身份证验证",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "peru_api_company_lookup_v3": {
+    "en": {
+      "title": "Peru - Company Lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Perú - Consulta de Empresa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Pérou - Recherche d'Entreprise",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Peru - Consulta de Empresa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ペルー - 企業検索",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "페루 - 기업 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "秘鲁 - 企业查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "face_recognition_detect_face": {
+    "en": {
+      "title": "Face Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Detección Facial",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Face Detection",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Face Detection",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Face Detection",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Face Detection",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Face Detection",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "document-liveness": {
+    "en": {
+      "title": "Document Liveness Detection",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Detección de Vitalidad de Documento",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Document Liveness Detection",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Document Liveness Detection",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "Document Liveness Detection",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "Document Liveness Detection",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "Document Liveness Detection",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  }
+}

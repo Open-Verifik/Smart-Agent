@@ -1,0 +1,177 @@
+:host {
+    display: block;
+    min-height: 100%;
+}
+
+.home-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(248, 250, 252, 0.5);
+
+    .dark & {
+        background: rgba(15, 23, 42, 0.5);
+        border-color: rgba(148, 163, 184, 0.1);
+    }
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgb(15, 23, 42);
+
+    .dark & {
+        color: rgb(248, 250, 252);
+    }
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: rgb(100, 116, 139);
+    margin-top: 0.25rem;
+
+    .dark & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.shortcuts-section {
+    margin-bottom: 2rem;
+}
+
+.shortcuts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+.shortcut-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: rgb(99, 102, 241);
+        background: rgba(99, 102, 241, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .dark & {
+        background: rgba(15, 23, 42, 0.6);
+        border-color: rgba(148, 163, 184, 0.1);
+
+        &:hover {
+            border-color: rgb(99, 102, 241);
+            background: rgba(99, 102, 241, 0.1);
+        }
+    }
+}
+
+.shortcut-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(99, 102, 241, 0.1);
+    color: rgb(99, 102, 241);
+}
+
+.shortcut-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.shortcut-subtitle {
+    font-size: 0.8rem;
+    color: rgb(100, 116, 139);
+
+    .dark & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.tutorial-section {
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(248, 250, 252, 0.5);
+
+    .dark & {
+        background: rgba(15, 23, 42, 0.5);
+        border-color: rgba(148, 163, 184, 0.1);
+    }
+}
+
+.top-apis-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.875rem 1.25rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: translateX(4px);
+        }
+
+        .dark & {
+            background: rgba(30, 41, 59, 0.4);
+            border-color: rgba(148, 163, 184, 0.05);
+
+            &:hover {
+                background: rgba(30, 41, 59, 0.8);
+                border-color: rgba(99, 102, 241, 0.4);
+            }
+        }
+    }
+}
+
+.api-count-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(99, 102, 241, 0.1);
+    color: rgb(79, 70, 229);
+
+    .dark & {
+        background: rgba(99, 102, 241, 0.2);
+        color: rgb(165, 180, 252);
+    }
+}

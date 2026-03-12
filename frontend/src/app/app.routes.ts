@@ -9,8 +9,8 @@ export const appRoutes: Route[] = [
         loadChildren: () => import('app/modules/bridge/bridge.routes').then((m) => m.default),
     },
 
-    // Redirect empty path to '/chat'
-    { path: '', pathMatch: 'full', redirectTo: 'chat' },
+    // Redirect empty path to '/home'
+    { path: '', pathMatch: 'full', redirectTo: 'home' },
 
     // Chat routes
     {
@@ -20,6 +20,11 @@ export const appRoutes: Route[] = [
             initialData: initialDataResolver,
         },
         children: [
+            {
+                path: 'home',
+                loadChildren: () =>
+                    import('app/modules/home/home.routes').then((m) => m.default),
+            },
             {
                 path: 'chat',
                 loadChildren: () => import('app/modules/chat/chat.routes').then((m) => m.default),
@@ -80,5 +85,5 @@ export const appRoutes: Route[] = [
     },
 
     // 404 & Catch all
-    { path: '**', redirectTo: 'chat' },
+    { path: '**', redirectTo: 'home' },
 ];

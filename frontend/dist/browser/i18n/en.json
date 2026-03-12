@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "Home",
     "chat": "Chat",
     "history": "History",
     "settings": "Settings",
@@ -25,6 +26,60 @@
     "smart_enroll": "SmartEnroll",
     "smart_scan": "SmartScan",
     "scan_documents": "Scan and extract document data"
+  },
+  "home": {
+    "welcome": {
+      "title": "The Trust Layer for AI Agents",
+      "subtitle": "Verify humans and companies behind autonomous agents. Powered by 14+ official government database integrations and the x402 payment protocol."
+    },
+    "stats": {
+      "title": "Your Statistics",
+      "loading": "Loading...",
+      "totalValidations": "Total validations",
+      "successful": "Successful",
+      "failed": "Failed",
+      "creditsUsed": "Credits used",
+      "topApis": "Top used APIs",
+      "requests": "requests",
+      "signInPrompt": "Sign in to see your validation statistics and usage.",
+      "signIn": "Sign in"
+    },
+    "shortcuts": {
+      "title": "Quick access",
+      "chat": "Chat",
+      "postman": "Postman",
+      "smartBatch": "Smart Batch",
+      "history": "History",
+      "smartScan": "Smart Scan",
+      "statusCheck": "Status Check",
+      "incidents": "Incidents",
+      "smartReduce": "Smart Reduce",
+      "subscriptionPlans": "Subscription Plans",
+      "addCredits": "Add Credits"
+    },
+    "tutorial": {
+      "title": "Getting started",
+      "description": "New to Smart Agent? Take a quick tour to learn what you can do.",
+      "start": "Start tutorial",
+      "stepOf": "Step {{ current }} of {{ total }}",
+      "back": "Back",
+      "next": "Next",
+      "getStarted": "Get started",
+      "step0Title": "Welcome to the Trust Layer",
+      "step0Desc": "Smart Agent provides identity verification for AI agents. Pay-per-verification via x402 protocol on Avalanche. 14+ government database integrations, ERC-8004 agent standard.",
+      "step0Tip": "You can use credits or x402 (crypto) to pay for validations.",
+      "step1Title": "Smart Agent Chat",
+      "step1Desc": "Experience the x402 flow natively. The agent identifies paid endpoints, requests authorization via wallet signature, and executes verification on-chain. A complete payment-for-truth loop.",
+      "step2Title": "API Explorer (Postman)",
+      "step2Desc": "Test our endpoints directly from your browser. Explore every capability, customize parameters, and see real-time responses with a single click.",
+      "step3Title": "SmartBatch Processing",
+      "step3Desc": "Need to validate millions of users? Upload CSV or Excel files. Our agent processes records in parallel, cleaning your database and enriching it with verified official government data.",
+      "step3Tip": "Supports large files and multiple columns for batch validation.",
+      "step4Title": "Other tools",
+      "step4Desc": "Smart Scan for document extraction, Status Check for API health monitoring, Incidents for service alerts, and Smart Reduce for image optimization.",
+      "step5Title": "Credits and billing",
+      "step5Desc": "Manage your subscription and add credits. Pay-per-verification with no fixed subscription required."
+    }
   },
   "network": {
     "title": "System Status",
