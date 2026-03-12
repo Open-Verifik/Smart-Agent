@@ -1,5 +1,6 @@
 {
   "nav": {
+    "home": "首页",
     "chat": "聊天",
     "history": "历史",
     "settings": "设置",
@@ -25,6 +26,60 @@
     "smart_enroll": "SmartEnroll",
     "smart_scan": "SmartScan",
     "scan_documents": "扫描并提取文档数据"
+  },
+  "home": {
+    "welcome": {
+      "title": "AI 代理的信任层",
+      "subtitle": "验证自主代理背后的人员和公司。由 14+ 官方政府数据库集成和 x402 支付协议提供支持。"
+    },
+    "stats": {
+      "title": "您的统计",
+      "loading": "加载中...",
+      "totalValidations": "总验证数",
+      "successful": "成功",
+      "failed": "失败",
+      "creditsUsed": "已用积分",
+      "topApis": "最常用 API",
+      "requests": "次请求",
+      "signInPrompt": "登录以查看您的验证统计和使用情况。",
+      "signIn": "登录"
+    },
+    "shortcuts": {
+      "title": "快捷访问",
+      "chat": "聊天",
+      "postman": "Postman",
+      "smartBatch": "Smart Batch",
+      "history": "历史",
+      "smartScan": "Smart Scan",
+      "statusCheck": "状态检查",
+      "incidents": "事件",
+      "smartReduce": "Smart Reduce",
+      "subscriptionPlans": "订阅计划",
+      "addCredits": "添加积分"
+    },
+    "tutorial": {
+      "title": "入门指南",
+      "description": "刚接触 Smart Agent？快速浏览了解您可以做什么。",
+      "start": "开始教程",
+      "stepOf": "第 {{ current }} 步，共 {{ total }} 步",
+      "back": "返回",
+      "next": "下一步",
+      "getStarted": "开始使用",
+      "step0Title": "欢迎使用信任层",
+      "step0Desc": "Smart Agent 为 AI 代理提供身份验证。通过 Avalanche 上的 x402 协议按验证付费。14+ 政府数据库集成，ERC-8004 代理标准。",
+      "step0Tip": "您可以使用积分或 x402（加密货币）支付验证费用。",
+      "step1Title": "Smart Agent 聊天",
+      "step1Desc": "原生体验 x402 流程。代理识别付费端点，通过钱包签名请求授权，并在链上执行验证。完整的付费获取真相循环。",
+      "step2Title": "API 浏览器 (Postman)",
+      "step2Desc": "直接从浏览器测试我们的端点。探索每项功能，自定义参数，一键查看实时响应。",
+      "step3Title": "SmartBatch 处理",
+      "step3Desc": "需要验证数百万用户？上传 CSV 或 Excel 文件。我们的代理并行处理记录，清理您的数据库并用经过验证的官方政府数据丰富它。",
+      "step3Tip": "支持大文件和多列批量验证。",
+      "step4Title": "其他工具",
+      "step4Desc": "Smart Scan 用于文档提取，状态检查用于 API 健康监控，事件用于服务警报，Smart Reduce 用于图像优化。",
+      "step5Title": "积分和计费",
+      "step5Desc": "管理您的订阅并添加积分。按验证付费，无需固定订阅。"
+    }
   },
   "network": {
     "title": "系统状态检查",

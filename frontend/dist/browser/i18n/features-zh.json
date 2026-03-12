@@ -437,7 +437,7 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "ocr_scan_gpt": {
-      "title": "OCR Document Scan GPT",
+      "title": "OCR 文档扫描 GPT",
       "description": "提供可靠的验证和验证服务。"
     },
     "colombia_api_identity_lookup_extra": {

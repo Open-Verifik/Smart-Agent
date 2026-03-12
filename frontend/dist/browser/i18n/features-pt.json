@@ -437,7 +437,7 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ocr_scan_gpt": {
-      "title": "OCR Document Scan GPT",
+      "title": "Scan OCR de Documentos GPT",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "colombia_api_identity_lookup_extra": {

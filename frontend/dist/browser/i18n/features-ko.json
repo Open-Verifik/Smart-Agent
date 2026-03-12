@@ -437,7 +437,7 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "ocr_scan_gpt": {
-      "title": "OCR Document Scan GPT",
+      "title": "OCR 문서 스캔 GPT",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "colombia_api_identity_lookup_extra": {

@@ -437,7 +437,7 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ocr_scan_gpt": {
-      "title": "OCR Document Scan GPT",
+      "title": "OCR文書スキャンGPT",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "colombia_api_identity_lookup_extra": {
