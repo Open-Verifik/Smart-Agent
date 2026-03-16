@@ -97,9 +97,15 @@ export class PlanChangeDialogComponent implements OnInit {
                     };
                 }
                 if (change.addOn) {
+                    const value =
+                        change.count !== undefined && change.count !== null
+                            ? change.count
+                            : change.active
+                              ? 'Included'
+                              : null;
                     return {
                         key: change.addOn,
-                        value: change.active || change.count || null,
+                        value,
                     };
                 }
                 return null;
