@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { environment } from 'environments/environment';
 import { Subject } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
@@ -13,7 +14,6 @@ import {
     ClientSubscription,
     SubscriptionPlan,
 } from './subscription-plan.types';
-import { environment } from 'environments/environment';
 import { SubscriptionService } from './subscription.service';
 
 const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
@@ -222,7 +222,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     private _loadApiFeatures(): void {
-        const cached = typeof sessionStorage !== 'undefined' && sessionStorage.getItem(APP_FEATURES_CACHE_KEY);
+        const cached =
+            typeof sessionStorage !== 'undefined' && sessionStorage.getItem(APP_FEATURES_CACHE_KEY);
         if (cached) {
             try {
                 const parsed = JSON.parse(cached) as AppFeature[];
@@ -331,7 +332,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     get sliderStep(): number {
-        return this.selectedInterval === 'year' ? this.YEARLY_SLIDER_STEP : this.MONTHLY_SLIDER_STEP;
+        return this.selectedInterval === 'year'
+            ? this.YEARLY_SLIDER_STEP
+            : this.MONTHLY_SLIDER_STEP;
     }
 
     get sliderTicks(): string[] {
@@ -478,7 +481,12 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                 const name = (f.name || '').toLowerCase();
                 const code = (f.code || '').toLowerCase();
                 const url = (f.url || '').toLowerCase();
-                return displayName.includes(q) || name.includes(q) || code.includes(q) || url.includes(q);
+                return (
+                    displayName.includes(q) ||
+                    name.includes(q) ||
+                    code.includes(q) ||
+                    url.includes(q)
+                );
             });
         }
 
@@ -487,7 +495,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         }
 
         if (this.apiBreakdownCategoryFilter) {
-            list = list.filter((f) => (f.baseCategory || '').trim() === this.apiBreakdownCategoryFilter);
+            list = list.filter(
+                (f) => (f.baseCategory || '').trim() === this.apiBreakdownCategoryFilter
+            );
         }
 
         return list;
@@ -544,7 +554,12 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                 const name = (f.name || '').toLowerCase();
                 const code = (f.code || '').toLowerCase();
                 const url = (f.url || '').toLowerCase();
-                return displayName.includes(q) || name.includes(q) || code.includes(q) || url.includes(q);
+                return (
+                    displayName.includes(q) ||
+                    name.includes(q) ||
+                    code.includes(q) ||
+                    url.includes(q)
+                );
             });
         }
 
@@ -599,24 +614,29 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     private _loadCurrentSubscription(): void {
-        this._subscriptionService.getMySubscription({ where_active: true, findOne: 1 }).subscribe({
-            next: (response) => {
-                if (response?.data) {
-                    this.currentSubscription = response.data;
-                    this._formatCurrentSubscription();
-                    this.currentView = 'current';
-                    this._loadMyListFeatures();
-                } else {
+        this._subscriptionService
+            .getMySubscription({
+                where_active: true,
+                findOne: 1,
+            })
+            .subscribe({
+                next: (response) => {
+                    if (response?.data) {
+                        this.currentSubscription = response.data;
+                        this._formatCurrentSubscription();
+                        this.currentView = 'current';
+                        this._loadMyListFeatures();
+                    } else {
+                        this.currentView = 'explore';
+                        this._loadPlans();
+                    }
+                },
+                error: (error) => {
+                    console.error('Error loading subscription:', error);
                     this.currentView = 'explore';
                     this._loadPlans();
-                }
-            },
-            error: (error) => {
-                console.error('Error loading subscription:', error);
-                this.currentView = 'explore';
-                this._loadPlans();
-            },
-        });
+                },
+            });
     }
 
     private _loadMyListFeatures(): void {
@@ -647,7 +667,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                 next: (response) => {
                     const plans = response?.data?.plans ?? [];
                     const filtered = plans.filter(
-                        (p) => p.interval === this.selectedInterval && !p.isSmartcheck
+                        (p) => p.interval === this.selectedInterval
                     );
                     this._processPlans(filtered);
                     this.loadingPlans = false;
@@ -712,7 +732,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         subscription.changesRight = changes.slice(middleIndex);
 
         this.currentSubscription.amountByMonth =
-            (this.currentSubscription.amount || subscription.amount) / (subscription.intervalCount * 12);
+            (this.currentSubscription.amount || subscription.amount) /
+            (subscription.intervalCount * 12);
 
         // Set interval for UI
         this.selectedInterval = subscription.interval as 'month' | 'year';
