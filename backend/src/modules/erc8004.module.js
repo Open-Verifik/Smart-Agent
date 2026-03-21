@@ -174,7 +174,6 @@ const waitForTransaction = async (txHash) => {
     if (!provider) initialize();
     if (!provider) throw new Error("Provider not initialized");
 
-    console.log(`[ERC8004] Waiting for transaction: ${txHash}`);
     try {
         // Wait for 1 confirmation
         const receipt = await provider.waitForTransaction(txHash, 1, 30000); // 30s timeout
