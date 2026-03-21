@@ -3,6 +3,7 @@ export type ChangesInPrice = {
     addOn: string;
     baseCategory?: string;
     codes?: string[];
+    code?: string;
     count?: number;
     discount?: number;
     group?: string;
@@ -88,6 +89,7 @@ export type AppFeature = {
     code: string;
     name: string;
     price: number;
+    smartCheckPrice?: number;
     group?: string;
     baseCategory?: string;
     country?: string;

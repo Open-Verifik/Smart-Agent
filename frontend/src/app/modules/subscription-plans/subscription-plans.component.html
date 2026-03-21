@@ -239,9 +239,8 @@
                                 </tr>
                                 <tr
                                     *ngFor="let feature of group.features; trackBy: trackByFeature"
-                                    (click)="openPostmanForFeature(feature)"
-                                    (mouseenter)="showEndpointUrlToast(feature)"
-                                    [class.cursor-pointer]="!!feature?.code"
+                                    (click)="openFeatureModal(feature)"
+                                    class="cursor-pointer"
                                 >
                                     <td>{{ getFeatureDisplayName(feature) }}</td>
                                     <td>
@@ -461,9 +460,8 @@
                                 </tr>
                                 <tr
                                     *ngFor="let feature of group.features; trackBy: trackByFeature"
-                                    (click)="openPostmanForFeature(feature)"
-                                    (mouseenter)="showEndpointUrlToast(feature)"
-                                    [class.cursor-pointer]="!!feature?.code"
+                                    (click)="openFeatureModal(feature)"
+                                    class="cursor-pointer"
                                 >
                                     <td>{{ getFeatureDisplayName(feature) }}</td>
                                     <td *ngFor="let plan of apiBreakdownPlans; trackBy: trackByPlan">
@@ -768,6 +766,94 @@
                     />
                 </svg>
                 Back to current plan
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PRIVY-STYLE API FEATURE MODAL                -->
+<!-- ============================================ -->
+<div class="privy-modal-backdrop" *ngIf="selectedFeatureForModal" (click)="closeFeatureModal()">
+    <div class="privy-modal-container" (click)="$event.stopPropagation()">
+        <!-- Close Button -->
+        <button class="privy-modal-close" (click)="closeFeatureModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+        
+        <!-- Header -->
+        <div class="privy-modal-header">
+            <div class="privy-modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="url(#privy-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <defs>
+                        <linearGradient id="privy-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#8b5cf6" />
+                            <stop offset="100%" stop-color="#3b82f6" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+            </div>
+            <h2>{{ getFeatureDisplayName(selectedFeatureForModal) }}</h2>
+            <p class="privy-modal-category">{{ getCategoryDisplayName(selectedFeatureForModal.baseCategory) || 'API Endpoint' }}</p>
+        </div>
+
+        <!-- Content Details -->
+        <div class="privy-modal-content">
+            <div class="privy-detail-group">
+                <label>Endpoint URL</label>
+                <div class="privy-code-block" (click)="copyUrlToClipboard(selectedFeatureForModal.url)">
+                    <span>{{ getFullEndpointUrl(selectedFeatureForModal.url) }}</span>
+                    <button class="privy-copy-btn" title="Copy URL">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="privy-detail-row">
+                <div class="privy-detail-group" *ngIf="selectedFeatureForModal.code">
+                    <label>Internal Code</label>
+                    <div class="privy-badge">{{ selectedFeatureForModal.code }}</div>
+                </div>
+                <div class="privy-detail-group" *ngIf="selectedFeatureForModal.country">
+                    <label>Region</label>
+                    <div class="privy-badge privy-badge-outline">{{ getCountryDisplayName(selectedFeatureForModal.country) || selectedFeatureForModal.country }}</div>
+                </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="privy-detail-group pricing-group" *ngIf="currentSubscription">
+                <label>Your Pricing</label>
+                <div class="privy-price-display">
+                    <span class="privy-price-amount">{{ getEffectivePriceForApi(selectedFeatureForModal, currentSubscription.subscriptionPlan) | number:'1.2-4' }}</span>
+                    <span class="privy-price-currency">CREDITS <span class="muted">/ request</span></span>
+                </div>
+            </div>
+            <!-- If NO subscription, show standard AppFeature price natively -->
+            <div class="privy-detail-group pricing-group" *ngIf="!currentSubscription">
+                <label>Standard API Price</label>
+                <div class="privy-price-display">
+                    <span class="privy-price-amount">{{ (selectedFeatureForModal.price ?? 0) | number:'1.2-4' }}</span>
+                    <span class="privy-price-currency">CREDITS <span class="muted">/ request</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="privy-modal-footer">
+            <button class="privy-btn-primary" (click)="openPostmanForFeature(selectedFeatureForModal)" [disabled]="!selectedFeatureForModal.code">
+                Open in Postman
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
             </button>
         </div>
     </div>

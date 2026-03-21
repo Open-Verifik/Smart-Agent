@@ -2135,7 +2135,329 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
     svg {
       width: 16px;
+    }
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ================================
+// PRIVY FEATURE MODAL
+// ================================
+.privy-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.2s ease-out;
+
+  :host-context(.dark) & {
+    background: rgba(15, 23, 42, 0.6);
+  }
+}
+
+.privy-modal-container {
+  background: $light-surface;
+  border: 1px solid $light-card-border;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  position: relative;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+  :host-context(.dark) & {
+    background: $dark-surface;
+    border-color: $dark-card-border;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+}
+
+.privy-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: $light-text-muted;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include smooth-transition;
+
+  :host-context(.dark) & { color: $dark-text-muted; }
+
+  &:hover {
+    background: rgba(15, 23, 42, 0.05);
+    color: $light-text-primary;
+    
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.1);
+      color: $dark-text-primary;
+    }
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.privy-modal-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  .privy-modal-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+    background: rgba(139, 92, 246, 0.1);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: $light-text-primary;
+    margin: 0 0 4px;
+    line-height: 1.3;
+
+    :host-context(.dark) & { color: $dark-text-primary; }
+  }
+
+  .privy-modal-category {
+    font-size: 14px;
+    font-weight: 500;
+    color: $light-text-secondary;
+    margin: 0;
+    
+    :host-context(.dark) & { color: $dark-text-secondary; }
+  }
+}
+
+.privy-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.privy-detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.privy-detail-group {
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: $light-text-secondary;
+    margin-bottom: 8px;
+
+    :host-context(.dark) & { color: $dark-text-secondary; }
+  }
+
+  .privy-code-block {
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    &:hover {
+      background: rgba(15, 23, 42, 0.06);
+      border-color: rgba(15, 23, 42, 0.12);
+
+      :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+      
+      .privy-copy-btn { color: $accent-purple; }
+    }
+
+    span {
+      font-size: 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: $light-text-primary;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      :host-context(.dark) & { color: $dark-text-primary; }
+    }
+  }
+
+  .privy-copy-btn {
+    background: transparent;
+    border: none;
+    color: $light-text-muted;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 4px;
+    @include smooth-transition;
+
+    :host-context(.dark) & { color: $dark-text-muted; }
+
+    svg {
+      width: 16px;
       height: 16px;
     }
+  }
+
+  .privy-badge {
+    display: inline-flex;
+    padding: 8px 12px;
+    background: rgba(99, 102, 241, 0.08);
+    color: $accent-purple;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+
+    :host-context(.dark) & {
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    &.privy-badge-outline {
+      background: transparent;
+      border: 1px solid $light-card-border;
+      color: $light-text-secondary;
+
+      :host-context(.dark) & {
+        border-color: $dark-card-border;
+        color: $dark-text-secondary;
+      }
+    }
+  }
+}
+
+.pricing-group {
+  margin-top: 4px;
+  padding-top: 24px;
+  border-top: 1px solid $light-card-border;
+
+  :host-context(.dark) & {
+    border-color: $dark-card-border;
+  }
+}
+
+.privy-price-display {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+
+  .privy-price-amount {
+    font-size: 32px;
+    font-weight: 800;
+    color: $light-text-primary;
+    line-height: 1;
+
+    :host-context(.dark) & { color: $dark-text-primary; }
+  }
+
+  .privy-price-currency {
+    font-size: 12px;
+    font-weight: 700;
+    color: $accent-purple;
+
+    .muted {
+      color: $light-text-muted;
+      font-weight: 500;
+
+      :host-context(.dark) & { color: $dark-text-muted; }
+    }
+  }
+}
+
+.privy-modal-footer {
+  .privy-btn-primary {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    background: $light-text-primary;
+    color: $light-surface;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    @include smooth-transition;
+
+    :host-context(.dark) & {
+      background: $dark-text-primary;
+      color: $dark-bg;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.2);
+
+      :host-context(.dark) & {
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

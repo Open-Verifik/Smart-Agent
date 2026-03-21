@@ -9,7 +9,7 @@ const genericEndpoints = [];
 for (const key in translationData.appFeatures) {
     const feature = translationData.appFeatures[key];
     if (
-        feature.title.includes('Vehicle Verification') || 
+        feature.title.includes('Vehicle Verification') ||
         feature.title.includes('Data Verification Service') ||
         feature.description.includes('General data verification') ||
         feature.description.includes('Standard vehicle verification') ||
@@ -19,10 +19,12 @@ for (const key in translationData.appFeatures) {
         genericEndpoints.push({
             code: key,
             title: feature.title,
-            description: feature.description
+            description: feature.description,
         });
     }
 }
 
-fs.writeFileSync(path.join(__dirname, 'global-generic.json'), JSON.stringify(genericEndpoints, null, 2));
-console.log(`Found ${genericEndpoints.length} generic endpoints globally.`);
+fs.writeFileSync(
+    path.join(__dirname, 'global-generic.json'),
+    JSON.stringify(genericEndpoints, null, 2)
+);

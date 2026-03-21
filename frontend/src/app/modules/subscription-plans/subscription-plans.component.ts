@@ -65,6 +65,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     showBillingRequiredModal = false;
     selectedPlanForChange: SubscriptionPlan | null = null;
     selectedPlanRequests = 0;
+    selectedFeatureForModal: AppFeature | null = null;
 
     // Data
     servicesByCountry: any = {};
@@ -200,25 +201,40 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     showEndpointUrlToast(feature: AppFeature): void {
-        let fullUrl = '';
-        if (feature?.url) {
-            fullUrl = feature.url.startsWith('http')
-                ? feature.url
-                : `${environment.apiUrl.replace(/\/$/, '')}/${feature.url.replace(/^\//, '')}`;
-        }
-        if (!fullUrl) return;
-        this._snackBar.open(fullUrl, undefined, { duration: 3000 });
+        // Deprecated: replaced by Privy modal
+        this.openFeatureModal(feature);
+    }
+    
+    openFeatureModal(feature: AppFeature): void {
+        this.selectedFeatureForModal = feature;
+    }
+
+    closeFeatureModal(): void {
+        this.selectedFeatureForModal = null;
+    }
+
+    getFullEndpointUrl(url?: string): string {
+        if (!url) return 'N/A';
+        return url.startsWith('http')
+            ? url
+            : `${environment.apiUrl.replace(/\/$/, '')}/${url.replace(/^\//, '')}`;
+    }
+
+    copyUrlToClipboard(url?: string): void {
+        const fullUrl = this.getFullEndpointUrl(url);
+        if (!fullUrl || fullUrl === 'N/A') return;
+        navigator.clipboard.writeText(fullUrl).then(() => {
+            this._snackBar.open('URL copied to clipboard!', undefined, { duration: 2000 });
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+        });
     }
 
     getEffectivePriceForApi(feature: AppFeature, plan: SubscriptionPlan): number {
-        const basePrice = feature.price;
-        const d = plan.discount;
-        const discount = d?.discount ?? 0;
-        if (!discount) return basePrice;
-        if (d!.type === 'amount') {
-            return Math.max(0, basePrice - discount);
-        }
-        return Math.max(0, basePrice * (1 - discount / 100));
+        const isSmartCheckPlan = Boolean(plan.isSmartcheck);
+        return isSmartCheckPlan && feature.smartCheckPrice != null
+            ? feature.smartCheckPrice
+            : (feature.price ?? 0);
     }
 
     private _loadApiFeatures(): void {
