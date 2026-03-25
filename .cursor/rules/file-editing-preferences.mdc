@@ -1,0 +1,25 @@
+---
+description: Prefer visible IDE-native file edits over shell/Python rewrites
+alwaysApply: true
+---
+
+# File editing (diff visibility)
+
+## Required approach
+
+- **Change source, config, and translation files using Cursor-native tools** (e.g. `StrReplace`, `Write`, or the editor’s apply-patch flow) so edits show up as normal, reviewable diffs in the IDE and in git.
+- **Do not** rewrite tracked files with one-off **Python scripts**, **`sed`/`awk` pipelines**, **`perl -pi`**, or **`cat <<EOF`** unless the user **explicitly asks** for that approach or native tools have failed and you have **stated that** and gotten confirmation.
+
+## Why
+
+Bulk terminal rewrites bypass the usual patch UX, make it hard to see what changed line-by-line, and are easy to get wrong silently.
+
+## If writes fail (e.g. permissions)
+
+- Prefer fixing ownership/permissions with the user’s help, then use native edits.
+- Do not switch to opaque shell rewrites as the default workaround.
+
+## Exceptions
+
+- **Generated or binary artifacts** where the project already uses a documented generator.
+- **Read-only** inspection (`grep`, `rg`, read-only `node -e` to print values) is fine; the rule targets **mutating** file content.

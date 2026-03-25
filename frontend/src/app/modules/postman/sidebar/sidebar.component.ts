@@ -127,7 +127,7 @@ import { ApiEndpoint } from '../postman.types';
               >
                 {{ collapsed ? endpoint.method.substring(0, 1) : endpoint.method }}
               </span>
-              <span *ngIf="!collapsed" class="truncate">
+              <span *ngIf="!collapsed" class="truncate select-text">
                 {{
                   endpoint.code
                     ? ('appFeatures.' + endpoint.code + '.title' | transloco)

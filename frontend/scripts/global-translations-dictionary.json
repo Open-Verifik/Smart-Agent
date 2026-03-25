@@ -39,23 +39,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "KYC Solution",
+      "title": "Solution KYC",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "KYC Solution",
+      "title": "Solução KYC",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "KYC Solution",
+      "title": "KYCソリューション",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "KYC Solution",
+      "title": "KYC 솔루션",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "KYC Solution",
+      "title": "KYC 身份核验方案",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -69,23 +69,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Mondial - COVID Statistics",
+      "title": "Mondial - Statistiques COVID",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Global - COVID Statistics",
+      "title": "Global - Estatísticas COVID",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "グローバル - COVID Statistics",
+      "title": "グローバル - COVID統計",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "글로벌 - COVID Statistics",
+      "title": "글로벌 - COVID 통계",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "全球 - COVID Statistics",
+      "title": "全球 - 新冠疫情统计",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -189,23 +189,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Passwordless Authentication",
+      "title": "Authentification sans mot de passe",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Passwordless Authentication",
+      "title": "Autenticação sem senha",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Passwordless Authentication",
+      "title": "パスワードレス認証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Passwordless Authentication",
+      "title": "비밀번호 없는 인증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Passwordless Authentication",
+      "title": "无密码身份验证",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -369,23 +369,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Data API",
+      "title": "API de données",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Data API",
+      "title": "API de Dados",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Data API",
+      "title": "データAPI",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Data API",
+      "title": "데이터 API",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Data API",
+      "title": "数据 API",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -399,23 +399,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "PDF Report Generator",
+      "title": "Générateur de rapports PDF",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "PDF Report Generator",
+      "title": "Gerador de Relatórios PDF",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "PDF Report Generator",
+      "title": "PDFレポート生成",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "PDF Report Generator",
+      "title": "PDF 보고서 생성기",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "PDF Report Generator",
+      "title": "PDF 报告生成器",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -789,23 +789,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "États-Unis - Driver License Verification",
+      "title": "États-Unis - Vérification du permis de conduire",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "EUA - Driver License Verification",
+      "title": "EUA - Verificação da carteira de motorista",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "アメリカ - Driver License Verification",
+      "title": "アメリカ - 運転免許証の確認",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "미국 - Driver License Verification",
+      "title": "미국 - 운전면허 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "美国 - Driver License Verification",
+      "title": "美国 - 驾驶证核验",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -819,23 +819,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Credit Purchase Intent",
+      "title": "Intention d'achat de crédits",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Credit Purchase Intent",
+      "title": "Intenção de Compra de Créditos",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Credit Purchase Intent",
+      "title": "クレジット購入意向",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Credit Purchase Intent",
+      "title": "크레딧 구매 의도",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Credit Purchase Intent",
+      "title": "积分购买意向",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -849,23 +849,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "IP Geolocation Lookup",
+      "title": "Géolocalisation IP",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "IP Geolocation Lookup",
+      "title": "Consulta de Geolocalização IP",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "IP Geolocation Lookup",
+      "title": "IP位置情報照会",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "IP Geolocation Lookup",
+      "title": "IP 지리위치 조회",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "IP Geolocation Lookup",
+      "title": "IP 地理位置查询",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -879,23 +879,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "SMS Messaging",
+      "title": "Messagerie SMS",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "SMS Messaging",
+      "title": "Mensagens SMS",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "SMS Messaging",
+      "title": "SMSメッセージ",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "SMS Messaging",
+      "title": "SMS 메시징",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "SMS Messaging",
+      "title": "短信消息",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -909,23 +909,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Colombie - WhatsApp Messaging",
+      "title": "Colombie - Messagerie WhatsApp",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Colômbia - WhatsApp Messaging",
+      "title": "Colômbia - Mensagens WhatsApp",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "コロンビア - WhatsApp Messaging",
+      "title": "コロンビア - WhatsAppメッセージ",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "콜롬비아 - WhatsApp Messaging",
+      "title": "콜롬비아 - WhatsApp 메시지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "哥伦比亚 - WhatsApp Messaging",
+      "title": "哥伦比亚 - WhatsApp消息",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -939,23 +939,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Mondial - WhatsApp Messaging",
+      "title": "Mondial - Messagerie WhatsApp",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Global - WhatsApp Messaging",
+      "title": "Global - Mensagens WhatsApp",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "グローバル - WhatsApp Messaging",
+      "title": "グローバル - WhatsAppメッセージ",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "글로벌 - WhatsApp Messaging",
+      "title": "글로벌 - WhatsApp 메시지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "全球 - WhatsApp Messaging",
+      "title": "全球 - WhatsApp消息",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -969,23 +969,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Email OTP",
+      "title": "OTP par e-mail",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Email OTP",
+      "title": "OTP por E-mail",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Email OTP",
+      "title": "メールOTP",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Email OTP",
+      "title": "이메일 OTP",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Email OTP",
+      "title": "邮件 OTP",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -999,23 +999,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "3D Liveness Detection",
+      "title": "Détection vivacité 3D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "3D Liveness Detection",
+      "title": "Detecção de Vivacidade 3D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "3D Liveness Detection",
+      "title": "3Dライブネス検出",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "3D Liveness Detection",
+      "title": "3D 라이브니스 감지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "3D Liveness Detection",
+      "title": "3D 活体检测",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1029,23 +1029,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "3D Age Estimation",
+      "title": "Estimation d'âge 3D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "3D Age Estimation",
+      "title": "Estimativa de Idade 3D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "3D Age Estimation",
+      "title": "3D年齢推定",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "3D Age Estimation",
+      "title": "3D 나이 추정",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "3D Age Estimation",
+      "title": "3D 年龄估计",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1059,23 +1059,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "3D Age Verification",
+      "title": "Vérification d'âge 3D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "3D Age Verification",
+      "title": "Verificação de Idade 3D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "3D Age Verification",
+      "title": "3D年齢確認",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "3D Age Verification",
+      "title": "3D 나이 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "3D Age Verification",
+      "title": "3D 年龄核验",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1089,23 +1089,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "3D Biometric Enrollment",
+      "title": "Enrôlement biométrique 3D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "3D Biometric Enrollment",
+      "title": "Cadastro Biométrico 3D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "3D Biometric Enrollment",
+      "title": "3D生体登録",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "3D Biometric Enrollment",
+      "title": "3D 바이오 등록",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "3D Biometric Enrollment",
+      "title": "3D 生物特征注册",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1119,23 +1119,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "ID Document Scan",
+      "title": "Scan de pièce d'identité",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "ID Document Scan",
+      "title": "Escaneamento de Documento de ID",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "ID Document Scan",
+      "title": "身分証スキャン",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "ID Document Scan",
+      "title": "신분증 스캔",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "ID Document Scan",
+      "title": "证件扫描",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1149,23 +1149,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "2D Liveness Detection",
+      "title": "Détection vivacité 2D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "2D Liveness Detection",
+      "title": "Detecção de Vivacidade 2D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "2D Liveness Detection",
+      "title": "2Dライブネス検出",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "2D Liveness Detection",
+      "title": "2D 라이브니스 감지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "2D Liveness Detection",
+      "title": "2D 活体检测",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1179,23 +1179,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "2D Age Estimation",
+      "title": "Estimation d'âge 2D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "2D Age Estimation",
+      "title": "Estimativa de Idade 2D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "2D Age Estimation",
+      "title": "2D年齢推定",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "2D Age Estimation",
+      "title": "2D 나이 추정",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "2D Age Estimation",
+      "title": "2D 年龄估计",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1209,23 +1209,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "2D Age Verification",
+      "title": "Vérification d'âge 2D",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "2D Age Verification",
+      "title": "Verificação de Idade 2D",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "2D Age Verification",
+      "title": "2D年齢確認",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "2D Age Verification",
+      "title": "2D 나이 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "2D Age Verification",
+      "title": "2D 年龄核验",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1239,23 +1239,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "KYC Passwordless Credit Intent",
+      "title": "Intention de crédit KYC sans mot de passe",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "KYC Passwordless Credit Intent",
+      "title": "Intenção de Crédito KYC sem Senha",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "KYC Passwordless Credit Intent",
+      "title": "KYCパスワードレスクレジット意向",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "KYC Passwordless Credit Intent",
+      "title": "KYC 비밀번호 없는 크레딧 의도",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "KYC Passwordless Credit Intent",
+      "title": "KYC 无密码积分意向",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1449,23 +1449,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Vehicle Manufacturers Database",
+      "title": "Base fabricants véhicules",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Vehicle Manufacturers Database",
+      "title": "Base de Fabricantes de Veículos",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Vehicle Manufacturers Database",
+      "title": "車両メーカーデータベース",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Vehicle Manufacturers Database",
+      "title": "차량 제조사 데이터베이스",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Vehicle Manufacturers Database",
+      "title": "车辆制造商数据库",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1479,23 +1479,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Mondial - Phone Lookup",
+      "title": "Mondial - Recherche téléphonique",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Global - Phone Lookup",
+      "title": "Global - Consulta de telefone",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "グローバル - Phone Lookup",
+      "title": "グローバル - 電話番号照会",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "글로벌 - Phone Lookup",
+      "title": "글로벌 - 전화 번호 조회",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "全球 - Phone Lookup",
+      "title": "全球 - 电话查询",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1599,23 +1599,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Vehicle Engine Database",
+      "title": "Base moteurs véhicules",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Vehicle Engine Database",
+      "title": "Base de Motores de Veículos",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Vehicle Engine Database",
+      "title": "車両エンジンデータベース",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Vehicle Engine Database",
+      "title": "차량 엔진 데이터베이스",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Vehicle Engine Database",
+      "title": "车辆发动机数据库",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1629,23 +1629,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Vehicle Engine Code Lookup",
+      "title": "Recherche code moteur",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Vehicle Engine Code Lookup",
+      "title": "Consulta de Código do Motor",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Vehicle Engine Code Lookup",
+      "title": "エンジンコード照会",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Vehicle Engine Code Lookup",
+      "title": "엔진 코드 조회",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Vehicle Engine Code Lookup",
+      "title": "发动机代码查询",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1659,23 +1659,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Vehicle Selection Database",
+      "title": "Base sélection véhicules",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Vehicle Selection Database",
+      "title": "Base de Seleção de Veículos",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Vehicle Selection Database",
+      "title": "車両選択データベース",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Vehicle Selection Database",
+      "title": "차량 선택 데이터베이스",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Vehicle Selection Database",
+      "title": "车辆选型数据库",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1689,23 +1689,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Financial - Income Statement",
+      "title": "Financier - Compte de résultat",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Financial - Income Statement",
+      "title": "Financeiro - Demonstração de resultados",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Financial - Income Statement",
+      "title": "財務 - 損益計算書",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Financial - Income Statement",
+      "title": "재무 - 손익계산서",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Financial - Income Statement",
+      "title": "财务 - 利润表",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1719,23 +1719,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Financial - Balance Sheet",
+      "title": "Financier - Bilan",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Financial - Balance Sheet",
+      "title": "Financeiro - Balanço patrimonial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Financial - Balance Sheet",
+      "title": "財務 - 貸借対照表",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Financial - Balance Sheet",
+      "title": "재무 - 대차대조표",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Financial - Balance Sheet",
+      "title": "财务 - 资产负债表",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1749,23 +1749,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Financial - Cash Flow",
+      "title": "Financier - Flux de trésorerie",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Financial - Cash Flow",
+      "title": "Financeiro - Fluxo de caixa",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Financial - Cash Flow",
+      "title": "財務 - キャッシュフロー",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Financial - Cash Flow",
+      "title": "재무 - 현금흐름",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Financial - Cash Flow",
+      "title": "财务 - 现金流量",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1779,23 +1779,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Financial - Stock Price",
+      "title": "Financier - Prix de l'action",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Financial - Stock Price",
+      "title": "Financeiro - Preço das ações",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Financial - Stock Price",
+      "title": "財務 - 株価",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Financial - Stock Price",
+      "title": "재무 - 주가",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Financial - Stock Price",
+      "title": "财务 - 股票价格",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -1929,23 +1929,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "OCR Document Scan Pro",
+      "title": "Scan OCR Pro",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "OCR Document Scan Pro",
+      "title": "Escaneamento OCR Pro",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "OCR Document Scan Pro",
+      "title": "OCRドキュメントスキャン Pro",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "OCR Document Scan Pro",
+      "title": "OCR 문서 스캔 Pro",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "OCR Document Scan Pro",
+      "title": "OCR 文档扫描 Pro",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2019,15 +2019,15 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Scan OCR de Documents GPT",
+      "title": "Scan OCR GPT",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Scan OCR de Documentos GPT",
+      "title": "Escaneamento OCR GPT",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "OCR文書スキャンGPT",
+      "title": "OCRドキュメントスキャン GPT",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
@@ -2079,23 +2079,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "OCR Document Scan Studio",
+      "title": "Scan OCR Studio",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "OCR Document Scan Studio",
+      "title": "Escaneamento OCR Studio",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "OCR Document Scan Studio",
+      "title": "OCRドキュメントスキャン Studio",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "OCR Document Scan Studio",
+      "title": "OCR 문서 스캔 Studio",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "OCR Document Scan Studio",
+      "title": "OCR 文档扫描 Studio",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2199,23 +2199,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Comparison",
+      "title": "Comparaison faciale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Comparison",
+      "title": "Comparação Facial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Comparison",
+      "title": "顔照合",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Comparison",
+      "title": "얼굴 비교",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Comparison",
+      "title": "人脸比对",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2229,23 +2229,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Live Face Comparison",
+      "title": "Comparaison faciale en direct",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Live Face Comparison",
+      "title": "Comparação Facial ao Vivo",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Live Face Comparison",
+      "title": "ライブ顔照合",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Live Face Comparison",
+      "title": "실시간 얼굴 비교",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Live Face Comparison",
+      "title": "实时人脸比对",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2259,23 +2259,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Liveness Detection",
+      "title": "Détection vivacité faciale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Liveness Detection",
+      "title": "Detecção de Vivacidade Facial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Liveness Detection",
+      "title": "顔ライブネス検出",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Liveness Detection",
+      "title": "얼굴 라이브니스 감지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Liveness Detection",
+      "title": "人脸活体检测",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2289,23 +2289,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Live Face Search",
+      "title": "Recherche faciale en direct",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Live Face Search",
+      "title": "Busca Facial ao Vivo",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Live Face Search",
+      "title": "ライブ顔検索",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Live Face Search",
+      "title": "실시간 얼굴 검색",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Live Face Search",
+      "title": "实时人脸搜索",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2319,23 +2319,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Verification",
+      "title": "Vérification faciale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Verification",
+      "title": "Verificação Facial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Verification",
+      "title": "顔認証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Verification",
+      "title": "얼굴 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Verification",
+      "title": "人脸核验",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2349,23 +2349,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Detection",
+      "title": "Détection faciale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Detection",
+      "title": "Detecção Facial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Detection",
+      "title": "顔検出",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Detection",
+      "title": "얼굴 감지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Detection",
+      "title": "人脸检测",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2379,23 +2379,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Search (Crops)",
+      "title": "Recherche faciale (recadrages)",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Search (Crops)",
+      "title": "Busca Facial (Recortes)",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Search (Crops)",
+      "title": "顔検索（クロップ）",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Search (Crops)",
+      "title": "얼굴 검색(크롭)",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Search (Crops)",
+      "title": "人脸搜索（裁剪）",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2409,23 +2409,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Search",
+      "title": "Recherche faciale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Search",
+      "title": "Busca Facial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Search",
+      "title": "顔検索",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Search",
+      "title": "얼굴 검색",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Search",
+      "title": "人脸搜索",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2641,31 +2641,31 @@
   },
   "costa_rica_api_business_lookup": {
     "en": {
-      "title": " - Company Lookup",
+      "title": "Costa Rica - Company Lookup",
       "description": "Provides reliable verification and validation services."
     },
     "es": {
-      "title": " - Consulta de Empresa",
+      "title": "Costa Rica - Consulta de Empresa",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": " - Company Lookup",
+      "title": "Costa Rica - Recherche d'Entreprise",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": " - Company Lookup",
+      "title": "Costa Rica - Consulta de Empresa",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": " - Company Lookup",
+      "title": "コスタリカ - 企業検索",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": " - Company Lookup",
+      "title": "코스타리카 - 기업 조회",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": " - Company Lookup",
+      "title": "哥斯达黎加 - 企业查询",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2709,23 +2709,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Vehicle Data Sheet",
+      "title": "Fiche technique véhicule",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Vehicle Data Sheet",
+      "title": "Ficha Técnica do Veículo",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Vehicle Data Sheet",
+      "title": "車両データシート",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Vehicle Data Sheet",
+      "title": "차량 데이터 시트",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Vehicle Data Sheet",
+      "title": "车辆数据表",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2769,23 +2769,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Search (Active User)",
+      "title": "Recherche faciale (utilisateur actif)",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Search (Active User)",
+      "title": "Busca Facial (Usuário Ativo)",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Search (Active User)",
+      "title": "顔検索（アクティブユーザー）",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Search (Active User)",
+      "title": "얼굴 검색(활성 사용자)",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Search (Active User)",
+      "title": "人脸搜索（活跃用户）",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2799,23 +2799,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "MATPIS Appointments",
+      "title": "Rendez-vous MATPIS",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "MATPIS Appointments",
+      "title": "Agendamentos MATPIS",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "MATPIS Appointments",
+      "title": "MATPIS予約",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "MATPIS Appointments",
+      "title": "MATPIS 예약",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "MATPIS Appointments",
+      "title": "MATPIS 预约",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -2941,31 +2941,31 @@
   },
   "costa_rica_api_vehicle": {
     "en": {
-      "title": " - Vehicle Verification",
+      "title": "Costa Rica - Vehicle Verification",
       "description": "Provides reliable verification and validation services."
     },
     "es": {
-      "title": " - Verificación de Vehículos",
+      "title": "Costa Rica - Verificación de Vehículos",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": " - Vehicle Verification",
+      "title": "Costa Rica - Vérification de Véhicule",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": " - Vehicle Verification",
+      "title": "Costa Rica - Verificação de Veículo",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": " - Vehicle Verification",
+      "title": "コスタリカ - 車両検証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": " - Vehicle Verification",
+      "title": "코스타리카 - 차량 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": " - Vehicle Verification",
+      "title": "哥斯达黎加 - 车辆验证",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -3339,23 +3339,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Face Detection",
+      "title": "Détection faciale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Face Detection",
+      "title": "Detecção Facial",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Face Detection",
+      "title": "顔検出",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Face Detection",
+      "title": "얼굴 감지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Face Detection",
+      "title": "人脸检测",
       "description": "提供可靠的验证和验证服务。"
     }
   },
@@ -3369,23 +3369,23 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "fr": {
-      "title": "Document Liveness Detection",
+      "title": "Détection vivacité document",
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "pt": {
-      "title": "Document Liveness Detection",
+      "title": "Detecção de Vivacidade de Documento",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "ja": {
-      "title": "Document Liveness Detection",
+      "title": "書類ライブネス検出",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "ko": {
-      "title": "Document Liveness Detection",
+      "title": "문서 라이브니스 감지",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "zh": {
-      "title": "Document Liveness Detection",
+      "title": "证件活体检测",
       "description": "提供可靠的验证和验证服务。"
     }
   }

@@ -45,20 +45,20 @@
       "description": "Verify the active SOAT (Compulsory Traffic Accident Insurance) policies and details for a given vehicle plate."
     },
     "usa_api_vehicle": {
-      "title": " - Vehicle Verification",
-      "description": "Standard vehicle verification service for . Verifies vehicle registration and basic information."
+      "title": "USA - Vehicle Verification",
+      "description": "Provides reliable verification and validation services."
     },
     "world_api_onu": {
       "title": "Global - UN Sanctions Check",
       "description": "Check individuals and entities against United Nations sanctions lists. Search by full name OR document number with document type. Verify compliance with international sanctions regimes."
     },
     "feature_kyc_solution": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "KYC Solution",
+      "description": "Provides reliable verification and validation services."
     },
     "world_api_covid": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Global - COVID Statistics",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_affiliations": {
       "title": "Colombia - Health Affiliations",
@@ -85,8 +85,8 @@
       "description": "Standard vehicle verification service for Mexico. Verifies vehicle registration and basic information."
     },
     "feature_passwordless_solution": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Passwordless Authentication",
+      "description": "Provides reliable verification and validation services."
     },
     "world_api_interpol": {
       "title": "Global - Interpol Background Check",
@@ -137,8 +137,8 @@
       "description": "Standard vehicle verification service for Ecuador. Verifies vehicle registration and basic information."
     },
     "feature_data_api": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Data API",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_min_trabajo": {
       "title": "Colombia - Labor Certificates Verification",
@@ -169,8 +169,8 @@
       "description": "Check current transit restrictions (Pico y Placa) for a specific vehicle across various Colombian cities."
     },
     "feature_pdf_generator": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "PDF Report Generator",
+      "description": "Provides reliable verification and validation services."
     },
     "panama_api_identity_full_lookup": {
       "title": "Panama - Complete Identity Verification",
@@ -233,48 +233,48 @@
       "description": "Standard identity verification service for Brazil citizens. Verifies personal information and document authenticity."
     },
     "usa_api_driver_license_lookup": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "USA - Driver License Verification",
+      "description": "Provides reliable verification and validation services."
     },
     "consultar_procesos_judiciales": {
       "title": "Colombia - Judicial Processes History",
       "description": "Check complete judicial history and active legal processes."
     },
     "credit_intent": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Credit Purchase Intent",
+      "description": "Provides reliable verification and validation services."
     },
     "ip-lookup": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "IP Geolocation Lookup",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_judicial_records": {
       "title": "Colombia - Judicial Records Database",
       "description": "Check individual judicial records and background information from official sources."
     },
     "communication_messaging_sms": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "SMS Messaging",
+      "description": "Provides reliable verification and validation services."
     },
     "communication_colombia_messaging_whatsapp": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Colombia - WhatsApp Messaging",
+      "description": "Provides reliable verification and validation services."
     },
     "communication_global_messaging_whatsapp": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Global - WhatsApp Messaging",
+      "description": "Provides reliable verification and validation services."
     },
     "communication_global_email_otp": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Email OTP",
+      "description": "Provides reliable verification and validation services."
     },
     "biometrics_id_scan_only": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "ID Document Scan",
+      "description": "Provides reliable verification and validation services."
     },
     "credit_intent_kyc_passwordless": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "KYC Passwordless Credit Intent",
+      "description": "Provides reliable verification and validation services."
     },
     "brasil_api_company_lookup": {
       "title": "Brazil - Brasil Api Company Lookup",
@@ -293,8 +293,8 @@
       "description": "General data verification service for Ecuador. Provides reliable information verification and validation."
     },
     "usa_api_ssn": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "USA - SSN Verification",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_dian_invoicer": {
       "title": "Colombia - DIAN Electronic Invoicer Data",
@@ -317,12 +317,12 @@
       "description": "Verify if an individual is classified as a Politically Exposed Person (PEP) in Colombia."
     },
     "api_autodata_manufacturers": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Vehicle Manufacturers Database",
+      "description": "Provides reliable verification and validation services."
     },
     "world_api_phone_lookup": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Global - Phone Lookup",
+      "description": "Provides reliable verification and validation services."
     },
     "Mexico_api_ine_model_e": {
       "title": "Mexico - Ine Model E",
@@ -337,40 +337,40 @@
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "api_autodata_enginer": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Vehicle Engine Database",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_rues_full": {
       "title": "Colombia - Complete Business Details (RUES)",
       "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
     },
     "api_autodata_enginer_code": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Vehicle Engine Code Lookup",
+      "description": "Provides reliable verification and validation services."
     },
     "api_autodata_selection": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Vehicle Selection Database",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_sisconmp": {
       "title": "Colombia - Passenger Transport Registry (SISCONMP)",
       "description": "Verify driver suitability and vehicle operation capabilities for public transport operations."
     },
     "data_finance_incomestatement": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Financial - Income Statement",
+      "description": "Provides reliable verification and validation services."
     },
     "data_finance_balancesheet": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Financial - Balance Sheet",
+      "description": "Provides reliable verification and validation services."
     },
     "data_finance_cashflow": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Financial - Cash Flow",
+      "description": "Provides reliable verification and validation services."
     },
     "data_finance_stockprice": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Financial - Stock Price",
+      "description": "Provides reliable verification and validation services."
     },
     "paraguay_api_identity_lookup": {
       "title": "Paraguay - Identity Lookup",
@@ -393,8 +393,8 @@
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "ocr_scan_pro": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "OCR Document Scan Pro",
+      "description": "Provides reliable verification and validation services."
     },
     "el_salvador_api_identity_lookup": {
       "title": "El Salvador - El Salvador Api Identity Lookup",
@@ -405,8 +405,8 @@
       "description": "General data verification service for Canada. Provides reliable information verification and validation."
     },
     "ocr_scan_gpt": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "OCR Document Scan GPT",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_identity_lookup_extra": {
       "title": "Colombia - Complete Identity Verification",
@@ -417,8 +417,8 @@
       "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
     },
     "ocr_scan_studio": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "OCR Document Scan Studio",
+      "description": "Provides reliable verification and validation services."
     },
     "canada_api_company": {
       "title": "Canada - Company",
@@ -433,36 +433,36 @@
       "description": "General data verification service for Mexico. Provides reliable information verification and validation."
     },
     "face_recognition_compare": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Comparison",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_compare_live": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Live Face Comparison",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_liveness": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Liveness Detection",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_search_live_face": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Live Face Search",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_verify": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Verification",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_detect": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Detection",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_search_crops": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Search (Crops)",
+      "description": "Provides reliable verification and validation services."
     },
     "face_recognition_search": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Search",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_vehicle_valores_fasecolda_by_plate": {
       "title": "Colombia - Vehicle Reference Value by Plate",
@@ -473,8 +473,8 @@
       "description": "Determine the commercial value of a vehicle using its specific Fasecolda code."
     },
     "usa_api_company": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "USA - Company Lookup",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_runt_owners": {
       "title": "Colombia - Vehicle Owners History",
@@ -509,7 +509,7 @@
       "description": "General data verification service for Bolivia. Provides reliable information verification and validation."
     },
     "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - Costa Rica Api Business Lookup",
+      "title": "Costa Rica - Company Lookup",
       "description": "General data verification service for Costa Rica. Provides reliable information verification and validation."
     },
     "paraguay_api_business_lookup": {
@@ -529,20 +529,20 @@
       "description": "Look up accident records and traffic incidents registered specifically within the Bogota municipal transit database."
     },
     "api_data_sheet_vehicle": {
-      "title": " - Vehicle Verification",
-      "description": "Standard vehicle verification service for . Verifies vehicle registration and basic information."
+      "title": "Vehicle Data Sheet",
+      "description": "Provides reliable verification and validation services."
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brazil - Vehicle Verification",
+      "title": "Brazil - Vehicle Verification by Plate",
       "description": "Standard vehicle verification service for Brazil. Verifies vehicle registration and basic information."
     },
     "face_recognition_search_active_user": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Search (Active User)",
+      "description": "Provides reliable verification and validation services."
     },
     "matpis_appointments": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "MATPIS Appointments",
+      "description": "Provides reliable verification and validation services."
     },
     "chile_api_taxpayer_lookup": {
       "title": "Chile - Taxpayer Lookup",
@@ -597,8 +597,8 @@
       "description": "Standard vehicle verification service for Paraguay. Verifies vehicle registration and basic information."
     },
     "usa_api_vehicle_lookup_by_vin": {
-      "title": " - Vehicle Verification",
-      "description": "Standard vehicle verification service for . Verifies vehicle registration and basic information."
+      "title": "USA - Vehicle Lookup by VIN",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_identity_ce_foreigner_id": {
       "title": "Colombia - Immigration Status Verification",
@@ -681,12 +681,12 @@
       "description": "General data verification service for Peru. Provides reliable information verification and validation."
     },
     "face_recognition_detect_face": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Face Detection",
+      "description": "Provides reliable verification and validation services."
     },
     "document-liveness": {
-      "title": " - Data Verification Service",
-      "description": "General data verification service for . Provides reliable information verification and validation."
+      "title": "Document Liveness Detection",
+      "description": "Provides reliable verification and validation services."
     },
     "colombia_api_inpec": {
       "title": "Colombia - Penitentiary Records (INPEC)",

@@ -39,7 +39,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
       *ngIf="endpoint(); else noSelection"
     >
       <!-- Top Bar: Method & URL & Send -->
-      <div *ngIf="endpoint() as ep" class="px-4 pt-4 pb-2">
+      <div *ngIf="endpoint() as ep" class="px-4 pt-4 pb-2 select-text">
         <ng-container *ngIf="ep.code; else defaultHeader">
           <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
             {{ 'appFeatures.' + ep.code + '.title' | transloco }}

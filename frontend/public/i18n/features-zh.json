@@ -541,7 +541,7 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "costa_rica_api_business_lookup": {
-      "title": " - Company Lookup",
+      "title": "哥斯达黎加 - 企业查询",
       "description": "提供可靠的验证和验证服务。"
     },
     "paraguay_api_business_lookup": {
@@ -565,7 +565,7 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": " - Vehicle Verification",
+      "title": "巴西 - 车牌车辆验证",
       "description": "提供可靠的验证和验证服务。"
     },
     "face_recognition_search_active_user": {
@@ -621,7 +621,7 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "costa_rica_api_vehicle": {
-      "title": " - Vehicle Verification",
+      "title": "哥斯达黎加 - 车辆验证",
       "description": "提供可靠的验证和验证服务。"
     },
     "paraguay_api_vehicle": {

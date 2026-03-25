@@ -97,7 +97,170 @@ const BIOMETRICS = {
   biometrics_check_age_2d: { en: "2D Age Verification", es: "Verificación de Edad 2D" },
 };
 
+/** Per-code titles for fr/pt/ja/ko/zh (en/es come from OVERRIDES / BIOMETRICS + translateTitle). */
+const ML = (fr, pt, ja, ko, zh) => ({ fr, pt, ja, ko, zh });
+const MULTI_LANG_TITLE_BY_CODE = {
+  feature_kyc_solution: ML("Solution KYC", "Solução KYC", "KYCソリューション", "KYC 솔루션", "KYC 身份核验方案"),
+  feature_passwordless_solution: ML(
+    "Authentification sans mot de passe",
+    "Autenticação sem senha",
+    "パスワードレス認証",
+    "비밀번호 없는 인증",
+    "无密码身份验证",
+  ),
+  feature_data_api: ML("API de données", "API de Dados", "データAPI", "데이터 API", "数据 API"),
+  feature_pdf_generator: ML(
+    "Générateur de rapports PDF",
+    "Gerador de Relatórios PDF",
+    "PDFレポート生成",
+    "PDF 보고서 생성기",
+    "PDF 报告生成器",
+  ),
+  credit_intent: ML(
+    "Intention d'achat de crédits",
+    "Intenção de Compra de Créditos",
+    "クレジット購入意向",
+    "크레딧 구매 의도",
+    "积分购买意向",
+  ),
+  "ip-lookup": ML("Géolocalisation IP", "Consulta de Geolocalização IP", "IP位置情報照会", "IP 지리위치 조회", "IP 地理位置查询"),
+  communication_messaging_sms: ML("Messagerie SMS", "Mensagens SMS", "SMSメッセージ", "SMS 메시징", "短信消息"),
+  communication_global_email_otp: ML("OTP par e-mail", "OTP por E-mail", "メールOTP", "이메일 OTP", "邮件 OTP"),
+  credit_intent_kyc_passwordless: ML(
+    "Intention de crédit KYC sans mot de passe",
+    "Intenção de Crédito KYC sem Senha",
+    "KYCパスワードレスクレジット意向",
+    "KYC 비밀번호 없는 크레딧 의도",
+    "KYC 无密码积分意向",
+  ),
+  api_autodata_manufacturers: ML(
+    "Base fabricants véhicules",
+    "Base de Fabricantes de Veículos",
+    "車両メーカーデータベース",
+    "차량 제조사 데이터베이스",
+    "车辆制造商数据库",
+  ),
+  api_autodata_enginer: ML(
+    "Base moteurs véhicules",
+    "Base de Motores de Veículos",
+    "車両エンジンデータベース",
+    "차량 엔진 데이터베이스",
+    "车辆发动机数据库",
+  ),
+  api_autodata_enginer_code: ML(
+    "Recherche code moteur",
+    "Consulta de Código do Motor",
+    "エンジンコード照会",
+    "엔진 코드 조회",
+    "发动机代码查询",
+  ),
+  api_autodata_selection: ML(
+    "Base sélection véhicules",
+    "Base de Seleção de Veículos",
+    "車両選択データベース",
+    "차량 선택 데이터베이스",
+    "车辆选型数据库",
+  ),
+  ocr_scan_pro: ML("Scan OCR Pro", "Escaneamento OCR Pro", "OCRドキュメントスキャン Pro", "OCR 문서 스캔 Pro", "OCR 文档扫描 Pro"),
+  ocr_scan_gpt: ML("Scan OCR GPT", "Escaneamento OCR GPT", "OCRドキュメントスキャン GPT", "OCR 문서 스캔 GPT", "OCR 文档扫描 GPT"),
+  ocr_scan_studio: ML(
+    "Scan OCR Studio",
+    "Escaneamento OCR Studio",
+    "OCRドキュメントスキャン Studio",
+    "OCR 문서 스캔 Studio",
+    "OCR 文档扫描 Studio",
+  ),
+  face_recognition_compare: ML("Comparaison faciale", "Comparação Facial", "顔照合", "얼굴 비교", "人脸比对"),
+  face_recognition_compare_live: ML(
+    "Comparaison faciale en direct",
+    "Comparação Facial ao Vivo",
+    "ライブ顔照合",
+    "실시간 얼굴 비교",
+    "实时人脸比对",
+  ),
+  face_recognition_liveness: ML(
+    "Détection vivacité faciale",
+    "Detecção de Vivacidade Facial",
+    "顔ライブネス検出",
+    "얼굴 라이브니스 감지",
+    "人脸活体检测",
+  ),
+  face_recognition_search_live_face: ML(
+    "Recherche faciale en direct",
+    "Busca Facial ao Vivo",
+    "ライブ顔検索",
+    "실시간 얼굴 검색",
+    "实时人脸搜索",
+  ),
+  face_recognition_verify: ML("Vérification faciale", "Verificação Facial", "顔認証", "얼굴 검증", "人脸核验"),
+  face_recognition_detect: ML("Détection faciale", "Detecção Facial", "顔検出", "얼굴 감지", "人脸检测"),
+  face_recognition_search_crops: ML(
+    "Recherche faciale (recadrages)",
+    "Busca Facial (Recortes)",
+    "顔検索（クロップ）",
+    "얼굴 검색(크롭)",
+    "人脸搜索（裁剪）",
+  ),
+  face_recognition_search: ML("Recherche faciale", "Busca Facial", "顔検索", "얼굴 검색", "人脸搜索"),
+  face_recognition_search_active_user: ML(
+    "Recherche faciale (utilisateur actif)",
+    "Busca Facial (Usuário Ativo)",
+    "顔検索（アクティブユーザー）",
+    "얼굴 검색(활성 사용자)",
+    "人脸搜索（活跃用户）",
+  ),
+  face_recognition_detect_face: ML("Détection faciale", "Detecção Facial", "顔検出", "얼굴 감지", "人脸检测"),
+  api_data_sheet_vehicle: ML(
+    "Fiche technique véhicule",
+    "Ficha Técnica do Veículo",
+    "車両データシート",
+    "차량 데이터 시트",
+    "车辆数据表",
+  ),
+  matpis_appointments: ML("Rendez-vous MATPIS", "Agendamentos MATPIS", "MATPIS予約", "MATPIS 예약", "MATPIS 预约"),
+  "document-liveness": ML(
+    "Détection vivacité document",
+    "Detecção de Vivacidade de Documento",
+    "書類ライブネス検出",
+    "문서 라이브니스 감지",
+    "证件活体检测",
+  ),
+  biometrics_liveness_3d: ML(
+    "Détection vivacité 3D",
+    "Detecção de Vivacidade 3D",
+    "3Dライブネス検出",
+    "3D 라이브니스 감지",
+    "3D 活体检测",
+  ),
+  biometrics_estimate_age_3d: ML("Estimation d'âge 3D", "Estimativa de Idade 3D", "3D年齢推定", "3D 나이 추정", "3D 年龄估计"),
+  biometrics_check_age_3d: ML("Vérification d'âge 3D", "Verificação de Idade 3D", "3D年齢確認", "3D 나이 검증", "3D 年龄核验"),
+  biometrics_enrollment_3d: ML(
+    "Enrôlement biométrique 3D",
+    "Cadastro Biométrico 3D",
+    "3D生体登録",
+    "3D 바이오 등록",
+    "3D 生物特征注册",
+  ),
+  biometrics_id_scan_only: ML(
+    "Scan de pièce d'identité",
+    "Escaneamento de Documento de ID",
+    "身分証スキャン",
+    "신분증 스캔",
+    "证件扫描",
+  ),
+  biometrics_liveness_2d: ML(
+    "Détection vivacité 2D",
+    "Detecção de Vivacidade 2D",
+    "2Dライブネス検出",
+    "2D 라이브니스 감지",
+    "2D 活体检测",
+  ),
+  biometrics_estimate_age_2d: ML("Estimation d'âge 2D", "Estimativa de Idade 2D", "2D年齢推定", "2D 나이 추정", "2D 年龄估计"),
+  biometrics_check_age_2d: ML("Vérification d'âge 2D", "Verificação de Idade 2D", "2D年齢確認", "2D 나이 검증", "2D 年龄核验"),
+};
+
 function getCountryFromCode(code) {
+  if (/^costa_rica/i.test(code)) return "costarica";
   const m = code.match(/^(usa|mexico|peru|ecuador|chile|colombia|venezuela|panama|costarica|brasil|argentina|bolivia|paraguay|spain|canada|el_salvador|guatemala|honduras|uruguay|republica_dominicana|world)/i);
   return m ? m[1].toLowerCase() : null;
 }
@@ -131,7 +294,18 @@ const REST_TRANSLATIONS = {
   "Business Lookup": { fr: "Recherche d'Entreprise", pt: "Consulta Empresarial", ja: "企業検索", ko: "사업 조회", zh: "企业查询" },
   "Complete Identity Verification": { fr: "Vérification d'Identité Complète", pt: "Verificação de Identidade Completa", ja: "完全な本人確認", ko: "완전한 신원 확인", zh: "完整身份验证" },
   "Taxpayer Lookup": { fr: "Recherche de Contribuable", pt: "Consulta de Contribuinte", ja: "納税者検索", ko: "납세자 조회", zh: "纳税人查询" },
+  "Income Statement": { fr: "Compte de résultat", pt: "Demonstração de resultados", ja: "損益計算書", ko: "손익계산서", zh: "利润表" },
+  "Balance Sheet": { fr: "Bilan", pt: "Balanço patrimonial", ja: "貸借対照表", ko: "대차대조표", zh: "资产负债表" },
+  "Cash Flow": { fr: "Flux de trésorerie", pt: "Fluxo de caixa", ja: "キャッシュフロー", ko: "현금흐름", zh: "现金流量" },
+  "Stock Price": { fr: "Prix de l'action", pt: "Preço das ações", ja: "株価", ko: "주가", zh: "股票价格" },
+  "COVID Statistics": { fr: "Statistiques COVID", pt: "Estatísticas COVID", ja: "COVID統計", ko: "COVID 통계", zh: "新冠疫情统计" },
+  "Phone Lookup": { fr: "Recherche téléphonique", pt: "Consulta de telefone", ja: "電話番号照会", ko: "전화 번호 조회", zh: "电话查询" },
+  "WhatsApp Messaging": { fr: "Messagerie WhatsApp", pt: "Mensagens WhatsApp", ja: "WhatsAppメッセージ", ko: "WhatsApp 메시지", zh: "WhatsApp消息" },
+  "Complete Vehicle Information": { fr: "Informations complètes sur le véhicule", pt: "Informações completas do veículo", ja: "車両完全情報", ko: "차량 전체 정보", zh: "车辆完整信息" },
+  "Driver License Verification": { fr: "Vérification du permis de conduire", pt: "Verificação da carteira de motorista", ja: "運転免許証の確認", ko: "운전면허 검증", zh: "驾驶证核验" },
 };
+
+const FINANCIAL_PREFIX = { fr: "Financier", pt: "Financeiro", ja: "財務", ko: "재무", zh: "财务" };
 
 function translateTitle(baseEn, baseEs, lang) {
   if (lang === "en") return baseEn;
@@ -143,6 +317,9 @@ function translateTitle(baseEn, baseEs, lang) {
     const restTrans = REST_TRANSLATIONS[rest]?.[lang];
     if (countryKey && COUNTRY_NAMES[countryKey][lang]) {
       return restTrans ? `${COUNTRY_NAMES[countryKey][lang]} - ${restTrans}` : `${COUNTRY_NAMES[countryKey][lang]} - ${rest}`;
+    }
+    if (countryPart.trim() === "Financial" && FINANCIAL_PREFIX[lang]) {
+      return restTrans ? `${FINANCIAL_PREFIX[lang]} - ${restTrans}` : `${FINANCIAL_PREFIX[lang]} - ${rest}`;
     }
   }
   return baseEn;
@@ -158,6 +335,12 @@ function generateEntry(code, baseEn, baseEs) {
   const descZh = "提供可靠的验证和验证服务。";
   const titles = { en: baseEn, es: baseEs };
   LANGS.forEach((l) => { if (!titles[l]) titles[l] = translateTitle(baseEn, baseEs, l); });
+  const multi = MULTI_LANG_TITLE_BY_CODE[code];
+  if (multi) {
+    LANGS.forEach((l) => {
+      if (multi[l]) titles[l] = multi[l];
+    });
+  }
   const descs = { en: descEn, es: descEs, fr: descFr, pt: descPt, ja: descJa, ko: descKo, zh: descZh };
   return LANGS.reduce((acc, l) => {
     acc[l] = { title: titles[l], description: descs[l] };

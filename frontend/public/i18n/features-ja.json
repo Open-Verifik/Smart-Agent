@@ -541,7 +541,7 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "costa_rica_api_business_lookup": {
-      "title": " - Company Lookup",
+      "title": "コスタリカ - 企業検索",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "paraguay_api_business_lookup": {
@@ -565,7 +565,7 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": " - Vehicle Verification",
+      "title": "ブラジル - 車両検証（ナンバー）",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "face_recognition_search_active_user": {
@@ -621,7 +621,7 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "costa_rica_api_vehicle": {
-      "title": " - Vehicle Verification",
+      "title": "コスタリカ - 車両検証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "paraguay_api_vehicle": {
