@@ -236,6 +236,26 @@
       "title": "Estados Unidos - Verificación de Licencia de Conducción",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
+    "co_bogota_taxi_plate": {
+      "title": "Taxi de Bogotá por placa",
+      "description": "Consulta datos del conductor y tarjeta de operación de taxi registrados en Bogotá usando la placa del vehículo."
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "Taxi de Bogotá por tarjeta de control",
+      "description": "Consulta datos del conductor y tarjeta de operación de taxi registrados en Bogotá usando el número de tarjeta de control."
+    },
+    "india_api_epic_lookup": {
+      "title": "Consulta de nombre EPIC (India)",
+      "description": "Devuelve datos relacionados con el nombre para un número EPIC (identificador de votante) indio desde la búsqueda electoral de la ECI."
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "Consulta electoral EPIC (India)",
+      "description": "Devuelve detalles del lugar de votación y ubicación electoral para un número EPIC (identificador de votante)."
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "Verificación de licencia de conducir de Kansas",
+      "description": "Valida el estado, vencimiento, restricciones, endosos y designaciones de la licencia de conducir de Kansas a partir del número de licencia."
+    },
     "consultar_procesos_judiciales": {
       "title": "Colombia - Historial de Procesos Judiciales",
       "description": "Consulta el historial judicial completo y procesos legales activos."

@@ -1093,6 +1093,10 @@
         },
         "dialog": {
             "reviewPlan": "Revisa tu nuevo plan antes de confirmar",
+            "reviewPlanFirst": "Revisa el plan antes de suscribirte",
+            "reviewPlanUpgrade": "Revisa tu mejora de plan antes de confirmar",
+            "reviewPlanDowngrade": "Revisa la bajada de plan antes de confirmar",
+            "reviewPlanPlanChange": "Revisa el cambio de plan antes de confirmar",
             "twoMonthsFree": "2 meses gratis con facturación anual",
             "whatsIncluded": "Qué incluye",
             "orderSummary": "Resumen del pedido",
@@ -1105,9 +1109,18 @@
             "cancelNote": "Puedes cancelar o cambiar tu plan en cualquier momento desde la configuración.",
             "cancel": "Cancelar",
             "confirmChange": "Confirmar cambio",
+            "confirmSubscribe": "Confirmar suscripción",
+            "confirmUpgrade": "Confirmar mejora",
+            "confirmDowngrade": "Confirmar bajada",
+            "confirmPlanChange": "Confirmar cambio",
             "secureTransaction": "Transacción segura",
             "estimatedTotal": "Total a pagar",
-            "usageNote": "El monto final facturado depende del uso real."
+            "usageNote": "El monto final facturado depende del uso real.",
+            "includedFallback": "Este plan no incluye descuentos por volumen en las solicitudes API. Pagas el precio estándar en créditos por solicitud en cada llamada.",
+            "includedFallbackBullet1": "Acceso completo al catálogo de APIs y a tu espacio de trabajo Verifik",
+            "includedFallbackBullet2": "Facturación por solicitud a la tarifa estándar de créditos (sin descuento del plan)",
+            "compareDiscountedPlans": "Comparar planes con descuentos en APIs",
+            "compareDiscountedPlansShort": "Ver planes con descuentos API"
         },
         "requestSlider": {
             "label": "Solicitudes estimadas por mes",

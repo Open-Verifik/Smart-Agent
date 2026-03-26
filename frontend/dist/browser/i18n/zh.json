@@ -1086,6 +1086,10 @@
     },
     "dialog": {
       "reviewPlan": "确认前请查看您的新计划",
+      "reviewPlanFirst": "订阅前请确认此方案",
+      "reviewPlanUpgrade": "升级前请确认",
+      "reviewPlanDowngrade": "降级前请确认",
+      "reviewPlanPlanChange": "变更方案前请确认",
       "twoMonthsFree": "年付享2个月免费",
       "whatsIncluded": "包含内容",
       "orderSummary": "订单摘要",
@@ -1098,9 +1102,18 @@
       "cancelNote": "您可以随时在设置中取消或更改计划。",
       "cancel": "取消",
       "confirmChange": "确认更改",
+      "confirmSubscribe": "确认订阅",
+      "confirmUpgrade": "确认升级",
+      "confirmDowngrade": "确认降级",
+      "confirmPlanChange": "确认更改",
       "secureTransaction": "安全交易",
       "estimatedTotal": "应付总额",
-      "usageNote": "最终账单金额取决于实际使用量。"
+      "usageNote": "最终账单金额取决于实际使用量。",
+      "includedFallback": "此方案不包含 API 请求量的折扣。每次调用均按标准每请求积分价格计费。",
+      "includedFallbackBullet1": "完整访问 API 目录与 Verifik 工作区",
+      "includedFallbackBullet2": "按标准积分费率按次计费（无方案折扣）",
+      "compareDiscountedPlans": "比较含 API 折扣的方案",
+      "compareDiscountedPlansShort": "查看含 API 折扣的方案"
     },
     "requestSlider": {
       "label": "每月预估请求数",

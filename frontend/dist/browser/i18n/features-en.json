@@ -240,6 +240,26 @@
       "title": "USA - Driver License Verification",
       "description": "Provides reliable verification and validation services."
     },
+    "co_bogota_taxi_plate": {
+      "title": "Bogotá taxi by plate",
+      "description": "Look up registered Bogotá taxi driver and operation card data using the vehicle license plate."
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "Bogotá taxi by control card",
+      "description": "Look up registered Bogotá taxi driver and operation card data using the taxi control card number."
+    },
+    "india_api_epic_lookup": {
+      "title": "India EPIC name lookup",
+      "description": "Returns name-related details for an Indian EPIC (Voter ID) number from ECI electoral search."
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "India EPIC polling lookup",
+      "description": "Returns polling and electoral location details for an EPIC (Voter ID) number."
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "Kansas driver's license verification",
+      "description": "Validate Kansas driver license status, expiration, restrictions, endorsements, and designations from the license number."
+    },
     "consultar_procesos_judiciales": {
       "title": "Colombia - Judicial Processes",
       "description": "Check complete judicial history and active legal processes."

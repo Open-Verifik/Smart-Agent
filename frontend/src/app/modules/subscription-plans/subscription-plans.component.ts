@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,11 +16,10 @@ import { Subject } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
-    AppFeature,
-    ChangesInPrice,
-    ClientSubscription,
-    SubscriptionPlan,
-} from './subscription-plan.types';
+    formatBenefitRowsFromChanges,
+    hasOtherPlanWithApiDiscount,
+} from './subscription-plan-benefits.util';
+import { AppFeature, ClientSubscription, SubscriptionPlan } from './subscription-plan.types';
 import { SubscriptionService } from './subscription.service';
 
 const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
@@ -35,6 +41,8 @@ const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
 })
 export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     private _unsubscribeAll: Subject<any> = new Subject<any>();
+
+    @ViewChild('plansExploreAnchor') plansExploreAnchor?: ElementRef<HTMLElement>;
 
     // State
     currentSubscription: ClientSubscription | null = null;
@@ -642,6 +650,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
                         this._formatCurrentSubscription();
                         this.currentView = 'current';
                         this._loadMyListFeatures();
+                        this._prefetchPlansIfNeededForDiscountCta();
                     } else {
                         this.currentView = 'explore';
                         this._loadPlans();
@@ -738,9 +747,11 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
         const subscription = this.currentSubscription.subscriptionPlan;
 
-        const changes = subscription.changesInPrices
-            .map(this._convertChangeToDisplay)
-            .filter(Boolean);
+        const rows = formatBenefitRowsFromChanges(subscription.changesInPrices || []);
+        const changes = rows.map((r) => ({
+            key: r.key,
+            value: r.value,
+        }));
 
         const middleIndex = Math.ceil(changes.length / 2);
 
@@ -753,35 +764,6 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
         // Set interval for UI
         this.selectedInterval = subscription.interval as 'month' | 'year';
-    }
-
-    private _convertChangeToDisplay(change: ChangesInPrice) {
-        if (change.group || change.baseCategory) {
-            let value = '';
-
-            if (change.discount !== undefined && change.discount !== null) {
-                value =
-                    change.type === 'amount'
-                        ? `$${change.discount.toFixed(2)} off`
-                        : `${change.discount}% off`;
-            } else if (change.price > 0) {
-                value = `$${change?.price.toFixed(2)}`;
-            }
-
-            return {
-                key: change.group || change.baseCategory,
-                value,
-            };
-        }
-
-        if (change.addOn) {
-            return {
-                key: change.addOn,
-                value: change.active || change.count || false,
-            };
-        }
-
-        return null;
     }
 
     private _confirmSessionIfPresent(): void {
@@ -870,5 +852,51 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         if (!country) return '';
         if (country.toLowerCase() === 'world') return 'Global';
         return country;
+    }
+
+    get currentPlanHasIncludedBenefits(): boolean {
+        const sp = this.currentSubscription?.subscriptionPlan;
+        if (!sp) return false;
+        return !!(sp.changesLeft?.length || sp.changesRight?.length);
+    }
+
+    get showCurrentPlanIncludedFallback(): boolean {
+        return !!this.currentSubscription && !this.currentPlanHasIncludedBenefits;
+    }
+
+    get hasOtherPlansWithApiDiscountForCurrent(): boolean {
+        return hasOtherPlanWithApiDiscount(
+            this.plans,
+            this.currentSubscription?.subscriptionPlan?._id
+        );
+    }
+
+    compareDiscountedPlansFromDialog(): void {
+        this.cancelPlanChange();
+        this.switchToExplore();
+        this._scrollPlansExploreIntoView();
+    }
+
+    compareDiscountedPlansFromCurrentCard(): void {
+        this.switchToExplore();
+        this._scrollPlansExploreIntoView();
+    }
+
+    private _scrollPlansExploreIntoView(): void {
+        setTimeout(() => {
+            this.plansExploreAnchor?.nativeElement?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        }, 280);
+    }
+
+    private _prefetchPlansIfNeededForDiscountCta(): void {
+        if (!this.currentSubscription?.subscriptionPlan) return;
+        const sp = this.currentSubscription.subscriptionPlan;
+        const hasRows =
+            (sp.changesLeft?.length || 0) + (sp.changesRight?.length || 0) > 0;
+        if (hasRows || this.plans.length > 0) return;
+        this._loadPlans();
     }
 }

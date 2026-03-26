@@ -1093,6 +1093,10 @@
     },
     "dialog": {
       "reviewPlan": "Review your new plan before confirming",
+      "reviewPlanFirst": "Review this plan before you subscribe",
+      "reviewPlanUpgrade": "Review your upgrade before confirming",
+      "reviewPlanDowngrade": "Review your downgrade before confirming",
+      "reviewPlanPlanChange": "Review your plan change before confirming",
       "twoMonthsFree": "2 months free with yearly billing",
       "whatsIncluded": "What's included",
       "orderSummary": "Order summary",
@@ -1105,9 +1109,18 @@
       "cancelNote": "You can cancel or change your plan anytime from your settings.",
       "cancel": "Cancel",
       "confirmChange": "Confirm change",
+      "confirmSubscribe": "Confirm subscription",
+      "confirmUpgrade": "Confirm upgrade",
+      "confirmDowngrade": "Confirm downgrade",
+      "confirmPlanChange": "Confirm change",
       "secureTransaction": "Secure transaction",
       "estimatedTotal": "Total to pay",
-      "usageNote": "Final amount billed depends on actual usage."
+      "usageNote": "Final amount billed depends on actual usage.",
+      "includedFallback": "This plan does not include volume discounts on API requests. You pay the standard per-request credit price for each call.",
+      "includedFallbackBullet1": "Full access to the API catalog and your Verifik workspace",
+      "includedFallbackBullet2": "Per-request billing at the standard credit rate (no plan discount)",
+      "compareDiscountedPlans": "Compare plans with API discounts",
+      "compareDiscountedPlansShort": "See plans with API discounts"
     },
     "requestSlider": {
       "label": "Estimated requests per month",

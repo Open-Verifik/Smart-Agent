@@ -809,6 +809,156 @@
       "description": "提供可靠的验证和验证服务。"
     }
   },
+  "co_bogota_taxi_plate": {
+    "en": {
+      "title": "Bogotá taxi by plate",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Taxi de Bogotá por placa",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Taxi de Bogotá par plaque",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Táxi de Bogotá por placa",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ボゴタのタクシー（ナンバープレート）",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "보고타 택시(번호판)",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "波哥大出租车（按车牌）",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "co_bogota_taxi_driver_card": {
+    "en": {
+      "title": "Bogotá taxi by control card",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Taxi de Bogotá por tarjeta de control",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Taxi de Bogotá par carte de contrôle",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Táxi de Bogotá por cartão de controle",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "ボゴタのタクシー（管理カード）",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "보고타 택시(관리 카드)",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "波哥大出租车（按控制卡）",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "india_api_epic_lookup": {
+    "en": {
+      "title": "India EPIC name lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Consulta de nombre EPIC (India)",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Recherche de nom EPIC (Inde)",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Consulta de nome EPIC (Índia)",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "インドEPIC氏名照会",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "인도 EPIC 성명 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "印度 EPIC 姓名查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "india_api_epic_voting_lookup": {
+    "en": {
+      "title": "India EPIC polling lookup",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Consulta electoral EPIC (India)",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Recherche électorale EPIC (Inde)",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Consulta eleitoral EPIC (Índia)",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "インドEPIC投票所照会",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "인도 EPIC 투표소 조회",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "印度 EPIC 投票站查询",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
+  "usa_api_driver_license_lookup_kansas": {
+    "en": {
+      "title": "Kansas driver's license verification",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Verificación de licencia de conducir de Kansas",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Vérification du permis de conduire du Kansas",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Verificação de Carteira de Motorista do Kansas",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "カンザス州運転免許証の確認",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "캔자스 운전면허 확인",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "堪萨斯州驾照核验",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
   "credit_intent": {
     "en": {
       "title": "Credit Purchase Intent",

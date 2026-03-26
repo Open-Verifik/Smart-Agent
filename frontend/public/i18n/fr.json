@@ -1093,6 +1093,10 @@
         },
         "dialog": {
             "reviewPlan": "Vérifiez votre nouveau plan avant de confirmer",
+            "reviewPlanFirst": "Vérifiez ce forfait avant de vous abonner",
+            "reviewPlanUpgrade": "Vérifiez votre passage au forfait supérieur avant de confirmer",
+            "reviewPlanDowngrade": "Vérifiez votre passage au forfait inférieur avant de confirmer",
+            "reviewPlanPlanChange": "Vérifiez le changement de forfait avant de confirmer",
             "twoMonthsFree": "2 mois gratuits avec facturation annuelle",
             "whatsIncluded": "Ce qui est inclus",
             "orderSummary": "Résumé de la commande",
@@ -1105,9 +1109,18 @@
             "cancelNote": "Vous pouvez annuler ou modifier votre plan à tout moment dans vos paramètres.",
             "cancel": "Annuler",
             "confirmChange": "Confirmer le changement",
+            "confirmSubscribe": "Confirmer l'abonnement",
+            "confirmUpgrade": "Confirmer la mise à niveau",
+            "confirmDowngrade": "Confirmer le passage au forfait inférieur",
+            "confirmPlanChange": "Confirmer le changement",
             "secureTransaction": "Transaction sécurisée",
             "estimatedTotal": "Total à payer",
-            "usageNote": "Le montant final facturé dépend de l'utilisation réelle."
+            "usageNote": "Le montant final facturé dépend de l'utilisation réelle.",
+            "includedFallback": "Ce forfait n'inclut pas de remises sur le volume des requêtes API. Vous payez le tarif standard en crédits par requête.",
+            "includedFallbackBullet1": "Accès complet au catalogue d'API et à votre espace Verifik",
+            "includedFallbackBullet2": "Facturation à la requête au tarif crédit standard (sans remise forfaitaire)",
+            "compareDiscountedPlans": "Comparer les forfaits avec remises API",
+            "compareDiscountedPlansShort": "Voir les offres avec remises API"
         },
         "requestSlider": {
             "label": "Requêtes estimées par mois",

@@ -240,6 +240,26 @@
       "title": "アメリカ - Driver License Verification",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
+    "co_bogota_taxi_plate": {
+      "title": "ボゴタのタクシー（ナンバープレート）",
+      "description": "車両のナンバープレートで、ボゴタに登録されたタクシー運転手と運行カードの情報を照会します。"
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "ボゴタのタクシー（管理カード）",
+      "description": "タクシー管理カード番号で、ボゴタに登録されたタクシー運転手と運行カードの情報を照会します。"
+    },
+    "india_api_epic_lookup": {
+      "title": "インドEPIC氏名照会",
+      "description": "インドのEPIC（有権者ID）番号について、ECIの選挙人名簿検索から氏名に関する情報を返します。"
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "インドEPIC投票所照会",
+      "description": "EPIC（有権者ID）番号の投票所および選挙関連の所在地情報を返します。"
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "カンザス州運転免許証の確認",
+      "description": "免許証番号から、カンザス州運転免許の状態、有効期限、制限、裏書、指定などを確認します。"
+    },
     "consultar_procesos_judiciales": {
       "title": "コロンビア - 司法手続き",
       "description": "Check complete judicial history and active legal processes."

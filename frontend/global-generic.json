@@ -135,6 +135,31 @@
     "description": "General data verification service for . Provides reliable information verification and validation."
   },
   {
+    "code": "co_bogota_taxi_plate",
+    "title": " - Data Verification Service",
+    "description": "General data verification service for . Provides reliable information verification and validation."
+  },
+  {
+    "code": "co_bogota_taxi_driver_card",
+    "title": " - Data Verification Service",
+    "description": "General data verification service for . Provides reliable information verification and validation."
+  },
+  {
+    "code": "india_api_epic_lookup",
+    "title": " - Data Verification Service",
+    "description": "General data verification service for . Provides reliable information verification and validation."
+  },
+  {
+    "code": "india_api_epic_voting_lookup",
+    "title": " - Data Verification Service",
+    "description": "General data verification service for . Provides reliable information verification and validation."
+  },
+  {
+    "code": "usa_api_driver_license_lookup_kansas",
+    "title": " - Data Verification Service",
+    "description": "General data verification service for . Provides reliable information verification and validation."
+  },
+  {
     "code": "credit_intent",
     "title": " - Data Verification Service",
     "description": "General data verification service for . Provides reliable information verification and validation."

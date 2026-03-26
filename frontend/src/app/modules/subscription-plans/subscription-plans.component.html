@@ -9,9 +9,11 @@
     [isOpen]="showPlanChangeDialog"
     [currentPlan]="currentSubscription"
     [newPlan]="selectedPlanForChange"
+    [allPlans]="plans"
     [requestsPerMonth]="selectedPlanRequests"
     (confirm)="confirmPlanChange()"
     (cancel)="cancelPlanChange()"
+    (comparePlans)="compareDiscountedPlansFromDialog()"
 >
 </plan-change-dialog>
 
@@ -130,13 +132,7 @@
             </div>
 
             <!-- Features Card -->
-            <div
-                class="features-card"
-                *ngIf="
-                    currentSubscription.subscriptionPlan.changesLeft?.length ||
-                    currentSubscription.subscriptionPlan.changesRight?.length
-                "
-            >
+            <div class="features-card" *ngIf="currentSubscription && currentPlanHasIncludedBenefits">
                 <h3>{{ 'subscriptionPlans.whatsIncluded' | transloco }}</h3>
                 <div class="features-grid">
                     <ng-container
@@ -177,6 +173,41 @@
                             >
                         </div>
                     </ng-container>
+                </div>
+            </div>
+
+            <!-- What's included: fallback when plan has no pricing perks in changesInPrices -->
+            <div class="features-card features-card-fallback" *ngIf="showCurrentPlanIncludedFallback">
+                <h3 class="features-included-label">{{ 'subscriptionPlans.whatsIncluded' | transloco }}</h3>
+                <div class="included-fallback-card">
+                    <p class="features-fallback-intro">
+                        {{ 'subscriptionPlans.dialog.includedFallback' | transloco }}
+                    </p>
+                    <div class="included-fallback-rows">
+                        <div class="included-fallback-row">
+                            <svg class="included-fallback-check" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ 'subscriptionPlans.dialog.includedFallbackBullet1' | transloco }}</span>
+                        </div>
+                        <div class="included-fallback-row">
+                            <svg class="included-fallback-check" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>{{ 'subscriptionPlans.dialog.includedFallbackBullet2' | transloco }}</span>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="btn-compare-plans-link-inline"
+                        *ngIf="hasOtherPlansWithApiDiscountForCurrent"
+                        (click)="compareDiscountedPlansFromCurrentCard()"
+                    >
+                        <span>{{ 'subscriptionPlans.dialog.compareDiscountedPlansShort' | transloco }}</span>
+                        <svg class="btn-compare-plans-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -495,7 +526,11 @@
             </div>
 
             <!-- Plans Grid -->
-            <div class="plans-grid" *ngIf="!loadingPlans && !showApiBreakdown">
+            <div
+                class="plans-grid"
+                #plansExploreAnchor
+                *ngIf="!loadingPlans && !showApiBreakdown"
+            >
                 <div
                     *ngFor="let plan of visiblePlans; trackBy: trackByPlan"
                     class="plan-card"

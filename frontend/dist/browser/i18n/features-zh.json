@@ -240,6 +240,26 @@
       "title": "美国 - Driver License Verification",
       "description": "提供可靠的验证和验证服务。"
     },
+    "co_bogota_taxi_plate": {
+      "title": "波哥大出租车（按车牌）",
+      "description": "通过车辆牌照查询波哥大注册的出租车司机及营运卡信息。"
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "波哥大出租车（按控制卡）",
+      "description": "通过出租车控制卡号码查询波哥大注册的出租车司机及营运卡信息。"
+    },
+    "india_api_epic_lookup": {
+      "title": "印度 EPIC 姓名查询",
+      "description": "根据印度 EPIC（选民证）号码，从印度选举委员会（ECI）选民查询返回与姓名相关的信息。"
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "印度 EPIC 投票站查询",
+      "description": "返回 EPIC（选民证）号码对应的投票站及选举地点信息。"
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "堪萨斯州驾照核验",
+      "description": "根据驾照号码核验堪萨斯州驾照状态、有效期、限制、背书及类别等信息。"
+    },
     "consultar_procesos_judiciales": {
       "title": "哥伦比亚 - 司法程序",
       "description": "Check complete judicial history and active legal processes."

@@ -442,6 +442,123 @@ $glow-blue: rgba(59, 130, 246, 0.3);
       cursor: pointer;
     }
   }
+
+  &.features-card-fallback {
+    .features-included-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: $light-text-muted;
+      margin: 0 0 14px;
+      letter-spacing: 0.02em;
+
+      :host-context(.dark) & {
+        color: $dark-text-muted;
+      }
+    }
+
+    .included-fallback-card {
+      padding: 18px 18px 16px;
+      border-radius: 16px;
+      border: 1px solid $light-card-border;
+      background: rgba(248, 250, 252, 0.65);
+
+      :host-context(.dark) & {
+        border-color: $dark-card-border;
+        background: rgba(255, 255, 255, 0.04);
+      }
+    }
+
+    .features-fallback-intro {
+      margin: 0 0 14px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: $light-text-secondary;
+
+      :host-context(.dark) & {
+        color: $dark-text-secondary;
+      }
+    }
+
+    .included-fallback-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .included-fallback-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: $light-text-secondary;
+
+      :host-context(.dark) & {
+        color: $dark-text-secondary;
+      }
+
+      span {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+
+    .included-fallback-check {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: rgba(16, 185, 129, 0.85);
+
+      :host-context(.dark) & {
+        color: rgba(52, 211, 153, 0.9);
+      }
+    }
+
+    .btn-compare-plans-link-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      padding: 6px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6366f1;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      @include smooth-transition;
+
+      :host-context(.dark) & {
+        color: #a5b4fc;
+      }
+
+      &:hover {
+        color: #4f46e5;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+
+        :host-context(.dark) & {
+          color: #c7d2fe;
+        }
+      }
+
+      &:focus-visible {
+        outline: 2px solid rgba(99, 102, 241, 0.55);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+
+      .btn-compare-plans-chevron {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        opacity: 0.85;
+      }
+    }
+  }
 }
 
 // ================================

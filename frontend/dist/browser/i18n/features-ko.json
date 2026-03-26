@@ -240,6 +240,26 @@
       "title": "미국 - Driver License Verification",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
+    "co_bogota_taxi_plate": {
+      "title": "보고타 택시(번호판)",
+      "description": "차량 번호판으로 보고타에 등록된 택시 운전자 및 운행 카드 정보를 조회합니다."
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "보고타 택시(관리 카드)",
+      "description": "택시 관리 카드 번호로 보고타에 등록된 택시 운전자 및 운행 카드 정보를 조회합니다."
+    },
+    "india_api_epic_lookup": {
+      "title": "인도 EPIC 성명 조회",
+      "description": "인도 EPIC(유권자 ID) 번호에 대해 ECI 선거인 명부 검색에서 성명 관련 정보를 반환합니다."
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "인도 EPIC 투표소 조회",
+      "description": "EPIC(유권자 ID) 번호의 투표소 및 선거 관련 위치 정보를 반환합니다."
+    },
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "캔자스 운전면허 확인",
+      "description": "면허 번호로 캔자스 운전면허 상태, 만료일, 제한, 기재 사항 및 지정을 확인합니다."
+    },
     "consultar_procesos_judiciales": {
       "title": "콜롬비아 - 사법 절차",
       "description": "Check complete judicial history and active legal processes."

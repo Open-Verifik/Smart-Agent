@@ -43,6 +43,11 @@ const OVERRIDES = {
   feature_data_api: { en: "Data API", es: "API de Datos" },
   feature_pdf_generator: { en: "PDF Report Generator", es: "Generador de Informes PDF" },
   usa_api_driver_license_lookup: { en: "USA - Driver License Verification", es: "Estados Unidos - Verificación de Licencia de Conducción" },
+  co_bogota_taxi_plate: { en: "Bogotá taxi by plate", es: "Taxi de Bogotá por placa" },
+  co_bogota_taxi_driver_card: { en: "Bogotá taxi by control card", es: "Taxi de Bogotá por tarjeta de control" },
+  india_api_epic_lookup: { en: "India EPIC name lookup", es: "Consulta de nombre EPIC (India)" },
+  india_api_epic_voting_lookup: { en: "India EPIC polling lookup", es: "Consulta electoral EPIC (India)" },
+  usa_api_driver_license_lookup_kansas: { en: "Kansas driver's license verification", es: "Verificación de licencia de conducir de Kansas" },
   credit_intent: { en: "Credit Purchase Intent", es: "Intención de Compra de Créditos" },
   "ip-lookup": { en: "IP Geolocation Lookup", es: "Consulta de Geoubicación IP" },
   communication_messaging_sms: { en: "SMS Messaging", es: "Mensajería SMS" },
@@ -257,6 +262,41 @@ const MULTI_LANG_TITLE_BY_CODE = {
   ),
   biometrics_estimate_age_2d: ML("Estimation d'âge 2D", "Estimativa de Idade 2D", "2D年齢推定", "2D 나이 추정", "2D 年龄估计"),
   biometrics_check_age_2d: ML("Vérification d'âge 2D", "Verificação de Idade 2D", "2D年齢確認", "2D 나이 검증", "2D 年龄核验"),
+  co_bogota_taxi_plate: ML(
+    "Taxi de Bogotá par plaque",
+    "Táxi de Bogotá por placa",
+    "ボゴタのタクシー（ナンバープレート）",
+    "보고타 택시(번호판)",
+    "波哥大出租车（按车牌）",
+  ),
+  co_bogota_taxi_driver_card: ML(
+    "Taxi de Bogotá par carte de contrôle",
+    "Táxi de Bogotá por cartão de controle",
+    "ボゴタのタクシー（管理カード）",
+    "보고타 택시(관리 카드)",
+    "波哥大出租车（按控制卡）",
+  ),
+  india_api_epic_lookup: ML(
+    "Recherche de nom EPIC (Inde)",
+    "Consulta de nome EPIC (Índia)",
+    "インドEPIC氏名照会",
+    "인도 EPIC 성명 조회",
+    "印度 EPIC 姓名查询",
+  ),
+  india_api_epic_voting_lookup: ML(
+    "Recherche électorale EPIC (Inde)",
+    "Consulta eleitoral EPIC (Índia)",
+    "インドEPIC投票所照会",
+    "인도 EPIC 투표소 조회",
+    "印度 EPIC 投票站查询",
+  ),
+  usa_api_driver_license_lookup_kansas: ML(
+    "Vérification du permis de conduire du Kansas",
+    "Verificação de Carteira de Motorista do Kansas",
+    "カンザス州運転免許証の確認",
+    "캔자스 운전면허 확인",
+    "堪萨斯州驾照核验",
+  ),
 };
 
 function getCountryFromCode(code) {

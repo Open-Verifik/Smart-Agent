@@ -1086,6 +1086,10 @@
     },
     "dialog": {
       "reviewPlan": "확인하기 전에 새 플랜을 검토하세요",
+      "reviewPlanFirst": "구독 전에 이 플랜을 확인하세요",
+      "reviewPlanUpgrade": "업그레이드 확정 전에 확인하세요",
+      "reviewPlanDowngrade": "다운그레이드 확정 전에 확인하세요",
+      "reviewPlanPlanChange": "플랜 변경 확정 전에 확인하세요",
       "twoMonthsFree": "연간 청구 시 2개월 무료",
       "whatsIncluded": "포함 내용",
       "orderSummary": "주문 요약",
@@ -1098,9 +1102,18 @@
       "cancelNote": "설정에서 언제든지 플랜을 변경하거나 취소할 수 있습니다.",
       "cancel": "취소",
       "confirmChange": "변경 확인",
+      "confirmSubscribe": "구독 확인",
+      "confirmUpgrade": "업그레이드 확인",
+      "confirmDowngrade": "다운그레이드 확인",
+      "confirmPlanChange": "변경 확인",
       "secureTransaction": "안전한 거래",
       "estimatedTotal": "총 결제 금액",
-      "usageNote": "최종 청구 금액은 실제 사용량에 따라 달라집니다."
+      "usageNote": "최종 청구 금액은 실제 사용량에 따라 달라집니다.",
+      "includedFallback": "이 플랜에는 API 요청에 대한 볼륨 할인이 포함되지 않습니다. 호출마다 표준 요청당 크레딧 요금이 적용됩니다.",
+      "includedFallbackBullet1": "API 카탈로그 및 Verifik 워크스페이스 전체 액세스",
+      "includedFallbackBullet2": "표준 크레딧 요율로 요청당 과금(플랜 할인 없음)",
+      "compareDiscountedPlans": "API 할인이 있는 플랜 비교",
+      "compareDiscountedPlansShort": "API 할인 플랜 보기"
     },
     "requestSlider": {
       "label": "월 예상 요청 수",
