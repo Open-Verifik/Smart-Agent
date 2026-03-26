@@ -151,7 +151,14 @@ export class IncidentsComponent implements OnInit, OnDestroy {
         return incident.appFeature?.name || incident.code || '';
     }
 
+    goToStatusCheck(): void {
+        this._router.navigate(['/smart-monitor/status-check']);
+    }
+
     openDetail(incident: any): void {
+        if (!incident?._id) {
+            return;
+        }
         this._router.navigate(['/smart-monitor/incidents', incident._id]);
     }
 }

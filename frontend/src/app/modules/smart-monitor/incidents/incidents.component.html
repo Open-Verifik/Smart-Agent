@@ -55,16 +55,16 @@
                 <mat-icon class="icon-size-10 text-gray-400">notifications_off</mat-icon>
             </div>
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-1">
-                {{ 'smartMonitor.noSubscriptionsYet' | transloco }}
+                {{ 'smartMonitor.noIncidentMonitoringYet' | transloco }}
             </h3>
             <p class="text-gray-500 dark:text-gray-400 max-w-sm">
-                {{ 'smartMonitor.noSubscriptionsDesc' | transloco }}
+                {{ 'smartMonitor.noIncidentMonitoringDesc' | transloco }}
             </p>
             <button
                 mat-stroked-button
                 class="mt-6"
-                (click)="openDetail({ _id: null })"
-                routerLink="/smart-monitor/status-check"
+                type="button"
+                (click)="goToStatusCheck()"
             >
                 {{ 'smartMonitor.goToStatusCheck' | transloco }}
             </button>
