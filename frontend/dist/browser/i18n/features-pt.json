@@ -541,7 +541,7 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "costa_rica_api_business_lookup": {
-      "title": " - Company Lookup",
+      "title": "Costa Rica - Consulta de Empresa",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "paraguay_api_business_lookup": {
@@ -565,7 +565,7 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": " - Vehicle Verification",
+      "title": "Brasil - Verificação de Veículo por Placa",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "face_recognition_search_active_user": {
@@ -621,7 +621,7 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "costa_rica_api_vehicle": {
-      "title": " - Vehicle Verification",
+      "title": "Costa Rica - Verificação de Veículo",
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "paraguay_api_vehicle": {
