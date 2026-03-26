@@ -1162,6 +1162,44 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     }
 }
 
+.pricing-tiers-skeleton {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    min-height: 72px;
+}
+
+.pricing-tier-skeleton-bar {
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.06) 0%,
+        rgba(0, 0, 0, 0.08) 50%,
+        rgba(0, 0, 0, 0.06) 100%
+    );
+    animation: pricing-tier-shimmer 1.2s ease-in-out infinite;
+
+    :host-context(.dark) & {
+        background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.06) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.06) 100%
+        );
+    }
+}
+
+@keyframes pricing-tier-shimmer {
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
 .pricing-tiers {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

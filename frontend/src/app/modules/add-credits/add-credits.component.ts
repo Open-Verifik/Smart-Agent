@@ -1,19 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation, computed, inject } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { forkJoin } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
+import { SubscriptionService } from '../subscription-plans/subscription.service';
+import { SubscriptionPlan } from '../subscription-plans/subscription-plan.types';
 import { AutoRechargeSettingsComponent } from './auto-recharge-settings/auto-recharge-settings.component';
 import { PaymentCardComponent } from './payment-card/payment-card.component';
 import { PurchaseCreditsDialogComponent } from './purchase-credits-dialog/purchase-credits-dialog.component';
 import { CreditsService } from './services/credits.service';
 import { PaymentService } from './services/payment.service';
+
+export type AddCreditsSidebarPlanTier = {
+    plan: SubscriptionPlan;
+    label: string;
+    isBestValue: boolean;
+};
 
 @Component({
     selector: 'add-credits',
@@ -35,6 +44,7 @@ import { PaymentService } from './services/payment.service';
 export class AddCreditsComponent implements OnInit {
     private _creditsService = inject(CreditsService);
     private _paymentService = inject(PaymentService);
+    private _subscriptionService = inject(SubscriptionService);
     private _dialog = inject(MatDialog);
     private _authService = inject(AuthService);
 
@@ -44,6 +54,10 @@ export class AddCreditsComponent implements OnInit {
     autoRechargeConfig = this._creditsService.autoRechargeConfig;
     loading = this._creditsService.loading;
     error = this._creditsService.error;
+
+    /** Pricing table tiers for sidebar (monthly plans from API). */
+    pricingPlansLoading = signal(false);
+    sidebarPlanTiers = signal<AddCreditsSidebarPlanTier[]>([]);
 
     // Computed values
     hasCards = computed(() => this.cards().length > 0);
@@ -65,20 +79,120 @@ export class AddCreditsComponent implements OnInit {
     }
 
     loadData(): void {
-        // Load all data first, then clean up expired cards
+        this.pricingPlansLoading.set(true);
         forkJoin({
             cards: this._creditsService.getCards(),
             balance: this._creditsService.getBalance(),
             autoRecharge: this._creditsService.getAutoRechargeConfig(),
+            pricing: this._subscriptionService
+                .getPricingTableDisplay({ lang: this._getCurrentLang() })
+                .pipe(
+                    catchError((err) => {
+                        console.error('Failed to load pricing table for sidebar:', err);
+                        return of({ data: { plans: [] as SubscriptionPlan[] } });
+                    })
+                ),
         }).subscribe({
-            next: () => {
-                // After loading, check for expired cards
+            next: (result) => {
+                const rawPlans = result.pricing?.data?.plans ?? [];
+                this.sidebarPlanTiers.set(this._buildSidebarPlanTiers(rawPlans));
+                this.pricingPlansLoading.set(false);
                 this.cleanupExpiredCards();
             },
             error: (err) => {
                 console.error('Failed to load data:', err);
+                this.pricingPlansLoading.set(false);
             },
         });
+    }
+
+    private _getCurrentLang(): string {
+        const lang = (typeof navigator !== 'undefined' && navigator.language) || 'en';
+        return lang.startsWith('es') ? 'es' : lang.startsWith('fr') ? 'fr' : 'en';
+    }
+
+    /**
+     * Aligns with subscription-plans: displayName, monthly only, Basic / Plus / Business when possible.
+     */
+    private _buildSidebarPlanTiers(plans: SubscriptionPlan[]): AddCreditsSidebarPlanTier[] {
+        const monthly = plans.filter((p) => p.interval === 'month');
+        const processed: SubscriptionPlan[] = [];
+        const seen: Record<string, boolean> = {};
+
+        monthly.forEach((plan) => {
+            const withDisplay = plan as SubscriptionPlan & { displayName?: string };
+            const name = withDisplay.displayName || plan.name;
+            const merged = { ...plan, name };
+            if (merged._id && !seen[merged._id]) {
+                seen[merged._id] = true;
+                processed.push(merged);
+            }
+        });
+
+        processed.sort((a, b) => (a.amount || 0) - (b.amount || 0));
+
+        const nameOf = (p: SubscriptionPlan) => (p.name || '').toLowerCase();
+
+        const findTier = (kind: 'basic' | 'plus' | 'business'): SubscriptionPlan | undefined => {
+            return processed.find((p) => {
+                const n = nameOf(p);
+                if (kind === 'basic') {
+                    return /\bbasic\b/.test(n) || n.includes('básico');
+                }
+                if (kind === 'plus') {
+                    return /\bplus\b/.test(n);
+                }
+                return (
+                    /\bbusiness\b/.test(n) ||
+                    /\benterprise\b/.test(n) ||
+                    n.includes('empresarial')
+                );
+            });
+        };
+
+        const basic = findTier('basic');
+        const plus = findTier('plus');
+        const business = findTier('business');
+
+        const pickedIds = new Set<string>();
+        const ordered: SubscriptionPlan[] = [];
+
+        for (const p of [basic, plus, business]) {
+            if (p?._id && !pickedIds.has(p._id)) {
+                pickedIds.add(p._id);
+                ordered.push(p);
+            }
+        }
+
+        if (ordered.length < 3) {
+            for (const p of processed) {
+                if (ordered.length >= 3) break;
+                if (pickedIds.has(p._id)) continue;
+                if (/\bstarter\b/i.test(p.name || '')) continue;
+                pickedIds.add(p._id);
+                ordered.push(p);
+            }
+        }
+
+        if (ordered.length < 3) {
+            for (const p of processed) {
+                if (ordered.length >= 3) break;
+                if (pickedIds.has(p._id)) continue;
+                pickedIds.add(p._id);
+                ordered.push(p);
+            }
+        }
+
+        const finalTiers = ordered.slice(0, 3);
+        const hasPlus = finalTiers.some((p) => /\bplus\b/i.test(p.name || ''));
+
+        return finalTiers.map((plan, index) => ({
+            plan,
+            label: plan.name,
+            isBestValue: hasPlus
+                ? /\bplus\b/i.test(plan.name || '')
+                : finalTiers.length === 3 && index === 1,
+        }));
     }
 
     /**
@@ -270,5 +384,9 @@ export class AddCreditsComponent implements OnInit {
                 this._creditsService.getAutoRechargeConfig().subscribe();
             }
         });
+    }
+
+    trackBySidebarTier(_index: number, tier: AddCreditsSidebarPlanTier): string {
+        return tier.plan._id;
     }
 }

@@ -206,27 +206,31 @@
                         <p class="pricing-text">
                             {{ 'addCredits.subscriptionPlans.description' | transloco }}
                         </p>
-                        <div class="pricing-tiers">
-                            <div class="tier">
-                                <span class="tier-amount">$99</span>
-                                <span class="tier-label">{{
-                                    'addCredits.subscriptionPlans.basic' | transloco
-                                }}</span>
-                            </div>
-                            <div class="tier popular">
-                                <span class="tier-badge">{{
+                        <div class="pricing-tiers-skeleton" *ngIf="pricingPlansLoading()">
+                            <div class="pricing-tier-skeleton-bar"></div>
+                            <div class="pricing-tier-skeleton-bar"></div>
+                            <div class="pricing-tier-skeleton-bar"></div>
+                        </div>
+                        <div
+                            class="pricing-tiers"
+                            *ngIf="!pricingPlansLoading() && sidebarPlanTiers().length > 0"
+                            [ngStyle]="{
+                                'grid-template-columns':
+                                    'repeat(' + sidebarPlanTiers().length + ', 1fr)',
+                            }"
+                        >
+                            <div
+                                class="tier"
+                                *ngFor="let tier of sidebarPlanTiers(); trackBy: trackBySidebarTier"
+                                [class.popular]="tier.isBestValue"
+                            >
+                                <span class="tier-badge" *ngIf="tier.isBestValue">{{
                                     'addCredits.subscriptionPlans.bestValue' | transloco
                                 }}</span>
-                                <span class="tier-amount">$249</span>
-                                <span class="tier-label">{{
-                                    'addCredits.subscriptionPlans.plus' | transloco
-                                }}</span>
-                            </div>
-                            <div class="tier">
-                                <span class="tier-amount">$499</span>
-                                <span class="tier-label">{{
-                                    'addCredits.subscriptionPlans.business' | transloco
-                                }}</span>
+                                <span class="tier-amount"
+                                    >${{ tier.plan.amount | number: '1.0-0' }}</span
+                                >
+                                <span class="tier-label">{{ tier.label }}</span>
                             </div>
                         </div>
                         <button
