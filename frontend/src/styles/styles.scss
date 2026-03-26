@@ -13,3 +13,11 @@
         --ag-cell-horizontal-padding: 16px;
     }
 }
+
+/* API Explorer — rename endpoint / folder dialogs (rounded shell on overlay) */
+.postman-rename-endpoint-dialog-shell .mat-mdc-dialog-container,
+.postman-folder-dialog-shell .mat-mdc-dialog-container {
+    padding: 0;
+    border-radius: 1rem;
+    overflow: hidden;
+}

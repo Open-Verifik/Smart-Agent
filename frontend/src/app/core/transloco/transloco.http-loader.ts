@@ -4,6 +4,31 @@ import { Translation, TranslocoLoader } from '@jsverse/transloco';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, shareReplay, switchMap, map } from 'rxjs/operators';
 
+/**
+ * Deep-merge translation trees so features-*.json cannot replace entire sections
+ * (e.g. `postman`) from the main locale file.
+ */
+function deepMergeTranslations(base: Translation, patch: Translation): Translation {
+  const out: Translation = { ...base };
+  for (const key of Object.keys(patch)) {
+    const pv = patch[key];
+    const bv = base[key];
+    if (
+      pv &&
+      typeof pv === 'object' &&
+      !Array.isArray(pv) &&
+      bv &&
+      typeof bv === 'object' &&
+      !Array.isArray(bv)
+    ) {
+      out[key] = deepMergeTranslations(bv as Translation, pv as Translation) as never;
+    } else if (pv !== undefined) {
+      out[key] = pv as never;
+    }
+  }
+  return out;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TranslocoHttpLoader implements TranslocoLoader {
   private _httpClient = inject(HttpClient);
@@ -36,11 +61,9 @@ export class TranslocoHttpLoader implements TranslocoLoader {
               observe: 'body',
             })
             .pipe(
-              // Merge main translations with features
-              map((featuresTranslations) => ({
-                ...mainTranslations,
-                ...featuresTranslations,
-              })),
+              map((featuresTranslations) =>
+                deepMergeTranslations(mainTranslations, featuresTranslations),
+              ),
               // If features file fails, just return main translations
               catchError(() => of(mainTranslations)),
             );
