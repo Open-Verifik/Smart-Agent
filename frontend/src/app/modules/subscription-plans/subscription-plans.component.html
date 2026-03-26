@@ -496,7 +496,7 @@
                                 >
                                     <td>{{ getFeatureDisplayName(feature) }}</td>
                                     <td *ngFor="let plan of apiBreakdownPlans; trackBy: trackByPlan">
-                                        ${{ getEffectivePriceForApi(feature, plan).toFixed(4) }}/req
+                                        ${{ getCompareTablePriceForApi(feature, plan).toFixed(4) }}/req
                                     </td>
                                 </tr>
                             </ng-container>

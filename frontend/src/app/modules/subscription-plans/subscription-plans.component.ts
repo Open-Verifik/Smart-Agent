@@ -16,6 +16,7 @@ import { Subject } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
+    applyApiRequestDiscountToBasePrice,
     formatBenefitRowsFromChanges,
     hasOtherPlanWithApiDiscount,
 } from './subscription-plan-benefits.util';
@@ -238,11 +239,28 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         });
     }
 
-    getEffectivePriceForApi(feature: AppFeature, plan: SubscriptionPlan): number {
+    /**
+     * Catalog / my-list base price per feature (smartCheck vs standard); no plan discount applied.
+     */
+    getCatalogBasePriceForApi(feature: AppFeature, plan: SubscriptionPlan): number {
         const isSmartCheckPlan = Boolean(plan.isSmartcheck);
         return isSmartCheckPlan && feature.smartCheckPrice != null
             ? feature.smartCheckPrice
             : (feature.price ?? 0);
+    }
+
+    getEffectivePriceForApi(feature: AppFeature, plan: SubscriptionPlan): number {
+        return this.getCatalogBasePriceForApi(feature, plan);
+    }
+
+    /**
+     * Public catalog row × plan column: apply each plan's apiRequest discount from changesInPrices.
+     */
+    getCompareTablePriceForApi(feature: AppFeature, plan: SubscriptionPlan): number {
+        return applyApiRequestDiscountToBasePrice(
+            this.getCatalogBasePriceForApi(feature, plan),
+            plan.discount
+        );
     }
 
     private _loadApiFeatures(): void {
@@ -369,14 +387,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     getEffectiveCostPerRequest(plan: SubscriptionPlan): number {
-        const d = plan.discount;
-        const discount = d?.discount ?? 0;
-        if (!discount) return this.BASE_REQUEST_PRICE;
-
-        if (d.type === 'amount') {
-            return Math.max(0, this.BASE_REQUEST_PRICE - discount);
-        }
-        return Math.max(0, this.BASE_REQUEST_PRICE * (1 - discount / 100));
+        return applyApiRequestDiscountToBasePrice(this.BASE_REQUEST_PRICE, plan.discount);
     }
 
     getDiscountDisplayText(plan: SubscriptionPlan): string {

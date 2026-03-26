@@ -1,6 +1,25 @@
 import { ChangesInPrice, SubscriptionPlan } from './subscription-plan.types';
 
 /**
+ * Applies the plan's apiRequest discount (amount or percent) to a base credit price.
+ * Matches subscription slider logic for BASE_REQUEST_PRICE vs per-endpoint catalog prices.
+ */
+export const applyApiRequestDiscountToBasePrice = (
+    basePrice: number,
+    change: ChangesInPrice | undefined
+): number => {
+    const d = change;
+    const discount = d?.discount ?? 0;
+    if (!discount) {
+        return basePrice;
+    }
+    if (d.type === 'amount') {
+        return Math.max(0, basePrice - discount);
+    }
+    return Math.max(0, basePrice * (1 - discount / 100));
+};
+
+/**
  * apiRequest row with no discount and no positive price is not shown as a "benefit".
  */
 export const isMeaningfulPriceChangeRow = (change: ChangesInPrice): boolean => {
