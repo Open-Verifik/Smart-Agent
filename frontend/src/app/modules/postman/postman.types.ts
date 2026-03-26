@@ -1,5 +1,45 @@
 import { environment } from 'environments/environment';
 
+/** Lean folder row from GET /v2/postman/layout or /v2/postman/folders */
+export interface PostmanFolderDto {
+    _id: string;
+    client?: string;
+    parentFolder?: string | null;
+    name: string;
+    description?: string;
+    sortOrder?: number;
+    isSystem?: boolean;
+}
+
+/** Lean endpoint row from GET /v2/postman/layout or /v2/postman/endpoints */
+export interface PostmanEndpointRowDto {
+    _id: string;
+    client?: string;
+    folder?: string | null;
+    appFeatureCode: string;
+    displayName?: string;
+    description?: string;
+    isFavorite?: boolean;
+    sortOrder?: number;
+}
+
+export interface PostmanLayoutData {
+    workspace: unknown | null;
+    folders: PostmanFolderDto[];
+    endpoints: PostmanEndpointRowDto[];
+}
+
+export interface PostmanLayoutResponse {
+    data: PostmanLayoutData;
+}
+
+/** Nested folder + endpoints for sidebar tree */
+export interface SidebarFolderNode {
+    folder: PostmanFolderDto;
+    children: SidebarFolderNode[];
+    endpoints: ApiEndpoint[];
+}
+
 export interface ApiEndpoint {
     id: string;
     label: string;
@@ -18,8 +58,15 @@ export interface ApiEndpoint {
     body?: any;
     category?: string;
     country?: string;
-    documentationUrl?: string; // URL to the markdown file
-    estimatedCost?: number; // USD cost for x402 payment calculation
+    documentationUrl?: string;
+    estimatedCost?: number;
+    /** Persisted Postman endpoint id when layout row exists */
+    postmanEndpointId?: string;
+    /** Target folder _id string, or null for Library */
+    postmanFolderId?: string | null;
+    layoutSortOrder?: number;
+    layoutDisplayName?: string;
+    isFavorite?: boolean;
 }
 
 export const API_ENDPOINTS: ApiEndpoint[] = [

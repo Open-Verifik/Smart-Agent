@@ -17,6 +17,16 @@ import { ClientSubscription, SubscriptionPlan } from '../../subscription-plans/s
 
 import { TranslocoPipe } from '@jsverse/transloco';
 
+/**
+ * Stable UI string for numeric prices (avoids float artifacts like 0.3000000005).
+ */
+function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
+  if (!Number.isFinite(value)) {
+    return '0';
+  }
+  return parseFloat(value.toFixed(maxDecimals)).toString();
+}
+
 @Component({
   selector: 'postman-request-editor',
   standalone: true,
@@ -42,7 +52,12 @@ import { TranslocoPipe } from '@jsverse/transloco';
       <div *ngIf="endpoint() as ep" class="px-4 pt-4 pb-2 select-text">
         <ng-container *ngIf="ep.code; else defaultHeader">
           <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
-            {{ 'appFeatures.' + ep.code + '.title' | transloco }}
+            <ng-container *ngIf="ep.layoutDisplayName?.trim(); else catalogTitle">
+              {{ ep.layoutDisplayName?.trim() }}
+            </ng-container>
+            <ng-template #catalogTitle>
+              {{ 'appFeatures.' + ep.code + '.title' | transloco }}
+            </ng-template>
           </h2>
           <p class="text-sm text-slate-500 dark:text-slate-400">
             {{ 'appFeatures.' + ep.code + '.description' | transloco }}
@@ -412,13 +427,13 @@ export class RequestEditorComponent {
     if (!ep) return null;
     if (method === 'x402') {
       const cost = ep.estimatedCost ?? 0;
-      return { type: 'avax' as const, value: cost.toFixed(5) };
+      return { type: 'avax' as const, value: formatPostmanPriceForDisplay(cost, 5) };
     }
     const basePrice = ep.estimatedCost ?? 0;
     const sub = this.currentSubscription();
     const plan = sub?.subscriptionPlan;
     const effective = this.getEffectivePrice(basePrice, plan);
-    return { type: 'credits' as const, value: effective };
+    return { type: 'credits' as const, value: formatPostmanPriceForDisplay(effective) };
   });
 
   constructor() {
