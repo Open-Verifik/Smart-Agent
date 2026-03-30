@@ -10,8 +10,8 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
-import { SubscriptionService } from '../subscription-plans/subscription.service';
 import { SubscriptionPlan } from '../subscription-plans/subscription-plan.types';
+import { SubscriptionService } from '../subscription-plans/subscription.service';
 import { AutoRechargeSettingsComponent } from './auto-recharge-settings/auto-recharge-settings.component';
 import { PaymentCardComponent } from './payment-card/payment-card.component';
 import { PurchaseCreditsDialogComponent } from './purchase-credits-dialog/purchase-credits-dialog.component';
@@ -143,9 +143,7 @@ export class AddCreditsComponent implements OnInit {
                     return /\bplus\b/.test(n);
                 }
                 return (
-                    /\bbusiness\b/.test(n) ||
-                    /\benterprise\b/.test(n) ||
-                    n.includes('empresarial')
+                    /\bbusiness\b/.test(n) || /\benterprise\b/.test(n) || n.includes('empresarial')
                 );
             });
         };
@@ -338,6 +336,10 @@ export class AddCreditsComponent implements OnInit {
         });
     }
 
+    /**
+     * Opens the purchase flow UI. Actual charging, 3DS (`confirmCardPayment`), and
+     * `POST /v2/credits/purchase/confirm` are handled in {@link PurchaseCreditsDialogComponent}.
+     */
     openPurchaseCreditsDialog(): void {
         const currentCards = this.cards();
         if (currentCards.length === 0) {

@@ -968,7 +968,7 @@
         "saveSettings": "설정 저장",
         "errors": {
           "selectCard": "자동 충전을 위한 결제 수단을 선택하세요",
-          "rechargeRange": "충전 금액은 에서  사이여야 합니다",
+          "rechargeRange": "충전 금액은 $40에서 $2000 사이여야 합니다",
           "thresholdRange": "임계값은 에서  사이여야 합니다",
           "saveFailed": "자동 충전 설정 업데이트 실패"
         }
@@ -988,7 +988,7 @@
       "selectAmount": "금액 선택",
       "customAmount": "사용자 지정 금액",
       "enterAmount": "금액 입력",
-      "minimum": "최소 ",
+      "minimum": "최소 $40",
       "paymentMethod": "결제 수단",
       "summary": "요약",
       "subtotal": "소계",
@@ -999,12 +999,15 @@
       "cancel": "취소",
       "success": "크레딧 구매 성공!",
       "errors": {
-        "minimumAmount": "최소 구매 금액은 입니다",
+        "minimumAmount": "최소 구매 금액은 $40입니다",
         "invalidAmount": "유효한 금액을 입력하세요",
         "purchaseFailed": "구매 실패. 다시 시도하세요.",
         "kycRequired": "KYC 인증 필요",
         "kycMessage": "크레딧 구매를 계속하려면 KYC 인증을 완료하세요.",
-        "contactSupport": "질문이 있으시면 지원팀에 문의하세요."
+        "contactSupport": "질문이 있으시면 지원팀에 문의하세요.",
+        "stripeNotConfigured": "결제를 완료할 수 없습니다. 카드 인증을 사용할 수 없습니다. 다시 시도하거나 지원팀에 문의하세요.",
+        "payment3dsFailed": "카드 인증에 실패했습니다. 다시 시도하거나 다른 카드를 사용하세요.",
+        "paymentFailedImmediate": "결제가 거절되었습니다. 다른 카드를 사용하거나 지원팀에 문의하세요."
       },
       "kyc": {
         "title": "KYC 필수",

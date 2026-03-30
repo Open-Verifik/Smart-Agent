@@ -14,13 +14,41 @@ export interface CreditPurchaseRequest {
   origin?: string;
 }
 
+/** Saved Transaction from API (Mongoose document shape). */
+export interface CreditPurchaseTransaction {
+  _id?: string;
+  status?: 'approved' | 'pending' | 'failed' | string;
+  amount?: number;
+  [key: string]: unknown;
+}
+
+/** Response when Stripe requires 3DS (client must run confirmCardPayment). */
+export interface CreditPurchaseThreeDSData {
+  requiresAction: true;
+  clientSecret: string;
+  paymentIntentId: string;
+  stripePublishableKey: string;
+  stripeStatus?: string;
+  transaction: CreditPurchaseTransaction;
+}
+
+export type CreditPurchaseResponseData = CreditPurchaseTransaction | CreditPurchaseThreeDSData;
+
 export interface CreditPurchaseResponse {
-  data: {
-    status: 'pending' | 'completed';
-    credits?: number;
-  };
+  data: CreditPurchaseResponseData;
   message?: string;
 }
+
+export const isThreeDSCreditPurchase = (
+  data: CreditPurchaseResponseData,
+): data is CreditPurchaseThreeDSData => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'requiresAction' in data &&
+    (data as CreditPurchaseThreeDSData).requiresAction === true
+  );
+};
 
 @Injectable({
   providedIn: 'root',
@@ -72,10 +100,9 @@ export class PaymentService {
   }
 
   /**
-   * Purchase credits
+   * Purchase credits (may return requiresAction for 3DS — handle in UI).
    */
   purchaseCredits(request: CreditPurchaseRequest) {
-    this.loading.set(true);
     this.error.set(null);
 
     const token = localStorage.getItem('accessToken');
@@ -98,11 +125,23 @@ export class PaymentService {
           this.error.set(err.error?.message || 'Failed to purchase credits');
           return throwError(() => err);
         }),
-        finalize(() => {
-          this.loading.set(false);
-        }),
       );
   }
+
+  /**
+   * After Stripe.js completes 3DS, sync credits (backup to webhook).
+   */
+  confirmCreditPurchase(paymentIntentId: string) {
+    const token = localStorage.getItem('accessToken');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+    return this._httpClient.post<{ data: unknown }>(
+      `${this.apiUrl}/v2/credits/purchase/confirm`,
+      { paymentIntentId },
+      { headers },
+    );
+  }
+
   /**
    * Resume KYC process
    */

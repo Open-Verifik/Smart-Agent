@@ -968,7 +968,7 @@
         "saveSettings": "保存设置",
         "errors": {
           "selectCard": "请选择自动充值的支付方式",
-          "rechargeRange": "充值金额必须在到之间",
+          "rechargeRange": "充值金额必须在 $40 到 $2000 之间",
           "thresholdRange": "阈值必须在到之间",
           "saveFailed": "更新自动充值设置失败"
         }
@@ -988,7 +988,7 @@
       "selectAmount": "选择金额",
       "customAmount": "自定义金额",
       "enterAmount": "输入金额",
-      "minimum": "最低",
+      "minimum": "最低 $40",
       "paymentMethod": "支付方式",
       "summary": "摘要",
       "subtotal": "小计",
@@ -999,12 +999,15 @@
       "cancel": "取消",
       "success": "积分购买成功！",
       "errors": {
-        "minimumAmount": "最低购买金额为",
+        "minimumAmount": "最低购买金额为 $40",
         "invalidAmount": "请输入有效金额",
         "purchaseFailed": "购买失败。请重试。",
         "kycRequired": "需要KYC验证",
         "kycMessage": "要继续购买积分，请完成KYC验证。",
-        "contactSupport": "如有疑问，请联系支持。"
+        "contactSupport": "如有疑问，请联系支持。",
+        "stripeNotConfigured": "无法完成付款。卡片验证不可用。请重试或联系客服。",
+        "payment3dsFailed": "卡片验证失败。请重试或使用其他卡片。",
+        "paymentFailedImmediate": "付款被拒绝。请尝试其他卡片或联系客服。"
       },
       "kyc": {
         "title": "需要KYC",

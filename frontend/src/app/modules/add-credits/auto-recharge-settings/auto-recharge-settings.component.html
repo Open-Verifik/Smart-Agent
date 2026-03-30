@@ -52,9 +52,9 @@
                         <input
                             type="number"
                             [(ngModel)]="minRecharge"
-                            placeholder="20"
-                            min="20"
-                            max="2000"
+                            placeholder="40"
+                            [min]="minRechargeUsd"
+                            [max]="maxRechargeUsd"
                         />
                         <span class="input-suffix">USD</span>
                     </div>

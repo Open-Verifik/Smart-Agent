@@ -968,7 +968,7 @@
         "saveSettings": "設定を保存",
         "errors": {
           "selectCard": "自動チャージの支払い方法を選択してください",
-          "rechargeRange": "チャージ金額はからの間である必要があります",
+          "rechargeRange": "チャージ金額は $40 から $2000 の間である必要があります",
           "thresholdRange": "しきい値はからの間である必要があります",
           "saveFailed": "自動チャージ設定の更新に失敗しました"
         }
@@ -988,7 +988,7 @@
       "selectAmount": "金額を選択",
       "customAmount": "カスタム金額",
       "enterAmount": "金額を入力",
-      "minimum": "最小",
+      "minimum": "最小 $40",
       "paymentMethod": "支払い方法",
       "summary": "概要",
       "subtotal": "小計",
@@ -999,12 +999,15 @@
       "cancel": "キャンセル",
       "success": "クレジットの購入に成功しました！",
       "errors": {
-        "minimumAmount": "最小購入金額はです",
+        "minimumAmount": "最小購入金額は $40 です",
         "invalidAmount": "有効な金額を入力してください",
         "purchaseFailed": "購入に失敗しました。もう一度お試しください。",
         "kycRequired": "KYC認証が必要です",
         "kycMessage": "クレジットの購入を続けるには、KYC認証を完了してください。",
-        "contactSupport": "ご質問がある場合は、サポートにお問い合わせください。"
+        "contactSupport": "ご質問がある場合は、サポートにお問い合わせください。",
+        "stripeNotConfigured": "お支払いを完了できませんでした。カード認証が利用できません。再度お試しいただくか、サポートにお問い合わせください。",
+        "payment3dsFailed": "カード認証に失敗しました。再度お試しいただくか、別のカードをご利用ください。",
+        "paymentFailedImmediate": "お支払いが拒否されました。別のカードをお試しいただくか、サポートにお問い合わせください。"
       },
       "kyc": {
         "title": "KYC必須",

@@ -975,7 +975,7 @@
                 "saveSettings": "Enregistrer les paramètres",
                 "errors": {
                     "selectCard": "Veuillez sélectionner une méthode de paiement pour le rechargement automatique",
-                    "rechargeRange": "Le montant de la recharge doit être entre 20$ et 2000$",
+                    "rechargeRange": "Le montant de la recharge doit être entre 40$ et 2000$",
                     "thresholdRange": "Le seuil doit être entre 10$ et 1990$",
                     "saveFailed": "Échec de la mise à jour des paramètres de rechargement automatique"
                 }
@@ -995,7 +995,7 @@
             "selectAmount": "Sélectionner le montant",
             "customAmount": "Montant personnalisé",
             "enterAmount": "Entrer le montant",
-            "minimum": "Minimum 20$",
+            "minimum": "Minimum 40$",
             "paymentMethod": "Méthode de paiement",
             "summary": "Résumé",
             "subtotal": "Sous-total",
@@ -1006,12 +1006,15 @@
             "cancel": "Annuler",
             "success": "Crédits achetés avec succès !",
             "errors": {
-                "minimumAmount": "Le montant minimum d'achat est de 20$",
+                "minimumAmount": "Le montant minimum d'achat est de 40$",
                 "invalidAmount": "Veuillez entrer un montant valide",
                 "purchaseFailed": "L'achat a échoué. Veuillez réessayer.",
                 "kycRequired": "Vérification KYC requise",
                 "kycMessage": "Pour continuer à acheter des crédits, veuillez compléter votre vérification KYC.",
-                "contactSupport": "Si vous avez des questions, veuillez contacter le support."
+                "contactSupport": "Si vous avez des questions, veuillez contacter le support.",
+                "stripeNotConfigured": "Le paiement n'a pas pu être finalisé. La vérification de carte n'est pas disponible. Réessayez ou contactez le support.",
+                "payment3dsFailed": "La vérification de la carte a échoué. Réessayez ou utilisez une autre carte.",
+                "paymentFailedImmediate": "Le paiement a été refusé. Essayez une autre carte ou contactez le support."
             },
             "kyc": {
                 "title": "KYC requis",

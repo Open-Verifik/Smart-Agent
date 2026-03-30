@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
+import { MAX_CREDIT_PURCHASE_USD, MIN_CREDIT_PURCHASE_USD } from '../add-credits.constants';
 import { AutoRechargeConfig, CreditsService, PaymentCard } from '../services/credits.service';
 
 export interface AutoRechargeSettingsData {
@@ -36,7 +37,10 @@ export class AutoRechargeSettingsComponent implements OnInit {
 
     enabled: boolean = false;
     minThreshold: number = 10;
-    minRecharge: number = 20;
+    minRecharge: number = MIN_CREDIT_PURCHASE_USD;
+
+    readonly minRechargeUsd = MIN_CREDIT_PURCHASE_USD;
+    readonly maxRechargeUsd = MAX_CREDIT_PURCHASE_USD;
     selectedCardId?: string;
     loading = false;
     error: string | null = null;
@@ -45,7 +49,10 @@ export class AutoRechargeSettingsComponent implements OnInit {
         if (this.data?.config) {
             this.enabled = this.data.config.hasAutoCharge || false;
             this.minThreshold = this.data.config.minThreshold || 10;
-            this.minRecharge = this.data.config.minRecharge || 20;
+            this.minRecharge = Math.max(
+                MIN_CREDIT_PURCHASE_USD,
+                this.data.config.minRecharge || MIN_CREDIT_PURCHASE_USD,
+            );
             this.selectedCardId = this.data.config.cardId;
         }
 
@@ -77,8 +84,8 @@ export class AutoRechargeSettingsComponent implements OnInit {
         }
 
         if (this.enabled) {
-            if (this.minRecharge < 20 || this.minRecharge > 2000) {
-                this.error = 'Recharge amount must be between $20 and $2000';
+            if (this.minRecharge < MIN_CREDIT_PURCHASE_USD || this.minRecharge > MAX_CREDIT_PURCHASE_USD) {
+                this.error = `Recharge amount must be between $${MIN_CREDIT_PURCHASE_USD} and $${MAX_CREDIT_PURCHASE_USD}`;
                 return;
             }
 

@@ -54,9 +54,9 @@
                             class="custom-input"
                             [(ngModel)]="customAmountValue"
                             (ngModelChange)="onCustomAmountChange($event)"
-                            placeholder="20"
-                            min="20"
-                            max="2000"
+                            placeholder="40"
+                            [min]="minPurchaseUsd"
+                            [max]="maxPurchaseUsd"
                             [disabled]="loading"
                         />
                     </div>

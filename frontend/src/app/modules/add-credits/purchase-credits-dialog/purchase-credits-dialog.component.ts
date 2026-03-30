@@ -5,14 +5,33 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { loadStripe } from '@stripe/stripe-js';
 import { environment } from 'environments/environment';
+import { MAX_CREDIT_PURCHASE_USD, MIN_CREDIT_PURCHASE_USD } from '../add-credits.constants';
 import { PaymentCard } from '../services/credits.service';
-import { PaymentService } from '../services/payment.service';
+import {
+    CreditPurchaseTransaction,
+    isThreeDSCreditPurchase,
+    PaymentService,
+} from '../services/payment.service';
 
 export interface PurchaseCreditsDialogData {
     card: PaymentCard;
 }
+
+const PURCHASE_ERROR_KEYS = {
+    stripeNotConfigured: 'addCredits.purchaseDialog.errors.stripeNotConfigured',
+    payment3dsFailed: 'addCredits.purchaseDialog.errors.payment3dsFailed',
+    paymentFailedImmediate: 'addCredits.purchaseDialog.errors.paymentFailedImmediate',
+} as const;
+
+const PURCHASE_ERROR_FALLBACKS: Record<keyof typeof PURCHASE_ERROR_KEYS, string> = {
+    stripeNotConfigured:
+        'Payment could not be completed. Card verification is not available. Please try again.',
+    payment3dsFailed: 'Card verification failed. Please try again or use another card.',
+    paymentFailedImmediate: 'Payment was declined. Please try another card or contact support.',
+};
 
 @Component({
     selector: 'app-purchase-credits-dialog',
@@ -33,7 +52,11 @@ export interface PurchaseCreditsDialogData {
 export class PurchaseCreditsDialogComponent implements OnInit {
     private _dialogRef = inject(MatDialogRef<PurchaseCreditsDialogComponent>);
     private _paymentService = inject(PaymentService);
+    private _transloco = inject(TranslocoService);
     data = inject<PurchaseCreditsDialogData>(MAT_DIALOG_DATA);
+
+    readonly minPurchaseUsd = MIN_CREDIT_PURCHASE_USD;
+    readonly maxPurchaseUsd = MAX_CREDIT_PURCHASE_USD;
 
     selectedAmount: number = 100;
     selectedCardId?: string;
@@ -44,8 +67,8 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     isCustomAmount = false;
     customAmountValue: number | null = null;
 
-    // Updated amounts: now starting from $20
-    creditAmounts = [20, 50, 100, 250, 500, 1000];
+    /** Preset amounts; minimum purchasable USD is `MIN_CREDIT_PURCHASE_USD` (custom input included). */
+    creditAmounts = [40, 50, 100, 250, 500, 1000];
 
     // KYC Requirement support
     kycRequired = false;
@@ -66,7 +89,10 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         this.isCustomAmount = !this.isCustomAmount;
         if (this.isCustomAmount) {
             // When switching to custom, initialize with current selection or minimum
-            this.customAmountValue = this.selectedAmount >= 20 ? this.selectedAmount : 20;
+            this.customAmountValue =
+                this.selectedAmount >= MIN_CREDIT_PURCHASE_USD
+                    ? this.selectedAmount
+                    : MIN_CREDIT_PURCHASE_USD;
             this.selectedAmount = this.customAmountValue;
         }
     }
@@ -77,7 +103,10 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     }
 
     isValidAmount(): boolean {
-        return this.selectedAmount >= 20 && this.selectedAmount <= 2000;
+        return (
+            this.selectedAmount >= MIN_CREDIT_PURCHASE_USD &&
+            this.selectedAmount <= MAX_CREDIT_PURCHASE_USD
+        );
     }
 
     close(): void {
@@ -114,6 +143,59 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         return logos[brand?.toLowerCase()] || '';
     }
 
+    private _translatePurchaseError(key: keyof typeof PURCHASE_ERROR_KEYS): string {
+        const path = PURCHASE_ERROR_KEYS[key];
+        const translated = this._transloco.translate(path);
+        return translated === path ? PURCHASE_ERROR_FALLBACKS[key] : translated;
+    }
+
+    /**
+     * Completes Stripe 3DS and confirms the credit purchase on the API.
+     */
+    private async _completeStripe3ds(
+        clientSecret: string,
+        paymentIntentId: string,
+        stripePublishableKey: string,
+    ): Promise<void> {
+        try {
+            const stripe = await loadStripe(stripePublishableKey);
+            if (!stripe) {
+                this.loading = false;
+                this.error = this._translatePurchaseError('stripeNotConfigured');
+                return;
+            }
+
+            const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret);
+
+            if (error) {
+                this.loading = false;
+                this.error = error.message || this._translatePurchaseError('payment3dsFailed');
+                return;
+            }
+
+            if (paymentIntent?.status !== 'succeeded') {
+                this.loading = false;
+                this.error = this._translatePurchaseError('payment3dsFailed');
+                return;
+            }
+
+            this._paymentService.confirmCreditPurchase(paymentIntentId).subscribe({
+                next: () => {
+                    this.loading = false;
+                    this._dialogRef.close('success');
+                },
+                error: (err) => {
+                    this.loading = false;
+                    this.error =
+                        err.error?.message || this._translatePurchaseError('payment3dsFailed');
+                },
+            });
+        } catch {
+            this.loading = false;
+            this.error = this._translatePurchaseError('payment3dsFailed');
+        }
+    }
+
     purchase(): void {
         if (!this.selectedCardId) {
             this.error = 'Please select a payment method';
@@ -121,7 +203,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         }
 
         if (!this.isValidAmount()) {
-            this.error = 'Amount must be between $20 and $2,000';
+            this.error = `Amount must be between $${MIN_CREDIT_PURCHASE_USD} and $${MAX_CREDIT_PURCHASE_USD.toLocaleString('en-US')}`;
             return;
         }
 
@@ -137,18 +219,47 @@ export class PurchaseCreditsDialogComponent implements OnInit {
             })
             .subscribe({
                 next: (response) => {
-                    this.loading = false;
-                    // Check if payment is pending
-                    if (response.data?.status === 'pending') {
+                    const data = response.data;
+                    if (!data) {
+                        this.loading = false;
+                        this.error = 'Failed to purchase credits';
+                        return;
+                    }
+
+                    if (isThreeDSCreditPurchase(data)) {
+                        const { clientSecret, paymentIntentId, stripePublishableKey } = data;
+                        if (!clientSecret || !paymentIntentId || !stripePublishableKey) {
+                            this.loading = false;
+                            this.error = this._translatePurchaseError('stripeNotConfigured');
+                            return;
+                        }
+                        void this._completeStripe3ds(
+                            clientSecret,
+                            paymentIntentId,
+                            stripePublishableKey,
+                        );
+                        return;
+                    }
+
+                    const tx = data as CreditPurchaseTransaction;
+                    if (tx.status === 'failed') {
+                        this.loading = false;
+                        this.error = this._translatePurchaseError('paymentFailedImmediate');
+                        return;
+                    }
+
+                    if (tx.status === 'pending') {
+                        this.loading = false;
                         this.error =
                             'Payment is pending verification. Credits will be added once payment is confirmed.';
-                        // Still close as success since the payment was initiated
                         setTimeout(() => {
                             this._dialogRef.close('success');
                         }, 2000);
-                    } else {
-                        this._dialogRef.close('success');
+                        return;
                     }
+
+                    this.loading = false;
+                    this._dialogRef.close('success');
                 },
                 error: (err) => {
                     this.loading = false;

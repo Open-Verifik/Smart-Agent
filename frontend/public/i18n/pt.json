@@ -969,7 +969,7 @@
         "saveSettings": "Salvar Configurações",
         "errors": {
           "selectCard": "Por favor, selecione um método de pagamento para recarga automática",
-          "rechargeRange": "O valor da recarga deve estar entre $20 e $2000",
+          "rechargeRange": "O valor da recarga deve estar entre $40 e $2000",
           "thresholdRange": "O limite deve estar entre $10 e $1990",
           "saveFailed": "Falha ao atualizar as configurações de recarga automática"
         }
@@ -989,7 +989,7 @@
       "selectAmount": "Selecionar Valor",
       "customAmount": "Valor Personalizado",
       "enterAmount": "Digite o valor",
-      "minimum": "Mínimo $20",
+      "minimum": "Mínimo $40",
       "paymentMethod": "Método de Pagamento",
       "summary": "Resumo",
       "subtotal": "Subtotal",
@@ -1000,12 +1000,15 @@
       "cancel": "Cancelar",
       "success": "Créditos comprados com sucesso!",
       "errors": {
-        "minimumAmount": "O valor mínimo de compra é $20",
+        "minimumAmount": "O valor mínimo de compra é $40",
         "invalidAmount": "Por favor, digite um valor válido",
         "purchaseFailed": "Compra falhou. Tente novamente.",
         "kycRequired": "Verificação KYC necessária",
         "kycMessage": "Para continuar comprando créditos, complete sua verificação KYC.",
-        "contactSupport": "Se tiver dúvidas, entre em contato com o suporte."
+        "contactSupport": "Se tiver dúvidas, entre em contato com o suporte.",
+        "stripeNotConfigured": "Não foi possível concluir o pagamento. A verificação do cartão não está disponível. Tente novamente ou entre em contato com o suporte.",
+        "payment3dsFailed": "A verificação do cartão falhou. Tente novamente ou use outro cartão.",
+        "paymentFailedImmediate": "O pagamento foi recusado. Tente outro cartão ou entre em contato com o suporte."
       },
       "kyc": {
         "title": "KYC Necessário",
