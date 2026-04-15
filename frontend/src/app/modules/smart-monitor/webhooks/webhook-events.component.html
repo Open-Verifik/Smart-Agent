@@ -1,0 +1,137 @@
+<ng-container *transloco="let t">
+    <div class="events-shell">
+        <div class="events-pane list-pane">
+            <div class="segmented" role="tablist">
+                <button
+                    type="button"
+                    role="tab"
+                    class="seg-btn"
+                    [class.active]="filterSelected === undefined"
+                    (click)="selectFilter(undefined)"
+                >
+                    {{ t('webhooks.details.all') }}
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    class="seg-btn"
+                    [class.active]="filterSelected === 'success'"
+                    (click)="selectFilter('success')"
+                >
+                    {{ t('webhooks.details.success') }}
+                </button>
+                <button
+                    type="button"
+                    role="tab"
+                    class="seg-btn"
+                    [class.active]="filterSelected === 'fail'"
+                    (click)="selectFilter('fail')"
+                >
+                    {{ t('webhooks.details.failed') }}
+                </button>
+            </div>
+
+            <div class="table-head">
+                <span class="col-project">{{ t('webhooks.details.project_name') }}</span>
+                <span class="col-type hide-sm">{{ t('webhooks.details.webhook_type') }}</span>
+                <span class="col-date hide-sm">{{ t('webhooks.events.sent') }}</span>
+            </div>
+
+            <div class="table-body-wrap">
+                <div class="loading-overlay" *ngIf="searching">
+                    <mat-progress-spinner diameter="36" mode="indeterminate"></mat-progress-spinner>
+                </div>
+
+                <button
+                    type="button"
+                    class="event-row"
+                    *ngFor="let event of eventsData"
+                    [class.selected]="eventSelected?._id === event._id"
+                    (click)="selectedWebhookEvent(event)"
+                >
+                    <div class="col-project" [title]="event.projectFlow?.project?.name || returnProjectName(event.projectFlow) || '—'">
+                        <span
+                            class="status-dot"
+                            [class.ok]="event.response?.status === 'success'"
+                            [class.fail]="event.response?.status === 'fail'"
+                        ></span>
+                        <span class="proj-name">
+                            <ng-container *ngIf="event.projectFlow?.project?.name as n">{{ n }}</ng-container>
+                            <ng-container *ngIf="!event.projectFlow?.project?.name">
+                                {{ returnProjectName(event.projectFlow) || '—' }}
+                            </ng-container>
+                        </span>
+                    </div>
+                    <span class="col-type hide-sm" [title]="event.type">{{ event.type }}</span>
+                    <span class="col-date hide-sm muted-xs">{{ event.sentAt | date : 'short' }}</span>
+                </button>
+
+                <div class="empty-banner" *ngIf="!searching && !eventsData?.length">
+                    {{ t('webhooks.details.not_events') }}
+                </div>
+            </div>
+
+            <mat-paginator
+                *ngIf="paginatorData.length > paginatorData.pageSize || paginatorData.length > 0"
+                class="paginator"
+                (page)="onPaginatorEvent($event)"
+                [length]="paginatorData.length"
+                [pageIndex]="paginatorData.pageIndex"
+                [pageSize]="paginatorData.pageSize"
+                [pageSizeOptions]="[10, 20, 50]"
+            ></mat-paginator>
+        </div>
+
+        <div class="events-pane detail-pane">
+            <ng-container *ngIf="eventSelected">
+                <div class="detail-header">
+                    <div class="detail-titles">
+                        <span class="detail-project">{{ eventSelected.projectFlow?.project?.name || returnProjectName(eventSelected.projectFlow) }}</span>
+                        <span class="detail-type mono-xs">{{ eventSelected.type }}</span>
+                    </div>
+                    <button type="button" class="btn-resend" (click)="resend(eventSelected._id)">{{ t('webhooks.details.resend') }}</button>
+                </div>
+
+                <div class="detail-section-head">
+                    <h3 class="detail-section-title">{{ t('webhooks.details.response') }}</h3>
+                    <button
+                        type="button"
+                        class="btn-copy"
+                        mat-icon-button
+                        [disabled]="!eventSelected.response"
+                        (click)="copyToClipboard(eventSelected.response)"
+                        [attr.aria-label]="t('webhooks.details.copy_response')"
+                    >
+                        <mat-icon svgIcon="heroicons_outline:clipboard-document" class="copy-ic"></mat-icon>
+                    </button>
+                </div>
+                <div class="pill-row">
+                    <span class="status-pill" [class.ok]="eventSelected.response?.status === 'success'" [class.fail]="eventSelected.response?.status === 'fail'">
+                        <mat-icon class="pill-icon" [svgIcon]="eventSelected.response?.status === 'fail' ? 'heroicons_outline:x-circle' : 'heroicons_outline:check-circle'"></mat-icon>
+                        {{ eventSelected.response?.status === 'success' ? t('webhooks.details.success') : t('webhooks.details.failed') }}
+                    </span>
+                </div>
+                <pre *ngIf="eventSelected.response?.body" class="code-block">{{ eventSelected.response.body | json }}</pre>
+
+                <div class="detail-section-head">
+                    <h3 class="detail-section-title">{{ t('webhooks.details.request') }}</h3>
+                    <button
+                        type="button"
+                        class="btn-copy"
+                        mat-icon-button
+                        [disabled]="!eventSelected.body"
+                        (click)="copyToClipboard(eventSelected.body)"
+                        [attr.aria-label]="t('webhooks.details.copy_request')"
+                    >
+                        <mat-icon svgIcon="heroicons_outline:clipboard-document" class="copy-ic"></mat-icon>
+                    </button>
+                </div>
+                <pre class="code-block">{{ eventSelected.body | json }}</pre>
+            </ng-container>
+
+            <div class="detail-empty" *ngIf="!eventSelected">
+                {{ t('webhooks.details.select_event') }}
+            </div>
+        </div>
+    </div>
+</ng-container>

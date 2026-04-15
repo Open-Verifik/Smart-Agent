@@ -1,0 +1,317 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div>
+                    <h1 class="title">{{ t('smartEnrollProjects.staff.title') }}</h1>
+                    <p class="subtitle">{{ t('smartEnrollProjects.staff.subtitle') }}</p>
+                    @if (project()?.name) {
+                        <p class="project-name">{{ project()!.name }}</p>
+                    }
+                </div>
+                <a class="doc-link" [href]="docUrl()" target="_blank" rel="noopener noreferrer">
+                    {{ t('smartEnrollProjects.staff.documentation') }}
+                </a>
+            </header>
+
+            @if (loadError()) {
+                <div class="banner-error">{{ loadError()! | transloco }}</div>
+            }
+
+            @if (loading() && !projectMembers().length && !staffs().length) {
+                <div class="state-loading">
+                    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                </div>
+            } @else if (project()) {
+                <section class="panel">
+                    <div class="table-head grid-row members-head">
+                        <span class="th">{{ t('smartEnrollProjects.staff.username') }}</span>
+                        <span class="th hide-sm">{{ t('smartEnrollProjects.staff.lastActive') }}</span>
+                        <span class="th">{{ t('smartEnrollProjects.staff.role') }}</span>
+                        <span class="th">{{ t('smartEnrollProjects.staff.invitation') }}</span>
+                        <span class="th th-actions"></span>
+                    </div>
+
+                    @for (member of sortedMembers(); track member._id) {
+                        <div class="grid-row data-row members-row">
+                            <div class="cell-user">
+                                <div class="avatar">{{ formatAcronym(member.staff?.name) }}</div>
+                                <div>
+                                    <div class="name">{{ member.staff?.name }}</div>
+                                    <div class="muted show-sm">
+                                        @if (member.lastActive) {
+                                            {{ lastActiveDisplay(member.lastActive) }}
+                                        } @else {
+                                            {{ t('smartEnrollProjects.list.neverLoggedIn') }}
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="cell-muted hide-sm">
+                                @if (member.lastActive) {
+                                    {{ lastActiveDisplay(member.lastActive) }}
+                                } @else {
+                                    {{ t('smartEnrollProjects.list.neverLoggedIn') }}
+                                }
+                            </div>
+                            <div class="cell-role">
+                                @if (!canUpdateRole(member)) {
+                                    <span>{{ t('smartEnrollProjects.staff.roles.' + member.role) }}</span>
+                                } @else {
+                                    <select
+                                        class="role-select"
+                                        [value]="member.role"
+                                        [disabled]="isUpdatingOrRemoving(member)"
+                                        (change)="onMemberRoleChange(member, $event)"
+                                    >
+                                        @for (role of roles; track role) {
+                                            <option [value]="role">{{ t('smartEnrollProjects.staff.roles.' + role) }}</option>
+                                        }
+                                    </select>
+                                }
+                            </div>
+                            <div class="cell-invite">
+                                @if (member.acceptedAt) {
+                                    {{ t('smartEnrollProjects.staff.accepted') }}
+                                } @else {
+                                    {{ t('smartEnrollProjects.staff.invited') }}
+                                }
+                            </div>
+                            <div class="cell-actions">
+                                @if (canRemoveMember(member)) {
+                                    <button
+                                        type="button"
+                                        class="link-danger"
+                                        [disabled]="isUpdatingOrRemoving(member)"
+                                        (click)="removeMember(member)"
+                                    >
+                                        {{ t('smartEnrollProjects.staff.removeFromProject') }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (!sortedMembers().length && !loading()) {
+                        <div class="empty-block">
+                            <p class="empty-title">{{ t('smartEnrollProjects.staff.noMembers') }}</p>
+                            <p class="empty-sub">{{ t('smartEnrollProjects.staff.noMembersHint') }}</p>
+                        </div>
+                    }
+                </section>
+
+                @if (canInvite()) {
+                    <h2 class="section-title">{{ t('smartEnrollProjects.staff.inviteTitle') }}</h2>
+                    <p class="section-sub">{{ t('smartEnrollProjects.staff.inviteSubtitle') }}</p>
+
+                    <section class="panel">
+                        <div class="table-head grid-row invite-head">
+                            @if (staffs().length) {
+                                <mat-checkbox
+                                    class="chk"
+                                    [checked]="isAllSelected"
+                                    [disabled]="saving()"
+                                    [indeterminate]="!isAllSelected && hasSelectedStaff"
+                                    (change)="selectAll()"
+                                ></mat-checkbox>
+                            } @else {
+                                <span class="chk-spacer"></span>
+                            }
+                            <span class="th">{{ t('smartEnrollProjects.staff.username') }}</span>
+                            <span class="th hide-sm">{{ t('smartEnrollProjects.staff.email') }}</span>
+                            <span class="th">{{ t('smartEnrollProjects.staff.role') }}</span>
+                            <span class="th th-actions"></span>
+                        </div>
+
+                        @for (staff of paginatedStaff(); track staff._id) {
+                            <div class="grid-row invite-row" [class.selected]="staff.selected">
+                                <mat-checkbox
+                                    class="chk"
+                                    [checked]="staff.selected"
+                                    [disabled]="isInviting(staff) || saving()"
+                                    (change)="toggleSelection(staff)"
+                                ></mat-checkbox>
+                                <div class="cell-user">
+                                    <div class="avatar">{{ formatAcronym(staff.name) }}</div>
+                                    <div>
+                                        <div class="name">{{ staff.name }}</div>
+                                        <div class="muted show-sm">{{ staff.email }}</div>
+                                    </div>
+                                </div>
+                                <div class="cell-muted hide-sm">{{ staff.email }}</div>
+                                <div class="cell-role">
+                                    <select
+                                        class="role-select"
+                                        [value]="staff.role || 'viewer'"
+                                        [disabled]="isInviting(staff) || saving()"
+                                        (change)="onInviteRoleChange(staff, $event)"
+                                    >
+                                        @for (role of roles; track role) {
+                                            <option [value]="role">{{ t('smartEnrollProjects.staff.roles.' + role) }}</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="cell-actions end">
+                                    <button
+                                        mat-flat-button
+                                        color="primary"
+                                        type="button"
+                                        class="btn-add"
+                                        [disabled]="!canInvite() || isInviting(staff) || saving()"
+                                        (click)="createMember(staff)"
+                                    >
+                                        @if (!isInviting(staff)) {
+                                            {{ t('smartEnrollProjects.staff.addToProject') }}
+                                        } @else {
+                                            <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        @if (totalPages > 1) {
+                            <div class="pager">
+                                <button mat-icon-button type="button" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
+                                    <mat-icon>chevron_left</mat-icon>
+                                </button>
+                                <span class="pager-label">{{ t('smartEnrollProjects.staff.page', { current: currentPage(), total: totalPages }) }}</span>
+                                <button
+                                    mat-icon-button
+                                    type="button"
+                                    [disabled]="currentPage() === totalPages"
+                                    (click)="changePage(currentPage() + 1)"
+                                >
+                                    <mat-icon>chevron_right</mat-icon>
+                                </button>
+                            </div>
+                        }
+
+                        @if (staffs().length === 0 && !loading()) {
+                            @if (sortedMembers().length) {
+                                <div class="empty-block">
+                                    <p class="empty-title">{{ t('smartEnrollProjects.staff.noStaffAvailable') }}</p>
+                                    <p class="empty-sub">
+                                        {{ t('smartEnrollProjects.staff.noStaffAvailableHintBefore') }}
+                                        <a routerLink="/settings/team" class="hint-here-link">{{
+                                            t('smartEnrollProjects.staff.noStaffAvailableHintLink')
+                                        }}</a>{{ t('smartEnrollProjects.staff.noStaffAvailableHintAfter') }}
+                                    </p>
+                                </div>
+                            } @else {
+                                <div class="empty-block">
+                                    <p class="empty-title">{{ t('smartEnrollProjects.staff.noStaff') }}</p>
+                                    <p class="empty-sub">{{ t('smartEnrollProjects.staff.noStaffHint') }}</p>
+                                </div>
+                            }
+
+                            @if (canInvite() && canManageWorkspaceStaff() && workspaceStaffContextLoaded) {
+                                <div
+                                    class="workspace-limit-banner"
+                                    [class.banner-ok]="hasSubscription && canAddMoreWorkspaceStaff()"
+                                    [class.banner-warn]="hasSubscription && !canAddMoreWorkspaceStaff()"
+                                    [class.banner-bad]="!hasSubscription"
+                                >
+                                    <p class="workspace-limit-text">
+                                        @if (hasSubscription) {
+                                            {{ t('settings.team.limit_info_1') }}
+                                            <span class="font-semibold">{{
+                                                selectedSubscription?.name === 'PyG' ? 'PAYG' : selectedSubscription?.name
+                                            }}</span>
+                                            {{ t('settings.team.limit_info_2') }}
+                                            <span class="font-semibold">{{ staffLimit }}</span>
+                                            {{ t('settings.team.limit_info_3') }}
+                                            (<span class="font-semibold">{{ workspaceStaffCount }}/{{ staffLimit }}</span>
+                                            {{ t('settings.team.used') }})
+                                        } @else {
+                                            {{ t('settings.team.no_plan_warning') }}
+                                        }
+                                        <a routerLink="/subscription-plans" class="workspace-limit-plans">{{
+                                            t('settings.team.view_plans')
+                                        }}</a>
+                                    </p>
+                                </div>
+
+                                <div class="inline-workspace-form" [formGroup]="workspaceStaffForm">
+                                    <h3 class="inline-form-title">{{ t('smartEnrollProjects.staff.inlineWorkspaceTitle') }}</h3>
+                                    <p class="inline-form-sub">{{ t('smartEnrollProjects.staff.inlineWorkspaceSubtitle') }}</p>
+
+                                    <label class="inline-label">{{ t('settings.team.full_name') }}</label>
+                                    <input class="inline-input" type="text" formControlName="name" />
+
+                                    <label class="inline-label">{{ t('settings.team.email') }}</label>
+                                    <input class="inline-input" type="email" formControlName="email" />
+
+                                    <div class="inline-grid-2">
+                                        <div>
+                                            <label class="inline-label">{{ t('settings.team.country_code') }}</label>
+                                            <select class="inline-select" formControlName="countryCode">
+                                                @for (c of countryCodes; track c.dialCode + c.name) {
+                                                    <option [value]="c.dialCode">{{ c.dialCode }} {{ c.name }}</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="inline-label">{{ t('settings.team.phone') }}</label>
+                                            <input class="inline-input" type="tel" formControlName="phone" />
+                                        </div>
+                                    </div>
+
+                                    <label class="inline-label">{{ t('settings.team.role') }}</label>
+                                    <select class="inline-select" formControlName="role">
+                                        <option value="empleado">{{ t('settings.team.role_empleado') }}</option>
+                                        <option value="contabilidad">{{ t('settings.team.role_contabilidad') }}</option>
+                                        <option value="desarrollador">{{ t('settings.team.role_desarrollador') }}</option>
+                                        <option value="administrador">{{ t('settings.team.role_administrador') }}</option>
+                                    </select>
+
+                                    <div class="inline-form-actions">
+                                        <button
+                                            mat-flat-button
+                                            color="primary"
+                                            type="button"
+                                            class="btn-submit-workspace"
+                                            [disabled]="
+                                                isSavingWorkspaceStaff ||
+                                                workspaceStaffForm.invalid ||
+                                                !canAddMoreWorkspaceStaff()
+                                            "
+                                            (click)="saveWorkspaceStaff()"
+                                        >
+                                            @if (!isSavingWorkspaceStaff) {
+                                                {{ t('settings.team.save') }}
+                                            } @else {
+                                                <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </section>
+                }
+
+                <footer class="footer-actions">
+                    <button mat-stroked-button type="button" class="btn-outline" (click)="goBack()">
+                        {{ t('smartEnrollProjects.staff.goBack') }}
+                    </button>
+                    @if (canInvite()) {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            [disabled]="isSavingDisabled"
+                            (click)="createMembers()"
+                        >
+                            @if (!saving()) {
+                                {{ t('smartEnrollProjects.staff.sendInvitations') }}
+                            } @else {
+                                <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+                            }
+                        </button>
+                    }
+                </footer>
+            }
+        </div>
+    </div>
+</ng-container>

@@ -1,0 +1,339 @@
+:host {
+    display: block;
+}
+
+.page {
+    min-height: 100%;
+    background: rgb(249 250 251);
+}
+
+.inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+}
+
+.hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.hero-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgb(239 246 255);
+    border: 1px solid rgb(219 234 254);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(37 99 235);
+    flex-shrink: 0;
+}
+
+.hero-icon mat-icon {
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    color: rgb(17 24 39);
+}
+
+.subtitle {
+    margin: 0.4rem 0 0;
+    font-size: 1rem;
+    color: rgb(107 114 128);
+    line-height: 1.45;
+}
+
+.state-loading {
+    display: flex;
+    justify-content: center;
+    padding: 4rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+@media (min-width: 900px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.card {
+    border: 1px solid rgb(229 231 235);
+    border-radius: 16px;
+    background: #fff;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    text-align: left;
+    transition: border-color 0.15s ease;
+}
+
+.card:hover {
+    border-color: rgb(209 213 219);
+}
+
+.card-dashed {
+    border-style: dashed;
+    cursor: pointer;
+    align-items: stretch;
+    justify-content: center;
+    min-height: 280px;
+    background: rgb(252 252 252);
+}
+
+.card-dashed:hover {
+    border-color: rgb(59 130 246);
+    background: rgb(239 246 255);
+}
+
+.card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.card-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-width: 0;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 650;
+    color: rgb(17 24 39);
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.5rem;
+    border-radius: 999px;
+    width: fit-content;
+}
+
+.pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgb(209 213 219);
+}
+
+.pill-on {
+    background: rgb(240 253 244);
+    color: rgb(22 101 52);
+}
+
+.pill-on .pill-dot {
+    background: rgb(34 197 94);
+}
+
+.pill-off {
+    background: rgb(243 244 246);
+    color: rgb(75 85 99);
+}
+
+.chart-box {
+    border: 1px solid rgb(243 244 246);
+    border-radius: 12px;
+    padding: 0.75rem 0.85rem;
+    background: rgb(252 252 252);
+}
+
+.field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.field-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(75 85 99);
+}
+
+.fld-ic {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: rgb(156 163 175);
+}
+
+.url {
+    font-size: 0.75rem;
+    color: rgb(55 65 81);
+    background: rgb(249 250 251);
+    border: 1px solid rgb(243 244 246);
+    border-radius: 8px;
+    padding: 0.45rem 0.55rem;
+    word-break: break-all;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.chip {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.3rem 0.55rem;
+    border-radius: 8px;
+    background: rgb(239 246 255);
+    color: rgb(29 78 216);
+    border: 1px solid rgb(219 234 254);
+}
+
+.chip-warn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.3rem 0.55rem;
+    border-radius: 8px;
+    background: rgb(254 252 232);
+    color: rgb(161 98 7);
+    border: 1px solid rgb(253 230 138);
+}
+
+.chip-ic {
+    width: 14px;
+    height: 14px;
+    font-size: 14px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.25rem;
+}
+
+.btn-primary {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: none;
+    border-radius: 10px;
+    background: rgb(37 99 235);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: rgb(29 78 216);
+}
+
+.btn-primary.inline {
+    flex: none;
+    margin-top: 0.5rem;
+}
+
+.btn-ghost {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 10px;
+    background: #fff;
+    color: rgb(37 99 235);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+}
+
+.btn-ghost:hover {
+    background: rgb(249 250 251);
+}
+
+.btn-ic {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+}
+
+.add-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+}
+
+.add-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    background: rgb(239 246 255);
+    border: 1px solid rgb(219 234 254);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(37 99 235);
+    margin-bottom: 1rem;
+}
+
+.add-icon mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+}
+
+.add-title {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 650;
+    color: rgb(17 24 39);
+}
+
+.add-line {
+    margin: 0.35rem 0 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(55 65 81);
+}
+
+.add-hint {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    color: rgb(107 114 128);
+    max-width: 280px;
+    line-height: 1.45;
+}

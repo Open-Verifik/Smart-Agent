@@ -1,0 +1,26 @@
+:host {
+    display: block;
+}
+
+.scan-detail-panel {
+    @apply overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.scan-detail-panel__header {
+    @apply border-b border-stone-100 dark:border-gray-800;
+}
+
+.scan-detail-meta {
+    @apply flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.scan-detail-code {
+    @apply inline-flex items-center rounded-lg bg-stone-100 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-stone-700 dark:bg-gray-800 dark:text-stone-300;
+}
+
+:host ::ng-deep .scan-detail-mat-btn-pill.mat-mdc-outlined-button,
+:host ::ng-deep .scan-detail-mat-btn-pill.mat-mdc-unelevated-button {
+    border-radius: 9999px;
+}

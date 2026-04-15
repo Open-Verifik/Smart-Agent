@@ -1,3 +1,127 @@
+:host {
+ display: block;
+}
+
+.scan-tool-root {
+    --st-radius: 1.25rem;
+    --st-radius-sm: 0.875rem;
+}
+
+/* Step indicator */
+.scan-tool-steps__item--current {
+    @apply bg-stone-900 text-white shadow-sm dark:bg-stone-100 dark:text-stone-900;
+}
+
+.scan-tool-steps__item--done {
+    @apply bg-stone-200/80 text-stone-700 dark:bg-gray-700 dark:text-stone-200;
+}
+
+.scan-tool-steps__item--todo {
+    @apply bg-white/80 text-stone-400 border border-stone-200/90 dark:bg-gray-900/40 dark:text-gray-500 dark:border-gray-700;
+}
+
+/* Document type picker cards */
+.scan-tool-doc-card {
+    @apply relative rounded-3xl border border-stone-200/90 bg-white overflow-hidden transition-all duration-200 dark:border-gray-700 dark:bg-gray-900/60;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+    &:hover {
+        box-shadow: 0 12px 32px -12px rgba(15, 23, 42, 0.12);
+        @apply border-stone-300 dark:border-gray-600;
+    }
+}
+
+.scan-tool-doc-card__media {
+    @apply h-36 bg-stone-100 overflow-hidden relative dark:bg-gray-950/80;
+}
+
+.scan-tool-doc-card__code {
+    @apply inline-block px-2 py-0.5 rounded-md text-[10px] font-mono font-semibold tracking-wide bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-400;
+}
+
+/* Primary surface (preview / panels) */
+.scan-tool-panel {
+    @apply bg-white rounded-3xl border border-stone-200/90 shadow-sm overflow-hidden dark:bg-gray-900/50 dark:border-gray-700;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.scan-tool-panel__header {
+    @apply border-b border-stone-100 dark:border-gray-800;
+}
+
+/* Pills (country / category) */
+.scan-tool-pill {
+    @apply inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 border-stone-200 bg-white text-stone-700 hover:border-stone-300 dark:border-gray-700 dark:bg-gray-900/40 dark:text-stone-200 dark:hover:border-gray-600;
+}
+
+.scan-tool-pill--active {
+    @apply border-stone-900 bg-stone-900 text-white shadow-sm dark:border-stone-100 dark:bg-stone-100 dark:text-stone-900;
+}
+
+.scan-tool-chip {
+    @apply px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 border-stone-200 bg-white text-stone-600 hover:border-stone-300 dark:border-gray-700 dark:bg-gray-900/40 dark:text-stone-300 dark:hover:border-gray-600;
+}
+
+.scan-tool-chip--active {
+    @apply border-stone-900 bg-stone-900 text-white dark:border-stone-100 dark:bg-stone-100 dark:text-stone-900;
+}
+
+/* Drop zones */
+.scan-tool-dropzone {
+    @apply rounded-3xl border-2 border-dashed border-stone-200 bg-stone-50/50 overflow-hidden cursor-pointer transition-all duration-200 dark:border-gray-700 dark:bg-gray-950/30;
+
+    &:hover {
+        @apply border-stone-400 bg-stone-50 dark:border-gray-500 dark:bg-gray-900/40;
+    }
+}
+
+.scan-tool-strip {
+    @apply flex items-center gap-3 p-4 rounded-2xl border border-stone-200/90 bg-stone-50/80 dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+/* Material outline field — lighter chrome */
+:host ::ng-deep .scan-tool-search {
+    .mat-mdc-text-field-wrapper {
+        background-color: transparent;
+    }
+
+    .mdc-notched-outline .mdc-notched-outline__leading,
+    .mdc-notched-outline .mdc-notched-outline__notch,
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+        border-color: rgb(231 229 228) !important;
+    }
+
+    .mat-mdc-form-field-focus-overlay {
+        opacity: 0;
+    }
+
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing {
+        border-color: rgb(120 113 108) !important;
+    }
+}
+
+:host ::ng-deep .dark .scan-tool-search {
+    .mdc-notched-outline .mdc-notched-outline__leading,
+    .mdc-notched-outline .mdc-notched-outline__notch,
+    .mdc-notched-outline .mdc-notched-outline__trailing {
+        border-color: rgb(63 63 70) !important;
+    }
+
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+    &.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing {
+        border-color: rgb(161 161 170) !important;
+    }
+}
+
+/* Rounded primary / stroked actions in this flow */
+:host ::ng-deep .scan-tool-mat-btn-pill.mat-mdc-unelevated-button,
+:host ::ng-deep .scan-tool-mat-btn-pill.mat-mdc-outlined-button {
+    border-radius: 9999px;
+}
+
 .doc-type-card {
     /* No 3D flip - we toggle between front/back images directly */
 }

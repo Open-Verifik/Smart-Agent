@@ -1,0 +1,64 @@
+<ng-container *transloco="let t">
+    <div class="link-shell">
+        <div class="link-header">
+            <h2 class="link-title">{{ t('webhooks.details.link_project_title') }}</h2>
+            <button type="button" class="icon-close" (click)="close()" [attr.aria-label]="t('webhooks.new.cancel')">
+                <mat-icon class="icon-20" svgIcon="heroicons_outline:x-mark"></mat-icon>
+            </button>
+        </div>
+
+        <p class="link-desc">{{ t('webhooks.details.link_project_description') }}</p>
+
+        <div class="search-wrap">
+            <mat-icon class="search-icon" svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+            <input
+                [formControl]="searchControl"
+                class="search-input"
+                [placeholder]="t('webhooks.details.search_project_placeholder')"
+            />
+        </div>
+
+        <div class="list-wrap">
+            <button
+                type="button"
+                class="project-row"
+                *ngFor="let project of filteredProjects"
+                [class.project-row-selected]="selectedProject?._id === project._id"
+                (click)="selectProject(project)"
+            >
+                <div class="project-main">
+                    <div class="logo-ring">
+                        <img
+                            *ngIf="project.project?.branding?.logo"
+                            [src]="project.project?.branding?.logo"
+                            alt=""
+                            class="logo-img"
+                            (error)="$any($event.target).style.display = 'none'"
+                        />
+                        <mat-icon *ngIf="!project.project?.branding?.logo" class="logo-fallback" svgIcon="heroicons_outline:photo"></mat-icon>
+                    </div>
+                    <div class="project-text">
+                        <span class="project-name">{{ project.project?.name }}</span>
+                        <span class="project-type">{{ project.type }}</span>
+                    </div>
+                </div>
+                <span *ngIf="project.webhook" class="replace-pill">
+                    {{ t('webhooks.details.replaces') }}: {{ project.webhook?.name || project.webhook }}
+                </span>
+                <span class="radio" [class.radio-on]="selectedProject?._id === project._id">
+                    <mat-icon *ngIf="selectedProject?._id === project._id" class="check-icon" svgIcon="heroicons_outline:check"></mat-icon>
+                </span>
+            </button>
+
+            <div *ngIf="filteredProjects.length === 0" class="empty-state">
+                <mat-icon class="empty-icon" svgIcon="heroicons_outline:folder-open"></mat-icon>
+                <span>{{ t('webhooks.details.no_projects_found') }}</span>
+            </div>
+        </div>
+
+        <div class="link-footer">
+            <button type="button" class="btn-secondary" (click)="close()">{{ t('webhooks.new.cancel') }}</button>
+            <button type="button" class="btn-primary" [disabled]="!selectedProject" (click)="add()">{{ t('webhooks.new.add') }}</button>
+        </div>
+    </div>
+</ng-container>

@@ -1,0 +1,185 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div class="hero-icon">
+                    <mat-icon svgIcon="heroicons_outline:rectangle-stack"></mat-icon>
+                </div>
+                <div>
+                    <h1 class="title">{{ t('smartEnrollProjects.title') }}</h1>
+                    <p class="subtitle">{{ t('smartEnrollProjects.subtitle') }}</p>
+                </div>
+            </header>
+
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_enroll') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('smartEnrollProjects.title') }}</span>
+            </div>
+
+            @if (loading()) {
+                <div class="state-loading">
+                    <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+                </div>
+            } @else if (error()) {
+                <div class="banner-error">{{ error()! | transloco }}</div>
+            } @else if (noActivePlan()) {
+                <div class="plan-gate">
+                    <div class="plan-gate-body">
+                        <h2 class="plan-gate-title">{{ t('smartEnrollProjects.noPlanCardTitle') }}</h2>
+                        <p class="plan-gate-text">{{ t('smartEnrollProjects.noPlanBannerSubtitle') }}</p>
+                        <p class="plan-gate-muted">{{ t('smartEnrollProjects.noPlanCardBody') }}</p>
+                    </div>
+                    <button mat-flat-button color="primary" type="button" class="plan-gate-cta" (click)="goToPlans()">
+                        {{ t('smartEnrollProjects.goToPlans') }}
+                    </button>
+                </div>
+            } @else if (projects().length === 0) {
+                <div class="empty-card">
+                    <p class="empty-title">{{ t('smartEnrollProjects.empty') }}</p>
+                </div>
+            } @else {
+                <div class="grid">
+                    @for (project of projects(); track project._id) {
+                        <article class="card" (click)="openProject(project, $event)">
+                            <div class="card-top">
+                                <div class="card-brand">
+                                    @if (project.branding?.logo) {
+                                        <img class="logo" [src]="project.branding!.logo" alt="" />
+                                    } @else {
+                                        <div class="logo-fallback">
+                                            <mat-icon svgIcon="heroicons_outline:folder"></mat-icon>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="card-heading">
+                                    <h2 class="card-title">{{ project.name || project._id }}</h2>
+                                    @if (currentFlow(project); as flow) {
+                                        <div class="status-row">
+                                            <span
+                                                class="pill"
+                                                [class.pill-on]="!isDraftFlow(flow)"
+                                                [class.pill-off]="isDraftFlow(flow)"
+                                            >
+                                                <span class="pill-dot"></span>
+                                                {{
+                                                    isDraftFlow(flow)
+                                                        ? t('smartEnrollProjects.list.draft')
+                                                        : t('smartEnrollProjects.list.active')
+                                                }}
+                                            </span>
+                                            <mat-slide-toggle
+                                                color="primary"
+                                                [checked]="flowToggleChecked(flow)"
+                                                (click)="$event.stopPropagation()"
+                                                (change)="onFlowStatusToggle($event, project)"
+                                            ></mat-slide-toggle>
+                                        </div>
+                                    }
+                                </div>
+                                <button
+                                    type="button"
+                                    mat-icon-button
+                                    class="menu-btn"
+                                    [matMenuTriggerFor]="projectMenu"
+                                    (click)="$event.stopPropagation()"
+                                    [attr.aria-label]="t('smartEnrollProjects.list.moreActions')"
+                                >
+                                    <mat-icon svgIcon="heroicons_outline:ellipsis-vertical"></mat-icon>
+                                </button>
+                                <mat-menu #projectMenu="matMenu">
+                                    <button mat-menu-item type="button" (click)="openLiveEnrollment(project, $event)">
+                                        <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                        <span>{{ t('smartEnrollProjects.list.menuLiveEnrollment') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="copyLiveEnrollmentUrl(project, $event)">
+                                        <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:link"></mat-icon>
+                                        <span>{{ t('smartEnrollProjects.list.copyLiveUrl') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openProject(project, $event)">
+                                        {{ t('smartEnrollProjects.list.menuEdit') }}
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openRecords(project, $event)">
+                                        {{ t('smartEnrollProjects.list.menuRecords') }}
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openStaff(project, $event)">
+                                        {{ t('smartEnrollProjects.list.menuStaff') }}
+                                    </button>
+                                </mat-menu>
+                            </div>
+
+                            <div class="rows" (click)="$event.stopPropagation()">
+                                <button type="button" class="row" (click)="openSection(project, 'signup', $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:phone"></mat-icon>
+                                    <span class="row-label">{{ t('smartEnrollProjects.list.signupForm') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row" (click)="openSection(project, 'documents', $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:envelope"></mat-icon>
+                                    <span class="row-label">{{ t('smartEnrollProjects.list.documents') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row" (click)="openSection(project, 'liveness', $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:face-smile"></mat-icon>
+                                    <span class="row-label">{{ t('smartEnrollProjects.list.biometrics') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                                <button type="button" class="row row-last" (click)="openSection(project, 'api', $event)">
+                                    <mat-icon class="row-ic" svgIcon="heroicons_outline:code-bracket"></mat-icon>
+                                    <span class="row-label">{{ t('smartEnrollProjects.list.apiIntegration') }}</span>
+                                    <span class="row-chev" aria-hidden="true">›</span>
+                                </button>
+                            </div>
+
+                            <div class="members" (click)="$event.stopPropagation()">
+                                <div class="members-label">{{ t('smartEnrollProjects.list.members') }}</div>
+                                <div class="members-strip">
+                                    @for (m of membersForCard(project).slice(0, 5); track m._id) {
+                                        <div
+                                            class="member-avatar"
+                                            [attr.title]="m.staff?.name || ''"
+                                            [attr.aria-label]="m.staff?.name || ''"
+                                        >
+                                            {{ formatAcronym(m.staff?.name) }}
+                                        </div>
+                                    }
+                                    <button
+                                        type="button"
+                                        class="member-add"
+                                        (click)="openStaff(project, $event); $event.stopPropagation()"
+                                        [attr.aria-label]="t('smartEnrollProjects.list.addMember')"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="meta">{{ t('smartEnrollProjects.updated') }}: {{ formatUpdated(project.updatedAt) }}</div>
+
+                            <div class="card-actions" (click)="$event.stopPropagation()">
+                                <button
+                                    type="button"
+                                    class="btn-live"
+                                    (click)="openLiveEnrollment(project, $event)"
+                                >
+                                    <mat-icon class="btn-live-icon" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+                                    {{ t('smartEnrollProjects.list.openLiveEnrollment') }}
+                                </button>
+                                <div class="card-actions-row">
+                                    <button type="button" class="btn-primary" (click)="openProject(project, $event)">
+                                        {{ t('smartEnrollProjects.list.edit') }}
+                                    </button>
+                                    <button type="button" class="btn-secondary" (click)="openRecords(project, $event)">
+                                        {{ t('smartEnrollProjects.list.seeLogs') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</ng-container>

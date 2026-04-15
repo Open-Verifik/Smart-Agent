@@ -7,4 +7,14 @@ export default [
         loadChildren: () =>
             import('./smart-scan/smart-scan.routes').then((m) => m.default),
     },
+    {
+        path: 'plans',
+        loadComponent: () =>
+            import('./plans/smart-enroll-plans.component').then((m) => m.SmartEnrollPlansComponent),
+    },
+    {
+        path: 'projects',
+        loadChildren: () =>
+            import('./projects/smart-enroll-projects.routes').then((m) => m.default),
+    },
 ] as Routes;

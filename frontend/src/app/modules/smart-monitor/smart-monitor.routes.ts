@@ -27,4 +27,18 @@ export default [
                 'app/modules/smart-monitor/incidents/incident-detail/incident-detail.component'
             ).then((m) => m.IncidentDetailComponent),
     },
+    {
+        path: 'webhooks',
+        loadComponent: () =>
+            import('app/modules/smart-monitor/webhooks/webhooks-list.component').then(
+                (m) => m.WebhooksListComponent
+            ),
+    },
+    {
+        path: 'webhooks/:id',
+        loadComponent: () =>
+            import('app/modules/smart-monitor/webhooks/webhook-detail.component').then(
+                (m) => m.WebhookDetailComponent
+            ),
+    },
 ] as Routes;

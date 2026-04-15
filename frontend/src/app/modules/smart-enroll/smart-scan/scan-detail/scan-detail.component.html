@@ -1,220 +1,289 @@
-<div class="flex flex-col flex-auto min-w-0">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent">
-        <div class="flex-1 min-w-0">
-            <div class="flex flex-wrap items-center font-medium text-xs text-secondary leading-none">
-                <a routerLink="/chat" class="cursor-pointer text-primary-500 hover:underline">Verifik</a>
-                <mat-icon class="icon-size-4 mx-2 text-secondary" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <a routerLink="/smart-enroll/smart-scan/list" class="cursor-pointer text-primary-500 hover:underline">{{ 'nav.smart_scan' | transloco }}</a>
-                <mat-icon class="icon-size-4 mx-2 text-secondary" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
-                <span class="cursor-default">{{ 'smartScan.detail' | transloco }}</span>
+<div class="scan-detail-root flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <header
+        class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+    >
+        <div class="mx-auto max-w-5xl">
+            <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <a
+                    routerLink="/smart-enroll/smart-scan/list"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >{{ 'nav.smart_scan' | transloco }}</a
+                >
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <span class="cursor-default text-stone-600 dark:text-stone-300">{{ 'smartScan.detail' | transloco }}</span>
             </div>
-            <div class="mt-2 flex items-center gap-3">
-                <button mat-icon-button (click)="goBack()" class="flex-shrink-0">
-                    <mat-icon>arrow_back</mat-icon>
-                </button>
-                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-                    {{ 'smartScan.detail' | transloco }}
-                </h2>
+            <div class="mt-5 flex flex-wrap items-start justify-between gap-3">
+                <div class="flex min-w-0 flex-1 items-start gap-3">
+                    <button
+                        mat-icon-button
+                        (click)="goBack()"
+                        type="button"
+                        class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                        [attr.aria-label]="'smartScan.backToList' | transloco"
+                    >
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div class="min-w-0 flex-1 pt-0.5">
+                        <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                            {{ 'smartScan.detail' | transloco }}
+                        </h1>
+                    </div>
+                </div>
+                @if (scan && !loading) {
+                    <button
+                        mat-stroked-button
+                        color="warn"
+                        type="button"
+                        class="shrink-0 rounded-full"
+                        [disabled]="deleteLoading"
+                        (click)="confirmDelete()"
+                    >
+                        @if (deleteLoading) {
+                            <mat-spinner class="mr-2 inline-block" diameter="18"></mat-spinner>
+                        }
+                        {{ 'smartScan.deleteScan' | transloco }}
+                    </button>
+                }
             </div>
         </div>
-    </div>
+    </header>
 
-    <!-- Main content -->
-    <div class="flex flex-col flex-auto p-6 sm:p-10">
+    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+        @if (deleteError) {
+            <div
+                class="mx-auto mb-6 w-full max-w-5xl rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+            >
+                {{ deleteError }}
+            </div>
+        }
         @if (loading) {
-            <div class="flex items-center justify-center py-20">
+            <div class="flex flex-1 items-center justify-center py-20">
                 <mat-spinner diameter="40"></mat-spinner>
             </div>
         } @else if (errorMessage) {
-            <div class="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400">
+            <div
+                class="mx-auto w-full max-w-5xl rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+            >
                 {{ errorMessage }}
             </div>
         } @else if (scan) {
-            <div class="max-w-5xl mx-auto w-full space-y-6">
-                <!-- Metadata row -->
-                <div class="flex items-center gap-3 flex-wrap">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold" [ngClass]="getStatusColor(scan.status)">
+            <div class="mx-auto w-full max-w-5xl space-y-6">
+                <div class="scan-detail-meta">
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getStatusColor(scan.status)">
                         {{ getStatusLabel(scan.status) }}
                     </span>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                        <mat-icon class="icon-size-3.5">settings</mat-icon>
+                    <span
+                        class="inline-flex items-center gap-1.5 rounded-full border border-stone-200/90 bg-stone-50/80 px-3 py-1 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-800/50 dark:text-stone-200"
+                    >
+                        <mat-icon class="icon-size-3.5 text-stone-500 dark:text-stone-400">settings</mat-icon>
                         {{ getMethodLabel(scan.validationMethod) }}
                     </span>
                     @if (scan.documentType) {
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">
-                            {{ scan.documentType }}
-                        </span>
+                        <span class="scan-detail-code">{{ scan.documentType }}</span>
                     }
                     @if (scan.documentNumber) {
-                        <span class="text-sm text-secondary font-medium">{{ scan.documentNumber }}</span>
+                        <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{ scan.documentNumber }}</span>
                     }
-                    <span class="ml-auto text-sm text-secondary">{{ formatDate(scan.createdAt) }}</span>
+                    <span class="ml-auto text-sm text-stone-500 dark:text-stone-400">{{ formatDate(scan.createdAt) }}</span>
                 </div>
 
-                <!-- Classification card -->
-                @if (getClassification(); as classification) {
-                    <div
-                        class="rounded-2xl border overflow-hidden"
-                        [ngClass]="{
-                            'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': classification.isMatch,
-                            'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800': !classification.isMatch
-                        }"
-                    >
-                        <div class="p-5 flex items-start gap-3">
-                            <mat-icon
-                                class="icon-size-6 mt-0.5 flex-shrink-0"
-                                [ngClass]="{ 'text-green-600 dark:text-green-400': classification.isMatch, 'text-amber-600 dark:text-amber-400': !classification.isMatch }"
-                            >
-                                {{ classification.isMatch ? 'check_circle' : 'warning' }}
-                            </mat-icon>
-                            <div class="flex-1 min-w-0">
-                                <p
-                                    class="font-semibold text-base"
-                                    [ngClass]="{ 'text-green-800 dark:text-green-300': classification.isMatch, 'text-amber-800 dark:text-amber-300': !classification.isMatch }"
+                <div class="scan-detail-panel">
+                    @if (getClassification(); as classification) {
+                        <div
+                            class="border-b border-stone-200/80 dark:border-gray-800"
+                            [ngClass]="{
+                                'bg-emerald-50/80 dark:bg-emerald-950/30': classification.isMatch,
+                                'bg-amber-50/80 dark:bg-amber-950/30': !classification.isMatch,
+                            }"
+                        >
+                            <div class="flex items-start gap-3 p-5 md:p-6">
+                                <mat-icon
+                                    class="icon-size-6 mt-0.5 shrink-0"
+                                    [ngClass]="{
+                                        'text-emerald-600 dark:text-emerald-400': classification.isMatch,
+                                        'text-amber-600 dark:text-amber-400': !classification.isMatch,
+                                    }"
                                 >
-                                    {{ classification.isMatch ? ('smartScan.classificationMatch' | transloco) : ('smartScan.classificationMismatch' | transloco) }}
-                                </p>
-
-                                <div class="flex items-center gap-2 mt-3 flex-wrap">
-                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'smartScan.requestedType' | transloco }}</span>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-white/70 dark:bg-gray-800/70 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600">
-                                        {{ classification.requestedDocumentType }}
-                                    </span>
-                                    <mat-icon class="icon-size-4 text-gray-400">arrow_forward</mat-icon>
-                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ 'smartScan.detectedType' | transloco }}</span>
-                                    <span
-                                        class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold font-mono border"
+                                    {{ classification.isMatch ? 'check_circle' : 'warning' }}
+                                </mat-icon>
+                                <div class="min-w-0 flex-1">
+                                    <p
+                                        class="text-base font-semibold"
                                         [ngClass]="{
-                                            'bg-green-100 dark:bg-green-800/40 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700': classification.isMatch,
-                                            'bg-amber-100 dark:bg-amber-800/40 text-amber-800 dark:text-amber-200 border-amber-300 dark:border-amber-700': !classification.isMatch
+                                            'text-emerald-900 dark:text-emerald-200': classification.isMatch,
+                                            'text-amber-900 dark:text-amber-200': !classification.isMatch,
                                         }"
                                     >
-                                        {{ classification.detectedDocumentType }}
+                                        {{
+                                            classification.isMatch
+                                                ? ('smartScan.classificationMatch' | transloco)
+                                                : ('smartScan.classificationMismatch' | transloco)
+                                        }}
+                                    </p>
+
+                                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                                        <span class="text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                                            'smartScan.requestedType' | transloco
+                                        }}</span>
+                                        <span
+                                            class="inline-flex items-center rounded-xl border border-stone-200/80 bg-white/90 px-2.5 py-1 font-mono text-xs font-bold text-stone-800 dark:border-gray-600 dark:bg-gray-900/70 dark:text-stone-200"
+                                        >
+                                            {{ classification.requestedDocumentType }}
+                                        </span>
+                                        <mat-icon class="icon-size-4 text-stone-400">arrow_forward</mat-icon>
+                                        <span class="text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                                            'smartScan.detectedType' | transloco
+                                        }}</span>
+                                        <span
+                                            class="inline-flex items-center rounded-xl border px-2.5 py-1 font-mono text-xs font-bold"
+                                            [ngClass]="{
+                                                'border-emerald-300 bg-emerald-100/80 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-100':
+                                                    classification.isMatch,
+                                                'border-amber-300 bg-amber-100/80 text-amber-900 dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-100':
+                                                    !classification.isMatch,
+                                            }"
+                                        >
+                                            {{ classification.detectedDocumentType }}
+                                        </span>
+                                        @if (classification.detectedDocumentName) {
+                                            <span class="text-sm text-stone-700 dark:text-stone-300">{{ classification.detectedDocumentName }}</span>
+                                        }
+                                    </div>
+
+                                    <div class="mt-4 flex items-center gap-3">
+                                        <span class="whitespace-nowrap text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                                            'smartScan.confidence' | transloco
+                                        }}</span>
+                                        <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/60 dark:bg-gray-800/60">
+                                            <div
+                                                class="h-full rounded-full transition-all duration-500"
+                                                [ngClass]="{
+                                                    'bg-emerald-500': confidencePercent >= 80,
+                                                    'bg-amber-500': confidencePercent >= 50 && confidencePercent < 80,
+                                                    'bg-red-500': confidencePercent < 50,
+                                                }"
+                                                [style.width.%]="confidencePercent"
+                                            ></div>
+                                        </div>
+                                        <span
+                                            class="min-w-[3rem] text-right text-sm font-semibold tabular-nums"
+                                            [ngClass]="{
+                                                'text-emerald-800 dark:text-emerald-300': confidencePercent >= 80,
+                                                'text-amber-800 dark:text-amber-300': confidencePercent >= 50 && confidencePercent < 80,
+                                                'text-red-800 dark:text-red-300': confidencePercent < 50,
+                                            }"
+                                        >{{ confidencePercent }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @if (classification.reason) {
+                                <div
+                                    class="flex cursor-pointer select-none items-center gap-2 border-t px-5 py-3 dark:border-gray-700/80"
+                                    [ngClass]="{
+                                        'border-emerald-200/80 hover:bg-emerald-100/40 dark:border-emerald-900/40 dark:hover:bg-emerald-900/20':
+                                            classification.isMatch,
+                                        'border-amber-200/80 hover:bg-amber-100/40 dark:border-amber-900/40 dark:hover:bg-amber-900/20':
+                                            !classification.isMatch,
+                                    }"
+                                    (click)="showClassificationReason = !showClassificationReason"
+                                >
+                                    <mat-icon
+                                        class="icon-size-4 text-stone-500 transition-transform dark:text-stone-400"
+                                        [ngClass]="{ 'rotate-90': showClassificationReason }"
+                                    >
+                                        chevron_right
+                                    </mat-icon>
+                                    <span class="text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                                        {{
+                                            showClassificationReason
+                                                ? ('smartScan.hideReason' | transloco)
+                                                : ('smartScan.showReason' | transloco)
+                                        }}
                                     </span>
-                                    @if (classification.detectedDocumentName) {
-                                        <span class="text-sm text-gray-600 dark:text-gray-300">{{ classification.detectedDocumentName }}</span>
+                                </div>
+                                @if (showClassificationReason) {
+                                    <div
+                                        class="px-5 pb-5 text-sm leading-relaxed"
+                                        [ngClass]="{
+                                            'text-emerald-900 dark:text-emerald-200': classification.isMatch,
+                                            'text-amber-900 dark:text-amber-200': !classification.isMatch,
+                                        }"
+                                    >
+                                        {{ classification.reason }}
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+
+                    <div class="scan-detail-panel__header flex flex-wrap items-center justify-between gap-4 px-5 py-4 md:px-6 md:py-5">
+                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">{{ 'smartScan.scanInfo' | transloco }}</h2>
+                        <button mat-stroked-button (click)="showRawJson = !showRawJson" class="scan-detail-mat-btn-pill !border-stone-200 !text-xs dark:!border-gray-600">
+                            {{ 'smartScan.rawJson' | transloco }}
+                        </button>
+                    </div>
+
+                    <div class="p-6 md:p-8">
+                        @if (showRawJson) {
+                            <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700">
+                                <div
+                                    class="flex items-center justify-between border-b border-stone-200/90 bg-stone-100/80 px-4 py-2.5 dark:border-gray-700 dark:bg-gray-800/50"
+                                >
+                                    <span class="text-xs font-medium text-stone-600 dark:text-stone-400">OCRExtraction</span>
+                                    <button
+                                        type="button"
+                                        (click)="copyJson()"
+                                        class="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-200/80 dark:text-stone-300 dark:hover:bg-gray-700"
+                                    >
+                                        <mat-icon class="icon-size-3.5">content_copy</mat-icon>
+                                        {{
+                                            copyFeedback ? ('smartScan.copied' | transloco) : ('smartScan.copyJson' | transloco)
+                                        }}
+                                    </button>
+                                </div>
+                                <pre
+                                    class="m-0 max-h-96 select-text overflow-auto bg-stone-50/80 p-4 font-mono text-xs dark:bg-gray-950/50"
+                                ><code class="language-json hljs block" [innerHTML]="highlightedJson"></code></pre>
+                            </div>
+                        } @else {
+                            <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                                <div class="space-y-4">
+                                    @if (scan.url) {
+                                        <div class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50">
+                                            <img [src]="scan.url" alt="Document front" class="max-h-80 w-full object-contain" />
+                                        </div>
+                                    }
+                                    @if (scan.backUrl) {
+                                        <div class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/50">
+                                            <img [src]="scan.backUrl" alt="Document back" class="max-h-60 w-full object-contain" />
+                                        </div>
                                     }
                                 </div>
 
-                                <div class="mt-3 flex items-center gap-3">
-                                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">{{ 'smartScan.confidence' | transloco }}</span>
-                                    <div class="flex-1 h-2 rounded-full bg-white/50 dark:bg-gray-800/50 overflow-hidden">
-                                        <div
-                                            class="h-full rounded-full transition-all duration-500"
-                                            [ngClass]="{
-                                                'bg-green-500': confidencePercent >= 80,
-                                                'bg-amber-500': confidencePercent >= 50 && confidencePercent < 80,
-                                                'bg-red-500': confidencePercent < 50
-                                            }"
-                                            [style.width.%]="confidencePercent"
-                                        ></div>
+                                <div class="space-y-3">
+                                    <h3 class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                                        {{ 'smartScan.extractedFields' | transloco }}
+                                    </h3>
+                                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 dark:border-gray-700">
+                                        @for (f of getExtractionFields(); track f.key; let i = $index) {
+                                            <div
+                                                class="flex justify-between gap-4 px-4 py-3"
+                                                [ngClass]="{ 'bg-stone-50/80 dark:bg-gray-800/40': i % 2 === 0 }"
+                                            >
+                                                <span class="text-sm font-medium text-stone-500 dark:text-stone-400">{{ f.key }}</span>
+                                                <span class="break-all text-right text-sm font-medium text-stone-900 dark:text-white">{{ f.value }}</span>
+                                            </div>
+                                        }
                                     </div>
-                                    <span
-                                        class="text-sm font-semibold tabular-nums min-w-[3rem] text-right"
-                                        [ngClass]="{
-                                            'text-green-700 dark:text-green-300': confidencePercent >= 80,
-                                            'text-amber-700 dark:text-amber-300': confidencePercent >= 50 && confidencePercent < 80,
-                                            'text-red-700 dark:text-red-300': confidencePercent < 50
-                                        }"
-                                    >{{ confidencePercent }}%</span>
                                 </div>
                             </div>
-                        </div>
-
-                        @if (classification.reason) {
-                            <div
-                                class="border-t px-5 py-3 flex items-center gap-2 cursor-pointer select-none"
-                                [ngClass]="{
-                                    'border-green-200 dark:border-green-800 hover:bg-green-100/50 dark:hover:bg-green-800/20': classification.isMatch,
-                                    'border-amber-200 dark:border-amber-800 hover:bg-amber-100/50 dark:hover:bg-amber-800/20': !classification.isMatch
-                                }"
-                                (click)="showClassificationReason = !showClassificationReason"
-                            >
-                                <mat-icon class="icon-size-4 text-gray-500 dark:text-gray-400 transition-transform" [ngClass]="{ 'rotate-90': showClassificationReason }">
-                                    chevron_right
-                                </mat-icon>
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                                    {{ showClassificationReason ? ('smartScan.hideReason' | transloco) : ('smartScan.showReason' | transloco) }}
-                                </span>
-                            </div>
-                            @if (showClassificationReason) {
-                                <div
-                                    class="px-5 pb-4 text-sm leading-relaxed"
-                                    [ngClass]="{
-                                        'text-green-800 dark:text-green-200': classification.isMatch,
-                                        'text-amber-800 dark:text-amber-200': !classification.isMatch
-                                    }"
-                                >
-                                    {{ classification.reason }}
-                                </div>
-                            }
                         }
                     </div>
-                }
-
-                <!-- Content: image + fields -->
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ 'smartScan.scanInfo' | transloco }}</h3>
-                    <button mat-stroked-button (click)="showRawJson = !showRawJson" class="rounded-xl text-xs">
-                        {{ 'smartScan.rawJson' | transloco }}
-                    </button>
-                </div>
-
-                @if (showRawJson) {
-                    <div class="rounded-xl overflow-hidden border border-slate-700 dark:border-slate-800 bg-slate-900 dark:bg-slate-950 shadow-inner">
-                        <div class="flex items-center justify-between px-4 py-2 border-b border-slate-700 dark:border-slate-800 bg-slate-800/50 dark:bg-slate-900/50">
-                            <span class="text-xs font-medium text-slate-400">OCRExtraction</span>
-                            <button
-                                (click)="copyJson()"
-                                class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-300 hover:text-white hover:bg-slate-700 dark:hover:bg-slate-800 transition-colors"
-                            >
-                                <mat-icon class="icon-size-3.5">content_copy</mat-icon>
-                                {{ copyFeedback ? ('smartScan.copied' | transloco) : ('smartScan.copyJson' | transloco) }}
-                            </button>
-                        </div>
-                        <pre class="p-4 text-xs font-mono overflow-auto max-h-96 m-0 select-text"><code class="language-json hljs block" [innerHTML]="highlightedJson"></code></pre>
-                    </div>
-                } @else {
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="space-y-4">
-                            @if (scan.url) {
-                                <div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                    <img [src]="scan.url" alt="Document front" class="w-full object-contain max-h-80" />
-                                </div>
-                            }
-                            @if (scan.backUrl) {
-                                <div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-                                    <img [src]="scan.backUrl" alt="Document back" class="w-full object-contain max-h-60" />
-                                </div>
-                            }
-                        </div>
-
-                        <div class="space-y-3">
-                            <h4 class="font-semibold text-gray-900 dark:text-white">{{ 'smartScan.extractedFields' | transloco }}</h4>
-                            <div class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                                @for (f of getExtractionFields(); track f.key; let i = $index) {
-                                    <div
-                                        class="flex justify-between gap-4 px-4 py-3"
-                                        [ngClass]="{ 'bg-gray-50 dark:bg-gray-800/50': i % 2 === 0 }"
-                                    >
-                                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ f.key }}</span>
-                                        <span class="text-sm text-gray-900 dark:text-white text-right break-all font-medium">{{ f.value }}</span>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                <!-- Back to list -->
-                <div class="pt-4">
-                    <button mat-stroked-button (click)="goBack()" class="rounded-xl">
-                        <mat-icon class="icon-size-4 mr-1">arrow_back</mat-icon>
-                        {{ 'smartScan.backToList' | transloco }}
-                    </button>
                 </div>
             </div>
         }
-    </div>
+    </main>
 </div>

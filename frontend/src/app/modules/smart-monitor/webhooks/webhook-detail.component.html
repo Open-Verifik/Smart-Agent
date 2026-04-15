@@ -1,0 +1,111 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <div *ngIf="loading" class="state-loading">
+                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            </div>
+
+            <ng-container *ngIf="!loading && webhookData">
+                <section class="hero-card">
+                    <div class="hero-top">
+                        <button type="button" class="icon-btn" (click)="back()" [attr.aria-label]="t('webhooks.detail.back')">
+                            <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                        </button>
+                        <div class="hero-title-block">
+                            <h1 class="hero-name">{{ webhookData.name || t('webhooks.detail.unnamed') }}</h1>
+                            <p class="hero-sub">{{ t('webhooks.detail.subtitle') }}</p>
+                        </div>
+                        <div class="hero-actions">
+                            <div class="toggle-wrap">
+                                <span class="status-pill" [class.on]="webhookData.isActive" [class.off]="!webhookData.isActive">
+                                    <span class="dot"></span>
+                                    {{ webhookData.isActive ? t('webhooks.list.card.active') : t('webhooks.list.card.disabled') }}
+                                </span>
+                                <mat-slide-toggle
+                                    [(ngModel)]="webhookData.isActive"
+                                    (change)="activeWebhook()"
+                                    color="primary"
+                                ></mat-slide-toggle>
+                            </div>
+                            <button type="button" class="btn-outline" (click)="edit()">
+                                <mat-icon class="btn-ic" svgIcon="heroicons_outline:pencil-square"></mat-icon>
+                                {{ t('webhooks.list.edit') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="hero-url">
+                        <mat-icon class="url-ic" svgIcon="heroicons_outline:link"></mat-icon>
+                        <code class="url-text">{{ webhookData.url }}</code>
+                    </div>
+
+                    <p class="hero-desc" *ngIf="webhookData.description">{{ webhookData.description }}</p>
+
+                    <div class="hero-divider"></div>
+
+                    <div class="flows-header">
+                        <h2 class="flows-title">
+                            <mat-icon class="flows-ic" svgIcon="heroicons_outline:folder"></mat-icon>
+                            {{ t('webhooks.details.related_project') }}
+                        </h2>
+                        <select
+                            class="native-select"
+                            [ngModel]="projectFlowSelected"
+                            (ngModelChange)="onProjectFlowFilterChange($event)"
+                        >
+                            <option value="">{{ t('webhooks.details.all') }}</option>
+                            <option *ngFor="let pf of webhookData.projectFlow" [value]="pf._id">
+                                {{ pf.project?.name }} ({{ pf.type }})
+                            </option>
+                        </select>
+                    </div>
+
+                    <ul class="pf-list" *ngIf="webhookData.projectFlow?.length">
+                        <li class="pf-item" *ngFor="let pf of webhookData.projectFlow">
+                            <div class="pf-info">
+                                <span class="pf-name">{{ pf.project?.name || '—' }}</span>
+                                <span class="pf-type">{{ pf.type }}</span>
+                            </div>
+                            <div class="pf-meta">
+                                <span class="pf-count" *ngIf="webhookData.statistics?.[pf._id]">
+                                    {{ webhookData.statistics[pf._id].total || 0 }}
+                                    <span class="pf-count-label">{{ t('webhooks.details.events') }}</span>
+                                </span>
+                                <button type="button" class="unlink" (click)="unlinkProject(pf)" [attr.aria-label]="t('webhooks.details.unlink_title')">
+                                    <mat-icon svgIcon="heroicons_outline:trash"></mat-icon>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="panel-empty" *ngIf="!webhookData.projectFlow?.length">
+                        {{ t('webhooks.list.card.not_related_projects') }}
+                    </div>
+
+                    <button type="button" class="btn-link-flow" (click)="openLinkProject()">
+                        <mat-icon class="btn-ic" svgIcon="heroicons_outline:plus"></mat-icon>
+                        {{ t('webhooks.details.add-project') }}
+                    </button>
+                </section>
+
+                <section class="panel">
+                    <h2 class="panel-title">
+                        <mat-icon class="panel-ic" svgIcon="heroicons_outline:chart-bar"></mat-icon>
+                        {{ t('webhooks.graph.activity') }}
+                    </h2>
+                    <webhook-stats-bars [statistics]="webhookData.statisticsByDay" [days]="30"></webhook-stats-bars>
+                </section>
+
+                <section class="events-section">
+                    <h2 class="section-heading">{{ t('webhooks.events.section_title') }}</h2>
+                    <webhook-events
+                        [webhookId]="webhookId"
+                        [initialEvents]="eventsData"
+                        [initialPaginator]="eventsMeta"
+                        [projectFlowFilter]="projectFlowSelected"
+                    ></webhook-events>
+                </section>
+            </ng-container>
+        </div>
+    </div>
+</ng-container>

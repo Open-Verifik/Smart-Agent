@@ -106,6 +106,19 @@ export class SmartScanService {
         );
     }
 
+    deleteScan(id: string) {
+        return this._httpClient
+            .delete<{ data: unknown }>(`${this.apiUrl}/v2/document-validations/${id}`, {
+                headers: this.authHeaders,
+            })
+            .pipe(
+                catchError((err) => {
+                    console.error('Error deleting document validation:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
     getDocumentTypes(country?: string) {
         const params: Record<string, string> = {
             where_status: 'active',

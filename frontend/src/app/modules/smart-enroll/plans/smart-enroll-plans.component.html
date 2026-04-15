@@ -1,0 +1,740 @@
+<ng-container *transloco="let t">
+    <div class="plans-container w-full flex justify-center">
+        <div class="w-full max-w-4xl px-4 sm:px-8 py-8">
+            <!-- Header -->
+            <div class="current-plan-header flex items-center gap-4 mb-8">
+                <button
+                    *ngIf="(currentView === 'change' && currentSubscription.length) || currentView === 'select'"
+                    (click)="goBack(currentView === 'select' ? 'change' : 'current')"
+                    class="back-button"
+                    mat-icon-button
+                >
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div class="header-icon">
+                    <mat-icon>receipt_long</mat-icon>
+                </div>
+                <div>
+                    <h1 class="current-plan-title">{{ t("settings.plans") }}</h1>
+                    <p class="current-plan-subtitle">{{ t("smartenroll.plans.manage_subscription") }}</p>
+                </div>
+            </div>
+
+            <!-- CURRENT PLAN VIEW -->
+            <ng-container *ngIf="currentSubscription.length && currentView === 'current'">
+                <ng-container *ngFor="let subscription of currentSubscription; let i = index">
+                    <!-- Current Plan Card -->
+                    <div class="plan-card mb-6 animate-fadeIn" [class.payment-failed]="subscription.paymentFailedAt">
+                        <!-- Card Header -->
+                        <div class="card-header">
+                            <div class="flex items-center gap-3">
+                                <div class="card-icon" [ngClass]="getPlanColorClass(subscription.codeShow)">
+                                    <mat-icon>workspace_premium</mat-icon>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">
+                                        {{ i === 0 ? t("smartaccess.plans.your_plan") : t("smartaccess.plans.your_next_plan") }}
+                                    </p>
+                                    <h2 class="font-semibold text-gray-900 text-lg">{{ subscription.name }}</h2>
+                                </div>
+                            </div>
+                            <div
+                                class="status-badge"
+                                [ngClass]="subscription.paymentFailedAt ? 'error' : subscription.cancelAt ? 'warning' : 'success'"
+                            >
+                                <span class="status-dot"></span>
+                                <span *ngIf="!subscription.paymentFailedAt && !subscription.cancelAt">{{ t("api_key_management.active") }}</span>
+                                <span *ngIf="subscription.cancelAt">{{ t("smartaccess.plans.cancelled") }}</span>
+                                <span *ngIf="subscription.paymentFailedAt">{{ t("subscriptions.payment_failed") }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment Failed Alert -->
+                        <div *ngIf="subscription.paymentFailedAt" class="payment-alert">
+                            <mat-icon class="text-red-500">error_outline</mat-icon>
+                            <span>{{ t("subscriptions.payment_failed_description") }}</span>
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <!-- Price Section -->
+                            <div class="price-section">
+                                <div class="price-label">{{ t("smartaccess.plans.value_plan") }}</div>
+                                <div class="price-amount">
+                                    {{ calculateSubscriptionPrice(subscription) | currency }} <span class="price-currency">USD</span>
+                                </div>
+                                <div class="price-period">
+                                    <ng-container *ngIf="!subscription.cancelAt">
+                                        <span *ngIf="i === 0"
+                                            >{{ t("smartaccess.plans.next_payment") }}: {{ subscription.endDate | date : "longDate" }}</span
+                                        >
+                                        <span *ngIf="i > 0"
+                                            >{{ t("smartaccess.plans.starts_in") }}: {{ subscription.startDate | date : "longDate" }}</span
+                                        >
+                                    </ng-container>
+                                    <span *ngIf="subscription.cancelAt"
+                                        >{{ t("smartaccess.plans.canceled_plan") }}: {{ subscription.cancelAt | date : "longDate" }}</span
+                                    >
+                                </div>
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="payment-method">
+                                <ng-container *ngIf="subscription?.cardBrand === 'link'">
+                                    <div class="payment-icon link">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-16" viewBox="0 0 72 24" fill="none">
+                                            <path
+                                                fill="currentColor"
+                                                d="M36.12 3.67683c0-1.12801.9504-2.04481 2.0688-2.04481 1.1184 0 2.0688.9216 2.0688 2.04481 0 1.1232-.9168 2.0688-2.0688 2.0688-1.152 0-2.0688-.9168-2.0688-2.0688ZM29.9808 1.92001h3.6V22.08h-3.6V1.92001ZM40.008 7.68001h-3.6288V22.08h3.6288V7.68001ZM66.096 14.3904c2.7312-1.68 4.5888-4.1808 5.3232-6.71516h-3.6288c-.9456 2.41916-3.1152 4.23836-5.5008 5.01116V1.91523h-3.6288V22.0752h3.6288V16.08c2.7696.6912 4.9584 3.0864 5.7072 5.9952h3.6528c-.5568-3.0528-2.6448-5.9088-5.5536-7.6848ZM46.44 9.29283c.9504-1.2624 2.8032-1.99681 4.3056-1.99681 2.8032 0 5.1216 2.04961 5.1264 5.14558v9.6336h-3.6288v-8.832c0-1.272-.5664-2.7408-2.4048-2.7408-2.16 0-3.4032 1.9152-3.4032 4.1568v7.4256h-3.6288V7.68962H46.44v1.60321Z"
+                                            ></path>
+                                            <path
+                                                fill="#00D66F"
+                                                d="M12 24c6.6274 0 12-5.3726 12-12 0-6.62743-5.3726-12-12-12C5.37259 0 0 5.37257 0 12c0 6.6274 5.37259 12 12 12Z"
+                                            ></path>
+                                            <path
+                                                fill="#011e0f"
+                                                d="M11.4479 4.80005H7.74707c.72 3.0096 2.82243 5.58235 5.45283 7.19995-2.6352 1.6176-4.73283 4.1904-5.45283 7.2h3.70083c.9168-2.784 3.456-5.2032 6.576-5.6976v-3.0095c-3.1248-.4896-5.664-2.90885-6.576-5.69285Z"
+                                            ></path>
+                                        </svg>
+                                    </div>
+                                    <span class="payment-text">{{ t("smartenroll.plans.paid_with_stripe_link") }}</span>
+                                </ng-container>
+                                <ng-container *ngIf="subscription?.cardBrand && subscription?.cardBrand !== 'link' && subscription?.lastFour">
+                                    <img [src]="creditCardLogo(subscription.cardBrand)" class="h-8 w-12 object-contain" alt="card" />
+                                    <div class="payment-details">
+                                        <span class="payment-text"
+                                            >{{ capitalizeFirstLetter(subscription.cardBrand) }} {{ t("smartaccess.plans.ended") }}
+                                            {{ subscription.lastFour }}</span
+                                        >
+                                        <span class="payment-expiry"
+                                            >{{ t("smartaccess.plans.expires") }} {{ subscription.cardExpMonth }}/{{ subscription.cardExpYear }}</span
+                                        >
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="!subscription?.cardBrand && !subscription?.lastFour">
+                                    <mat-icon class="text-gray-400">credit_card_off</mat-icon>
+                                    <span class="payment-text text-gray-500">{{ t("smartaccess.plans.no_payment") }}</span>
+                                </ng-container>
+                            </div>
+
+                            <!-- Features Grid -->
+                            <div class="features-grid">
+                                <div class="feature-card">
+                                    <div class="feature-icon email">
+                                        <mat-icon>email</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">Email</span>
+                                        <span class="feature-value">{{ subscription.emailsLimit | number }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status" [class.active]="subscription.emailsLimit > 0">
+                                        {{ subscription.emailsLimit > 0 ? "check_circle" : "cancel" }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon whitelabel">
+                                        <mat-icon>brush</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("smartaccess.plans.whiteLabel") }}</span>
+                                        <span class="feature-value">{{ t("smartenroll.plans.enabled") }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status active">check_circle</mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon biometrics">
+                                        <mat-icon>fingerprint</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("smartaccess.plans.liveness") }}</span>
+                                        <span class="feature-value">{{
+                                            subscription.biometricsLimit > 0
+                                                ? (subscription.biometricsLimit | number)
+                                                : t("smartenroll.plans.disabled")
+                                        }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status" [class.active]="subscription.biometricsLimit > 0">
+                                        {{ subscription.biometricsLimit > 0 ? "check_circle" : "cancel" }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon api">
+                                        <mat-icon>api</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("smartaccess.plans.api_assistance") }}</span>
+                                        <span class="feature-value">{{ t("smartenroll.plans.available") }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status">add_circle_outline</mat-icon>
+                                </div>
+                            </div>
+
+                            <!-- Optional Features Section -->
+                            <div class="optional-section">
+                                <h3 class="optional-title">{{ t("smartenroll.plans.optional_features") }}</h3>
+                                <p class="optional-subtitle">{{ t("smartenroll.plans.optional_features_description") }}</p>
+
+                                <div class="optional-grid">
+                                    <div class="optional-card">
+                                        <div class="optional-icon sms">
+                                            <mat-icon>sms</mat-icon>
+                                        </div>
+                                        <div class="optional-content">
+                                            <span class="optional-label">{{ t("smartenroll.plans.sms_optional") }}</span>
+                                            <span class="optional-value">{{ t("smartenroll.plans.using_functionality") }}</span>
+                                        </div>
+                                        <a [href]="getSmsWhatsappPricesUrl()" target="_blank" class="optional-link">
+                                            {{ t("smartenroll.plans.using_functionality_link") }}
+                                            <mat-icon>open_in_new</mat-icon>
+                                        </a>
+                                    </div>
+
+                                    <div class="optional-card">
+                                        <div class="optional-icon whatsapp">
+                                            <mat-icon>chat</mat-icon>
+                                        </div>
+                                        <div class="optional-content">
+                                            <span class="optional-label">{{ t("smartenroll.plans.whatsapp_optional") }}</span>
+                                            <span class="optional-value">{{ t("smartenroll.plans.using_functionality") }}</span>
+                                        </div>
+                                        <a [href]="getSmsWhatsappPricesUrl()" target="_blank" class="optional-link">
+                                            {{ t("smartenroll.plans.using_functionality_link") }}
+                                            <mat-icon>open_in_new</mat-icon>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Button -->
+                            <div class="card-actions">
+                                <button
+                                    (click)="goToStripeSubscriptions()"
+                                    class="action-button primary"
+                                    [class.error]="subscription.paymentFailedAt"
+                                    mat-flat-button
+                                >
+                                    {{ t("smartaccess.plans.manage_plan") }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Upgrade CTA Section -->
+                <div class="upgrade-section animate-fadeIn">
+                    <!-- Header with gradient -->
+                    <div class="upgrade-header">
+                        <div class="upgrade-header-content">
+                            <div class="upgrade-badge">
+                                <mat-icon>auto_awesome</mat-icon>
+                                <span>{{ t("smartenroll.plans.upgrade_available") }}</span>
+                            </div>
+                            <h2 class="upgrade-headline">{{ t("smartaccess.plans.better_plan") }}</h2>
+                            <p class="upgrade-subheadline">{{ t("smartaccess.plans.better_plan_text") }}</p>
+                        </div>
+                        <div class="upgrade-illustration">
+                            <div class="floating-icon icon-1">
+                                <mat-icon>verified</mat-icon>
+                            </div>
+                            <div class="floating-icon icon-2">
+                                <mat-icon>speed</mat-icon>
+                            </div>
+                            <div class="floating-icon icon-3">
+                                <mat-icon>security</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits Grid -->
+                    <div class="upgrade-benefits">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <mat-icon>trending_up</mat-icon>
+                            </div>
+                            <div class="benefit-text">
+                                <span class="benefit-title">{{ t("smartenroll.plans.higher_limits") }}</span>
+                                <span class="benefit-desc">{{ t("smartenroll.plans.higher_limits_desc") }}</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <mat-icon>support_agent</mat-icon>
+                            </div>
+                            <div class="benefit-text">
+                                <span class="benefit-title">{{ t("smartenroll.plans.priority_support") }}</span>
+                                <span class="benefit-desc">{{ t("smartenroll.plans.priority_support_desc") }}</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <mat-icon>tune</mat-icon>
+                            </div>
+                            <div class="benefit-text">
+                                <span class="benefit-title">{{ t("smartenroll.plans.advanced_features") }}</span>
+                                <span class="benefit-desc">{{ t("smartenroll.plans.advanced_features_desc") }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CTA -->
+                    <div class="upgrade-cta">
+                        <button (click)="changeView('change', null)" class="upgrade-button" mat-flat-button>
+                            <span>{{ t("smartaccess.plans.explore_plan") }}</span>
+                            <mat-icon>arrow_forward</mat-icon>
+                        </button>
+                        <span class="upgrade-hint">{{ t("smartenroll.plans.no_commitment") }}</span>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- CHANGE PLAN VIEW -->
+            <ng-container *ngIf="currentView === 'change'">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900">{{ t("smartenroll.plans.select_plan") }}</h2>
+                    <p class="text-gray-500 mt-1">{{ t("smartenroll.plans.choose_best_plan") }}</p>
+                </div>
+
+                <!-- Plan Cards Grid -->
+                <div class="plans-grid">
+                    <!-- Plus Plan -->
+                    <div
+                        class="select-plan-card animate-fadeIn"
+                        [class.select-plan-card--current]="isActiveCatalogPlan('plus')"
+                        [style.animation-delay]="'0.1s'"
+                    >
+                        <div *ngIf="isActiveCatalogPlan('plus')" class="current-plan-badge">
+                            {{ t("smartenroll.plans.current_plan_badge") }}
+                        </div>
+                        <div class="plan-badge plus">{{ t("smartenroll.plans.plus") }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price">{{ calculatePrice("plus") | currency }}</span>
+                            <span class="plan-period">/{{ t("smartenroll.plans.month") }}</span>
+                        </div>
+                        <p class="plan-range">
+                            {{ getPlan("plus")?.biometricsLimit | number }} - {{ getPlan("plus")?.basicLimit | number }} smartEnrolls
+                        </p>
+
+                        <div class="plan-features">
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.enroll_cost") }}</span>
+                                <span class="stat-value">{{ getPlan("plus")?.unitPrice | currency }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.analytics") }}</span>
+                                <span class="stat-value">{{ t("smartenroll.plans.n_days", { n: (getPlan("plus")?.intervalCount || 1) * 30 }) }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.team_size") }}</span>
+                                <span class="stat-value">5</span>
+                            </div>
+                        </div>
+
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t("smartenroll.plans.included") }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.liveness") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.face_compare") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.worldwide_checks") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.email") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.scan_doc") }}</li>
+                            </ul>
+                        </div>
+
+                        <button (click)="changeView('select', 'plus')" class="select-button plus" mat-flat-button>
+                            {{
+                                isActiveCatalogPlan("plus")
+                                    ? t("smartenroll.plans.adjust_volume")
+                                    : t("smartenroll.plans.view_plan")
+                            }}
+                        </button>
+                    </div>
+
+                    <!-- Business Plan -->
+                    <div
+                        class="select-plan-card featured animate-fadeIn"
+                        [class.select-plan-card--current]="isActiveCatalogPlan('business')"
+                        [style.animation-delay]="'0.2s'"
+                    >
+                        <div *ngIf="isActiveCatalogPlan('business')" class="current-plan-badge current-plan-badge--offset">
+                            {{ t("smartenroll.plans.current_plan_badge") }}
+                        </div>
+                        <div class="featured-badge">{{ t("smartenroll.plans.most_popular") }}</div>
+                        <div class="plan-badge business">{{ t("smartenroll.plans.business") }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price">{{ calculatePrice("business") | currency }}</span>
+                            <span class="plan-period">/{{ t("smartenroll.plans.month") }}</span>
+                        </div>
+                        <p class="plan-range">
+                            {{ getPlan("business")?.biometricsLimit | number }} - {{ getPlan("business")?.basicLimit | number }} smartEnrolls
+                        </p>
+
+                        <div class="plan-features">
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.enroll_cost") }}</span>
+                                <span class="stat-value">{{ getPlan("business")?.unitPrice | currency }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.analytics") }}</span>
+                                <span class="stat-value">{{
+                                    t("smartenroll.plans.n_days", { n: (getPlan("business")?.intervalCount || 1) * 30 })
+                                }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.team_size") }}</span>
+                                <span class="stat-value">5</span>
+                            </div>
+                        </div>
+
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t("smartenroll.plans.included") }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.liveness") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.face_compare") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.worldwide_checks") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.email") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.scan_doc") }}</li>
+                            </ul>
+                        </div>
+
+                        <button (click)="changeView('select', 'business')" class="select-button business" mat-flat-button>
+                            {{
+                                isActiveCatalogPlan("business")
+                                    ? t("smartenroll.plans.adjust_volume")
+                                    : t("smartenroll.plans.view_plan")
+                            }}
+                        </button>
+                    </div>
+
+                    <!-- Enterprise Plan -->
+                    <div class="select-plan-card animate-fadeIn" [style.animation-delay]="'0.3s'">
+                        <div class="plan-badge enterprise">{{ t("smartenroll.plans.enterprise") }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price custom">{{ t("smartenroll.plans.contact_sales") }}</span>
+                        </div>
+                        <p class="plan-range">+5,000 smartEnrolls</p>
+
+                        <div class="plan-features">
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.enroll_cost") }}</span>
+                                <span class="stat-value">{{ t("smartenroll.plans.custom") }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.analytics") }}</span>
+                                <span class="stat-value">{{ t("smartenroll.plans.unlimited") }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("smartenroll.plans.team_size") }}</span>
+                                <span class="stat-value">+10</span>
+                            </div>
+                        </div>
+
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t("smartenroll.plans.included") }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.everything_in_business") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.api_assistance") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.dedicated_support") }}</li>
+                            </ul>
+                        </div>
+
+                        <button (click)="purchaseEnterprise()" class="select-button enterprise" mat-flat-button>
+                            {{ t("smartenroll.plans.contact_sales") }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Free Plan Card - same UI as Plus/Business -->
+                <div
+                    class="select-plan-card free-plan-card animate-fadeIn"
+                    [class.select-plan-card--current]="isActiveCatalogPlan('free')"
+                    [style.animation-delay]="'0.4s'"
+                >
+                    <div *ngIf="isActiveCatalogPlan('free')" class="current-plan-badge">
+                        {{ t("smartenroll.plans.current_plan_badge") }}
+                    </div>
+                    <div class="plan-badge free">{{ t("smartenroll.plans.free") }}</div>
+                    <div class="plan-pricing">
+                        <span class="plan-price">$0</span>
+                        <span class="plan-period">/{{ t("smartenroll.plans.month") }}</span>
+                    </div>
+                    <p class="plan-range">{{ getPlan("free")?.basicLimit | number }} smartEnrolls</p>
+                    <p
+                        class="free-plan-desc"
+                        [innerHTML]="t('smartenroll.plans.try_free_plan_description', { amount: getPlan('free')?.basicLimit || 0 })"
+                    ></p>
+                    <div class="plan-features">
+                        <div class="plan-stat">
+                            <span class="stat-label">{{ t("smartenroll.plans.enroll_cost") }}</span>
+                            <span class="stat-value">$0</span>
+                        </div>
+                        <div class="plan-stat">
+                            <span class="stat-label">{{ t("smartenroll.plans.analytics") }}</span>
+                            <span class="stat-value">{{ t("smartenroll.plans.n_days", { n: (getPlan("free")?.intervalCount || 1) * 30 }) }}</span>
+                        </div>
+                        <div class="plan-stat">
+                            <span class="stat-label">{{ t("smartenroll.plans.team_size") }}</span>
+                            <span class="stat-value">2</span>
+                        </div>
+                    </div>
+                    <div class="plan-includes">
+                        <p class="includes-title">{{ t("smartenroll.plans.included") }}</p>
+                        <ul class="includes-list">
+                            <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.white_label") }}</li>
+                            <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.face_compare") }}</li>
+                            <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.email") }}</li>
+                            <li><mat-icon>check</mat-icon>{{ t("smartenroll.plans.scan_doc") }}</li>
+                        </ul>
+                    </div>
+                    <button (click)="changeView('select', 'free')" class="select-button free" mat-stroked-button>
+                        {{
+                            isActiveCatalogPlan("free")
+                                ? t("smartenroll.plans.adjust_volume")
+                                : t("smartenroll.plans.view_plan")
+                        }}
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </ng-container>
+
+            <!-- SELECT PLAN VIEW - Modern Checkout Experience -->
+            <ng-container *ngIf="currentView === 'select'">
+                <!-- Landing-style Slider Section for non-free plans -->
+                <div *ngIf="selectedPlan !== 'free'" class="landing-slider-section animate-fadeIn">
+                    <h2 class="landing-slider-title">{{ t("smartenroll.plans.how_many_enrollments") }}</h2>
+                    <p class="landing-slider-subtitle">{{ t("smartenroll.plans.select_volume") }}</p>
+
+                    <div class="landing-slider-track">
+                        <span class="track-label">{{ sliderOptions?.notches?.[0] | number }}</span>
+                        <div class="track-slider">
+                            <div class="range-slider range-slider--dotted" [style.--track-fill-percentage]="getTrackFillPercentage() + '%'">
+                                <input
+                                    [max]="sliderOptions?.notches?.length - 1 || 0"
+                                    [min]="0"
+                                    [(ngModel)]="sliderOptions.value"
+                                    class="range-slider__input"
+                                    type="range"
+                                />
+                            </div>
+                        </div>
+                        <span class="track-label">+{{ sliderOptions?.notches?.[sliderOptions?.notches?.length - 1] | number }}</span>
+                    </div>
+
+                    <div class="landing-slider-pill">
+                        <strong>{{ getSliderAmount(selectedPlan) | number }}</strong> smartEnrolls
+                    </div>
+
+                    <div *ngIf="showVolumeChangeSummary()" class="volume-change-summary">
+                        <div class="volume-change-summary__head">
+                            <div class="volume-change-summary__head-icon" aria-hidden="true">
+                                <mat-icon>compare_arrows</mat-icon>
+                            </div>
+                            <div class="volume-change-summary__head-text">
+                                <span class="volume-change-summary__eyebrow">{{ t("smartenroll.plans.volume_compare_eyebrow") }}</span>
+                                <span class="volume-change-summary__title">{{ t("smartenroll.plans.volume_compare_title") }}</span>
+                            </div>
+                        </div>
+                        <div class="volume-change-summary__compare">
+                            <div class="volume-change-summary__panel volume-change-summary__panel--from">
+                                <span class="volume-change-summary__panel-label">{{
+                                    t("smartenroll.plans.volume_compare_current")
+                                }}</span>
+                                <span class="volume-change-summary__panel-value">{{ currentSubscribedEnrollments | number }}</span>
+                                <span class="volume-change-summary__panel-unit">{{ t("smartenroll.plans.volume_compare_unit") }}</span>
+                            </div>
+                            <div class="volume-change-summary__mid">
+                                <div class="volume-change-summary__mid-icon">
+                                    <mat-icon>arrow_forward</mat-icon>
+                                </div>
+                            </div>
+                            <div
+                                class="volume-change-summary__panel volume-change-summary__panel--to"
+                                [class.volume-change-summary__panel--highlight]="isSameTierVolumeUpdate()"
+                            >
+                                <span class="volume-change-summary__panel-label">{{
+                                    t("smartenroll.plans.volume_compare_new")
+                                }}</span>
+                                <span class="volume-change-summary__panel-value">{{ selectedEnrollmentsCount() | number }}</span>
+                                <span class="volume-change-summary__panel-unit">{{ t("smartenroll.plans.volume_compare_unit") }}</span>
+                            </div>
+                        </div>
+                        <p *ngIf="!isSameTierVolumeUpdate()" class="volume-change-summary__hint">
+                            {{ t("smartenroll.plans.volume_compare_equal_hint") }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Modern Checkout Card -->
+                <div class="checkout-card animate-fadeIn" [ngClass]="'checkout-' + selectedPlan">
+                    <!-- Plan Header -->
+                    <div class="checkout-header" [ngClass]="'header-' + selectedPlan">
+                        <div class="checkout-plan-info">
+                            <div class="checkout-badge" [ngClass]="selectedPlan">
+                                <mat-icon>{{ selectedPlan === "free" ? "card_giftcard" : selectedPlan === "plus" ? "star" : "diamond" }}</mat-icon>
+                                <span>{{
+                                    selectedPlan === "free"
+                                        ? t("smartenroll.plans.free")
+                                        : selectedPlan === "plus"
+                                        ? t("smartenroll.plans.plus")
+                                        : t("smartenroll.plans.business")
+                                }}</span>
+                            </div>
+                            <span class="checkout-plan-type">{{ t("smartenroll.plans.per_enrollment") }}</span>
+                        </div>
+                        <div class="checkout-price">
+                            <span class="price-from">{{ t("smartenroll.plans.starting_at") }}</span>
+                            <span class="price-currency">$</span>
+                            <span class="price-value">{{ calculatePrice(selectedPlan) | number : "1.0-0" }}</span>
+                            <span class="price-period">/{{ t("smartenroll.plans.month") }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Row -->
+                    <div class="checkout-stats">
+                        <div class="stat-item">
+                            <mat-icon>fingerprint</mat-icon>
+                            <span class="stat-value">{{
+                                selectedPlan === "free" ? (getPlan("free")?.basicLimit | number) : (getSliderAmount(selectedPlan) | number)
+                            }}</span>
+                            <span class="stat-label">smartEnrolls</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <mat-icon>payments</mat-icon>
+                            <span class="stat-value">{{ getPlan(selectedPlan)?.unitPrice | currency }}</span>
+                            <span class="stat-label">{{ t("smartenroll.plans.cost_per_enroll") }}</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <mat-icon>analytics</mat-icon>
+                            <span class="stat-value">{{ (getPlan(selectedPlan)?.intervalCount || 1) * 30 }}</span>
+                            <span class="stat-label">{{ t("smartenroll.plans.analytics_days") }}</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <mat-icon>group</mat-icon>
+                            <span class="stat-value">{{ selectedPlan === "free" ? "2" : "5" }}</span>
+                            <span class="stat-label">{{ t("smartenroll.plans.team_members") }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Included & Extra Costs Side by Side -->
+                    <div class="checkout-features">
+                        <div class="features-column">
+                            <h4 class="features-title included-title">
+                                <mat-icon>check_circle</mat-icon>
+                                {{ t("smartenroll.plans.included") }}
+                            </h4>
+                            <ul class="features-list included">
+                                <li>
+                                    <span>{{ t("smartenroll.plans.liveness") }}</span>
+                                    <span class="feature-count">{{
+                                        getSliderAmount(selectedPlan) || getPlan(selectedPlan)?.biometricsLimit || 0 | number
+                                    }}</span>
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.worldwide_checks") }}</span>
+                                    <span class="feature-count">{{
+                                        getSliderAmount(selectedPlan) || getPlan(selectedPlan)?.backgroundCheckLimit || 0 | number
+                                    }}</span>
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.emails") }}</span>
+                                    <span class="feature-count">{{
+                                        getSliderAmount(selectedPlan) || getPlan(selectedPlan)?.emailsLimit || 0 | number
+                                    }}</span>
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.scan_doc") }}</span>
+                                    <span class="feature-count">{{
+                                        getSliderAmount(selectedPlan) || getPlan(selectedPlan)?.scanDocsLimit || 0 | number
+                                    }}</span>
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.white_label") }}</span>
+                                    <mat-icon class="feature-check">check</mat-icon>
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.face_compare") }}</span>
+                                    <mat-icon class="feature-check">check</mat-icon>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="features-column">
+                            <h4 class="features-title extra-title">
+                                <mat-icon>add_circle_outline</mat-icon>
+                                {{ t("smartenroll.plans.extra_cost") }}
+                            </h4>
+                            <ul class="features-list extra">
+                                <li>
+                                    <span>{{ t("smartenroll.plans.extra_enrolls") }}</span>
+                                    <span class="feature-price"
+                                        >{{ getPlan(selectedPlan)?.unitPrice | currency }} {{ t("smartenroll.plans.per_extra") }}</span
+                                    >
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.sms_verification") }}</span>
+                                    <a class="extras-link" [href]="getSmsWhatsappPricesUrl()" target="_blank">{{
+                                        t("smartenroll.plans.see_prices")
+                                    }}</a>
+                                </li>
+                                <li>
+                                    <span>{{ t("smartenroll.plans.whatsapp_verification") }}</span>
+                                    <a class="extras-link" [href]="getSmsWhatsappPricesUrl()" target="_blank">{{
+                                        t("smartenroll.plans.see_prices")
+                                    }}</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Extra Enrolls Info Toggle -->
+                    <div class="extra-bio-notice">
+                        <div class="extra-bio-header" (click)="showExtraBioInfo = !showExtraBioInfo">
+                            <div class="extra-bio-left">
+                                <mat-icon class="info-icon">info</mat-icon>
+                                <span>{{ t("smartenroll.plans.extra_enroll_info_title") }}</span>
+                            </div>
+                            <mat-icon class="expand-icon" [class.expanded]="showExtraBioInfo">expand_more</mat-icon>
+                        </div>
+                        <div class="extra-bio-body" *ngIf="showExtraBioInfo">
+                            <p>{{ t("smartenroll.plans.extra_enroll_explanation") }}</p>
+                            <div class="extra-bio-costs">
+                                <div class="bio-cost-item">
+                                    <span>{{ t("smartenroll.plans.extra_enrollment") }}</span>
+                                    <strong>{{ getPlan(selectedPlan)?.unitPrice | currency }} USD / {{ t("smartenroll.plans.enrollment") }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button & Terms -->
+                    <div class="checkout-actions">
+                        <button
+                            (click)="createOrUpdateSubscription()"
+                            [disabled]="isCheckoutActionDisabled()"
+                            class="checkout-button"
+                            [ngClass]="selectedPlan"
+                            mat-flat-button
+                        >
+                            <mat-spinner *ngIf="subscribingToPlan" diameter="20" class="mr-2"></mat-spinner>
+                            {{
+                                subscribingToPlan
+                                    ? t("smartenroll.plans.processing")
+                                    : selectedPlan === "free"
+                                    ? t("smartenroll.plans.purchase_this_plan")
+                                    : t(checkoutPrimaryActionKey())
+                            }}
+                        </button>
+                        <p class="checkout-terms">
+                            {{ t("smartenroll.plans.by_using_prefix") }}
+                            <a [href]="termsAndConditionsUrl" target="_blank">{{ t("smartenroll.plans.terms_and_conditions") }}</a>
+                        </p>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</ng-container>

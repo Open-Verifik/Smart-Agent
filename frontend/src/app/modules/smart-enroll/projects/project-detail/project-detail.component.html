@@ -1,0 +1,194 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        >
+            <div class="mx-auto max-w-5xl">
+                <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                    <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <a
+                        routerLink="/smart-enroll/projects"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >{{ t('smartEnrollProjects.title') }}</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t(sectionTitleKey()) }}</span>
+                </div>
+                <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            (click)="section() ? clearSection() : goToList()"
+                            class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                            [attr.aria-label]="section() ? t('smartEnrollProjects.detail.backToOverview') : t('smartEnrollProjects.backToList')"
+                        >
+                            <mat-icon>arrow_back</mat-icon>
+                        </button>
+                        <div class="min-w-0">
+                            <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                                {{ t(sectionTitleKey()) }}
+                            </h1>
+                            @if (project()?.name && section()) {
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">{{ project()!.name }}</p>
+                            }
+                            @if (project()?._id && !section()) {
+                                <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ project()!._id }}</p>
+                            }
+                        </div>
+                    </div>
+                    @if (project() && !loading() && !section()) {
+                        <div class="flex flex-wrap gap-2">
+                            <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goToStaff()">
+                                {{ t('smartEnrollProjects.list.menuStaff') }}
+                            </button>
+                            <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="goToRecords()">
+                                {{ t('smartEnrollProjects.viewRecords') }}
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto w-full max-w-5xl">
+                @if (loading()) {
+                    <div class="flex justify-center py-20">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                } @else if (errorKey()) {
+                    <div
+                        class="rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+                    >
+                        {{ errorKey()! | transloco }}
+                    </div>
+                } @else if (project()) {
+                    @if (section() === 'api') {
+                        <div class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40 md:p-8">
+                            <p class="text-sm text-stone-600 dark:text-stone-400">{{ t('smartEnrollProjects.detail.apiIntro') }}</p>
+                            <div class="mt-6 space-y-4">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{
+                                        t('smartEnrollProjects.detail.projectId')
+                                    }}</span>
+                                    <div class="flex min-w-0 items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                        <code class="min-w-0 flex-1 break-all text-xs text-stone-800 dark:text-stone-200">{{ project()!._id }}</code>
+                                        <button
+                                            mat-icon-button
+                                            type="button"
+                                            (click)="copyValue(project()!._id, $event)"
+                                            [attr.aria-label]="t('smartEnrollProjects.detail.copy')"
+                                        >
+                                            <mat-icon class="icon-size-5" svgIcon="mat_outline:content_copy"></mat-icon>
+                                        </button>
+                                    </div>
+                                </div>
+                                @if (currentFlow(project()); as flow) {
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{
+                                            t('smartEnrollProjects.detail.projectFlowId')
+                                        }}</span>
+                                        <div class="flex min-w-0 items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                            <code class="min-w-0 flex-1 break-all text-xs text-stone-800 dark:text-stone-200">{{ flow._id }}</code>
+                                            <button
+                                                mat-icon-button
+                                                type="button"
+                                                (click)="copyValue(flow._id, $event)"
+                                                [attr.aria-label]="t('smartEnrollProjects.detail.copy')"
+                                            >
+                                                <mat-icon class="icon-size-5" svgIcon="mat_outline:content_copy"></mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                @if (clientId(project()); as cid) {
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{
+                                            t('smartEnrollProjects.detail.clientId')
+                                        }}</span>
+                                        <div class="flex min-w-0 items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                            <code class="min-w-0 flex-1 break-all text-xs text-stone-800 dark:text-stone-200">{{ cid }}</code>
+                                            <button
+                                                mat-icon-button
+                                                type="button"
+                                                (click)="copyValue(cid, $event)"
+                                                [attr.aria-label]="t('smartEnrollProjects.detail.copy')"
+                                            >
+                                                <mat-icon class="icon-size-5" svgIcon="mat_outline:content_copy"></mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <p class="mt-6 text-sm text-stone-600 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.detail.documentation') }}
+                                <a [href]="docsUrl()" target="_blank" rel="noopener noreferrer" class="font-semibold text-primary-600 hover:underline">{{
+                                    t('smartEnrollProjects.detail.viewDocs')
+                                }}</a>
+                            </p>
+                            <div class="mt-8 flex flex-wrap gap-2">
+                                <button mat-flat-button color="primary" type="button" class="rounded-xl" (click)="clearSection()">
+                                    {{ t('smartEnrollProjects.detail.backToOverview') }}
+                                </button>
+                                <button mat-stroked-button type="button" class="rounded-xl" (click)="goToRecords()">
+                                    {{ t('smartEnrollProjects.list.seeLogs') }}
+                                </button>
+                            </div>
+                        </div>
+                    } @else if (section()) {
+                        <div class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40 md:p-8">
+                            <p class="text-sm text-stone-600 dark:text-stone-400">{{ t('smartEnrollProjects.detail.sectionHint') }}</p>
+                            <div class="mt-6 flex flex-wrap gap-2">
+                                <button mat-flat-button color="primary" type="button" class="rounded-xl" (click)="clearSection()">
+                                    {{ t('smartEnrollProjects.detail.backToOverview') }}
+                                </button>
+                                <button mat-stroked-button type="button" class="rounded-xl" (click)="goToStaff()">
+                                    {{ t('smartEnrollProjects.list.menuStaff') }}
+                                </button>
+                            </div>
+                        </div>
+                    } @else {
+                        <div class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40 md:p-8">
+                            @if (project()!.branding?.logo) {
+                                <div class="mb-6 flex justify-center">
+                                    <img [src]="project()!.branding!.logo" alt="" class="h-20 w-20 rounded-full object-contain" />
+                                </div>
+                            }
+                            <h2 class="text-lg font-semibold text-stone-900 dark:text-white">{{ t('smartEnrollProjects.flowsHeading') }}</h2>
+                            @if (!project()!.projectFlows?.length) {
+                                <p class="mt-2 text-sm text-stone-600 dark:text-stone-400">{{ t('smartEnrollProjects.noFlows') }}</p>
+                            } @else {
+                                <ul class="mt-4 space-y-3">
+                                    @for (flow of project()!.projectFlows!; track flow._id) {
+                                        <li
+                                            class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-stone-200/80 px-4 py-3 dark:border-gray-700"
+                                        >
+                                            <span class="font-medium text-stone-800 dark:text-stone-200">{{ flow.name || flow._id }}</span>
+                                            <span
+                                                class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                                [ngClass]="
+                                                    flow.status === 'draft' || !flow.status
+                                                        ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'
+                                                        : 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200'
+                                                "
+                                            >
+                                                {{ flow.status || 'draft' }}
+                                            </span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            @if (project()!.updatedAt) {
+                                <p class="mt-6 text-xs text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollProjects.updated') }}: {{ formatDate(project()!.updatedAt) }}
+                                </p>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>

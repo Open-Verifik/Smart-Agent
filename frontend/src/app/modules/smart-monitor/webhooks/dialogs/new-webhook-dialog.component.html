@@ -1,0 +1,95 @@
+<ng-container *transloco="let t">
+    <div class="dialog-shell">
+        <h2 class="dialog-title">{{ data ? t('webhooks.new.edit_title') : t('webhooks.new.title') }}</h2>
+
+        <form [formGroup]="fieldsForm" class="form-stack">
+            <div class="field">
+                <label class="field-label">{{ t('webhooks.new.name') }}</label>
+                <input
+                    type="text"
+                    formControlName="name"
+                    class="field-input"
+                    [class.field-input-invalid]="fieldsForm.get('name')?.invalid && fieldsForm.get('name')?.touched"
+                />
+                <span class="field-error" *ngIf="fieldsForm.get('name')?.hasError('required') && fieldsForm.get('name')?.touched">
+                    {{ t('webhooks.new.name_required') }}
+                </span>
+                <span class="field-error" *ngIf="fieldsForm.get('name')?.hasError('maxlength') && fieldsForm.get('name')?.touched">
+                    {{ t('webhooks.new.name_too_long') }}
+                </span>
+            </div>
+
+            <div class="field">
+                <div class="field-row-label">
+                    <label class="field-label">{{ t('webhooks.new.url') }}</label>
+                    <button
+                        type="button"
+                        class="text-link"
+                        (click)="testWebhook()"
+                        [disabled]="testingWebhook || !fieldsForm.get('url')?.value || fieldsForm.get('url')?.invalid || urlError"
+                    >
+                        <span *ngIf="!testingWebhook">{{ t('webhooks.new.test_webhook') }}</span>
+                        <span *ngIf="testingWebhook" class="inline-flex items-center gap-2">
+                            <mat-progress-spinner diameter="14" mode="indeterminate"></mat-progress-spinner>
+                            {{ t('webhooks.new.testing') }}
+                        </span>
+                    </button>
+                </div>
+                <input
+                    type="url"
+                    formControlName="url"
+                    (input)="validateURL($event)"
+                    class="field-input"
+                    [class.field-input-invalid]="
+                        (fieldsForm.get('url')?.invalid || urlError) && fieldsForm.get('url')?.touched
+                    "
+                />
+                <span class="field-hint" *ngIf="!fieldsForm.get('url')?.touched || !urlError">{{ t('webhooks.new.url_description') }}</span>
+                <span class="field-error" *ngIf="fieldsForm.get('url')?.touched && urlError">{{ t('webhooks.new.url_format') }}</span>
+
+                <div *ngIf="testResult" class="test-result" [class.test-ok]="testResult.status === 'success'" [class.test-fail]="testResult.status === 'fail'">
+                    <mat-icon
+                        class="test-icon"
+                        [svgIcon]="testResult.status === 'success' ? 'heroicons_outline:check-circle' : 'heroicons_outline:x-circle'"
+                    ></mat-icon>
+                    <div class="test-body">
+                        <div class="test-msg">
+                            {{
+                                testResult.status === 'success'
+                                    ? t('webhooks.new.test_success_message')
+                                    : t('webhooks.new.test_failed_message')
+                            }}
+                        </div>
+                        <div class="test-meta" *ngIf="testResult.statusCode || testResult.message">
+                            <span *ngIf="testResult.statusCode">HTTP {{ testResult.statusCode }}</span>
+                            <span *ngIf="testResult.message"> — {{ testResult.message }}</span>
+                        </div>
+                        <pre *ngIf="testResult.body" class="test-json">{{ testResult.body | json }}</pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="field-label">{{ t('webhooks.new.description1') }}</label>
+                <textarea
+                    formControlName="description"
+                    rows="4"
+                    class="field-textarea"
+                    [class.field-input-invalid]="fieldsForm.get('description')?.invalid && fieldsForm.get('description')?.touched"
+                ></textarea>
+                <span class="field-error" *ngIf="fieldsForm.get('description')?.hasError('required') && fieldsForm.get('description')?.touched">
+                    {{ t('webhooks.new.description_required') }}
+                </span>
+            </div>
+        </form>
+
+        <div class="dialog-actions">
+            <button *ngIf="data" type="button" class="btn-danger-ghost" (click)="delete()">{{ t('webhooks.new.delete') }}</button>
+            <span class="flex-1"></span>
+            <button type="button" mat-dialog-close class="btn-secondary">{{ t('webhooks.new.cancel') }}</button>
+            <button type="button" class="btn-primary" [disabled]="fieldsForm.invalid" (click)="data ? update() : create()">
+                {{ t(data ? 'webhooks.new.update' : 'webhooks.new.create') }}
+            </button>
+        </div>
+    </div>
+</ng-container>

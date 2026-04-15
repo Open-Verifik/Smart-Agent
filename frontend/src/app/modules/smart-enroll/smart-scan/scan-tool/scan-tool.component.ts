@@ -100,6 +100,15 @@ export class ScanToolComponent implements OnInit {
 
     readonly ACCEPTED = '.jpg,.jpeg,.png,image/jpeg,image/png';
 
+    readonly flowStepDefs: ReadonlyArray<{ id: ScanToolStep; labelKey: string }> = [
+        { id: 'select', labelKey: 'smartScan.flowStepSelect' },
+        { id: 'preview', labelKey: 'smartScan.flowStepReview' },
+        { id: 'upload', labelKey: 'smartScan.flowStepUpload' },
+        { id: 'results', labelKey: 'smartScan.flowStepResults' },
+    ];
+
+    private readonly _flowStepOrder: ScanToolStep[] = ['select', 'preview', 'upload', 'results'];
+
     ngOnInit() {
         this._scanService.resetScanState();
         this._scanService.getDocumentTypes().subscribe({
@@ -371,5 +380,15 @@ export class ScanToolComponent implements OnInit {
     get confidencePercent(): number {
         const cls = this.getClassification();
         return Math.round((cls?.confidence ?? 0) * 100);
+    }
+
+    isFlowStepCurrent(stepId: ScanToolStep): boolean {
+        return this.step === stepId;
+    }
+
+    isFlowStepDone(stepId: ScanToolStep): boolean {
+        const currentIdx = this._flowStepOrder.indexOf(this.step);
+        const stepIdx = this._flowStepOrder.indexOf(stepId);
+        return stepIdx >= 0 && stepIdx < currentIdx;
     }
 }

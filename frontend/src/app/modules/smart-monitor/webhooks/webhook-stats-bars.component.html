@@ -1,0 +1,15 @@
+<ng-container *transloco="let t">
+    <div class="stats-head">
+        <span class="stats-title">{{ days === 7 ? t('webhooks.graph.lastWeek') : t('webhooks.graph.balance') }}</span>
+        <span class="stats-rate">{{ errorRate | number : '1.0-1' }}% {{ t('webhooks.graph.errorRate') }}</span>
+    </div>
+    <div class="bars-row" *ngIf="bars.length">
+        <div class="bar-col" *ngFor="let b of bars">
+            <div class="bar-stack" [attr.title]="b.day + ': +' + b.success + ' / -' + b.failed">
+                <div class="seg fail" [style.height.%]="b.failedPct"></div>
+                <div class="seg ok" [style.height.%]="b.successPct"></div>
+            </div>
+            <span class="bar-label">{{ b.label }}</span>
+        </div>
+    </div>
+</ng-container>

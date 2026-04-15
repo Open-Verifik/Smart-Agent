@@ -1,0 +1,206 @@
+.dialog-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-width: min(100vw - 2rem, 520px);
+    padding: 0.25rem;
+}
+
+.dialog-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: rgb(17 24 39);
+}
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.field-row-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.field-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+}
+
+.field-input,
+.field-textarea {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid rgb(229 231 235);
+    background: rgb(249 250 251);
+    padding: 0.65rem 0.85rem;
+    font-size: 0.875rem;
+    color: rgb(17 24 39);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field-input:focus,
+.field-textarea:focus {
+    border-color: rgb(59 130 246);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background: #fff;
+}
+
+.field-input-invalid {
+    border-color: rgb(248 113 113);
+}
+
+.field-hint {
+    font-size: 0.75rem;
+    color: rgb(107 114 128);
+}
+
+.field-error {
+    font-size: 0.75rem;
+    color: rgb(220 38 38);
+}
+
+.text-link {
+    border: none;
+    background: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(37 99 235);
+    cursor: pointer;
+    padding: 0.25rem 0.35rem;
+    border-radius: 6px;
+}
+
+.text-link:hover:not(:disabled) {
+    background: rgb(239 246 255);
+}
+
+.text-link:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.test-result {
+    display: flex;
+    gap: 0.65rem;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    border: 1px solid rgb(229 231 235);
+}
+
+.test-ok {
+    background: rgb(240 253 244);
+    border-color: rgb(187 247 208);
+}
+
+.test-fail {
+    background: rgb(254 242 242);
+    border-color: rgb(254 202 202);
+}
+
+.test-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    font-size: 22px;
+}
+
+.test-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.test-msg {
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.test-meta {
+    font-size: 0.75rem;
+    color: rgb(75 85 99);
+    margin-top: 0.25rem;
+}
+
+.test-json {
+    margin: 0.5rem 0 0;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.7rem;
+    max-height: 8rem;
+    overflow: auto;
+}
+
+.dialog-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding-top: 1rem;
+    margin-top: 0.25rem;
+    border-top: 1px solid rgb(243 244 246);
+}
+
+.btn-secondary {
+    border-radius: 10px;
+    border: 1px solid rgb(229 231 235);
+    background: #fff;
+    padding: 0.55rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: rgb(249 250 251);
+}
+
+.btn-primary {
+    border-radius: 10px;
+    border: none;
+    background: rgb(37 99 235);
+    color: #fff;
+    padding: 0.55rem 1.1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: rgb(29 78 216);
+}
+
+.btn-primary:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.btn-danger-ghost {
+    border: none;
+    background: none;
+    color: rgb(220 38 38);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0.25rem;
+    margin-right: auto;
+}
+
+.btn-danger-ghost:hover {
+    text-decoration: underline;
+}

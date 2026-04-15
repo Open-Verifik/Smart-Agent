@@ -1,0 +1,103 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div class="hero-icon">
+                    <mat-icon svgIcon="heroicons_outline:link"></mat-icon>
+                </div>
+                <div>
+                    <h1 class="title">{{ t('webhooks.list.title') }}</h1>
+                    <p class="subtitle">{{ t('webhooks.list.subtitle') }}</p>
+                </div>
+            </header>
+
+            <div *ngIf="loading" class="state-loading">
+                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            </div>
+
+            <div class="grid" *ngIf="!loading">
+                <article class="card" *ngFor="let webhook of webhooks">
+                    <div class="card-top">
+                        <div class="card-heading">
+                            <h2 class="card-title">{{ webhook.name }}</h2>
+                            <span
+                                class="pill"
+                                [class.pill-on]="webhook.isActive"
+                                [class.pill-off]="!webhook.isActive"
+                            >
+                                <span class="pill-dot"></span>
+                                {{
+                                    webhook.isActive
+                                        ? t('webhooks.list.card.active')
+                                        : t('webhooks.list.card.disabled')
+                                }}
+                            </span>
+                        </div>
+                        <mat-slide-toggle
+                            [(ngModel)]="webhook.isActive"
+                            (change)="activeWebhook(webhook)"
+                            color="primary"
+                        ></mat-slide-toggle>
+                    </div>
+
+                    <div class="chart-box">
+                        <webhook-stats-bars
+                            [statistics]="webhook.statisticsByDay"
+                            [days]="7"
+                        ></webhook-stats-bars>
+                    </div>
+
+                    <div class="field-block">
+                        <span class="field-label">
+                            <mat-icon class="fld-ic" svgIcon="heroicons_outline:link"></mat-icon>
+                            {{ t('webhooks.list.card.url') }}
+                        </span>
+                        <code class="url">{{ webhook.url }}</code>
+                    </div>
+
+                    <div class="field-block">
+                        <span class="field-label">
+                            <mat-icon class="fld-ic" svgIcon="heroicons_outline:folder"></mat-icon>
+                            {{ t('webhooks.list.card.related_projects') }}
+                        </span>
+                        <div class="chips">
+                            <span class="chip" *ngFor="let projectFlow of webhook.projectFlow">
+                                {{ projectFlow.project?.name }} ({{ projectFlow.type }})
+                            </span>
+                            <span class="chip-warn" *ngIf="!webhook.projectFlow?.length">
+                                <mat-icon
+                                    class="chip-ic"
+                                    svgIcon="heroicons_outline:exclamation-triangle"
+                                ></mat-icon>
+                                {{ t('webhooks.list.card.not_related_projects') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button type="button" class="btn-primary" (click)="goDetail(webhook)">
+                            {{ t('webhooks.list.view') }}
+                        </button>
+                        <button type="button" class="btn-ghost" (click)="openNew(webhook)">
+                            {{ t('webhooks.list.edit') }}
+                        </button>
+                    </div>
+                </article>
+
+                <button type="button" class="card card-dashed" (click)="openNew()">
+                    <div class="add-inner">
+                        <div class="add-icon">
+                            <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                        </div>
+                        <h2 class="add-title">{{ t('webhooks.new.title') }}</h2>
+                        <p class="add-line">{{ t('webhooks.new.subtitle') }}</p>
+                        <p class="add-hint">{{ t('webhooks.new.description') }}</p>
+                        <span class="btn-primary inline">
+                            {{ t('webhooks.new.create') }}
+                        </span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+</ng-container>
