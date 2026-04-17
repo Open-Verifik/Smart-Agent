@@ -94,6 +94,9 @@ export class SetupBasicSetupComponent {
     }
 
     countryLabel(country: string): string {
+        if (country === 'All') {
+            return this._transloco.translate('country_name.world');
+        }
         const found = this.countries.find((c) => c.country === country);
         return found ? this._transloco.translate(found.name) : country;
     }
