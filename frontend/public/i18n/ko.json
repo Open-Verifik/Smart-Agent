@@ -555,6 +555,30 @@
         "technicalMetadata": "세션 및 기술 정보",
         "technicalMetadataHint": "IP, 기기, 연결된 ID, 타임스탬프, 검증 스냅샷 필드입니다."
       },
+      "devView": {
+        "toggleOn": "개발자 보기",
+        "toggleOff": "일반 보기",
+        "copy": "JSON 복사",
+        "copied": "클립보드에 복사됨",
+        "copyError": "이 객체를 복사할 수 없습니다",
+        "webhookEvents": "이 등록과 관련된 웹훅 이벤트",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project"
+        }
+      },
       "boolYes": "예",
       "boolNo": "아니오",
       "validated": "인증됨",

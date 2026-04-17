@@ -555,6 +555,30 @@
         "technicalMetadata": "セッション・技術情報",
         "technicalMetadataHint": "IP、端末、関連ID、タイムスタンプ、検証スナップショットなど。"
       },
+      "devView": {
+        "toggleOn": "開発者ビュー",
+        "toggleOff": "通常ビュー",
+        "copy": "JSONをコピー",
+        "copied": "クリップボードにコピーしました",
+        "copyError": "このオブジェクトをコピーできませんでした",
+        "webhookEvents": "この登録に関連するWebhookイベント",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project"
+        }
+      },
       "boolYes": "はい",
       "boolNo": "いいえ",
       "validated": "認証済み",

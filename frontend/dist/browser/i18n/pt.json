@@ -555,6 +555,30 @@
         "technicalMetadata": "Sessão e detalhes técnicos",
         "technicalMetadataHint": "IP, dispositivo, IDs associados, carimbos de data/hora e campos de validação desta inscrição."
       },
+      "devView": {
+        "toggleOn": "Visualização de dev",
+        "toggleOff": "Visualização normal",
+        "copy": "Copiar JSON",
+        "copied": "Copiado para a área de transferência",
+        "copyError": "Não foi possível copiar este objeto",
+        "webhookEvents": "Eventos de webhook desta inscrição",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project"
+        }
+      },
       "boolYes": "Sim",
       "boolNo": "Não",
       "validated": "Validado",

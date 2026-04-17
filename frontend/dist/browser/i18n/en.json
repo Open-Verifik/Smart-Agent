@@ -555,6 +555,30 @@
         "technicalMetadata": "Session & technical details",
         "technicalMetadataHint": "IP, device, linked IDs, timestamps, and validation snapshot fields from this enrollment."
       },
+      "devView": {
+        "toggleOn": "Dev view",
+        "toggleOff": "Pretty view",
+        "copy": "Copy JSON",
+        "copied": "Copied to clipboard",
+        "copyError": "Could not copy this object",
+        "webhookEvents": "Webhook events for this enrollment",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project"
+        }
+      },
       "boolYes": "Yes",
       "boolNo": "No",
       "validated": "Validated",

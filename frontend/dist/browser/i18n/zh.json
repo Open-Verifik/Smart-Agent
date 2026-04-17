@@ -555,6 +555,30 @@
         "technicalMetadata": "会话与技术信息",
         "technicalMetadataHint": "IP、设备、关联 ID、时间戳及验证快照等字段。"
       },
+      "devView": {
+        "toggleOn": "开发者视图",
+        "toggleOff": "普通视图",
+        "copy": "复制 JSON",
+        "copied": "已复制到剪贴板",
+        "copyError": "无法复制此对象",
+        "webhookEvents": "此注册的 Webhook 事件",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project"
+        }
+      },
       "boolYes": "是",
       "boolNo": "否",
       "validated": "已验证",
