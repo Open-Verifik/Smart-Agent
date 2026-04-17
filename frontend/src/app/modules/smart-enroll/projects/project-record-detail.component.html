@@ -1,0 +1,1044 @@
+<div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <header
+        class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+    >
+        <div class="mx-auto max-w-6xl">
+            <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <a
+                    routerLink="/smart-enroll/projects"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >{{ 'smartEnrollProjects.title' | transloco }}</a
+                >
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <a
+                    [routerLink]="['/smart-enroll/projects', projectId]"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >{{ project()?.name || projectId }}</a
+                >
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <a
+                    [routerLink]="['/smart-enroll/projects', projectId, 'records']"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >{{ 'smartEnrollProjects.recordsTitle' | transloco }}</a
+                >
+                <mat-icon class="icon-size-4 mx-2 text-stone-400" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                <span class="cursor-default text-stone-600 dark:text-stone-300">{{
+                    'smartEnrollProjects.recordDetail.title' | transloco
+                }}</span>
+            </div>
+            <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
+                <div class="flex min-w-0 items-start gap-3">
+                    <button
+                        mat-icon-button
+                        type="button"
+                        (click)="goBack()"
+                        class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                        [attr.aria-label]="'smartEnrollProjects.recordDetail.backToRecords' | transloco"
+                    >
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div class="min-w-0 pt-0.5">
+                        <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                            {{ 'smartEnrollProjects.recordDetail.title' | transloco }}
+                        </h1>
+                        <p class="mt-1 text-sm text-stone-600 dark:text-stone-400">
+                            {{ 'smartEnrollProjects.recordDetail.subtitle' | transloco }}
+                        </p>
+                    </div>
+                </div>
+                <div class="no-print flex flex-wrap items-center gap-2">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="shrink-0 rounded-xl"
+                        [matMenuTriggerFor]="exportMenu"
+                        [disabled]="exportLoading()"
+                    >
+                        @if (exportLoading()) {
+                            <mat-spinner diameter="16"></mat-spinner>
+                        } @else {
+                            <mat-icon>download</mat-icon>
+                        }
+                        {{ 'smartEnrollProjects.recordDetail.export' | transloco }}
+                    </button>
+                    <mat-menu #exportMenu="matMenu">
+                        <button mat-menu-item type="button" (click)="downloadCv()">
+                            <mat-icon>picture_as_pdf</mat-icon>
+                            <span>{{ 'smartEnrollProjects.recordDetail.exportDownloadPdf' | transloco }}</span>
+                        </button>
+                        <button mat-menu-item type="button" (click)="emailCv()">
+                            <mat-icon>send</mat-icon>
+                            <span>{{ 'smartEnrollProjects.recordDetail.exportEmailPdf' | transloco }}</span>
+                        </button>
+                        <button
+                            mat-menu-item
+                            type="button"
+                            ngxPrint
+                            [printSectionId]="printSectionId"
+                            [useExistingCss]="true"
+                            [printTitle]="'smartEnrollProjects.recordDetail.printTitle' | transloco"
+                        >
+                            <mat-icon>print</mat-icon>
+                            <span>{{ 'smartEnrollProjects.recordDetail.exportBrowserPrint' | transloco }}</span>
+                        </button>
+                    </mat-menu>
+                    @if (canResendLink()) {
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="shrink-0 rounded-xl"
+                            (click)="openResendLinkDialog()"
+                        >
+                            <mat-icon>link</mat-icon>
+                            {{ 'smartEnrollProjects.recordDetail.resendLink' | transloco }}
+                        </button>
+                    }
+                    <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goProjects()">
+                        {{ 'smartEnrollProjects.allProjects' | transloco }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+        <div class="mx-auto w-full max-w-6xl">
+            @if (loading()) {
+                <div class="flex justify-center py-20">
+                    <mat-spinner diameter="40"></mat-spinner>
+                </div>
+            } @else if (errorKey()) {
+                <div
+                    class="rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+                >
+                    {{ errorKey()! | transloco }}
+                </div>
+            } @else {
+                @if (record(); as r) {
+                <div class="record-detail-meta mb-8">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-lg font-semibold text-stone-900 dark:text-white">{{ displayName(r) }}</p>
+                        <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ r._id }}</p>
+                    </div>
+                    @if (r.status) {
+                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="statusPillClass(r.status)">
+                            {{ r.status }}
+                        </span>
+                    }
+                    <span class="text-sm text-stone-500 dark:text-stone-400">{{ formatDate(r.updatedAt || r.createdAt) }}</span>
+                </div>
+
+                <div class="lg:grid lg:grid-cols-12 lg:gap-10">
+                    <aside class="mb-8 lg:sticky lg:top-24 lg:col-span-3 lg:mb-0 lg:self-start">
+                        @if (hasEnrollmentSelfie(r)) {
+                            <div
+                                class="mb-6 overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/50"
+                            >
+                                <div class="aspect-[3/4] w-full overflow-hidden bg-stone-100 dark:bg-gray-800">
+                                    <img
+                                        class="h-full w-full object-cover"
+                                        [src]="enrollmentSelfieSrc(r)"
+                                        alt=""
+                                        loading="lazy"
+                                    />
+                                </div>
+                                <p
+                                    class="border-t border-stone-100 px-3 py-2.5 text-center text-xs font-medium text-stone-600 dark:border-gray-800 dark:text-stone-400"
+                                >
+                                    {{ 'smartEnrollProjects.recordDetail.livenessSelfie' | transloco }}
+                                </p>
+                            </div>
+                        }
+                        <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                            {{ 'smartEnrollProjects.recordDetail.stepsHeading' | transloco }}
+                        </p>
+                        <nav class="flex flex-col gap-1">
+                            @for (step of ['information', 'email', 'phone', 'documents', 'biometrics', 'compare', 'verdict']; track step) {
+                                <button
+                                    type="button"
+                                    class="record-stepper-btn"
+                                    [class.record-stepper-btn--active]="activeStep() === step"
+                                    (click)="scrollToStep($any(step))"
+                                >
+                                    <mat-icon
+                                        class="icon-size-5 shrink-0"
+                                        [ngClass]="{
+                                            'record-stepper-icon--ok': stepState($any(step)) === 'ok',
+                                            'record-stepper-icon--error': stepState($any(step)) === 'error',
+                                            'record-stepper-icon--warn': stepState($any(step)) === 'warn',
+                                            'record-stepper-icon--pending': stepState($any(step)) === 'pending',
+                                        }"
+                                    >
+                                        {{ stepIcon($any(step)) }}
+                                    </mat-icon>
+                                    <span class="text-sm font-medium text-stone-800 dark:text-stone-200">{{
+                                        'smartEnrollProjects.recordDetail.step.' + step | transloco
+                                    }}</span>
+                                </button>
+                            }
+                        </nav>
+                    </aside>
+
+                    <div class="space-y-8 lg:col-span-9">
+                        <!-- Information -->
+                        <section id="step-information" class="scroll-mt-28">
+                            <div class="record-detail-panel">
+                                <div class="record-detail-panel__header">
+                                    <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                        {{ 'smartEnrollProjects.recordDetail.section.information' | transloco }}
+                                    </h2>
+                                    @if (r.informationValidation && ($any(r.informationValidation)['updatedAt'] || $any(r.informationValidation)['createdAt'])) {
+                                        <span class="text-xs text-stone-500 dark:text-stone-400">{{
+                                            formatDate(
+                                                $any(r.informationValidation)['updatedAt'] || $any(r.informationValidation)['createdAt'],
+                                                true
+                                            )
+                                        }}</span>
+                                    }
+                                </div>
+                                <div class="p-5 md:p-6">
+                                    @if (informationRows(r).length === 0) {
+                                        <p class="text-sm text-stone-500 dark:text-stone-400">
+                                            {{ 'smartEnrollProjects.recordDetail.empty.information' | transloco }}
+                                        </p>
+                                    } @else {
+                                        <dl class="grid gap-4 sm:grid-cols-2">
+                                            @for (row of informationRows(r); track row.key) {
+                                                <div>
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                                        {{ fieldLabel(row.key) }}
+                                                    </dt>
+                                                    <dd class="mt-1 text-sm font-medium text-stone-900 dark:text-stone-100">{{ row.value }}</dd>
+                                                </div>
+                                            }
+                                        </dl>
+                                    }
+                                </div>
+                            </div>
+
+                            @if (technicalMetadataRows(r).length) {
+                                <div class="record-detail-panel mt-6">
+                                    <div class="record-detail-panel__header">
+                                        <div class="min-w-0 flex-1">
+                                            <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                                {{ 'smartEnrollProjects.recordDetail.section.technicalMetadata' | transloco }}
+                                            </h2>
+                                            <p class="mt-1.5 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                                                {{ 'smartEnrollProjects.recordDetail.section.technicalMetadataHint' | transloco }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="p-5 md:p-6">
+                                        <dl class="grid gap-4 sm:grid-cols-2">
+                                            @for (row of technicalMetadataRows(r); track row.key) {
+                                                <div class="min-w-0" [class.sm:col-span-2]="technicalRowFullWidth(row.key)">
+                                                    <dt class="text-xs font-medium uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                                        {{ fieldLabel(row.key) }}
+                                                    </dt>
+                                                    <dd
+                                                        class="mt-1 break-words text-sm font-medium leading-relaxed text-stone-900 dark:text-stone-100"
+                                                    >
+                                                        {{ row.value }}
+                                                    </dd>
+                                                </div>
+                                            }
+                                        </dl>
+                                    </div>
+                                </div>
+                            }
+                        </section>
+
+                        <!-- Email -->
+                        @if (r.email || r.emailValidation) {
+                            <section id="step-email" class="scroll-mt-28">
+                                <div class="record-detail-panel">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.email' | transloco }}
+                                        </h2>
+                                        @if (r.emailValidation && $any(r.emailValidation)['updatedAt']) {
+                                            <span class="text-xs text-stone-500">{{ formatDate($any(r.emailValidation)['updatedAt'], true) }}</span>
+                                        }
+                                    </div>
+                                    <div class="p-5 md:p-6">
+                                        <p class="text-sm text-stone-900 dark:text-white">
+                                            {{ $any(r.emailValidation)?.email || r.email || '—' }}
+                                        </p>
+                                        @if ($any(r.emailValidation)?.status === 'validated') {
+                                            <span
+                                                class="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200"
+                                            >
+                                                <mat-icon class="icon-size-3.5">verified</mat-icon>
+                                                {{ 'smartEnrollProjects.recordDetail.validated' | transloco }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </section>
+                        }
+
+                        <!-- Phone -->
+                        @if (r.phone || r.phoneValidation) {
+                            <section id="step-phone" class="scroll-mt-28">
+                                <div class="record-detail-panel">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.phone' | transloco }}
+                                        </h2>
+                                        @if (r.phoneValidation && $any(r.phoneValidation)['updatedAt']) {
+                                            <span class="text-xs text-stone-500">{{ formatDate($any(r.phoneValidation)['updatedAt'], true) }}</span>
+                                        }
+                                    </div>
+                                    <div class="p-5 md:p-6">
+                                        <p class="text-sm text-stone-900 dark:text-white">
+                                            @if ($any(r.phoneValidation)?.countryCode) {
+                                                <span>{{ $any(r.phoneValidation).countryCode }} </span>
+                                            }
+                                            {{ $any(r.phoneValidation)?.phone || r.phone || '—' }}
+                                        </p>
+                                        @if ($any(r.phoneValidation)?.status === 'validated') {
+                                            <span
+                                                class="mt-2 inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200"
+                                            >
+                                                <mat-icon class="icon-size-3.5">verified</mat-icon>
+                                                {{ 'smartEnrollProjects.recordDetail.validated' | transloco }}
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </section>
+                        }
+
+                        <!-- Documents -->
+                        <section id="step-documents" class="scroll-mt-28">
+                            @if (r.failedDocumentValidations?.length) {
+                                @for (failed of r.failedDocumentValidations!; track $index) {
+                                    <div class="record-detail-panel mb-6 border-red-200/90 dark:border-red-900/40">
+                                        <div class="record-detail-panel__header border-red-100 bg-red-50/50 dark:border-red-900/30 dark:bg-red-950/20">
+                                            <h2 class="text-lg font-semibold text-red-900 dark:text-red-200">
+                                                {{ 'smartEnrollProjects.recordDetail.section.documentFailed' | transloco }}
+                                            </h2>
+                                            @if ($any(failed)['updatedAt']) {
+                                                <span class="text-xs text-red-700/80">{{ formatDate($any(failed)['updatedAt'], true) }}</span>
+                                            }
+                                        </div>
+                                        <div class="grid gap-4 p-5 sm:grid-cols-2 md:p-6">
+                                            @if ($any(failed)['url']) {
+                                                <div>
+                                                    <img
+                                                        class="record-doc-img"
+                                                        [src]="trustHttpUrl($any(failed)['url'])"
+                                                        alt=""
+                                                        loading="lazy"
+                                                    />
+                                                    <p class="mt-2 text-center text-xs text-stone-500">{{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}</p>
+                                                </div>
+                                            }
+                                            @if ($any(failed)['documentFace']?.base64) {
+                                                <div>
+                                                    <img
+                                                        class="record-doc-img"
+                                                        [src]="sanitizeBase64($any(failed)['documentFace'].base64)"
+                                                        alt=""
+                                                        loading="lazy"
+                                                    />
+                                                    <p class="mt-2 text-center text-xs text-stone-500">
+                                                        {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
+                                                    </p>
+                                                </div>
+                                            }
+                                        </div>
+                                        @if ($any(failed)['scoreValidation']?.errorMessage) {
+                                            <div class="border-t border-red-100 px-5 py-4 text-sm text-red-800 dark:border-red-900/40 dark:text-red-300 md:px-6">
+                                                {{ $any(failed)['scoreValidation'].errorMessage }}
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+
+                            @if (r.documentValidation) {
+                                <div class="record-detail-panel">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.document' | transloco }}
+                                        </h2>
+                                        @if ($any(r.documentValidation)['updatedAt']) {
+                                            <span class="text-xs text-stone-500">{{ formatDate($any(r.documentValidation)['updatedAt'], true) }}</span>
+                                        }
+                                    </div>
+                                    <div class="grid grid-cols-1 gap-6 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-6">
+                                        @if ($any(r.documentValidation)['url']) {
+                                            <div>
+                                                <img
+                                                    class="record-doc-img"
+                                                    [src]="trustHttpUrl($any(r.documentValidation)['url'])"
+                                                    alt=""
+                                                    loading="lazy"
+                                                />
+                                                <p class="mt-2 text-center text-xs text-stone-500">{{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}</p>
+                                            </div>
+                                        }
+                                        @if (hasDocumentFace(r)) {
+                                            <div>
+                                                <img
+                                                    class="record-doc-img"
+                                                    [src]="documentFaceSrc(r)"
+                                                    alt=""
+                                                    loading="lazy"
+                                                />
+                                                <p class="mt-2 text-center text-xs text-stone-500">
+                                                    {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
+                                                </p>
+                                            </div>
+                                        }
+                                        @if ($any(r.documentValidation)['backUrl']) {
+                                            <div>
+                                                <img
+                                                    class="record-doc-img"
+                                                    [src]="trustHttpUrl($any(r.documentValidation)['backUrl'])"
+                                                    alt=""
+                                                    loading="lazy"
+                                                />
+                                                <p class="mt-2 text-center text-xs text-stone-500">{{ 'smartEnrollProjects.recordDetail.backScan' | transloco }}</p>
+                                            </div>
+                                        }
+                                    </div>
+
+                                    @if ($any(r.documentValidation)['documentLiveness']) {
+                                        @let l = $any(r.documentValidation)['documentLiveness'];
+                                        <div class="border-t border-stone-100 px-5 py-5 dark:border-gray-800 md:px-6">
+                                            <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                                                {{ 'smartEnrollProjects.recordDetail.documentLiveness' | transloco }}
+                                            </h3>
+                                            <span
+                                                class="mt-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                                                [ngClass]="
+                                                    l.isLive
+                                                        ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200'
+                                                        : 'bg-red-100 text-red-900 dark:bg-red-950/50 dark:text-red-200'
+                                                "
+                                            >
+                                                {{ l.isLive ? ('smartEnrollProjects.recordDetail.livenessPassed' | transloco) : ('smartEnrollProjects.recordDetail.livenessFailed' | transloco) }}
+                                            </span>
+                                        </div>
+                                    }
+
+                                    @if (ocrDisplayKeys().length) {
+                                        <div class="border-t border-stone-100 dark:border-gray-800">
+                                            <div class="record-detail-panel__header !border-0">
+                                                <h3 class="text-base font-semibold text-stone-900 dark:text-white">
+                                                    {{ 'smartEnrollProjects.recordDetail.ocr' | transloco }}
+                                                </h3>
+                                            </div>
+                                            <div class="grid gap-3 px-5 pb-6 md:grid-cols-2 md:px-6">
+                                                @for (key of ocrDisplayKeys(); track key) {
+                                                    <div class="rounded-xl border border-stone-100 bg-stone-50/80 px-3 py-2 dark:border-gray-800 dark:bg-gray-800/40">
+                                                        <p class="text-xs font-medium text-stone-500 dark:text-stone-400">{{ key }}</p>
+                                                        <p class="text-sm font-medium text-stone-900 dark:text-stone-100">{{ ocrData()[key] }}</p>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            } @else if (!(r.failedDocumentValidations?.length)) {
+                                <div class="record-detail-panel">
+                                    <div class="p-6 text-sm text-stone-500 dark:text-stone-400">
+                                        {{ 'smartEnrollProjects.recordDetail.empty.documents' | transloco }}
+                                    </div>
+                                </div>
+                            }
+                        </section>
+
+                        <!-- Biometrics -->
+                        <section id="step-biometrics" class="scroll-mt-28">
+                            @if (r.failedBiometricValidations?.length) {
+                                @for (fb of r.failedBiometricValidations!; track $index) {
+                                    <div class="record-detail-panel mb-6 border-red-200/90 dark:border-red-900/40">
+                                        <div class="record-detail-panel__header border-red-100 bg-red-50/50 dark:border-red-900/30 dark:bg-red-950/20">
+                                            <h2 class="text-lg font-semibold text-red-900 dark:text-red-200">
+                                                {{ 'smartEnrollProjects.recordDetail.section.biometricFailed' | transloco }}
+                                            </h2>
+                                        </div>
+                                        <div class="p-5 text-sm text-red-800 dark:text-red-300 md:p-6">
+                                            {{ $any(fb)['errorMessage'] || ('smartEnrollProjects.recordDetail.biometricFailedHint' | transloco) }}
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @if (r.biometricValidation) {
+                                <div class="record-detail-panel">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.biometric' | transloco }}
+                                        </h2>
+                                        @if ($any(r.biometricValidation)['updatedAt']) {
+                                            <span class="text-xs text-stone-500">{{ formatDate($any(r.biometricValidation)['updatedAt'], true) }}</span>
+                                        }
+                                    </div>
+                                    <div class="flex flex-col items-center gap-6 p-5 md:flex-row md:items-start md:p-6">
+                                        @if (hasEnrollmentSelfie(r)) {
+                                            <img
+                                                class="h-16 w-16 shrink-0 rounded-lg border border-stone-200 object-cover dark:border-gray-700"
+                                                [src]="enrollmentSelfieSrc(r)"
+                                                alt=""
+                                                loading="lazy"
+                                            />
+                                        }
+                                        <div class="min-w-0 flex-1 space-y-4">
+                                            @if ($any(r.biometricValidation)['livenessScore'] != null) {
+                                                @let minLiv = livenessMinScorePercent();
+                                                <div>
+                                                    <div class="flex items-center justify-between gap-2 text-sm">
+                                                        <span class="text-stone-600 dark:text-stone-400">{{
+                                                            'smartEnrollProjects.recordDetail.livenessScore' | transloco
+                                                        }}</span>
+                                                        <span class="font-semibold tabular-nums text-stone-900 dark:text-white">{{
+                                                            livenessDisplayPercent()
+                                                        }}%</span>
+                                                    </div>
+                                                    <div class="record-progress-track mt-2">
+                                                        <div
+                                                            class="record-progress-fill bg-emerald-500"
+                                                            [style.width.%]="livenessDisplayPercent()"
+                                                        ></div>
+                                                    </div>
+                                                    @if (minLiv != null) {
+                                                        <div class="mt-4 flex items-center justify-between gap-2 text-sm">
+                                                            <span class="text-stone-600 dark:text-stone-400">{{
+                                                                'smartEnrollProjects.recordDetail.livenessMinimum' | transloco
+                                                            }}</span>
+                                                            <span class="font-semibold tabular-nums text-stone-900 dark:text-white"
+                                                                >{{ minLiv }}%</span
+                                                            >
+                                                        </div>
+                                                        <div class="record-progress-track mt-2">
+                                                            <div
+                                                                class="record-progress-fill bg-stone-400 dark:bg-stone-500"
+                                                                [style.width.%]="minLiv"
+                                                            ></div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            } @else if (!(r.failedBiometricValidations?.length)) {
+                                <div class="record-detail-panel">
+                                    <div class="p-6 text-sm text-stone-500 dark:text-stone-400">
+                                        {{ 'smartEnrollProjects.recordDetail.empty.biometrics' | transloco }}
+                                    </div>
+                                </div>
+                            }
+                        </section>
+
+                        <!-- Compare & name match -->
+                        <section id="step-compare" class="scroll-mt-28">
+                            @if ($any(r.compareFaceVerification)?.result; as cmpResult) {
+                                @if (cmpResult.score != null) {
+                                @let minPct = compareMinScorePercent();
+                                <div class="record-detail-panel">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.faceCompare' | transloco }}
+                                        </h2>
+                                    </div>
+                                    <div class="p-5 md:p-6">
+                                        <div class="flex items-center justify-between gap-2 text-sm">
+                                            <span class="text-stone-600 dark:text-stone-400">{{ 'smartEnrollProjects.recordDetail.compareScore' | transloco }}</span>
+                                            <span class="font-semibold tabular-nums text-stone-900 dark:text-white">{{ compareScore() }}%</span>
+                                        </div>
+                                        <div class="record-progress-track mt-2">
+                                            <div class="record-progress-fill bg-indigo-500" [style.width.%]="compareScore()"></div>
+                                        </div>
+                                        @if (minPct != null) {
+                                            <div class="mt-4 flex items-center justify-between gap-2 text-sm">
+                                                <span class="text-stone-600 dark:text-stone-400">{{
+                                                    'smartEnrollProjects.recordDetail.compareMinimum' | transloco
+                                                }}</span>
+                                                <span class="font-semibold tabular-nums text-stone-900 dark:text-white">{{ minPct }}%</span>
+                                            </div>
+                                            <div class="record-progress-track mt-2">
+                                                <div
+                                                    class="record-progress-fill bg-stone-400 dark:bg-stone-500"
+                                                    [style.width.%]="minPct"
+                                                ></div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                }
+                            }
+
+                            @if (showNameMatchCard()) {
+                                @let nmDoc = nameMatchColumn(r, 'document');
+                                @let nmForm = nameMatchColumn(r, 'information');
+                                <div class="record-detail-panel mt-6">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.verifyNames' | transloco }}
+                                        </h2>
+                                        @if ($any(r.documentValidation)?.['updatedAt']) {
+                                            <span class="text-xs font-normal text-stone-500 dark:text-stone-400">{{
+                                                formatDate($any(r.documentValidation)['updatedAt'], true)
+                                            }}</span>
+                                        }
+                                    </div>
+                                    <div class="p-5 md:p-6">
+                                        <div
+                                            class="grid grid-cols-1 gap-6"
+                                            [ngClass]="{
+                                                'md:grid-cols-2':
+                                                    showNameMatch() ||
+                                                    (nameMatchColumnHasData(nmDoc) && nameMatchColumnHasData(nmForm)),
+                                            }"
+                                        >
+                                            @if (showNameMatch() || nameMatchColumnHasData(nmDoc)) {
+                                                <div
+                                                    class="rounded-lg border border-stone-100 bg-stone-50/90 p-4 dark:border-gray-800 dark:bg-gray-800/40"
+                                                >
+                                                    <div
+                                                        class="mb-4 border-b border-stone-200 pb-2 text-sm font-semibold uppercase tracking-wider text-stone-500 dark:border-gray-700 dark:text-stone-400"
+                                                    >
+                                                        {{ 'smartEnrollProjects.recordDetail.compareGovernmentId' | transloco }}
+                                                    </div>
+                                                    <div class="space-y-3">
+                                                        @if (showNameMatchPctRow(nmDoc.firstNameMatchPercentage)) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.firstNameMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold tabular-nums text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                    >{{ formatNameMatchPercent(nmDoc.firstNameMatchPercentage) }}</span
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @if (showNameMatchPctRow(nmDoc.lastNameMatchPercentage)) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.lastNameMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold tabular-nums text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                    >{{ formatNameMatchPercent(nmDoc.lastNameMatchPercentage) }}</span
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @if (showNameMatchPctRow(nmDoc.fullNameMatchPercentage)) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.fullNameMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold tabular-nums text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                    >{{ formatNameMatchPercent(nmDoc.fullNameMatchPercentage) }}</span
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @if (nmDoc.namesMatch != null) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.field.namesMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                >
+                                                                    {{
+                                                                        nmDoc.namesMatch
+                                                                            ? ('smartEnrollProjects.recordDetail.boolYes' | transloco)
+                                                                            : ('smartEnrollProjects.recordDetail.boolNo' | transloco)
+                                                                    }}
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                            @if (showNameMatch() || nameMatchColumnHasData(nmForm)) {
+                                                <div
+                                                    class="rounded-lg border border-stone-100 bg-stone-50/90 p-4 dark:border-gray-800 dark:bg-gray-800/40"
+                                                >
+                                                    <div
+                                                        class="mb-4 border-b border-stone-200 pb-2 text-sm font-semibold uppercase tracking-wider text-stone-500 dark:border-gray-700 dark:text-stone-400"
+                                                    >
+                                                        {{ 'smartEnrollProjects.recordDetail.compareGovernmentForm' | transloco }}
+                                                    </div>
+                                                    <div class="space-y-3">
+                                                        @if (showNameMatchPctRow(nmForm.firstNameMatchPercentage)) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.firstNameMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold tabular-nums text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                    >{{ formatNameMatchPercent(nmForm.firstNameMatchPercentage) }}</span
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @if (showNameMatchPctRow(nmForm.lastNameMatchPercentage)) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.lastNameMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold tabular-nums text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                    >{{ formatNameMatchPercent(nmForm.lastNameMatchPercentage) }}</span
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @if (showNameMatchPctRow(nmForm.fullNameMatchPercentage)) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.fullNameMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold tabular-nums text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                    >{{ formatNameMatchPercent(nmForm.fullNameMatchPercentage) }}</span
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @if (nmForm.namesMatch != null) {
+                                                            <div class="flex items-center justify-between gap-3">
+                                                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                                                    'smartEnrollProjects.recordDetail.field.namesMatch' | transloco
+                                                                }}</span>
+                                                                <span
+                                                                    class="rounded border border-stone-100 bg-white px-2 py-1 text-sm font-semibold text-stone-900 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                                                >
+                                                                    {{
+                                                                        nmForm.namesMatch
+                                                                            ? ('smartEnrollProjects.recordDetail.boolYes' | transloco)
+                                                                            : ('smartEnrollProjects.recordDetail.boolNo' | transloco)
+                                                                    }}
+                                                                </span>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if ($any(r.compareFaceVerification)?.result?.score == null && !showNameMatchCard()) {
+                                <div class="record-detail-panel">
+                                    <div class="p-6 text-sm text-stone-500 dark:text-stone-400">
+                                        {{ 'smartEnrollProjects.recordDetail.empty.compare' | transloco }}
+                                    </div>
+                                </div>
+                            }
+                        </section>
+
+                        <!-- Verdict -->
+                        <section id="step-verdict" class="scroll-mt-28">
+                            <div class="record-detail-panel overflow-hidden">
+                                <div class="record-detail-panel__header">
+                                    <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                        {{ 'smartEnrollProjects.recordDetail.section.verdict' | transloco }}
+                                    </h2>
+                                    <span class="text-xs text-stone-500">{{ formatDate(r.updatedAt, true) }}</span>
+                                </div>
+                                <div class="p-6 md:p-8">
+                                    <div class="rounded-2xl border p-6 md:p-8" [ngClass]="verdictPanelClass(r.status)">
+                                        <div class="flex flex-col items-center gap-4 text-center">
+                                            @if (r.status === 'COMPLETED') {
+                                                <mat-icon class="icon-size-10 text-emerald-600 dark:text-emerald-400">check_circle</mat-icon>
+                                            } @else if (r.status === 'COMPLETED_WITHOUT_KYC') {
+                                                <mat-icon class="icon-size-10 text-amber-600 dark:text-amber-400">warning</mat-icon>
+                                            } @else if (r.status === 'FAILED') {
+                                                <mat-icon class="icon-size-10 text-red-600 dark:text-red-400">cancel</mat-icon>
+                                            } @else if (r.status === 'NEEDS_MANUAL_VERIFICATION') {
+                                                <mat-icon class="icon-size-10 text-orange-600 dark:text-orange-400">person_search</mat-icon>
+                                            } @else {
+                                                <mat-icon class="icon-size-10 text-stone-400">hourglass_empty</mat-icon>
+                                            }
+                                            <div>
+                                                <p class="text-xl font-semibold text-stone-900 dark:text-white">
+                                                    {{ verdictTitleKey(r.status) | transloco }}
+                                                </p>
+                                                <p class="mt-2 text-sm text-stone-600 dark:text-stone-400">
+                                                    {{ verdictSubtitleKey(r.status) | transloco }}
+                                                </p>
+                                            </div>
+                                            @if (r.status === 'NEEDS_MANUAL_VERIFICATION' && manualReasons().length) {
+                                                <ul class="w-full max-w-lg list-disc space-y-1 pl-5 text-left text-sm text-orange-900 dark:text-orange-200">
+                                                    @for (reason of manualReasons(); track reason.key) {
+                                                        <li>{{ reason.key | transloco: reason.params }}</li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="no-print flex flex-col gap-3 border-t border-stone-200/90 pt-8 dark:border-gray-800">
+                            @if (deleteErrorKey()) {
+                                <div
+                                    class="rounded-xl border border-red-200/90 bg-red-50/90 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300"
+                                >
+                                    {{ deleteErrorKey()! | transloco }}
+                                </div>
+                            }
+                            <div class="flex flex-wrap items-center gap-3">
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    color="warn"
+                                    class="rounded-xl"
+                                    [disabled]="deleteLoading()"
+                                    (click)="confirmDeleteRecord()"
+                                >
+                                    {{ 'smartEnrollProjects.recordDetail.deleteEnrollment' | transloco }}
+                                </button>
+                                @if (deleteLoading()) {
+                                    <mat-spinner diameter="24"></mat-spinner>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                }
+            }
+        </div>
+    </main>
+
+    @if (record(); as r) {
+        <div class="print-only" [id]="printSectionId">
+        <section class="enrollment-resume" [style]="brandingVars()">
+            <header class="enrollment-resume__header">
+                @if (hasEnrollmentSelfie(r)) {
+                    <img class="enrollment-resume__avatar" [src]="enrollmentSelfieSrc(r)" alt="" />
+                }
+                <div class="enrollment-resume__identity">
+                    <h1 class="enrollment-resume__name">{{ displayName(r) }}</h1>
+                    <p class="enrollment-resume__tagline">
+                        {{ 'smartEnrollProjects.recordDetail.resume.tagline' | transloco }}
+                    </p>
+                    @if (resumeFacts(r).length) {
+                        <p class="enrollment-resume__facts">
+                            @for (fact of resumeFacts(r); track fact) {
+                                <span>{{ fact }}</span>
+                            }
+                        </p>
+                    }
+                    <p class="enrollment-resume__id">{{ r._id }}</p>
+                </div>
+                <div class="enrollment-resume__meta">
+                    @if (projectLogo()) {
+                        <img class="enrollment-resume__logo" [src]="projectLogo()" alt="" />
+                    }
+                    @if (r.status) {
+                        <span class="enrollment-resume__status">{{ r.status }}</span>
+                    }
+                    <span class="enrollment-resume__date">{{ formatDate(r.updatedAt || r.createdAt) }}</span>
+                </div>
+            </header>
+
+            <div [class.enrollment-resume__two-col]="resumePersonalRows(r).length" [class.enrollment-resume__one-col]="!resumePersonalRows(r).length">
+                @if (resumeContactRows(r).length) {
+                    <section class="enrollment-resume__card">
+                        <h2 class="enrollment-resume__card-title">
+                            {{ 'smartEnrollProjects.recordDetail.resume.contact' | transloco }}
+                        </h2>
+                        <dl class="enrollment-resume__list">
+                            @for (row of resumeContactRows(r); track row.key) {
+                                <div class="enrollment-resume__row">
+                                    <dt>{{ 'smartEnrollProjects.recordDetail.field.' + row.key | transloco }}</dt>
+                                    <dd>
+                                        <span>{{ row.value }}</span>
+                                        @if (row.validated) {
+                                            <span class="enrollment-resume__badge">
+                                                {{ 'smartEnrollProjects.recordDetail.validated' | transloco }}
+                                            </span>
+                                        }
+                                    </dd>
+                                </div>
+                            }
+                        </dl>
+                    </section>
+                }
+
+                @if (resumePersonalRows(r).length) {
+                    <section class="enrollment-resume__card">
+                        <h2 class="enrollment-resume__card-title">
+                            {{ 'smartEnrollProjects.recordDetail.resume.personal' | transloco }}
+                        </h2>
+                        <dl class="enrollment-resume__list">
+                            @for (row of resumePersonalRows(r); track row.key) {
+                                <div class="enrollment-resume__row">
+                                    <dt>{{ fieldLabel(row.key) }}</dt>
+                                    <dd>{{ row.value }}</dd>
+                                </div>
+                            }
+                        </dl>
+                    </section>
+                }
+            </div>
+
+            @if (hasDocumentScans(r) || resumeDocumentFields().length) {
+                <section class="enrollment-resume__card">
+                    <h2 class="enrollment-resume__card-title">
+                        {{ 'smartEnrollProjects.recordDetail.resume.identityDocument' | transloco }}
+                    </h2>
+                    @if (hasDocumentScans(r)) {
+                        <div class="enrollment-resume__doc-grid">
+                            @if (documentFrontSrc(r)) {
+                                <figure>
+                                    <img [src]="documentFrontSrc(r)" alt="" />
+                                    <figcaption>
+                                        {{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}
+                                    </figcaption>
+                                </figure>
+                            }
+                            @if (hasDocumentFace(r)) {
+                                <figure>
+                                    <img [src]="documentFaceSrc(r)" alt="" />
+                                    <figcaption>
+                                        {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
+                                    </figcaption>
+                                </figure>
+                            }
+                            @if (documentBackSrc(r)) {
+                                <figure>
+                                    <img [src]="documentBackSrc(r)" alt="" />
+                                    <figcaption>
+                                        {{ 'smartEnrollProjects.recordDetail.backScan' | transloco }}
+                                    </figcaption>
+                                </figure>
+                            }
+                        </div>
+                    }
+                    @if (resumeDocumentFields().length) {
+                        <dl class="enrollment-resume__list enrollment-resume__list--two-col">
+                            @if (resumeDocumentFullName()) {
+                                <div class="enrollment-resume__row enrollment-resume__row--full">
+                                    <dt>{{ 'smartEnrollProjects.recordDetail.resume.extractedName' | transloco }}</dt>
+                                    <dd>{{ resumeDocumentFullName() }}</dd>
+                                </div>
+                            }
+                            @for (row of resumeDocumentFields(); track row.key) {
+                                <div class="enrollment-resume__row">
+                                    <dt>{{ row.key }}</dt>
+                                    <dd>{{ row.value }}</dd>
+                                </div>
+                            }
+                        </dl>
+                    }
+                </section>
+            }
+
+            @if (livenessMinScorePercent() != null || compareMinScorePercent() != null || showNameMatchCard()) {
+                <section class="enrollment-resume__card">
+                    <h2 class="enrollment-resume__card-title">
+                        {{ 'smartEnrollProjects.recordDetail.resume.biometrics' | transloco }}
+                    </h2>
+                    <div class="enrollment-resume__scores">
+                        @if (livenessMinScorePercent() != null) {
+                            <div class="enrollment-resume__score" [style.--v]="livenessDisplayPercent()">
+                                <span class="enrollment-resume__score-label">
+                                    {{ 'smartEnrollProjects.recordDetail.livenessScore' | transloco }}
+                                </span>
+                                <span class="enrollment-resume__score-value">{{ livenessDisplayPercent() }}%</span>
+                                <span class="enrollment-resume__score-min">
+                                    {{ 'smartEnrollProjects.recordDetail.livenessMinimum' | transloco }} {{ livenessMinScorePercent() }}%
+                                </span>
+                            </div>
+                        }
+                        @if (compareMinScorePercent() != null) {
+                            <div class="enrollment-resume__score" [style.--v]="compareScore()">
+                                <span class="enrollment-resume__score-label">
+                                    {{ 'smartEnrollProjects.recordDetail.compareScore' | transloco }}
+                                </span>
+                                <span class="enrollment-resume__score-value">{{ compareScore() }}%</span>
+                                <span class="enrollment-resume__score-min">
+                                    {{ 'smartEnrollProjects.recordDetail.compareMinimum' | transloco }} {{ compareMinScorePercent() }}%
+                                </span>
+                            </div>
+                        }
+                    </div>
+
+                    @if (showNameMatchCard()) {
+                        @let nmDoc = nameMatchColumn(r, 'document');
+                        @let nmForm = nameMatchColumn(r, 'information');
+                        <div class="enrollment-resume__name-match">
+                            @if (nameMatchColumnHasData(nmDoc)) {
+                                <div>
+                                    <h3>{{ 'smartEnrollProjects.recordDetail.compareGovernmentId' | transloco }}</h3>
+                                    <ul>
+                                        <li>
+                                            {{ 'smartEnrollProjects.recordDetail.firstNameMatch' | transloco }}
+                                            <strong>{{ formatNameMatchPercent(nmDoc.firstNameMatchPercentage) }}</strong>
+                                        </li>
+                                        <li>
+                                            {{ 'smartEnrollProjects.recordDetail.lastNameMatch' | transloco }}
+                                            <strong>{{ formatNameMatchPercent(nmDoc.lastNameMatchPercentage) }}</strong>
+                                        </li>
+                                        <li>
+                                            {{ 'smartEnrollProjects.recordDetail.fullNameMatch' | transloco }}
+                                            <strong>{{ formatNameMatchPercent(nmDoc.fullNameMatchPercentage) }}</strong>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                            @if (nameMatchColumnHasData(nmForm)) {
+                                <div>
+                                    <h3>{{ 'smartEnrollProjects.recordDetail.compareGovernmentForm' | transloco }}</h3>
+                                    <ul>
+                                        <li>
+                                            {{ 'smartEnrollProjects.recordDetail.firstNameMatch' | transloco }}
+                                            <strong>{{ formatNameMatchPercent(nmForm.firstNameMatchPercentage) }}</strong>
+                                        </li>
+                                        <li>
+                                            {{ 'smartEnrollProjects.recordDetail.lastNameMatch' | transloco }}
+                                            <strong>{{ formatNameMatchPercent(nmForm.lastNameMatchPercentage) }}</strong>
+                                        </li>
+                                        <li>
+                                            {{ 'smartEnrollProjects.recordDetail.fullNameMatch' | transloco }}
+                                            <strong>{{ formatNameMatchPercent(nmForm.fullNameMatchPercentage) }}</strong>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+
+            <section class="enrollment-resume__card enrollment-resume__card--verdict">
+                <h2 class="enrollment-resume__card-title">
+                    {{ 'smartEnrollProjects.recordDetail.resume.verdict' | transloco }}
+                </h2>
+                <p class="enrollment-resume__verdict-title">
+                    {{ verdictTitleKey(r.status) | transloco }}
+                </p>
+                <p class="enrollment-resume__verdict-sub">
+                    {{ verdictSubtitleKey(r.status) | transloco }}
+                </p>
+                @if (manualReasons().length) {
+                    <ul class="enrollment-resume__reasons">
+                        @for (reason of manualReasons(); track reason.key) {
+                            <li>{{ reason.key | transloco: reason.params }}</li>
+                        }
+                    </ul>
+                }
+            </section>
+
+            <footer class="enrollment-resume__footer">
+                {{
+                    'smartEnrollProjects.recordDetail.resume.recordFooter'
+                        | transloco: { id: r._id, printedOn: printedOn() }
+                }}
+            </footer>
+        </section>
+        </div>
+    }
+</div>

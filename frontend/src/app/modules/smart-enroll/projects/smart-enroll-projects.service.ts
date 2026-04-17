@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
 import type {
+    AppRegistrationDetail,
+    AppRegistrationListFilters,
     AppRegistrationRow,
     EnrollProject,
     EnrollProjectFlow,
@@ -11,6 +13,24 @@ import type {
     PaginatedResponse,
     ProjectMemberLookupRow,
 } from './smart-enroll-projects.types';
+
+/** Matches client-panel project-record getRecord() onboarding populates */
+const APP_REGISTRATION_DETAIL_POPULATES: string[] = [
+    'emailValidation',
+    'phoneValidation',
+    'biometricValidation',
+    'biometricValidation.face',
+    'informationValidation',
+    'documentFace',
+    'documentValidation',
+    'documentValidation.documentLiveness',
+    'compareFaceVerification',
+    'face',
+    'person',
+    'projectFlow',
+    'failedDocumentValidations',
+    'failedBiometricValidations.face',
+];
 
 const ONBOARDING_TYPE = 'onboarding';
 
@@ -106,32 +126,156 @@ export class SmartEnrollProjectsService {
             );
     }
 
+    getAppRegistration(recordId: string): Observable<AppRegistrationDetail | null> {
+        const params: Record<string, string | string[]> = {
+            populates: APP_REGISTRATION_DETAIL_POPULATES,
+        };
+        return this._http
+            .get<{ data: AppRegistrationDetail }>(`${this.apiUrl}/v2/app-registrations/${recordId}`, {
+                params,
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((res) => res?.data ?? null),
+                catchError((err) => {
+                    console.error('Error loading app registration:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    deleteAppRegistration(id: string): Observable<unknown> {
+        return this._http
+            .delete(`${this.apiUrl}/v2/app-registrations/${id}`, { headers: this.authHeaders })
+            .pipe(
+                catchError((err) => {
+                    console.error('Error deleting app registration:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    deleteAppLogin(id: string): Observable<unknown> {
+        return this._http
+            .delete(`${this.apiUrl}/v2/app-logins/${id}`, { headers: this.authHeaders })
+            .pipe(
+                catchError((err) => {
+                    console.error('Error deleting app login:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    /**
+     * Download the CV-style enrollment summary as a PDF Blob (and the suggested filename).
+     * The backend may set `Content-Disposition: attachment; filename="..."`; we parse it when present.
+     */
+    exportAppRegistrationCV(
+        id: string,
+        language?: string
+    ): Observable<{ blob: Blob; filename: string }> {
+        return this._http
+            .post(
+                `${this.apiUrl}/v2/app-registrations/${id}/export-cv`,
+                language ? { language } : {},
+                {
+                    headers: {
+                        ...this.authHeaders,
+                        Accept: 'application/pdf',
+                    },
+                    observe: 'response',
+                    responseType: 'blob',
+                }
+            )
+            .pipe(
+                map((res) => {
+                    const disposition = res.headers.get('Content-Disposition') || '';
+                    const match = /filename="?([^";]+)"?/i.exec(disposition);
+                    const filename = match?.[1] ?? `enrollment-${id}.pdf`;
+                    return { blob: res.body as Blob, filename };
+                }),
+                catchError((err) => {
+                    console.error('Error exporting app registration CV:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    /**
+     * Email the CV PDF via Mailgun. Recipients default server-side to the registration email.
+     */
+    emailAppRegistrationCV(
+        id: string,
+        payload: { recipients?: string[]; language?: string; subject?: string } = {}
+    ): Observable<{ data: { sent: boolean; messageId: string | null; recipients: string[] } }> {
+        return this._http
+            .post<{ data: { sent: boolean; messageId: string | null; recipients: string[] } }>(
+                `${this.apiUrl}/v2/app-registrations/${id}/export-cv/email`,
+                payload,
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error emailing app registration CV:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    resendAppRegistrationLink(
+        id: string,
+        sendEmail: boolean
+    ): Observable<{ data: { link: string } }> {
+        return this._http
+            .post<{ data: { link: string } }>(
+                `${this.apiUrl}/v2/app-registrations/${id}/resend-link`,
+                { sendEmail: sendEmail ? 'true' : 'false' },
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error resending app registration link:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
     listAppRegistrations(
         projectId: string,
         page: number,
         pageSize: number,
-        search?: string
+        filters: AppRegistrationListFilters = {}
     ): Observable<PaginatedResponse<AppRegistrationRow>> {
         const params: Record<string, string | string[]> = {
             page: String(page),
             perPage: String(pageSize),
-            sort: '-createdAt',
+            sort: filters.sort?.trim() || '-createdAt',
             where_project: projectId,
             populates: [
                 'emailValidation',
                 'phoneValidation',
                 'biometricValidation',
+                'biometricValidation.face',
+                'face',
                 'informationValidation',
             ],
         };
-        const q = search?.trim();
-        if (q) {
-            if (/^\d+$/.test(q)) {
-                params['like_phone'] = q;
-            } else if (q.includes('@')) {
-                params['like_email'] = q;
-            }
+
+        const term = filters.search?.trim();
+        if (term) {
+            params['?like_name'] = term;
+            params['?like_email'] = term;
+            params['?like_phone'] = term;
         }
+
+        const status = filters.status?.trim();
+        if (status && status !== 'all') {
+            params.where_status = status;
+        }
+
+        if (filters.createdFrom) params.whereGTE_createdAt = filters.createdFrom;
+        if (filters.createdTo) params.whereLTE_createdAt = filters.createdTo;
+
         return this._http
             .get<PaginatedResponse<AppRegistrationRow>>(`${this.apiUrl}/v2/app-registrations`, {
                 params,

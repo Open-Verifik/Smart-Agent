@@ -47,15 +47,81 @@
 
     <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
         <div class="mx-auto w-full max-w-6xl">
-            <mat-form-field appearance="outline" class="w-full max-w-md" subscriptSizing="dynamic">
-                <mat-icon matPrefix class="mr-2">search</mat-icon>
-                <input
-                    matInput
-                    [(ngModel)]="searchInput"
-                    (ngModelChange)="onSearchInput()"
-                    [placeholder]="'smartEnrollProjects.searchRecords' | transloco"
-                />
-            </mat-form-field>
+            <div class="flex flex-col gap-3">
+                <div class="flex flex-wrap items-end gap-3">
+                    <mat-form-field appearance="outline" class="w-full max-w-md flex-1" subscriptSizing="dynamic">
+                        <mat-icon matPrefix class="mr-2">search</mat-icon>
+                        <input
+                            matInput
+                            [(ngModel)]="searchInput"
+                            (ngModelChange)="onSearchInput()"
+                            [placeholder]="'smartEnrollProjects.searchRecords' | transloco"
+                        />
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="w-full sm:w-56" subscriptSizing="dynamic">
+                        <mat-label>{{ 'smartEnrollProjects.filterStatus' | transloco }}</mat-label>
+                        <mat-select
+                            [value]="statusFilter()"
+                            (selectionChange)="onStatusChange($event.value)"
+                        >
+                            @for (option of statusOptions; track option) {
+                                <mat-option [value]="option">
+                                    {{ 'smartEnrollProjects.status.' + option | transloco }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
+                    @if (activeFilterCount() > 0) {
+                        <button
+                            mat-button
+                            type="button"
+                            class="!text-stone-600 dark:!text-stone-300"
+                            (click)="clearFilters()"
+                        >
+                            <mat-icon class="mr-1">close</mat-icon>
+                            {{ 'smartEnrollProjects.clearFilters' | transloco }}
+                        </button>
+                    }
+                </div>
+
+                <div class="flex flex-wrap items-end gap-3">
+                    <mat-button-toggle-group
+                        [value]="datePreset()"
+                        (change)="onDatePresetChange($event.value)"
+                        class="!rounded-xl !border !border-stone-200/90 dark:!border-gray-700"
+                    >
+                        @for (preset of datePresets; track preset) {
+                            <mat-button-toggle [value]="preset">
+                                {{ 'smartEnrollProjects.datePreset.' + preset | transloco }}
+                            </mat-button-toggle>
+                        }
+                    </mat-button-toggle-group>
+
+                    @if (datePreset() === 'custom') {
+                        <mat-form-field appearance="outline" class="w-full sm:w-72" subscriptSizing="dynamic">
+                            <mat-label>{{ 'smartEnrollProjects.dateRange' | transloco }}</mat-label>
+                            <mat-date-range-input [rangePicker]="picker">
+                                <input
+                                    matStartDate
+                                    [formControl]="rangeStart"
+                                    (dateChange)="onCustomRangeChange()"
+                                    [placeholder]="'smartEnrollProjects.dateStart' | transloco"
+                                />
+                                <input
+                                    matEndDate
+                                    [formControl]="rangeEnd"
+                                    (dateChange)="onCustomRangeChange()"
+                                    [placeholder]="'smartEnrollProjects.dateEnd' | transloco"
+                                />
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                            <mat-date-range-picker #picker></mat-date-range-picker>
+                        </mat-form-field>
+                    }
+                </div>
+            </div>
 
             @if (loading()) {
                 <div class="flex justify-center py-16">
@@ -69,7 +135,39 @@
                 </div>
             } @else {
                 <div class="mt-4 overflow-auto rounded-2xl border border-stone-200/90 dark:border-gray-700">
-                    <table mat-table [dataSource]="dataSource" class="w-full bg-white dark:bg-gray-900/40">
+                    <table
+                        mat-table
+                        [dataSource]="dataSource"
+                        matSort
+                        [matSortActive]="'createdAt'"
+                        [matSortDirection]="sortDirection()"
+                        matSortDisableClear
+                        (matSortChange)="onSortChange($event)"
+                        class="w-full bg-white dark:bg-gray-900/40"
+                    >
+                        <ng-container matColumnDef="photo">
+                            <th mat-header-cell *matHeaderCellDef class="w-14 pr-0" [attr.aria-label]="'smartEnrollProjects.colPhoto' | transloco">
+                                <span class="sr-only">{{ 'smartEnrollProjects.colPhoto' | transloco }}</span>
+                            </th>
+                            <td mat-cell *matCellDef="let row" class="w-14 pr-2 align-middle">
+                                @if (rowAvatarSrc(row); as src) {
+                                    <img
+                                        [src]="src"
+                                        alt=""
+                                        loading="lazy"
+                                        decoding="async"
+                                        class="h-10 w-10 shrink-0 rounded-full border border-stone-200/90 object-cover dark:border-gray-600"
+                                    />
+                                } @else {
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-dashed border-stone-300/90 bg-stone-100/80 dark:border-gray-600 dark:bg-gray-800/60"
+                                        aria-hidden="true"
+                                    >
+                                        <mat-icon class="!h-5 !w-5 text-stone-400 dark:text-stone-500">person</mat-icon>
+                                    </div>
+                                }
+                            </td>
+                        </ng-container>
                         <ng-container matColumnDef="status">
                             <th mat-header-cell *matHeaderCellDef>{{ 'smartEnrollProjects.colStatus' | transloco }}</th>
                             <td mat-cell *matCellDef="let row">{{ row.status ?? '—' }}</td>
@@ -83,11 +181,18 @@
                             <td mat-cell *matCellDef="let row">{{ displayPhone(row) }}</td>
                         </ng-container>
                         <ng-container matColumnDef="createdAt">
-                            <th mat-header-cell *matHeaderCellDef>{{ 'smartEnrollProjects.colCreated' | transloco }}</th>
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header="createdAt">
+                                {{ 'smartEnrollProjects.colCreated' | transloco }}
+                            </th>
                             <td mat-cell *matCellDef="let row">{{ formatDate(row.createdAt) }}</td>
                         </ng-container>
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                        <tr
+                            mat-row
+                            *matRowDef="let row; columns: displayedColumns"
+                            class="cursor-pointer transition-colors hover:bg-stone-50 dark:hover:bg-gray-800/60"
+                            [routerLink]="['/smart-enroll/projects', projectId, 'records', row._id]"
+                        ></tr>
                     </table>
                     @if (dataSource.length === 0) {
                         <div class="py-12 text-center text-sm text-stone-500 dark:text-stone-400">

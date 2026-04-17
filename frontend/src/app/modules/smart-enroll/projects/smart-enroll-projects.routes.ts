@@ -7,6 +7,11 @@ export default [
             import('./project-list/project-list.component').then((m) => m.ProjectListComponent),
     },
     {
+        path: ':projectId/records/:recordId',
+        loadComponent: () =>
+            import('./project-record-detail.component').then((m) => m.ProjectRecordDetailComponent),
+    },
+    {
         path: ':projectId/records',
         loadComponent: () =>
             import('./project-records/project-records.component').then(

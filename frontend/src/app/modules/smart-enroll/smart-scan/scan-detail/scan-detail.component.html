@@ -32,19 +32,32 @@
                     </div>
                 </div>
                 @if (scan && !loading) {
-                    <button
-                        mat-stroked-button
-                        color="warn"
-                        type="button"
-                        class="shrink-0 rounded-full"
-                        [disabled]="deleteLoading"
-                        (click)="confirmDelete()"
-                    >
-                        @if (deleteLoading) {
-                            <mat-spinner class="mr-2 inline-block" diameter="18"></mat-spinner>
+                    <div class="flex shrink-0 flex-wrap items-center gap-2">
+                        @if (enrollmentRecordLink(); as recordLink) {
+                            <a
+                                mat-stroked-button
+                                type="button"
+                                class="rounded-full"
+                                [routerLink]="recordLink"
+                            >
+                                <mat-icon class="icon-size-4 mr-2">person</mat-icon>
+                                {{ 'smartScan.viewEnrollmentRecord' | transloco }}
+                            </a>
                         }
-                        {{ 'smartScan.deleteScan' | transloco }}
-                    </button>
+                        <button
+                            mat-stroked-button
+                            color="warn"
+                            type="button"
+                            class="rounded-full"
+                            [disabled]="deleteLoading"
+                            (click)="confirmDelete()"
+                        >
+                            @if (deleteLoading) {
+                                <mat-spinner class="mr-2 inline-block" diameter="18"></mat-spinner>
+                            }
+                            {{ 'smartScan.deleteScan' | transloco }}
+                        </button>
+                    </div>
                 }
             </div>
         </div>

@@ -13,7 +13,11 @@ import { DateTime } from 'luxon';
 import { FuseHighlightService } from '@fuse/components/highlight/highlight.service';
 import { ScanDeleteConfirmDialogComponent } from '../scan-delete-confirm-dialog.component';
 import { SmartScanService } from '../smart-scan.service';
-import type { DocumentValidation, DocumentClassification } from '../smart-scan.types';
+import {
+    resolveEnrollmentRecordLink,
+    type DocumentClassification,
+    type DocumentValidation,
+} from '../smart-scan.types';
 
 @Component({
     selector: 'scan-detail',
@@ -116,6 +120,12 @@ export class ScanDetailComponent implements OnInit {
                         },
                     });
             });
+    }
+
+    enrollmentRecordLink(): string[] | null {
+        const link = resolveEnrollmentRecordLink(this.scan);
+        if (!link) return null;
+        return ['/smart-enroll/projects', link.projectId, 'records', link.recordId];
     }
 
     getClassification(): DocumentClassification | null {

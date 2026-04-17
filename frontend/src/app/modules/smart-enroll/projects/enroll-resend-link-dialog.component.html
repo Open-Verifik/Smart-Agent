@@ -1,0 +1,86 @@
+<div class="flex items-start justify-between gap-4">
+    <h2
+        mat-dialog-title
+        class="!m-0 !font-semibold !text-lg !leading-snug !tracking-tight text-stone-900 dark:text-white md:!text-xl"
+    >
+        {{ 'smartEnrollProjects.recordDetail.resendDialogTitle' | transloco }}
+    </h2>
+    <button
+        mat-icon-button
+        type="button"
+        class="!text-stone-500 dark:!text-stone-400"
+        (click)="close()"
+        [attr.aria-label]="'smartEnrollProjects.recordDetail.resendDialogClose' | transloco"
+    >
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content>
+    <p class="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+        {{ 'smartEnrollProjects.recordDetail.resendDialogDescription' | transloco }}
+    </p>
+
+    <div class="mt-5 rounded-xl border border-stone-200/90 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-900/60">
+        <div class="flex items-center gap-2">
+            <mat-icon class="icon-size-4 !text-stone-500">person</mat-icon>
+            <span class="text-sm font-medium text-stone-700 dark:text-stone-200">{{ recipientName || '—' }}</span>
+        </div>
+        @if (recipientEmail) {
+            <div class="mt-2 flex items-center gap-2">
+                <mat-icon class="icon-size-4 !text-stone-500">mail</mat-icon>
+                <span class="text-sm text-stone-600 dark:text-stone-300">{{ recipientEmail }}</span>
+            </div>
+        }
+    </div>
+
+    @if (showLink() && generatedLink()) {
+        <div class="mt-4 rounded-xl border border-blue-200/80 bg-blue-50/80 p-4 dark:border-blue-900/50 dark:bg-blue-950/30">
+            <p class="text-xs font-semibold text-blue-700 dark:text-blue-300">
+                {{ 'smartEnrollProjects.recordDetail.resendGeneratedLink' | transloco }}
+            </p>
+            <p class="mt-2 break-all rounded-lg bg-white/90 px-3 py-2 font-mono text-xs text-stone-700 dark:bg-gray-950/80 dark:text-stone-200">
+                {{ generatedLink() }}
+            </p>
+        </div>
+    }
+
+    <div class="mt-5 flex flex-col gap-3">
+        <button
+            mat-stroked-button
+            type="button"
+            color="primary"
+            class="!h-11 !rounded-xl"
+            [disabled]="loading()"
+            (click)="copyLink()"
+        >
+            <mat-icon>content_copy</mat-icon>
+            {{ 'smartEnrollProjects.recordDetail.resendCopyLink' | transloco }}
+        </button>
+
+        <button
+            mat-flat-button
+            type="button"
+            color="primary"
+            class="!h-11 !rounded-xl"
+            [disabled]="loading() || !recipientEmail"
+            (click)="sendEmail()"
+        >
+            <mat-icon>send</mat-icon>
+            {{ 'smartEnrollProjects.recordDetail.resendSendEmail' | transloco }}
+        </button>
+
+        @if (!recipientEmail) {
+            <p class="text-center text-xs text-red-600 dark:text-red-400">
+                {{ 'smartEnrollProjects.recordDetail.resendNoEmail' | transloco }}
+            </p>
+        }
+    </div>
+
+    @if (loading()) {
+        <div class="mt-4 flex items-center justify-center gap-2 text-sm text-stone-600 dark:text-stone-300">
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>{{ 'smartEnrollProjects.recordDetail.resendProcessing' | transloco }}</span>
+        </div>
+    }
+</mat-dialog-content>

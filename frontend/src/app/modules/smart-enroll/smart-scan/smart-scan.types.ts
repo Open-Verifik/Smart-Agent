@@ -1,3 +1,12 @@
+export interface DocumentValidationProjectRef {
+    _id: string;
+}
+
+export interface DocumentValidationAppRegistrationRef {
+    _id: string;
+    project?: string | DocumentValidationProjectRef;
+}
+
 export interface DocumentValidation {
     _id: string;
     documentType: string;
@@ -12,9 +21,38 @@ export interface DocumentValidation {
     createdAt?: string;
     updatedAt?: string;
     client?: string;
-    project?: string;
-    projectFlow?: string;
+    project?: string | DocumentValidationProjectRef;
+    projectFlow?: string | { _id: string };
+    appRegistration?: string | DocumentValidationAppRegistrationRef | null;
 }
+
+/**
+ * Builds the project records detail link for a scan when it was created
+ * inside an enrollment flow. Returns `null` for standalone / demo scans
+ * (no `appRegistration`) or when the project id cannot be resolved.
+ */
+export const resolveEnrollmentRecordLink = (
+    scan: DocumentValidation | null | undefined
+): { projectId: string; recordId: string } | null => {
+    if (!scan) return null;
+
+    const ar = scan.appRegistration;
+    const recordId = typeof ar === 'string' ? ar : ar?._id;
+    if (!recordId) return null;
+
+    const fromScan =
+        typeof scan.project === 'string' ? scan.project : scan.project?._id;
+    const fromAr =
+        ar && typeof ar !== 'string'
+            ? typeof ar.project === 'string'
+                ? ar.project
+                : ar.project?._id
+            : undefined;
+    const projectId = fromScan || fromAr;
+    if (!projectId) return null;
+
+    return { projectId, recordId };
+};
 
 export interface DocumentValidationResponse {
     data: DocumentValidation[] | DocumentValidation;

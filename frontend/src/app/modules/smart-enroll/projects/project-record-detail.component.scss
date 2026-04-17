@@ -1,0 +1,481 @@
+:host {
+    display: block;
+}
+
+.record-detail-panel {
+    @apply overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.record-detail-panel__header {
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-5 py-4 dark:border-gray-800 md:px-6 md:py-5;
+}
+
+.record-detail-meta {
+    @apply flex flex-wrap items-center gap-3 rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-700 dark:bg-gray-900/50;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.record-detail-code {
+    @apply inline-flex items-center rounded-lg bg-stone-100 px-2.5 py-1 font-mono text-xs font-semibold tracking-wide text-stone-700 dark:bg-gray-800 dark:text-stone-300;
+}
+
+.record-stepper-btn {
+    @apply flex w-full items-start gap-3 rounded-2xl border border-transparent px-3 py-2.5 text-left transition-colors;
+}
+
+.record-stepper-btn:hover {
+    @apply border-stone-200/80 bg-stone-50/90 dark:border-gray-700 dark:bg-gray-800/50;
+}
+
+.record-stepper-btn--active {
+    @apply border-stone-300 bg-stone-100/90 dark:border-gray-600 dark:bg-gray-800/80;
+}
+
+.record-stepper-icon--ok {
+    @apply text-emerald-600 dark:text-emerald-400;
+}
+
+.record-stepper-icon--error {
+    @apply text-red-600 dark:text-red-400;
+}
+
+.record-stepper-icon--warn {
+    @apply text-amber-600 dark:text-amber-400;
+}
+
+.record-stepper-icon--pending {
+    @apply text-stone-400 dark:text-stone-500;
+}
+
+.record-verdict--ok {
+    @apply border-emerald-200/90 bg-emerald-50/90 dark:border-emerald-900/40 dark:bg-emerald-950/30;
+}
+
+.record-verdict--warn {
+    @apply border-amber-200/90 bg-amber-50/90 dark:border-amber-900/40 dark:bg-amber-950/30;
+}
+
+.record-verdict--error {
+    @apply border-red-200/90 bg-red-50/90 dark:border-red-900/40 dark:bg-red-950/30;
+}
+
+.record-verdict--manual {
+    @apply border-orange-200/90 bg-orange-50/90 dark:border-orange-900/40 dark:bg-orange-950/30;
+}
+
+.record-verdict--pending {
+    @apply border-stone-200/90 bg-stone-50/90 dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+.record-doc-img {
+    @apply max-h-64 w-full max-w-md rounded-2xl border border-stone-200/90 object-contain dark:border-gray-700;
+}
+
+.record-progress-track {
+    @apply h-2 w-full max-w-md overflow-hidden rounded-full bg-stone-200/80 dark:bg-gray-800;
+}
+
+.record-progress-fill {
+    @apply h-full rounded-full transition-all duration-500;
+}
+
+.print-only {
+    display: none;
+}
+
+.enrollment-resume {
+    --resume-primary: #111827;
+    --resume-ink: #0f172a;
+    --resume-muted: #667085;
+    --resume-faint: #98a2b3;
+    --resume-rule: #eceff1;
+    --resume-track: #f2f4f7;
+
+    color: var(--resume-ink);
+    background: #ffffff;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    font-feature-settings: 'cv11', 'ss01', 'ss03', 'tnum';
+    font-variant-numeric: tabular-nums;
+    font-size: 10pt;
+    line-height: 1.4;
+    orphans: 3;
+    widows: 3;
+
+    &__header {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: flex-start;
+        gap: 16pt;
+        padding-bottom: 12pt;
+        border-bottom: 0.5pt solid var(--resume-rule);
+        margin-bottom: 14pt;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    &__avatar {
+        width: 24mm;
+        height: 24mm;
+        object-fit: cover;
+        border-radius: 3pt;
+        border: 0.5pt solid var(--resume-rule);
+        background: var(--resume-track);
+    }
+
+    &__identity {
+        min-width: 0;
+    }
+
+    &__name {
+        margin: 0;
+        font-size: 24pt;
+        font-weight: 600;
+        letter-spacing: -0.022em;
+        line-height: 1.05;
+        color: var(--resume-ink);
+    }
+
+    &__tagline {
+        margin: 4pt 0 0;
+        font-size: 7.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--resume-faint);
+        font-weight: 500;
+    }
+
+    &__id {
+        margin: 8pt 0 0;
+        font-family: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+        font-size: 8pt;
+        color: var(--resume-muted);
+        word-break: break-all;
+    }
+
+    &__facts {
+        margin: 6pt 0 0;
+        font-size: 9pt;
+        color: var(--resume-muted);
+        letter-spacing: 0;
+        line-height: 1.3;
+
+        span + span::before {
+            content: ' · ';
+            color: var(--resume-faint);
+        }
+    }
+
+    &__one-col {
+        display: block;
+    }
+
+    &__meta {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 6pt;
+    }
+
+    &__logo {
+        max-width: 26mm;
+        max-height: 12mm;
+        object-fit: contain;
+        margin-bottom: 4pt;
+    }
+
+    &__status {
+        display: inline-block;
+        padding: 2.5pt 9pt;
+        border: 0.6pt solid var(--resume-primary);
+        border-radius: 999pt;
+        font-size: 7.5pt;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--resume-primary);
+    }
+
+    &__date {
+        font-size: 8.5pt;
+        color: var(--resume-muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 24pt;
+        row-gap: 0;
+    }
+
+    &__card {
+        padding: 12pt 0;
+        border-top: 0.4pt solid var(--resume-rule);
+
+        &:first-of-type,
+        .enrollment-resume__two-col & {
+            border-top: 0;
+            padding-top: 0;
+        }
+    }
+
+    &__card-title {
+        margin: 0 0 8pt;
+        font-size: 7.5pt;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--resume-muted);
+        page-break-after: avoid;
+        break-after: avoid;
+    }
+
+    &__list {
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+
+        &--two-col {
+            grid-template-columns: 1fr 1fr;
+            column-gap: 24pt;
+        }
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: 110pt 1fr;
+        column-gap: 12pt;
+        padding: 2.5pt 0;
+        align-items: baseline;
+
+        &--full {
+            grid-column: 1 / -1;
+        }
+
+        dt {
+            font-size: 8pt;
+            color: var(--resume-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 500;
+        }
+
+        dd {
+            margin: 0;
+            font-size: 10pt;
+            color: var(--resume-ink);
+            font-weight: 500;
+            word-break: break-word;
+        }
+    }
+
+    &__badge {
+        display: inline-block;
+        margin-left: 6pt;
+        padding: 0.5pt 5pt;
+        border-radius: 3pt;
+        font-size: 7pt;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #047857;
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    &__doc-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: 10pt;
+        row-gap: 6pt;
+        margin-bottom: 10pt;
+        page-break-inside: avoid;
+        break-inside: avoid;
+
+        figure {
+            margin: 0;
+            text-align: center;
+
+            img {
+                width: 100%;
+                max-height: 32mm;
+                object-fit: contain;
+                border: 0.5pt solid var(--resume-rule);
+                border-radius: 2pt;
+                background: var(--resume-track);
+            }
+
+            figcaption {
+                margin-top: 4pt;
+                font-size: 7.5pt;
+                color: var(--resume-faint);
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+            }
+        }
+    }
+
+    &__scores {
+        display: flex;
+        flex-direction: column;
+        gap: 10pt;
+    }
+
+    &__score {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        column-gap: 12pt;
+        align-items: baseline;
+        padding-bottom: 4pt;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 1.5pt;
+            background: linear-gradient(
+                to right,
+                var(--resume-primary) 0%,
+                var(--resume-primary) calc(var(--v, 0) * 1%),
+                var(--resume-track) calc(var(--v, 0) * 1%),
+                var(--resume-track) 100%
+            );
+            border-radius: 999pt;
+        }
+    }
+
+    &__score-label {
+        font-weight: 500;
+        font-size: 9.5pt;
+        color: var(--resume-ink);
+    }
+
+    &__score-value {
+        font-weight: 600;
+        font-size: 13pt;
+        color: var(--resume-ink);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+    }
+
+    &__score-min {
+        font-size: 8pt;
+        color: var(--resume-muted);
+        white-space: nowrap;
+    }
+
+    &__name-match {
+        margin-top: 12pt;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18pt;
+
+        h3 {
+            margin: 0 0 6pt;
+            font-size: 7.5pt;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--resume-muted);
+        }
+
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+
+            li {
+                display: flex;
+                justify-content: space-between;
+                padding: 2.5pt 0;
+                font-size: 9.5pt;
+                color: var(--resume-ink);
+
+                strong {
+                    font-weight: 600;
+                    font-variant-numeric: tabular-nums;
+                }
+            }
+        }
+    }
+
+    &__card--verdict {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    &__verdict-title {
+        margin: 0;
+        font-size: 13pt;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--resume-ink);
+    }
+
+    &__verdict-sub {
+        margin: 3pt 0 0;
+        font-size: 9.5pt;
+        color: var(--resume-muted);
+    }
+
+    &__reasons {
+        margin: 8pt 0 0;
+        padding-left: 14pt;
+        font-size: 9pt;
+        color: var(--resume-muted);
+
+        li {
+            padding: 1pt 0;
+        }
+    }
+
+    &__footer {
+        margin-top: 18pt;
+        padding-top: 8pt;
+        border-top: 0.4pt solid var(--resume-rule);
+        font-size: 7.5pt;
+        color: var(--resume-faint);
+        text-align: center;
+        letter-spacing: 0.04em;
+    }
+}
+
+@media print {
+    :host {
+        display: block;
+        background: #fff !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    // Hide live UI when the user triggers native Cmd+P (harmless in ngx-print popup, which
+    // only contains the resume innerHTML and never has the live `<header>` / `<main>` nodes)
+    :host > div > header,
+    :host > div > main {
+        display: none !important;
+    }
+
+    .print-only {
+        display: block !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 12mm;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
