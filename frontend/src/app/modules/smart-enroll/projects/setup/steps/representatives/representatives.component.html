@@ -1,0 +1,138 @@
+<ng-container *transloco="let t">
+    <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+            [formGroup]="stepFormGroup!"
+        >
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.representatives.title') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.representatives.subtitle') }}
+                </p>
+            </header>
+            <mat-button-toggle-group formControlName="legalRepresentative" class="!rounded-xl">
+                <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
+                <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
+                <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
+            </mat-button-toggle-group>
+        </section>
+
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+            [formGroup]="representativesFormGroup!"
+            [class.opacity-50]="isNotRequired"
+            [class.pointer-events-none]="isNotRequired"
+        >
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.representatives.counts.title') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.representatives.counts.subtitle') }}
+                </p>
+            </header>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ t('smartEnrollProjects.setup.representatives.counts.min') }}</mat-label>
+                    <mat-select formControlName="minRepresentatives">
+                        @for (n of representativeCounts; track n) {
+                            <mat-option [value]="n">{{ n }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ t('smartEnrollProjects.setup.representatives.counts.max') }}</mat-label>
+                    <mat-select formControlName="maxRepresentatives">
+                        @for (n of representativeCounts; track n) {
+                            <mat-option [value]="n">{{ n }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ t('smartEnrollProjects.setup.representatives.counts.notification') }}</mat-label>
+                    <mat-select formControlName="notificationType">
+                        <mat-option value="whatsapp">WhatsApp</mat-option>
+                        <mat-option value="sms">SMS</mat-option>
+                        <mat-option value="email">{{ t('smartEnrollProjects.setup.signupForm.email.title') }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </section>
+
+        <div
+            class="flex flex-wrap gap-2"
+            [class.opacity-50]="isNotRequired"
+            [class.pointer-events-none]="isNotRequired"
+        >
+            <button
+                type="button"
+                (click)="pageIndex = 0"
+                [class.bg-stone-900]="pageIndex === 0"
+                [class.text-white]="pageIndex === 0"
+                [class.dark:bg-white]="pageIndex === 0"
+                [class.dark:text-stone-900]="pageIndex === 0"
+                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:border-gray-700 dark:text-stone-200"
+            >
+                {{ t('smartEnrollProjects.setup.representatives.tabs.information') }}
+            </button>
+            <button
+                type="button"
+                (click)="pageIndex = 1"
+                [class.bg-stone-900]="pageIndex === 1"
+                [class.text-white]="pageIndex === 1"
+                [class.dark:bg-white]="pageIndex === 1"
+                [class.dark:text-stone-900]="pageIndex === 1"
+                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:border-gray-700 dark:text-stone-200"
+            >
+                {{ t('smartEnrollProjects.setup.representatives.tabs.documents') }}
+            </button>
+            <button
+                type="button"
+                (click)="pageIndex = 2"
+                [class.bg-stone-900]="pageIndex === 2"
+                [class.text-white]="pageIndex === 2"
+                [class.dark:bg-white]="pageIndex === 2"
+                [class.dark:text-stone-900]="pageIndex === 2"
+                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:border-gray-700 dark:text-stone-200"
+            >
+                {{ t('smartEnrollProjects.setup.representatives.tabs.liveness') }}
+            </button>
+        </div>
+
+        @switch (pageIndex) {
+            @case (0) {
+                <setup-sign-up-form
+                    [form]="form"
+                    [formGroup]="informationFormGroup!"
+                    [formType]="'personal'"
+                    [loading]="loading"
+                    [saving]="saving"
+                    [subForm]="true"
+                    [stepFormControlName]="'legalRepresentative'"
+                ></setup-sign-up-form>
+            }
+            @case (1) {
+                <setup-documents
+                    [form]="form"
+                    [formGroup]="documentsFormGroup!"
+                    [loading]="loading"
+                    [saving]="saving"
+                    [subForm]="true"
+                    [stepFormControlName]="'legalRepresentative'"
+                ></setup-documents>
+            }
+            @case (2) {
+                <setup-liveness
+                    [form]="form"
+                    [formGroup]="livenessFormGroup!"
+                    [loading]="loading"
+                    [saving]="saving"
+                    [subForm]="true"
+                    [stepFormControlName]="'legalRepresentative'"
+                ></setup-liveness>
+            }
+        }
+    </div>
+</ng-container>

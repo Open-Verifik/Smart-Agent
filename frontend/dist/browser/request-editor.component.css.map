@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/postman/request-editor/request-editor.component.ts"],
+  "sourcesContent": ["\n      ::ng-deep .mat-mdc-tab-group {\n        height: 100%;\n      }\n      ::ng-deep .mat-mdc-tab-body-wrapper {\n        height: 100%;\n        overflow-y: auto;\n      }\n      ::ng-deep .mat-mdc-tab-body {\n        height: 100%;\n        display: flex;\n        flex-direction: column;\n      }\n      ::ng-deep .mat-mdc-tab-body-content {\n        height: 100%;\n        overflow: hidden;\n      }\n    "],
+  "mappings": ";AACM,UAAA,CAAA;AACE,UAAA;;AAEF,UAAA,CAAA;AACE,UAAA;AACA,cAAA;;AAEF,UAAA,CAAA;AACE,UAAA;AACA,WAAA;AACA,kBAAA;;AAEF,UAAA,CAAA;AACE,UAAA;AACA,YAAA;;",
+  "names": []
+}

@@ -1,0 +1,47 @@
+<ng-container *transloco="let t">
+    <div class="flex w-full flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-1 items-center gap-1 overflow-x-auto">
+            @for (step of steps; track step; let i = $index) {
+                <button
+                    type="button"
+                    [disabled]="!canNavigate || !canNavigateToStep(i)"
+                    (click)="onStepClick(i)"
+                    [ngClass]="{
+                        'bg-stone-900 text-white dark:bg-white dark:text-stone-900': i === stepIndex,
+                        'text-stone-500': i !== stepIndex,
+                        'hover:bg-stone-100 dark:hover:bg-gray-800': i !== stepIndex && canNavigate && canNavigateToStep(i),
+                        'opacity-50 cursor-not-allowed': !canNavigate || !canNavigateToStep(i)
+                    }"
+                    class="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-semibold tracking-tight transition-colors"
+                >
+                    <span
+                        [ngClass]="{
+                            'bg-white/20 text-white': i === stepIndex,
+                            'bg-stone-100 text-stone-500 dark:bg-gray-800': i !== stepIndex
+                        }"
+                        class="grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold"
+                    >
+                        @if (isStepValid && isStepValid(i)) {
+                            <mat-icon class="!h-3 !w-3 !text-base">check</mat-icon>
+                        } @else {
+                            {{ i + 1 }}
+                        }
+                    </span>
+                    {{ t(step) }}
+                </button>
+            }
+        </div>
+
+        <div
+            class="flex shrink-0 items-center gap-3 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 dark:border-gray-700 dark:text-stone-300"
+        >
+            <div class="relative h-1.5 w-32 overflow-hidden rounded-full bg-stone-200 dark:bg-gray-800">
+                <div
+                    class="absolute left-0 top-0 h-full bg-stone-900 transition-all duration-300 dark:bg-white"
+                    [style.width.%]="((stepIndex + 1) / steps.length) * 100"
+                ></div>
+            </div>
+            <span>{{ t('smartEnrollProjects.setup.steps.steps_count', { current: stepIndex + 1, total: steps.length }) }}</span>
+        </div>
+    </div>
+</ng-container>

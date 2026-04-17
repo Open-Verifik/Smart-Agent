@@ -523,7 +523,261 @@
       "documentation": "Need help?",
       "viewDocs": "View documentation",
       "backToOverview": "Back to overview",
-      "sectionHint": "Flow settings for this section are managed in the Verifik dashboard. Use Team & staff to add collaborators, or open Records to review enrollments."
+      "sectionHint": "Flow settings for this section are managed in the Verifik dashboard. Use Team & staff to add collaborators, or open Records to review enrollments.",
+      "summary": {
+        "edit": "Edit",
+        "basic": "{{ countries }} allowed countries",
+        "signup": "Email {{ email }} · Phone {{ phone }}",
+        "documents": "{{ count }} country configurations",
+        "business": "Business",
+        "representatives": "{{ min }}–{{ max }} representatives",
+        "liveness": "Min liveness {{ score }}%",
+        "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
+        "ui": "Logo {{ logo }} · Brand color {{ color }}",
+        "target": {
+          "personal": "Individual onboarding",
+          "business": "Business onboarding"
+        }
+      }
+    },
+    "setup": {
+      "title": "Setup",
+      "openSetup": "Open setup",
+      "new_project": "New project",
+      "project_description": "Configure the experience your customers will see during onboarding.",
+      "see_live_project": "Open live project",
+      "go_back": "Back",
+      "continue": "Continue",
+      "setup_invalid": "Some required fields are missing. Please review every step.",
+      "api_error": "Could not save the project. Please try again.",
+      "unsaved_changes": "Unsaved changes",
+      "unsaved_changes_message": "You have unsaved changes. Are you sure you want to leave without saving?",
+      "exit_without_saving": "Exit without saving",
+      "stub": {
+        "title": "Step",
+        "placeholder": "This step is wired in upcoming phases of the wizard."
+      },
+      "steps": {
+        "basic_setup": "Basic setup",
+        "signup_form": "Sign-up form",
+        "documents": "Documents",
+        "business": "Business",
+        "representatives": "Representatives",
+        "liveness": "Liveness",
+        "integrations": "Integrations",
+        "user_interface": "User interface",
+        "steps_count": "Step {{current}} of {{total}}"
+      },
+      "documents": {
+        "confirm_skip_title": "Skip document verification?",
+        "confirm_skip_message": "Customers will be enrolled without verifying any official document. You can enable this step again later.",
+        "confirm_skip_yes": "Yes, skip documents",
+        "confirm_skip_back": "Go back",
+        "title": "Document verification",
+        "subtitle": "Decide whether and how customers must present an official document.",
+        "business": {
+          "title": "Business verification",
+          "subtitle": "Verify business documents during onboarding.",
+          "toggle": "Verify business documents"
+        },
+        "skip": "Not required",
+        "optional": "Optional",
+        "required": "Required",
+        "attempts": {
+          "title": "Attempts",
+          "subtitle": "How many tries the customer gets before the step fails.",
+          "limit": "Attempt limit"
+        },
+        "method": {
+          "title": "Verification methods",
+          "subtitle": "Pick which scanning methods to enable.",
+          "scanAgent": "Scan Agent",
+          "scanStudio": "Scan Studio",
+          "scanPrompt": "Scan Prompt"
+        },
+        "screening": {
+          "title": "Background screening",
+          "subtitle": "Run additional verifications after a successful scan.",
+          "criminalHistory": "Criminal history check",
+          "informationVerification": "Government information verification"
+        },
+        "types": {
+          "title": "Accepted document types",
+          "subtitle": "Configure which documents are accepted in each country.",
+          "empty": "No document configurations yet — add a country to start.",
+          "country": "Country",
+          "remove": "Remove",
+          "add": "Add country",
+          "configurations": "Configurations",
+          "activateHint": "Enable at least one configuration to make this country valid.",
+          "invalid": "Some document configurations are missing required values."
+        },
+        "category": {
+          "government_id": "Government ID",
+          "passport": "Passport",
+          "license": "Driver license",
+          "business_document": "Business document",
+          "tax_document": "Tax document",
+          "proof_of_address": "Proof of address",
+          "bank_document": "Bank document"
+        }
+      },
+      "basicSetup": {
+        "identity": {
+          "title": "Project identity",
+          "subtitle": "How your project appears to your customers and the team.",
+          "name": "Project name",
+          "contactEmail": "Contact email"
+        },
+        "allowed": {
+          "title": "Allowed countries",
+          "subtitle": "Restrict where your customers can enroll from. Add World to allow every country.",
+          "add": "Add country",
+          "search": "Search countries…",
+          "remove": "Remove"
+        },
+        "compliance": {
+          "title": "Compliance URLs",
+          "subtitle": "Public URLs we link to from the enrollment screens.",
+          "privacyUrl": "Privacy policy URL",
+          "termsUrl": "Terms & conditions URL"
+        },
+        "dpo": {
+          "title": "Data protection officer",
+          "subtitle": "The legal contact for data subjects.",
+          "name": "Officer full name",
+          "email": "Officer email",
+          "address": "Address",
+          "address2": "Address line 2 (optional)",
+          "city": "City",
+          "postalCode": "Postal code",
+          "country": "Country"
+        }
+      },
+      "signupForm": {
+        "target": {
+          "title": "Who are you onboarding?",
+          "subtitle": "Choose between an individual or a business flow.",
+          "personal": "Individual",
+          "business": "Business"
+        },
+        "fullName": {
+          "title": "Full name",
+          "subtitle": "How customer name fields are presented.",
+          "separate": "Two fields (first / last)",
+          "together": "Single field"
+        },
+        "business": {
+          "title": "Business basic info",
+          "subtitle": "How company information is collected.",
+          "nameNumber": "Name + tax number",
+          "separate": "Separate fields"
+        },
+        "email": {
+          "title": "Email address",
+          "subtitle": "Capture and verify a customer email address.",
+          "mailgun": "Send via Mailgun",
+          "none": "No verification"
+        },
+        "phone": {
+          "title": "Phone number",
+          "subtitle": "Capture and verify a customer phone number.",
+          "both": "SMS + WhatsApp",
+          "countryCode": "Default country code"
+        },
+        "legal": {
+          "title": "Legal disclosures",
+          "subtitle": "Show consent links inside the enrollment flow.",
+          "privacy": "Show privacy notice",
+          "terms": "Show terms & conditions"
+        }
+      },
+      "liveness": {
+        "title": "Liveness verification",
+        "subtitle": "Confirm a real person is on the other side of the camera.",
+        "kyc": {
+          "title": "KYC type",
+          "subtitle": "Choose how identity proofs are stored and shared.",
+          "traditional": "Traditional KYC",
+          "zeroKnowledge": "Zero-knowledge KYC"
+        },
+        "thresholds": {
+          "title": "Scoring thresholds",
+          "subtitle": "Tune the minimum scores required for the customer to pass.",
+          "attemptLimit": "Attempt limit",
+          "searchMode": "Search mode",
+          "fast": "Fast",
+          "accurate": "Accurate",
+          "minScore": "Liveness minimum score",
+          "compareMinScore": "Face compare minimum score",
+          "searchMinScore": "Search minimum score",
+          "searchWarn": "Below 80% increases false positives"
+        }
+      },
+      "representatives": {
+        "title": "Legal representatives",
+        "subtitle": "Define who must enroll on behalf of the business.",
+        "counts": {
+          "title": "Number of representatives",
+          "subtitle": "How many people must complete the representative flow.",
+          "min": "Minimum",
+          "max": "Maximum",
+          "notification": "Notification channel"
+        },
+        "tabs": {
+          "information": "Information",
+          "documents": "Documents",
+          "liveness": "Liveness"
+        }
+      },
+      "integrations": {
+        "redirect": {
+          "title": "Redirect URL",
+          "subtitle": "Where to send the customer once enrollment finishes.",
+          "url": "Redirect URL"
+        },
+        "webhook": {
+          "title": "Webhook",
+          "subtitle": "Push enrollment events to your server.",
+          "select": "Webhook",
+          "none": "No webhook",
+          "refresh": "Refresh",
+          "manage": "Manage webhooks"
+        },
+        "source": {
+          "title": "Allow / deny list source",
+          "subtitle": "Optionally call your API to check whether the customer can enroll.",
+          "none": "Disabled",
+          "api": "External API",
+          "apiUrl": "API URL",
+          "testType": "Test type",
+          "testValue": "Test value",
+          "test": "Send test"
+        }
+      },
+      "ui": {
+        "colors": {
+          "title": "Title",
+          "subtitle": "Match the enrollment screens to your brand palette.",
+          "background": "Background",
+          "text": "Body text",
+          "button": "Button",
+          "buttonText": "Button text",
+          "imageBackground": "Image background"
+        },
+        "images": {
+          "title": "Images",
+          "subtitle": "Logo and optional banner shown to the customer.",
+          "logo": "Logo",
+          "logoSubtitle": "PNG or SVG, square preferred. Up to 512KB.",
+          "banner": "Banner",
+          "bannerSubtitle": "Optional decorative image shown above the form.",
+          "upload": "Upload",
+          "remove": "Remove",
+          "tooLarge": "Image is larger than 512KB. Please choose a smaller file.",
+          "uploadFailed": "Could not read this file."
+        }
+      }
     },
     "recordDetail": {
       "title": "Enrollment record",

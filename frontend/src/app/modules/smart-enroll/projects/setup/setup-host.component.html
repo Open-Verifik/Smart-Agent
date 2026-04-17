@@ -1,0 +1,182 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        >
+            <div class="mx-auto flex w-full max-w-5xl flex-col gap-5">
+                <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                    <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                        Verifik
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a
+                        routerLink="/smart-enroll/projects"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >
+                        {{ t('smartEnrollProjects.title') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a
+                        [routerLink]="['/smart-enroll/projects', projectId]"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                    >
+                        {{ project?.name || projectId }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t('smartEnrollProjects.setup.title') }}</span>
+                </div>
+
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            (click)="returnToProjects()"
+                            class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                            [attr.aria-label]="t('smartEnrollProjects.backToList')"
+                        >
+                            <mat-icon>arrow_back</mat-icon>
+                        </button>
+                        <div class="min-w-0">
+                            <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                                {{ projectId === 'new' ? t('smartEnrollProjects.setup.new_project') : project?.name }}
+                            </h1>
+                            @if (projectId === 'new') {
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollProjects.setup.project_description') }}
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    @if (project?.projectFlows?.[0]?.status === 'active' && projectId !== 'new') {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="shrink-0 rounded-xl"
+                            [disabled]="!canNavigate"
+                            (click)="previewProject()"
+                        >
+                            <span class="mr-1">{{ t('smartEnrollProjects.setup.see_live_project') }}</span>
+                            <mat-icon class="!h-4 !w-4">open_in_new</mat-icon>
+                        </button>
+                    }
+                </div>
+
+                @if (form) {
+                    <setup-breadcrumbs
+                        [form]="form"
+                        [isStepValid]="isFormValidForStep"
+                        [loading]="loading()"
+                        [saving]="saving()"
+                    ></setup-breadcrumbs>
+                }
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto w-full max-w-5xl">
+                @if (loading()) {
+                    <div class="flex flex-1 items-center justify-center py-20">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                } @else if (form) {
+                    <div class="flex flex-col gap-6">
+                        @switch (stepIndex) {
+                            @case (0) {
+                                <setup-basic-setup
+                                    [form]="form"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-basic-setup>
+                            }
+                            @case (1) {
+                                <setup-sign-up-form
+                                    [form]="form"
+                                    [formGroup]="signUpFormGroup()"
+                                    [formType]="currentTarget"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-sign-up-form>
+                            }
+                            @case (2) {
+                                <setup-documents
+                                    [form]="form"
+                                    [formGroup]="documentsFormGroup()"
+                                    [stepFormControlName]="documentsStepFormControlName()"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-documents>
+                            }
+                            @case (3) {
+                                @if (currentTarget === 'business') {
+                                    <setup-representatives
+                                        [form]="form"
+                                        [loading]="loading()"
+                                        [saving]="saving()"
+                                    ></setup-representatives>
+                                } @else {
+                                    <setup-liveness
+                                        [form]="form"
+                                        [formGroup]="livenessFormGroup()"
+                                        [loading]="loading()"
+                                        [saving]="saving()"
+                                    ></setup-liveness>
+                                }
+                            }
+                            @case (4) {
+                                <setup-integrations
+                                    [form]="form"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-integrations>
+                            }
+                            @case (5) {
+                                <setup-user-interface
+                                    [form]="form"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-user-interface>
+                            }
+                            @default {
+                                <setup-step-stub
+                                    [titleKey]="(steps[stepIndex] || 'smartEnrollProjects.setup.stub.title')"
+                                    [form]="form"
+                                    [loading]="loading()"
+                                    [saving]="saving()"
+                                ></setup-step-stub>
+                            }
+                        }
+
+                        <div class="flex items-center justify-between gap-3">
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                (click)="previousStep()"
+                                [disabled]="!canNavigate"
+                                class="rounded-xl"
+                            >
+                                <mat-icon class="mr-1 !h-4 !w-4">arrow_back</mat-icon>
+                                {{ t('smartEnrollProjects.setup.go_back') }}
+                            </button>
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                (click)="nextStep()"
+                                [disabled]="!canNavigate || !isFormValidForStep(stepIndex)"
+                                class="min-w-32 rounded-xl"
+                            >
+                                @if (saving()) {
+                                    <mat-spinner diameter="18" class="mr-2 inline-block"></mat-spinner>
+                                }
+                                {{ t('smartEnrollProjects.setup.continue') }}
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>

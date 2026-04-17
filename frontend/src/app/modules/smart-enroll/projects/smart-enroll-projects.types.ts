@@ -58,6 +58,10 @@ export interface EnrollProject {
     name?: string;
     version?: number;
     demoMode?: boolean;
+    allowedCountries?: string[];
+    contactEmail?: string;
+    privacyUrl?: string;
+    termsAndConditionsUrl?: string;
     branding?: EnrollProjectBranding;
     projectFlows?: EnrollProjectFlow[];
     projectMembers?: EnrollProjectMember[];

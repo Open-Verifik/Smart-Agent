@@ -33,6 +33,21 @@ export class CountryService {
     });
   }
 
+  /**
+   * Countries that can be used as "allowed countries" for an enrollment project,
+   * including the synthetic "World" entry that means every country is allowed.
+   */
+  get ipCountries(): CountryOption[] {
+    return this.countries.filter((c) => c.country !== 'World').concat([
+      { name: 'country_name.world', code: 'world', country: 'All' },
+    ]);
+  }
+
+  /** Plain country list (alias of `countries`). */
+  get worldCountries(): CountryOption[] {
+    return this.countries;
+  }
+
   getCountryByDialCode(dialCode: string): CountryDialCode | undefined {
     return this._dialCodeMap.get(dialCode);
   }

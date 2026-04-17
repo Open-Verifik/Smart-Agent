@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/status-check/subscribe/subscribe.component.scss"],
+  "sourcesContent": ["status-check-subscribe {\n    display: block;\n    background: white;\n\n    .dark & {\n        background: #111827; // bg-gray-900\n    }\n\n    .mat-mdc-form-field-subscript-wrapper {\n        display: none;\n    }\n\n    .mat-mdc-chip-grid {\n        min-height: 48px;\n    }\n\n    .mat-mdc-standard-chip {\n        --mdc-chip-elevated-container-color: #f3f4f6;\n        --mdc-chip-label-text-color: #374151;\n        border-radius: 8px !important;\n\n        .dark & {\n            --mdc-chip-elevated-container-color: #374151;\n            --mdc-chip-label-text-color: #f3f4f6;\n        }\n    }\n}\n"],
+  "mappings": ";AAAA;AACI,WAAA;AACA,cAAA;;AAEA,CAAA,KAAA;AACI,cAAA;;AAGJ,uBAAA,CAAA;AACI,WAAA;;AAGJ,uBAAA,CAAA;AACI,cAAA;;AAGJ,uBAAA,CAAA;AACI,uCAAA;AACA,+BAAA;AACA,iBAAA;;AAEA,CAjBJ,KAiBI,uBAAA,CALJ;AAMQ,uCAAA;AACA,+BAAA;;",
+  "names": []
+}

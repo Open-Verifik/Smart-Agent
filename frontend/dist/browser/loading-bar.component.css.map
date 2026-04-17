@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/@fuse/components/loading-bar/loading-bar.component.scss"],
+  "sourcesContent": ["fuse-loading-bar {\n    position: fixed;\n    top: 0;\n    z-index: 999;\n    width: 100%;\n    height: 6px;\n}\n"],
+  "mappings": ";AAAA;AACI,YAAA;AACA,OAAA;AACA,WAAA;AACA,SAAA;AACA,UAAA;;",
+  "names": []
+}

@@ -1,0 +1,101 @@
+<ng-container *transloco="let t">
+    <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+            [formGroup]="livenessStepFormGroup!"
+        >
+            <header class="mb-4">
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.liveness.title') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.liveness.subtitle') }}
+                </p>
+            </header>
+            <mat-button-toggle-group [formControlName]="stepFormControlName" class="!rounded-xl">
+                <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
+                <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
+                <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
+            </mat-button-toggle-group>
+        </section>
+
+        <ng-container [formGroup]="livenessFormGroup!">
+            <section
+                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+            >
+                <header class="mb-4">
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ t('smartEnrollProjects.setup.liveness.kyc.title') }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.kyc.subtitle') }}
+                    </p>
+                </header>
+                <mat-radio-group formControlName="kycType" class="flex flex-wrap gap-4">
+                    <mat-radio-button value="traditional">{{ t('smartEnrollProjects.setup.liveness.kyc.traditional') }}</mat-radio-button>
+                    <mat-radio-button value="zero_knowledge">{{ t('smartEnrollProjects.setup.liveness.kyc.zeroKnowledge') }}</mat-radio-button>
+                </mat-radio-group>
+            </section>
+
+            <section
+                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                [class.opacity-50]="isNotRequired"
+                [class.pointer-events-none]="isNotRequired"
+            >
+                <header class="mb-4">
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.title') }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.subtitle') }}
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartEnrollProjects.setup.liveness.thresholds.attemptLimit') }}</mat-label>
+                        <input matInput type="number" formControlName="attemptLimit" min="1" max="5" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                        <mat-label>{{ t('smartEnrollProjects.setup.liveness.thresholds.searchMode') }}</mat-label>
+                        <mat-select formControlName="searchMode">
+                            <mat-option value="FAST">{{ t('smartEnrollProjects.setup.liveness.thresholds.fast') }}</mat-option>
+                            <mat-option value="ACCURATE">{{ t('smartEnrollProjects.setup.liveness.thresholds.accurate') }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <div class="md:col-span-2">
+                        <p class="mb-1 text-xs font-medium text-stone-600 dark:text-stone-300">
+                            {{ t('smartEnrollProjects.setup.liveness.thresholds.minScore') }} — <span class="font-mono">{{ minScoreDisplayValue }}</span>
+                        </p>
+                        <mat-slider min="0.52" max="0.9" step="0.01" discrete>
+                            <input matSliderThumb formControlName="minScore" />
+                        </mat-slider>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="mb-1 text-xs font-medium text-stone-600 dark:text-stone-300">
+                            {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore') }} — <span class="font-mono">{{ compareMinScoreDisplayValue }}</span>
+                        </p>
+                        <mat-slider min="0.7" max="0.95" step="0.01" discrete>
+                            <input matSliderThumb formControlName="compareMinScore" />
+                        </mat-slider>
+                    </div>
+                    <div class="md:col-span-2">
+                        <p class="mb-1 text-xs font-medium text-stone-600 dark:text-stone-300">
+                            {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScore') }} — <span class="font-mono">{{ searchMinScoreDisplayValue }}</span>
+                            @if (isSearchMinScoreWarn) {
+                                <span class="ml-2 inline-flex items-center gap-1 text-amber-700 dark:text-amber-400">
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-base">info</mat-icon>
+                                    {{ t('smartEnrollProjects.setup.liveness.thresholds.searchWarn') }}
+                                </span>
+                            }
+                        </p>
+                        <mat-slider min="0.81" max="0.95" step="0.01" discrete>
+                            <input matSliderThumb formControlName="searchMinScore" />
+                        </mat-slider>
+                    </div>
+                </div>
+            </section>
+        </ng-container>
+    </div>
+</ng-container>
