@@ -562,6 +562,19 @@
         "copied": "Copied to clipboard",
         "copyError": "Could not copy this object",
         "webhookEvents": "Webhook events for this enrollment",
+        "apiHint": "API request",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "Copied to clipboard",
+        "apiHintCopyButton": "Copy",
+        "apiHintClose": "Close",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "Query params (same idea as this screen — add or remove populates[] to load more or less nested data):",
+        "apiHintCompareNoDirect": "There is no GET-by-id route for FaceVerification; compare is done via POST under /v2/face-recognition/...",
+        "apiHintCompareFallback": "Load it nested on the app registration instead:",
+        "apiHintEmptyList": "No records to fetch.",
+        "apiHintNoId": "Could not resolve an _id for this block.",
+        "apiHintWebhookNote": "List webhook events for this app registration (defaults match Smart Monitor webhook events list):",
+        "apiHintArrayMore": "+ {{count}} more (same GET pattern)",
         "section": {
           "record": "AppRegistration",
           "informationValidation": "informationValidation",
@@ -576,7 +589,8 @@
           "person": "person",
           "compareFaceVerification": "compareFaceVerification",
           "projectFlow": "projectFlow",
-          "project": "project"
+          "project": "project",
+          "webhookEvents": "Webhook events for this enrollment"
         }
       },
       "boolYes": "Yes",
@@ -964,7 +978,7 @@
       "limit_reached": "You've reached the maximum number of team members for your plan. Upgrade to add more.",
       "no_plan_warning": "You need an active subscription plan to add team members.",
       "no_plan_error": "Cannot add team members without an active subscription plan.",
-      "view_plans": "View Plans"
+      "view_plans": "View SmartCheck plans"
     },
     "billing": {
       "title": "Billing Details",

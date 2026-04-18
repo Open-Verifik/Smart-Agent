@@ -1,0 +1,13 @@
+<h2 mat-dialog-title class="dev-api-hint-dialog__title">{{ data.title }}</h2>
+<mat-dialog-content class="dev-api-hint-dialog__content">
+    <pre class="dev-api-hint-dialog__pre">{{ data.body }}</pre>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="dev-api-hint-dialog__actions">
+    <button type="button" mat-button (click)="close()">
+        {{ 'smartEnrollProjects.recordDetail.devView.apiHintClose' | transloco }}
+    </button>
+    <button type="button" mat-flat-button color="primary" (click)="copy()">
+        <mat-icon class="dev-api-hint-dialog__copy-icon">content_copy</mat-icon>
+        {{ 'smartEnrollProjects.recordDetail.devView.apiHintCopyButton' | transloco }}
+    </button>
+</mat-dialog-actions>

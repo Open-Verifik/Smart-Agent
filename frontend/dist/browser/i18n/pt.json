@@ -562,6 +562,19 @@
         "copied": "Copiado para a área de transferência",
         "copyError": "Não foi possível copiar este objeto",
         "webhookEvents": "Eventos de webhook desta inscrição",
+        "apiHint": "Requisição API",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "Copiado para a área de transferência",
+        "apiHintCopyButton": "Copiar",
+        "apiHintClose": "Fechar",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "Parâmetros de consulta (como nesta tela — adicione ou remova populates[] para mais ou menos dados aninhados):",
+        "apiHintCompareNoDirect": "Não há GET por id para FaceVerification; a comparação é feita via POST em /v2/face-recognition/...",
+        "apiHintCompareFallback": "Carregue aninhado no app registration:",
+        "apiHintEmptyList": "Nenhum registro para buscar.",
+        "apiHintNoId": "Não foi possível obter um _id para este bloco.",
+        "apiHintWebhookNote": "Lista de eventos de webhook para este app registration (padrões como no Smart Monitor):",
+        "apiHintArrayMore": "+ {{count}} a mais (mesmo padrão GET)",
         "section": {
           "record": "AppRegistration",
           "informationValidation": "informationValidation",
@@ -576,7 +589,8 @@
           "person": "person",
           "compareFaceVerification": "compareFaceVerification",
           "projectFlow": "projectFlow",
-          "project": "project"
+          "project": "project",
+          "webhookEvents": "Eventos de webhook desta inscrição"
         }
       },
       "boolYes": "Sim",
@@ -964,7 +978,7 @@
       "limit_reached": "Você atingiu o número máximo de membros da equipe para seu plano. Atualize para adicionar mais.",
       "no_plan_warning": "Você precisa de um plano de assinatura ativo para adicionar membros da equipe.",
       "no_plan_error": "Não é possível adicionar membros da equipe sem um plano de assinatura ativo.",
-      "view_plans": "Ver Planos"
+      "view_plans": "Ver planos SmartCheck"
     },
     "billing": {
       "title": "Dados de Faturamento",

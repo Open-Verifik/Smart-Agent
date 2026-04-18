@@ -562,6 +562,19 @@
         "copied": "클립보드에 복사됨",
         "copyError": "이 객체를 복사할 수 없습니다",
         "webhookEvents": "이 등록과 관련된 웹훅 이벤트",
+        "apiHint": "API 요청",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "클립보드에 복사됨",
+        "apiHintCopyButton": "복사",
+        "apiHintClose": "닫기",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "쿼리 파라미터(이 화면과 같음 — populates[]를 늘리거나 줄여 중첩 데이터 조절):",
+        "apiHintCompareNoDirect": "FaceVerification용 GET(id) 엔드포인트는 없습니다. 비교는 /v2/face-recognition/... POST로 수행됩니다.",
+        "apiHintCompareFallback": "대신 app registration에 중첩으로 로드:",
+        "apiHintEmptyList": "가져올 레코드가 없습니다.",
+        "apiHintNoId": "이 블록의 _id를 확인할 수 없습니다.",
+        "apiHintWebhookNote": "이 app registration의 웹훅 이벤트 목록(Smart Monitor와 동일한 기본값):",
+        "apiHintArrayMore": "+ {{count}}개 더(동일 GET 패턴)",
         "section": {
           "record": "AppRegistration",
           "informationValidation": "informationValidation",
@@ -576,7 +589,8 @@
           "person": "person",
           "compareFaceVerification": "compareFaceVerification",
           "projectFlow": "projectFlow",
-          "project": "project"
+          "project": "project",
+          "webhookEvents": "이 등록과 관련된 웹훅 이벤트"
         }
       },
       "boolYes": "예",
@@ -1013,7 +1027,7 @@
       "limit_reached": "플랜의 최대 팀 멤버 수에 도달했습니다. 더 추가하려면 업그레이드하세요.",
       "no_plan_warning": "팀 멤버를 추가하려면 활성 구독 플랜이 필요합니다.",
       "no_plan_error": "활성 구독 플랜 없이는 팀 멤버를 추가할 수 없습니다.",
-      "view_plans": "플랜 보기"
+      "view_plans": "SmartCheck 요금제 보기"
     },
     "plans": " Plans"
   },

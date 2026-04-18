@@ -13,8 +13,11 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
 import { finalize, forkJoin, Subscription } from 'rxjs';
+import { environment } from 'environments/environment';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
+import { DevApiHintDialogComponent } from './dev-api-hint-dialog.component';
+import { buildDevApiHintBody, type DevApiHintI18n } from './dev-api-hint.util';
 import {
     EnrollResendLinkDialogComponent,
     type EnrollResendLinkDialogResult,
@@ -32,7 +35,7 @@ import {
     type StepId,
     type StepState,
 } from './app-registration-record.utils';
-import { SmartEnrollProjectsService } from './smart-enroll-projects.service';
+import { APP_REGISTRATION_DETAIL_POPULATES, SmartEnrollProjectsService } from './smart-enroll-projects.service';
 import type { AppRegistrationDetail, EnrollProject } from './smart-enroll-projects.types';
 
 const STEP_ORDER: StepId[] = [
@@ -324,6 +327,55 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                 { duration: 2500 }
             );
         }
+    }
+
+    devApiHintDisabled(sectionKey: string, value: unknown): boolean {
+        if (sectionKey === 'failedDocumentValidations' || sectionKey === 'failedBiometricValidations') {
+            return !Array.isArray(value) || value.length === 0;
+        }
+        return false;
+    }
+
+    openDevApiHint(sectionKey: string, value: unknown): void {
+        const r = this.record();
+        if (!r?._id) return;
+
+        const i18n: DevApiHintI18n = {
+            headers: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintHeadersBlock'),
+            populatesExplainer: this._transloco.translate(
+                'smartEnrollProjects.recordDetail.devView.apiHintPopulatesExplainer',
+            ),
+            noDirectCompare: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintCompareNoDirect'),
+            compareFallback: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintCompareFallback'),
+            emptyList: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintEmptyList'),
+            noId: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintNoId'),
+            webhookNote: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintWebhookNote'),
+        };
+
+        const body = buildDevApiHintBody(sectionKey, value, {
+            recordId: r._id,
+            project: this.project(),
+            apiBase: environment.apiUrl,
+            populates: APP_REGISTRATION_DETAIL_POPULATES,
+            i18n,
+            moreUrlsLabel: (count: number) =>
+                this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintArrayMore', { count }),
+        });
+
+        const title = this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintTitle', {
+            section: this.devSectionTitle(sectionKey),
+        });
+
+        this._dialog.open(DevApiHintDialogComponent, {
+            data: { title, body },
+            width: '640px',
+            maxWidth: '92vw',
+            panelClass: 'dev-api-hint-dialog-panel',
+        });
+    }
+
+    openWebhookEventsApiHint(): void {
+        this.openDevApiHint('webhookEvents', null);
     }
 
     confirmDeleteRecord(): void {

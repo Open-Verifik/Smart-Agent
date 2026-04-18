@@ -562,6 +562,19 @@
         "copied": "クリップボードにコピーしました",
         "copyError": "このオブジェクトをコピーできませんでした",
         "webhookEvents": "この登録に関連するWebhookイベント",
+        "apiHint": "API リクエスト",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "クリップボードにコピーしました",
+        "apiHintCopyButton": "コピー",
+        "apiHintClose": "閉じる",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "クエリパラメータ（この画面と同様 — populates[] を増減してネストの量を調整）:",
+        "apiHintCompareNoDirect": "FaceVerification の GET（id指定）はありません。比較は /v2/face-recognition/... の POST で行います。",
+        "apiHintCompareFallback": "app registration 経由でネスト取得:",
+        "apiHintEmptyList": "取得するレコードがありません。",
+        "apiHintNoId": "このブロックの _id を解決できませんでした。",
+        "apiHintWebhookNote": "この app registration の webhook イベント一覧（Smart Monitor と同様の既定値）:",
+        "apiHintArrayMore": "+ あと {{count}} 件（同じ GET パターン）",
         "section": {
           "record": "AppRegistration",
           "informationValidation": "informationValidation",
@@ -576,7 +589,8 @@
           "person": "person",
           "compareFaceVerification": "compareFaceVerification",
           "projectFlow": "projectFlow",
-          "project": "project"
+          "project": "project",
+          "webhookEvents": "この登録に関連するWebhookイベント"
         }
       },
       "boolYes": "はい",
@@ -1013,7 +1027,7 @@
       "limit_reached": "プランの最大チームメンバー数に達しました。追加するにはアップグレードしてください。",
       "no_plan_warning": "チームメンバーを追加するには、アクティブなサブスクリプションプランが必要です。",
       "no_plan_error": "アクティブなサブスクリプションプランなしではチームメンバーを追加できません。",
-      "view_plans": "プランを表示"
+      "view_plans": "SmartCheckのプランを表示"
     },
     "plans": " Plans"
   },

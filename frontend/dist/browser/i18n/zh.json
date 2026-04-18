@@ -562,6 +562,19 @@
         "copied": "已复制到剪贴板",
         "copyError": "无法复制此对象",
         "webhookEvents": "此注册的 Webhook 事件",
+        "apiHint": "API 请求",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "已复制到剪贴板",
+        "apiHintCopyButton": "复制",
+        "apiHintClose": "关闭",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "查询参数（与本页相同 — 增减 populates[] 以加载更多或更少嵌套数据）:",
+        "apiHintCompareNoDirect": "FaceVerification 无按 id 的 GET；比对通过 /v2/face-recognition/... 的 POST 完成。",
+        "apiHintCompareFallback": "改为在 app registration 上嵌套加载:",
+        "apiHintEmptyList": "没有可获取的记录。",
+        "apiHintNoId": "无法解析此块的 _id。",
+        "apiHintWebhookNote": "列出此 app registration 的 webhook 事件（默认值与 Smart Monitor 一致）:",
+        "apiHintArrayMore": "+ 另有 {{count}} 条（相同 GET 模式）",
         "section": {
           "record": "AppRegistration",
           "informationValidation": "informationValidation",
@@ -576,7 +589,8 @@
           "person": "person",
           "compareFaceVerification": "compareFaceVerification",
           "projectFlow": "projectFlow",
-          "project": "project"
+          "project": "project",
+          "webhookEvents": "此注册的 Webhook 事件"
         }
       },
       "boolYes": "是",
@@ -1013,7 +1027,7 @@
       "limit_reached": "您已达到计划的最大团队成员数。升级以添加更多。",
       "no_plan_warning": "您需要有效的订阅计划才能添加团队成员。",
       "no_plan_error": "没有有效的订阅计划无法添加团队成员。",
-      "view_plans": "查看计划"
+      "view_plans": "查看 SmartCheck 方案"
     },
     "plans": " Plans"
   },

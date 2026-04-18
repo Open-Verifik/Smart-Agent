@@ -1,0 +1,23 @@
+.dev-api-hint-dialog__title {
+    @apply m-0 text-lg font-semibold text-stone-900 dark:text-white;
+}
+
+.dev-api-hint-dialog__content {
+    @apply max-h-[min(70vh,520px)] overflow-auto pt-2;
+}
+
+.dev-api-hint-dialog__pre {
+    @apply m-0 whitespace-pre-wrap break-words rounded-lg bg-stone-950 p-4 font-mono text-xs leading-relaxed text-stone-100 dark:bg-black/70;
+}
+
+.dev-api-hint-dialog__actions {
+    @apply gap-2 px-0 pb-2 pt-4;
+}
+
+.dev-api-hint-dialog__copy-icon {
+    @apply mr-1 text-base;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}

@@ -502,9 +502,14 @@
 }
 
 .dev-view__card-title {
-    @apply font-mono text-sm font-semibold tracking-tight text-stone-800 dark:text-stone-100;
+    @apply min-w-0 flex-1 font-mono text-sm font-semibold tracking-tight text-stone-800 dark:text-stone-100;
 }
 
+.dev-view__card-actions {
+    @apply flex shrink-0 items-center gap-0.5;
+}
+
+.dev-view__api,
 .dev-view__copy {
     @apply h-8 w-8 text-stone-500 dark:text-stone-300;
 }

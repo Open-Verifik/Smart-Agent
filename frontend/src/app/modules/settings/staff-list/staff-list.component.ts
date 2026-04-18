@@ -25,8 +25,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
-import { Subject, takeUntil } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { forkJoin, of, Subject, takeUntil } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import { SettingsService, StaffMember } from '../settings.service';
 
 @Component({
@@ -49,6 +49,8 @@ import { SettingsService, StaffMember } from '../settings.service';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
+    private static readonly _ACCESS_ENROLL_STAFF_BONUS = 5;
+
     @Input() user: any;
     @Output() staffChanged = new EventEmitter<void>();
 
@@ -139,37 +141,82 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private _loadSubscription(): void {
-        this._settingsService
-            .getMySubscription(this.user._id)
+        const clientId = this.user._id;
+        const empty = of({ data: null });
+
+        forkJoin({
+            smartCheck: this._settingsService
+                .getMySubscription(clientId)
+                .pipe(catchError(() => empty)),
+            smartAccess: this._settingsService
+                .getSmartAccessPlan(clientId)
+                .pipe(catchError(() => empty)),
+            smartEnroll: this._settingsService
+                .getSmartEnrollPlan(clientId)
+                .pipe(catchError(() => empty)),
+        })
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
-                next: (response) => {
-                    if (response?.data?.subscriptionPlan) {
-                        this.selectedSubscription = response.data.subscriptionPlan;
-                        this.hasSubscription = true;
-                        // Find the "chairs" addon to get the staff limit
-                        const chairsAddon = this.selectedSubscription.changesInPrices?.find(
-                            (addon: any) => addon?.addOn === 'chairs'
-                        );
-                        this.staffLimit = chairsAddon?.count || 0;
-                    } else {
-                        this.selectedSubscription = { name: 'PAYG' };
-                        this.hasSubscription = false;
-                        this.staffLimit = 0;
-                    }
-                    this._cdr.markForCheck();
+                next: ({ smartCheck, smartAccess, smartEnroll }) => {
+                    this._applyTeamSubscriptionLimits(smartCheck, smartAccess, smartEnroll);
                 },
                 error: () => {
-                    this.selectedSubscription = { name: 'PAYG' };
-                    this.hasSubscription = false;
-                    this.staffLimit = 0;
-                    this._cdr.markForCheck();
+                    this._resetTeamSubscriptionState();
                 },
             });
     }
 
+    /**
+     * SmartCheck chair count plus a one-time bonus when SmartAccess or SmartEnroll is active.
+     */
+    private _applyTeamSubscriptionLimits(smartCheckRes: any, accessRes: any, enrollRes: any): void {
+        const subscriptionPlan = smartCheckRes?.data?.subscriptionPlan;
+
+        const hasSmartCheck = !!subscriptionPlan;
+
+        let chairCount = 0;
+
+        if (subscriptionPlan) {
+            const chairsAddon = subscriptionPlan.changesInPrices?.find(
+                (addon: any) => addon?.addOn === 'chairs'
+            );
+            chairCount = chairsAddon?.count ?? 0;
+        }
+
+        const accessData = accessRes?.data;
+        const enrollData = enrollRes?.data;
+        const hasAccess = !!accessData && accessData.status === 'active';
+        const hasEnroll = !!enrollData && enrollData.status === 'active';
+        const accessEnrollBonus =
+            hasAccess || hasEnroll ? StaffListComponent._ACCESS_ENROLL_STAFF_BONUS : 0;
+
+        this.hasSubscription = hasSmartCheck || hasAccess || hasEnroll;
+        this.staffLimit = chairCount + accessEnrollBonus;
+
+        if (hasSmartCheck) {
+            this.selectedSubscription = subscriptionPlan;
+        } else if (hasAccess && hasEnroll) {
+            this.selectedSubscription = {
+                name: `${accessData.name} + ${enrollData.name}`,
+            };
+        } else if (hasAccess) {
+            this.selectedSubscription = { name: accessData.name };
+        } else if (hasEnroll) {
+            this.selectedSubscription = { name: enrollData.name };
+        } else {
+            this.selectedSubscription = { name: 'PAYG' };
+        }
+        this._cdr.markForCheck();
+    }
+
+    private _resetTeamSubscriptionState(): void {
+        this.selectedSubscription = { name: 'PAYG' };
+        this.hasSubscription = false;
+        this.staffLimit = 0;
+        this._cdr.markForCheck();
+    }
+
     canAddMoreStaff(): boolean {
-        // If no subscription or PAYG, check if limit is 0 (no staff allowed)
         if (!this.hasSubscription || this.staffLimit === 0) {
             return false;
         }

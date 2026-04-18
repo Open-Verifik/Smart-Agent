@@ -152,16 +152,29 @@
                             <article class="dev-view__card">
                                 <header class="dev-view__card-header">
                                     <h2 class="dev-view__card-title">{{ devSectionTitle(section.key) }}</h2>
-                                    <button
-                                        type="button"
-                                        mat-icon-button
-                                        class="dev-view__copy"
-                                        (click)="copyJson(section.value)"
-                                        [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.copy' | transloco"
-                                        [title]="'smartEnrollProjects.recordDetail.devView.copy' | transloco"
-                                    >
-                                        <mat-icon>content_copy</mat-icon>
-                                    </button>
+                                    <div class="dev-view__card-actions">
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            class="dev-view__api"
+                                            [disabled]="devApiHintDisabled(section.key, section.value)"
+                                            (click)="openDevApiHint(section.key, section.value)"
+                                            [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                            [title]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                        >
+                                            <mat-icon>api</mat-icon>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            class="dev-view__copy"
+                                            (click)="copyJson(section.value)"
+                                            [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.copy' | transloco"
+                                            [title]="'smartEnrollProjects.recordDetail.devView.copy' | transloco"
+                                        >
+                                            <mat-icon>content_copy</mat-icon>
+                                        </button>
+                                    </div>
                                 </header>
                                 <pre class="dev-json">{{ section.value | json }}</pre>
                             </article>
@@ -172,6 +185,18 @@
                                 <h2 class="dev-view__card-title">
                                     {{ 'smartEnrollProjects.recordDetail.devView.webhookEvents' | transloco }}
                                 </h2>
+                                <div class="dev-view__card-actions">
+                                    <button
+                                        type="button"
+                                        mat-icon-button
+                                        class="dev-view__api"
+                                        (click)="openWebhookEventsApiHint()"
+                                        [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                        [title]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                    >
+                                        <mat-icon>api</mat-icon>
+                                    </button>
+                                </div>
                             </header>
                             <div class="dev-view__webhook-events">
                                 <webhook-events [appRegistrationId]="r._id"></webhook-events>
