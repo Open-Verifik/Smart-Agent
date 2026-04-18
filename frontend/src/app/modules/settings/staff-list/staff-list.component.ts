@@ -4,6 +4,7 @@ import {
     ChangeDetectorRef,
     Component,
     EventEmitter,
+    HostListener,
     Input,
     OnChanges,
     OnDestroy,
@@ -17,9 +18,11 @@ import {
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
@@ -36,8 +39,10 @@ import { SettingsService, StaffMember } from '../settings.service';
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
+        MatFormFieldModule,
         MatIconModule,
         MatMenuModule,
+        MatSelectModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatDialogModule,
@@ -63,7 +68,10 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     editingStaff: StaffMember = null;
     staffForm: FormGroup;
     countryCodes: CountryDialCode[] = [];
-    showStaffCountryDropdown = false;
+    filteredStaffCountryCodes: CountryDialCode[] = [];
+    isStaffCountryDropdownOpen = false;
+    staffCountrySearchTerm = '';
+    staffCountryDropdownPosition: { top: string; left: string } | null = null;
 
     // Subscription state for team limits
     selectedSubscription: any = null;
@@ -83,7 +91,21 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
         private _translocoService: TranslocoService
     ) {
         this.countryCodes = this._countryService.countryDialCodes;
+        this.filteredStaffCountryCodes = [...this.countryCodes];
         this._initStaffForm();
+    }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement;
+        if (
+            this.isStaffCountryDropdownOpen &&
+            !target.closest('.staff-country-picker')
+        ) {
+            this.isStaffCountryDropdownOpen = false;
+            this.staffCountryDropdownPosition = null;
+            this._cdr.markForCheck();
+        }
     }
 
     ngOnInit(): void {
@@ -226,6 +248,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
 
     openStaffModal(staff?: StaffMember): void {
         this._resetStaffForm();
+        this._resetStaffCountryPicker();
         if (staff) {
             this.editingStaff = staff;
             this.staffForm.patchValue({
@@ -248,6 +271,61 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             this.staffDialogRef.close();
         }
         this._resetStaffForm();
+        this._resetStaffCountryPicker();
+    }
+
+    private _resetStaffCountryPicker(): void {
+        this.staffCountrySearchTerm = '';
+        this.filteredStaffCountryCodes = [...this.countryCodes];
+        this.isStaffCountryDropdownOpen = false;
+        this.staffCountryDropdownPosition = null;
+    }
+
+    toggleStaffCountryDropdown(event: Event): void {
+        event.stopPropagation();
+        const opening = !this.isStaffCountryDropdownOpen;
+        this.isStaffCountryDropdownOpen = opening;
+        if (opening) {
+            const btn = event.currentTarget as HTMLElement;
+            const rect = btn.getBoundingClientRect();
+            this.staffCountryDropdownPosition = {
+                top: `${rect.bottom + 4}px`,
+                left: `${rect.left}px`,
+            };
+        } else {
+            this.staffCountryDropdownPosition = null;
+        }
+        this._cdr.markForCheck();
+    }
+
+    onStaffCountrySearchChange(value: string): void {
+        this.staffCountrySearchTerm = value;
+        this.filteredStaffCountryCodes = this._countryService.filterCountryDialCodes(
+            this.countryCodes,
+            value
+        );
+        this._cdr.markForCheck();
+    }
+
+    selectStaffCountry(country: CountryDialCode): void {
+        this.staffForm.patchValue({ countryCode: country.dialCode });
+        this._resetStaffCountryPicker();
+        this._cdr.markForCheck();
+    }
+
+    getSelectedStaffCountry(): CountryDialCode | undefined {
+        const code = this.staffForm?.get('countryCode')?.value as string | undefined;
+        if (!code) return undefined;
+        return this._countryService.getCountryByDialCode(code);
+    }
+
+    isStaffCountryRowSelected(country: CountryDialCode): boolean {
+        const sel = this.getSelectedStaffCountry();
+        return (
+            !!sel &&
+            sel.dialCode === country.dialCode &&
+            sel.countryCode === country.countryCode
+        );
     }
 
     private _resetStaffForm(): void {

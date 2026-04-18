@@ -290,20 +290,9 @@ export class AuthModalComponent {
 
   onCountrySearchChange(searchTerm: string) {
     this.countrySearchTerm.set(searchTerm);
-    const term = searchTerm.toLowerCase().trim();
-
-    if (!term) {
-      this.filteredCountries.set(this.countryDialCodes);
-      return;
-    }
-
-    const filtered = this.countryDialCodes.filter(
-      (country) =>
-        country.name.toLowerCase().includes(term) ||
-        country.dialCode.includes(term) ||
-        country.countryCode.toLowerCase().includes(term),
+    this.filteredCountries.set(
+      this._countryService.filterCountryDialCodes(this.countryDialCodes, searchTerm),
     );
-    this.filteredCountries.set(filtered);
   }
 
   toggleCountryDropdown() {
