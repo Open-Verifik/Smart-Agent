@@ -416,26 +416,56 @@
                                         <div class="grid gap-4 p-5 sm:grid-cols-2 md:p-6">
                                             @if ($any(failed)['url']) {
                                                 <div>
-                                                    <img
-                                                        class="record-doc-img"
-                                                        [src]="trustHttpUrl($any(failed)['url'])"
-                                                        alt=""
-                                                        loading="lazy"
-                                                    />
-                                                    <p class="mt-2 text-center text-xs text-stone-500">{{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}</p>
+                                                    <button
+                                                        type="button"
+                                                        class="record-doc-thumb block w-full text-left"
+                                                        (click)="
+                                                            openImagePreview(
+                                                                trustHttpUrl($any(failed)['url']),
+                                                                'smartEnrollProjects.recordDetail.frontScan'
+                                                            )
+                                                        "
+                                                        [attr.aria-label]="
+                                                            'smartEnrollProjects.recordDetail.imagePreview.openImage' | transloco
+                                                        "
+                                                    >
+                                                        <img
+                                                            class="record-doc-img pointer-events-none"
+                                                            [src]="trustHttpUrl($any(failed)['url'])"
+                                                            alt=""
+                                                            loading="lazy"
+                                                        />
+                                                        <p class="mt-2 text-center text-xs text-stone-500">
+                                                            {{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}
+                                                        </p>
+                                                    </button>
                                                 </div>
                                             }
                                             @if ($any(failed)['documentFace']?.base64) {
                                                 <div>
-                                                    <img
-                                                        class="record-doc-img"
-                                                        [src]="sanitizeBase64($any(failed)['documentFace'].base64)"
-                                                        alt=""
-                                                        loading="lazy"
-                                                    />
-                                                    <p class="mt-2 text-center text-xs text-stone-500">
-                                                        {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
-                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        class="record-doc-thumb block w-full text-left"
+                                                        (click)="
+                                                            openImagePreview(
+                                                                sanitizeBase64($any(failed)['documentFace'].base64),
+                                                                'smartEnrollProjects.recordDetail.documentFace'
+                                                            )
+                                                        "
+                                                        [attr.aria-label]="
+                                                            'smartEnrollProjects.recordDetail.imagePreview.openImage' | transloco
+                                                        "
+                                                    >
+                                                        <img
+                                                            class="record-doc-img pointer-events-none"
+                                                            [src]="sanitizeBase64($any(failed)['documentFace'].base64)"
+                                                            alt=""
+                                                            loading="lazy"
+                                                        />
+                                                        <p class="mt-2 text-center text-xs text-stone-500">
+                                                            {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
+                                                        </p>
+                                                    </button>
                                                 </div>
                                             }
                                         </div>
@@ -461,37 +491,83 @@
                                     <div class="grid grid-cols-1 gap-6 p-5 sm:grid-cols-2 lg:grid-cols-3 md:p-6">
                                         @if ($any(r.documentValidation)['url']) {
                                             <div>
-                                                <img
-                                                    class="record-doc-img"
-                                                    [src]="trustHttpUrl($any(r.documentValidation)['url'])"
-                                                    alt=""
-                                                    loading="lazy"
-                                                />
-                                                <p class="mt-2 text-center text-xs text-stone-500">{{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}</p>
+                                                <button
+                                                    type="button"
+                                                    class="record-doc-thumb block w-full text-left"
+                                                    (click)="
+                                                        openImagePreview(
+                                                            trustHttpUrl($any(r.documentValidation)['url']),
+                                                            'smartEnrollProjects.recordDetail.frontScan'
+                                                        )
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'smartEnrollProjects.recordDetail.imagePreview.openImage' | transloco
+                                                    "
+                                                >
+                                                    <img
+                                                        class="record-doc-img pointer-events-none"
+                                                        [src]="trustHttpUrl($any(r.documentValidation)['url'])"
+                                                        alt=""
+                                                        loading="lazy"
+                                                    />
+                                                    <p class="mt-2 text-center text-xs text-stone-500">
+                                                        {{ 'smartEnrollProjects.recordDetail.frontScan' | transloco }}
+                                                    </p>
+                                                </button>
                                             </div>
                                         }
                                         @if (hasDocumentFace(r)) {
                                             <div>
-                                                <img
-                                                    class="record-doc-img"
-                                                    [src]="documentFaceSrc(r)"
-                                                    alt=""
-                                                    loading="lazy"
-                                                />
-                                                <p class="mt-2 text-center text-xs text-stone-500">
-                                                    {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
-                                                </p>
+                                                <button
+                                                    type="button"
+                                                    class="record-doc-thumb block w-full text-left"
+                                                    (click)="
+                                                        openImagePreview(
+                                                            documentFaceSrc(r),
+                                                            'smartEnrollProjects.recordDetail.documentFace'
+                                                        )
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'smartEnrollProjects.recordDetail.imagePreview.openImage' | transloco
+                                                    "
+                                                >
+                                                    <img
+                                                        class="record-doc-img pointer-events-none"
+                                                        [src]="documentFaceSrc(r)"
+                                                        alt=""
+                                                        loading="lazy"
+                                                    />
+                                                    <p class="mt-2 text-center text-xs text-stone-500">
+                                                        {{ 'smartEnrollProjects.recordDetail.documentFace' | transloco }}
+                                                    </p>
+                                                </button>
                                             </div>
                                         }
                                         @if ($any(r.documentValidation)['backUrl']) {
                                             <div>
-                                                <img
-                                                    class="record-doc-img"
-                                                    [src]="trustHttpUrl($any(r.documentValidation)['backUrl'])"
-                                                    alt=""
-                                                    loading="lazy"
-                                                />
-                                                <p class="mt-2 text-center text-xs text-stone-500">{{ 'smartEnrollProjects.recordDetail.backScan' | transloco }}</p>
+                                                <button
+                                                    type="button"
+                                                    class="record-doc-thumb block w-full text-left"
+                                                    (click)="
+                                                        openImagePreview(
+                                                            trustHttpUrl($any(r.documentValidation)['backUrl']),
+                                                            'smartEnrollProjects.recordDetail.backScan'
+                                                        )
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'smartEnrollProjects.recordDetail.imagePreview.openImage' | transloco
+                                                    "
+                                                >
+                                                    <img
+                                                        class="record-doc-img pointer-events-none"
+                                                        [src]="trustHttpUrl($any(r.documentValidation)['backUrl'])"
+                                                        alt=""
+                                                        loading="lazy"
+                                                    />
+                                                    <p class="mt-2 text-center text-xs text-stone-500">
+                                                        {{ 'smartEnrollProjects.recordDetail.backScan' | transloco }}
+                                                    </p>
+                                                </button>
                                             </div>
                                         }
                                     </div>

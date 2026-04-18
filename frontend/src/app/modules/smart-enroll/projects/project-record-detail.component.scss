@@ -68,6 +68,27 @@
     @apply border-stone-200/90 bg-stone-50/90 dark:border-gray-700 dark:bg-gray-900/40;
 }
 
+.record-doc-thumb {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    border-radius: 1rem;
+}
+
+.record-doc-thumb:hover .record-doc-img {
+    @apply ring-2 ring-stone-300 ring-offset-2 ring-offset-white dark:ring-gray-600 dark:ring-offset-gray-900;
+}
+
+.record-doc-thumb:focus-visible {
+    outline: 2px solid rgb(168 162 158);
+    outline-offset: 2px;
+}
+
+.record-doc-thumb:focus-visible .record-doc-img {
+    @apply ring-2 ring-stone-400 dark:ring-stone-500;
+}
+
 .record-doc-img {
     @apply max-h-64 w-full max-w-md rounded-2xl border border-stone-200/90 object-contain dark:border-gray-700;
 }

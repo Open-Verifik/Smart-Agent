@@ -1,0 +1,55 @@
+<div class="image-preview-dialog">
+    <div class="image-preview-dialog__toolbar">
+        @if (data.title) {
+            <p class="image-preview-dialog__title">{{ data.title }}</p>
+        } @else {
+            <span class="image-preview-dialog__title-spacer"></span>
+        }
+        <div class="image-preview-dialog__actions">
+            <button
+                mat-icon-button
+                type="button"
+                (click)="zoomOut()"
+                [disabled]="zoom() <= minZoom"
+                [attr.aria-label]="'smartEnrollProjects.recordDetail.imagePreview.zoomOut' | transloco"
+            >
+                <mat-icon>zoom_out</mat-icon>
+            </button>
+            <button
+                mat-icon-button
+                type="button"
+                (click)="zoomIn()"
+                [disabled]="zoom() >= maxZoom"
+                [attr.aria-label]="'smartEnrollProjects.recordDetail.imagePreview.zoomIn' | transloco"
+            >
+                <mat-icon>zoom_in</mat-icon>
+            </button>
+            <button
+                mat-icon-button
+                type="button"
+                (click)="resetZoom()"
+                [disabled]="zoom() === 1"
+                [attr.aria-label]="'smartEnrollProjects.recordDetail.imagePreview.resetZoom' | transloco"
+            >
+                <mat-icon>fit_screen</mat-icon>
+            </button>
+            <button
+                mat-icon-button
+                type="button"
+                (click)="close()"
+                [attr.aria-label]="'smartEnrollProjects.recordDetail.imagePreview.close' | transloco"
+            >
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+    </div>
+    <div class="image-preview-dialog__viewport">
+        <img
+            [src]="data.imageSrc"
+            alt=""
+            class="image-preview-dialog__img"
+            [style.width.%]="100 * zoom()"
+            draggable="false"
+        />
+    </div>
+</div>

@@ -35,6 +35,7 @@ import {
     type StepId,
     type StepState,
 } from './app-registration-record.utils';
+import { ImagePreviewDialogComponent } from './image-preview-dialog.component';
 import { APP_REGISTRATION_DETAIL_POPULATES, SmartEnrollProjectsService } from './smart-enroll-projects.service';
 import type { AppRegistrationDetail, EnrollProject } from './smart-enroll-projects.types';
 
@@ -376,6 +377,22 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
 
     openWebhookEventsApiHint(): void {
         this.openDevApiHint('webhookEvents', null);
+    }
+
+    /**
+     * Opens a fullscreen-style dialog to inspect a document or portrait image at higher zoom.
+     */
+    openImagePreview(imageSrc: SafeUrl | string, titleKey?: string): void {
+        if (imageSrc === '' || imageSrc == null) return;
+        const title = titleKey ? this._transloco.translate(titleKey) : undefined;
+        this._dialog.open(ImagePreviewDialogComponent, {
+            data: { imageSrc, title },
+            panelClass: 'image-preview-dialog-panel',
+            width: '100%',
+            maxWidth: '100vw',
+            maxHeight: '100vh',
+            height: '100%',
+        });
     }
 
     confirmDeleteRecord(): void {

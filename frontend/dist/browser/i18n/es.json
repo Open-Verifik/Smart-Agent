@@ -697,6 +697,13 @@
       "lastNameMatch": "Coincidencia apellido",
       "fullNameMatch": "Coincidencia nombre completo",
       "biometricFailedHint": "Esta captura biométrica no superó la validación.",
+      "imagePreview": {
+        "close": "Cerrar",
+        "zoomIn": "Acercar",
+        "zoomOut": "Alejar",
+        "resetZoom": "Restablecer zoom",
+        "openImage": "Ver a tamaño completo"
+      },
       "empty": {
         "information": "Aún no hay datos del formulario.",
         "documents": "No hay documento en el expediente.",
@@ -2551,5 +2558,88 @@
     "yemen": "Yemen",
     "zambia": "Zambia",
     "zimbabwe": "Zimbabue"
+  },
+  "smart_enroll": {
+    "continue": "Continuar",
+    "preview": {
+      "title": "Vista previa",
+      "subtitle": "Revisa tu formulario",
+      "desktop": "Escritorio",
+      "tablet": "Tableta",
+      "mobile": "Móvil",
+      "fullscreen": "Pantalla completa",
+      "previous": "Vista anterior",
+      "next": "Vista siguiente"
+    },
+    "sign_up_form": {
+      "create_an_account": "Crear una cuenta",
+      "are_you_registered": "¿Ya estás registrado?",
+      "sign_in_here": "Inicia sesión aquí",
+      "legal_representative_welcome": "Representante legal",
+      "legal_representative_description": "Confirma la información del representante legal de esta organización.",
+      "first_name": "Nombre",
+      "last_name": "Apellido",
+      "full_name": "Nombre completo",
+      "business_name": "Nombre del negocio",
+      "business_id_number": "Número de identificación",
+      "email": "Correo electrónico",
+      "phone_number": "Número de teléfono",
+      "gender": "Género",
+      "date_of_birth": "Fecha de nacimiento",
+      "age": "Edad",
+      "address_line_1": "Dirección línea 1",
+      "address_line_2": "Dirección línea 2",
+      "city": "Ciudad",
+      "state": "Estado",
+      "postal_code": "Código postal",
+      "country": "País",
+      "name_hint_text": "Usa el nombre tal como aparece en tu documento.",
+      "i_accept": "Acepto los",
+      "terms_and_conditions": "Términos y condiciones",
+      "privacy_policies": "Políticas de privacidad",
+      "and": "y"
+    },
+    "documents": {
+      "preview": {
+        "scan_document": "Escanea tu documento",
+        "follow_the_instructions": "Sigue las instrucciones en pantalla",
+        "frame_hint_text": "Coloca el documento dentro del marco y mantén firme hasta que sea detectado.",
+        "frame_hint_short": "Coloca aquí el documento",
+        "shutter": "Capturar",
+        "upload_document": "Sube tu documento",
+        "collect_images": "Necesitamos una foto del frente y del reverso del documento.",
+        "drag_and_drop": "Arrastra y suelta o explora",
+        "search_file_in_my_device": "Buscar archivo en mi dispositivo",
+        "allow_formats": "Formatos soportados: JPG, PNG, PDF (máx. 10 MB)",
+        "skip": "Omitir",
+        "continue": "Continuar",
+        "information_extracted": "Información extraída",
+        "please_confirm_information": "Por favor confirma que la información sea correcta.",
+        "extracted_information": "Información extraída",
+        "first_name": "Nombre",
+        "last_name": "Apellido",
+        "date_of_birth": "Fecha de nacimiento",
+        "id_number": "Número de documento",
+        "date_of_issue": "Fecha de expedición",
+        "go_back": "Volver",
+        "process_information": "Información del proceso",
+        "created_at": "Creado el",
+        "platform": "Plataforma",
+        "device": "Dispositivo"
+      }
+    },
+    "liveness": {
+      "preview": {
+        "biometric_registration": "Verificación biométrica",
+        "biometric_registration_description": "Coloca tu rostro dentro del círculo y sigue las indicaciones.",
+        "instructions": "Asegúrate de estar en un lugar bien iluminado y retira gafas o gorras.",
+        "skip": "Omitir",
+        "flip": "Cambiar cámara",
+        "successful_outcome": "¡Listo!",
+        "face_registered": "Rostro registrado",
+        "id_registered": "Identidad registrada",
+        "continue_to_platform": "Continuar"
+      }
+    }
   }
 }

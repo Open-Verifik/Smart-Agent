@@ -175,7 +175,12 @@ export class DocumentVerificationTypeListComponent implements OnInit {
             }
             const exists = arr.controls.some((c) => c.get('promptTemplate')?.value === pt._id);
             if (!exists) {
-                arr.push(this._factory.createDocumentTemplateFormGroup({ promptTemplate: pt._id, required: 'optional' }, this.target));
+                arr.push(
+                    this._factory.createDocumentTemplateFormGroup(
+                        { promptTemplate: pt._id, required: 'optional' },
+                        this.target
+                    )
+                );
             }
             activeCtrl?.setValue(true);
         } else {
@@ -234,9 +239,11 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         if (!countryCtrl) return;
         const initial = countryCtrl.value as string | undefined;
         if (initial) this._fetchTemplatesForCountry(initial);
-        countryCtrl.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((country: string) => {
-            if (country) this._fetchTemplatesForCountry(country);
-        });
+        countryCtrl.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe((country: string) => {
+                if (country) this._fetchTemplatesForCountry(country);
+            });
     }
 
     private _fetchTemplatesForCountry(country: string): void {
@@ -263,7 +270,9 @@ export class DocumentVerificationTypeListComponent implements OnInit {
                         buckets[category].push(pt);
                     }
                     Object.keys(buckets).forEach((k) =>
-                        buckets[k].sort((a, b) => this.templateLabel(a).localeCompare(this.templateLabel(b)))
+                        buckets[k].sort((a, b) =>
+                            this.templateLabel(a).localeCompare(this.templateLabel(b))
+                        )
                     );
                     this._templatesByCountry[country] = buckets;
                     this._fetchedCountries.add(country);

@@ -1,0 +1,54 @@
+<ng-container *transloco="let t">
+    <div class="w-full flex flex-col items-center gap-6">
+        <div class="text-center text-3xl font-semibold leading-10" [style.color]="branding.titleColor || defaultBranding.titleColor">
+            {{ t('smart_enroll.documents.preview.scan_document') }}
+        </div>
+        <div class="text-center text-sm font-medium" [style.color]="branding.textColor || defaultBranding.textColor">
+            {{ t('smart_enroll.documents.preview.follow_the_instructions') }}
+        </div>
+
+        <div [class]="cameraClasses() + ' relative rounded-3xl overflow-hidden'">
+            <img
+                src="images/ui/placeholders/blurry-street.jpg"
+                alt=""
+                class="w-full h-full absolute inset-0 rounded-3xl object-cover"
+            />
+
+            <img
+                src="images/ui/placeholders/drivers-license.png"
+                alt=""
+                class="w-64 h-56 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-xl object-contain"
+            />
+
+            <div class="absolute -left-96 -top-32 pointer-events-none">
+                <svg width="812" height="517" viewBox="0 0 812 517" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g opacity="0.85">
+                        <mask id="path-1-inside-1_7948_63544" fill="white">
+                            <path d="M1365.5 747H-554.5V-225H1365.5V747ZM24.5 0C11.2452 0 0.5 10.7452 0.5 24V493C0.5 506.255 11.2452 517 24.5 517H787.5C800.755 517 811.5 506.255 811.5 493V24C811.5 10.7452 800.755 0 787.5 0H24.5Z"/>
+                        </mask>
+                        <path
+                            d="M1365.5 747H-554.5V-225H1365.5V747ZM24.5 0C11.2452 0 0.5 10.7452 0.5 24V493C0.5 506.255 11.2452 517 24.5 517H787.5C800.755 517 811.5 506.255 811.5 493V24C811.5 10.7452 800.755 0 787.5 0H24.5Z"
+                            fill="white"
+                        />
+                        <path
+                            d="M1365.5 747V748H1366.5V747H1365.5ZM-554.5 747H-555.5V748H-554.5V747ZM-554.5 -225V-226H-555.5V-225H-554.5ZM1365.5 -225H1366.5V-226H1365.5V-225ZM24.5 0V-1V0ZM24.5 517V518V517ZM787.5 517V518V517ZM787.5 0V-1V0ZM1365.5 747V746H-554.5V747V748H1365.5V747ZM-554.5 747H-553.5V-225H-554.5H-555.5V747H-554.5ZM-554.5 -225V-224H1365.5V-225V-226H-554.5V-225ZM1365.5 -225H1364.5V747H1365.5H1366.5V-225H1365.5ZM24.5 0V-1C10.6929 -1 -0.5 10.1929 -0.5 24H0.5H1.5C1.5 11.2975 11.7974 1 24.5 1V0ZM0.5 24H-0.5V493H0.5H1.5V24H0.5ZM0.5 493H-0.5C-0.5 506.807 10.6929 518 24.5 518V517V516C11.7975 516 1.5 505.703 1.5 493H0.5ZM24.5 517V518H787.5V517V516H24.5V517ZM787.5 517V518C801.307 518 812.5 506.807 812.5 493H811.5H810.5C810.5 505.703 800.203 516 787.5 516V517ZM811.5 493H812.5V24H811.5H810.5V493H811.5ZM811.5 24H812.5C812.5 10.1929 801.307 -1 787.5 -1V0V1C800.203 1 810.5 11.2975 810.5 24H811.5ZM787.5 0V-1H24.5V0V1H787.5V0Z"
+                            fill="#C4C6D0"
+                            mask="url(#path-1-inside-1_7948_63544)"
+                        />
+                    </g>
+                </svg>
+            </div>
+
+            <div class="w-full h-full absolute inset-0 rounded-3xl border-4 border-green-500 pointer-events-none"></div>
+        </div>
+
+        <div [class]="(deviceType === 'mobile' ? 'w-full' : 'w-96') + ' p-3 bg-white rounded-2xl border border-stone-300 flex items-start gap-3'">
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.0002 8.65398L26.0402 26.0007H5.96016L16.0002 8.65398ZM16.0002 3.33398L1.3335 28.6673H30.6668L16.0002 3.33398ZM17.3335 22.0007H14.6668V24.6673H17.3335V22.0007ZM17.3335 14.0007H14.6668V19.334H17.3335V14.0007Z" fill="#1E293B"/>
+            </svg>
+            <div class="flex-1 text-sm font-medium leading-tight" [style.color]="branding.textColor || defaultBranding.textColor">
+                {{ t('smart_enroll.documents.preview.frame_hint_text') }}
+            </div>
+        </div>
+    </div>
+</ng-container>

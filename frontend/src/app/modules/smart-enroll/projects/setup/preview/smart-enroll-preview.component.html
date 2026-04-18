@@ -1,0 +1,170 @@
+<ng-container *transloco="let t">
+    <div
+        class="flex w-full flex-col overflow-hidden border border-stone-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+        [class.rounded-2xl]="!isFullscreen"
+        [class.h-full]="!isFullscreen"
+        [class.fixed]="isFullscreen"
+        [class.inset-0]="isFullscreen"
+        [class.z-50]="isFullscreen"
+        [class.rounded-none]="isFullscreen"
+    >
+        <!-- Header toolbar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4 md:p-5">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-200">
+                    <mat-icon class="!h-5 !w-5">visibility</mat-icon>
+                </div>
+                <div class="flex flex-col">
+                    <p class="m-0 text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ t('smart_enroll.preview.title') }}
+                    </p>
+                    <p class="m-0 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smart_enroll.preview.subtitle') }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'desktop'"
+                    [class.text-stone-900]="deviceType === 'desktop'"
+                    [class.dark:bg-gray-800]="deviceType === 'desktop'"
+                    [class.dark:text-white]="deviceType === 'desktop'"
+                    [class.text-stone-500]="deviceType !== 'desktop'"
+                    (click)="setDeviceType('desktop')"
+                >
+                    {{ t('smart_enroll.preview.desktop') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'tablet'"
+                    [class.text-stone-900]="deviceType === 'tablet'"
+                    [class.dark:bg-gray-800]="deviceType === 'tablet'"
+                    [class.dark:text-white]="deviceType === 'tablet'"
+                    [class.text-stone-500]="deviceType !== 'tablet'"
+                    (click)="setDeviceType('tablet')"
+                >
+                    {{ t('smart_enroll.preview.tablet') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'mobile'"
+                    [class.text-stone-900]="deviceType === 'mobile'"
+                    [class.dark:bg-gray-800]="deviceType === 'mobile'"
+                    [class.dark:text-white]="deviceType === 'mobile'"
+                    [class.text-stone-500]="deviceType !== 'mobile'"
+                    (click)="setDeviceType('mobile')"
+                >
+                    {{ t('smart_enroll.preview.mobile') }}
+                </button>
+                <button
+                    type="button"
+                    class="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 transition-colors hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+                    (click)="toggleFullscreen()"
+                    [attr.aria-label]="t('smart_enroll.preview.fullscreen')"
+                >
+                    <mat-icon class="!h-4 !w-4 text-stone-700 dark:text-stone-200">
+                        {{ isFullscreen ? 'close_fullscreen' : 'open_in_full' }}
+                    </mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview canvas -->
+        <div
+            class="relative flex flex-1 flex-col items-stretch overflow-auto border-t border-stone-200 dark:border-gray-700"
+            *ngIf="view.length"
+            [style.background-color]="effectiveBranding.backgroundColor"
+        >
+            <!-- Side chevrons -->
+            <ng-container *ngIf="view.length > 1">
+                <button
+                    type="button"
+                    class="absolute left-0 top-0 bottom-0 z-10 flex items-center justify-center px-2 text-stone-700 opacity-40 transition-opacity hover:bg-stone-900/5 hover:opacity-100"
+                    (click)="previousView()"
+                    [attr.aria-label]="t('smart_enroll.preview.previous')"
+                >
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <button
+                    type="button"
+                    class="absolute right-0 top-0 bottom-0 z-10 flex items-center justify-center px-2 text-stone-700 opacity-40 transition-opacity hover:bg-stone-900/5 hover:opacity-100"
+                    (click)="nextView()"
+                    [attr.aria-label]="t('smart_enroll.preview.next')"
+                >
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+            </ng-container>
+
+            <div [class]="'flex flex-1 flex-col items-center justify-start py-8 px-4 ' + contentDeviceClasses()">
+                @switch (currentView) {
+                    @case ('signup') {
+                        @if (subFormGroup) {
+                            <preview-sign-up
+                                [branding]="effectiveBranding"
+                                [form]="form"
+                                [formGroup]="subFormGroup"
+                                [formType]="formType"
+                                [deviceType]="deviceType"
+                            ></preview-sign-up>
+                        }
+                    }
+                    @case ('document-scan') {
+                        @if (subFormGroup) {
+                            <preview-document-scan
+                                [branding]="effectiveBranding"
+                                [form]="form"
+                                [formGroup]="subFormGroup"
+                                [deviceType]="deviceType"
+                            ></preview-document-scan>
+                        }
+                    }
+                    @case ('document-upload') {
+                        @if (subFormGroup) {
+                            <preview-document-upload
+                                [branding]="effectiveBranding"
+                                [form]="form"
+                                [formGroup]="subFormGroup"
+                                [deviceType]="deviceType"
+                            ></preview-document-upload>
+                        }
+                    }
+                    @case ('document-result') {
+                        @if (subFormGroup) {
+                            <preview-document-result
+                                [branding]="effectiveBranding"
+                                [form]="form"
+                                [formGroup]="subFormGroup"
+                                [deviceType]="deviceType"
+                            ></preview-document-result>
+                        }
+                    }
+                    @case ('liveness') {
+                        @if (subFormGroup) {
+                            <preview-liveness
+                                [branding]="effectiveBranding"
+                                [form]="form"
+                                [formGroup]="subFormGroup"
+                                [deviceType]="deviceType"
+                            ></preview-liveness>
+                        }
+                    }
+                    @case ('liveness-result') {
+                        @if (subFormGroup) {
+                            <preview-liveness-result
+                                [branding]="effectiveBranding"
+                                [form]="form"
+                                [formGroup]="subFormGroup"
+                                [deviceType]="deviceType"
+                            ></preview-liveness-result>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</ng-container>

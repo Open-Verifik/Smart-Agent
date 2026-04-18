@@ -1,0 +1,58 @@
+<ng-container *transloco="let t">
+    <div class="w-full flex flex-col items-center gap-6">
+        @if (branding.logo) {
+            <img class="max-w-16 max-h-16 object-contain" [src]="branding.logo" alt="Logo" />
+        } @else {
+            <svg width="64" height="58" viewBox="0 0 64 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M63.8545 2.89986C63.8545 2.89986 56.0607 -0.105614 49.6043 6.77961C44.4703 2.88972 37.9733 0.572266 31.028 0.572266C24.2109 0.572266 17.4968 2.93281 12.1353 7.13566C6.85901 11.2739 3.04339 17.1885 1.39215 23.6822C-1.00721 33.1105 0.948861 44.7637 8.67028 51.2688C16.3142 57.7092 26.5227 58.9041 34.8792 54.6075C40.0971 51.9251 43.5735 47.7666 45.9577 42.4513C49.0887 35.471 52.5855 27.429 55.7152 20.4487C58.2873 25.8527 58.3762 32.0069 57.2584 37.2842C56.142 42.5602 53.232 47.4422 49.1191 50.9419C48.5069 51.4626 47.854 51.9707 47.4565 52.6676C46.4619 54.406 48.3812 56.4587 50.0756 55.1371C50.8364 54.5441 51.6138 53.8688 52.339 53.1199C58.0726 47.574 61.7523 39.7917 61.7523 31.1947C61.7523 25.7818 60.2967 20.5133 57.8199 16.1052C61.21 8.65867 63.857 2.8986 63.857 2.8986M18.4075 42.5172C13.3306 42.8162 8.31463 40.021 5.94702 35.5331C4.87626 33.5045 4.33516 31.1959 4.44058 28.9025C4.687 23.5429 6.81963 18.3542 10.2123 14.2135C13.5097 10.1893 17.9921 7.16987 22.9598 5.60631C23.9518 5.29461 24.9629 5.03867 25.9854 4.84481C27.6518 4.52804 29.3475 4.37092 31.0445 4.37092C37.5313 4.37092 43.3779 6.60476 47.4412 9.88138C46.674 11.0091 45.9043 12.1355 45.1333 13.2619C43.3157 15.9177 41.4917 18.5696 39.6601 21.2153C37.5161 24.3107 35.3631 27.3998 33.1847 30.4712C30.196 34.6829 27.6239 39.6067 22.5775 41.6365C21.2705 42.1624 19.8123 42.4348 18.4087 42.5172H18.4075Z" fill="#010333"/>
+            </svg>
+        }
+
+        <div class="text-center text-3xl font-semibold leading-10" [style.color]="branding.titleColor || defaultBranding.titleColor">
+            {{ t('smart_enroll.documents.preview.upload_document') }}
+        </div>
+
+        <div [class]="(deviceType === 'mobile' ? 'w-full' : 'w-80') + ' text-center text-sm font-medium'" [style.color]="branding.textColor || defaultBranding.textColor">
+            {{ t('smart_enroll.documents.preview.collect_images') }}
+        </div>
+
+        <div class="w-full h-44 rounded-2xl border-2 border-dashed border-stone-300 bg-stone-50 flex flex-col items-center justify-center gap-2">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M13.3334 21.7275H18.6667C19.4001 21.7275 20.0001 21.1275 20.0001 20.3942V13.7275H22.1201C23.3067 13.7275 23.9067 12.2875 23.0667 11.4475L16.9467 5.3275C16.4267 4.8075 15.5867 4.8075 15.0667 5.3275L8.94675 11.4475C8.10675 12.2875 8.69341 13.7275 9.88008 13.7275H12.0001V20.3942C12.0001 21.1275 12.6001 21.7275 13.3334 21.7275ZM8.00008 24.3942H24.0001C24.7334 24.3942 25.3334 24.9942 25.3334 25.7275C25.3334 26.4608 24.7334 27.0608 24.0001 27.0608H8.00008C7.26675 27.0608 6.66675 26.4608 6.66675 25.7275C6.66675 24.9942 7.26675 24.3942 8.00008 24.3942Z" fill="#A0A9C0"/>
+            </svg>
+            <div class="text-center text-base font-semibold" [style.color]="branding.textColor || defaultBranding.textColor">
+                {{ t('smart_enroll.documents.preview.drag_and_drop') }}
+            </div>
+        </div>
+
+        <button
+            type="button"
+            class="w-full h-12 rounded-2xl flex items-center justify-center gap-2 text-sm font-medium"
+            [style.background-color]="branding.buttonColor || defaultBranding.buttonColor"
+            [style.color]="branding.buttonTextColor || defaultBranding.buttonTextColor"
+        >
+            {{ t('smart_enroll.documents.preview.search_file_in_my_device') }}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19.41 7.41L14.58 2.58C14.21 2.21 13.7 2 13.17 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8.83C20 8.3 19.79 7.79 19.41 7.41ZM14.8 15H13V18C13 18.55 12.55 19 12 19C11.45 19 11 18.55 11 18V15H9.21C8.76 15 8.54 14.46 8.86 14.15L11.66 11.36C11.86 11.17 12.17 11.17 12.37 11.36L15.16 14.15C15.46 14.46 15.24 15 14.8 15ZM14 9C13.45 9 13 8.55 13 8V3.5L18.5 9H14Z" [attr.fill]="branding.buttonTextColor || defaultBranding.buttonTextColor"/>
+            </svg>
+        </button>
+
+        <div class="w-full flex justify-center items-center gap-3">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14.59 2.59C14.21 2.21 13.7 2 13.17 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8.83C20 8.3 19.79 7.79 19.41 7.42L14.59 2.59ZM15 18H9C8.45 18 8 17.55 8 17C8 16.45 8.45 16 9 16H15C15.55 16 16 16.45 16 17C16 17.55 15.55 18 15 18ZM15 14H9C8.45 14 8 13.55 8 13C8 12.45 8.45 12 9 12H15C15.55 12 16 12.45 16 13C16 13.55 15.55 14 15 14ZM13 8V3.5L18.5 9H14C13.45 9 13 8.55 13 8Z" fill="#1E293B"/>
+            </svg>
+            <div class="text-center text-xs font-medium" [style.color]="branding.textColor || defaultBranding.textColor">
+                {{ t('smart_enroll.documents.preview.allow_formats') }}
+            </div>
+        </div>
+
+        <div [class]="(deviceType === 'mobile' ? 'w-full flex-col gap-3' : 'w-full flex-row gap-4') + ' flex'">
+            <div class="flex-1 h-12 rounded-2xl border flex items-center justify-center text-sm font-medium" [style.border-color]="branding.buttonColor || defaultBranding.buttonColor" [style.color]="branding.buttonColor || defaultBranding.buttonColor">
+                {{ t('smart_enroll.documents.preview.skip') }}
+            </div>
+            <div class="flex-1 h-12 rounded-2xl flex items-center justify-center text-sm font-medium" [style.background-color]="branding.buttonColor || defaultBranding.buttonColor" [style.color]="branding.buttonTextColor || defaultBranding.buttonTextColor">
+                {{ t('smart_enroll.documents.preview.continue') }}
+            </div>
+        </div>
+    </div>
+</ng-container>

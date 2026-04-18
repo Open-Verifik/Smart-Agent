@@ -1,0 +1,216 @@
+<ng-container *transloco="let t">
+    <div
+        class="m-auto w-full max-w-128 space-y-8"
+        [style.background-color]="branding.backgroundColor || defaultBranding.backgroundColor"
+    >
+        <!-- Header -->
+        <div class="w-full flex flex-col items-center space-y-4">
+            <div class="flex items-center justify-center">
+                @if (branding.logo) {
+                    <img class="max-w-16 max-h-16 object-contain" [src]="branding.logo" alt="Logo" />
+                } @else {
+                    <div class="flex h-16 w-16 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
+                        <span class="text-xs font-semibold">LOGO</span>
+                    </div>
+                }
+            </div>
+
+            @if (!isLegalRepresentativePreview) {
+                <div class="text-3xl font-semibold leading-10" [style]="titleStyle">
+                    {{ t('smart_enroll.sign_up_form.create_an_account') }}
+                </div>
+                <div class="inline-flex items-start gap-2">
+                    <div class="text-base font-medium leading-tight" [style]="textStyle">
+                        {{ t('smart_enroll.sign_up_form.are_you_registered') }}
+                    </div>
+                    <div class="text-base font-medium leading-tight underline" [style.color]="buttonStyle['background-color']">
+                        {{ t('smart_enroll.sign_up_form.sign_in_here') }}
+                    </div>
+                </div>
+            } @else {
+                <div class="text-3xl font-semibold leading-10" [style]="titleStyle">
+                    {{ t('smart_enroll.sign_up_form.legal_representative_welcome') }}
+                </div>
+                <div class="text-base font-medium leading-tight text-center" [style]="textStyle">
+                    {{ t('smart_enroll.sign_up_form.legal_representative_description') }}
+                </div>
+            }
+        </div>
+
+        <!-- Form -->
+        <div class="w-full flex flex-col items-start space-y-4">
+            <!-- Personal: Full name (separate / together) -->
+            @if (formType === 'personal' && formGroup.get('fullName')?.value) {
+                @if (formGroup.get('fullNameStyle')?.value === 'separate') {
+                    <div [ngClass]="deviceType === 'mobile' ? 'w-full flex flex-col space-y-4' : 'w-full inline-flex items-start space-x-2'">
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['firstName'].label) }}</div>
+                        </div>
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['lastName'].label) }}</div>
+                        </div>
+                    </div>
+                }
+                @if (formGroup.get('fullNameStyle')?.value === 'together') {
+                    <div class="w-full h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                        <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['fullName'].label) }}</div>
+                    </div>
+                }
+
+                <div class="self-stretch p-3 bg-stone-100 rounded-2xl flex items-center justify-center gap-2">
+                    <svg width="20" height="20" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M11 7.5H13V9.5H11V7.5ZM11 11.5H13V17.5H11V11.5ZM12 2.5C6.48 2.5 2 6.98 2 12.5C2 18.02 6.48 22.5 12 22.5C17.52 22.5 22 18.02 22 12.5C22 6.98 17.52 2.5 12 2.5ZM12 20.5C7.59 20.5 4 16.91 4 12.5C4 8.09 7.59 4.5 12 4.5C16.41 4.5 20 8.09 20 12.5C20 16.91 16.41 20.5 12 20.5Z" fill="#58647D"/>
+                    </svg>
+                    <div class="flex-1 text-sm font-medium" [style]="textStyle">{{ t('smart_enroll.sign_up_form.name_hint_text') }}</div>
+                </div>
+            }
+
+            <!-- Business basic info -->
+            @if (formType === 'business' && formGroup.get('businessBasicInfo')?.value) {
+                <div class="w-full h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                    <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['businessName'].label) }}</div>
+                </div>
+                @if (formGroup.get('businessBasicInfoStyle')?.value === 'name_number') {
+                    <div [ngClass]="deviceType === 'mobile' ? 'w-full flex flex-col space-y-4' : 'w-full inline-flex items-start space-x-2'">
+                        <div class="h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center gap-3 min-w-[6rem]">
+                            <div class="text-base font-medium" [style]="textStyle">CC</div>
+                            <ng-container *ngTemplateOutlet="iconCaretDown"></ng-container>
+                        </div>
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['businessIdNumber'].label) }}</div>
+                        </div>
+                    </div>
+                }
+            }
+
+            <!-- Email -->
+            @if (formGroup.get('email')?.value) {
+                <div class="w-full h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                    <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['email'].label) }}</div>
+                </div>
+            }
+
+            <!-- Phone -->
+            @if (formGroup.get('phone')?.value) {
+                <div [ngClass]="deviceType === 'mobile' ? 'w-full flex flex-col space-y-4' : 'w-full inline-flex items-start space-x-2'">
+                    <div class="h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center gap-3 min-w-[6rem]">
+                        <div class="text-base font-medium" [style]="textStyle">
+                            {{ formGroup.get('countryCode')?.value || defaultPhoneCountryCode }}
+                        </div>
+                        <ng-container *ngTemplateOutlet="iconCaretDown"></ng-container>
+                    </div>
+                    <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                        <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['phone'].label) }}</div>
+                    </div>
+                </div>
+            }
+
+            <!-- Gender -->
+            @if (hasAdditionalField('gender')) {
+                <div class="w-full h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                    <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['gender'].label) }}</div>
+                </div>
+            }
+
+            <!-- Date of birth and/or age -->
+            @if (hasAdditionalField('dateOfBirth') || hasAdditionalField('age')) {
+                <div class="w-full inline-flex items-start space-x-2">
+                    @if (hasAdditionalField('dateOfBirth')) {
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['dateOfBirth'].label) }}</div>
+                        </div>
+                    }
+                    @if (hasAdditionalField('age')) {
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['age'].label) }}</div>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Address -->
+            @if (showAddress) {
+                <div class="w-full flex flex-col gap-4">
+                    <div class="h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                        <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['addressLine1'].label) }}</div>
+                    </div>
+                    <div class="h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                        <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['addressLine2'].label) }}</div>
+                    </div>
+                    <div [ngClass]="deviceType === 'mobile' ? 'flex flex-col gap-4' : 'flex flex-row gap-2'">
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['city'].label) }}</div>
+                        </div>
+                        <div class="flex-1 h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                            <div class="text-base font-medium" [style.color]="placeholderColor">{{ t(previewFields['state'].label) }}</div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Postal code -->
+            @if (hasAdditionalField('postalCode')) {
+                <div class="w-full h-14 p-4 bg-white rounded-md border border-stone-300 flex items-center">
+                    <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['postalCode'].label) }}</div>
+                </div>
+            }
+
+            <!-- Country -->
+            @if (hasAdditionalField('country')) {
+                <div class="w-full h-14 p-4 bg-white rounded-md border border-stone-300 flex justify-between items-center">
+                    <div class="text-base font-medium" [style]="textStyle">{{ t(previewFields['country'].label) }}</div>
+                    <ng-container *ngTemplateOutlet="iconCaretDown"></ng-container>
+                </div>
+            }
+        </div>
+
+        <!-- Terms / Privacy -->
+        @if (formGroup.get('showTermsAndConditions')?.value || formGroup.get('showPrivacyNotice')?.value) {
+            <div class="w-full flex flex-col items-center justify-center space-y-2">
+                <div class="inline-flex items-center space-x-2">
+                    <ng-container *ngTemplateOutlet="iconCheck"></ng-container>
+                    <div class="text-base">
+                        <span class="font-semibold" [style]="textStyle">{{ t('smart_enroll.sign_up_form.i_accept') }}</span>
+                        @if (formGroup.get('showTermsAndConditions')?.value) {
+                            <span class="font-semibold underline ml-1" [style.color]="buttonStyle['background-color']">
+                                {{ t('smart_enroll.sign_up_form.terms_and_conditions') }}
+                            </span>
+                        }
+                        @if (formGroup.get('showPrivacyNotice')?.value && formGroup.get('showTermsAndConditions')?.value) {
+                            <span class="font-semibold mx-1" [style]="textStyle">{{ t('smart_enroll.sign_up_form.and') }}</span>
+                        }
+                        @if (formGroup.get('showPrivacyNotice')?.value) {
+                            <span class="font-semibold underline" [style.color]="buttonStyle['background-color']">
+                                {{ t('smart_enroll.sign_up_form.privacy_policies') }}
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Continue button -->
+        <button
+            type="button"
+            [style]="buttonStyle"
+            [ngClass]="deviceType === 'mobile' ? 'w-full h-12 rounded-xl' : 'w-full h-14 rounded-2xl'"
+            class="flex items-center justify-center text-base font-medium"
+        >
+            {{ t('smart_enroll.continue') }}
+        </button>
+    </div>
+
+    <ng-template #iconCheck>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM9.29 16.29L5.7 12.7C5.31 12.31 5.31 11.68 5.7 11.29C6.09 10.9 6.72 10.9 7.11 11.29L10 14.17L16.88 7.29C17.27 6.9 17.9 6.9 18.29 7.29C18.68 7.68 18.68 8.31 18.29 8.7L10.7 16.29C10.32 16.68 9.68 16.68 9.29 16.29Z"
+                [attr.fill]="buttonStyle['background-color']"/>
+        </svg>
+    </ng-template>
+
+    <ng-template #iconCaretDown>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.5837 5.99969L7.99706 8.58635L5.41039 5.99969C5.15039 5.73969 4.73039 5.73969 4.47039 5.99969C4.21039 6.25969 4.21039 6.67969 4.47039 6.93969L7.53039 9.99969C7.79039 10.2597 8.21039 10.2597 8.47039 9.99969L11.5304 6.93969C11.7904 6.67969 11.7904 6.25969 11.5304 5.99969C11.2704 5.74635 10.8437 5.73969 10.5837 5.99969Z"
+                [attr.fill]="buttonStyle['background-color']"/>
+        </svg>
+    </ng-template>
+</ng-container>

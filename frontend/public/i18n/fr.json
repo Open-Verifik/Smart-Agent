@@ -697,6 +697,13 @@
       "lastNameMatch": "Nom",
       "fullNameMatch": "Nom complet",
       "biometricFailedHint": "Cette capture biométrique n'a pas réussi.",
+      "imagePreview": {
+        "close": "Fermer",
+        "zoomIn": "Zoom avant",
+        "zoomOut": "Zoom arrière",
+        "resetZoom": "Réinitialiser le zoom",
+        "openImage": "Voir en grand"
+      },
       "empty": {
         "information": "Aucune information d'inscription.",
         "documents": "Aucun document enregistré.",
@@ -2551,5 +2558,88 @@
     "yemen": "Yémen",
     "zambia": "Zambie",
     "zimbabwe": "Zimbabwe"
+  },
+  "smart_enroll": {
+    "continue": "Continuer",
+    "preview": {
+      "title": "Aperçu",
+      "subtitle": "Vérifiez votre formulaire",
+      "desktop": "Bureau",
+      "tablet": "Tablette",
+      "mobile": "Mobile",
+      "fullscreen": "Plein écran",
+      "previous": "Vue précédente",
+      "next": "Vue suivante"
+    },
+    "sign_up_form": {
+      "create_an_account": "Créer un compte",
+      "are_you_registered": "Déjà inscrit ?",
+      "sign_in_here": "Connectez-vous ici",
+      "legal_representative_welcome": "Représentant légal",
+      "legal_representative_description": "Confirmez les informations du représentant légal de cette organisation.",
+      "first_name": "Prénom",
+      "last_name": "Nom",
+      "full_name": "Nom complet",
+      "business_name": "Nom de l'entreprise",
+      "business_id_number": "Numéro d'identification",
+      "email": "E-mail",
+      "phone_number": "Numéro de téléphone",
+      "gender": "Genre",
+      "date_of_birth": "Date de naissance",
+      "age": "Âge",
+      "address_line_1": "Adresse ligne 1",
+      "address_line_2": "Adresse ligne 2",
+      "city": "Ville",
+      "state": "État",
+      "postal_code": "Code postal",
+      "country": "Pays",
+      "name_hint_text": "Utilisez le nom tel qu'il apparaît sur votre pièce d'identité.",
+      "i_accept": "J'accepte les",
+      "terms_and_conditions": "Conditions générales",
+      "privacy_policies": "Politique de confidentialité",
+      "and": "et"
+    },
+    "documents": {
+      "preview": {
+        "scan_document": "Scannez votre document",
+        "follow_the_instructions": "Suivez les instructions à l'écran",
+        "frame_hint_text": "Placez votre document dans le cadre et maintenez stable jusqu'à la détection.",
+        "frame_hint_short": "Placez le document ici",
+        "shutter": "Capturer",
+        "upload_document": "Téléversez votre document",
+        "collect_images": "Nous avons besoin d'une photo du recto et du verso de votre document.",
+        "drag_and_drop": "Glisser-déposer ou parcourir",
+        "search_file_in_my_device": "Rechercher un fichier sur mon appareil",
+        "allow_formats": "Formats acceptés : JPG, PNG, PDF (max 10 Mo)",
+        "skip": "Passer",
+        "continue": "Continuer",
+        "information_extracted": "Informations extraites",
+        "please_confirm_information": "Veuillez confirmer que les informations sont correctes.",
+        "extracted_information": "Informations extraites",
+        "first_name": "Prénom",
+        "last_name": "Nom",
+        "date_of_birth": "Date de naissance",
+        "id_number": "Numéro de document",
+        "date_of_issue": "Date de délivrance",
+        "go_back": "Retour",
+        "process_information": "Informations du processus",
+        "created_at": "Créé le",
+        "platform": "Plateforme",
+        "device": "Appareil"
+      }
+    },
+    "liveness": {
+      "preview": {
+        "biometric_registration": "Vérification biométrique",
+        "biometric_registration_description": "Placez votre visage dans le cercle et suivez les instructions.",
+        "instructions": "Assurez-vous d'être dans un endroit bien éclairé et retirez lunettes ou chapeaux.",
+        "skip": "Passer",
+        "flip": "Changer de caméra",
+        "successful_outcome": "Parfait !",
+        "face_registered": "Visage enregistré",
+        "id_registered": "Identité enregistrée",
+        "continue_to_platform": "Continuer"
+      }
+    }
   }
 }

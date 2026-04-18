@@ -76,13 +76,14 @@
         </header>
 
         <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
-            <div class="mx-auto w-full max-w-5xl">
+            <div class="mx-auto w-full max-w-7xl">
                 @if (loading()) {
                     <div class="flex flex-1 items-center justify-center py-20">
                         <mat-spinner diameter="40"></mat-spinner>
                     </div>
                 } @else if (form) {
-                    <div class="flex flex-col gap-6">
+                    <div class="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
+                        <div class="flex flex-col gap-6">
                         @switch (stepIndex) {
                             @case (0) {
                                 <setup-basic-setup
@@ -174,6 +175,17 @@
                                 {{ t('smartEnrollProjects.setup.continue') }}
                             </button>
                         </div>
+                        </div>
+
+                        @if (previewViews().length > 0) {
+                            <aside class="xl:sticky xl:top-6 xl:self-start xl:max-h-[calc(100vh-3rem)]">
+                                <smart-enroll-preview
+                                    [branding]="brandingValue()"
+                                    [form]="form"
+                                    [view]="previewViews()"
+                                ></smart-enroll-preview>
+                            </aside>
+                        }
                     </div>
                 }
             </div>

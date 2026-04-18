@@ -1,0 +1,82 @@
+<ng-container *transloco="let t">
+    <div class="w-full max-w-[440px] bg-white rounded-3xl shadow-xl border border-stone-100 overflow-hidden mx-auto">
+        <div class="flex flex-col items-center pt-10 pb-6 px-8">
+            <div class="w-16 h-16 rounded-2xl overflow-hidden mb-4 flex items-center justify-center" [style.background-color]="branding.buttonColor || defaultBranding.buttonColor">
+                @if (branding.logo) {
+                    <img class="w-full h-full object-contain" [src]="branding.logo" alt="Logo" />
+                } @else {
+                    <mat-icon class="!h-8 !w-8 text-white">badge</mat-icon>
+                }
+            </div>
+            <h1 class="text-2xl font-bold text-stone-900 text-center mb-2">
+                {{ t('smart_enroll.documents.preview.information_extracted') }}
+            </h1>
+            <p class="text-sm text-stone-500 text-center max-w-sm">
+                {{ t('smart_enroll.documents.preview.please_confirm_information') }}
+            </p>
+        </div>
+
+        <div class="px-8 pb-6 space-y-6">
+            <div class="space-y-3">
+                <h2 class="text-xs font-semibold text-stone-900 uppercase tracking-wide">
+                    {{ t('smart_enroll.documents.preview.extracted_information') }}
+                </h2>
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.first_name') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">Laura</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.last_name') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">Walteros</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.date_of_birth') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">15 ABR 2004</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.id_number') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">1234567890</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.date_of_issue') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">16 AGO 2024</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-xs font-semibold text-stone-900 uppercase tracking-wide">
+                    {{ t('smart_enroll.documents.preview.process_information') }}
+                </h2>
+                <div class="space-y-1">
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.created_at') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">HH:MM del DD/MM/AA</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-stone-100">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.platform') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">Web</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2">
+                        <span class="text-sm text-stone-500 font-medium">{{ t('smart_enroll.documents.preview.device') }}</span>
+                        <span class="text-sm text-stone-900 font-semibold">Samsung</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-8 pb-8 flex gap-3">
+            <button class="flex-1 h-12 rounded-xl border-2 border-stone-200 text-stone-700 font-medium text-sm">
+                {{ t('smart_enroll.documents.preview.go_back') }}
+            </button>
+            <button
+                class="flex-1 h-12 rounded-xl font-medium text-sm shadow-md"
+                [style.background-color]="branding.buttonColor || defaultBranding.buttonColor"
+                [style.color]="branding.buttonTextColor || defaultBranding.buttonTextColor"
+            >
+                {{ t('smart_enroll.documents.preview.continue') }}
+            </button>
+        </div>
+    </div>
+</ng-container>

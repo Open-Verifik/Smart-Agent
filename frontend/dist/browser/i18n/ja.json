@@ -697,6 +697,13 @@
       "lastNameMatch": "姓の一致",
       "fullNameMatch": "フルネーム一致",
       "biometricFailedHint": "この生体認証は通過しませんでした。",
+      "imagePreview": {
+        "close": "閉じる",
+        "zoomIn": "拡大",
+        "zoomOut": "縮小",
+        "resetZoom": "ズームをリセット",
+        "openImage": "拡大表示"
+      },
       "empty": {
         "information": "サインアップ情報はまだありません。",
         "documents": "書類がありません。",
@@ -2544,5 +2551,88 @@
     "yemen": "Yemen",
     "zambia": "Zambia",
     "zimbabwe": "Zimbabwe"
+  },
+  "smart_enroll": {
+    "continue": "Continue",
+    "preview": {
+      "title": "Preview",
+      "subtitle": "Review your form",
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Mobile",
+      "fullscreen": "Toggle fullscreen",
+      "previous": "Previous view",
+      "next": "Next view"
+    },
+    "sign_up_form": {
+      "create_an_account": "Create an account",
+      "are_you_registered": "Already registered?",
+      "sign_in_here": "Sign in here",
+      "legal_representative_welcome": "Legal representative",
+      "legal_representative_description": "Confirm the information of the legal representative for this organization.",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "full_name": "Full name",
+      "business_name": "Business name",
+      "business_id_number": "Business ID number",
+      "email": "Email",
+      "phone_number": "Phone number",
+      "gender": "Gender",
+      "date_of_birth": "Date of birth",
+      "age": "Age",
+      "address_line_1": "Address line 1",
+      "address_line_2": "Address line 2",
+      "city": "City",
+      "state": "State",
+      "postal_code": "Postal code",
+      "country": "Country",
+      "name_hint_text": "Use the name exactly as it appears on your ID.",
+      "i_accept": "I accept the",
+      "terms_and_conditions": "Terms and Conditions",
+      "privacy_policies": "Privacy Policies",
+      "and": "and"
+    },
+    "documents": {
+      "preview": {
+        "scan_document": "Scan your document",
+        "follow_the_instructions": "Follow the instructions on screen",
+        "frame_hint_text": "Place your document inside the frame and hold steady until detected.",
+        "frame_hint_short": "Place document here",
+        "shutter": "Capture",
+        "upload_document": "Upload your document",
+        "collect_images": "We need a picture of the front and back of your document.",
+        "drag_and_drop": "Drag and drop or browse",
+        "search_file_in_my_device": "Search file on my device",
+        "allow_formats": "Supported formats: JPG, PNG, PDF (max 10 MB)",
+        "skip": "Skip",
+        "continue": "Continue",
+        "information_extracted": "Information extracted",
+        "please_confirm_information": "Please confirm the information below is correct.",
+        "extracted_information": "Extracted information",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "date_of_birth": "Date of birth",
+        "id_number": "ID number",
+        "date_of_issue": "Date of issue",
+        "go_back": "Go back",
+        "process_information": "Process information",
+        "created_at": "Created at",
+        "platform": "Platform",
+        "device": "Device"
+      }
+    },
+    "liveness": {
+      "preview": {
+        "biometric_registration": "Biometric verification",
+        "biometric_registration_description": "Position your face inside the circle and follow the prompts.",
+        "instructions": "Make sure you are in a well-lit area and remove glasses or hats.",
+        "skip": "Skip",
+        "flip": "Switch camera",
+        "successful_outcome": "All set!",
+        "face_registered": "Face registered",
+        "id_registered": "Identity registered",
+        "continue_to_platform": "Continue"
+      }
+    }
   }
 }

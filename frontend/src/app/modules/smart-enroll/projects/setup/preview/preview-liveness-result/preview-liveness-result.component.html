@@ -1,0 +1,44 @@
+<ng-container *transloco="let t">
+    <div class="w-full flex flex-col items-center gap-6">
+        <div class="relative">
+            <div class="relative w-36 h-36 rounded-full overflow-hidden flex items-center justify-center" [style.background-image]="'url(images/ui/placeholders/blurry-street.jpg)'" style="background-size: cover; background-position: center;">
+                <img
+                    src="images/ui/placeholders/face.png"
+                    alt=""
+                    class="absolute inset-0 h-full w-full object-cover"
+                />
+            </div>
+            <div class="absolute bg-white rounded-full bottom-0 right-0 h-12 w-12 flex items-center justify-center shadow-md z-10">
+                <mat-icon class="!h-9 !w-9 text-emerald-500">check_circle</mat-icon>
+            </div>
+        </div>
+
+        <div class="text-center text-3xl font-semibold leading-10" [style.color]="branding.titleColor || defaultBranding.titleColor">
+            {{ t('smart_enroll.liveness.preview.successful_outcome') }}
+        </div>
+
+        <div class="w-full max-w-md flex flex-col gap-3">
+            <div class="flex items-center justify-between pb-3 border-b border-stone-300">
+                <span class="text-base font-semibold" [style.color]="branding.textColor || defaultBranding.textColor">
+                    {{ t('smart_enroll.liveness.preview.face_registered') }}
+                </span>
+                <mat-icon class="!h-5 !w-5 text-emerald-500">check_circle</mat-icon>
+            </div>
+            <div class="flex items-center justify-between pb-3 border-b border-stone-300">
+                <span class="text-base font-semibold" [style.color]="branding.textColor || defaultBranding.textColor">
+                    {{ t('smart_enroll.liveness.preview.id_registered') }}
+                </span>
+                <mat-icon class="!h-5 !w-5 text-emerald-500">check_circle</mat-icon>
+            </div>
+        </div>
+
+        <button
+            type="button"
+            class="w-full max-w-md h-14 rounded-2xl flex items-center justify-center text-base font-medium"
+            [style.background-color]="branding.buttonColor || defaultBranding.buttonColor"
+            [style.color]="branding.buttonTextColor || defaultBranding.buttonTextColor"
+        >
+            {{ t('smart_enroll.liveness.preview.continue_to_platform') }}
+        </button>
+    </div>
+</ng-container>

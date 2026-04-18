@@ -40,8 +40,9 @@ import {
 import { DEFAULT_PHONE_COUNTRY_CODE } from 'app/core/constants/phone-country-codes.constant';
 
 import { SetupBreadcrumbsComponent } from './breadcrumbs/breadcrumbs.component';
+import { SmartEnrollPreviewComponent } from './preview/smart-enroll-preview.component';
 import { SetupFormFactory } from './setup-form.factory';
-import { SetupService } from './setup.service';
+import { PreviewView, SetupService } from './setup.service';
 import { SetupBasicSetupComponent } from './steps/basic-setup/basic-setup.component';
 import { SetupDocumentsComponent } from './steps/documents/documents.component';
 import { SetupIntegrationsComponent } from './steps/integrations/integrations.component';
@@ -113,6 +114,7 @@ const V3_SIGNUP_FORM_KEYS_BUSINESS = [
         SetupRepresentativesComponent,
         SetupIntegrationsComponent,
         SetupUserInterfaceComponent,
+        SmartEnrollPreviewComponent,
     ],
     templateUrl: './setup-host.component.html',
     styleUrls: ['./setup-host.component.scss'],
@@ -932,6 +934,19 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     /** FormGroup for the liveness step (only used by personal target on step 3). */
     livenessFormGroup(): FormGroup {
         return this.form.get('projectFlow.liveness') as FormGroup;
+    }
+
+    /** Live branding value for the preview pane. */
+    brandingValue(): any {
+        return this.form?.get('branding')?.value;
+    }
+
+    /** Preview views to render for the current step (empty array hides the pane). */
+    previewViews(): PreviewView[] {
+        const map = this.currentTarget === 'business'
+            ? this._setup.businessPreviewViews
+            : this._setup.personalPreviewViews;
+        return map[this.stepIndex] ?? [];
     }
 
     private _showDocumentVerificationConfirmationBeforeNext(): void {

@@ -1,0 +1,40 @@
+<ng-container *transloco="let t">
+    <div class="w-full flex flex-col items-center gap-6">
+        <div class="text-center text-3xl font-semibold leading-10" [style.color]="branding.titleColor || defaultBranding.titleColor">
+            {{ t('smart_enroll.liveness.preview.biometric_registration') }}
+        </div>
+        <div [class]="(deviceType === 'mobile' ? 'w-full' : 'w-80') + ' text-center text-sm font-medium'" [style.color]="branding.textColor || defaultBranding.textColor">
+            {{ t('smart_enroll.liveness.preview.biometric_registration_description') }}
+        </div>
+
+        <div [class]="cameraSizeClass() + ' relative rounded-full overflow-hidden border-8 border-emerald-500 flex items-center justify-center'" [style.background-image]="'url(images/ui/placeholders/blurry-street.jpg)'" style="background-size: cover; background-position: center;">
+            <img
+                src="images/ui/placeholders/face.png"
+                alt=""
+                class="absolute inset-0 h-full w-full object-cover"
+            />
+            <button
+                type="button"
+                class="absolute bottom-3 left-1/2 -translate-x-1/2 h-12 w-12 rounded-full flex items-center justify-center"
+                [style.background-color]="branding.buttonColor || defaultBranding.buttonColor"
+                [style.color]="branding.buttonTextColor || defaultBranding.buttonTextColor"
+                [attr.aria-label]="t('smart_enroll.liveness.preview.flip')"
+            >
+                <mat-icon class="!h-5 !w-5">cameraswitch</mat-icon>
+            </button>
+        </div>
+
+        <div [class]="(deviceType === 'mobile' ? 'w-full' : 'w-96') + ' p-4 bg-white rounded-2xl border border-stone-300 flex items-start gap-3'">
+            <svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.0002 8.65398L26.0402 26.0007H5.96016L16.0002 8.65398ZM16.0002 3.33398L1.3335 28.6673H30.6668L16.0002 3.33398ZM17.3335 22.0007H14.6668V24.6673H17.3335V22.0007ZM17.3335 14.0007H14.6668V19.334H17.3335V14.0007Z" fill="#1E293B"/>
+            </svg>
+            <div class="flex-1 text-sm font-medium" [style.color]="branding.textColor || defaultBranding.textColor">
+                {{ t('smart_enroll.liveness.preview.instructions') }}
+            </div>
+        </div>
+
+        <div class="w-full max-w-md h-12 rounded-2xl border flex items-center justify-center text-sm font-medium" [style.border-color]="branding.buttonColor || defaultBranding.buttonColor" [style.color]="branding.buttonColor || defaultBranding.buttonColor">
+            {{ t('smart_enroll.liveness.preview.skip') }}
+        </div>
+    </div>
+</ng-container>

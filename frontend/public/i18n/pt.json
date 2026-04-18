@@ -697,6 +697,13 @@
       "lastNameMatch": "Apelido",
       "fullNameMatch": "Nome completo",
       "biometricFailedHint": "Esta captura biométrica não foi aprovada.",
+      "imagePreview": {
+        "close": "Fechar",
+        "zoomIn": "Ampliar",
+        "zoomOut": "Reduzir",
+        "resetZoom": "Redefinir zoom",
+        "openImage": "Ver em tamanho real"
+      },
       "empty": {
         "information": "Sem dados do formulário.",
         "documents": "Sem documento no processo.",
@@ -2545,5 +2552,88 @@
     "yemen": "Yemen",
     "zambia": "Zambia",
     "zimbabwe": "Zimbabwe"
+  },
+  "smart_enroll": {
+    "continue": "Continuar",
+    "preview": {
+      "title": "Pré-visualização",
+      "subtitle": "Revise o seu formulário",
+      "desktop": "Desktop",
+      "tablet": "Tablet",
+      "mobile": "Celular",
+      "fullscreen": "Tela cheia",
+      "previous": "Visualização anterior",
+      "next": "Próxima visualização"
+    },
+    "sign_up_form": {
+      "create_an_account": "Criar uma conta",
+      "are_you_registered": "Já está registrado?",
+      "sign_in_here": "Entre aqui",
+      "legal_representative_welcome": "Representante legal",
+      "legal_representative_description": "Confirme as informações do representante legal desta organização.",
+      "first_name": "Nome",
+      "last_name": "Sobrenome",
+      "full_name": "Nome completo",
+      "business_name": "Nome da empresa",
+      "business_id_number": "Número de identificação",
+      "email": "E-mail",
+      "phone_number": "Número de telefone",
+      "gender": "Gênero",
+      "date_of_birth": "Data de nascimento",
+      "age": "Idade",
+      "address_line_1": "Endereço linha 1",
+      "address_line_2": "Endereço linha 2",
+      "city": "Cidade",
+      "state": "Estado",
+      "postal_code": "CEP",
+      "country": "País",
+      "name_hint_text": "Use o nome exatamente como aparece no seu documento.",
+      "i_accept": "Aceito os",
+      "terms_and_conditions": "Termos e Condições",
+      "privacy_policies": "Políticas de Privacidade",
+      "and": "e"
+    },
+    "documents": {
+      "preview": {
+        "scan_document": "Escaneie seu documento",
+        "follow_the_instructions": "Siga as instruções na tela",
+        "frame_hint_text": "Coloque o documento dentro do quadro e mantenha firme até ser detectado.",
+        "frame_hint_short": "Coloque o documento aqui",
+        "shutter": "Capturar",
+        "upload_document": "Envie seu documento",
+        "collect_images": "Precisamos de uma foto da frente e do verso do documento.",
+        "drag_and_drop": "Arraste e solte ou navegue",
+        "search_file_in_my_device": "Buscar arquivo no meu dispositivo",
+        "allow_formats": "Formatos suportados: JPG, PNG, PDF (máx. 10 MB)",
+        "skip": "Pular",
+        "continue": "Continuar",
+        "information_extracted": "Informações extraídas",
+        "please_confirm_information": "Por favor, confirme se as informações estão corretas.",
+        "extracted_information": "Informações extraídas",
+        "first_name": "Nome",
+        "last_name": "Sobrenome",
+        "date_of_birth": "Data de nascimento",
+        "id_number": "Número do documento",
+        "date_of_issue": "Data de emissão",
+        "go_back": "Voltar",
+        "process_information": "Informações do processo",
+        "created_at": "Criado em",
+        "platform": "Plataforma",
+        "device": "Dispositivo"
+      }
+    },
+    "liveness": {
+      "preview": {
+        "biometric_registration": "Verificação biométrica",
+        "biometric_registration_description": "Posicione o rosto dentro do círculo e siga as instruções.",
+        "instructions": "Esteja em um local bem iluminado e retire óculos ou bonés.",
+        "skip": "Pular",
+        "flip": "Trocar câmera",
+        "successful_outcome": "Tudo pronto!",
+        "face_registered": "Rosto registrado",
+        "id_registered": "Identidade registrada",
+        "continue_to_platform": "Continuar"
+      }
+    }
   }
 }
