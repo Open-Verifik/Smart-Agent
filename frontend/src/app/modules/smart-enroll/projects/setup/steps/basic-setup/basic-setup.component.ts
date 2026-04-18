@@ -1,6 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, inject } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    DestroyRef,
+    Input,
+    inject,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -23,6 +32,7 @@ import { CountryOption, CountryService } from 'app/core/services/country.service
         CommonModule,
         ReactiveFormsModule,
         MatButtonModule,
+        MatAutocompleteModule,
         MatChipsModule,
         MatFormFieldModule,
         MatIconModule,
@@ -40,12 +50,22 @@ export class SetupBasicSetupComponent {
 
     private _countryService = inject(CountryService);
     private _transloco = inject(TranslocoService);
+    private _cdr = inject(ChangeDetectorRef);
+    private _destroyRef = inject(DestroyRef);
 
     countries: CountryOption[] = this._countryService.countries;
     ipCountries: CountryOption[] = this._countryService.ipCountries;
 
-    allowedCountriesSearch = '';
+    /** Filter text for allowed-country autocomplete (OnPush + form control). */
+    readonly allowedCountryFilterCtrl = new FormControl('', { nonNullable: true });
+
     dataProtectionCountrySearch = '';
+
+    constructor() {
+        this.allowedCountryFilterCtrl.valueChanges
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this._cdr.markForCheck());
+    }
 
     readonly MAX_NAME_LENGTH = 60;
 
@@ -61,8 +81,16 @@ export class SetupBasicSetupComponent {
     }
 
     get filteredAllowedCountries(): CountryOption[] {
-        const term = this.allowedCountriesSearch.toLowerCase();
-        return this.ipCountries.filter((c) => this._transloco.translate(c.name).toLowerCase().includes(term));
+        const term = this.allowedCountryFilterCtrl.value.trim().toLowerCase();
+        const selected = new Set(this.allowedCountries);
+        return this.ipCountries.filter((c) => {
+            if (selected.has(c.country)) return false;
+            const label = this._transloco.translate(c.name).toLowerCase();
+            const code = (c.code || '').toLowerCase();
+            const countryKey = (c.country || '').toLowerCase();
+            if (!term) return true;
+            return label.includes(term) || code.includes(term) || countryKey.includes(term);
+        });
     }
 
     get filteredDataProtectionCountries(): CountryOption[] {
@@ -85,6 +113,14 @@ export class SetupBasicSetupComponent {
         if (values.has('All')) values.delete('All');
         values.add(country.country);
         this.form.get('allowedCountries')?.setValue(Array.from(values));
+    }
+
+    onAllowedCountryPicked(event: MatAutocompleteSelectedEvent): void {
+        const code = event.option.value as string;
+        const option = this.ipCountries.find((c) => c.country === code);
+        this.allowedCountryFilterCtrl.setValue('', { emitEvent: false });
+        this._cdr.markForCheck();
+        if (option) this.addCountry(option);
     }
 
     removeCountry(country: string): void {

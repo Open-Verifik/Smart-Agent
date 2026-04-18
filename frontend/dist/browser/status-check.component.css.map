@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/status-check/status-check.component.scss"],
-  "sourcesContent": ["/* Component styles */\n.status-tick {\n    @apply w-1.5 h-6 rounded-sm transition-all duration-200;\n}\n.status-tick:hover {\n    @apply scale-125;\n}\n"],
-  "mappings": ";AAEI,CAAA;AAAA,UAAA;AAAA,SAAA;AAAA,iBAAA;AAAA,uBAAA;AAAA,8BAAA,aAAA,GAAA,EAAA,CAAA,EAAA,GAAA,EAAA;AAAA,uBAAA;AAAA;AAGA,CAHA,WAGA;AAAA,gBAAA;AAAA,gBAAA;AAAA,aAAA,UAAA,IAAA,iBAAA,EAAA,IAAA,mBAAA,OAAA,IAAA,cAAA,MAAA,IAAA,cAAA,MAAA,IAAA,cAAA,OAAA,IAAA,eAAA,OAAA,IAAA;AAAA;",
-  "names": []
-}

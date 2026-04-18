@@ -16,6 +16,27 @@ import type {
  * step components keep the same wiring as the source repo.
  */
 
+/** Minimal `DocumentType` shape used by the documents step preview UX. */
+export interface DocumentTypeLite {
+    _id: string;
+    name: string;
+    code: string;
+    country: string;
+    category: string;
+    frontImage?: string;
+    backImage?: string;
+}
+
+/** Minimal `PromptTemplate` shape returned by `/v2/prompt-templates`. */
+export interface PromptTemplateLite {
+    _id: string;
+    name: string;
+    country?: string;
+    documentCategory?: string;
+    documentType?: DocumentTypeLite | string;
+    system?: boolean;
+}
+
 export type PreviewView =
     | 'signup'
     | 'document-scan'
@@ -244,6 +265,7 @@ export class SetupService {
             'projectFlow.signUpForm.address',
             'projectFlow.signUpForm.businessBasicInfo',
             'projectFlow.signUpForm.businessBasicInfoStyle',
+            'projectFlow.signUpForm.countryCode',
             'projectFlow.signUpForm.email',
             'projectFlow.signUpForm.emailGateway',
             'projectFlow.signUpForm.phone',
@@ -258,6 +280,7 @@ export class SetupService {
             'target',
             'projectFlow.signUpForm.additionalFields',
             'projectFlow.signUpForm.allowAdditionalFields',
+            'projectFlow.signUpForm.countryCode',
             'projectFlow.signUpForm.email',
             'projectFlow.signUpForm.emailGateway',
             'projectFlow.signUpForm.fullName',
@@ -463,11 +486,10 @@ export class SetupService {
             signUpForm: {
                 additionalFields: [],
                 allowAdditionalFields: false,
+                address: false,
                 countryCode: '',
                 email: false,
                 emailGateway: 'mailgun',
-                fullName: true,
-                fullNameStyle: 'separate',
                 phone: false,
                 phoneGateway: 'sms',
                 showPrivacyNotice: false,
@@ -555,6 +577,22 @@ export class SetupService {
     getAppFeatures(query: Record<string, string | string[] | number | boolean | undefined> = {}): Observable<{ data: unknown[] }> {
         return this._http
             .get<{ data: unknown[] }>(`${this.apiUrl}/v2/app-features`, {
+                params: this._params(query),
+                headers: this.authHeaders,
+            })
+            .pipe(catchError((err) => throwError(() => err)));
+    }
+
+    /**
+     * Catalog of prompt templates used by the documents step to populate the
+     * per-country, per-category list. Mirrors the call client-panel issues
+     * (`{ in_country: [country, 'World'], populates: ['documentType'] }`).
+     */
+    listPromptTemplates(
+        query: Record<string, string | string[] | number | boolean | undefined> = {}
+    ): Observable<{ data: PromptTemplateLite[] }> {
+        return this._http
+            .get<{ data: PromptTemplateLite[] }>(`${this.apiUrl}/v2/prompt-templates`, {
                 params: this._params(query),
                 headers: this.authHeaders,
             })

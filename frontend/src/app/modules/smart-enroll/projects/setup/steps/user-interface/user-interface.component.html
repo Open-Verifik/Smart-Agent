@@ -1,83 +1,157 @@
 <ng-container *transloco="let t">
-    <div *ngIf="isFormReady" class="flex w-full flex-col gap-6" [formGroup]="brandingFormGroup!">
+    <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+        @let logoCtrl = brandingFormGroup?.get('logo');
+        @let imageCtrl = brandingFormGroup?.get('image');
+
+        <!-- 1. Logo -->
+        <section
+            class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+            [class.border-stone-200]="!logoCtrl?.errors"
+            [class.dark:border-gray-700]="!logoCtrl?.errors"
+            [class.border-red-500]="logoCtrl?.errors"
+        >
+            <header>
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.ui.images.logo') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.ui.images.logoSubtitle') }}
+                </p>
+            </header>
+
+            @if (imageValue('logo'); as src) {
+                <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                    <img [src]="src" alt="" class="h-16 w-16 rounded-lg border border-stone-200 object-contain dark:border-gray-700" />
+                    <div class="flex-1 min-w-[10rem]">
+                        <p class="m-0 text-sm font-semibold text-stone-800 dark:text-stone-100">
+                            {{ t('smartEnrollProjects.setup.ui.images.currentLogo') }}
+                        </p>
+                    </div>
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        color="warn"
+                        class="rounded-full"
+                        (click)="clearImage('logo')"
+                        [attr.aria-label]="t('smartEnrollProjects.setup.ui.images.removeLogo')"
+                    >
+                        <mat-icon class="!h-4 !w-4">delete</mat-icon>
+                        {{ t('smartEnrollProjects.setup.ui.images.removeLogo') }}
+                    </button>
+                </div>
+            } @else {
+                <file-drop-zone
+                    [accept]="imageAccept"
+                    [maxFileSize]="logoMaxSize"
+                    [expirationDays]="0"
+                    source="project"
+                    (attachmentUploaded)="onAttachmentUploaded('logo', $event)"
+                    (uploadError)="onUploadError('logo', $event)"
+                    (fileError)="onFileError('logo', $event)"
+                ></file-drop-zone>
+            }
+        </section>
+
+        <!-- 2. Image / banner -->
+        <section
+            class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+            [class.border-stone-200]="!imageCtrl?.errors"
+            [class.dark:border-gray-700]="!imageCtrl?.errors"
+            [class.border-red-500]="imageCtrl?.errors"
+        >
+            <header>
+                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.ui.images.banner') }}
+                </h2>
+                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.ui.images.bannerSubtitle') }}
+                </p>
+            </header>
+
+            @if (imageValue('image'); as src) {
+                <div class="flex flex-wrap items-center gap-4 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/40">
+                    <img [src]="src" alt="" class="h-16 w-16 rounded-lg border border-stone-200 object-contain dark:border-gray-700" />
+                    <div class="flex-1 min-w-[10rem]">
+                        <p class="m-0 text-sm font-semibold text-stone-800 dark:text-stone-100">
+                            {{ t('smartEnrollProjects.setup.ui.images.currentImage') }}
+                        </p>
+                    </div>
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        color="warn"
+                        class="rounded-full"
+                        (click)="clearImage('image')"
+                        [attr.aria-label]="t('smartEnrollProjects.setup.ui.images.removeImage')"
+                    >
+                        <mat-icon class="!h-4 !w-4">delete</mat-icon>
+                        {{ t('smartEnrollProjects.setup.ui.images.removeImage') }}
+                    </button>
+                </div>
+            } @else {
+                <file-drop-zone
+                    [accept]="imageAccept"
+                    [maxFileSize]="imageMaxSize"
+                    [expirationDays]="0"
+                    source="project"
+                    (attachmentUploaded)="onAttachmentUploaded('image', $event)"
+                    (uploadError)="onUploadError('image', $event)"
+                    (fileError)="onFileError('image', $event)"
+                ></file-drop-zone>
+            }
+        </section>
+
+        <!-- 3. Colors -->
         <section
             class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+            [formGroup]="brandingFormGroup!"
         >
             <header class="mb-4">
                 <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.ui.colors.title') }}
+                    {{ t('smartEnrollProjects.setup.ui.colors.heading') }}
                 </h2>
                 <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
                     {{ t('smartEnrollProjects.setup.ui.colors.subtitle') }}
                 </p>
             </header>
 
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                @for (f of colorFields; track f.control) {
-                    <label
-                        class="flex items-center gap-3 rounded-xl border border-stone-200/80 bg-stone-50 px-3 py-2 dark:border-gray-700 dark:bg-gray-900/40"
-                    >
-                        <input
-                            type="color"
-                            [formControlName]="f.control"
-                            class="h-9 w-10 shrink-0 rounded-md border-0 bg-transparent p-0"
-                        />
-                        <div class="min-w-0 flex-1">
-                            <p class="text-xs font-medium text-stone-500 dark:text-stone-400">
-                                {{ t(f.labelKey) }}
-                            </p>
-                            <input
-                                type="text"
-                                [formControlName]="f.control"
-                                class="w-full bg-transparent font-mono text-sm text-stone-800 outline-none dark:text-stone-100"
-                            />
-                        </div>
-                    </label>
-                }
-            </div>
-        </section>
-
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.ui.images.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.ui.images.subtitle') }}
-                </p>
-            </header>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                @for (f of imageFields; track f.control) {
-                    <div
-                        class="rounded-xl border border-stone-200/80 bg-stone-50 px-4 py-4 dark:border-gray-700 dark:bg-gray-900/40"
-                    >
-                        <p class="text-sm font-medium text-stone-800 dark:text-stone-100">
-                            {{ t(f.labelKey) }}
-                        </p>
-                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                            {{ t(f.subtitleKey) }}
-                        </p>
-
-                        @if (imageValue(f.control); as src) {
-                            <div class="mt-3 flex items-center gap-3">
-                                <img [src]="src" alt="" class="h-16 w-16 rounded-lg border border-stone-200 object-contain dark:border-gray-700" />
-                                <button mat-stroked-button type="button" (click)="clearImage(f.control)" class="rounded-full">
-                                    <mat-icon class="!h-4 !w-4">delete</mat-icon>
-                                    {{ t('smartEnrollProjects.setup.ui.images.remove') }}
-                                </button>
-                            </div>
-                        } @else {
-                            <label class="mt-3 flex cursor-pointer items-center gap-2 rounded-full border border-dashed border-stone-300/90 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-100 dark:border-gray-700 dark:text-stone-300 dark:hover:bg-gray-800">
-                                <mat-icon class="!h-4 !w-4">upload</mat-icon>
-                                {{ t('smartEnrollProjects.setup.ui.images.upload') }}
-                                <input type="file" accept="image/*" class="hidden" (change)="onFileChange(f.control, $event)" />
-                            </label>
-                        }
-                    </div>
-                }
+            <div class="grid grid-cols-1 gap-3">
+                <swatch-picker
+                    formControlName="titleColor"
+                    [colors]="titleColors"
+                    [label]="t('smartEnrollProjects.setup.ui.colors.title')"
+                    [required]="true"
+                ></swatch-picker>
+                <swatch-picker
+                    formControlName="textColor"
+                    [colors]="textColors"
+                    [label]="t('smartEnrollProjects.setup.ui.colors.text')"
+                    [required]="true"
+                ></swatch-picker>
+                <swatch-picker
+                    formControlName="buttonColor"
+                    [colors]="buttonColors"
+                    [label]="t('smartEnrollProjects.setup.ui.colors.button')"
+                    [required]="true"
+                ></swatch-picker>
+                <swatch-picker
+                    formControlName="buttonTextColor"
+                    [colors]="buttonTextColors"
+                    [label]="t('smartEnrollProjects.setup.ui.colors.buttonText')"
+                    [required]="true"
+                ></swatch-picker>
+                <swatch-picker
+                    formControlName="backgroundColor"
+                    [colors]="backgroundColors"
+                    [label]="t('smartEnrollProjects.setup.ui.colors.background')"
+                    [required]="true"
+                ></swatch-picker>
+                <swatch-picker
+                    formControlName="imageBackgroundColor"
+                    [colors]="imageBackgroundColors"
+                    [label]="t('smartEnrollProjects.setup.ui.colors.imageBackground')"
+                    [required]="true"
+                ></swatch-picker>
             </div>
         </section>
     </div>

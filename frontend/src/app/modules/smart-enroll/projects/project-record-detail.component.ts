@@ -1,3 +1,4 @@
+import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
@@ -12,7 +13,11 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
 import { finalize, forkJoin, Subscription } from 'rxjs';
+import { environment } from 'environments/environment';
+import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
+import { DevApiHintDialogComponent } from './dev-api-hint-dialog.component';
+import { buildDevApiHintBody, type DevApiHintI18n } from './dev-api-hint.util';
 import {
     EnrollResendLinkDialogComponent,
     type EnrollResendLinkDialogResult,
@@ -30,7 +35,7 @@ import {
     type StepId,
     type StepState,
 } from './app-registration-record.utils';
-import { SmartEnrollProjectsService } from './smart-enroll-projects.service';
+import { APP_REGISTRATION_DETAIL_POPULATES, SmartEnrollProjectsService } from './smart-enroll-projects.service';
 import type { AppRegistrationDetail, EnrollProject } from './smart-enroll-projects.types';
 
 const STEP_ORDER: StepId[] = [
@@ -146,6 +151,7 @@ const RESUME_DOCUMENT_OCR_EXCLUDE = new Set<string>([
     selector: 'project-record-detail',
     standalone: true,
     imports: [
+        ClipboardModule,
         CommonModule,
         RouterModule,
         MatButtonModule,
@@ -156,6 +162,7 @@ const RESUME_DOCUMENT_OCR_EXCLUDE = new Set<string>([
         MatSnackBarModule,
         NgxPrintDirective,
         TranslocoModule,
+        WebhookEventsComponent,
     ],
     templateUrl: './project-record-detail.component.html',
     styleUrls: ['./project-record-detail.component.scss'],
@@ -169,6 +176,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     private _cdr = inject(ChangeDetectorRef);
     private _dialog = inject(MatDialog);
     private _snackBar = inject(MatSnackBar);
+    private _clipboard = inject(Clipboard);
 
     private readonly _resendForbiddenStatuses = new Set(['COMPLETED_WITHOUT_KYC', 'COMPLETED', 'FAILED']);
     readonly printSectionId = 'enrollment-print-section';
@@ -188,6 +196,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     deleteLoading = signal(false);
     deleteErrorKey = signal<string | null>(null);
     exportLoading = signal(false);
+    devView = signal(false);
 
     ngOnInit(): void {
         this.projectId = this._route.snapshot.paramMap.get('projectId') ?? '';
@@ -238,6 +247,135 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
 
     goProjects(): void {
         this._router.navigate(['/smart-enroll/projects']);
+    }
+
+    toggleDevView(): void {
+        this.devView.update((v) => !v);
+    }
+
+    /**
+     * Per-card payloads for the Dev view. The top-level `record` card hides the heavy nested
+     * objects that already render in their own cards so the dump stays readable.
+     */
+    devSections(): { key: string; value: unknown }[] {
+        const r = this.record();
+        if (!r) return [];
+
+        const nestedKeys = new Set<string>([
+            'informationValidation',
+            'emailValidation',
+            'phoneValidation',
+            'documentValidation',
+            'documentFace',
+            'failedDocumentValidations',
+            'biometricValidation',
+            'failedBiometricValidations',
+            'face',
+            'person',
+            'compareFaceVerification',
+            'projectFlow',
+        ]);
+
+        const rAny = r as unknown as Record<string, unknown>;
+        const recordSummary: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(rAny)) {
+            if (nestedKeys.has(key)) continue;
+            recordSummary[key] = value;
+        }
+
+        const sections: { key: string; value: unknown }[] = [
+            { key: 'record', value: recordSummary },
+            { key: 'informationValidation', value: r.informationValidation ?? null },
+            { key: 'emailValidation', value: r.emailValidation ?? null },
+            { key: 'phoneValidation', value: r.phoneValidation ?? null },
+            { key: 'documentValidation', value: r.documentValidation ?? null },
+            { key: 'documentFace', value: r.documentFace ?? null },
+            { key: 'failedDocumentValidations', value: r.failedDocumentValidations ?? [] },
+            { key: 'biometricValidation', value: r.biometricValidation ?? null },
+            { key: 'failedBiometricValidations', value: r.failedBiometricValidations ?? [] },
+            { key: 'face', value: rAny['face'] ?? null },
+            { key: 'person', value: rAny['person'] ?? null },
+            { key: 'compareFaceVerification', value: r.compareFaceVerification ?? null },
+            { key: 'projectFlow', value: r.projectFlow ?? null },
+            { key: 'project', value: this.project() },
+        ];
+
+        return sections.filter((section) => section.value !== null && section.value !== undefined);
+    }
+
+    devSectionTitle(key: string): string {
+        const tk = `smartEnrollProjects.recordDetail.devView.section.${key}`;
+        const translated = this._transloco.translate(tk);
+        if (!translated || translated === tk) return key;
+        return translated;
+    }
+
+    copyJson(value: unknown): void {
+        try {
+            const text = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
+            this._clipboard.copy(text);
+            this._snackBar.open(
+                this._transloco.translate('smartEnrollProjects.recordDetail.devView.copied'),
+                'OK',
+                { duration: 2000 }
+            );
+        } catch {
+            // Stringification can throw on circular structures; surface a friendly notice instead.
+            this._snackBar.open(
+                this._transloco.translate('smartEnrollProjects.recordDetail.devView.copyError'),
+                'OK',
+                { duration: 2500 }
+            );
+        }
+    }
+
+    devApiHintDisabled(sectionKey: string, value: unknown): boolean {
+        if (sectionKey === 'failedDocumentValidations' || sectionKey === 'failedBiometricValidations') {
+            return !Array.isArray(value) || value.length === 0;
+        }
+        return false;
+    }
+
+    openDevApiHint(sectionKey: string, value: unknown): void {
+        const r = this.record();
+        if (!r?._id) return;
+
+        const i18n: DevApiHintI18n = {
+            headers: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintHeadersBlock'),
+            populatesExplainer: this._transloco.translate(
+                'smartEnrollProjects.recordDetail.devView.apiHintPopulatesExplainer',
+            ),
+            noDirectCompare: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintCompareNoDirect'),
+            compareFallback: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintCompareFallback'),
+            emptyList: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintEmptyList'),
+            noId: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintNoId'),
+            webhookNote: this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintWebhookNote'),
+        };
+
+        const body = buildDevApiHintBody(sectionKey, value, {
+            recordId: r._id,
+            project: this.project(),
+            apiBase: environment.apiUrl,
+            populates: APP_REGISTRATION_DETAIL_POPULATES,
+            i18n,
+            moreUrlsLabel: (count: number) =>
+                this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintArrayMore', { count }),
+        });
+
+        const title = this._transloco.translate('smartEnrollProjects.recordDetail.devView.apiHintTitle', {
+            section: this.devSectionTitle(sectionKey),
+        });
+
+        this._dialog.open(DevApiHintDialogComponent, {
+            data: { title, body },
+            width: '640px',
+            maxWidth: '92vw',
+            panelClass: 'dev-api-hint-dialog-panel',
+        });
+    }
+
+    openWebhookEventsApiHint(): void {
+        this.openDevApiHint('webhookEvents', null);
     }
 
     confirmDeleteRecord(): void {

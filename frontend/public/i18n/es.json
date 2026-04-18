@@ -524,6 +524,73 @@
       "viewDocs": "Ver documentación",
       "backToOverview": "Volver al resumen",
       "sectionHint": "La configuración de este apartado se gestiona en el panel de Verifik. Usa Equipo y personal para colaboradores, o abre Registros para ver inscripciones.",
+      "editSection": "Editar",
+      "noValue": "Sin definir",
+      "untitledProject": "Proyecto sin título",
+      "basic": {
+        "subtitle": "Identidad y bases de cumplimiento del proyecto.",
+        "name": "Nombre del proyecto",
+        "contactEmail": "Correo de contacto",
+        "privacyUrl": "Política de privacidad",
+        "termsUrl": "Términos y condiciones",
+        "allowedCountries": "Países permitidos",
+        "noCountries": "Todos los países permitidos.",
+        "dpo": "Delegado de protección de datos"
+      },
+      "signup": {
+        "subtitle": "Lo que el cliente completa antes de escanear un documento.",
+        "fullName": {
+          "separate": "Nombre + apellidos",
+          "together": "Nombre completo"
+        },
+        "business": {
+          "name_number": "Razón social + número fiscal",
+          "name": "Solo razón social"
+        },
+        "email": {
+          "mailgun": "Correo · validado",
+          "none": "Correo · sin validar"
+        },
+        "phone": {
+          "sms": "Teléfono · SMS",
+          "whatsapp": "Teléfono · WhatsApp",
+          "both": "Teléfono · WhatsApp + SMS",
+          "none": "Teléfono · sin validar"
+        },
+        "address": "Dirección de empresa",
+        "terms": "Términos visibles",
+        "privacy": "Aviso de privacidad visible",
+        "additionalFields": "Campos adicionales"
+      },
+      "documents": {
+        "subtitle": "Cómo se aceptan y verifican los documentos de identidad.",
+        "attempts": "{{count}} intentos",
+        "screeningOn": "Revisión en bases de datos activa",
+        "noCountries": "Aún no hay configuraciones por país.",
+        "activeCount": "{{count}} configuraciones activas"
+      },
+      "liveness": {
+        "subtitle": "Umbrales para coincidencia de selfie y detección de duplicados."
+      },
+      "representatives": {
+        "subtitle": "Quién debe inscribirse en nombre de la empresa.",
+        "notification": {
+          "email": "Notificar por correo",
+          "whatsapp": "Notificar por WhatsApp",
+          "sms": "Notificar por SMS",
+          "link": "Compartir enlace"
+        }
+      },
+      "integrations": {
+        "subtitle": "A dónde va el cliente al terminar y cómo se notifica a tus sistemas."
+      },
+      "brand": {
+        "title": "Marca",
+        "subtitle": "Logo, imagen y paleta aplicados en las pantallas de inscripción.",
+        "logo": "Logo",
+        "image": "Imagen",
+        "editBrand": "Editar marca"
+      },
       "summary": {
         "edit": "Edit",
         "basic": "{{ countries }} allowed countries",
@@ -569,6 +636,44 @@
         "verdict": "Resultado global",
         "technicalMetadata": "Sesión y datos técnicos",
         "technicalMetadataHint": "IP, dispositivo, IDs vinculados, marcas de tiempo y campos de validación de esta inscripción."
+      },
+      "devView": {
+        "toggleOn": "Vista de desarrollador",
+        "toggleOff": "Vista normal",
+        "copy": "Copiar JSON",
+        "copied": "Copiado al portapapeles",
+        "copyError": "No se pudo copiar este objeto",
+        "webhookEvents": "Eventos de webhook para esta inscripción",
+        "apiHint": "Petición API",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "Copiado al portapapeles",
+        "apiHintCopyButton": "Copiar",
+        "apiHintClose": "Cerrar",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "Parámetros de consulta (misma idea que esta pantalla — añade o quita populates[] para cargar más o menos datos anidados):",
+        "apiHintCompareNoDirect": "No hay ruta GET por id para FaceVerification; la comparación se hace con POST bajo /v2/face-recognition/...",
+        "apiHintCompareFallback": "Cárgalo anidado en el app registration:",
+        "apiHintEmptyList": "No hay registros que obtener.",
+        "apiHintNoId": "No se pudo resolver un _id para este bloque.",
+        "apiHintWebhookNote": "Lista de eventos webhook para este app registration (valores por defecto como en Smart Monitor):",
+        "apiHintArrayMore": "+ {{count}} más (mismo patrón GET)",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project",
+          "webhookEvents": "Eventos de webhook para esta inscripción"
+        }
       },
       "boolYes": "Sí",
       "boolNo": "No",
@@ -760,53 +865,87 @@
         "confirm_skip_message": "Los clientes se inscribirán sin verificar ningún documento oficial.",
         "confirm_skip_yes": "Sí, omitir",
         "confirm_skip_back": "Volver",
-        "title": "Document verification",
-        "subtitle": "Decide whether and how customers must present an official document.",
+        "title": "Verificación de documentos",
+        "subtitle": "Decide si los clientes deben presentar un documento oficial y cómo.",
         "business": {
-          "title": "Business verification",
-          "subtitle": "Verify business documents during onboarding.",
-          "toggle": "Verify business documents"
+          "title": "Verificación de empresa",
+          "subtitle": "Verifica los documentos de la empresa durante el onboarding.",
+          "toggle": "Verificar documentos de empresa"
         },
-        "skip": "Not required",
-        "optional": "Optional",
-        "required": "Required",
+        "skip": "No requerido",
+        "optional": "Opcional",
+        "required": "Obligatorio",
         "attempts": {
-          "title": "Attempts",
-          "subtitle": "How many tries the customer gets before the step fails.",
-          "limit": "Attempt limit"
+          "title": "Número de intentos",
+          "subtitle": "Cuántas veces puede intentarlo el cliente antes de fallar.",
+          "limit": "Límite de intentos",
+          "one": "1 intento",
+          "many": "{{count}} intentos"
         },
         "method": {
-          "title": "Verification methods",
-          "subtitle": "Pick which scanning methods to enable.",
-          "scanAgent": "Scan Agent",
-          "scanStudio": "Scan Studio",
-          "scanPrompt": "Scan Prompt"
+          "title": "Métodos de verificación",
+          "subtitle": "Elige cómo puede capturar el documento el cliente.",
+          "upload": "Subir documento",
+          "scan": "Escanear documento",
+          "required": "Selecciona al menos un método de verificación.",
+          "help": "Si ambos están activos, el cliente puede elegir. Escanear usa la cámara; subir acepta un archivo."
         },
         "screening": {
-          "title": "Background screening",
-          "subtitle": "Run additional verifications after a successful scan.",
-          "criminalHistory": "Criminal history check",
-          "informationVerification": "Government information verification"
+          "title": "Revisión en bases de datos",
+          "subtitle": "Ejecuta verificaciones adicionales tras un escaneo exitoso.",
+          "criminalHistory": "Antecedentes penales",
+          "criminalHistoryDescription": "Consulta al cliente en bases de datos de antecedentes.",
+          "informationVerification": "Verificación de información",
+          "informationVerificationDescription": "Valida la identidad contra bases de datos oficiales.",
+          "requiresVerification": "Activa al menos una verificación cuando la revisión esté encendida.",
+          "localApi": "Verificación local",
+          "localApiTooltip": "Consulta las APIs locales de Verifik disponibles para los países seleccionados."
         },
         "types": {
-          "title": "Accepted document types",
-          "subtitle": "Configure which documents are accepted in each country.",
-          "empty": "No document configurations yet — add a country to start.",
-          "country": "Country",
-          "remove": "Remove",
-          "add": "Add country",
-          "configurations": "Configurations",
-          "activateHint": "Enable at least one configuration to make this country valid.",
-          "invalid": "Some document configurations are missing required values."
+          "title": "Tipos de documento aceptados",
+          "subtitle": "Configura qué documentos se aceptan en cada país.",
+          "empty": "Aún no hay configuraciones — añade un país para empezar.",
+          "country": "País",
+          "remove": "Quitar",
+          "add": "Añadir país",
+          "configurations": "Configuraciones",
+          "activateHint": "Activa al menos una configuración para validar este país.",
+          "invalid": "Algunas configuraciones están incompletas.",
+          "errors": {
+            "atLeastOne": "Añade al menos una configuración de país.",
+            "duplicateCountries": "Cada país solo puede añadirse una vez.",
+            "allMustBeValid": "Algunas configuraciones de país están incompletas.",
+            "emptyCountry": "Selecciona un país para cada configuración."
+          },
+          "pickCountryFirst": "Selecciona un país para cargar los documentos disponibles.",
+          "loading": "Cargando documentos…",
+          "noTemplates": "No hay documentos disponibles para {{ category }} en {{ country }} ni a nivel global.",
+          "noTemplatesShort": "No se encontraron documentos para este país en el catálogo (incluido el global).",
+          "selectedOfAvailable": "{{ selected }} de {{ total }} seleccionados",
+          "preview": "Previsualizar",
+          "previewTitle": "Vista previa del documento",
+          "frontImage": "Anverso",
+          "backImage": "Reverso",
+          "noImage": "Imagen no disponible.",
+          "globalBadge": "Global"
         },
         "category": {
-          "government_id": "Government ID",
-          "passport": "Passport",
-          "license": "Driver license",
-          "business_document": "Business document",
-          "tax_document": "Tax document",
-          "proof_of_address": "Proof of address",
-          "bank_document": "Bank document"
+          "government_id": "Documento de identidad",
+          "passport": "Pasaporte",
+          "license": "Licencia de conducir",
+          "business_document": "Documento de empresa",
+          "tax_document": "Documento fiscal",
+          "proof_of_address": "Comprobante de domicilio",
+          "bank_document": "Documento bancario"
+        },
+        "localApi": {
+          "title": "APIs locales de verificación de antecedentes de Verifik",
+          "description": "Estas APIs locales se ejecutan automáticamente para los países configurados. Se destacan los que ya están en tu proyecto.",
+          "highlightNote": "Los elementos destacados coinciden con los países de tu lista de documentos.",
+          "compatible": "Compatible con tu selección",
+          "loading": "Cargando…",
+          "empty": "No hay APIs locales disponibles.",
+          "close": "Cerrar"
         }
       },
       "basicSetup": {
@@ -857,48 +996,78 @@
         "business": {
           "title": "Business basic info",
           "subtitle": "How company information is collected.",
+          "addressTitle": "Business address",
+          "addressSubtitle": "Ask for a business or premises address during sign-up.",
           "nameNumber": "Name + tax number",
-          "separate": "Separate fields"
+          "nameOnly": "Company name only"
+        },
+        "additionalFields": {
+          "title": "Additional information",
+          "subtitle": "Optional extra fields on the enrollment form.",
+          "error": "Select at least one field when this option is enabled.",
+          "gender": "Gender",
+          "country": "Country",
+          "dateOfBirth": "Date of birth",
+          "address": "Address",
+          "age": "Age",
+          "postalCode": "Postal code"
         },
         "email": {
           "title": "Email address",
+          "businessTitle": "Business email",
           "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Send via Mailgun",
-          "none": "No verification"
+          "mailgun": "Validate",
+          "none": "Don't validate"
         },
         "phone": {
           "title": "Phone number",
+          "businessTitle": "Business phone",
           "subtitle": "Capture and verify a customer phone number.",
-          "both": "SMS + WhatsApp",
-          "countryCode": "Default country code"
+          "both": "WhatsApp + SMS",
+          "none": "Don't validate",
+          "countryCode": "Default country code",
+          "searchCountry": "Search countries..."
         },
+        "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {
           "title": "Legal disclosures",
           "subtitle": "Show consent links inside the enrollment flow.",
           "privacy": "Show privacy notice",
-          "terms": "Show terms & conditions"
+          "terms": "Show terms & conditions",
+          "urlRequired": "La URL es obligatoria.",
+          "urlInvalid": "Introduce una URL válida (https://...)."
         }
       },
       "liveness": {
-        "title": "Liveness verification",
-        "subtitle": "Confirm a real person is on the other side of the camera.",
+        "title": "Verificación biométrica",
+        "subtitle": "Confirma que hay una persona real al otro lado de la cámara.",
+        "requirementHelp": "Decide si la biometría es obligatoria, opcional o se omite para cada cliente.",
+        "actualScore": "Puntuación actual",
         "kyc": {
-          "title": "KYC type",
-          "subtitle": "Choose how identity proofs are stored and shared.",
-          "traditional": "Traditional KYC",
-          "zeroKnowledge": "Zero-knowledge KYC"
+          "title": "Tipo de KYC",
+          "subtitle": "Elige cómo se almacenan y comparten las pruebas de identidad.",
+          "traditional": "KYC tradicional",
+          "zeroKnowledge": "KYC de conocimiento cero",
+          "traditionalDescription": "Almacena la plantilla biométrica del cliente junto a su identidad para volver a verificar y hacer búsquedas.",
+          "zeroKnowledgeDescription": "Verifica al cliente localmente y solo guarda una prueba que preserva la privacidad — no se conserva ninguna plantilla biométrica."
         },
         "thresholds": {
-          "title": "Scoring thresholds",
-          "subtitle": "Tune the minimum scores required for the customer to pass.",
-          "attemptLimit": "Attempt limit",
-          "searchMode": "Search mode",
-          "fast": "Fast",
-          "accurate": "Accurate",
-          "minScore": "Liveness minimum score",
-          "compareMinScore": "Face compare minimum score",
-          "searchMinScore": "Search minimum score",
-          "searchWarn": "Below 80% increases false positives"
+          "title": "Umbrales de puntuación",
+          "subtitle": "Ajusta las puntuaciones mínimas necesarias para que el cliente pase.",
+          "attemptLimit": "Límite de intentos",
+          "searchMode": "Modo de búsqueda",
+          "fast": "Rápido",
+          "accurate": "Preciso",
+          "minScore": "Puntuación mínima de viveza",
+          "minScoreSubtitle": "Confianza mínima requerida para aceptar que el selfie sea de una persona viva.",
+          "minScoreHelp": "Valores más altos reducen el spoofing pero rechazan más usuarios reales.",
+          "compareMinScore": "Puntuación mínima de comparación facial",
+          "compareMinScoreSubtitle": "Qué tan parecido debe ser el selfie al retrato del documento.",
+          "compareMinScoreHelp": "Valores más altos reducen falsos positivos pero pueden rechazar fotos de baja calidad.",
+          "searchMinScore": "Puntuación mínima de búsqueda",
+          "searchMinScoreSubtitle": "Umbral de confianza al buscar al cliente entre inscripciones existentes.",
+          "searchMinScoreHelp": "Se usa para detección de duplicados 1:N.",
+          "searchWarn": "Por debajo del 80% aumenta los falsos positivos"
         }
       },
       "representatives": {
@@ -919,50 +1088,76 @@
       },
       "integrations": {
         "redirect": {
-          "title": "Redirect URL",
-          "subtitle": "Where to send the customer once enrollment finishes.",
-          "url": "Redirect URL"
+          "title": "URL de redirección",
+          "subtitle": "Dónde enviar al cliente cuando termine la inscripción.",
+          "url": "URL de redirección",
+          "exampleUrl": "Ejemplo: <strong>{{url}}</strong>",
+          "required": "La URL de redirección es obligatoria.",
+          "invalid": "Introduce una URL válida (https://...)."
         },
         "webhook": {
           "title": "Webhook",
-          "subtitle": "Push enrollment events to your server.",
+          "subtitle": "Envía eventos de inscripción a tu servidor.",
           "select": "Webhook",
-          "none": "No webhook",
-          "refresh": "Refresh",
-          "manage": "Manage webhooks"
+          "none": "Sin webhook",
+          "refresh": "Actualizar",
+          "manage": "Administrar webhooks",
+          "noWebhooksMessage": "Aún no tienes webhooks.",
+          "createWebhook": "Crea uno"
         },
         "source": {
-          "title": "Allow / deny list source",
-          "subtitle": "Optionally call your API to check whether the customer can enroll.",
-          "none": "Disabled",
-          "api": "External API",
-          "apiUrl": "API URL",
-          "testType": "Test type",
-          "testValue": "Test value",
-          "test": "Send test"
+          "title": "Origen de la lista de permitidos / bloqueados",
+          "subtitle": "Opcionalmente llama a tu API para validar si el cliente puede inscribirse.",
+          "none": "Desactivado",
+          "api": "API externa",
+          "apiUrl": "URL de la API",
+          "testType": "Tipo de prueba",
+          "testValue": "Valor de prueba",
+          "test": "Enviar prueba",
+          "help": "Reenviamos el correo o teléfono del cliente a tu endpoint y solo permitimos la inscripción cuando responde <strong>200</strong>.",
+          "email": "Correo",
+          "phone": "Teléfono",
+          "invalidUrl": "Introduce una URL válida (https://...).",
+          "apiUrlRequired": "La URL de la API es obligatoria.",
+          "testApiDescription": "Envía una carga útil de prueba para confirmar que tu endpoint acepta nuestro formato.",
+          "expectedResponse": "Respuesta esperada",
+          "receivedResponse": "Respuesta recibida",
+          "missingTestInputs": "Introduce un tipo y un valor de prueba.",
+          "invalidTestUrl": "Introduce una URL de prueba válida."
         }
       },
       "ui": {
         "colors": {
-          "title": "Title",
-          "subtitle": "Match the enrollment screens to your brand palette.",
-          "background": "Background",
-          "text": "Body text",
-          "button": "Button",
-          "buttonText": "Button text",
-          "imageBackground": "Image background"
+          "heading": "Colores de marca",
+          "title": "Título",
+          "subtitle": "Adapta las pantallas de inscripción a tu paleta de marca.",
+          "background": "Fondo",
+          "text": "Texto",
+          "button": "Botón",
+          "buttonText": "Texto del botón",
+          "imageBackground": "Fondo de la imagen"
         },
         "images": {
-          "title": "Images",
-          "subtitle": "Logo and optional banner shown to the customer.",
+          "title": "Imágenes",
+          "subtitle": "Logo y banner opcional que verá el cliente.",
           "logo": "Logo",
-          "logoSubtitle": "PNG or SVG, square preferred. Up to 512KB.",
-          "banner": "Banner",
-          "bannerSubtitle": "Optional decorative image shown above the form.",
-          "upload": "Upload",
-          "remove": "Remove",
-          "tooLarge": "Image is larger than 512KB. Please choose a smaller file.",
-          "uploadFailed": "Could not read this file."
+          "logoSubtitle": "PNG o JPG, preferiblemente cuadrado. Hasta 512KB.",
+          "banner": "Imagen del banner",
+          "bannerSubtitle": "Imagen decorativa opcional junto al formulario. Hasta 2MB.",
+          "upload": "Subir",
+          "remove": "Quitar",
+          "removeLogo": "Quitar logo",
+          "removeImage": "Quitar imagen",
+          "currentLogo": "Logo actual",
+          "currentImage": "Imagen actual",
+          "dragFiles": "Arrastra un archivo o haz clic para buscar",
+          "dropFiles": "Suelta el archivo",
+          "supportedFormats": "Acepta {{formats}} (máx {{maxSize}})",
+          "uploading": "Subiendo…",
+          "tooLarge": "El archivo supera {{maxSize}}.",
+          "notAccepted": "Tipo de archivo no admitido.",
+          "uploadedSuccessfully": "Guardado {{name}}.",
+          "uploadFailed": "No se pudo subir el archivo."
         }
       }
     }
@@ -1194,7 +1389,7 @@
       "limit_reached": "Has alcanzado el número máximo de miembros del equipo para tu plan. Mejora tu plan para agregar más.",
       "no_plan_warning": "Necesitas un plan de suscripción activo para agregar miembros del equipo.",
       "no_plan_error": "No se pueden agregar miembros del equipo sin un plan de suscripción activo.",
-      "view_plans": "Ver Planes"
+      "view_plans": "Ver planes SmartCheck"
     },
     "billing": {
       "title": "Datos de Facturación",

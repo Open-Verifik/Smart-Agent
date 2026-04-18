@@ -1,0 +1,79 @@
+<div
+    class="flex w-full flex-col gap-3 rounded-xl border bg-white px-4 py-3 dark:bg-gray-900/40"
+    [class.border-stone-200]="!hasError"
+    [class.dark:border-gray-700]="!hasError"
+    [class.border-red-400]="hasError"
+>
+    <div class="flex items-center justify-between gap-3">
+        @if (label) {
+            <label
+                class="text-sm font-semibold tracking-tight"
+                [class.text-stone-700]="!hasError"
+                [class.dark:text-stone-200]="!hasError"
+                [class.text-red-600]="hasError"
+            >
+                {{ label }}@if (required) {<span class="ml-0.5 text-red-500">*</span>}
+            </label>
+        }
+        <span
+            class="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wide text-stone-500 dark:text-stone-400"
+        >
+            @if (selectedColor) {
+                <span
+                    class="inline-block h-3 w-3 rounded-full border"
+                    [style.background-color]="selectedColor"
+                    style="border-color: rgba(0, 0, 0, 0.12)"
+                ></span>
+            }
+            {{ selectedColor || '—' }}
+        </span>
+    </div>
+
+    <div
+        class="grid grid-cols-7 gap-2"
+        [class.opacity-50]="disabled"
+        [class.cursor-not-allowed]="disabled"
+    >
+        @for (color of colors; track color) {
+            <button
+                type="button"
+                class="relative flex h-9 w-9 items-center justify-center rounded-full border-2 transition-transform hover:scale-105"
+                [style.background-color]="color"
+                [style.border-color]="isSwatchSelected(color) ? '#1F2937' : 'rgba(0,0,0,0.08)'"
+                [class.scale-110]="isSwatchSelected(color)"
+                [class.ring-2]="isSwatchSelected(color)"
+                [class.ring-offset-2]="isSwatchSelected(color)"
+                [class.ring-stone-900]="isSwatchSelected(color)"
+                [disabled]="disabled"
+                [attr.aria-label]="color"
+                (click)="onSwatchSelect(color)"
+            >
+                @if (isSwatchSelected(color)) {
+                    <mat-icon class="!h-3 !w-3 !text-[14px]" [style.color]="iconContrastColor(color)">check</mat-icon>
+                }
+            </button>
+        }
+
+        @if (custom) {
+            <label
+                class="relative flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border-2 transition-transform hover:scale-105"
+                [style.background-color]="customColor"
+                [style.border-color]="isCustomSelected ? '#1F2937' : 'rgba(0,0,0,0.08)'"
+                [class.scale-110]="isCustomSelected"
+                [class.ring-2]="isCustomSelected"
+                [class.ring-offset-2]="isCustomSelected"
+                [class.ring-stone-900]="isCustomSelected"
+                [attr.aria-label]="'Custom color'"
+            >
+                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]" [style.color]="iconContrastColor(customColor)">edit</mat-icon>
+                <input
+                    type="color"
+                    class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                    [value]="customColor || '#ffffff'"
+                    [disabled]="disabled"
+                    (input)="onCustomColorChange($any($event.target).value)"
+                />
+            </label>
+        }
+    </div>
+</div>

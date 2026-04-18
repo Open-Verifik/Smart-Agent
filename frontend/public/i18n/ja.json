@@ -524,6 +524,73 @@
       "viewDocs": "ドキュメントを見る",
       "backToOverview": "概要に戻る",
       "sectionHint": "このセクションの設定は Verifik ダッシュボードで管理されます。チーム・スタッフまたは記録をご利用ください。",
+      "editSection": "編集",
+      "noValue": "未設定",
+      "untitledProject": "無題のプロジェクト",
+      "basic": {
+        "subtitle": "プロジェクトのアイデンティティとコンプライアンスの基本。",
+        "name": "プロジェクト名",
+        "contactEmail": "連絡先メール",
+        "privacyUrl": "プライバシーポリシー",
+        "termsUrl": "利用規約",
+        "allowedCountries": "許可された国",
+        "noCountries": "すべての国が許可されています。",
+        "dpo": "データ保護責任者"
+      },
+      "signup": {
+        "subtitle": "顧客が書類スキャン前に入力する内容。",
+        "fullName": {
+          "separate": "名 + 姓",
+          "together": "氏名（一括）"
+        },
+        "business": {
+          "name_number": "会社名 + 税番号",
+          "name": "会社名のみ"
+        },
+        "email": {
+          "mailgun": "メール · 検証あり",
+          "none": "メール · 検証なし"
+        },
+        "phone": {
+          "sms": "電話 · SMS",
+          "whatsapp": "電話 · WhatsApp",
+          "both": "電話 · WhatsApp + SMS",
+          "none": "電話 · 検証なし"
+        },
+        "address": "会社住所",
+        "terms": "利用規約を表示",
+        "privacy": "プライバシー通知を表示",
+        "additionalFields": "追加フィールド"
+      },
+      "documents": {
+        "subtitle": "本人確認書類の受付と検証方法。",
+        "attempts": "{{count}}回の試行",
+        "screeningOn": "データベース照会が有効",
+        "noCountries": "まだ国の設定がありません。",
+        "activeCount": "{{count}}件の有効な設定"
+      },
+      "liveness": {
+        "subtitle": "セルフィー一致と重複検出の閾値。"
+      },
+      "representatives": {
+        "subtitle": "企業を代表して登録する人。",
+        "notification": {
+          "email": "メールで通知",
+          "whatsapp": "WhatsApp で通知",
+          "sms": "SMS で通知",
+          "link": "リンクを共有"
+        }
+      },
+      "integrations": {
+        "subtitle": "登録後の遷移先と通知方法。"
+      },
+      "brand": {
+        "title": "ブランド",
+        "subtitle": "登録画面に適用されるロゴ・画像・パレット。",
+        "logo": "ロゴ",
+        "image": "画像",
+        "editBrand": "ブランドを編集"
+      },
       "summary": {
         "edit": "Edit",
         "basic": "{{ countries }} allowed countries",
@@ -569,6 +636,44 @@
         "verdict": "総合結果",
         "technicalMetadata": "セッション・技術情報",
         "technicalMetadataHint": "IP、端末、関連ID、タイムスタンプ、検証スナップショットなど。"
+      },
+      "devView": {
+        "toggleOn": "開発者ビュー",
+        "toggleOff": "通常ビュー",
+        "copy": "JSONをコピー",
+        "copied": "クリップボードにコピーしました",
+        "copyError": "このオブジェクトをコピーできませんでした",
+        "webhookEvents": "この登録に関連するWebhookイベント",
+        "apiHint": "API リクエスト",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "クリップボードにコピーしました",
+        "apiHintCopyButton": "コピー",
+        "apiHintClose": "閉じる",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "クエリパラメータ（この画面と同様 — populates[] を増減してネストの量を調整）:",
+        "apiHintCompareNoDirect": "FaceVerification の GET（id指定）はありません。比較は /v2/face-recognition/... の POST で行います。",
+        "apiHintCompareFallback": "app registration 経由でネスト取得:",
+        "apiHintEmptyList": "取得するレコードがありません。",
+        "apiHintNoId": "このブロックの _id を解決できませんでした。",
+        "apiHintWebhookNote": "この app registration の webhook イベント一覧（Smart Monitor と同様の既定値）:",
+        "apiHintArrayMore": "+ あと {{count}} 件（同じ GET パターン）",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project",
+          "webhookEvents": "この登録に関連するWebhookイベント"
+        }
       },
       "boolYes": "はい",
       "boolNo": "いいえ",
@@ -760,53 +865,87 @@
         "confirm_skip_message": "公式書類なしで顧客が登録されます。",
         "confirm_skip_yes": "はい、スキップ",
         "confirm_skip_back": "戻る",
-        "title": "Document verification",
-        "subtitle": "Decide whether and how customers must present an official document.",
+        "title": "書類の確認",
+        "subtitle": "顧客が公式書類を提示する必要があるか、どのように提示するかを設定します。",
         "business": {
-          "title": "Business verification",
-          "subtitle": "Verify business documents during onboarding.",
-          "toggle": "Verify business documents"
+          "title": "企業の確認",
+          "subtitle": "オンボーディング時に企業書類を確認します。",
+          "toggle": "企業書類を確認する"
         },
-        "skip": "Not required",
-        "optional": "Optional",
-        "required": "Required",
+        "skip": "不要",
+        "optional": "任意",
+        "required": "必須",
         "attempts": {
-          "title": "Attempts",
-          "subtitle": "How many tries the customer gets before the step fails.",
-          "limit": "Attempt limit"
+          "title": "試行回数",
+          "subtitle": "失敗するまでに顧客が試せる回数。",
+          "limit": "試行上限",
+          "one": "1回",
+          "many": "{{count}}回"
         },
         "method": {
-          "title": "Verification methods",
-          "subtitle": "Pick which scanning methods to enable.",
-          "scanAgent": "Scan Agent",
-          "scanStudio": "Scan Studio",
-          "scanPrompt": "Scan Prompt"
+          "title": "確認方法",
+          "subtitle": "顧客が書類をどのようにキャプチャするかを選びます。",
+          "upload": "書類をアップロード",
+          "scan": "書類をスキャン",
+          "required": "少なくとも1つの確認方法を選択してください。",
+          "help": "両方を有効にすると顧客がどちらかを選べます。スキャンはカメラを使用し、アップロードはファイルを受け付けます。"
         },
         "screening": {
-          "title": "Background screening",
-          "subtitle": "Run additional verifications after a successful scan.",
-          "criminalHistory": "Criminal history check",
-          "informationVerification": "Government information verification"
+          "title": "データベース照会",
+          "subtitle": "スキャン成功後に追加の確認を実行します。",
+          "criminalHistory": "犯罪歴",
+          "criminalHistoryDescription": "犯罪歴データベースで顧客を照会します。",
+          "informationVerification": "情報の検証",
+          "informationVerificationDescription": "公式データベースで身元を検証します。",
+          "requiresVerification": "照会が有効な場合、少なくとも1つの検証を有効にしてください。",
+          "localApi": "ローカル背景調査",
+          "localApiTooltip": "選択した国で利用可能な Verifik のローカル API を確認します。"
         },
         "types": {
-          "title": "Accepted document types",
-          "subtitle": "Configure which documents are accepted in each country.",
-          "empty": "No document configurations yet — add a country to start.",
-          "country": "Country",
-          "remove": "Remove",
-          "add": "Add country",
-          "configurations": "Configurations",
-          "activateHint": "Enable at least one configuration to make this country valid.",
-          "invalid": "Some document configurations are missing required values."
+          "title": "受け付ける書類の種類",
+          "subtitle": "各国で受け付ける書類を設定します。",
+          "empty": "まだ設定がありません — 国を追加してください。",
+          "country": "国",
+          "remove": "削除",
+          "add": "国を追加",
+          "configurations": "設定",
+          "activateHint": "この国を有効にするには、少なくとも1つの設定を有効にしてください。",
+          "invalid": "一部の設定が不完全です。",
+          "errors": {
+            "atLeastOne": "少なくとも1つの国の設定を追加してください。",
+            "duplicateCountries": "各国は一度しか追加できません。",
+            "allMustBeValid": "一部の国の設定が不完全です。",
+            "emptyCountry": "各設定で国を選んでください。"
+          },
+          "pickCountryFirst": "利用可能な書類を読み込むには国を選択してください。",
+          "loading": "書類を読み込み中…",
+          "noTemplates": "{{ country }}またはグローバルに{{ category }}の書類はありません。",
+          "noTemplatesShort": "この国にはカタログ（グローバルを含む）に利用可能な書類がありません。",
+          "selectedOfAvailable": "{{ total }}件中{{ selected }}件選択済み",
+          "preview": "プレビュー",
+          "previewTitle": "書類プレビュー",
+          "frontImage": "表面",
+          "backImage": "裏面",
+          "noImage": "画像がありません。",
+          "globalBadge": "グローバル"
         },
         "category": {
-          "government_id": "Government ID",
-          "passport": "Passport",
-          "license": "Driver license",
-          "business_document": "Business document",
-          "tax_document": "Tax document",
-          "proof_of_address": "Proof of address",
-          "bank_document": "Bank document"
+          "government_id": "身分証明書",
+          "passport": "パスポート",
+          "license": "運転免許証",
+          "business_document": "企業書類",
+          "tax_document": "税務書類",
+          "proof_of_address": "住所証明",
+          "bank_document": "銀行関連書類"
+        },
+        "localApi": {
+          "title": "Verifik のローカル背景調査API",
+          "description": "これらのローカル API は設定した国に対して自動的に実行されます。プロジェクトに含まれる国はハイライト表示されます。",
+          "highlightNote": "ハイライトされた項目は書類リストの国と一致します。",
+          "compatible": "選択と互換性あり",
+          "loading": "読み込み中…",
+          "empty": "利用可能なローカル API はありません。",
+          "close": "閉じる"
         }
       },
       "basicSetup": {
@@ -857,48 +996,78 @@
         "business": {
           "title": "Business basic info",
           "subtitle": "How company information is collected.",
+          "addressTitle": "Business address",
+          "addressSubtitle": "Ask for a business or premises address during sign-up.",
           "nameNumber": "Name + tax number",
-          "separate": "Separate fields"
+          "nameOnly": "Company name only"
+        },
+        "additionalFields": {
+          "title": "Additional information",
+          "subtitle": "Optional extra fields on the enrollment form.",
+          "error": "Select at least one field when this option is enabled.",
+          "gender": "Gender",
+          "country": "Country",
+          "dateOfBirth": "Date of birth",
+          "address": "Address",
+          "age": "Age",
+          "postalCode": "Postal code"
         },
         "email": {
           "title": "Email address",
+          "businessTitle": "Business email",
           "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Send via Mailgun",
-          "none": "No verification"
+          "mailgun": "Validate",
+          "none": "Don't validate"
         },
         "phone": {
           "title": "Phone number",
+          "businessTitle": "Business phone",
           "subtitle": "Capture and verify a customer phone number.",
-          "both": "SMS + WhatsApp",
-          "countryCode": "Default country code"
+          "both": "WhatsApp + SMS",
+          "none": "Don't validate",
+          "countryCode": "Default country code",
+          "searchCountry": "Search countries..."
         },
+        "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {
           "title": "Legal disclosures",
           "subtitle": "Show consent links inside the enrollment flow.",
           "privacy": "Show privacy notice",
-          "terms": "Show terms & conditions"
+          "terms": "Show terms & conditions",
+          "urlRequired": "URLは必須です。",
+          "urlInvalid": "有効なURLを入力してください（https://...）。"
         }
       },
       "liveness": {
-        "title": "Liveness verification",
-        "subtitle": "Confirm a real person is on the other side of the camera.",
+        "title": "ライブネス確認",
+        "subtitle": "カメラの向こう側に実在の人物がいることを確認します。",
+        "requirementHelp": "顧客ごとにバイオメトリクスを必須、任意、またはスキップにするか選択します。",
+        "actualScore": "現在のスコア",
         "kyc": {
-          "title": "KYC type",
-          "subtitle": "Choose how identity proofs are stored and shared.",
-          "traditional": "Traditional KYC",
-          "zeroKnowledge": "Zero-knowledge KYC"
+          "title": "KYCの種類",
+          "subtitle": "本人確認の証跡をどのように保存・共有するか選択します。",
+          "traditional": "従来型KYC",
+          "zeroKnowledge": "ゼロ知識KYC",
+          "traditionalDescription": "顧客のバイオメトリックテンプレートを本人情報とともに保存し、再検証や検索に利用できます。",
+          "zeroKnowledgeDescription": "顧客の検証をローカルで実行し、プライバシー保護用の証拠のみを保存します。バイオメトリックテンプレートは保存されません。"
         },
         "thresholds": {
-          "title": "Scoring thresholds",
-          "subtitle": "Tune the minimum scores required for the customer to pass.",
-          "attemptLimit": "Attempt limit",
-          "searchMode": "Search mode",
-          "fast": "Fast",
-          "accurate": "Accurate",
-          "minScore": "Liveness minimum score",
-          "compareMinScore": "Face compare minimum score",
-          "searchMinScore": "Search minimum score",
-          "searchWarn": "Below 80% increases false positives"
+          "title": "スコア閾値",
+          "subtitle": "顧客が合格するために必要な最低スコアを調整します。",
+          "attemptLimit": "試行上限",
+          "searchMode": "検索モード",
+          "fast": "高速",
+          "accurate": "高精度",
+          "minScore": "ライブネスの最小スコア",
+          "minScoreSubtitle": "セルフィーが本人であると判断するために必要な最小信頼度。",
+          "minScoreHelp": "値を高くするとなりすましは減りますが、本物のユーザーも拒否されやすくなります。",
+          "compareMinScore": "顔比較の最小スコア",
+          "compareMinScoreSubtitle": "セルフィーが書類の写真とどの程度一致する必要があるか。",
+          "compareMinScoreHelp": "値を高くすると誤一致は減りますが、低品質な写真が拒否される場合があります。",
+          "searchMinScore": "検索の最小スコア",
+          "searchMinScoreSubtitle": "既存の登録から顧客を検索する際の信頼度閾値。",
+          "searchMinScoreHelp": "1:N の重複検出に使用します。",
+          "searchWarn": "80%未満では誤検出が増加します"
         }
       },
       "representatives": {
@@ -919,50 +1088,76 @@
       },
       "integrations": {
         "redirect": {
-          "title": "Redirect URL",
-          "subtitle": "Where to send the customer once enrollment finishes.",
-          "url": "Redirect URL"
+          "title": "リダイレクトURL",
+          "subtitle": "登録完了後に顧客を送信する先。",
+          "url": "リダイレクトURL",
+          "exampleUrl": "例: <strong>{{url}}</strong>",
+          "required": "リダイレクトURLは必須です。",
+          "invalid": "有効なURLを入力してください（https://...）。"
         },
         "webhook": {
           "title": "Webhook",
-          "subtitle": "Push enrollment events to your server.",
+          "subtitle": "登録イベントをサーバーに送信します。",
           "select": "Webhook",
-          "none": "No webhook",
-          "refresh": "Refresh",
-          "manage": "Manage webhooks"
+          "none": "Webhookなし",
+          "refresh": "更新",
+          "manage": "Webhookを管理",
+          "noWebhooksMessage": "Webhookがまだありません。",
+          "createWebhook": "作成する"
         },
         "source": {
-          "title": "Allow / deny list source",
-          "subtitle": "Optionally call your API to check whether the customer can enroll.",
-          "none": "Disabled",
-          "api": "External API",
-          "apiUrl": "API URL",
-          "testType": "Test type",
-          "testValue": "Test value",
-          "test": "Send test"
+          "title": "許可／拒否リストのソース",
+          "subtitle": "顧客が登録できるかをAPIで確認できます（任意）。",
+          "none": "無効",
+          "api": "外部API",
+          "apiUrl": "APIのURL",
+          "testType": "テストの種類",
+          "testValue": "テスト値",
+          "test": "テストを送信",
+          "help": "顧客のメール/電話をお客様のエンドポイントへ転送し、<strong>200</strong>が返された場合のみ登録を許可します。",
+          "email": "メール",
+          "phone": "電話",
+          "invalidUrl": "有効なURLを入力してください（https://...）。",
+          "apiUrlRequired": "APIのURLは必須です。",
+          "testApiDescription": "テストペイロードを送信して、お客様のエンドポイントが当社フォーマットを受け入れることを確認します。",
+          "expectedResponse": "期待される応答",
+          "receivedResponse": "受信した応答",
+          "missingTestInputs": "テストの種類と値を入力してください。",
+          "invalidTestUrl": "有効なテストURLを入力してください。"
         }
       },
       "ui": {
         "colors": {
-          "title": "Title",
-          "subtitle": "Match the enrollment screens to your brand palette.",
-          "background": "Background",
-          "text": "Body text",
-          "button": "Button",
-          "buttonText": "Button text",
-          "imageBackground": "Image background"
+          "heading": "ブランドカラー",
+          "title": "タイトル",
+          "subtitle": "登録画面をブランドのパレットに合わせます。",
+          "background": "背景",
+          "text": "本文",
+          "button": "ボタン",
+          "buttonText": "ボタンの文字",
+          "imageBackground": "画像の背景"
         },
         "images": {
-          "title": "Images",
-          "subtitle": "Logo and optional banner shown to the customer.",
-          "logo": "Logo",
-          "logoSubtitle": "PNG or SVG, square preferred. Up to 512KB.",
-          "banner": "Banner",
-          "bannerSubtitle": "Optional decorative image shown above the form.",
-          "upload": "Upload",
-          "remove": "Remove",
-          "tooLarge": "Image is larger than 512KB. Please choose a smaller file.",
-          "uploadFailed": "Could not read this file."
+          "title": "画像",
+          "subtitle": "顧客に表示されるロゴと任意のバナー。",
+          "logo": "ロゴ",
+          "logoSubtitle": "PNGまたはJPG、正方形推奨。最大512KB。",
+          "banner": "バナー画像",
+          "bannerSubtitle": "フォームの横に表示する任意の装飾画像。最大2MB。",
+          "upload": "アップロード",
+          "remove": "削除",
+          "removeLogo": "ロゴを削除",
+          "removeImage": "画像を削除",
+          "currentLogo": "現在のロゴ",
+          "currentImage": "現在の画像",
+          "dragFiles": "ファイルをドラッグするかクリックして選択",
+          "dropFiles": "ファイルをドロップ",
+          "supportedFormats": "対応形式: {{formats}}（最大 {{maxSize}}）",
+          "uploading": "アップロード中…",
+          "tooLarge": "ファイルが {{maxSize}} を超えています。",
+          "notAccepted": "対応していないファイル形式です。",
+          "uploadedSuccessfully": "{{name}} を保存しました。",
+          "uploadFailed": "ファイルをアップロードできませんでした。"
         }
       }
     }
@@ -1243,7 +1438,7 @@
       "limit_reached": "プランの最大チームメンバー数に達しました。追加するにはアップグレードしてください。",
       "no_plan_warning": "チームメンバーを追加するには、アクティブなサブスクリプションプランが必要です。",
       "no_plan_error": "アクティブなサブスクリプションプランなしではチームメンバーを追加できません。",
-      "view_plans": "プランを表示"
+      "view_plans": "SmartCheckのプランを表示"
     },
     "plans": " Plans"
   },

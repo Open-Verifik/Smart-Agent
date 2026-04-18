@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-enroll/smart-enroll.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport default [\n    { path: '', redirectTo: 'smart-scan', pathMatch: 'full' },\n    {\n        path: 'smart-scan',\n        loadChildren: () =>\n            import('./smart-scan/smart-scan.routes').then((m) => m.default),\n    },\n    {\n        path: 'plans',\n        loadComponent: () =>\n            import('./plans/smart-enroll-plans.component').then((m) => m.SmartEnrollPlansComponent),\n    },\n    {\n        path: 'projects',\n        loadChildren: () =>\n            import('./projects/smart-enroll-projects.routes').then((m) => m.default),\n    },\n] as Routes;\n"],
-  "mappings": ";;;AAEA,IAAA,8BAAe;EACX,EAAE,MAAM,IAAI,YAAY,cAAc,WAAW,OAAM;EACvD;IACI,MAAM;IACN,cAAc,MACV,OAAO,qBAAgC,EAAE,KAAK,CAAC,MAAM,EAAE,OAAO;;EAEtE;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAAsC,EAAE,KAAK,CAAC,MAAM,EAAE,yBAAyB;;EAE9F;IACI,MAAM;IACN,cAAc,MACV,OAAO,qBAAyC,EAAE,KAAK,CAAC,MAAM,EAAE,OAAO;;;",
-  "names": []
-}

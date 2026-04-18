@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/environments/environment.ts"],
-  "sourcesContent": ["export const environment = {\n    production: false,\n    thisUrl: 'http://localhost:4201',\n    baseUrl: 'http://localhost:3006',\n    smartAgentUrl: 'http://localhost:3060',\n    apiUrl: 'https://verifik.app',\n    appUrl: 'http://localhost:3006',\n    projectId: '6266193db77ccc8111730c90',\n    loginProjectFlowId: '658ed28b0990f300134d7b78',\n    kycBaseUrl: 'https://access.app',\n    // Blockchain Config\n    rpcUrl: 'https://wild-bitter-meadow.avalanche-mainnet.quiknode.pro/e2565749ca44c2873fe2a0a747f5ac68ae7eb14f/ext/bc/C/rpc/',\n    vkaContractAddress: '0x8fc4b00689812f449723CB473E0A7C060b10eD3f',\n    tokenTicker: 'VKA',\n    // Mainnet Contracts\n    x402PaymentContract: '0x5e3C7c44e5d76fa5517378582B824046cBDcFfCD',\n    reputationRegistryContract: '0x310247955605c357628F51e94b3E5A20225C71a4',\n    priorityFeeTipGwei: '5',\n    // Network Configuration\n    chainId: 43114, // Avalanche Mainnet (43113 = Fuji Testnet)\n    isTestnet: false, // Explicitly set to false for mainnet\n};\n"],
-  "mappings": ";AAAO,IAAM,cAAc;EACvB,YAAY;EACZ,SAAS;EACT,SAAS;EACT,eAAe;EACf,QAAQ;EACR,QAAQ;EACR,WAAW;EACX,oBAAoB;EACpB,YAAY;;EAEZ,QAAQ;EACR,oBAAoB;EACpB,aAAa;;EAEb,qBAAqB;EACrB,4BAA4B;EAC5B,oBAAoB;;EAEpB,SAAS;;EACT,WAAW;;;",
-  "names": []
-}

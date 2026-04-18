@@ -15,7 +15,7 @@ import type {
 } from './smart-enroll-projects.types';
 
 /** Matches client-panel project-record getRecord() onboarding populates */
-const APP_REGISTRATION_DETAIL_POPULATES: string[] = [
+export const APP_REGISTRATION_DETAIL_POPULATES: string[] = [
     'emailValidation',
     'phoneValidation',
     'biometricValidation',

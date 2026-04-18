@@ -9,7 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { STRICT_URL_PATTERN } from 'app/shared/validators/validation-patterns';
 import { SetupService } from '../../setup.service';
@@ -45,6 +45,7 @@ export class SetupIntegrationsComponent implements OnInit {
     private _cdr = inject(ChangeDetectorRef);
     private _snack = inject(MatSnackBar);
     private _setup = inject(SetupService);
+    private _transloco = inject(TranslocoService);
 
     receivedResponse: any = {};
     refreshingWebhooks = false;
@@ -102,11 +103,19 @@ export class SetupIntegrationsComponent implements OnInit {
         const apiUrl = this.integrationsFormGroup?.get('apiUrl')?.value as string;
 
         if (!apiTestType || !apiTestValue) {
-            this._snack.open('Please enter a test type and value', 'Close', { duration: 3000 });
+            this._snack.open(
+                this._transloco.translate('smartEnrollProjects.setup.integrations.source.missingTestInputs'),
+                this._transloco.translate('close'),
+                { duration: 3000 }
+            );
             return;
         }
         if (!apiUrl || !STRICT_URL_PATTERN.test(apiUrl)) {
-            this._snack.open('Please enter a valid test URL', 'Close', { duration: 3000 });
+            this._snack.open(
+                this._transloco.translate('smartEnrollProjects.setup.integrations.source.invalidTestUrl'),
+                this._transloco.translate('close'),
+                { duration: 3000 }
+            );
             return;
         }
 

@@ -1,5 +1,6 @@
 <ng-container *transloco="let t">
     <form [formGroup]="form" *ngIf="isFormReady" class="flex w-full flex-col gap-6">
+        <!-- Target picker (top-level only, hidden inside representatives sub-form) -->
         @if (!subForm) {
             <section
                 class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
@@ -16,29 +17,37 @@
                     <mat-button-toggle value="personal">
                         {{ t('smartEnrollProjects.setup.signupForm.target.personal') }}
                     </mat-button-toggle>
-                    <mat-button-toggle value="business">
+                    <mat-button-toggle value="business" disabled>
                         {{ t('smartEnrollProjects.setup.signupForm.target.business') }}
                     </mat-button-toggle>
                 </mat-button-toggle-group>
             </section>
         }
 
-        <ng-container [formGroup]="formGroup">
+        <ng-container *ngIf="formType" [formGroup]="formGroup">
+            <!-- 1. Full name (personal) / Business basic info (business) -->
             <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="!formGroup?.get('fullName')?.errors"
+                [class.dark:border-gray-700]="!formGroup?.get('fullName')?.errors"
+                [class.border-red-500]="formGroup?.get('fullName')?.errors"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
                 <header class="mb-4">
                     <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ formType === 'business'
-                            ? t('smartEnrollProjects.setup.signupForm.business.title')
-                            : t('smartEnrollProjects.setup.signupForm.fullName.title') }}
+                        {{
+                            formType === 'business'
+                                ? t('smartEnrollProjects.setup.signupForm.business.title')
+                                : t('smartEnrollProjects.setup.signupForm.fullName.title')
+                        }}
                     </h2>
                     <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ formType === 'business'
-                            ? t('smartEnrollProjects.setup.signupForm.business.subtitle')
-                            : t('smartEnrollProjects.setup.signupForm.fullName.subtitle') }}
+                        {{
+                            formType === 'business'
+                                ? t('smartEnrollProjects.setup.signupForm.business.subtitle')
+                                : t('smartEnrollProjects.setup.signupForm.fullName.subtitle')
+                        }}
                     </p>
                 </header>
 
@@ -51,27 +60,138 @@
                             {{ t('smartEnrollProjects.setup.signupForm.fullName.together') }}
                         </mat-radio-button>
                     </mat-radio-group>
-                } @else {
+                }
+
+                @if (formType === 'business' && formGroup?.get('businessBasicInfo')?.value) {
                     <mat-radio-group formControlName="businessBasicInfoStyle" class="flex flex-wrap gap-4">
                         <mat-radio-button value="name_number">
                             {{ t('smartEnrollProjects.setup.signupForm.business.nameNumber') }}
                         </mat-radio-button>
-                        <mat-radio-button value="separate">
-                            {{ t('smartEnrollProjects.setup.signupForm.business.separate') }}
+                        <mat-radio-button value="name">
+                            {{ t('smartEnrollProjects.setup.signupForm.business.nameOnly') }}
                         </mat-radio-button>
                     </mat-radio-group>
                 }
             </section>
 
+            <!-- 2. Phone -->
             <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [class.dark:border-gray-700]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [class.border-red-500]="formGroup?.errors?.['atLeastOneContactMethodRequired']"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
                 <header class="mb-4 flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{ t('smartEnrollProjects.setup.signupForm.email.title') }}
+                            {{
+                                formType === 'business'
+                                    ? t('smartEnrollProjects.setup.signupForm.phone.businessTitle')
+                                    : t('smartEnrollProjects.setup.signupForm.phone.title')
+                            }}
+                        </h2>
+                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.signupForm.phone.subtitle') }}
+                        </p>
+                    </div>
+                    <mat-slide-toggle formControlName="phone"></mat-slide-toggle>
+                </header>
+
+                @if (formGroup?.get('phone')?.value) {
+                    <div class="flex flex-col gap-4">
+                        <mat-radio-group formControlName="phoneGateway" class="flex flex-wrap gap-4">
+                            <mat-radio-button value="both">{{
+                                t('smartEnrollProjects.setup.signupForm.phone.both')
+                            }}</mat-radio-button>
+                            <mat-radio-button value="whatsapp">WhatsApp</mat-radio-button>
+                            <mat-radio-button value="sms">SMS</mat-radio-button>
+                            <mat-radio-button value="none">{{
+                                t('smartEnrollProjects.setup.signupForm.phone.none')
+                            }}</mat-radio-button>
+                        </mat-radio-group>
+
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-medium text-stone-600 dark:text-stone-300">
+                                {{ t('smartEnrollProjects.setup.signupForm.phone.countryCode') }}
+                            </label>
+                            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="max-w-md">
+                                <mat-select
+                                    formControlName="countryCode"
+                                    panelClass="country-code-search-panel"
+                                    (openedChange)="$event ? onCountryCodeSelectOpened() : onCountryCodeSelectClosed()"
+                                >
+                                    <mat-select-trigger>
+                                        <span class="font-semibold">{{ formGroup?.get('countryCode')?.value }}</span>
+                                        <span class="ml-2 text-stone-500">{{ selectedCountryName }}</span>
+                                    </mat-select-trigger>
+
+                                    <!-- Search row, kept inside the panel like client-panel -->
+                                    <div
+                                        class="sticky top-0 z-10 flex items-center gap-2 bg-white px-3 py-2 dark:bg-gray-900"
+                                        (click)="$event.stopPropagation()"
+                                        (keydown)="$event.stopPropagation()"
+                                        (mousedown)="$event.stopPropagation()"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 text-stone-400">search</mat-icon>
+                                        <input
+                                            #countryCodeSearchInput
+                                            type="text"
+                                            class="w-full bg-transparent text-sm outline-none placeholder:text-stone-400"
+                                            [placeholder]="t('smartEnrollProjects.setup.signupForm.phone.searchCountry')"
+                                            [value]="countryCodeSearchTerm"
+                                            (click)="$event.stopPropagation()"
+                                            (input)="onCountryCodeSearchChange($any($event.target).value)"
+                                            (keydown)="$event.stopPropagation()"
+                                        />
+                                        <button
+                                            *ngIf="countryCodeSearchTerm"
+                                            mat-icon-button
+                                            type="button"
+                                            class="!h-6 !w-6 !min-w-0"
+                                            (click)="clearCountryCodeSearch($event)"
+                                        >
+                                            <mat-icon class="!h-4 !w-4">close</mat-icon>
+                                        </button>
+                                    </div>
+
+                                    @for (c of filteredPhoneCountryCodes; track trackByPhoneCountryCode($index, c)) {
+                                        <mat-option [value]="c.code">
+                                            <span class="font-semibold">{{ c.code }}</span>
+                                            <span class="ml-2 text-stone-500">{{ c.name }}</span>
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                }
+
+                @if (formGroup?.errors?.['atLeastOneContactMethodRequired']) {
+                    <p class="mt-3 text-sm text-red-600 dark:text-red-400">
+                        {{ t('smartEnrollProjects.setup.signupForm.atLeastOneContactMethod') }}
+                    </p>
+                }
+            </section>
+
+            <!-- 3. Email -->
+            <section
+                class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [class.dark:border-gray-700]="!formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [class.border-red-500]="formGroup?.errors?.['atLeastOneContactMethodRequired']"
+                [class.opacity-50]="isNotRequired"
+                [class.pointer-events-none]="isNotRequired"
+            >
+                <header class="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{
+                                formType === 'business'
+                                    ? t('smartEnrollProjects.setup.signupForm.email.businessTitle')
+                                    : t('smartEnrollProjects.setup.signupForm.email.title')
+                            }}
                         </h2>
                         <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
                             {{ t('smartEnrollProjects.setup.signupForm.email.subtitle') }}
@@ -92,73 +212,147 @@
                 }
             </section>
 
+            <!-- 4. Additional fields (personal only) -->
+            @if (formType === 'personal') {
+                <section
+                    class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                    [class.border-stone-200]="!formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']"
+                    [class.dark:border-gray-700]="!formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']"
+                    [class.border-red-500]="formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']"
+                    [class.opacity-50]="isNotRequired"
+                    [class.pointer-events-none]="isNotRequired"
+                >
+                    <header class="mb-4 flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                {{ t('smartEnrollProjects.setup.signupForm.additionalFields.title') }}
+                            </h2>
+                            <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.setup.signupForm.additionalFields.subtitle') }}
+                            </p>
+                        </div>
+                        <mat-slide-toggle formControlName="allowAdditionalFields"></mat-slide-toggle>
+                    </header>
+
+                    @if (formGroup?.get('allowAdditionalFields')?.value) {
+                        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            @for (opt of additionalFieldOptions; track opt.value) {
+                                <mat-checkbox
+                                    [checked]="additionalFieldChecked(opt.value)"
+                                    (change)="toggleAdditionalField(opt.value, $event.checked)"
+                                >
+                                    {{ t(opt.labelKey) }}
+                                </mat-checkbox>
+                            }
+                        </div>
+                        @if (formGroup?.get('allowAdditionalFields')?.errors?.['additionalFieldsRequired']) {
+                            <p class="mt-2 text-sm text-red-600 dark:text-red-400">
+                                {{ t('smartEnrollProjects.setup.signupForm.additionalFields.error') }}
+                            </p>
+                        }
+                    }
+                </section>
+            }
+
+            <!-- 5. Business address (business only) -->
+            @if (formType === 'business') {
+                <section
+                    class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                    [class.opacity-50]="isNotRequired"
+                    [class.pointer-events-none]="isNotRequired"
+                >
+                    <header class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                {{ t('smartEnrollProjects.setup.signupForm.business.addressTitle') }}
+                            </h2>
+                            <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.setup.signupForm.business.addressSubtitle') }}
+                            </p>
+                        </div>
+                        <mat-slide-toggle formControlName="address"></mat-slide-toggle>
+                    </header>
+                </section>
+            }
+
+            <!-- 6. Terms & conditions -->
             <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
-                <header class="mb-4 flex items-start justify-between gap-4">
+                <header class="flex items-start justify-between gap-4">
                     <div>
                         <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{ t('smartEnrollProjects.setup.signupForm.phone.title') }}
+                            {{ t('smartEnrollProjects.setup.signupForm.legal.terms') }}
                         </h2>
-                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartEnrollProjects.setup.signupForm.phone.subtitle') }}
-                        </p>
                     </div>
-                    <mat-slide-toggle formControlName="phone"></mat-slide-toggle>
+                    <mat-slide-toggle formControlName="showTermsAndConditions"></mat-slide-toggle>
                 </header>
-
-                @if (formGroup?.get('phone')?.value) {
-                    <div class="flex flex-col gap-4">
-                        <mat-radio-group formControlName="phoneGateway" class="flex flex-wrap gap-4">
-                            <mat-radio-button value="sms">SMS</mat-radio-button>
-                            <mat-radio-button value="whatsapp">WhatsApp</mat-radio-button>
-                            <mat-radio-button value="both">{{
-                                t('smartEnrollProjects.setup.signupForm.phone.both')
-                            }}</mat-radio-button>
-                        </mat-radio-group>
-
-                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="max-w-xs">
-                            <mat-label>{{ t('smartEnrollProjects.setup.signupForm.phone.countryCode') }}</mat-label>
-                            <mat-select formControlName="countryCode">
-                                @for (c of phoneCountryCodes; track c.code) {
-                                    <mat-option [value]="c.code">{{ c.code }} — {{ c.name }}</mat-option>
-                                }
-                            </mat-select>
+                @if (formGroup?.get('showTermsAndConditions')?.value) {
+                    @let tcu = form.get('termsAndConditionsUrl');
+                    @if (tcu) {
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full max-w-2xl">
+                            <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.compliance.termsUrl') }}</mat-label>
+                            <input
+                                matInput
+                                type="url"
+                                placeholder="https://"
+                                autocomplete="off"
+                                [formControl]="$any(tcu)"
+                            />
+                            @if (tcu.touched && tcu.invalid) {
+                                <mat-error>
+                                    @if (tcu.hasError('required')) {
+                                        {{ t('smartEnrollProjects.setup.signupForm.legal.urlRequired') }}
+                                    } @else if (tcu.hasError('pattern')) {
+                                        {{ t('smartEnrollProjects.setup.signupForm.legal.urlInvalid') }}
+                                    }
+                                </mat-error>
+                            }
                         </mat-form-field>
-                    </div>
+                    }
                 }
             </section>
 
+            <!-- 7. Privacy notice -->
             <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
-                <header class="mb-4">
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.signupForm.legal.title') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.signupForm.legal.subtitle') }}
-                    </p>
-                </header>
-
-                <div class="flex flex-col gap-3">
-                    <label class="flex items-center justify-between gap-4">
-                        <span class="text-sm text-stone-700 dark:text-stone-200">
+                <header class="flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
                             {{ t('smartEnrollProjects.setup.signupForm.legal.privacy') }}
-                        </span>
-                        <mat-slide-toggle formControlName="showPrivacyNotice"></mat-slide-toggle>
-                    </label>
-                    <label class="flex items-center justify-between gap-4">
-                        <span class="text-sm text-stone-700 dark:text-stone-200">
-                            {{ t('smartEnrollProjects.setup.signupForm.legal.terms') }}
-                        </span>
-                        <mat-slide-toggle formControlName="showTermsAndConditions"></mat-slide-toggle>
-                    </label>
-                </div>
+                        </h2>
+                    </div>
+                    <mat-slide-toggle formControlName="showPrivacyNotice"></mat-slide-toggle>
+                </header>
+                @if (formGroup?.get('showPrivacyNotice')?.value) {
+                    @let pu = form.get('privacyUrl');
+                    @if (pu) {
+                        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="w-full max-w-2xl">
+                            <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.compliance.privacyUrl') }}</mat-label>
+                            <input
+                                matInput
+                                type="url"
+                                placeholder="https://"
+                                autocomplete="off"
+                                [formControl]="$any(pu)"
+                            />
+                            @if (pu.touched && pu.invalid) {
+                                <mat-error>
+                                    @if (pu.hasError('required')) {
+                                        {{ t('smartEnrollProjects.setup.signupForm.legal.urlRequired') }}
+                                    } @else if (pu.hasError('pattern')) {
+                                        {{ t('smartEnrollProjects.setup.signupForm.legal.urlInvalid') }}
+                                    }
+                                </mat-error>
+                            }
+                        </mat-form-field>
+                    }
+                }
             </section>
         </ng-container>
     </form>

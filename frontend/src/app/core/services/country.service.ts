@@ -52,6 +52,23 @@ export class CountryService {
     return this._dialCodeMap.get(dialCode);
   }
 
+  /**
+   * Filters dial-code rows by country name, dial code digits/symbols, or ISO country code.
+   */
+  filterCountryDialCodes(codes: CountryDialCode[], term: string): CountryDialCode[] {
+    const t = term.trim();
+    if (!t) {
+      return [...codes];
+    }
+    const lower = t.toLowerCase();
+    return codes.filter(
+      (country) =>
+        country.name.toLowerCase().includes(lower) ||
+        country.dialCode.includes(t) ||
+        country.countryCode.toLowerCase().includes(lower),
+    );
+  }
+
   detectCountryFromPhoneNumber(phoneNumber: string): CountryDialCode | null {
     // Remove all non-digit characters except +
     const cleaned = phoneNumber.replace(/[^\d+]/g, '');

@@ -1,0 +1,67 @@
+<ng-container *transloco="let t">
+    <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white dark:bg-gray-900">
+        <div class="flex items-center justify-between gap-4 border-b border-stone-200 bg-stone-50 p-5 dark:border-gray-700 dark:bg-gray-900/60">
+            <div class="min-w-0">
+                <h2 class="m-0 truncate text-base font-semibold text-stone-900 dark:text-white">
+                    {{ headerTitle || t('smartEnrollProjects.setup.documents.types.previewTitle') }}
+                </h2>
+                @if (data?.country) {
+                    <p class="m-0 mt-0.5 text-xs text-stone-500 dark:text-stone-400">{{ data.country }}</p>
+                }
+            </div>
+            <button mat-icon-button mat-dialog-close>
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-5">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <figure class="m-0 flex flex-col gap-2">
+                    <figcaption class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.documents.types.frontImage') }}
+                    </figcaption>
+                    @if (data?.frontImage) {
+                        <img
+                            [src]="data.frontImage"
+                            [alt]="t('smartEnrollProjects.setup.documents.types.frontImage')"
+                            loading="lazy"
+                            class="h-auto w-full rounded-xl border border-stone-200 object-contain dark:border-gray-700"
+                        />
+                    } @else {
+                        <div
+                            class="flex h-40 items-center justify-center rounded-xl border border-dashed border-stone-300 text-xs text-stone-500 dark:border-gray-700 dark:text-stone-400"
+                        >
+                            {{ t('smartEnrollProjects.setup.documents.types.noImage') }}
+                        </div>
+                    }
+                </figure>
+
+                <figure class="m-0 flex flex-col gap-2">
+                    <figcaption class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.documents.types.backImage') }}
+                    </figcaption>
+                    @if (data?.backImage) {
+                        <img
+                            [src]="data.backImage"
+                            [alt]="t('smartEnrollProjects.setup.documents.types.backImage')"
+                            loading="lazy"
+                            class="h-auto w-full rounded-xl border border-stone-200 object-contain dark:border-gray-700"
+                        />
+                    } @else {
+                        <div
+                            class="flex h-40 items-center justify-center rounded-xl border border-dashed border-stone-300 text-xs text-stone-500 dark:border-gray-700 dark:text-stone-400"
+                        >
+                            {{ t('smartEnrollProjects.setup.documents.types.noImage') }}
+                        </div>
+                    }
+                </figure>
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-2 border-t border-stone-200 p-4 dark:border-gray-700">
+            <button mat-flat-button color="primary" mat-dialog-close class="rounded-xl">
+                {{ t('smartEnrollProjects.setup.documents.localApi.close') }}
+            </button>
+        </div>
+    </div>
+</ng-container>

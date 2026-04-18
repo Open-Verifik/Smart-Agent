@@ -11,24 +11,56 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
-import type { EnrollClientRef, EnrollProject, EnrollProjectFlow } from '../smart-enroll-projects.types';
+import type {
+    EnrollClientRef,
+    EnrollProject,
+    EnrollProjectBranding,
+    EnrollProjectFlow,
+} from '../smart-enroll-projects.types';
 
-interface SectionSummary {
-    key: string;
-    titleKey: string;
-    summaryKey?: string;
-    summaryParams?: Record<string, unknown>;
-    step: number;
-    icon: string;
-    badgeKey?: string;
+interface BrandingPreview {
+    logo?: string;
+    image?: string;
+    titleColor: string;
+    textColor: string;
+    buttonColor: string;
+    buttonTextColor: string;
+    backgroundColor: string;
+    imageBackgroundColor: string;
+}
+
+interface DocumentCountryPreview {
+    country: string;
+    activeCategories: { documentCategory: string; templates: number }[];
+}
+
+interface DocumentsPreview {
+    target: 'personal' | 'business';
+    attemptLimit: number;
+    verificationMethods: string[];
+    screening: boolean;
+    informationVerification: boolean;
+    criminalHistoryVerification: boolean;
+    criminalEndpoints: string[];
+    countries: DocumentCountryPreview[];
+}
+
+interface SwatchEntry {
+    key: keyof BrandingPreview;
+    labelKey: string;
+    value: string;
 }
 
 /**
  * Read-only Overview for a Smart Enroll project.
  *
- * Privy-style summary card + section cards that deep-link into the wizard at
- * `/smart-enroll/projects/:projectId/setup/:step`. The legacy `?section=...`
- * query-param panels are kept as a thin compatibility layer for incoming links.
+ * Renders a brand-themed hero plus per-section preview cards (basic info,
+ * sign-up form, documents, liveness, representatives for KYB, integrations
+ * and brand palette). Each card has an "Edit" button that deep-links into the
+ * matching wizard step at `/smart-enroll/projects/:id/setup/:step`.
+ *
+ * The legacy `?section=...` query-param panels are kept as a thin compatibility
+ * layer for incoming links.
  */
 @Component({
     selector: 'project-detail',
@@ -66,102 +98,139 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     });
 
     target = computed<'personal' | 'business'>(() => {
-        const t = (this.flow() as EnrollProjectFlow & { target?: 'personal' | 'business' })?.target;
+        const t = this.flow()?.target ?? this.project()?.target;
         return t === 'business' ? 'business' : 'personal';
     });
 
-    sections = computed<SectionSummary[]>(() => {
-        const f = this.flow() as
-            | (EnrollProjectFlow & {
-                  signUpForm?: any;
-                  documents?: any;
-                  business?: any;
-                  liveness?: any;
-                  representatives?: any;
-                  integrations?: any;
-                  steps?: any;
-              })
-            | null;
+    /** Section 0 — Basic info. */
+    basicPreview = computed(() => {
+        const p = this.project();
+        return {
+            name: p?.name ?? '',
+            contactEmail: p?.contactEmail ?? '',
+            allowedCountries: p?.allowedCountries ?? [],
+            privacyUrl: p?.privacyUrl ?? '',
+            termsAndConditionsUrl: p?.termsAndConditionsUrl ?? '',
+            dpo: p?.dataProtection ?? null,
+        };
+    });
+
+    /** Section 1 — Sign-up form. */
+    signUpPreview = computed(() => {
+        const sf = (this.flow()?.signUpForm ?? {}) as Record<string, unknown>;
+        const fullNameStyle = sf['fullNameStyle'] as 'separate' | 'together' | undefined;
+        const businessBasicInfoStyle = sf['businessBasicInfoStyle'] as 'name' | 'name_number' | undefined;
+        return {
+            target: this.target(),
+            fullName: !!sf['fullName'],
+            fullNameStyle,
+            businessBasicInfo: !!sf['businessBasicInfo'],
+            businessBasicInfoStyle,
+            email: !!sf['email'],
+            emailGateway: (sf['emailGateway'] as string) ?? 'none',
+            phone: !!sf['phone'],
+            phoneGateway: (sf['phoneGateway'] as string) ?? 'none',
+            countryCode: (sf['countryCode'] as string) ?? '',
+            additionalFields: (sf['additionalFields'] as string[]) ?? [],
+            address: !!sf['address'],
+            showTermsAndConditions: !!sf['showTermsAndConditions'],
+            showPrivacyNotice: !!sf['showPrivacyNotice'],
+        };
+    });
+
+    /** Section 2 — Documents (or business verification for KYB). */
+    documentsPreview = computed<DocumentsPreview>(() => {
+        const f = this.flow();
         const target = this.target();
-        const branding = this.project()?.branding ?? {};
-        const docs = target === 'business' ? f?.business : f?.documents;
-        const docCountries = (docs?.documentTypes?.length as number) ?? 0;
+        const docs = ((target === 'business' ? f?.business : f?.documents) ?? {}) as Record<string, unknown>;
+        const documentTypes = (docs['documentTypes'] as Record<string, unknown>[]) ?? [];
+        return {
+            target,
+            attemptLimit: (docs['attemptLimit'] as number) ?? 3,
+            verificationMethods: (docs['verificationMethods'] as string[]) ?? [],
+            screening: !!docs['screening'],
+            informationVerification: !!docs['informationVerification'],
+            criminalHistoryVerification: !!docs['criminalHistoryVerification'],
+            criminalEndpoints: (docs['criminalHistoryVerificationEndpoints'] as string[]) ?? [],
+            countries: documentTypes.map((dt) => {
+                const configurations = (dt['configurations'] as Record<string, unknown>[]) ?? [];
+                return {
+                    country: (dt['country'] as string) ?? '',
+                    activeCategories: configurations
+                        .filter((c) => !!c['active'])
+                        .map((c) => {
+                            const templates = (c['documentTemplates'] as Record<string, unknown>[]) ?? [];
+                            return {
+                                documentCategory: (c['documentCategory'] as string) ?? '',
+                                templates: templates.filter((tpl) => !!tpl['promptTemplate']).length,
+                            };
+                        }),
+                };
+            }),
+        };
+    });
 
-        const items: SectionSummary[] = [
-            {
-                key: 'basic',
-                titleKey: 'smartEnrollProjects.setup.steps.basic_setup',
-                step: 0,
-                icon: 'tune',
-                summaryKey: 'smartEnrollProjects.detail.summary.basic',
-                summaryParams: {
-                    countries: this.project()?.allowedCountries?.length ?? 0,
-                },
-            },
-            {
-                key: 'signup',
-                titleKey: 'smartEnrollProjects.setup.steps.signup_form',
-                step: 1,
-                icon: 'edit_note',
-                summaryKey: 'smartEnrollProjects.detail.summary.signup',
-                summaryParams: {
-                    email: f?.signUpForm?.email ? '✓' : '—',
-                    phone: f?.signUpForm?.phone ? '✓' : '—',
-                },
-            },
-            {
-                key: 'documents',
-                titleKey: target === 'business'
-                    ? 'smartEnrollProjects.setup.steps.business'
-                    : 'smartEnrollProjects.setup.steps.documents',
-                step: 2,
-                icon: 'document_scanner',
-                summaryKey: 'smartEnrollProjects.detail.summary.documents',
-                summaryParams: { count: docCountries },
-                badgeKey: target === 'business' ? 'smartEnrollProjects.detail.summary.business' : undefined,
-            },
-            {
-                key: target === 'business' ? 'representatives' : 'liveness',
-                titleKey: target === 'business'
-                    ? 'smartEnrollProjects.setup.steps.representatives'
-                    : 'smartEnrollProjects.setup.steps.liveness',
-                step: 3,
-                icon: target === 'business' ? 'group' : 'face',
-                summaryKey: target === 'business'
-                    ? 'smartEnrollProjects.detail.summary.representatives'
-                    : 'smartEnrollProjects.detail.summary.liveness',
-                summaryParams: target === 'business'
-                    ? {
-                          min: f?.representatives?.minRepresentatives ?? 1,
-                          max: f?.representatives?.maxRepresentatives ?? 1,
-                      }
-                    : { score: Math.round(((f?.liveness?.minScore as number) ?? 0) * 100) },
-            },
-            {
-                key: 'integrations',
-                titleKey: 'smartEnrollProjects.setup.steps.integrations',
-                step: 4,
-                icon: 'cable',
-                summaryKey: 'smartEnrollProjects.detail.summary.integrations',
-                summaryParams: {
-                    redirect: f?.integrations?.redirectUrl ? '✓' : '—',
-                    webhook: f?.integrations?.webhook ? '✓' : '—',
-                },
-            },
-            {
-                key: 'ui',
-                titleKey: 'smartEnrollProjects.setup.steps.user_interface',
-                step: 5,
-                icon: 'palette',
-                summaryKey: 'smartEnrollProjects.detail.summary.ui',
-                summaryParams: {
-                    logo: branding.logo ? '✓' : '—',
-                    color: branding.buttonColor || branding.titleColor || '—',
-                },
-            },
+    /** Section 3 — Liveness. */
+    livenessPreview = computed(() => {
+        const liveness = (this.flow()?.liveness ?? {}) as Record<string, unknown>;
+        const pct = (v?: number) => (typeof v === 'number' ? Math.round(v * 100) : 0);
+        return {
+            kycType: (liveness['kycType'] as 'traditional' | 'zero_knowledge') ?? 'traditional',
+            attemptLimit: (liveness['attemptLimit'] as number) ?? 3,
+            minScore: pct(liveness['minScore'] as number | undefined),
+            compareMinScore: pct(liveness['compareMinScore'] as number | undefined),
+            searchMinScore: pct(liveness['searchMinScore'] as number | undefined),
+            searchMode: (liveness['searchMode'] as string) ?? 'FAST',
+        };
+    });
+
+    /** Section 3 (business) — Representatives. */
+    representativesPreview = computed(() => {
+        if (this.target() !== 'business') return null;
+        const r = (this.flow()?.representatives ?? {}) as Record<string, unknown>;
+        return {
+            minRepresentatives: (r['minRepresentatives'] as number) ?? 1,
+            maxRepresentatives: (r['maxRepresentatives'] as number) ?? 1,
+            notificationType: (r['notificationType'] as string) ?? 'email',
+        };
+    });
+
+    /** Section 4 — Integrations. */
+    integrationsPreview = computed(() => {
+        const i = (this.flow()?.integrations ?? {}) as Record<string, unknown>;
+        return {
+            redirectUrl: (i['redirectUrl'] as string) ?? '',
+            webhook: (i['webhook'] as string) ?? '',
+            source: (i['source'] as string) ?? 'NONE',
+            apiUrl: (i['apiUrl'] as string) ?? '',
+        };
+    });
+
+    /** Section 5 — Branding. */
+    brandingPreview = computed<BrandingPreview>(() => {
+        const b = (this.project()?.branding ?? {}) as EnrollProjectBranding;
+        return {
+            logo: b.logo,
+            image: b.image,
+            titleColor: b.titleColor || '#0f172a',
+            textColor: b.textColor || b.txtColor || '#475569',
+            buttonColor: b.buttonColor || '#2563eb',
+            buttonTextColor: b.buttonTextColor || b.buttonTxtColor || '#ffffff',
+            backgroundColor: b.backgroundColor || b.bgColor || '#ffffff',
+            imageBackgroundColor: b.imageBackgroundColor || '#ffffff',
+        };
+    });
+
+    swatchEntries = computed<SwatchEntry[]>(() => {
+        const b = this.brandingPreview();
+        return [
+            { key: 'titleColor', labelKey: 'smartEnrollProjects.setup.ui.colors.title', value: b.titleColor },
+            { key: 'textColor', labelKey: 'smartEnrollProjects.setup.ui.colors.text', value: b.textColor },
+            { key: 'buttonColor', labelKey: 'smartEnrollProjects.setup.ui.colors.button', value: b.buttonColor },
+            { key: 'buttonTextColor', labelKey: 'smartEnrollProjects.setup.ui.colors.buttonText', value: b.buttonTextColor },
+            { key: 'backgroundColor', labelKey: 'smartEnrollProjects.setup.ui.colors.background', value: b.backgroundColor },
+            { key: 'imageBackgroundColor', labelKey: 'smartEnrollProjects.setup.ui.colors.imageBackground', value: b.imageBackgroundColor },
         ];
-
-        return items;
     });
 
     ngOnInit(): void {
@@ -251,5 +320,32 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     formatDate(date?: string): string {
         if (!date) return '—';
         return DateTime.fromISO(date).toFormat('MMM dd, yyyy HH:mm');
+    }
+
+    /** Tailwind class for the colored bar in the liveness card. */
+    scoreBarClass(percent: number): string {
+        if (percent >= 85) return 'bg-emerald-500';
+        if (percent >= 70) return 'bg-amber-500';
+        return 'bg-rose-500';
+    }
+
+    /**
+     * Friendly label for a criminal-history endpoint identifier.
+     * `local_api` is translated; `world_api_*` codes map to the agency's
+     * proper-case name; anything else falls back to the raw code.
+     */
+    criminalEndpointLabel(value: string): string {
+        if (value === 'local_api') {
+            return this._transloco.translate('smartEnrollProjects.setup.documents.screening.localApi');
+        }
+        const map: Record<string, string> = {
+            world_api_interpol: 'Interpol',
+            world_api_fbi: 'FBI',
+            world_api_dea: 'DEA',
+            world_api_europol: 'Europol',
+            world_api_ofac: 'OFAC',
+            world_api_onu: 'ONU',
+        };
+        return map[value] ?? value;
     }
 }

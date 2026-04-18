@@ -33,7 +33,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { BillingDetailsComponent } from './billing-details/billing-details.component';
 import { ProfileData, SettingsService, Workspace } from './settings.service';
-import { StaffListComponent } from './staff-list/staff-list.component';
+import { StaffListComponent } from './staff-list';
 
 interface SettingsPanel {
     id: string;

@@ -95,6 +95,21 @@
                             {{ 'smartEnrollProjects.recordDetail.resendLink' | transloco }}
                         </button>
                     }
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="shrink-0 rounded-xl"
+                        (click)="toggleDevView()"
+                        [attr.aria-pressed]="devView()"
+                    >
+                        <mat-icon>{{ devView() ? 'visibility' : 'code' }}</mat-icon>
+                        {{
+                            (devView()
+                                ? 'smartEnrollProjects.recordDetail.devView.toggleOff'
+                                : 'smartEnrollProjects.recordDetail.devView.toggleOn'
+                            ) | transloco
+                        }}
+                    </button>
                     <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="goProjects()">
                         {{ 'smartEnrollProjects.allProjects' | transloco }}
                     </button>
@@ -115,6 +130,80 @@
                 >
                     {{ errorKey()! | transloco }}
                 </div>
+            } @else if (devView()) {
+                @if (record(); as r) {
+                    <section class="dev-view">
+                        <header class="dev-view__header">
+                            <div class="dev-view__title-block">
+                                <p class="text-lg font-semibold text-stone-900 dark:text-white">{{ displayName(r) }}</p>
+                                <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ r._id }}</p>
+                            </div>
+                            @if (r.status) {
+                                <span
+                                    class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"
+                                    [ngClass]="statusPillClass(r.status)"
+                                >
+                                    {{ r.status }}
+                                </span>
+                            }
+                        </header>
+
+                        @for (section of devSections(); track section.key) {
+                            <article class="dev-view__card">
+                                <header class="dev-view__card-header">
+                                    <h2 class="dev-view__card-title">{{ devSectionTitle(section.key) }}</h2>
+                                    <div class="dev-view__card-actions">
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            class="dev-view__api"
+                                            [disabled]="devApiHintDisabled(section.key, section.value)"
+                                            (click)="openDevApiHint(section.key, section.value)"
+                                            [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                            [title]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                        >
+                                            <mat-icon>api</mat-icon>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            mat-icon-button
+                                            class="dev-view__copy"
+                                            (click)="copyJson(section.value)"
+                                            [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.copy' | transloco"
+                                            [title]="'smartEnrollProjects.recordDetail.devView.copy' | transloco"
+                                        >
+                                            <mat-icon>content_copy</mat-icon>
+                                        </button>
+                                    </div>
+                                </header>
+                                <pre class="dev-json">{{ section.value | json }}</pre>
+                            </article>
+                        }
+
+                        <article class="dev-view__card">
+                            <header class="dev-view__card-header">
+                                <h2 class="dev-view__card-title">
+                                    {{ 'smartEnrollProjects.recordDetail.devView.webhookEvents' | transloco }}
+                                </h2>
+                                <div class="dev-view__card-actions">
+                                    <button
+                                        type="button"
+                                        mat-icon-button
+                                        class="dev-view__api"
+                                        (click)="openWebhookEventsApiHint()"
+                                        [attr.aria-label]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                        [title]="'smartEnrollProjects.recordDetail.devView.apiHint' | transloco"
+                                    >
+                                        <mat-icon>api</mat-icon>
+                                    </button>
+                                </div>
+                            </header>
+                            <div class="dev-view__webhook-events">
+                                <webhook-events [appRegistrationId]="r._id"></webhook-events>
+                            </div>
+                        </article>
+                    </section>
+                }
             } @else {
                 @if (record(); as r) {
                 <div class="record-detail-meta mb-8">

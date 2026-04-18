@@ -1,61 +1,98 @@
 <ng-container *transloco="let t">
     <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-            [formGroup]="stepFormGroup!"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ stepFormControlName === 'businessVerification'
-                        ? t('smartEnrollProjects.setup.documents.business.title')
-                        : t('smartEnrollProjects.setup.documents.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ stepFormControlName === 'businessVerification'
-                        ? t('smartEnrollProjects.setup.documents.business.subtitle')
-                        : t('smartEnrollProjects.setup.documents.subtitle') }}
-                </p>
-            </header>
-
-            @if (stepFormControlName === 'document') {
-                <mat-button-toggle-group formControlName="document" class="!rounded-xl">
-                    <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
-                    <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
-                    <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
-                </mat-button-toggle-group>
-            } @else if (stepFormControlName === 'businessVerification') {
-                <label class="flex items-center justify-between gap-4">
-                    <span class="text-sm text-stone-700 dark:text-stone-200">
-                        {{ t('smartEnrollProjects.setup.documents.business.toggle') }}
-                    </span>
-                    <mat-slide-toggle formControlName="businessVerification"></mat-slide-toggle>
-                </label>
-            }
-        </section>
-
-        <ng-container [formGroup]="formGroup">
+        <!-- 1. Step requirement card (hidden for legal-representative sub-flow) -->
+        @if (stepFormControlName !== 'legalRepresentative' && stepFormGroup) {
             <section
                 class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                [formGroup]="stepFormGroup"
+            >
+                <header class="mb-4">
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{
+                            stepFormControlName === 'businessVerification'
+                                ? t('smartEnrollProjects.setup.documents.business.title')
+                                : t('smartEnrollProjects.setup.documents.title')
+                        }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{
+                            stepFormControlName === 'businessVerification'
+                                ? t('smartEnrollProjects.setup.documents.business.subtitle')
+                                : t('smartEnrollProjects.setup.documents.subtitle')
+                        }}
+                    </p>
+                </header>
+
+                @if (stepFormControlName === 'document') {
+                    <mat-button-toggle-group formControlName="document" class="!rounded-xl">
+                        <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
+                        <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
+                        <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
+                    </mat-button-toggle-group>
+                } @else if (stepFormControlName === 'businessVerification') {
+                    <label class="flex items-center justify-between gap-4">
+                        <span class="text-sm text-stone-700 dark:text-stone-200">
+                            {{ t('smartEnrollProjects.setup.documents.business.toggle') }}
+                        </span>
+                        <mat-slide-toggle formControlName="businessVerification"></mat-slide-toggle>
+                    </label>
+                }
+            </section>
+        }
+
+        <ng-container [formGroup]="formGroup">
+            <!-- 2. Accepted document types -->
+            <section
+                class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="isNotRequired || !documentTypesErrorKeys.length"
+                [class.dark:border-gray-700]="isNotRequired || !documentTypesErrorKeys.length"
+                [class.border-red-500]="!isNotRequired && documentTypesErrorKeys.length"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
                 <header class="mb-4">
                     <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.documents.attempts.title') }}
+                        {{ t('smartEnrollProjects.setup.documents.types.title') }}
                     </h2>
                     <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.documents.attempts.subtitle') }}
+                        {{ t('smartEnrollProjects.setup.documents.types.subtitle') }}
                     </p>
                 </header>
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="max-w-xs">
-                    <mat-label>{{ t('smartEnrollProjects.setup.documents.attempts.limit') }}</mat-label>
-                    <input matInput type="number" formControlName="attemptLimit" min="1" max="5" />
-                </mat-form-field>
+
+                @if (!isNotRequired && documentTypesErrorKeys.length) {
+                    <div class="mb-3 flex flex-col gap-1 text-sm text-red-600 dark:text-red-400">
+                        @if (documentTypesErrorKeys.includes('atLeastOneDocumentVerificationTypeRequired')) {
+                            <span>{{ t('smartEnrollProjects.setup.documents.types.errors.atLeastOne') }}</span>
+                        }
+                        @if (documentTypesErrorKeys.includes('duplicateCountriesNotAllowed')) {
+                            <span>{{ t('smartEnrollProjects.setup.documents.types.errors.duplicateCountries') }}</span>
+                        }
+                        @if (documentTypesErrorKeys.includes('allDocumentVerificationTypesMustBeValid')) {
+                            <span>{{ t('smartEnrollProjects.setup.documents.types.errors.allMustBeValid') }}</span>
+                        }
+                        @if (documentTypesErrorKeys.includes('emptyCountryValuesNotAllowed')) {
+                            <span>{{ t('smartEnrollProjects.setup.documents.types.errors.emptyCountry') }}</span>
+                        }
+                    </div>
+                }
+
+                @if (documentTypesFormArray) {
+                    <document-verification-type-list
+                        [form]="form"
+                        [documentTypes]="documentTypesFormArray"
+                        [target]="target"
+                    ></document-verification-type-list>
+                }
             </section>
 
-            @if (stepFormControlName === 'document') {
+            <!-- 3. Verification methods (personal/legal representative only — not business verification) -->
+            @if (stepFormControlName !== 'businessVerification') {
+                @let methodsCtrl = formGroup?.get('verificationMethods');
                 <section
-                    class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                    class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                    [class.border-stone-200]="isNotRequired || !(methodsCtrl?.dirty && methodsCtrl?.errors?.['required'])"
+                    [class.dark:border-gray-700]="isNotRequired || !(methodsCtrl?.dirty && methodsCtrl?.errors?.['required'])"
+                    [class.border-red-500]="!isNotRequired && methodsCtrl?.dirty && methodsCtrl?.errors?.['required']"
                     [class.opacity-50]="isNotRequired"
                     [class.pointer-events-none]="isNotRequired"
                 >
@@ -67,26 +104,78 @@
                             {{ t('smartEnrollProjects.setup.documents.method.subtitle') }}
                         </p>
                     </header>
-                    <div class="flex flex-wrap gap-2">
+
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         @for (m of verificationMethods; track m.value) {
                             <button
                                 type="button"
                                 (click)="toggleVerificationMethod(m.value)"
-                                [class.bg-stone-900]="isVerificationMethodSelected(m.value)"
-                                [class.text-white]="isVerificationMethodSelected(m.value)"
-                                [class.dark:bg-white]="isVerificationMethodSelected(m.value)"
-                                [class.dark:text-stone-900]="isVerificationMethodSelected(m.value)"
-                                class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                                class="flex flex-col items-start gap-2 rounded-2xl bg-white px-4 py-3 text-left text-sm text-stone-800 transition-colors dark:bg-gray-900/40 dark:text-stone-100"
+                                [ngClass]="
+                                    isVerificationMethodSelected(m.value)
+                                        ? 'border-2 border-stone-900 dark:border-stone-200'
+                                        : 'border border-stone-200 text-stone-700 dark:border-gray-700 dark:text-stone-200'
+                                "
                             >
-                                {{ t(m.label) }}
+                                <mat-icon class="!h-5 !w-5 text-stone-700 dark:text-stone-300">{{ m.icon }}</mat-icon>
+                                <span class="font-medium">{{ t(m.labelKey) }}</span>
                             </button>
                         }
+                    </div>
+
+                    @if (!isNotRequired && methodsCtrl?.dirty && methodsCtrl?.errors?.['required']) {
+                        <p class="mt-3 text-sm text-red-600 dark:text-red-400">
+                            {{ t('smartEnrollProjects.setup.documents.method.required') }}
+                        </p>
+                    }
+
+                    <div
+                        class="mt-4 flex items-start gap-2 rounded-xl bg-stone-100 p-3 text-xs text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                    >
+                        <mat-icon class="!h-4 !w-4">info</mat-icon>
+                        <span>{{ t('smartEnrollProjects.setup.documents.method.help') }}</span>
                     </div>
                 </section>
             }
 
+            <!-- 4. Attempt limit -->
             <section
                 class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                [class.opacity-50]="isNotRequired"
+                [class.pointer-events-none]="isNotRequired"
+            >
+                <header class="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.documents.attempts.title') }}
+                        </h2>
+                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.documents.attempts.subtitle') }}
+                        </p>
+                    </div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-[12rem]">
+                        <mat-label>{{ t('smartEnrollProjects.setup.documents.attempts.limit') }}</mat-label>
+                        <mat-select formControlName="attemptLimit" required>
+                            @for (n of attemptOptions; track n) {
+                                <mat-option [value]="n">
+                                    {{
+                                        n === 1
+                                            ? t('smartEnrollProjects.setup.documents.attempts.one')
+                                            : t('smartEnrollProjects.setup.documents.attempts.many', { count: n })
+                                    }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </header>
+            </section>
+
+            <!-- 5. Database screening -->
+            <section
+                class="rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="isNotRequired || !formGroup?.errors?.['screeningRequiresVerification']"
+                [class.dark:border-gray-700]="isNotRequired || !formGroup?.errors?.['screeningRequiresVerification']"
+                [class.border-red-500]="!isNotRequired && formGroup?.errors?.['screeningRequiresVerification']"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
@@ -102,63 +191,177 @@
                     <mat-slide-toggle formControlName="screening"></mat-slide-toggle>
                 </header>
 
-                @if (formGroup?.get('screening')?.value) {
-                    <div class="flex flex-col gap-3 border-t border-stone-200/80 pt-4 dark:border-gray-700">
-                        <label class="flex items-center justify-between gap-4">
-                            <span class="text-sm text-stone-700 dark:text-stone-200">
-                                {{ t('smartEnrollProjects.setup.documents.screening.criminalHistory') }}
-                            </span>
-                            <mat-slide-toggle formControlName="criminalHistoryVerification"></mat-slide-toggle>
-                        </label>
-                        <label class="flex items-center justify-between gap-4">
-                            <span class="text-sm text-stone-700 dark:text-stone-200">
-                                {{ t('smartEnrollProjects.setup.documents.screening.informationVerification') }}
-                            </span>
-                            <mat-slide-toggle formControlName="informationVerification"></mat-slide-toggle>
-                        </label>
+                @if (!isNotRequired && formGroup?.get('screening')?.value) {
+                    @if (formGroup?.errors?.['screeningRequiresVerification']) {
+                        <p class="mb-3 text-sm text-red-600 dark:text-red-400">
+                            {{ t('smartEnrollProjects.setup.documents.screening.requiresVerification') }}
+                        </p>
+                    }
 
-                        @if (formGroup?.get('criminalHistoryVerification')?.value) {
-                            <div class="flex flex-wrap gap-2 border-t border-stone-200/80 pt-3 dark:border-gray-700">
-                                @for (e of criminalRecordsEndpoints; track e.value) {
-                                    <button
-                                        type="button"
-                                        (click)="toggleCriminalEndpoint(e.value)"
-                                        [class.bg-stone-900]="isEndpointSelected(e.value)"
-                                        [class.text-white]="isEndpointSelected(e.value)"
-                                        [class.dark:bg-white]="isEndpointSelected(e.value)"
-                                        [class.dark:text-stone-900]="isEndpointSelected(e.value)"
-                                        class="rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                                    >
-                                        {{ e.label }}
-                                    </button>
-                                }
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        <!-- Information verification card -->
+                        <div
+                            class="relative flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/60"
+                        >
+                            <mat-checkbox formControlName="informationVerification" class="!absolute !right-3 !top-3"></mat-checkbox>
+                            <div class="flex items-center gap-2 pr-10">
+                                <mat-icon class="!h-5 !w-5 text-stone-700 dark:text-stone-200">account_balance</mat-icon>
+                                <span class="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                    {{ t('smartEnrollProjects.setup.documents.screening.informationVerification') }}
+                                </span>
                             </div>
-                        }
-                    </div>
-                }
-            </section>
+                            <p class="text-xs text-stone-500 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.setup.documents.screening.informationVerificationDescription') }}
+                            </p>
+                        </div>
 
-            <section
-                class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-                [class.opacity-50]="isNotRequired"
-                [class.pointer-events-none]="isNotRequired"
-            >
-                <header class="mb-4">
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.documents.types.title') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.documents.types.subtitle') }}
-                    </p>
-                </header>
-                @if (documentTypesFormArray) {
-                    <document-verification-type-list
-                        [form]="form"
-                        [documentTypes]="documentTypesFormArray"
-                        [target]="target"
-                    ></document-verification-type-list>
+                        <!-- Criminal records card + endpoints -->
+                        <div class="flex flex-col gap-3">
+                            <div
+                                class="relative flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/60"
+                            >
+                                <mat-checkbox formControlName="criminalHistoryVerification" class="!absolute !right-3 !top-3"></mat-checkbox>
+                                <div class="flex items-center gap-2 pr-10">
+                                    <mat-icon class="!h-5 !w-5 text-stone-700 dark:text-stone-200">security</mat-icon>
+                                    <span class="text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                        {{ t('smartEnrollProjects.setup.documents.screening.criminalHistory') }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollProjects.setup.documents.screening.criminalHistoryDescription') }}
+                                </p>
+                            </div>
+
+                            @if (formGroup?.get('criminalHistoryVerification')?.value) {
+                                <div class="flex flex-col gap-3">
+                                    @for (endpoint of criminalRecordsEndpoints; track endpoint.value) {
+                                        @if (endpoint.value === 'local_api') {
+                                            <div
+                                                class="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 dark:border-blue-900 dark:bg-blue-950/40"
+                                            >
+                                                <mat-checkbox
+                                                    [checked]="isEndpointSelected(endpoint.value)"
+                                                    (change)="toggleCriminalEndpoint(endpoint.value)"
+                                                >
+                                                    <span class="text-sm font-medium text-stone-800 dark:text-stone-100">
+                                                        {{ t(endpoint.label) }}
+                                                    </span>
+                                                </mat-checkbox>
+                                                <button
+                                                    type="button"
+                                                    mat-icon-button
+                                                    class="!ml-auto !h-6 !w-6 !min-w-0"
+                                                    (click)="openLocalApiModal($event)"
+                                                    [matTooltip]="t('smartEnrollProjects.setup.documents.screening.localApiTooltip')"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 text-blue-600">info</mat-icon>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                    <div class="grid grid-cols-1 gap-x-4 gap-y-2 pl-2 sm:grid-cols-2">
+                                        @for (endpoint of criminalRecordsEndpoints; track endpoint.value) {
+                                            @if (endpoint.value !== 'local_api') {
+                                                <mat-checkbox
+                                                    [checked]="isEndpointSelected(endpoint.value)"
+                                                    (change)="toggleCriminalEndpoint(endpoint.value)"
+                                                >
+                                                    <span class="text-sm text-stone-700 dark:text-stone-200">{{ endpoint.label }}</span>
+                                                </mat-checkbox>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 }
             </section>
         </ng-container>
     </div>
+
+    <!-- Local background-check feature modal -->
+    <ng-template #localApiDialog>
+        <div class="flex max-h-[90vh] flex-col overflow-hidden rounded-lg bg-white dark:bg-gray-900">
+            <div class="flex items-center justify-between gap-4 border-b border-stone-200 bg-stone-50 p-5 dark:border-gray-700 dark:bg-gray-900/60">
+                <h2 class="m-0 text-lg font-semibold text-stone-900 dark:text-white">
+                    {{ t('smartEnrollProjects.setup.documents.localApi.title') }}
+                </h2>
+                <button mat-icon-button mat-dialog-close>
+                    <mat-icon>close</mat-icon>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-5">
+                @if (loadingFeatures) {
+                    <div class="flex flex-col items-center justify-center gap-3 py-10">
+                        <mat-progress-spinner mode="indeterminate" diameter="36"></mat-progress-spinner>
+                        <span class="text-sm text-stone-500">{{ t('smartEnrollProjects.setup.documents.localApi.loading') }}</span>
+                    </div>
+                } @else {
+                    <div class="flex flex-col gap-4">
+                        <p class="m-0 text-sm text-stone-600 dark:text-stone-300">
+                            {{ t('smartEnrollProjects.setup.documents.localApi.description') }}
+                        </p>
+                        <div
+                            class="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                        >
+                            <mat-icon class="!h-4 !w-4">lightbulb</mat-icon>
+                            <span>{{ t('smartEnrollProjects.setup.documents.localApi.highlightNote') }}</span>
+                        </div>
+
+                        @if (!localApiFeatures.length) {
+                            <p class="text-sm text-stone-500">
+                                {{ t('smartEnrollProjects.setup.documents.localApi.empty') }}
+                            </p>
+                        }
+
+                        <div class="flex flex-col gap-3">
+                            @for (feature of localApiFeatures; track feature._id) {
+                                <div
+                                    class="flex flex-col gap-2 rounded-xl border p-4 transition-shadow hover:shadow-sm"
+                                    [ngClass]="feature.highlight
+                                        ? 'border-blue-300 bg-blue-50 dark:border-blue-800'
+                                        : 'border-stone-200 dark:border-gray-700'"
+                                >
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div class="flex items-center gap-2">
+                                            <mat-icon
+                                                class="!h-5 !w-5"
+                                                [ngClass]="feature.highlight ? 'text-blue-600' : 'text-stone-500'"
+                                            >
+                                                public
+                                            </mat-icon>
+                                            <span class="text-sm font-semibold text-stone-800 dark:text-stone-100">{{ feature.name }}</span>
+                                        </div>
+                                        <span
+                                            class="rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide"
+                                            [ngClass]="feature.highlight ? 'bg-blue-600 text-white' : 'bg-stone-200 text-stone-600'"
+                                        >
+                                            {{ feature.country }}
+                                        </span>
+                                    </div>
+                                    @if (feature.description) {
+                                        <p class="m-0 text-xs text-stone-600 dark:text-stone-300">{{ feature.description }}</p>
+                                    }
+                                    @if (feature.highlight) {
+                                        <div class="flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                                            <mat-icon class="!h-3.5 !w-3.5">check_circle</mat-icon>
+                                            <span>{{ t('smartEnrollProjects.setup.documents.localApi.compatible') }}</span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="flex justify-end gap-2 border-t border-stone-200 p-4 dark:border-gray-700">
+                <button mat-flat-button color="primary" mat-dialog-close class="rounded-xl">
+                    {{ t('smartEnrollProjects.setup.documents.localApi.close') }}
+                </button>
+            </div>
+        </div>
+    </ng-template>
 </ng-container>

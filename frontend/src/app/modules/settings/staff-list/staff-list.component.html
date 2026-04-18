@@ -268,25 +268,90 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <!-- Country Code -->
+                <!-- Country Code (searchable; matches auth-modal pattern) -->
                 <div class="flex flex-col gap-1.5">
                     <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
                         {{ 'settings.team.country_code' | transloco }}
                     </label>
-                    <div class="relative">
-                        <select
-                            formControlName="countryCode"
-                            class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white"
+                    <div class="relative staff-country-picker">
+                        <button
+                            type="button"
+                            (click)="toggleStaffCountryDropdown($event)"
+                            class="h-11 w-full px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white flex items-center justify-between gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                         >
-                            <option *ngFor="let country of countryCodes" [value]="country.dialCode">
-                                {{ country.dialCode }} {{ country.name }}
-                            </option>
-                        </select>
-                        <mat-icon
-                            class="absolute right-3 top-3 pointer-events-none text-gray-400"
-                            style="width: 20px; height: 20px; font-size: 20px"
-                            >expand_more</mat-icon
+                            <span class="flex items-center gap-2 text-sm min-w-0 flex-1">
+                                <ng-container *ngIf="getSelectedStaffCountry() as sel">
+                                    <span class="shrink-0">{{ sel.flag }}</span>
+                                    <span class="font-medium shrink-0">{{ sel.dialCode }}</span>
+                                    <span class="text-gray-500 dark:text-gray-400 truncate">{{
+                                        sel.name
+                                    }}</span>
+                                </ng-container>
+                                <span
+                                    *ngIf="!getSelectedStaffCountry()"
+                                    class="text-gray-400 text-sm"
+                                >
+                                    {{ 'authModal.phoneInput.selectCountry' | transloco }}
+                                </span>
+                            </span>
+                            <mat-icon class="!w-5 !h-5 !text-[20px] text-gray-400 shrink-0"
+                                >arrow_drop_down</mat-icon
+                            >
+                        </button>
+                        <div
+                            *ngIf="isStaffCountryDropdownOpen && staffCountryDropdownPosition"
+                            class="fixed z-[1000] w-[min(calc(100vw-2rem),20rem)] max-h-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden"
+                            [style.top]="staffCountryDropdownPosition.top"
+                            [style.left]="staffCountryDropdownPosition.left"
+                            (click)="$event.stopPropagation()"
                         >
+                            <div class="p-2 border-b border-gray-200 dark:border-gray-700">
+                                <div class="relative">
+                                    <mat-icon
+                                        class="absolute left-2 top-1/2 -translate-y-1/2 !w-4 !h-4 !text-[16px] text-gray-400"
+                                        >search</mat-icon
+                                    >
+                                    <input
+                                        type="text"
+                                        [value]="staffCountrySearchTerm"
+                                        (input)="onStaffCountrySearchChange($any($event.target).value)"
+                                        [placeholder]="'authModal.phoneInput.searchCountry' | transloco"
+                                        class="w-full pl-8 pr-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-transparent text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                                    />
+                                </div>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <button
+                                    *ngFor="let country of filteredStaffCountryCodes"
+                                    type="button"
+                                    (click)="selectStaffCountry(country)"
+                                    class="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors"
+                                    [ngClass]="{
+                                        'bg-blue-50 dark:bg-blue-900/30':
+                                            isStaffCountryRowSelected(country),
+                                    }"
+                                >
+                                    <span class="text-2xl shrink-0">{{ country.flag }}</span>
+                                    <div class="flex-1 min-w-0">
+                                        <div
+                                            class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate"
+                                        >
+                                            {{ country.name }}
+                                        </div>
+                                    </div>
+                                    <span
+                                        class="text-sm text-gray-500 dark:text-gray-400 font-medium shrink-0"
+                                        >{{ country.dialCode }}</span
+                                    >
+                                </button>
+                                <div
+                                    *ngIf="filteredStaffCountryCodes.length === 0"
+                                    class="px-4 py-3 text-sm text-gray-500 text-center"
+                                >
+                                    {{ 'authModal.phoneInput.noCountries' | transloco }}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -304,35 +369,27 @@
             </div>
 
             <!-- Role -->
-            <div class="flex flex-col gap-1.5">
-                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {{ 'settings.team.role' | transloco }}
-                </label>
-                <div class="relative">
-                    <select
-                        formControlName="role"
-                        class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white capitalize"
-                    >
-                        <option value="empleado">
-                            {{ 'settings.team.role_empleado' | transloco }}
-                        </option>
-                        <option value="contabilidad">
-                            {{ 'settings.team.role_contabilidad' | transloco }}
-                        </option>
-                        <option value="desarrollador">
-                            {{ 'settings.team.role_desarrollador' | transloco }}
-                        </option>
-                        <option value="administrador">
-                            {{ 'settings.team.role_administrador' | transloco }}
-                        </option>
-                    </select>
-                    <mat-icon
-                        class="absolute right-3 top-3 pointer-events-none text-gray-400"
-                        style="width: 20px; height: 20px; font-size: 20px"
-                        >expand_more</mat-icon
-                    >
-                </div>
-            </div>
+            <mat-form-field
+                class="w-full staff-role-field"
+                appearance="outline"
+                subscriptSizing="dynamic"
+            >
+                <mat-label>{{ 'settings.team.role' | transloco }}</mat-label>
+                <mat-select formControlName="role" panelClass="staff-role-panel">
+                    <mat-option value="empleado">{{
+                        'settings.team.role_empleado' | transloco
+                    }}</mat-option>
+                    <mat-option value="contabilidad">{{
+                        'settings.team.role_contabilidad' | transloco
+                    }}</mat-option>
+                    <mat-option value="desarrollador">{{
+                        'settings.team.role_desarrollador' | transloco
+                    }}</mat-option>
+                    <mat-option value="administrador">{{
+                        'settings.team.role_administrador' | transloco
+                    }}</mat-option>
+                </mat-select>
+            </mat-form-field>
         </div>
 
         <!-- Modal Footer -->

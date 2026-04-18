@@ -7,6 +7,7 @@
         }
 
         @for (group of documentTypes.controls; track group; let i = $index) {
+            @let countryValue = (asGroup(group).get('country')?.value || '');
             <div
                 class="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-stone-50 p-4 dark:border-gray-700 dark:bg-gray-900/40"
                 [formGroup]="asGroup(group)"
@@ -33,28 +34,106 @@
                     </button>
                 </div>
 
-                <div class="flex flex-col gap-2 border-t border-stone-200/80 pt-3 dark:border-gray-700">
-                    <p class="text-xs font-semibold text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.documents.types.configurations') }}
+                @if (!countryValue) {
+                    <p class="text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.documents.types.pickCountryFirst') }}
                     </p>
+                } @else if (isLoading(countryValue)) {
+                    <div class="flex items-center gap-2 py-3 text-xs text-stone-500 dark:text-stone-400">
+                        <mat-progress-spinner mode="indeterminate" diameter="18"></mat-progress-spinner>
+                        <span>{{ t('smartEnrollProjects.setup.documents.types.loading') }}</span>
+                    </div>
+                } @else {
+                    <div class="flex flex-col gap-3 border-t border-stone-200/80 pt-3 dark:border-gray-700">
+                        @for (cfg of asArray(asGroup(group).get('configurations')).controls; track cfg) {
+                            @let configCtrl = cfg;
+                            @let category = (configCtrl.get('documentCategory')?.value || '');
+                            @let templates = templatesFor(countryValue, category);
+                            @let selected = selectedCount(configCtrl);
 
-                    @for (cfg of asArray(asGroup(group).get('configurations')).controls; track cfg) {
-                        <label
-                            class="flex items-center justify-between gap-3 rounded-xl border border-stone-200/80 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-900"
-                            [formGroup]="asGroup(cfg)"
-                        >
-                            <span class="font-medium text-stone-800 dark:text-stone-100">
-                                {{ t('smartEnrollProjects.setup.documents.category.' + cfg.get('documentCategory')?.value) }}
-                            </span>
-                            <mat-slide-toggle formControlName="active"></mat-slide-toggle>
-                        </label>
+                            <div
+                                class="flex flex-col gap-3 rounded-xl border border-stone-200/80 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
+                                [formGroup]="asGroup(configCtrl)"
+                            >
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        <p class="m-0 text-sm font-semibold text-stone-800 dark:text-stone-100">
+                                            {{ t('smartEnrollProjects.setup.documents.category.' + category) }}
+                                        </p>
+                                        <p class="m-0 mt-0.5 text-[11px] text-stone-500 dark:text-stone-400">
+                                            {{
+                                                templates.length === 0
+                                                    ? t('smartEnrollProjects.setup.documents.types.noTemplatesShort')
+                                                    : t('smartEnrollProjects.setup.documents.types.selectedOfAvailable', {
+                                                          selected: selected,
+                                                          total: templates.length
+                                                      })
+                                            }}
+                                        </p>
+                                    </div>
+                                    <mat-slide-toggle
+                                        formControlName="active"
+                                        (change)="onActiveToggleChange(configCtrl, $event.checked)"
+                                    ></mat-slide-toggle>
+                                </div>
+
+                                @if (templates.length === 0) {
+                                    <p class="text-[11px] text-stone-500 dark:text-stone-400">
+                                        {{
+                                            t('smartEnrollProjects.setup.documents.types.noTemplates', {
+                                                category: t('smartEnrollProjects.setup.documents.category.' + category),
+                                                country: countryValue
+                                            })
+                                        }}
+                                    </p>
+                                } @else {
+                                    <ul class="m-0 flex list-none flex-col gap-1.5 p-0">
+                                        @for (pt of templates; track pt._id) {
+                                            <li
+                                                class="flex items-center justify-between gap-3 rounded-lg border border-stone-200/70 px-3 py-2 dark:border-gray-700"
+                                            >
+                                                <mat-checkbox
+                                                    [checked]="isTemplateSelected(configCtrl, pt._id)"
+                                                    (change)="toggleTemplate(configCtrl, pt, $event.checked)"
+                                                    class="min-w-0 flex-1"
+                                                >
+                                                    <span class="inline-flex min-w-0 items-center gap-2">
+                                                        <span class="truncate text-sm text-stone-800 dark:text-stone-100">
+                                                            {{ templateLabel(pt) }}
+                                                        </span>
+                                                        @if (isGlobalTemplate(pt)) {
+                                                            <span
+                                                                class="inline-flex flex-shrink-0 items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                                                            >
+                                                                <mat-icon class="!h-3 !w-3 !text-[12px] !leading-3">public</mat-icon>
+                                                                {{ t('smartEnrollProjects.setup.documents.types.globalBadge') }}
+                                                            </span>
+                                                        }
+                                                    </span>
+                                                </mat-checkbox>
+                                                <button
+                                                    type="button"
+                                                    mat-icon-button
+                                                    class="!h-8 !w-8 !min-w-0 flex-shrink-0"
+                                                    (click)="openPreview(pt)"
+                                                    [matTooltip]="t('smartEnrollProjects.setup.documents.types.preview')"
+                                                    [attr.aria-label]="t('smartEnrollProjects.setup.documents.types.preview')"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 text-stone-600 dark:text-stone-300">visibility</mat-icon>
+                                                </button>
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @if (activeCategories(asGroup(group)).length === 0) {
+                        <p class="text-[11px] text-amber-700 dark:text-amber-400">
+                            {{ t('smartEnrollProjects.setup.documents.types.activateHint') }}
+                        </p>
                     }
-                </div>
-
-                @if (activeCategories(asGroup(group)).length === 0) {
-                    <p class="text-[11px] text-amber-700 dark:text-amber-400">
-                        {{ t('smartEnrollProjects.setup.documents.types.activateHint') }}
-                    </p>
                 }
             </div>
         }

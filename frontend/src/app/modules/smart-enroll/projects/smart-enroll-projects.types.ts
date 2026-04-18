@@ -6,22 +6,34 @@ export interface EnrollProjectFlow {
     status?: string;
     type?: string;
     version?: number;
-    signUpForm?: unknown;
-    documents?: unknown;
+    target?: 'personal' | 'business';
+    signUpForm?: Record<string, unknown>;
+    documents?: Record<string, unknown>;
+    business?: Record<string, unknown>;
+    representatives?: Record<string, unknown>;
+    integrations?: Record<string, unknown>;
+    steps?: Record<string, unknown>;
     onboardingSettings?: unknown;
     liveness?: Record<string, unknown>;
 }
 
 export interface EnrollProjectBranding {
     logo?: string;
+    image?: string;
+    /** Legacy v2 names. */
     bgColor?: string;
     tabColor?: string;
-    titleColor?: string;
     txtColor?: string;
-    buttonColor?: string;
     buttonTxtColor?: string;
     secondaryButtonColor?: string;
     secondaryButtonTextColor?: string;
+    /** v3 wizard names. */
+    backgroundColor?: string;
+    textColor?: string;
+    titleColor?: string;
+    buttonColor?: string;
+    buttonTextColor?: string;
+    imageBackgroundColor?: string;
 }
 
 export interface EnrollStaffRef {
@@ -53,6 +65,16 @@ export interface EnrollClientRef {
     updatedAt?: string;
 }
 
+export interface EnrollProjectDataProtection {
+    name?: string;
+    email?: string;
+    address?: string;
+    address2?: string;
+    city?: string;
+    country?: string;
+    postalCode?: string;
+}
+
 export interface EnrollProject {
     _id: string;
     name?: string;
@@ -62,7 +84,9 @@ export interface EnrollProject {
     contactEmail?: string;
     privacyUrl?: string;
     termsAndConditionsUrl?: string;
+    target?: 'personal' | 'business';
     branding?: EnrollProjectBranding;
+    dataProtection?: EnrollProjectDataProtection;
     projectFlows?: EnrollProjectFlow[];
     projectMembers?: EnrollProjectMember[];
     client?: EnrollClientRef | string;

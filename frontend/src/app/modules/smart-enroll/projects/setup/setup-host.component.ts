@@ -52,6 +52,35 @@ import { SetupStepStubComponent } from './steps/setup-step-stub.component';
 import { SetupUserInterfaceComponent } from './steps/user-interface/user-interface.component';
 import { isProject, type Project, type SmartEnrollProjectFlow } from './setup.types';
 
+/** v3 smartEnrollKYCUpdateFields — signUpForm.* keys only (personal onboarding). */
+const V3_SIGNUP_FORM_KEYS_PERSONAL = [
+    'additionalFields',
+    'allowAdditionalFields',
+    'countryCode',
+    'email',
+    'emailGateway',
+    'fullName',
+    'fullNameStyle',
+    'phone',
+    'phoneGateway',
+    'showPrivacyNotice',
+    'showTermsAndConditions',
+] as const;
+
+/** v3 smartEnrollKYBUpdateFields — signUpForm.* keys only (business onboarding). */
+const V3_SIGNUP_FORM_KEYS_BUSINESS = [
+    'address',
+    'businessBasicInfo',
+    'businessBasicInfoStyle',
+    'countryCode',
+    'email',
+    'emailGateway',
+    'phone',
+    'phoneGateway',
+    'showPrivacyNotice',
+    'showTermsAndConditions',
+] as const;
+
 /**
  * Host orchestrator for the Smart Enroll setup wizard.
  *
@@ -170,7 +199,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
 
     private _loadProject(id: string): void {
         this.loading.set(true);
-        this._setup.requestProject(id, { with: ['projectFlows'], type: 'onboarding' }).subscribe({
+        this._setup.requestProject(id, { populates: ['projectFlows'], projectFlowType: 'onboarding' }).subscribe({
             next: (res) => {
                 const project = (res?.data ?? null) as Project | null;
                 if (project) {
@@ -302,7 +331,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             target: [project?.target || 'personal', [Validators.required]],
             termsAndConditionsUrl: [project?.termsAndConditionsUrl || '', [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]],
             projectFlow: this._initProjectFlowForm(project?.target || 'personal', project?.projectFlows?.[0] || ({} as any)),
-            version: [project?.version, [Validators.required]],
+            version: [project?.version ?? 3, [Validators.required]],
             branding: this._formBuilder.group({
                 backgroundColor: [project?.branding?.backgroundColor || defaultBranding.backgroundColor, [Validators.required]],
                 buttonColor: [project?.branding?.buttonColor || defaultBranding.buttonColor, [Validators.required]],
@@ -328,13 +357,39 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         });
     }
 
+    /**
+     * Normalize `documents.verificationMethods` to v3/runtime values.
+     *
+     * The biometrics SDK and runtime only understand `"upload" | "scan"`.
+     * Older data may contain `SCAN_AGENT` / `SCAN_STUDIO` / `SCAN_PROMPT` /
+     * `SCAN_ZERO` which must be mapped to `scan`.
+     */
+    private _normalizeVerificationMethods(raw: unknown): ('upload' | 'scan')[] {
+        if (!Array.isArray(raw)) return [];
+        const out = new Set<'upload' | 'scan'>();
+        for (const v of raw) {
+            if (typeof v !== 'string') continue;
+            if (v === 'upload') out.add('upload');
+            else if (v === 'scan' || v.startsWith('SCAN_')) out.add('scan');
+        }
+        return Array.from(out);
+    }
+
     private _initProjectFlowForm(target: string, currentData: any): FormGroup {
+        const rawBizStyle = currentData?.signUpForm?.businessBasicInfoStyle;
+        const businessBasicInfoStyleNormalized: 'name' | 'name_number' =
+            rawBizStyle === 'name_number'
+                ? 'name_number'
+                : rawBizStyle === 'name' || rawBizStyle === 'separate'
+                  ? 'name'
+                  : 'name_number';
+
         return this._formBuilder.group({
             _id: [currentData?._id || ''],
             status: [currentData?.status || 'draft'],
             target: [target, [Validators.required]],
             type: ['onboarding', [Validators.required]],
-            version: [currentData?.version, [Validators.required]],
+            version: [currentData?.version ?? 3, [Validators.required]],
             business: this._formBuilder.group(
                 {
                     attemptLimit: [currentData?.business?.attemptLimit || 3, [Validators.required, Validators.min(1), Validators.max(5)]],
@@ -354,7 +409,10 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                     documentTypes: this._factory.createDocumentTypesWithDefaults(currentData?.documents?.documentTypes || [], 'personal'),
                     informationVerification: [currentData?.documents?.informationVerification || false],
                     screening: [currentData?.documents?.screening || false],
-                    verificationMethods: [currentData?.documents?.verificationMethods || [], [Validators.required]],
+                    verificationMethods: [
+                        this._normalizeVerificationMethods(currentData?.documents?.verificationMethods),
+                        [Validators.required],
+                    ],
                 },
                 { validators: SetupFormFactory.validators.documentsScreening() }
             ),
@@ -396,7 +454,10 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                         ),
                         informationVerification: [currentData?.representatives?.documents?.informationVerification || false],
                         screening: [currentData?.representatives?.documents?.screening || false],
-                        verificationMethods: [currentData?.representatives?.documents?.verificationMethods || [], [Validators.required]],
+                        verificationMethods: [
+                            this._normalizeVerificationMethods(currentData?.representatives?.documents?.verificationMethods),
+                            [Validators.required],
+                        ],
                     },
                     { validators: SetupFormFactory.validators.documentsScreening() }
                 ),
@@ -440,7 +501,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                     email: [currentData?.signUpForm?.email || false],
                     emailGateway: [currentData?.signUpForm?.emailGateway || 'mailgun'],
                     businessBasicInfo: [currentData?.signUpForm?.businessBasicInfo || true, [Validators.requiredTrue]],
-                    businessBasicInfoStyle: [currentData?.signUpForm?.businessBasicInfoStyle || 'name_number', [Validators.required]],
+                    businessBasicInfoStyle: [businessBasicInfoStyleNormalized, [Validators.required]],
                     fullName: [true, [Validators.requiredTrue]],
                     fullNameStyle: [currentData?.signUpForm?.fullNameStyle || 'separate', [Validators.required]],
                     phone: [currentData?.signUpForm?.phone || false],
@@ -467,6 +528,20 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         return null;
     };
 
+    private _pickV3SignUpFormPayload(
+        signUpForm: Record<string, unknown> | null | undefined,
+        target: string
+    ): Record<string, unknown> {
+        const keys = target === 'business' ? V3_SIGNUP_FORM_KEYS_BUSINESS : V3_SIGNUP_FORM_KEYS_PERSONAL;
+        const out: Record<string, unknown> = {};
+        for (const k of keys) {
+            if (signUpForm != null && k in signUpForm && signUpForm[k] !== undefined) {
+                out[k] = signUpForm[k];
+            }
+        }
+        return out;
+    }
+
     /**
      * Trim the form value down to only the slice relevant to the current step before
      * sending to the v3 backend (mirrors verifik-client-panel ProjectSmartEnrollComponent).
@@ -483,7 +558,9 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         }
 
         if (this.stepIndex === 1) {
-            formData.projectFlow = { ...restProjectFlow, signUpForm };
+            const target = (data.target || projectFlowData?.target || 'personal') as string;
+            const signUpFormV3 = this._pickV3SignUpFormPayload(signUpForm, target);
+            formData.projectFlow = { ...restProjectFlow, signUpForm: signUpFormV3 };
         } else if (this.stepIndex === 2) {
             formData.projectFlow = { ...restProjectFlow, steps };
             if (data.projectFlow.target === 'business') {

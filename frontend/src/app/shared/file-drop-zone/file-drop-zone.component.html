@@ -1,0 +1,50 @@
+<ng-container *transloco="let t">
+    <div class="flex w-full flex-col gap-2">
+        <div
+            (click)="openFileExplorer()"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            class="flex min-h-[120px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed bg-stone-50 p-6 text-center transition-all dark:bg-gray-900/40"
+            [ngClass]="
+                isDragOver
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
+                    : (!disabled && !isUploading
+                        ? 'border-stone-300 dark:border-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30'
+                        : 'border-stone-300 dark:border-gray-700 cursor-not-allowed' + (disabled ? ' opacity-60' : ''))
+            "
+        >
+            @if (isUploading) {
+                <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+                <p class="m-0 text-sm font-medium text-stone-600 dark:text-stone-300">
+                    {{ t('smartEnrollProjects.setup.ui.images.uploading') }}
+                </p>
+            } @else {
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-200 text-stone-700 dark:bg-gray-700 dark:text-stone-200">
+                    <mat-icon class="!h-5 !w-5">file_upload</mat-icon>
+                </div>
+                <div class="flex flex-col items-center gap-0.5">
+                    <p class="m-0 text-sm font-medium text-stone-800 dark:text-stone-100">
+                        {{
+                            isDragOver
+                                ? t('smartEnrollProjects.setup.ui.images.dropFiles')
+                                : t('smartEnrollProjects.setup.ui.images.dragFiles')
+                        }}
+                    </p>
+                    <p class="m-0 text-xs text-stone-500 dark:text-stone-400">
+                        {{
+                            t('smartEnrollProjects.setup.ui.images.supportedFormats', {
+                                formats: formatAccepts(),
+                                maxSize: formatMaxFileSize()
+                            })
+                        }}
+                    </p>
+                </div>
+            }
+        </div>
+
+        @if (errorMessage) {
+            <p class="m-0 text-xs text-red-600 dark:text-red-400">{{ errorMessage }}</p>
+        }
+    </div>
+</ng-container>

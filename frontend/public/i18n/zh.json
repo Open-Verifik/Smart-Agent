@@ -524,6 +524,73 @@
       "viewDocs": "查看文档",
       "backToOverview": "返回概览",
       "sectionHint": "此部分的流程设置在 Verifik 控制台管理。请使用「团队与员工」或打开「记录」。",
+      "editSection": "编辑",
+      "noValue": "未设置",
+      "untitledProject": "未命名项目",
+      "basic": {
+        "subtitle": "项目的身份与合规基本信息。",
+        "name": "项目名称",
+        "contactEmail": "联系邮箱",
+        "privacyUrl": "隐私政策",
+        "termsUrl": "条款与条件",
+        "allowedCountries": "允许的国家",
+        "noCountries": "允许所有国家。",
+        "dpo": "数据保护官"
+      },
+      "signup": {
+        "subtitle": "客户在扫描证件前需要填写的内容。",
+        "fullName": {
+          "separate": "名 + 姓",
+          "together": "完整姓名"
+        },
+        "business": {
+          "name_number": "公司名 + 税号",
+          "name": "仅公司名"
+        },
+        "email": {
+          "mailgun": "邮箱 · 已验证",
+          "none": "邮箱 · 未验证"
+        },
+        "phone": {
+          "sms": "电话 · SMS",
+          "whatsapp": "电话 · WhatsApp",
+          "both": "电话 · WhatsApp + SMS",
+          "none": "电话 · 未验证"
+        },
+        "address": "公司地址",
+        "terms": "显示条款",
+        "privacy": "显示隐私通知",
+        "additionalFields": "附加字段"
+      },
+      "documents": {
+        "subtitle": "如何接受和验证身份证件。",
+        "attempts": "{{count}} 次尝试",
+        "screeningOn": "已启用数据库筛查",
+        "noCountries": "尚无国家配置。",
+        "activeCount": "{{count}} 项有效配置"
+      },
+      "liveness": {
+        "subtitle": "自拍匹配与重复检测阈值。"
+      },
+      "representatives": {
+        "subtitle": "代表公司完成注册的人。",
+        "notification": {
+          "email": "通过邮箱通知",
+          "whatsapp": "通过 WhatsApp 通知",
+          "sms": "通过 SMS 通知",
+          "link": "分享链接"
+        }
+      },
+      "integrations": {
+        "subtitle": "客户完成注册后的去向以及系统通知方式。"
+      },
+      "brand": {
+        "title": "品牌",
+        "subtitle": "应用于注册页面的 Logo、图片和调色板。",
+        "logo": "Logo",
+        "image": "图片",
+        "editBrand": "编辑品牌"
+      },
       "summary": {
         "edit": "Edit",
         "basic": "{{ countries }} allowed countries",
@@ -569,6 +636,44 @@
         "verdict": "总体结果",
         "technicalMetadata": "会话与技术信息",
         "technicalMetadataHint": "IP、设备、关联 ID、时间戳及验证快照等字段。"
+      },
+      "devView": {
+        "toggleOn": "开发者视图",
+        "toggleOff": "普通视图",
+        "copy": "复制 JSON",
+        "copied": "已复制到剪贴板",
+        "copyError": "无法复制此对象",
+        "webhookEvents": "此注册的 Webhook 事件",
+        "apiHint": "API 请求",
+        "apiHintTitle": "API — {{section}}",
+        "apiHintCopy": "已复制到剪贴板",
+        "apiHintCopyButton": "复制",
+        "apiHintClose": "关闭",
+        "apiHintHeadersBlock": "Headers:\n  Authorization: Bearer <accessToken>",
+        "apiHintPopulatesExplainer": "查询参数（与本页相同 — 增减 populates[] 以加载更多或更少嵌套数据）:",
+        "apiHintCompareNoDirect": "FaceVerification 无按 id 的 GET；比对通过 /v2/face-recognition/... 的 POST 完成。",
+        "apiHintCompareFallback": "改为在 app registration 上嵌套加载:",
+        "apiHintEmptyList": "没有可获取的记录。",
+        "apiHintNoId": "无法解析此块的 _id。",
+        "apiHintWebhookNote": "列出此 app registration 的 webhook 事件（默认值与 Smart Monitor 一致）:",
+        "apiHintArrayMore": "+ 另有 {{count}} 条（相同 GET 模式）",
+        "section": {
+          "record": "AppRegistration",
+          "informationValidation": "informationValidation",
+          "emailValidation": "emailValidation",
+          "phoneValidation": "phoneValidation",
+          "documentValidation": "documentValidation",
+          "documentFace": "documentFace",
+          "failedDocumentValidations": "failedDocumentValidations",
+          "biometricValidation": "biometricValidation",
+          "failedBiometricValidations": "failedBiometricValidations",
+          "face": "face",
+          "person": "person",
+          "compareFaceVerification": "compareFaceVerification",
+          "projectFlow": "projectFlow",
+          "project": "project",
+          "webhookEvents": "此注册的 Webhook 事件"
+        }
       },
       "boolYes": "是",
       "boolNo": "否",
@@ -760,53 +865,87 @@
         "confirm_skip_message": "客户将在不验证任何官方证件的情况下完成注册。",
         "confirm_skip_yes": "是，跳过",
         "confirm_skip_back": "返回",
-        "title": "Document verification",
-        "subtitle": "Decide whether and how customers must present an official document.",
+        "title": "证件验证",
+        "subtitle": "决定客户是否需要以及如何出示官方证件。",
         "business": {
-          "title": "Business verification",
-          "subtitle": "Verify business documents during onboarding.",
-          "toggle": "Verify business documents"
+          "title": "企业验证",
+          "subtitle": "在入驻过程中核验企业证件。",
+          "toggle": "核验企业证件"
         },
-        "skip": "Not required",
-        "optional": "Optional",
-        "required": "Required",
+        "skip": "无需",
+        "optional": "可选",
+        "required": "必需",
         "attempts": {
-          "title": "Attempts",
-          "subtitle": "How many tries the customer gets before the step fails.",
-          "limit": "Attempt limit"
+          "title": "尝试次数",
+          "subtitle": "在步骤失败前客户可以尝试的次数。",
+          "limit": "尝试上限",
+          "one": "1 次",
+          "many": "{{count}} 次"
         },
         "method": {
-          "title": "Verification methods",
-          "subtitle": "Pick which scanning methods to enable.",
-          "scanAgent": "Scan Agent",
-          "scanStudio": "Scan Studio",
-          "scanPrompt": "Scan Prompt"
+          "title": "验证方式",
+          "subtitle": "选择客户如何采集证件。",
+          "upload": "上传证件",
+          "scan": "扫描证件",
+          "required": "请至少选择一种验证方式。",
+          "help": "同时启用时客户可任选。扫描使用摄像头，上传接受文件。"
         },
         "screening": {
-          "title": "Background screening",
-          "subtitle": "Run additional verifications after a successful scan.",
-          "criminalHistory": "Criminal history check",
-          "informationVerification": "Government information verification"
+          "title": "数据库筛查",
+          "subtitle": "扫描成功后执行额外验证。",
+          "criminalHistory": "犯罪记录",
+          "criminalHistoryDescription": "在犯罪记录数据库中查询客户。",
+          "informationVerification": "信息核验",
+          "informationVerificationDescription": "在官方数据库中校验身份。",
+          "requiresVerification": "开启筛查时至少启用一项核验。",
+          "localApi": "本地背景调查",
+          "localApiTooltip": "查看 Verifik 为所选国家提供的本地 API。"
         },
         "types": {
-          "title": "Accepted document types",
-          "subtitle": "Configure which documents are accepted in each country.",
-          "empty": "No document configurations yet — add a country to start.",
-          "country": "Country",
-          "remove": "Remove",
-          "add": "Add country",
-          "configurations": "Configurations",
-          "activateHint": "Enable at least one configuration to make this country valid.",
-          "invalid": "Some document configurations are missing required values."
+          "title": "接受的证件类型",
+          "subtitle": "配置各国接受的证件。",
+          "empty": "尚无配置 — 添加一个国家开始配置。",
+          "country": "国家",
+          "remove": "移除",
+          "add": "添加国家",
+          "configurations": "配置",
+          "activateHint": "至少启用一个配置以使该国家有效。",
+          "invalid": "部分配置不完整。",
+          "errors": {
+            "atLeastOne": "至少添加一个国家配置。",
+            "duplicateCountries": "每个国家只能添加一次。",
+            "allMustBeValid": "部分国家的配置不完整。",
+            "emptyCountry": "请为每个配置选择国家。"
+          },
+          "pickCountryFirst": "请选择一个国家以加载可用证件。",
+          "loading": "正在加载证件…",
+          "noTemplates": "{{ country }} 及全球范围内均无可用的 {{ category }}。",
+          "noTemplatesShort": "该国家在目录（含全球）中暂无可用证件。",
+          "selectedOfAvailable": "已选 {{ selected }}/{{ total }}",
+          "preview": "预览",
+          "previewTitle": "证件预览",
+          "frontImage": "正面",
+          "backImage": "背面",
+          "noImage": "暂无图片。",
+          "globalBadge": "全球"
         },
         "category": {
-          "government_id": "Government ID",
-          "passport": "Passport",
-          "license": "Driver license",
-          "business_document": "Business document",
-          "tax_document": "Tax document",
-          "proof_of_address": "Proof of address",
-          "bank_document": "Bank document"
+          "government_id": "身份证件",
+          "passport": "护照",
+          "license": "驾驶证",
+          "business_document": "企业证件",
+          "tax_document": "税务证件",
+          "proof_of_address": "地址证明",
+          "bank_document": "银行证件"
+        },
+        "localApi": {
+          "title": "Verifik 本地背景调查 API",
+          "description": "这些本地 API 会自动针对你配置的国家运行。项目中已选的国家会被高亮显示。",
+          "highlightNote": "高亮项与你证件列表中的国家一致。",
+          "compatible": "与你的选择兼容",
+          "loading": "加载中…",
+          "empty": "暂无可用的本地 API。",
+          "close": "关闭"
         }
       },
       "basicSetup": {
@@ -857,48 +996,78 @@
         "business": {
           "title": "Business basic info",
           "subtitle": "How company information is collected.",
+          "addressTitle": "Business address",
+          "addressSubtitle": "Ask for a business or premises address during sign-up.",
           "nameNumber": "Name + tax number",
-          "separate": "Separate fields"
+          "nameOnly": "Company name only"
+        },
+        "additionalFields": {
+          "title": "Additional information",
+          "subtitle": "Optional extra fields on the enrollment form.",
+          "error": "Select at least one field when this option is enabled.",
+          "gender": "Gender",
+          "country": "Country",
+          "dateOfBirth": "Date of birth",
+          "address": "Address",
+          "age": "Age",
+          "postalCode": "Postal code"
         },
         "email": {
           "title": "Email address",
+          "businessTitle": "Business email",
           "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Send via Mailgun",
-          "none": "No verification"
+          "mailgun": "Validate",
+          "none": "Don't validate"
         },
         "phone": {
           "title": "Phone number",
+          "businessTitle": "Business phone",
           "subtitle": "Capture and verify a customer phone number.",
-          "both": "SMS + WhatsApp",
-          "countryCode": "Default country code"
+          "both": "WhatsApp + SMS",
+          "none": "Don't validate",
+          "countryCode": "Default country code",
+          "searchCountry": "Search countries..."
         },
+        "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {
           "title": "Legal disclosures",
           "subtitle": "Show consent links inside the enrollment flow.",
           "privacy": "Show privacy notice",
-          "terms": "Show terms & conditions"
+          "terms": "Show terms & conditions",
+          "urlRequired": "需要填写 URL。",
+          "urlInvalid": "请输入有效的 URL（https://...）。"
         }
       },
       "liveness": {
-        "title": "Liveness verification",
-        "subtitle": "Confirm a real person is on the other side of the camera.",
+        "title": "活体验证",
+        "subtitle": "确认摄像头另一端是真实的人。",
+        "requirementHelp": "为每位客户选择是否必须、可选或跳过生物识别。",
+        "actualScore": "当前分数",
         "kyc": {
-          "title": "KYC type",
-          "subtitle": "Choose how identity proofs are stored and shared.",
-          "traditional": "Traditional KYC",
-          "zeroKnowledge": "Zero-knowledge KYC"
+          "title": "KYC 类型",
+          "subtitle": "选择身份凭证的存储与共享方式。",
+          "traditional": "传统 KYC",
+          "zeroKnowledge": "零知识 KYC",
+          "traditionalDescription": "将客户的生物特征模板与身份记录一同保存，可重新验证和搜索。",
+          "zeroKnowledgeDescription": "在本地验证客户，仅保存保护隐私的证明 — 不保留任何生物特征模板。"
         },
         "thresholds": {
-          "title": "Scoring thresholds",
-          "subtitle": "Tune the minimum scores required for the customer to pass.",
-          "attemptLimit": "Attempt limit",
-          "searchMode": "Search mode",
-          "fast": "Fast",
-          "accurate": "Accurate",
-          "minScore": "Liveness minimum score",
-          "compareMinScore": "Face compare minimum score",
-          "searchMinScore": "Search minimum score",
-          "searchWarn": "Below 80% increases false positives"
+          "title": "分数阈值",
+          "subtitle": "调整客户通过所需的最低分数。",
+          "attemptLimit": "尝试上限",
+          "searchMode": "搜索模式",
+          "fast": "快速",
+          "accurate": "精确",
+          "minScore": "活体最低分数",
+          "minScoreSubtitle": "判定自拍为真实活人所需的最低置信度。",
+          "minScoreHelp": "分数越高欺诈尝试越少，但也会拒绝更多真实用户。",
+          "compareMinScore": "人脸比对最低分数",
+          "compareMinScoreSubtitle": "自拍与证件照的相似度要求。",
+          "compareMinScoreHelp": "分数越高误匹配越少，但可能拒绝低质量照片。",
+          "searchMinScore": "搜索最低分数",
+          "searchMinScoreSubtitle": "在已有注册中搜索客户时的置信度阈值。",
+          "searchMinScoreHelp": "用于 1:N 重复检测。",
+          "searchWarn": "低于 80% 会增加误报"
         }
       },
       "representatives": {
@@ -919,50 +1088,76 @@
       },
       "integrations": {
         "redirect": {
-          "title": "Redirect URL",
-          "subtitle": "Where to send the customer once enrollment finishes.",
-          "url": "Redirect URL"
+          "title": "重定向 URL",
+          "subtitle": "注册完成后将客户发送到的地址。",
+          "url": "重定向 URL",
+          "exampleUrl": "示例：<strong>{{url}}</strong>",
+          "required": "需要填写重定向 URL。",
+          "invalid": "请输入有效的 URL（https://...）。"
         },
         "webhook": {
           "title": "Webhook",
-          "subtitle": "Push enrollment events to your server.",
+          "subtitle": "将注册事件推送到你的服务器。",
           "select": "Webhook",
-          "none": "No webhook",
-          "refresh": "Refresh",
-          "manage": "Manage webhooks"
+          "none": "无 Webhook",
+          "refresh": "刷新",
+          "manage": "管理 Webhook",
+          "noWebhooksMessage": "你还没有 Webhook。",
+          "createWebhook": "创建一个"
         },
         "source": {
-          "title": "Allow / deny list source",
-          "subtitle": "Optionally call your API to check whether the customer can enroll.",
-          "none": "Disabled",
-          "api": "External API",
+          "title": "允许/拒绝名单来源",
+          "subtitle": "可选地调用你的 API，判断客户是否可以注册。",
+          "none": "停用",
+          "api": "外部 API",
           "apiUrl": "API URL",
-          "testType": "Test type",
-          "testValue": "Test value",
-          "test": "Send test"
+          "testType": "测试类型",
+          "testValue": "测试值",
+          "test": "发送测试",
+          "help": "我们会将客户的邮箱/电话转发到你的接口，仅当返回 <strong>200</strong> 时允许注册。",
+          "email": "邮箱",
+          "phone": "电话",
+          "invalidUrl": "请输入有效的 URL（https://...）。",
+          "apiUrlRequired": "需要填写 API URL。",
+          "testApiDescription": "发送测试负载以确认你的接口接受我们的格式。",
+          "expectedResponse": "预期响应",
+          "receivedResponse": "实际响应",
+          "missingTestInputs": "请输入测试类型和值。",
+          "invalidTestUrl": "请输入有效的测试 URL。"
         }
       },
       "ui": {
         "colors": {
-          "title": "Title",
-          "subtitle": "Match the enrollment screens to your brand palette.",
-          "background": "Background",
-          "text": "Body text",
-          "button": "Button",
-          "buttonText": "Button text",
-          "imageBackground": "Image background"
+          "heading": "品牌色",
+          "title": "标题",
+          "subtitle": "让注册页面匹配你的品牌调色板。",
+          "background": "背景",
+          "text": "正文文本",
+          "button": "按钮",
+          "buttonText": "按钮文本",
+          "imageBackground": "图片背景"
         },
         "images": {
-          "title": "Images",
-          "subtitle": "Logo and optional banner shown to the customer.",
+          "title": "图片",
+          "subtitle": "展示给客户的 Logo 和可选横幅。",
           "logo": "Logo",
-          "logoSubtitle": "PNG or SVG, square preferred. Up to 512KB.",
-          "banner": "Banner",
-          "bannerSubtitle": "Optional decorative image shown above the form.",
-          "upload": "Upload",
-          "remove": "Remove",
-          "tooLarge": "Image is larger than 512KB. Please choose a smaller file.",
-          "uploadFailed": "Could not read this file."
+          "logoSubtitle": "PNG 或 JPG，建议正方形。最大 512KB。",
+          "banner": "横幅图片",
+          "bannerSubtitle": "表单旁的可选装饰图片。最大 2MB。",
+          "upload": "上传",
+          "remove": "删除",
+          "removeLogo": "删除 Logo",
+          "removeImage": "删除图片",
+          "currentLogo": "当前 Logo",
+          "currentImage": "当前图片",
+          "dragFiles": "将文件拖到此处或点击浏览",
+          "dropFiles": "释放文件",
+          "supportedFormats": "支持 {{formats}}（最大 {{maxSize}}）",
+          "uploading": "上传中…",
+          "tooLarge": "文件超过 {{maxSize}}。",
+          "notAccepted": "不支持的文件类型。",
+          "uploadedSuccessfully": "已保存 {{name}}。",
+          "uploadFailed": "无法上传文件。"
         }
       }
     }
@@ -1243,7 +1438,7 @@
       "limit_reached": "您已达到计划的最大团队成员数。升级以添加更多。",
       "no_plan_warning": "您需要有效的订阅计划才能添加团队成员。",
       "no_plan_error": "没有有效的订阅计划无法添加团队成员。",
-      "view_plans": "查看计划"
+      "view_plans": "查看 SmartCheck 方案"
     },
     "plans": " Plans"
   },

@@ -116,17 +116,20 @@ export interface BusinessSettings {
     screening: boolean;
 }
 
+/** Main KYB project `signUpForm` (v3) + representative `information` block (adds optional name fields). */
 export interface BusinessSignUpForm {
     additionalFields: string[];
     address?: boolean;
     allowAdditionalFields: boolean;
     businessBasicInfo?: boolean;
-    businessBasicInfoStyle?: 'name_number' | 'separate';
+    /** v3 KYB: `name` (name only) or `name_number` (name + tax id). */
+    businessBasicInfoStyle?: 'name_number' | 'name';
     countryCode?: string;
     email: boolean;
     emailGateway: 'mailgun' | 'none';
-    fullName: boolean;
-    fullNameStyle: 'together' | 'separate';
+    /** Present on `representatives.information`, not on main KYB `signUpForm`. */
+    fullName?: boolean;
+    fullNameStyle?: 'together' | 'separate';
     phone: boolean;
     phoneGateway: 'sms' | 'whatsapp' | 'both' | 'none';
     showPrivacyNotice: boolean;

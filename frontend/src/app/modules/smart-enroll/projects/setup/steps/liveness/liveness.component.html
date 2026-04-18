@@ -1,100 +1,218 @@
 <ng-container *transloco="let t">
     <div *ngIf="isFormReady" class="flex w-full flex-col gap-6">
-        <section
-            class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-            [formGroup]="livenessStepFormGroup!"
-        >
-            <header class="mb-4">
-                <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                    {{ t('smartEnrollProjects.setup.liveness.title') }}
-                </h2>
-                <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.setup.liveness.subtitle') }}
-                </p>
-            </header>
-            <mat-button-toggle-group [formControlName]="stepFormControlName" class="!rounded-xl">
-                <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
-                <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
-                <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
-            </mat-button-toggle-group>
-        </section>
-
-        <ng-container [formGroup]="livenessFormGroup!">
+        <!-- 1. Step requirement (hidden when used as a representative sub-form) -->
+        @if (!subForm && livenessStepFormGroup) {
             <section
                 class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                [formGroup]="livenessStepFormGroup"
             >
                 <header class="mb-4">
                     <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.liveness.kyc.title') }}
+                        {{ t('smartEnrollProjects.setup.liveness.title') }}
                     </h2>
                     <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.kyc.subtitle') }}
+                        {{ t('smartEnrollProjects.setup.liveness.subtitle') }}
                     </p>
                 </header>
-                <mat-radio-group formControlName="kycType" class="flex flex-wrap gap-4">
-                    <mat-radio-button value="traditional">{{ t('smartEnrollProjects.setup.liveness.kyc.traditional') }}</mat-radio-button>
-                    <mat-radio-button value="zero_knowledge">{{ t('smartEnrollProjects.setup.liveness.kyc.zeroKnowledge') }}</mat-radio-button>
-                </mat-radio-group>
+                <mat-button-toggle-group [formControlName]="stepFormControlName" class="!rounded-xl">
+                    <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
+                    <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
+                    <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p class="mt-3 text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.liveness.requirementHelp') }}
+                </p>
+            </section>
+        }
+
+        <ng-container [formGroup]="livenessFormGroup!">
+            <!-- 2. KYC type (only when liveness is enabled) -->
+            @if (isLivenessEnabled) {
+                <section
+                    class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
+                >
+                    <header>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.liveness.kyc.title') }}
+                        </h2>
+                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.liveness.kyc.subtitle') }}
+                        </p>
+                    </header>
+                    <mat-radio-group formControlName="kycType" class="flex flex-wrap gap-4">
+                        <mat-radio-button value="traditional">
+                            {{ t('smartEnrollProjects.setup.liveness.kyc.traditional') }}
+                        </mat-radio-button>
+                        <mat-radio-button value="zero_knowledge">
+                            {{ t('smartEnrollProjects.setup.liveness.kyc.zeroKnowledge') }}
+                        </mat-radio-button>
+                    </mat-radio-group>
+
+                    @if (isTraditionalKyc) {
+                        <div
+                            class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                        >
+                            <mat-icon class="!h-4 !w-4">info</mat-icon>
+                            <span>{{ t('smartEnrollProjects.setup.liveness.kyc.traditionalDescription') }}</span>
+                        </div>
+                    } @else if (isZeroKnowledgeKyc) {
+                        <div
+                            class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+                        >
+                            <mat-icon class="!h-4 !w-4">info</mat-icon>
+                            <span>{{ t('smartEnrollProjects.setup.liveness.kyc.zeroKnowledgeDescription') }}</span>
+                        </div>
+                    }
+                </section>
+            }
+
+            <!-- 3. Liveness score -->
+            <section
+                class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="isNotRequired || !livenessFormGroup?.get('minScore')?.errors"
+                [class.dark:border-gray-700]="isNotRequired || !livenessFormGroup?.get('minScore')?.errors"
+                [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('minScore')?.errors"
+                [class.opacity-50]="isNotRequired"
+                [class.pointer-events-none]="isNotRequired"
+            >
+                <header>
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.minScore') }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.minScoreSubtitle') }}
+                    </p>
+                </header>
+
+                <div class="flex items-end justify-center gap-2">
+                    <span class="text-4xl font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ minScoreDisplayValue }}
+                    </span>
+                    <span class="pb-1 text-sm text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.actualScore') }}
+                    </span>
+                </div>
+
+                <mat-slider min="0.52" max="0.9" step="0.01" discrete class="!w-full">
+                    <input matSliderThumb formControlName="minScore" />
+                </mat-slider>
+
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.liveness.thresholds.minScoreHelp') }}
+                </p>
             </section>
 
+            <!-- 4. Compare score -->
+            <section
+                class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="isNotRequired || !livenessFormGroup?.get('compareMinScore')?.errors"
+                [class.dark:border-gray-700]="isNotRequired || !livenessFormGroup?.get('compareMinScore')?.errors"
+                [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('compareMinScore')?.errors"
+                [class.opacity-50]="isNotRequired"
+                [class.pointer-events-none]="isNotRequired"
+            >
+                <header>
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore') }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreSubtitle') }}
+                    </p>
+                </header>
+
+                <div class="flex items-end justify-center gap-2">
+                    <span class="text-4xl font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ compareMinScoreDisplayValue }}
+                    </span>
+                    <span class="pb-1 text-sm text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.actualScore') }}
+                    </span>
+                </div>
+
+                <mat-slider min="0.7" max="0.95" step="0.01" discrete class="!w-full">
+                    <input matSliderThumb formControlName="compareMinScore" />
+                </mat-slider>
+
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScoreHelp') }}
+                </p>
+            </section>
+
+            <!-- 5. Search score -->
+            <section
+                class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"
+                [class.border-stone-200]="isNotRequired || !livenessFormGroup?.get('searchMinScore')?.errors"
+                [class.dark:border-gray-700]="isNotRequired || !livenessFormGroup?.get('searchMinScore')?.errors"
+                [class.border-red-500]="!isNotRequired && livenessFormGroup?.get('searchMinScore')?.errors"
+                [class.opacity-50]="isNotRequired"
+                [class.pointer-events-none]="isNotRequired"
+            >
+                <header>
+                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScore') }}
+                    </h2>
+                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScoreSubtitle') }}
+                    </p>
+                </header>
+
+                <div class="flex items-end justify-center gap-2">
+                    <span class="text-4xl font-semibold tracking-tight text-stone-900 dark:text-white">
+                        {{ searchMinScoreDisplayValue }}
+                    </span>
+                    <span class="pb-1 text-sm text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.setup.liveness.actualScore') }}
+                    </span>
+                </div>
+
+                <mat-slider min="0.81" max="0.95" step="0.01" discrete class="!w-full">
+                    <input matSliderThumb formControlName="searchMinScore" />
+                </mat-slider>
+
+                @if (isSearchMinScoreWarn) {
+                    <div
+                        class="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+                    >
+                        <mat-icon class="!h-4 !w-4">warning</mat-icon>
+                        <span>{{ t('smartEnrollProjects.setup.liveness.thresholds.searchWarn') }}</span>
+                    </div>
+                }
+
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScoreHelp') }}
+                </p>
+            </section>
+
+            <!-- 6. Attempt limit -->
             <section
                 class="rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
                 [class.opacity-50]="isNotRequired"
                 [class.pointer-events-none]="isNotRequired"
             >
-                <header class="mb-4">
-                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.title') }}
-                    </h2>
-                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                        {{ t('smartEnrollProjects.setup.liveness.thresholds.subtitle') }}
-                    </p>
-                </header>
-
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>{{ t('smartEnrollProjects.setup.liveness.thresholds.attemptLimit') }}</mat-label>
-                        <input matInput type="number" formControlName="attemptLimit" min="1" max="5" />
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" subscriptSizing="dynamic">
-                        <mat-label>{{ t('smartEnrollProjects.setup.liveness.thresholds.searchMode') }}</mat-label>
-                        <mat-select formControlName="searchMode">
-                            <mat-option value="FAST">{{ t('smartEnrollProjects.setup.liveness.thresholds.fast') }}</mat-option>
-                            <mat-option value="ACCURATE">{{ t('smartEnrollProjects.setup.liveness.thresholds.accurate') }}</mat-option>
+                <header class="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                            {{ t('smartEnrollProjects.setup.documents.attempts.title') }}
+                        </h2>
+                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.setup.documents.attempts.subtitle') }}
+                        </p>
+                    </div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="min-w-[12rem]">
+                        <mat-label>{{ t('smartEnrollProjects.setup.documents.attempts.limit') }}</mat-label>
+                        <mat-select formControlName="attemptLimit" required>
+                            @for (n of [1, 2, 3, 4, 5]; track n) {
+                                <mat-option [value]="n">
+                                    {{
+                                        n === 1
+                                            ? t('smartEnrollProjects.setup.documents.attempts.one')
+                                            : t('smartEnrollProjects.setup.documents.attempts.many', { count: n })
+                                    }}
+                                </mat-option>
+                            }
                         </mat-select>
                     </mat-form-field>
-
-                    <div class="md:col-span-2">
-                        <p class="mb-1 text-xs font-medium text-stone-600 dark:text-stone-300">
-                            {{ t('smartEnrollProjects.setup.liveness.thresholds.minScore') }} — <span class="font-mono">{{ minScoreDisplayValue }}</span>
-                        </p>
-                        <mat-slider min="0.52" max="0.9" step="0.01" discrete>
-                            <input matSliderThumb formControlName="minScore" />
-                        </mat-slider>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="mb-1 text-xs font-medium text-stone-600 dark:text-stone-300">
-                            {{ t('smartEnrollProjects.setup.liveness.thresholds.compareMinScore') }} — <span class="font-mono">{{ compareMinScoreDisplayValue }}</span>
-                        </p>
-                        <mat-slider min="0.7" max="0.95" step="0.01" discrete>
-                            <input matSliderThumb formControlName="compareMinScore" />
-                        </mat-slider>
-                    </div>
-                    <div class="md:col-span-2">
-                        <p class="mb-1 text-xs font-medium text-stone-600 dark:text-stone-300">
-                            {{ t('smartEnrollProjects.setup.liveness.thresholds.searchMinScore') }} — <span class="font-mono">{{ searchMinScoreDisplayValue }}</span>
-                            @if (isSearchMinScoreWarn) {
-                                <span class="ml-2 inline-flex items-center gap-1 text-amber-700 dark:text-amber-400">
-                                    <mat-icon class="!h-3.5 !w-3.5 !text-base">info</mat-icon>
-                                    {{ t('smartEnrollProjects.setup.liveness.thresholds.searchWarn') }}
-                                </span>
-                            }
-                        </p>
-                        <mat-slider min="0.81" max="0.95" step="0.01" discrete>
-                            <input matSliderThumb formControlName="searchMinScore" />
-                        </mat-slider>
-                    </div>
-                </div>
+                </header>
             </section>
         </ng-container>
     </div>

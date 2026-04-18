@@ -47,9 +47,15 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
     private _transloco = inject(TranslocoService);
 
     @Input() webhookId = '';
+    /**
+     * Optional alternative filter — when set (and `webhookId` is empty) the component
+     * lists every webhook event whose `appRegistration` matches this id.
+     */
+    @Input() appRegistrationId = '';
     /** Initial events from parent */
     @Input() set initialEvents(value: any[] | null) {
         this.eventsData = value ? [...value] : [];
+        this._initialEventsProvided = !!value;
         this._cdr.markForCheck();
     }
     @Input() set initialPaginator(meta: { total?: number; pages?: number; limit?: number } | null) {
@@ -62,6 +68,7 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() projectFlowFilter = '';
 
     private _destroyed = new Subject<void>();
+    private _initialEventsProvided = false;
 
     eventsData: any[] = [];
     eventSelected: any;
@@ -79,7 +86,7 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
 
     ngOnChanges(changes: SimpleChanges): void {
         const pf = changes['projectFlowFilter'];
-        if (pf && !pf.firstChange && this.webhookId) {
+        if (pf && !pf.firstChange && this._hasFilterId()) {
             this.eventSelected = undefined;
             this.paginatorData.pageIndex = 0;
             this._searchEvents();
@@ -94,6 +101,14 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
             },
             error: () => {},
         });
+
+        if (!this._initialEventsProvided && this._hasFilterId()) {
+            this._searchEvents();
+        }
+    }
+
+    private _hasFilterId(): boolean {
+        return !!(this.webhookId || this.appRegistrationId);
     }
 
     ngOnDestroy(): void {
@@ -163,15 +178,19 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private _searchEvents(): void {
-        if (!this.webhookId) return;
+        if (!this._hasFilterId()) return;
         this.searching = true;
         this._cdr.markForCheck();
         const query: Record<string, unknown> = {
-            where_webhook: this.webhookId,
             page: this.paginatorData.pageIndex + 1,
             perPage: this.paginatorData.pageSize,
             sort: '-createdAt',
         };
+        if (this.webhookId) {
+            query['where_webhook'] = this.webhookId;
+        } else if (this.appRegistrationId) {
+            query['where_appRegistration'] = this.appRegistrationId;
+        }
         if (this.filterSelected) query['where_response.status'] = this.filterSelected;
         if (this.projectFlowFilter) query['where_projectFlow'] = this.projectFlowFilter;
 

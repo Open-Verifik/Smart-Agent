@@ -70,14 +70,22 @@
 
                 <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.allowed.add') }}</mat-label>
-                    <mat-select
-                        [value]="null"
-                        (selectionChange)="addCountry($event.value); $event.source.value = null"
+                    <input
+                        matInput
+                        type="text"
+                        autocomplete="off"
+                        [formControl]="allowedCountryFilterCtrl"
+                        [placeholder]="t('smartEnrollProjects.setup.basicSetup.allowed.search')"
+                        [matAutocomplete]="allowedCountriesAuto"
+                    />
+                    <mat-autocomplete
+                        #allowedCountriesAuto="matAutocomplete"
+                        (optionSelected)="onAllowedCountryPicked($event)"
                     >
-                        @for (c of ipCountries; track c.country) {
-                            <mat-option [value]="c">{{ t(c.name) }}</mat-option>
+                        @for (c of filteredAllowedCountries; track c.country) {
+                            <mat-option [value]="c.country">{{ t(c.name) }}</mat-option>
                         }
-                    </mat-select>
+                    </mat-autocomplete>
                 </mat-form-field>
             </div>
         </section>
