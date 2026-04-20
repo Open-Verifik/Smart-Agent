@@ -62,6 +62,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
     public searchInput: string = '';
     public selectedCountry: string | null = null;
     public selectedCategory: string | null = null;
+    public showOnlySubscribed: boolean = false;
 
     // Filter Options
     public countries: any[] = [];
@@ -176,6 +177,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
             item.subject.subscription = found || null;
         });
 
+        this.applyFilters();
         this._cdr.markForCheck();
     }
 
@@ -470,7 +472,17 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
             }
         }
 
+        // Subscribed only
+        if (this.showOnlySubscribed) {
+            data = data.filter((item) => item.subject?.isSubscribed);
+        }
+
         this.filteredData = data;
+    }
+
+    toggleSubscribedFilter(): void {
+        this.showOnlySubscribed = !this.showOnlySubscribed;
+        this.applyFilters();
     }
 
     openDialog(item: any): void {
@@ -492,6 +504,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
                         item.subject.isSubscribed = false;
                         item.subject.subscription = null;
                     }
+                    this.applyFilters();
                     this._cdr.markForCheck();
                 }
             });

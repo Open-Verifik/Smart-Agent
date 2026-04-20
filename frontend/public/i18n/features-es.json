@@ -69,16 +69,16 @@
       "description": "Verifica afiliaciones de salud y seguridad social para Colombia. Accede a información de EPS, ARL y pensión."
     },
     "colombia_api_contraloria_certificate": {
-      "title": "Colombia - Certificado de Responsabilidad Fiscal (Contraloría)",
-      "description": "Certificado de responsabilidad fiscal de la Contraloría General de la República."
+      "title": "Colombia - Certificado de Contraloría",
+      "description": "El servicio permite verificar el certificado de buena conducta emitido por la Contraloría General de Colombia ingresando el tipo y número de documento, y devuelve la fecha de consulta junto con el certificado en formato PDF codificado en base64."
     },
     "peru_identity_lookup": {
       "title": "Perú - Verificación de Identidad",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "venezuela_api_identity_lookup": {
-      "title": "Venezuela - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Venezuela — Identidad nacional (CCVE)",
+      "description": "Consulta de cédula nacional (CCVE) para ciudadanos venezolanos. GET /v2/ve/cedula con documentNumber obligatorio; devuelve nombres estructurados para KYC y prevención de fraude."
     },
     "colombia_api_vehicle_complete": {
       "title": "Colombia - Información Completa de Vehículo",
@@ -178,15 +178,15 @@
     },
     "panama_api_identity_full_lookup": {
       "title": "Panamá - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Verifica la cédula panameña (CCPA): documento, nombre y fecha de nacimiento frente al registro civil oficial para KYC y prevención de fraude."
     },
     "chile_api_identity_lookup": {
       "title": "Chile - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Verifica identidad en Chile con RUN/RUT: datos nominales frente a fuentes del registro civil oficial para KYC, onboarding y prevención de fraude."
     },
     "costarica_api_identity_lookup": {
-      "title": "Costa Rica - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Costa Rica — Identidad nacional (CCCR)",
+      "description": "Verificación de cédula nacional costarricense (CCCR): GET /v2/cr/cedula con documentType CCCR y documentNumber para KYC y prevención de fraude."
     },
     "ecuador_api_criminal_history": {
       "title": "Ecuador - Antecedentes Penales",
@@ -194,11 +194,11 @@
     },
     "chile_api_vehicle": {
       "title": "Chile - Verificación de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Consulta vehículos inscritos en Chile por patente: bastidor, motor, marca, modelo, año, color, multas cuando apliquen y datos del titular si la fuente los expone; útil para flotas, seguros y cumplimiento."
     },
     "panama_api_identity_lookup": {
       "title": "Panamá - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Verifica la cédula panameña (CCPA): documento, nombre y fecha de nacimiento frente al registro civil oficial para KYC y prevención de fraude."
     },
     "panama_api_vehicle": {
       "title": "Panamá - Verificación de Vehículos",
@@ -206,7 +206,7 @@
     },
     "chile_api_business_lookup": {
       "title": "Chile - Consulta de Empresa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Consulta empresas chilenas por RUT: razón social, rubro, actividad y líneas de servicio autorizadas según registros oficiales para KYB y debida diligencia de proveedores."
     },
     "spain_api_identity_lookup": {
       "title": "España - Verificación de Identidad",
@@ -234,7 +234,7 @@
     },
     "brasil_api_identity_lookup": {
       "title": "Brasil - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Verifica CPF brasileño con fecha de nacimiento frente a fuentes oficiales: confirma nombre, fecha de nacimiento y datos de identidad para KYC, onboarding y prevención de fraude."
     },
     "usa_api_driver_license_lookup": {
       "title": "Estados Unidos - Verificación de Licencia de Conducción",
@@ -330,11 +330,11 @@
     },
     "brasil_api_company_lookup": {
       "title": "Brasil - Consulta de Empresa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Consulta empresas brasileñas por CNPJ (documentType CNPJ + documentNumber): datos de registro para KYB, alta de proveedores y cumplimiento."
     },
     "brasil_api_vehicle": {
       "title": "Brasil - Verificación de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Consulta datos del vehículo en Brasil por placa (plate): información orientada al registro para flotas, seguros y activos; el alcance depende de la fuente."
     },
     "argentina_api_identity_lookup": {
       "title": "Argentina - Verificación de Identidad",
@@ -534,7 +534,7 @@
     },
     "chile_api_driver_license": {
       "title": "Chile - Licencia de Conducción",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Obtén datos de la licencia de conducir chilena por número de documento de licencia: RUT, clase, fechas de control, dirección, restricciones y campos del registro para screening laboral y cumplimiento de movilidad."
     },
     "colombia_api_lawyers_certificate": {
       "title": "Colombia - Verificación de Abogados",
@@ -553,16 +553,16 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "brasil_api_criminal_history": {
-      "title": "brasil api criminal history",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Brasil - Verificación de Antecedentes",
+      "description": "Verificación de antecedentes en Brasil (CPF + fecha de nacimiento): resultado orientado a screening con campos de identidad e informe oficial cuando la fuente lo entrega—no constituye asesoría legal."
     },
     "bolivia_api_business_lookup": {
       "title": "Bolivia - Consulta de Empresa",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - Consulta de Empresa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Costa Rica — Consulta empresarial (NITE)",
+      "description": "Consulta KYB para empresas en Costa Rica: GET /v2/cr/company con documentType NITE y documentNumber (identificador NITE) para registro y verificación comercial."
     },
     "paraguay_api_business_lookup": {
       "title": "Paraguay - Consulta de Empresa",
@@ -585,8 +585,8 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brasil - Verificación de Vehículos por Placa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Brasil - Ficha Técnica de Vehículo (por Placa)",
+      "description": "Ficha técnica vehicular ampliada en Brasil por placa (data-sheet-by-plate): más detalle técnico que la consulta básica por placa, según cobertura del registro."
     },
     "face_recognition_search_active_user": {
       "title": "Búsqueda Facial (Usuario Activo)",
@@ -597,12 +597,12 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "chile_api_taxpayer_lookup": {
-      "title": "chile api taxpayer lookup",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Chile - Consulta de Contribuyente (RUT)",
+      "description": "Consulta datos asociados al RUT de contribuyente en Chile: campos de identidad que devuelve la fuente para verificación fiscal y cruce de personas o empresas."
     },
     "chile_api_validate": {
-      "title": "chile api validate",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Chile - Validación de Documento de Identidad",
+      "description": "Flujo de validación reforzada de documentos de identidad chilenos (RUN/RUT) con tipo y número de documento y número de serie opcional, para comprobaciones adicionales de autenticidad."
     },
     "colombia_api_simit_agreements": {
       "title": "Colombia - Acuerdos de Pago SIMIT",
@@ -641,8 +641,8 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "costa_rica_api_vehicle": {
-      "title": "Costa Rica - Verificación de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Costa Rica — Verificación vehicular",
+      "description": "Consulta de vehículo por placa: GET /v2/cr/vehicle con el parámetro obligatorio plate; devuelve datos del titular y del vehículo, infracciones e historial de propietarios cuando estén disponibles."
     },
     "paraguay_api_vehicle": {
       "title": "Paraguay - Verificación de Vehículos",
@@ -677,8 +677,8 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "venezuela_foreigner_api": {
-      "title": "Venezuela - Verificación de Estado Migratorio",
-      "description": "Servicio de verificación de registros migratorios para Venezuela. Proporciona estado migratorio e información de registro de extranjeros."
+      "title": "Venezuela — Cédula de extranjero (CEVE)",
+      "description": "Consulta de cédula de extranjero (CEVE) para residentes no venezolanos. GET /v2/ve/foreigner-id con documentNumber obligatorio; los ciudadanos con CCVE nacional usan /v2/ve/cedula."
     },
     "colombia_sisben_api_lookup": {
       "title": "Colombia - Verificación de Puntaje SISBEN",
@@ -694,7 +694,7 @@
     },
     "panama_api_business_lookup": {
       "title": "Panamá - Consulta de Empresa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Consulta empresas por RUC en Panamá: razón social, estado, representantes y datos registrales oficiales para KYB y debida diligencia."
     },
     "uruguay_api_identity_lookup": {
       "title": "Uruguay - Verificación de Identidad",

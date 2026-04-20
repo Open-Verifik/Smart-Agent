@@ -123,7 +123,9 @@
       "at_least_one": "Por favor, añade al menos un correo",
       "error_update": "Error al actualizar la suscripción",
       "error_create": "Error al crear la suscripción",
-      "error_delete": "Error al eliminar la suscripción"
+      "error_delete": "Error al eliminar la suscripción",
+      "filter_subscribed": "Solo suscritos",
+      "filter_subscribed_tooltip": "Mostrar solo APIs donde activaste alertas"
     }
   },
   "smartMonitor": {
@@ -1556,6 +1558,27 @@
       },
       "body": {
         "jsonBody": "Cuerpo JSON"
+      },
+      "about": {
+        "overview": "Descripción",
+        "headers": "Encabezados",
+        "parameters": "Parámetros",
+        "requestExamples": "Ejemplos de solicitud",
+        "responseSamples": "Ejemplos de respuesta",
+        "notes": "Notas",
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "noDocsYet": "Aún no hay documentación detallada para este endpoint.",
+        "fallbackLocale": "Mostrando documentación en inglés",
+        "paramsColumns": {
+          "field": "Campo",
+          "type": "Tipo",
+          "required": "Requerido",
+          "allowed": "Permitidos",
+          "description": "Descripción"
+        },
+        "yes": "Sí",
+        "no": "No"
       }
     },
     "responseViewer": {

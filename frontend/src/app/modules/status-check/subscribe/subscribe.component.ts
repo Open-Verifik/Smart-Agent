@@ -142,10 +142,7 @@ export class SubscribeComponent implements OnInit {
             };
             this._statusCheckService.putIncidentsSubscriptions(updatePayload).subscribe({
                 next: (res) => {
-                    const subscription = res.data || res;
-                    if (!subscription.emails || subscription.emails.length === 0) {
-                        subscription.emails = this.emails;
-                    }
+                    const subscription = this._extractSubscription(res);
                     this._dialogRef.close({ update: true, subscription });
                     this.loading = false;
                 },
@@ -162,10 +159,7 @@ export class SubscribeComponent implements OnInit {
             // Create
             this._statusCheckService.postIncidentsSubscriptions(payload).subscribe({
                 next: (res) => {
-                    const subscription = res.data || res;
-                    if (!subscription.emails || subscription.emails.length === 0) {
-                        subscription.emails = this.emails;
-                    }
+                    const subscription = this._extractSubscription(res);
                     this._dialogRef.close({ create: true, subscription });
                     this.loading = false;
                 },
@@ -179,6 +173,17 @@ export class SubscribeComponent implements OnInit {
                 },
             });
         }
+    }
+
+    private _extractSubscription(res: any): any {
+        const raw = res?.data ?? res;
+        const subscription = raw?.incidentSubscription ?? raw;
+
+        if (subscription && (!subscription.emails || subscription.emails.length === 0)) {
+            subscription.emails = this.emails;
+        }
+
+        return subscription;
     }
 
     delete(): void {

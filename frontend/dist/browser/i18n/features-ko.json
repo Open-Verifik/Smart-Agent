@@ -69,16 +69,16 @@
       "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
     },
     "colombia_api_contraloria_certificate": {
-      "title": "콜롬비아 - 재정 책임 증명서",
-      "description": "Certificate of fiscal responsibility from the Contraloría General de la República."
+      "title": "콜롬비아 - 콘트랄로리아 증명서",
+      "description": "이 서비스는 콜롬비아 총감사원(Contraloría General de Colombia)이 발급한 품행 증명서를 서류 유형과 번호를 입력해 검증하며, 조회 일자와 base64로 인코딩된 PDF 형식의 증명서를 반환합니다."
     },
     "peru_identity_lookup": {
       "title": "페루 - 국민ID 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "venezuela_api_identity_lookup": {
-      "title": "베네수엘라 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "베네수엘라 — 국적 신분증(CCVE)",
+      "description": "베네수엘라 국민 CCVE 신분증 조회. GET /v2/ve/cedula, 필수 쿼리 documentNumber. KYC·사기 방지를 위한 구조화된 성명을 반환합니다."
     },
     "colombia_api_vehicle_complete": {
       "title": "Colombia - Complete Vehicle Information",
@@ -178,15 +178,15 @@
     },
     "panama_api_identity_full_lookup": {
       "title": "파나마 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "파나마 CCPA 신분증 검증: 문서번호·이름·생년월일을 공식 호적과 대조. KYC·고객 확인에 적합."
     },
     "chile_api_identity_lookup": {
-      "title": "칠레 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "칠레 - 본인 확인",
+      "description": "칠레 국민 ID(RUN/RUT) 검증: 공식 호적 기준으로 성명 등을 대조. KYC, 온보딩, 사기 방지에 활용."
     },
     "costarica_api_identity_lookup": {
-      "title": "코스타리카 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "코스타리카 — 국민 신분증(CCCR)",
+      "description": "코스타리카 국민 CCCR 신분증 조회. GET /v2/cr/cedula에 documentType CCCR 및 documentNumber. KYC·사기 방지에 활용."
     },
     "ecuador_api_criminal_history": {
       "title": "에콰도르 - 범죄 이력",
@@ -194,11 +194,11 @@
     },
     "chile_api_vehicle": {
       "title": "칠레 - 차량 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "번호판으로 칠레 등록 차량 조회: 차대·엔진·제조사·모델·연식·색상, 해당 시 과태료, 소스가 제공 시 소유자 정보. 차량 관리·보험·컴플라이언스에 적합."
     },
     "panama_api_identity_lookup": {
       "title": "파나마 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "파나마 CCPA 신분증 검증: 문서번호·이름·생년월일을 공식 호적과 대조. KYC·고객 확인에 적합."
     },
     "panama_api_vehicle": {
       "title": "파나마 - 차량 검증",
@@ -206,7 +206,7 @@
     },
     "chile_api_business_lookup": {
       "title": "칠레 - 기업 조회",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "RUT로 칠레 법인 조회: 상호, 업종, 활동 및 공식 등기 기반 허용 서비스 범위. KYB 및 공급업체 실사에 활용."
     },
     "spain_api_identity_lookup": {
       "title": "스페인 - 국민ID 검증",
@@ -233,8 +233,8 @@
       "description": "Verify lawyer registration and professional status with the Colombian bar."
     },
     "brasil_api_identity_lookup": {
-      "title": "브라질 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "브라질 - 본인 확인",
+      "description": "공식 출처에 대해 CPF와 생년월일로 대조하여 이름·생년월일·신원 정보를 확인합니다. KYC, 온보딩, 사기 방지에 활용합니다."
     },
     "usa_api_driver_license_lookup": {
       "title": "미국 - Driver License Verification",
@@ -330,11 +330,11 @@
     },
     "brasil_api_company_lookup": {
       "title": "브라질 - 기업 조회",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "CNPJ로 브라질 법인을 조회합니다(documentType CNPJ + documentNumber). 등기 기반 데이터로 KYB, 공급사 실사, 컴플라이언스에 활용합니다."
     },
     "brasil_api_vehicle": {
       "title": "브라질 - 차량 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "번호판(plate)으로 브라질 차량 정보를 조회합니다. 차량 관리, 보험, 자산 확인용이며, 반환 필드는 출처 제공 범위에 따릅니다."
     },
     "argentina_api_identity_lookup": {
       "title": "아르헨티나 - 국민ID 검증",
@@ -534,7 +534,7 @@
     },
     "chile_api_driver_license": {
       "title": "칠레 - 운전면허",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "면허 문서 번호로 칠레 운전면허 상세 조회: RUT, 등급, 검사일, 주소, 제한 사항, 등록 필드. 인력 검증·모빌리티 규정 준수에 활용."
     },
     "colombia_api_lawyers_certificate": {
       "title": "콜롬비아 - 변호사 검증",
@@ -553,16 +553,16 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "brasil_api_criminal_history": {
-      "title": "brasil api criminal history",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "브라질 - 배경 조회",
+      "description": "브라질 개인 배경 조회(CPF + 생년월일). 신원 필드와 가능한 공식 보고서 출력. 심사·스크리닝용이며 법률 자문은 아닙니다."
     },
     "bolivia_api_business_lookup": {
       "title": "볼리비아 - 기업 조회",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "costa_rica_api_business_lookup": {
-      "title": "코스타리카 - 기업 조회",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "코스타리카 — 기업 조회(NITE)",
+      "description": "코스타리카 법인 KYB 조회. GET /v2/cr/company에 documentType NITE 및 documentNumber(NITE 식별자). 등록·거래처 검증에 활용."
     },
     "paraguay_api_business_lookup": {
       "title": "파라과이 - 기업 조회",
@@ -585,8 +585,8 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": "브라질 - 번호판 차량 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "브라질 - 차량 데이터 시트(번호판)",
+      "description": "번호판 기준 확장 차량 데이터 시트(data-sheet-by-plate). 기본 조회보다 상세한 기술 항목. 등록소 커버리지에 따릅니다."
     },
     "face_recognition_search_active_user": {
       "title": "Face Search (Active User)",
@@ -597,12 +597,12 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "chile_api_taxpayer_lookup": {
-      "title": "chile api taxpayer lookup",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "칠레 - 납세자(RUT) 조회",
+      "description": "칠레 납세자 RUT에 연계된 신원·성명 정보를 소스가 반환하는 범위에서 조회. 세무 확인 및 개인·법인 매칭에 활용."
     },
     "chile_api_validate": {
-      "title": "chile api validate",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "칠레 - 신분증 추가 검증",
+      "description": "칠레 신분증(RUN/RUT)에 대해 문서 유형·번호와 선택적 일련번호로 강화 검증. 추가 진위 확인 단계에 사용."
     },
     "colombia_api_simit_agreements": {
       "title": "콜롬비아 - SIMIT 결제 계약",
@@ -641,8 +641,8 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "costa_rica_api_vehicle": {
-      "title": "코스타리카 - 차량 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "코스타리카 — 차량 조회",
+      "description": "번호판으로 조회. GET /v2/cr/vehicle에 필수 plate. 소유자·차량 정보, 가능 시 위반 및 과거 소유 이력을 반환합니다."
     },
     "paraguay_api_vehicle": {
       "title": "파라과이 - 차량 검증",
@@ -677,8 +677,8 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "venezuela_foreigner_api": {
-      "title": "Venezuela - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Venezuela. 제공 immigration status and foreigner registration information."
+      "title": "베네수엘라 — 외국인 신분증(CEVE)",
+      "description": "체류 외국인 CEVE 신분 조회. GET /v2/ve/foreigner-id, 필수 documentNumber. 국민(CCVE)은 /v2/ve/cedula를 사용합니다."
     },
     "colombia_sisben_api_lookup": {
       "title": "콜롬비아 - SISBEN 점수",
@@ -694,7 +694,7 @@
     },
     "panama_api_business_lookup": {
       "title": "파나마 - 기업 조회",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "description": "RUC로 파나마 법인 조회: 상호·상태·대표자 등 공식 등기 정보. KYB·실사에 활용."
     },
     "uruguay_api_identity_lookup": {
       "title": "우루과이 - 국민ID 검증",

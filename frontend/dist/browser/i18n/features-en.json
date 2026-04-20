@@ -69,16 +69,16 @@
       "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
     },
     "colombia_api_contraloria_certificate": {
-      "title": "Colombia - Certificate of Fiscal Responsibility (Contraloría)",
-      "description": "Certificate of fiscal responsibility from the Contraloría General de la República."
+      "title": "Colombia - Contraloría Certificate",
+      "description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF."
     },
     "peru_identity_lookup": {
       "title": "Peru - National ID Verification",
       "description": "Provides reliable verification and validation services."
     },
     "venezuela_api_identity_lookup": {
-      "title": "Venezuela - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Venezuela — National ID (CCVE)",
+      "description": "National cédula (CCVE) lookup for Venezuelan citizens. GET /v2/ve/cedula with required query parameter documentNumber; returns structured names for KYC and fraud prevention."
     },
     "colombia_api_vehicle_complete": {
       "title": "Colombia - Complete Vehicle Information",
@@ -178,15 +178,15 @@
     },
     "panama_api_identity_full_lookup": {
       "title": "Panama - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
     },
     "chile_api_identity_lookup": {
-      "title": "Chile - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Chile - Identity Verification",
+      "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention."
     },
     "costarica_api_identity_lookup": {
-      "title": "Costa Rica - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Costa Rica — National ID (CCCR)",
+      "description": "Verify Costa Rican national ID (CCCR cédula): GET /v2/cr/cedula with documentType CCCR and documentNumber for KYC and fraud prevention."
     },
     "ecuador_api_criminal_history": {
       "title": "Ecuador - Criminal History",
@@ -194,11 +194,11 @@
     },
     "chile_api_vehicle": {
       "title": "Chile - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
+      "description": "Look up vehicles registered in Chile by license plate: chassis, engine, make, model, year, color, fines when available, and owner details when the source exposes them—ideal for fleet, insurance, and compliance."
     },
     "panama_api_identity_lookup": {
       "title": "Panama - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
     },
     "panama_api_vehicle": {
       "title": "Panama - Vehicle Verification",
@@ -206,7 +206,7 @@
     },
     "chile_api_business_lookup": {
       "title": "Chile - Company Lookup",
-      "description": "Provides reliable verification and validation services."
+      "description": "Look up Chilean companies by RUT: legal name, business category, activity, and authorized service lines from official registry data for KYB and vendor due diligence."
     },
     "spain_api_identity_lookup": {
       "title": "Spain - National ID Verification",
@@ -233,8 +233,8 @@
       "description": "Verify lawyer registration and professional status with the Colombian bar."
     },
     "brasil_api_identity_lookup": {
-      "title": "Brazil - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Brazil - Identity Verification",
+      "description": "Verify Brazilian CPF with date of birth against official sources: confirm name, date of birth, and identity fields for KYC, onboarding, and fraud prevention."
     },
     "usa_api_driver_license_lookup": {
       "title": "USA - Driver License Verification",
@@ -330,11 +330,11 @@
     },
     "brasil_api_company_lookup": {
       "title": "Brazil - Company Lookup",
-      "description": "Provides reliable verification and validation services."
+      "description": "Look up Brazilian companies by CNPJ (documentType CNPJ + documentNumber): registry-backed company data for KYB, vendor onboarding, and compliance."
     },
     "brasil_api_vehicle": {
       "title": "Brazil - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
+      "description": "Query Brazilian vehicle data by license plate (plate): registration-oriented fields for fleet, insurance, and asset checks—scope depends on source availability."
     },
     "argentina_api_identity_lookup": {
       "title": "Argentina - National ID Verification",
@@ -534,7 +534,7 @@
     },
     "chile_api_driver_license": {
       "title": "Chile - Driver License",
-      "description": "Provides reliable verification and validation services."
+      "description": "Retrieve Chilean driver license details by license document number: RUT, class, control dates, address, restrictions, and registry fields for workforce screening and mobility compliance."
     },
     "colombia_api_lawyers_certificate": {
       "title": "Colombia - Lawyers Verification",
@@ -553,16 +553,16 @@
       "description": "Provides reliable verification and validation services."
     },
     "brasil_api_criminal_history": {
-      "title": "brasil api criminal history",
-      "description": "Provides reliable verification and validation services."
+      "title": "Brazil - Background Check",
+      "description": "Brazilian individual background check (CPF + date of birth): screening-oriented results with identity fields and official report output when available—not legal advice."
     },
     "bolivia_api_business_lookup": {
       "title": "Bolivia - Company Lookup",
       "description": "Provides reliable verification and validation services."
     },
     "costa_rica_api_business_lookup": {
-      "title": "Costa Rica - Company Lookup",
-      "description": "Provides reliable verification and validation services."
+      "title": "Costa Rica — Company Lookup (NITE)",
+      "description": "KYB lookup for Costa Rican companies: GET /v2/cr/company with documentType NITE and documentNumber for registration and business verification."
     },
     "paraguay_api_business_lookup": {
       "title": "Paraguay - Company Lookup",
@@ -585,8 +585,8 @@
       "description": "Provides reliable verification and validation services."
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brazil - Vehicle Verification by Plate",
-      "description": "Provides reliable verification and validation services."
+      "title": "Brazil - Vehicle Data Sheet (by Plate)",
+      "description": "Extended Brazilian vehicle technical data sheet by plate (data-sheet-by-plate): richer vehicle specification fields than the basic plate lookup, subject to registry coverage."
     },
     "face_recognition_search_active_user": {
       "title": "Face Search (Active User)",
@@ -597,12 +597,12 @@
       "description": "Provides reliable verification and validation services."
     },
     "chile_api_taxpayer_lookup": {
-      "title": "chile api taxpayer lookup",
-      "description": "Provides reliable verification and validation services."
+      "title": "Chile - Taxpayer (RUT) Lookup",
+      "description": "Query Chilean taxpayer RUT records: identity and name fields returned by the source for tax-related verification and entity matching."
     },
     "chile_api_validate": {
-      "title": "chile api validate",
-      "description": "Provides reliable verification and validation services."
+      "title": "Chile - Identity Document Validation",
+      "description": "Strengthened validation flow for Chilean identity documents (RUN/RUT) using document type and number, with optional serial number, for additional authenticity checks."
     },
     "colombia_api_simit_agreements": {
       "title": "Colombia - SIMIT Payment Agreements",
@@ -641,8 +641,8 @@
       "description": "Provides reliable verification and validation services."
     },
     "costa_rica_api_vehicle": {
-      "title": "Costa Rica - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Costa Rica — Vehicle Verification",
+      "description": "Look up a Costa Rican vehicle by license plate: GET /v2/cr/vehicle with required query parameter plate; returns owner and vehicle details, infraction and ownership history when available."
     },
     "paraguay_api_vehicle": {
       "title": "Paraguay - Vehicle Verification",
@@ -677,8 +677,8 @@
       "description": "Provides reliable verification and validation services."
     },
     "venezuela_foreigner_api": {
-      "title": "Venezuela - Immigration Status Verification",
-      "description": "Immigration records verification service for Venezuela. Provides immigration status and foreigner registration information."
+      "title": "Venezuela — Foreign Resident ID (CEVE)",
+      "description": "Foreigner cédula (CEVE) lookup for foreign residents in Venezuela. GET /v2/ve/foreigner-id with required documentNumber; national CCVE holders use /v2/ve/cedula."
     },
     "colombia_sisben_api_lookup": {
       "title": "Colombia - SISBEN Score Verification",
@@ -694,7 +694,7 @@
     },
     "panama_api_business_lookup": {
       "title": "Panama - Company Lookup",
-      "description": "Provides reliable verification and validation services."
+      "description": "Look up Panamanian companies by RUC: legal name, status, representatives, and registry fields from official sources for KYB and due diligence."
     },
     "uruguay_api_identity_lookup": {
       "title": "Uruguay - National ID Verification",

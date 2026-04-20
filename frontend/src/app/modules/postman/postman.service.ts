@@ -1,19 +1,21 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { AuthService } from 'app/core/auth/auth.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
+import { AgentWalletService } from 'app/modules/chat/services/agent-wallet.service';
 import {
     API_ENDPOINTS,
     ApiEndpoint,
+    PostmanEndpointRowDto,
     PostmanFolderDto,
     PostmanLayoutData,
     PostmanLayoutResponse,
-    PostmanEndpointRowDto,
 } from './postman.types';
 
-import { environment } from 'environments/environment';
 import { HttpParams } from '@angular/common/http';
-import { Observable, catchError, finalize, forkJoin, of, skip, tap, throwError } from 'rxjs';
+import { environment } from 'environments/environment';
+import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -21,6 +23,8 @@ import { Observable, catchError, finalize, forkJoin, of, skip, tap, throwError }
 export class PostmanService {
     private _sessionService = inject(SessionService);
     private _userService = inject(UserService);
+    private _authService = inject(AuthService);
+    private _agentWalletService = inject(AgentWalletService);
 
     endpoints = signal<ApiEndpoint[]>(API_ENDPOINTS);
 
@@ -49,8 +53,16 @@ export class PostmanService {
 
     constructor(private _httpClient: HttpClient) {
         this.loadExplorerData();
+        // Only reload the catalog when the *identity* changes (login / logout / account
+        // switch). Credit-only updates also emit on `user$`, and reloading there would
+        // wipe the in-progress response (the URL→endpoint effect re-runs and calls
+        // `selectEndpoint`, which clears `response`).
         this._userService.user$
-            .pipe(skip(1))
+            .pipe(
+                skip(1),
+                map((user) => (user as any)?._id || (user as any)?.id || null),
+                distinctUntilChanged(),
+            )
             .subscribe(() => {
                 if (this._sessionService.isTokenValid()) {
                     this.loadExplorerData();
@@ -86,7 +98,7 @@ export class PostmanService {
             catchError((err) => {
                 console.error('Failed to fetch features', err);
                 return of({ data: [] });
-            }),
+            })
         );
 
         const layout$ = isAuthenticated
@@ -97,7 +109,7 @@ export class PostmanService {
                           console.error('Failed to fetch postman layout', err);
                           this.layoutError.set('postman.sidebar.layoutLoadError');
                           return of(null);
-                      }),
+                      })
                   )
             : of(null);
 
@@ -106,7 +118,7 @@ export class PostmanService {
                 tap(({ features, layout }) => {
                     const featureList = features?.data || [];
                     const dynamicEndpoints: ApiEndpoint[] = featureList.map((feature: any) =>
-                        this._createEndpointFromFeature(feature, apiUrl),
+                        this._createEndpointFromFeature(feature, apiUrl)
                     );
                     const mergedCatalog = this._mergeEndpoints(API_ENDPOINTS, dynamicEndpoints);
                     const layoutData = layout?.data ?? null;
@@ -114,7 +126,9 @@ export class PostmanService {
                     const rawEndpoints = layoutData?.endpoints ?? [];
 
                     this.layoutFolders.set(rawFolders.map((f) => this._normalizeFolderDto(f)));
-                    this.layoutEndpointsRaw.set(rawEndpoints.map((e) => this._normalizeEndpointDto(e)));
+                    this.layoutEndpointsRaw.set(
+                        rawEndpoints.map((e) => this._normalizeEndpointDto(e))
+                    );
 
                     const withLayout = this._applyPostmanLayout(mergedCatalog, layoutData);
                     this.endpoints.set(withLayout);
@@ -124,7 +138,7 @@ export class PostmanService {
                             return current;
                         }
                         const match = withLayout.find((endpoint) =>
-                            this._isSameEndpoint(endpoint, current),
+                            this._isSameEndpoint(endpoint, current)
                         );
                         if (!match) {
                             return current;
@@ -132,7 +146,7 @@ export class PostmanService {
                         return {
                             ...match,
                             headers: current.headers?.length ? current.headers : match.headers,
-                            params: current.params?.length ? current.params : match.params,
+                            params: this._mergeEndpointParams(current.params, match.params),
                             body: current.body ?? match.body,
                         };
                     });
@@ -140,7 +154,7 @@ export class PostmanService {
                 finalize(() => {
                     this.layoutLoading.set(false);
                     this.layoutLoaded.set(true);
-                }),
+                })
             )
             .subscribe();
     }
@@ -163,17 +177,22 @@ export class PostmanService {
 
     private _applyPostmanLayout(
         catalog: ApiEndpoint[],
-        layoutData: PostmanLayoutData | null | undefined,
+        layoutData: PostmanLayoutData | null | undefined
     ): ApiEndpoint[] {
         if (!layoutData || (!layoutData.endpoints?.length && !layoutData.folders?.length)) {
             return catalog.map((ep) => ({ ...ep }));
         }
 
-        const folderIds = new Set((layoutData.folders || []).map((f) => String((f as PostmanFolderDto)._id)));
+        const folderIds = new Set(
+            (layoutData.folders || []).map((f) => String((f as PostmanFolderDto)._id))
+        );
         const byCode = new Map<string, PostmanEndpointRowDto>();
         for (const row of layoutData.endpoints || []) {
             if (row.appFeatureCode) {
-                byCode.set(row.appFeatureCode, this._normalizeEndpointDto(row as PostmanEndpointRowDto));
+                byCode.set(
+                    row.appFeatureCode,
+                    this._normalizeEndpointDto(row as PostmanEndpointRowDto)
+                );
             }
         }
 
@@ -244,12 +263,18 @@ export class PostmanService {
                               desc = `Pick a value from [${dependency.enum.join(', ')}]`;
                           }
 
+                          const enumList =
+                              Array.isArray(dependency.enum) && dependency.enum.length
+                                  ? [...dependency.enum]
+                                  : undefined;
+
                           return {
                               key: dependency.field,
                               value: defaultVal,
                               type: dependency.type,
                               required: dependency.required,
                               description: desc,
+                              ...(enumList ? { enum: enumList } : {}),
                           };
                       })
                     : [],
@@ -261,14 +286,74 @@ export class PostmanService {
                           return acc;
                       }, {})
                     : null,
+            ...(feature.docs && typeof feature.docs === 'object' ? { docs: feature.docs } : {}),
         };
     }
 
-    private _mergeEndpoints(current: ApiEndpoint[], dynamicEndpoints: ApiEndpoint[]): ApiEndpoint[] {
+    /**
+     * Merges static catalog params with API-derived params by `key` so metadata such as `enum`
+     * from the feature list is preserved while keeping user-facing `value` from the catalog.
+     */
+    private _mergeEndpointParams(
+        existing: ApiEndpoint['params'],
+        match: ApiEndpoint['params']
+    ): ApiEndpoint['params'] {
+        if (!match?.length) {
+            return existing?.length ? existing : match;
+        }
+        if (!existing?.length) {
+            return match;
+        }
+
+        type ParamRow = NonNullable<ApiEndpoint['params']>[number];
+        const matchByKey = new Map<string, ParamRow>(match.map((p) => [p.key, p]));
+        const merged: ParamRow[] = [];
+        const consumedKeys = new Set<string>();
+
+        for (const ex of existing) {
+            const m = matchByKey.get(ex.key);
+            if (m) {
+                consumedKeys.add(ex.key);
+                merged.push(this._mergeParamRow(ex, m));
+            } else {
+                merged.push({ ...ex });
+            }
+        }
+
+        for (const m of match) {
+            if (!consumedKeys.has(m.key)) {
+                merged.push({ ...m });
+            }
+        }
+
+        return merged;
+    }
+
+    private _mergeParamRow(
+        existing: NonNullable<ApiEndpoint['params']>[number],
+        match: NonNullable<ApiEndpoint['params']>[number]
+    ): NonNullable<ApiEndpoint['params']>[number] {
+        const enumMerged = existing.enum && existing.enum.length ? existing.enum : match.enum;
+        const description = existing.description?.trim() ? existing.description : match.description;
+
+        return {
+            ...match,
+            ...existing,
+            enum: enumMerged,
+            description,
+        };
+    }
+
+    private _mergeEndpoints(
+        current: ApiEndpoint[],
+        dynamicEndpoints: ApiEndpoint[]
+    ): ApiEndpoint[] {
         const matchedDynamicIds = new Set<string>();
 
         const mergedCurrent = current.map((existing) => {
-            const match = dynamicEndpoints.find((dynamic) => this._isSameEndpoint(existing, dynamic));
+            const match = dynamicEndpoints.find((dynamic) =>
+                this._isSameEndpoint(existing, dynamic)
+            );
             if (!match) {
                 return existing;
             }
@@ -282,13 +367,15 @@ export class PostmanService {
                 method: existing.method || match.method,
                 url: existing.url || match.url,
                 headers: existing.headers?.length ? existing.headers : match.headers,
-                params: existing.params?.length ? existing.params : match.params,
+                params: this._mergeEndpointParams(existing.params, match.params),
                 body: existing.body ?? match.body,
                 documentationUrl: existing.documentationUrl || match.documentationUrl,
             };
         });
 
-        const newEndpoints = dynamicEndpoints.filter((endpoint) => !matchedDynamicIds.has(endpoint.id));
+        const newEndpoints = dynamicEndpoints.filter(
+            (endpoint) => !matchedDynamicIds.has(endpoint.id)
+        );
 
         return [...mergedCurrent, ...newEndpoints];
     }
@@ -310,7 +397,9 @@ export class PostmanService {
         const folders = this.layoutFolders();
         const roots = folders
             .filter((f) => f.parentFolder == null || f.parentFolder === '')
-            .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name));
+            .sort(
+                (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)
+            );
 
         const result: { id: string; label: string }[] = [];
 
@@ -320,7 +409,10 @@ export class PostmanService {
                 result.push({ id: f._id, label: `${pad}${f.name}` });
                 const kids = folders
                     .filter((x) => x.parentFolder === f._id)
-                    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name));
+                    .sort(
+                        (a, b) =>
+                            (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || a.name.localeCompare(b.name)
+                    );
                 walk(kids, depth + 1);
             }
         };
@@ -341,14 +433,22 @@ export class PostmanService {
 
     updateFolder(
         folderId: string,
-        patch: { name?: string; description?: string; sortOrder?: number; parentFolder?: string | null },
+        patch: {
+            name?: string;
+            description?: string;
+            sortOrder?: number;
+            parentFolder?: string | null;
+        }
     ): Observable<unknown> {
         return this._httpClient.put(`${this._apiUrl()}/v2/postman/folders/${folderId}`, patch, {
             headers: this._authHeaders(),
         });
     }
 
-    deleteFolder(folderId: string, options?: { deleteEndpointLayouts?: boolean }): Observable<unknown> {
+    deleteFolder(
+        folderId: string,
+        options?: { deleteEndpointLayouts?: boolean }
+    ): Observable<unknown> {
         let params = new HttpParams();
         if (options?.deleteEndpointLayouts) {
             params = params.set('deleteEndpointLayouts', 'true');
@@ -364,7 +464,12 @@ export class PostmanService {
      */
     upsertEndpointLayout(
         endpoint: ApiEndpoint,
-        patch: { folder?: string | null; displayName?: string; sortOrder?: number; isFavorite?: boolean },
+        patch: {
+            folder?: string | null;
+            displayName?: string;
+            sortOrder?: number;
+            isFavorite?: boolean;
+        }
     ): Observable<unknown> {
         if (!endpoint.code) {
             return throwError(() => new Error('Endpoint has no app feature code'));
@@ -373,16 +478,22 @@ export class PostmanService {
         const base = `${this._apiUrl()}/v2/postman/endpoints`;
 
         if (endpoint.postmanEndpointId) {
-            return this._httpClient.put(`${base}/${endpoint.postmanEndpointId}`, patch, { headers });
+            return this._httpClient.put(`${base}/${endpoint.postmanEndpointId}`, patch, {
+                headers,
+            });
         }
 
-        return this._httpClient.post(base, {
-            appFeatureCode: endpoint.code,
-            folder: patch.folder ?? null,
-            displayName: patch.displayName ?? endpoint.layoutDisplayName ?? '',
-            sortOrder: patch.sortOrder ?? endpoint.layoutSortOrder ?? 0,
-            isFavorite: patch.isFavorite ?? endpoint.isFavorite ?? false,
-        }, { headers });
+        return this._httpClient.post(
+            base,
+            {
+                appFeatureCode: endpoint.code,
+                folder: patch.folder ?? null,
+                displayName: patch.displayName ?? endpoint.layoutDisplayName ?? '',
+                sortOrder: patch.sortOrder ?? endpoint.layoutSortOrder ?? 0,
+                isFavorite: patch.isFavorite ?? endpoint.isFavorite ?? false,
+            },
+            { headers }
+        );
     }
 
     selectEndpoint(endpoint: ApiEndpoint) {
@@ -472,12 +583,45 @@ export class PostmanService {
                 this.isLoading.set(false);
                 this.response.set(res);
                 this.responseTime.set(Date.now() - startTime);
+
+                this._refreshCredits(anyRes?.status);
             }),
             catchError((err) => {
                 this.isLoading.set(false);
                 this.error.set(err);
+                this._refreshCredits(err?.status);
                 return of(null);
             }),
+            finalize(() => {
+                this._refreshWalletForX402();
+            })
         ).subscribe();
+    }
+
+    /**
+     * Refreshes session credits after a Postman call in `credits` mode whenever the
+     * backend produced a real HTTP response (any status > 0, including 4xx like 404 and
+     * 5xx). Network errors (status === 0) are skipped because no credit was consumed.
+     */
+    private _refreshCredits(status: number | undefined): void {
+        if (this.paymentMethod() !== 'credits') return;
+        if (!status || status <= 0) return;
+        if (!this._sessionService.isTokenValid()) return;
+
+        this._authService.refreshSession().subscribe({
+            error: () => {
+                /* swallow: keep current cached user if refresh fails */
+            },
+        });
+    }
+
+    /**
+     * Refreshes wallet balances after every Postman call in `x402` mode (success, error,
+     * or 402 retry) so AVAX/VKA in the header stay aligned with the on-chain state.
+     */
+    private _refreshWalletForX402(): void {
+        if (this.paymentMethod() !== 'x402') return;
+
+        void this._agentWalletService.refreshBalance();
     }
 }

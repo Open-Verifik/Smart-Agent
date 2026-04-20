@@ -7,6 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from './postman.service';
+import { ApiEndpoint } from './postman.types';
 import { RequestEditorComponent } from './request-editor/request-editor.component';
 import { ResponseViewerComponent } from './response-viewer/response-viewer.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -66,6 +67,47 @@ function postmanCountryInitials(name: string): string {
         return trim.slice(0, 2).toUpperCase();
     }
     return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+/**
+ * Returns the lowercase ISO token (e.g. "es", "co", "world") for a display country name.
+ * Falls back to `null` for unknown names so callers can drop the URL param defensively.
+ */
+function countryNameToIso(name: string | null | undefined): string | null {
+    if (!name) return null;
+    const code = POSTMAN_COUNTRY_ISO[name];
+    return typeof code === 'string' && code.length > 0 ? code.toLowerCase() : null;
+}
+
+/**
+ * Resolves an ISO token from the URL back to the canonical country name actually used
+ * by the loaded endpoint catalog. Prefers a live match against `endpoints[*].country`
+ * to avoid mismatches when several display names share an ISO; falls back to the
+ * static reverse map derived from `POSTMAN_COUNTRY_ISO`.
+ */
+function resolveCountryNameFromIso(
+    iso: string | null | undefined,
+    endpoints: ApiEndpoint[]
+): string | null {
+    if (!iso) return null;
+    const target = iso.trim().toLowerCase();
+    if (!target) return null;
+
+    for (const ep of endpoints) {
+        if (!ep.country) continue;
+        const epIso = countryNameToIso(ep.country);
+        if (epIso && epIso === target) {
+            return ep.country;
+        }
+    }
+
+    for (const [name, code] of Object.entries(POSTMAN_COUNTRY_ISO)) {
+        if (typeof code === 'string' && code.toLowerCase() === target) {
+            return name;
+        }
+    }
+
+    return null;
 }
 
 @Component({
@@ -315,7 +357,31 @@ export class PostmanComponent {
     paymentMethod = this._postmanService.paymentMethod;
 
     toggleCountry(country: string) {
-        this.selectedCountry.update((c) => (c === country ? null : country));
+        const next = this.selectedCountry() === country ? null : country;
+        this.selectedCountry.set(next);
+        const iso = next ? countryNameToIso(next) : null;
+
+        const queryParams: Record<string, string | null> = { country: iso };
+
+        /**
+         * Switching to a country whose filter excludes the active endpoint
+         * would leave a stale `code=...` in the URL. Drop both the URL param
+         * and the in-memory selection so the request editor resets cleanly.
+         */
+        if (next) {
+            const currentEp = this._postmanService.selectedEndpoint();
+            if (currentEp?.country && currentEp.country !== next) {
+                queryParams['code'] = null;
+                this._postmanService.selectedEndpoint.set(null);
+            }
+        }
+
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams,
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 
     setPaymentMethod(method: 'credits' | 'x402') {
@@ -339,7 +405,11 @@ export class PostmanComponent {
                 const endpoints = this._postmanService.endpoints();
                 if (endpoints.length > 0 && codeParam) {
                     const found = endpoints.find((ep) => ep.code === codeParam);
-                    if (found) {
+                    // Skip re-selecting if the endpoint is already active. Re-selecting
+                    // calls `selectEndpoint` which clears the current `response`, and we
+                    // would otherwise wipe the user's last result whenever the endpoint
+                    // catalog is reloaded (e.g. after a credits refresh).
+                    if (found && this._postmanService.selectedEndpoint()?.code !== found.code) {
                         this._postmanService.selectEndpoint(found);
                     }
                 }
@@ -347,20 +417,58 @@ export class PostmanComponent {
             { allowSignalWrites: true }
         );
 
-        // Effect: Selected Endpoint -> Sync URL (use code, not url, for clean query params)
+        // Effect: Sync URL country param -> selectedCountry, gated on loaded catalog
+        effect(
+            () => {
+                const params = this._queryParamMap();
+                const isoParam = params?.get('country');
+                const endpoints = this._postmanService.endpoints();
+                if (endpoints.length === 0) return;
+
+                if (!isoParam) {
+                    if (this._postmanService.selectedCountry() !== null) {
+                        this._postmanService.selectedCountry.set(null);
+                    }
+                    return;
+                }
+
+                const resolved = resolveCountryNameFromIso(isoParam, endpoints);
+                if (resolved) {
+                    if (this._postmanService.selectedCountry() !== resolved) {
+                        this._postmanService.selectedCountry.set(resolved);
+                    }
+                } else if (this._postmanService.selectedCountry() !== null) {
+                    this._postmanService.selectedCountry.set(null);
+                }
+            },
+            { allowSignalWrites: true }
+        );
+
+        // Effect: Selected Endpoint -> Sync URL (code + country together, so the
+        // country param always matches the endpoint and we self-heal mismatches like
+        // `?code=spain_*&country=pa` -> `?code=spain_*&country=es`).
         effect(() => {
             const selected = this._postmanService.selectedEndpoint();
-            if (selected?.code) {
-                const urlTree = this._router.createUrlTree([], {
-                    relativeTo: this._route,
-                    queryParams: { code: selected.code },
-                    queryParamsHandling: 'merge',
-                });
-                const urlString = this._router.serializeUrl(urlTree);
-                this._router.navigateByUrl(urlString, {
-                    replaceUrl: true,
-                });
+            if (!selected?.code) return;
+
+            const currentParams = this._queryParamMap();
+            const desiredCountryIso = countryNameToIso(selected.country);
+            const currentCode = currentParams?.get('code') ?? null;
+            const currentCountry = currentParams?.get('country') ?? null;
+
+            if (currentCode === selected.code && currentCountry === desiredCountryIso) {
+                return;
             }
+
+            const urlTree = this._router.createUrlTree([], {
+                relativeTo: this._route,
+                queryParams: { code: selected.code, country: desiredCountryIso },
+                queryParamsHandling: 'merge',
+            });
+            const urlString = this._router.serializeUrl(urlTree);
+            this._router.navigateByUrl(urlString, {
+                replaceUrl: true,
+            });
         });
     }
 

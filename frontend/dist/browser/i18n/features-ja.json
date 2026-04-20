@@ -69,16 +69,16 @@
       "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
     },
     "colombia_api_contraloria_certificate": {
-      "title": "コロンビア - 財政責任証明書",
-      "description": "Certificate of fiscal responsibility from the Contraloría General de la República."
+      "title": "コロンビア - コントラロリア証明",
+      "description": "コロンビア総監査院（Contraloría General de Colombia）が発行した品行証明書を、身分証の種類と番号を入力して照合できます。照会日付と、base64でエンコードされたPDF形式の証明書を返します。"
     },
     "peru_identity_lookup": {
       "title": "ペルー - 国民ID検証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "venezuela_api_identity_lookup": {
-      "title": "ベネズエラ - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ベネズエラ — 国籍身分証（CCVE）",
+      "description": "ベネズエラ国民の CCVE 身分証照会。GET /v2/ve/cedula、必須クエリ documentNumber。KYC・不正対策向けに構造化された氏名を返します。"
     },
     "colombia_api_vehicle_complete": {
       "title": "Colombia - Complete Vehicle Information",
@@ -178,15 +178,15 @@
     },
     "panama_api_identity_full_lookup": {
       "title": "パナマ - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "パナマのCCPA国民IDを検証：番号・氏名・生年月日を公的戸籍データと照合。KYCや本人確認に。"
     },
     "chile_api_identity_lookup": {
-      "title": "チリ - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "チリ - 本人確認",
+      "description": "チリの国民ID（RUN/RUT）を検証。公的戸籍情報と照合し、KYC・オンボーディング・不正防止に利用できます。"
     },
     "costarica_api_identity_lookup": {
-      "title": "コスタリカ - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "コスタリカ — 国民ID（CCCR）",
+      "description": "コスタリカ国民のCCCR身分証を照会。GET /v2/cr/cedula に documentType=CCCR と documentNumber を指定。KYC・不正防止に利用。"
     },
     "ecuador_api_criminal_history": {
       "title": "エクアドル - 犯罪歴",
@@ -194,11 +194,11 @@
     },
     "chile_api_vehicle": {
       "title": "チリ - 車両検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "ナンバープレートでチリ登録車両を照会。車台・エンジン・メーカー・車種・年式・色・該当時は違反金、ソースが返す範囲で所有者情報。フリート・保険・コンプライアンス向け。"
     },
     "panama_api_identity_lookup": {
       "title": "パナマ - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "パナマのCCPA国民IDを検証：番号・氏名・生年月日を公的戸籍データと照合。KYCや本人確認に。"
     },
     "panama_api_vehicle": {
       "title": "パナマ - 車両検証",
@@ -206,7 +206,7 @@
     },
     "chile_api_business_lookup": {
       "title": "チリ - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "RUTでチリ企業を照会。商号・業種・事業内容・認可サービス区分など公的登記ベースの情報を取得。KYB・ベンダーデューデリ向け。"
     },
     "spain_api_identity_lookup": {
       "title": "スペイン - 国民ID検証",
@@ -233,8 +233,8 @@
       "description": "Verify lawyer registration and professional status with the Colombian bar."
     },
     "brasil_api_identity_lookup": {
-      "title": "ブラジル - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ブラジル - 本人確認",
+      "description": "公的情報源に対しCPFと生年月日で照合し、氏名・生年月日・本人情報を確認。KYC、オンボーディング、不正防止向け。"
     },
     "usa_api_driver_license_lookup": {
       "title": "アメリカ - Driver License Verification",
@@ -330,11 +330,11 @@
     },
     "brasil_api_company_lookup": {
       "title": "ブラジル - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "CNPJでブラジル法人を照会（documentType CNPJ + documentNumber）。登記ベースのデータでKYB、取引先審査、コンプライアンスに利用。"
     },
     "brasil_api_vehicle": {
       "title": "ブラジル - 車両検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "ナンバープレート（plate）でブラジル車両情報を照会。フリート、保険、資産確認向け。取得項目はソースの提供範囲に依存。"
     },
     "argentina_api_identity_lookup": {
       "title": "アルゼンチン - 国民ID検証",
@@ -534,7 +534,7 @@
     },
     "chile_api_driver_license": {
       "title": "チリ - 運転免許",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "免許証番号でチリの運転免許詳細を取得。RUT、クラス、管理日、住所、制限事項、登録上の項目。採用・モビリティコンプライアンス向け。"
     },
     "colombia_api_lawyers_certificate": {
       "title": "コロンビ아 - 弁護士検証",
@@ -553,16 +553,16 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "brasil_api_criminal_history": {
-      "title": "brasil api criminal history",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ブラジル - バックグラウンドチェック",
+      "description": "ブラジル個人の身元調査（CPF + 生年月日）。本人情報と、取得可能な公式レポート出力。スクリーニング向け。法的助言ではありません。"
     },
     "bolivia_api_business_lookup": {
       "title": "ボリビア - 企業検索",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "costa_rica_api_business_lookup": {
-      "title": "コスタリカ - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "コスタリカ — 法人照会（NITE）",
+      "description": "コスタリカ法人のKYB照会。GET /v2/cr/company に documentType=NITE と documentNumber（NITE番号）を指定し、登録・取引先確認に利用。"
     },
     "paraguay_api_business_lookup": {
       "title": "パラグアイ - 企業検索",
@@ -585,8 +585,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": "ブラジル - 車両検証（ナンバー）",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ブラジル - 車両データシート（プレート）",
+      "description": "プレート別の拡張車両データシート（data-sheet-by-plate）。基本照会より詳細な技術項目。登記のカバレッジに依存。"
     },
     "face_recognition_search_active_user": {
       "title": "Face Search (Active User)",
@@ -597,12 +597,12 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "chile_api_taxpayer_lookup": {
-      "title": "chile api taxpayer lookup",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "チリ - 納税者（RUT）照会",
+      "description": "チリの納税者RUTに紐づく、ソースが返す本人・氏名情報を照会。税務関連の実在確認やエンティティ突合に利用。"
     },
     "chile_api_validate": {
-      "title": "chile api validate",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "チリ - 身分証明書の追加検証",
+      "description": "チリの身分証（RUN/RUT）について、証種・番号と任意のシリアルで強化検証。真偽確認の追加ステップ向け。"
     },
     "colombia_api_simit_agreements": {
       "title": "コロンビア - SIMIT支払契約",
@@ -641,8 +641,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "costa_rica_api_vehicle": {
-      "title": "コスタリカ - 車両検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "コスタリカ — 車両照会",
+      "description": "ナンバープレートで照会。GET /v2/cr/vehicle に必須パラメータ plate。所有者・車両情報、取得可能な場合は違反・過去所有者履歴を返します。"
     },
     "paraguay_api_vehicle": {
       "title": "パラグアイ - 車両検証",
@@ -677,8 +677,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "venezuela_foreigner_api": {
-      "title": "Venezuela - 入国管理状況検証",
-      "description": "Immigration records verification service のVenezuela. 提供 immigration status and foreigner registration information."
+      "title": "ベネズエラ — 外国人身分証（CEVE）",
+      "description": "在留外国人の CEVE 身分照会。GET /v2/ve/foreigner-id、必須 documentNumber。国民（CCVE）は /v2/ve/cedula を使用します。"
     },
     "colombia_sisben_api_lookup": {
       "title": "コロンビア - SISBENスコア",
@@ -694,7 +694,7 @@
     },
     "panama_api_business_lookup": {
       "title": "パナマ - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "RUCでパナマ法人を照会：商号・ステータス・代表者など公的登記情報。KYB・デューデリに。"
     },
     "uruguay_api_identity_lookup": {
       "title": "ウルグアイ - 国民ID検証",

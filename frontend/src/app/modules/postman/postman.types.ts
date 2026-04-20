@@ -1,5 +1,47 @@
 import { environment } from 'environments/environment';
 
+/** Supported locale keys for `AppFeature.docs`. */
+export type EndpointDocLocale = 'en' | 'es' | 'fr' | 'pt' | 'ko' | 'ja' | 'zh';
+
+export interface EndpointDocHeaderRow {
+    name: string;
+    value: string;
+    description?: string;
+}
+
+export interface EndpointDocParamRow {
+    field: string;
+    description: string;
+}
+
+export interface EndpointDocRequestExample {
+    /** Tab identifier from the source MDX (e.g. "node", "python", "curl"). */
+    lang: string;
+    /** Human-readable tab label (e.g. "Node.js"). */
+    label: string;
+    /** Highlight.js language tag (e.g. "javascript", "python", "bash"). */
+    language?: string;
+    code: string;
+}
+
+export interface EndpointDocResponse {
+    /** HTTP status code as string ("200", "404", "409"). */
+    status: string;
+    label?: string;
+    body: string;
+}
+
+export interface EndpointDocLang {
+    overview?: string;
+    headers?: EndpointDocHeaderRow[];
+    params?: EndpointDocParamRow[];
+    requestExamples?: EndpointDocRequestExample[];
+    responses?: EndpointDocResponse[];
+    notes?: string[];
+}
+
+export type EndpointDocs = Partial<Record<EndpointDocLocale, EndpointDocLang>>;
+
 /** Lean folder row from GET /v2/postman/layout or /v2/postman/folders */
 export interface PostmanFolderDto {
     _id: string;
@@ -54,6 +96,8 @@ export interface ApiEndpoint {
         type: string;
         required: boolean;
         description?: string;
+        /** Allowed values from app-features `dependencies[].enum` (GET query params). */
+        enum?: string[];
     }[];
     body?: any;
     category?: string;
@@ -67,6 +111,8 @@ export interface ApiEndpoint {
     layoutSortOrder?: number;
     layoutDisplayName?: string;
     isFavorite?: boolean;
+    /** Rich, localized documentation served by `AppFeature.docs` (seeded from Docusaurus MDX). */
+    docs?: EndpointDocs;
 }
 
 export const API_ENDPOINTS: ApiEndpoint[] = [
@@ -125,7 +171,8 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
                 value: 'CC',
                 type: 'string',
                 required: true,
-                description: 'One of CC, PPT.',
+                description: 'One of CC, NIT.',
+                enum: ['CC', 'NIT'],
             },
             {
                 key: 'documentNumber',

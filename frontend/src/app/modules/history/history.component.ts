@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import {
+  AfterViewInit,
   Component,
   OnInit,
   ViewChild,
@@ -37,7 +38,7 @@ import { environment } from '../../../environments/environment';
   templateUrl: './history.component.html',
   encapsulation: ViewEncapsulation.None,
 })
-export class HistoryComponent implements OnInit {
+export class HistoryComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
@@ -62,6 +63,8 @@ export class HistoryComponent implements OnInit {
   pageIndex = this._historyService.pageIndex;
 
   constructor() {
+    this.dataSource.sortingDataAccessor = (row, columnId) => this.getSortValue(row, columnId);
+
     // React to changes in requests/mode to update dataSource
     effect(() => {
       const allRequests = this.requests();
@@ -73,6 +76,10 @@ export class HistoryComponent implements OnInit {
         this.displayedColumns = ['service', 'transactionHash', 'amount', 'date'];
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    this.dataSource.sort = this.sort;
   }
 
   ngOnInit(): void {
@@ -130,6 +137,37 @@ export class HistoryComponent implements OnInit {
   shortHash(hash: string): string {
     if (!hash) return '';
     return `${hash.substring(0, 6)}...${hash.substring(hash.length - 4)}`;
+  }
+
+  /**
+   * Resolve the comparable value for a given column when sorting.
+   * Maps UI column ids to the underlying data fields used by both
+   * CREDITS (`createdAt`, `statusCode`, ...) and x402 (`timestamp`) responses.
+   */
+  getSortValue(row: any, columnId: string): string | number {
+    if (!row) return '';
+
+    switch (columnId) {
+      case 'status':
+        return typeof row.statusCode === 'number' ? row.statusCode : Number.MAX_SAFE_INTEGER;
+      case 'service':
+        return (row.endpoint || row.code || row.serviceId || '').toString().toLowerCase();
+      case 'date': {
+        const raw = row.createdAt ?? row.timestamp;
+        if (!raw) return 0;
+        if (typeof raw === 'number') return raw;
+        const parsed = DateTime.fromISO(String(raw));
+        return parsed.isValid ? parsed.toMillis() : new Date(raw).getTime() || 0;
+      }
+      case 'duration':
+        return typeof row.duration === 'number' ? row.duration : -1;
+      case 'amount':
+        return Number(row.paymentAmount ?? row.cost ?? 0) || 0;
+      default: {
+        const value = row[columnId];
+        return value == null ? '' : value;
+      }
+    }
   }
 
   /**

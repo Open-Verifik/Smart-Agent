@@ -123,7 +123,9 @@
       "at_least_one": "少なくとも 1 つのメールアドレスを追加してください",
       "error_update": "購読の更新中にエラーが発生しました",
       "error_create": "購読の作成中にエラーが発生しました",
-      "error_delete": "購読の削除中にエラーが発生しました"
+      "error_delete": "購読の削除中にエラーが発生しました",
+      "filter_subscribed": "購読中のみ",
+      "filter_subscribed_tooltip": "アラートを有効にした API のみを表示"
     }
   },
   "smartMonitor": {
@@ -1556,6 +1558,27 @@
       },
       "body": {
         "jsonBody": "JSONボディ"
+      },
+      "about": {
+        "overview": "概要",
+        "headers": "ヘッダー",
+        "parameters": "パラメータ",
+        "requestExamples": "リクエスト例",
+        "responseSamples": "レスポンス例",
+        "notes": "メモ",
+        "copy": "コピー",
+        "copied": "コピーしました",
+        "noDocsYet": "このエンドポイントの詳細なドキュメントはまだありません。",
+        "fallbackLocale": "英語のドキュメントを表示しています",
+        "paramsColumns": {
+          "field": "フィールド",
+          "type": "型",
+          "required": "必須",
+          "allowed": "許可値",
+          "description": "説明"
+        },
+        "yes": "はい",
+        "no": "いいえ"
       }
     },
     "responseViewer": {

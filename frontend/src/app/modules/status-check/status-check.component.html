@@ -43,6 +43,23 @@
 
                 <!-- Input Filters -->
                 <div class="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+                    <!-- Subscribed-only Toggle -->
+                    <button
+                        type="button"
+                        (click)="toggleSubscribedFilter()"
+                        [class.bg-primary-600]="showOnlySubscribed"
+                        [class.text-white]="showOnlySubscribed"
+                        [class.border-primary-600]="showOnlySubscribed"
+                        [class.bg-white]="!showOnlySubscribed"
+                        [class.text-gray-700]="!showOnlySubscribed"
+                        [class.border-gray-200]="!showOnlySubscribed"
+                        class="h-9 px-3 inline-flex items-center gap-2 rounded-full border shadow-sm transition-all text-sm font-medium leading-none whitespace-nowrap flex-shrink-0 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700"
+                        [matTooltip]="'network.alerts.filter_subscribed_tooltip' | transloco"
+                    >
+                        <mat-icon class="icon-size-4 leading-none">{{ showOnlySubscribed ? 'notifications_active' : 'notifications_none' }}</mat-icon>
+                        <span class="whitespace-nowrap">{{ 'network.alerts.filter_subscribed' | transloco }}</span>
+                    </button>
+
                     <!-- Category Dropdown -->
                     <mat-form-field
                         class="w-full sm:w-48 fuse-mat-dense"

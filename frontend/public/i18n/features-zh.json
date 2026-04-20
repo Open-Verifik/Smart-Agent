@@ -69,16 +69,16 @@
       "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
     },
     "colombia_api_contraloria_certificate": {
-      "title": "哥伦比亚 - 财政责任证明",
-      "description": "Certificate of fiscal responsibility from the Contraloría General de la República."
+      "title": "哥伦比亚 - 总审计署证明",
+      "description": "该服务可通过输入证件类型和号码，验证由哥伦比亚总审计署（Contraloría General de Colombia）出具的良好品行证明，并返回查询日期以及以 Base64 编码的 PDF 格式证明。"
     },
     "peru_identity_lookup": {
       "title": "秘鲁 - 国民身份证验证",
       "description": "提供可靠的验证和验证服务。"
     },
     "venezuela_api_identity_lookup": {
-      "title": "委内瑞拉 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "委内瑞拉 — 国籍身份证（CCVE）",
+      "description": "委内瑞拉国民 CCVE 身份证查询。GET /v2/ve/cedula，必填查询参数 documentNumber；返回结构化姓名，用于 KYC 与反欺诈。"
     },
     "colombia_api_vehicle_complete": {
       "title": "Colombia - Complete Vehicle Information",
@@ -178,15 +178,15 @@
     },
     "panama_api_identity_full_lookup": {
       "title": "巴拿马 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "验证巴拿马CCPA国民身份证：核对证件号码、姓名与出生日期与政府登记信息，适用于KYC与客户准入。"
     },
     "chile_api_identity_lookup": {
-      "title": "智利 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "智利 - 身份核验",
+      "description": "核验智利国民身份证件（RUN/RUT）：与官方民事登记数据对照姓名等信息，适用于 KYC、开户与反欺诈。"
     },
     "costarica_api_identity_lookup": {
-      "title": "哥斯达黎加 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "哥斯达黎加 — 国民身份证（CCCR）",
+      "description": "核验哥斯达黎加国民 CCCR 身份证：GET /v2/cr/cedula，传入 documentType 为 CCCR 及 documentNumber，用于 KYC 与反欺诈。"
     },
     "ecuador_api_criminal_history": {
       "title": "厄瓜多尔 - 犯罪记录",
@@ -194,11 +194,11 @@
     },
     "chile_api_vehicle": {
       "title": "智利 - 车辆验证",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "按车牌查询智利注册车辆：车架、发动机、厂商、车型、年份、颜色，如有则含罚款，以及数据源提供的车主信息。适用于车队、保险与合规。"
     },
     "panama_api_identity_lookup": {
       "title": "巴拿马 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "验证巴拿马CCPA国民身份证：核对证件号码、姓名与出生日期与政府登记信息，适用于KYC与客户准入。"
     },
     "panama_api_vehicle": {
       "title": "巴拿马 - 车辆验证",
@@ -206,7 +206,7 @@
     },
     "chile_api_business_lookup": {
       "title": "智利 - 企业查询",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "按 RUT 查询智利企业：法定名称、行业类别、经营活动及官方登记中的授权服务范围，适用于 KYB 与供应商尽职调查。"
     },
     "spain_api_identity_lookup": {
       "title": "西班牙 - 国民身份证验证",
@@ -233,8 +233,8 @@
       "description": "Verify lawyer registration and professional status with the Colombian bar."
     },
     "brasil_api_identity_lookup": {
-      "title": "巴西 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "巴西 - 身份核验",
+      "description": "凭 CPF 与出生日期对照官方数据源，核验姓名、出生日期与身份信息，用于 KYC、开户与反欺诈。"
     },
     "usa_api_driver_license_lookup": {
       "title": "美国 - Driver License Verification",
@@ -330,11 +330,11 @@
     },
     "brasil_api_company_lookup": {
       "title": "巴西 - 企业查询",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "按 CNPJ 查询巴西企业（documentType CNPJ + documentNumber），返回登记导向的企业数据，用于 KYB、供应商尽调与合规。"
     },
     "brasil_api_vehicle": {
       "title": "巴西 - 车辆验证",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "按车牌（plate）查询巴西车辆登记类信息，适用于车队、保险与资产核验；字段范围取决于数据源。"
     },
     "argentina_api_identity_lookup": {
       "title": "阿根廷 - 国民身份证验证",
@@ -534,7 +534,7 @@
     },
     "chile_api_driver_license": {
       "title": "智利 - 驾驶证",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "按驾驶证文档编号获取智利驾照详情：RUT、准驾类别、审验日期、地址、限制条件及登记字段，适用于用工筛查与出行合规。"
     },
     "colombia_api_lawyers_certificate": {
       "title": "哥伦比亚 - 律师验证",
@@ -553,16 +553,16 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "brasil_api_criminal_history": {
-      "title": "brasil api criminal history",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "巴西 - 背景调查",
+      "description": "巴西个人背景核查（CPF + 出生日期）：含身份信息及在可用时的官方报告类输出，用于用工与合规筛查，不构成法律意见。"
     },
     "bolivia_api_business_lookup": {
       "title": "玻利维亚 - 企业查询",
       "description": "提供可靠的验证和验证服务。"
     },
     "costa_rica_api_business_lookup": {
-      "title": "哥斯达黎加 - 企业查询",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "哥斯达黎加 — 企业查询（NITE）",
+      "description": "哥斯达黎加企业 KYB 查询：GET /v2/cr/company，传入 documentType 为 NITE 及 documentNumber（NITE 编号），用于注册与商业核验。"
     },
     "paraguay_api_business_lookup": {
       "title": "巴拉圭 - 企业查询",
@@ -585,8 +585,8 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "api_data_sheet_vehicle_by-plate_br": {
-      "title": "巴西 - 车牌车辆验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "巴西 - 车辆技术参数表（按车牌）",
+      "description": "按车牌获取扩展车辆技术数据表（data-sheet-by-plate），比基础车牌查询更详细，覆盖范围取决于登记数据。"
     },
     "face_recognition_search_active_user": {
       "title": "Face Search (Active User)",
@@ -597,12 +597,12 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "chile_api_taxpayer_lookup": {
-      "title": "chile api taxpayer lookup",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "智利 - 纳税人（RUT）查询",
+      "description": "查询智利纳税人 RUT 关联的身份与姓名字段（以数据源返回为准），用于税务相关核验与主体匹配。"
     },
     "chile_api_validate": {
-      "title": "chile api validate",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "智利 - 身份证件强化核验",
+      "description": "针对智利身份证件（RUN/RUT）的强化核验流程：证件类型与号码，并可选用序列号，用于额外的真实性检查。"
     },
     "colombia_api_simit_agreements": {
       "title": "哥伦比亚 - SIMIT付款协议",
@@ -641,8 +641,8 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "costa_rica_api_vehicle": {
-      "title": "哥斯达黎加 - 车辆验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "哥斯达黎加 — 车辆核验",
+      "description": "按车牌查询：GET /v2/cr/vehicle，必填参数 plate；返回车主与车辆信息，若数据源提供则含违章与历史车主记录。"
     },
     "paraguay_api_vehicle": {
       "title": "巴拉圭 - 车辆验证",
@@ -677,8 +677,8 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "venezuela_foreigner_api": {
-      "title": "Venezuela - 移民状态验证",
-      "description": "Immigration records verification service 为 Venezuela. 提供 immigration status and foreigner registration information."
+      "title": "委内瑞拉 — 外国人身份证（CEVE）",
+      "description": "外国居民 CEVE 身份证查询。GET /v2/ve/foreigner-id，必填 documentNumber；本国国民（CCVE）使用 /v2/ve/cedula。"
     },
     "colombia_sisben_api_lookup": {
       "title": "哥伦比亚 - SISBEN评分",
@@ -694,7 +694,7 @@
     },
     "panama_api_business_lookup": {
       "title": "巴拿马 - 企业查询",
-      "description": "提供可靠的验证和验证服务。"
+      "description": "通过巴拿马RUC查询企业：核验商号、状态、代表人及登记信息，适用于KYB与合规尽调。"
     },
     "uruguay_api_identity_lookup": {
       "title": "乌拉圭 - 国民身份证验证",

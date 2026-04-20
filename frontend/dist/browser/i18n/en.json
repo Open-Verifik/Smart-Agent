@@ -123,7 +123,9 @@
       "at_least_one": "Please add at least one email",
       "error_update": "Error updating subscription",
       "error_create": "Error creating subscription",
-      "error_delete": "Error deleting subscription"
+      "error_delete": "Error deleting subscription",
+      "filter_subscribed": "Subscribed only",
+      "filter_subscribed_tooltip": "Show only APIs where you enabled alerts"
     }
   },
   "smartMonitor": {
@@ -1556,6 +1558,27 @@
       },
       "body": {
         "jsonBody": "JSON Body"
+      },
+      "about": {
+        "overview": "Overview",
+        "headers": "Headers",
+        "parameters": "Parameters",
+        "requestExamples": "Request examples",
+        "responseSamples": "Response samples",
+        "notes": "Notes",
+        "copy": "Copy",
+        "copied": "Copied",
+        "noDocsYet": "Rich documentation is not yet available for this endpoint.",
+        "fallbackLocale": "Showing English documentation",
+        "paramsColumns": {
+          "field": "Field",
+          "type": "Type",
+          "required": "Required",
+          "allowed": "Allowed",
+          "description": "Description"
+        },
+        "yes": "Yes",
+        "no": "No"
       }
     },
     "responseViewer": {
