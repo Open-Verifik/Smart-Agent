@@ -464,6 +464,10 @@
       "title": "コロンビア - 国民ID検証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
+    "colombia_api_identity_lookup_premium": {
+      "title": "コロンビア — 国民身分証プレミアム(CC)",
+      "description": "CC プレミアム: 発行日を自動解決し、/v2/co/cedula/extra と同じ拡張フィールド。GET/POST /v2/co/cedula/premium。"
+    },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "コロンビア — PEP（特別滞在許可）",
       "description": "コロンビアの PEP（Permiso Especial de Permanencia）を照会します。GET /v2/co/foreigner-id/pep に documentNumber と expeditionDate を指定します。"

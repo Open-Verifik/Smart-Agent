@@ -464,6 +464,10 @@
       "title": "Colombia - Verificación de Identidad",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
+    "colombia_api_identity_lookup_premium": {
+      "title": "Colombia - Verificación premium de cédula (CC)",
+      "description": "Consulta premium de CC: resuelve la fecha de expedición automáticamente y devuelve los mismos campos enriquecidos que /v2/co/cedula/extra. GET/POST /v2/co/cedula/premium."
+    },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "Colombia — PEP (Permiso Especial de Permanencia)",
       "description": "Consulta el PEP colombiano. Usa GET /v2/co/foreigner-id/pep con documentNumber y expeditionDate."

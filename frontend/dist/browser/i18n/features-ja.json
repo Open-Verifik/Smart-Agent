@@ -237,8 +237,8 @@
       "description": "公的情報源に対しCPFと生年月日で照合し、氏名・生年月日・本人情報を確認。KYC、オンボーディング、不正防止向け。"
     },
     "usa_api_driver_license_lookup": {
-      "title": "アメリカ - Driver License Verification",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "アメリカ - フロリダ州運転免許",
+      "description": "フロリダ州の運転免許番号で照会。GET /v2/usa/florida/driver-license に documentNumber。状態・制限・裏書など取得可能な項目を返します。"
     },
     "co_bogota_taxi_plate": {
       "title": "ボゴタのタクシー（ナンバープレート）",
@@ -345,8 +345,8 @@
       "description": "RUCEC（documentType RUCEC + documentNumber）でエクアドル法人を照会。GET /v2/ec/company。KYB・取引先審査向け。"
     },
     "usa_api_ssn": {
-      "title": "アメリカ - SSN Verification",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "アメリカ - SSN（社会保障番号）",
+      "description": "米国 SSN を照会。GET /v2/usa/ssn に documentNumber（書面どおりの形式）。発行年・州・有効性など取得可能な項目を返します。"
     },
     "colombia_api_dian_invoicer": {
       "title": "コロンビア - DIAN電子請求",
@@ -464,6 +464,10 @@
       "title": "コロンビア - 国民ID検証",
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
+    "colombia_api_identity_lookup_premium": {
+      "title": "コロンビア — 国民身分証プレミアム(CC)",
+      "description": "CC プレミアム: 発行日を自動解決し、/v2/co/cedula/extra と同じ拡張フィールド。GET/POST /v2/co/cedula/premium。"
+    },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "コロンビア — PEP（特別滞在許可）",
       "description": "コロンビアの PEP（Permiso Especial de Permanencia）を照会します。GET /v2/co/foreigner-id/pep に documentNumber と expeditionDate を指定します。"
@@ -477,8 +481,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "us_api_passport_entries": {
-      "title": "us api passport entries",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "アメリカ — パスポート・米国入出国",
+      "description": "パスポート情報と氏名・生年月日で米国入出国履歴を照会。GET /v2/passport/us/entries。提供可否はアカウント次第。"
     },
     "mexico_api_company": {
       "title": "メキシコ - 企業検索",
@@ -525,8 +529,8 @@
       "description": "Get vehicle commercial values from Fasecolda by vehicle code."
     },
     "usa_api_company": {
-      "title": "アメリカ - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "アメリカ - 企業検索（KYB）",
+      "description": "SEC EDGAR を用いた米国企業照会。POST /v2/usa/company の JSON に business（商号全文または一部）。CIK・EIN・住所・上場情報などを返します。"
     },
     "colombia_api_runt_owners": {
       "title": "コロンビア - 車両所有者(RUNT)",
@@ -633,8 +637,8 @@
       "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate."
     },
     "world_api_passport_entries": {
-      "title": "world api passport entries",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "グローバル — パスポート・米国入出国",
+      "description": "パスポートと本人情報で米国入出国履歴を照会。GET /v2/passport/us/entries（us_api_passport_entries と同一 URL）。提供可否はアカウント次第。"
     },
     "validate-document": {
       "title": "validate-document",
@@ -649,8 +653,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "usa_api_vehicle_lookup_by_vin": {
-      "title": "アメリカ - Vehicle Lookup by VIN",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "アメリカ - 車両（VIN）",
+      "description": "17 桁の VIN で米国車両をデコード。GET /v2/usa/vehicle-by-vin に vin。任意で force。ナンバー照会と整合した車両オブジェクトを返します。"
     },
     "colombia_api_identity_ce_foreigner_id": {
       "title": "コロンビア — 外国人CE（Cédula de Extranjero）",

@@ -464,6 +464,10 @@
       "title": "哥伦比亚 - 国民身份证验证",
       "description": "提供可靠的验证和验证服务。"
     },
+    "colombia_api_identity_lookup_premium": {
+      "title": "哥伦比亚 — 国民身份证高级核验(CC)",
+      "description": "CC 高级：自动解析签发日，与 /v2/co/cedula/extra 相同的扩展字段。GET/POST /v2/co/cedula/premium。"
+    },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "哥伦比亚 — PEP（特别居留许可）",
       "description": "核验哥伦比亚 PEP（Permiso Especial de Permanencia）。使用 GET /v2/co/foreigner-id/pep，传入 documentNumber 与 expeditionDate。"

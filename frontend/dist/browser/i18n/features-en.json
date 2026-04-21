@@ -464,6 +464,10 @@
       "title": "Colombia - National ID Verification",
       "description": "Provides reliable verification and validation services."
     },
+    "colombia_api_identity_lookup_premium": {
+      "title": "Colombia - National ID Premium (CC)",
+      "description": "Premium CC lookup: expedition date resolved automatically, same enriched fields as /v2/co/cedula/extra. GET/POST /v2/co/cedula/premium."
+    },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "Colombia - Special Stay Permit (PEP)",
       "description": "Verify the Colombian PEP (Permiso Especial de Permanencia) using GET /v2/co/foreigner-id/pep with documentNumber and expeditionDate."

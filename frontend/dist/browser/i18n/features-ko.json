@@ -464,6 +464,10 @@
       "title": "콜롬비아 - 국민ID 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
+    "colombia_api_identity_lookup_premium": {
+      "title": "콜롬비아 — 국민 신분증 프리미엄(CC)",
+      "description": "CC 프리미엄: 발급일 자동 확인, /v2/co/cedula/extra와 동일한 확장 필드. GET/POST /v2/co/cedula/premium."
+    },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "콜롬비아 — PEP(특별 체류 허가)",
       "description": "콜롬비아 PEP(Permiso Especial de Permanencia)를 조회합니다. GET /v2/co/foreigner-id/pep에 documentNumber와 expeditionDate를 전달합니다."
