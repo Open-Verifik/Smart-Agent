@@ -18,6 +18,7 @@ import {
 import { SubscriptionService } from '../../subscription-plans/subscription.service';
 import { PostmanService } from '../postman.service';
 import { ApiEndpoint } from '../postman.types';
+import { buildPostmanEffectiveUrl } from '../postman-url.util';
 import { AboutEndpointComponent } from './about-endpoint.component';
 
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -119,7 +120,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         <input
                             type="text"
                             readonly
-                            [value]="endpoint()?.url"
+                            [value]="effectiveRequestUrl()"
                             class="w-full min-w-[300px] bg-transparent text-slate-700 outline-none dark:text-slate-200"
                         />
                     </div>
@@ -510,6 +511,18 @@ export class RequestEditorComponent {
     /**
      * Options for enum-backed params; if current value is not in the enum (legacy state), prepend it so the select stays valid.
      */
+    /**
+     * URL bar: reflects path-param endpoints (e.g. Bogotá taxi `.../plate/:plate`)
+     * once required segments are filled; otherwise the catalog base URL.
+     */
+    effectiveRequestUrl(): string {
+        const ep = this.endpoint();
+        if (!ep) {
+            return '';
+        }
+        return buildPostmanEffectiveUrl(ep);
+    }
+
     paramValueOptions(param: NonNullable<ApiEndpoint['params']>[number]): string[] {
         const list = param.enum;
         if (!list?.length) {

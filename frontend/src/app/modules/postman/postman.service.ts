@@ -12,6 +12,7 @@ import {
     PostmanLayoutData,
     PostmanLayoutResponse,
 } from './postman.types';
+import { buildPostmanEffectiveUrl, getPostmanPathParamKeysForEndpoint } from './postman-url.util';
 
 import { HttpParams } from '@angular/common/http';
 import { environment } from 'environments/environment';
@@ -522,7 +523,10 @@ export class PostmanService {
 
         const isX402 = this.paymentMethod() === 'x402';
 
-        let url = endpoint.url;
+        const effectiveUrl = buildPostmanEffectiveUrl(endpoint);
+        const pathParamKeys = getPostmanPathParamKeysForEndpoint(endpoint);
+
+        let url = effectiveUrl;
         const options: any = {
             headers: {},
             params: {},
@@ -536,7 +540,7 @@ export class PostmanService {
 
             options.headers['x-payment-tx'] = paymentTxHeader?.value || '';
             options.headers['x-wallet-address'] = walletAddressHeader?.value || '';
-            options.headers['x-target-url'] = endpoint.url;
+            options.headers['x-target-url'] = effectiveUrl;
             options.headers['Content-Type'] = 'application/json';
         } else {
             if (endpoint.headers) {
@@ -553,9 +557,13 @@ export class PostmanService {
 
         if (endpoint.params) {
             endpoint.params.forEach((p) => {
-                if (p.value) {
-                    options.params[p.key] = p.value;
+                if (!p.value) {
+                    return;
                 }
+                if (pathParamKeys?.includes(p.key)) {
+                    return;
+                }
+                options.params[p.key] = p.value;
             });
         }
 

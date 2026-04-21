@@ -50,7 +50,7 @@
     },
     "usa_api_vehicle": {
       "title": "アメリカ - 車両検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "ナンバーと州で米国登録車両を照会。GET /v2/usa/vehicle に plate と state。NHTSA 系デコードで車両属性を返します。"
     },
     "world_api_onu": {
       "title": "グローバル - 国連制裁確認",
