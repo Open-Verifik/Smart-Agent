@@ -162,6 +162,14 @@
     }
 }
 
+.api-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
 .api-count-badge {
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
@@ -174,4 +182,360 @@
         background: rgba(99, 102, 241, 0.2);
         color: rgb(165, 180, 252);
     }
+}
+
+.api-failed-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    color: rgb(185, 28, 28);
+
+    .dark & {
+        background: rgba(239, 68, 68, 0.18);
+        color: rgb(252, 165, 165);
+    }
+}
+
+/* -------------------------------------------------------------------------
+ * Dashboard charts (ng-apexcharts) — ported from verifik-client-panel
+ * ------------------------------------------------------------------------- */
+
+.dashboard-charts {
+    display: flex;
+    flex-direction: column;
+}
+
+.charts-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.charts-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.charts-grid-2 {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+.chart-card {
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+    .dark & {
+        background: rgba(15, 23, 42, 0.6);
+        border-color: rgba(148, 163, 184, 0.1);
+        box-shadow: none;
+    }
+}
+
+.chart-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.chart-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgb(15, 23, 42);
+
+    .dark & {
+        color: rgb(248, 250, 252);
+    }
+}
+
+.chart-card-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(148, 163, 184, 0.15);
+    color: rgb(71, 85, 105);
+    font-size: 0.7rem;
+    font-weight: 600;
+
+    .dark & {
+        background: rgba(148, 163, 184, 0.2);
+        color: rgb(203, 213, 225);
+    }
+}
+
+.chart-card-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgb(100, 116, 139);
+
+    .dark & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.chart-card-value {
+    margin-top: 0.5rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: rgb(15, 23, 42);
+    line-height: 1.1;
+
+    .dark & {
+        color: rgb(248, 250, 252);
+    }
+}
+
+.chart-card-unit {
+    margin-left: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgb(100, 116, 139);
+
+    .dark & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.chart-card-spark {
+    height: 64px;
+    margin-top: 1rem;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.chart-card-tall {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}
+
+.kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+    padding: 1rem;
+    border-radius: 12px;
+    background: rgba(248, 250, 252, 0.8);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+
+    .dark & {
+        background: rgba(30, 41, 59, 0.4);
+        border-color: rgba(148, 163, 184, 0.08);
+    }
+}
+
+.kpi-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgb(100, 116, 139);
+
+    .dark & {
+        color: rgb(148, 163, 184);
+    }
+}
+
+.kpi-value {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: rgb(15, 23, 42);
+    line-height: 1.1;
+
+    .dark & {
+        color: rgb(248, 250, 252);
+    }
+}
+
+.kpi-pct {
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.kpi-pct-positive {
+    background: rgba(34, 197, 94, 0.12);
+    color: rgb(21, 128, 61);
+
+    .dark & {
+        background: rgba(34, 197, 94, 0.2);
+        color: rgb(134, 239, 172);
+    }
+}
+
+.kpi-pct-negative {
+    background: rgba(239, 68, 68, 0.12);
+    color: rgb(185, 28, 28);
+
+    .dark & {
+        background: rgba(239, 68, 68, 0.2);
+        color: rgb(252, 165, 165);
+    }
+}
+
+.podium-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+}
+
+.podium-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid transparent;
+}
+
+.podium-card-primary {
+    grid-column: span 6;
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.2);
+    padding: 1.5rem 1rem;
+
+    @media (min-width: 640px) {
+        grid-column: span 3;
+    }
+
+    .dark & {
+        background: rgba(99, 102, 241, 0.12);
+        border-color: rgba(99, 102, 241, 0.25);
+    }
+}
+
+.podium-card-secondary {
+    grid-column: span 6;
+    background: rgba(20, 184, 166, 0.08);
+    border-color: rgba(20, 184, 166, 0.2);
+    padding: 1.5rem 1rem;
+
+    @media (min-width: 640px) {
+        grid-column: span 3;
+    }
+
+    .dark & {
+        background: rgba(20, 184, 166, 0.12);
+        border-color: rgba(20, 184, 166, 0.25);
+    }
+}
+
+.podium-card-small {
+    grid-column: span 6;
+    background: rgba(148, 163, 184, 0.08);
+    border-color: rgba(148, 163, 184, 0.18);
+
+    @media (min-width: 640px) {
+        grid-column: span 2;
+    }
+
+    .dark & {
+        background: rgba(148, 163, 184, 0.1);
+        border-color: rgba(148, 163, 184, 0.15);
+    }
+}
+
+.podium-rank {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgb(100, 116, 139);
+
+    .podium-card-primary & {
+        color: rgb(79, 70, 229);
+    }
+
+    .podium-card-secondary & {
+        color: rgb(13, 148, 136);
+    }
+
+    .dark & {
+        color: rgb(148, 163, 184);
+    }
+
+    .dark .podium-card-primary & {
+        color: rgb(165, 180, 252);
+    }
+
+    .dark .podium-card-secondary & {
+        color: rgb(94, 234, 212);
+    }
+}
+
+.podium-count {
+    margin-top: 0.5rem;
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1;
+    color: rgb(15, 23, 42);
+
+    .podium-card-primary & {
+        color: rgb(49, 46, 129);
+    }
+
+    .podium-card-secondary & {
+        color: rgb(19, 78, 74);
+    }
+
+    .dark & {
+        color: rgb(248, 250, 252);
+    }
+
+    .dark .podium-card-primary & {
+        color: rgb(199, 210, 254);
+    }
+
+    .dark .podium-card-secondary & {
+        color: rgb(153, 246, 228);
+    }
+}
+
+.podium-count-small {
+    font-size: 1.5rem;
+}
+
+.podium-name {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgb(71, 85, 105);
+    overflow-wrap: anywhere;
+
+    .podium-card-primary & {
+        color: rgb(67, 56, 202);
+    }
+
+    .podium-card-secondary & {
+        color: rgb(15, 118, 110);
+    }
+
+    .dark & {
+        color: rgb(203, 213, 225);
+    }
+
+    .dark .podium-card-primary & {
+        color: rgb(199, 210, 254);
+    }
+
+    .dark .podium-card-secondary & {
+        color: rgb(153, 246, 228);
+    }
+}
+
+.podium-name-small {
+    font-size: 0.75rem;
 }

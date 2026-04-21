@@ -41,22 +41,6 @@
                         <div class="stat-label">{{ 'home.stats.creditsUsed' | transloco }}</div>
                     </div>
                 </div>
-
-                @if (getTopApis().length > 0) {
-                    <div class="mt-6">
-                        <h3 class="text-sm font-medium text-slate-600 dark:text-slate-400 mb-3">
-                            {{ 'home.stats.topApis' | transloco }}
-                        </h3>
-                        <ul class="top-apis-list">
-                            @for (api of getTopApis(); track api._id) {
-                                <li>
-                                    <span class="text-sm text-slate-700 dark:text-slate-300">{{ getApiDisplayName(api._id) }}</span>
-                                    <span class="api-count-badge">{{ api.total }} {{ 'home.stats.requests' | transloco }}</span>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                }
             }
         } @else {
             <div class="stat-card p-6 text-center">
@@ -69,6 +53,242 @@
             </div>
         }
     </section>
+
+    <!-- Dashboard Charts Section (only when authenticated and data has loaded) -->
+    @if (isAuthenticated() && !loading() && dashboardData(); as dashboard) {
+        <section class="dashboard-charts mb-8">
+            <!-- Row 1: Expense Sparklines (weekly / monthly / yearly) -->
+            <div class="charts-grid charts-grid-3">
+                <div class="chart-card chart-card-sparkline">
+                    <div class="chart-card-label">{{ 'home.stats.weeklyExpenses' | transloco }}</div>
+                    <div class="chart-card-value">
+                        {{ formatCredits(dashboard.weeklyExpenses?.amount) }}
+                        <span class="chart-card-unit">{{ 'home.stats.creditsUnit' | transloco }}</span>
+                    </div>
+                    <div class="chart-card-spark">
+                        @if (chartWeeklyExpenses) {
+                            <apx-chart
+                                class="w-full h-full block"
+                                [chart]="chartWeeklyExpenses.chart!"
+                                [colors]="chartWeeklyExpenses.colors!"
+                                [series]="chartWeeklyExpenses.series!"
+                                [stroke]="chartWeeklyExpenses.stroke!"
+                                [tooltip]="chartWeeklyExpenses.tooltip!"
+                                [xaxis]="chartWeeklyExpenses.xaxis!"
+                                [yaxis]="chartWeeklyExpenses.yaxis!"
+                            ></apx-chart>
+                        }
+                    </div>
+                </div>
+
+                <div class="chart-card chart-card-sparkline">
+                    <div class="chart-card-label">{{ 'home.stats.monthlyExpenses' | transloco }}</div>
+                    <div class="chart-card-value">
+                        {{ formatCredits(dashboard.monthlyExpenses?.amount) }}
+                        <span class="chart-card-unit">{{ 'home.stats.creditsUnit' | transloco }}</span>
+                    </div>
+                    <div class="chart-card-spark">
+                        @if (chartMonthlyExpenses) {
+                            <apx-chart
+                                class="w-full h-full block"
+                                [chart]="chartMonthlyExpenses.chart!"
+                                [colors]="chartMonthlyExpenses.colors!"
+                                [series]="chartMonthlyExpenses.series!"
+                                [stroke]="chartMonthlyExpenses.stroke!"
+                                [tooltip]="chartMonthlyExpenses.tooltip!"
+                                [xaxis]="chartMonthlyExpenses.xaxis!"
+                                [yaxis]="chartMonthlyExpenses.yaxis!"
+                            ></apx-chart>
+                        }
+                    </div>
+                </div>
+
+                <div class="chart-card chart-card-sparkline">
+                    <div class="chart-card-label">{{ 'home.stats.yearlyExpenses' | transloco }}</div>
+                    <div class="chart-card-value">
+                        {{ formatCredits(dashboard.yearlyExpenses?.amount) }}
+                        <span class="chart-card-unit">{{ 'home.stats.creditsUnit' | transloco }}</span>
+                    </div>
+                    <div class="chart-card-spark">
+                        @if (chartYearlyExpenses) {
+                            <apx-chart
+                                class="w-full h-full block"
+                                [chart]="chartYearlyExpenses.chart!"
+                                [colors]="chartYearlyExpenses.colors!"
+                                [series]="chartYearlyExpenses.series!"
+                                [stroke]="chartYearlyExpenses.stroke!"
+                                [tooltip]="chartYearlyExpenses.tooltip!"
+                                [xaxis]="chartYearlyExpenses.xaxis!"
+                                [yaxis]="chartYearlyExpenses.yaxis!"
+                            ></apx-chart>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Last 30 days requests (KPIs + area chart) -->
+            @if (dashboard.lastMonthRequests; as last30) {
+                <div class="chart-card mt-6">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">{{ 'home.stats.last30Days' | transloco }}</h3>
+                        <span class="chart-card-pill">30 {{ 'home.stats.days' | transloco }}</span>
+                    </div>
+
+                    @let okSum = sumSeries(last30.series?.[0]?.data);
+                    @let notFoundSum = sumSeries(last30.series?.[1]?.data);
+                    @let totalReq = last30.amount || (okSum + notFoundSum);
+                    <div class="kpi-row">
+                        <div class="kpi-card">
+                            <div class="kpi-label">{{ 'home.stats.requestsTotal' | transloco }}</div>
+                            <div class="kpi-value">
+                                <span>{{ totalReq }}</span>
+                                <span class="kpi-pct kpi-pct-positive">100%</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">{{ 'home.stats.requestsSuccess' | transloco }}</div>
+                            <div class="kpi-value">
+                                <span>{{ okSum }}</span>
+                                <span class="kpi-pct kpi-pct-positive">{{ percentOf(okSum, totalReq) }}%</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">{{ 'home.stats.requestsNotFound' | transloco }}</div>
+                            <div class="kpi-value">
+                                <span>{{ notFoundSum }}</span>
+                                <span class="kpi-pct kpi-pct-negative">{{ percentOf(notFoundSum, totalReq) }}%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card-tall">
+                        @if (chartLastMonth) {
+                            <apx-chart
+                                class="w-full h-full block"
+                                [chart]="chartLastMonth.chart!"
+                                [colors]="chartLastMonth.colors!"
+                                [dataLabels]="chartLastMonth.dataLabels!"
+                                [grid]="chartLastMonth.grid!"
+                                [legend]="chartLastMonth.legend!"
+                                [series]="chartLastMonth.series!"
+                                [stroke]="chartLastMonth.stroke!"
+                                [tooltip]="chartLastMonth.tooltip!"
+                                [xaxis]="chartLastMonth.xaxis!"
+                                [yaxis]="chartLastMonth.yaxis!"
+                            ></apx-chart>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Row 3: Top endpoints podium + Weekly usage line -->
+            <div class="charts-grid charts-grid-2 mt-6">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">{{ 'home.stats.topEndpoints' | transloco }}</h3>
+                    </div>
+
+                    @if (podium().length > 0) {
+                        <div class="podium-grid">
+                            @if (podium()[0]; as top) {
+                                <div class="podium-card podium-card-primary">
+                                    <div class="podium-rank">{{ 'home.stats.top1' | transloco }}</div>
+                                    <div class="podium-count">{{ top.count }}</div>
+                                    <div class="podium-name">{{ top.displayName }}</div>
+                                    @if (top.failed > 0) {
+                                        <span class="api-failed-badge mt-2">
+                                            {{ top.failed }} {{ 'home.stats.failed' | transloco }}
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            @if (podium()[1]; as top) {
+                                <div class="podium-card podium-card-secondary">
+                                    <div class="podium-rank">{{ 'home.stats.top2' | transloco }}</div>
+                                    <div class="podium-count">{{ top.count }}</div>
+                                    <div class="podium-name">{{ top.displayName }}</div>
+                                    @if (top.failed > 0) {
+                                        <span class="api-failed-badge mt-2">
+                                            {{ top.failed }} {{ 'home.stats.failed' | transloco }}
+                                        </span>
+                                    }
+                                </div>
+                            }
+                            @for (top of podium().slice(2); track top.code) {
+                                <div class="podium-card podium-card-small">
+                                    <div class="podium-rank">{{ 'home.stats.top' + ($index + 3) | transloco }}</div>
+                                    <div class="podium-count podium-count-small">{{ top.count }}</div>
+                                    <div class="podium-name podium-name-small">{{ top.displayName }}</div>
+                                    @if (top.failed > 0) {
+                                        <span class="api-failed-badge mt-1">
+                                            {{ top.failed }} {{ 'home.stats.failed' | transloco }}
+                                        </span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <p class="text-sm text-slate-500 dark:text-slate-400">
+                            {{ 'home.stats.noData' | transloco }}
+                        </p>
+                    }
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">{{ 'home.stats.weeklyUsage' | transloco }}</h3>
+                    </div>
+                    <div class="chart-card-tall">
+                        @if (chartUsageLine) {
+                            <apx-chart
+                                class="w-full h-full block"
+                                [chart]="chartUsageLine.chart!"
+                                [colors]="chartUsageLine.colors!"
+                                [dataLabels]="chartUsageLine.dataLabels!"
+                                [grid]="chartUsageLine.grid!"
+                                [labels]="chartUsageLine.labels!"
+                                [legend]="chartUsageLine.legend!"
+                                [plotOptions]="chartUsageLine.plotOptions!"
+                                [series]="chartUsageLine.series!"
+                                [states]="chartUsageLine.states!"
+                                [stroke]="chartUsageLine.stroke!"
+                                [tooltip]="chartUsageLine.tooltip!"
+                                [xaxis]="chartUsageLine.xaxis!"
+                                [yaxis]="chartUsageLine.yaxis!"
+                            ></apx-chart>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 4: Distribution radar -->
+            @if (dashboard.distribution) {
+                <div class="chart-card mt-6">
+                    <div class="chart-card-header">
+                        <h3 class="chart-card-title">{{ 'home.stats.serviceDistribution' | transloco }}</h3>
+                        <span class="chart-card-pill">30 {{ 'home.stats.days' | transloco }}</span>
+                    </div>
+                    <div class="chart-card-tall">
+                        @if (chartDistribution) {
+                            <apx-chart
+                                class="w-full h-full block"
+                                [chart]="chartDistribution.chart!"
+                                [colors]="chartDistribution.colors!"
+                                [dataLabels]="chartDistribution.dataLabels!"
+                                [markers]="chartDistribution.markers!"
+                                [plotOptions]="chartDistribution.plotOptions!"
+                                [series]="chartDistribution.series!"
+                                [stroke]="chartDistribution.stroke!"
+                                [tooltip]="chartDistribution.tooltip!"
+                                [xaxis]="chartDistribution.xaxis!"
+                                [yaxis]="chartDistribution.yaxis!"
+                            ></apx-chart>
+                        }
+                    </div>
+                </div>
+            }
+        </section>
+    }
 
     <!-- Helper Shortcuts -->
     <section class="shortcuts-section">

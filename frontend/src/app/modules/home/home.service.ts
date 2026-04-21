@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { SessionService } from 'app/core/services/session.service';
-import { catchError, tap, of, forkJoin, finalize } from 'rxjs';
+import { catchError, tap, of, forkJoin, finalize, map } from 'rxjs';
 
 export interface MetricClient {
     _id: string;
@@ -28,6 +28,37 @@ export interface TopUsedApi {
     credits: number;
 }
 
+export interface DashboardSeries {
+    labels: string[];
+    series: any[];
+    amount?: number;
+}
+
+export interface DashboardDistribution {
+    categories: string[];
+    series: { name: string; data: number[] }[];
+}
+
+export interface DashboardTopCodeEntry {
+    _id: string;
+    count: number;
+}
+
+export interface DashboardTopCodes {
+    overall: DashboardTopCodeEntry[];
+    labels: string[];
+    series: { date: string; count: number }[][];
+}
+
+export interface DashboardData {
+    weeklyExpenses?: DashboardSeries;
+    monthlyExpenses?: DashboardSeries;
+    yearlyExpenses?: DashboardSeries;
+    lastMonthRequests?: DashboardSeries;
+    distribution?: DashboardDistribution;
+    topCodes?: DashboardTopCodes;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -38,17 +69,21 @@ export class HomeService {
     countData = signal<MetricClient[] | null>(null);
     monthlyData = signal<MonthlyMetric[] | null>(null);
     topSalesData = signal<TopUsedApi[] | null>(null);
+    dashboardData = signal<DashboardData | null>(null);
     loading = signal<boolean>(false);
     error = signal<string | null>(null);
 
     /**
-     * Fetch stats when authenticated. Uses year/month params for count, monthly, top-sales.
+     * Fetch stats when authenticated. Uses year/month params for count, monthly,
+     * top-sales; pulls the full dashboard payload (expenses, distribution,
+     * lastMonthRequests, topCodes) from `/v2/clients/dashboard`.
      */
     fetchStats(): void {
         if (!this._sessionService.hasValidAuthentication()) {
             this.countData.set(null);
             this.monthlyData.set(null);
             this.topSalesData.set(null);
+            this.dashboardData.set(null);
             return;
         }
 
@@ -101,7 +136,28 @@ export class HomeService {
                 })
             );
 
-        forkJoin({ count: count$, monthly: monthly$, topSales: topSales$ })
+        const dashboard$ = this._httpClient
+            .get<DashboardData | { data: DashboardData }>(`${apiUrl}/v2/clients/dashboard`, {
+                params: {
+                    weeklyExpenses: '1',
+                    monthlyExpenses: '1',
+                    yearlyExpenses: '1',
+                    topCodes: '1',
+                    distribution: '1',
+                    lastMonthRequests: '1',
+                },
+                headers,
+            })
+            .pipe(
+                map((response) => (response && 'data' in (response as any) ? (response as any).data : response) as DashboardData),
+                tap((data) => this.dashboardData.set(data ?? null)),
+                catchError(() => {
+                    this.dashboardData.set(null);
+                    return of(null);
+                })
+            );
+
+        forkJoin({ count: count$, monthly: monthly$, topSales: topSales$, dashboard: dashboard$ })
             .pipe(finalize(() => this.loading.set(false)))
             .subscribe();
     }
