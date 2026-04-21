@@ -465,8 +465,8 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
+      "title": "Colômbia — PEP (Permiso Especial de Permanencia)",
+      "description": "Consulta o PEP colombiano. Use GET /v2/co/foreigner-id/pep com documentNumber e expeditionDate."
     },
     "ocr_scan_studio": {
       "title": "OCR Document Scan Studio",
@@ -653,8 +653,8 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
+      "title": "Colômbia — CE (Cédula de Extranjero)",
+      "description": "Consulta a CE para estrangeiros na Colômbia. Use GET /v2/co/foreigner-id/ce com documentNumber e expeditionDate."
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombia - Verificação de Veículo",
@@ -701,8 +701,8 @@
       "description": "Fornece serviços confiáveis de verificação e validação."
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Peru. Fornece status migratório e informações de registro de estrangeiros."
+      "title": "Peru — CE (Cédula de Extranjero)",
+      "description": "Consulta a CE para estrangeiros no Peru. Use GET /v2/pe/foreigner-id/ce com documentNumber e dateOfBirth (DD/MM/AAAA)."
     },
     "colombia_api_rues_full_v3": {
       "title": "Colômbia - Verificação RUES",
@@ -713,24 +713,24 @@
       "description": "RUES V3 business verification with comprehensive company data."
     },
     "peru_identity_lookup_v3": {
-      "title": "Peru - Verificação de Identidade Nacional",
-      "description": "Fornece serviços confiáveis de verificação e validação."
+      "title": "Peru — Verificação de DNI (v3)",
+      "description": "Consulta padrão do DNI peruano via RENIEC: documentType=DNI e documentNumber. GET /v3/pe/cedula. Para dados estendidos (foto etc.), use /v3/pe/cedula/extra."
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "Peru - Verificação de Identidade Nacional",
-      "description": "Fornece serviços confiáveis de verificação e validação."
+      "title": "Peru — DNI estendido (registro completo)",
+      "description": "Consulta estendida RENIEC do DNI peruano: foto em base64, estado civil, endereço, datas de expedição/validade, ubigeo e mais. GET /v3/pe/cedula/extra com documentType=DNI e documentNumber (8 dígitos). Opcional force=1."
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - Verificação de Status Migratório",
-      "description": "Serviço de verificação de registros migratórios para Colombia. Fornece status migratório e informações de registro de estrangeiros."
+      "title": "Colômbia — PPT (Permiso de Protección Temporal)",
+      "description": "Consulta o PPT colombiano. Use GET /v2/co/foreigner-id/ppt com documentNumber e expeditionDate."
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombia - Verificação de Certificados Trabalhistas",
       "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
     },
     "peru_api_company_lookup_v3": {
-      "title": "Peru - Consulta de Empresa",
-      "description": "Fornece serviços confiáveis de verificação e validação."
+      "title": "Peru — Consulta de empresa (RUC, v3)",
+      "description": "Consulta de empresas peruanas por RUC: GET /v3/pe/company com documentType=RUC e documentNumber. Dados oficiais para KYB."
     },
     "face_recognition_detect_face": {
       "title": "Face Detection",

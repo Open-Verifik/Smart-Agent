@@ -122,7 +122,7 @@
     },
     "ecuador_api_identity_lookup": {
       "title": "エクアドル - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "CCEC（documentType CCEC + documentNumber）でエクアドル国民を照会。公式記録ベースの本人確認に利用。"
     },
     "colombia_api_driver": {
       "title": "コロンビア - 運転免許(RUNT)",
@@ -138,7 +138,7 @@
     },
     "ecuador_api_vehicle": {
       "title": "エクアドル - 車両検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "ナンバープレート（plate）でエクアドル登録車両を照会。GET /v2/ec/vehiculo/placa。車両・登録情報の確認に利用。"
     },
     "feature_data_api": {
       "title": "Data API",
@@ -190,7 +190,7 @@
     },
     "ecuador_api_criminal_history": {
       "title": "エクアドル - 犯罪歴",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "エクアドル国民の犯罪・前科照会（GET /v2/ec/cedula/antecedentes）。提供項目はソースに依存。"
     },
     "chile_api_vehicle": {
       "title": "チリ - 車両検証",
@@ -214,7 +214,7 @@
     },
     "ecuador_api_vehicle_fines": {
       "title": "エクアドル - 車両罰金",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "ナンバープレート（plate）で罰金・登録情報を照会。GET /v2/ec/vehiculo/placa/multas。コンプライアンス・フリート向け。"
     },
     "colombia_api_vehicle_complete_by_plate": {
       "title": "Colombia - 車両確認",
@@ -338,11 +338,11 @@
     },
     "argentina_api_identity_lookup": {
       "title": "アルゼンチン - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "DNI（documentType DNIAR + documentNumber）でアルゼンチン国民を照会。公式記録ベースの本人確認に利用。"
     },
     "ecuador_api_company_lookup": {
       "title": "エクアドル - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "RUCEC（documentType RUCEC + documentNumber）でエクアドル法人を照会。GET /v2/ec/company。KYB・取引先審査向け。"
     },
     "usa_api_ssn": {
       "title": "アメリカ - SSN Verification",
@@ -465,8 +465,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - 入国管理状況検証",
-      "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
+      "title": "コロンビア — PEP（特別滞在許可）",
+      "description": "コロンビアの PEP（Permiso Especial de Permanencia）を照会します。GET /v2/co/foreigner-id/pep に documentNumber と expeditionDate を指定します。"
     },
     "ocr_scan_studio": {
       "title": "OCR Document Scan Studio",
@@ -542,11 +542,11 @@
     },
     "argentina_api_vehicle": {
       "title": "アルゼンチン - 車両検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "ナンバープレート（plate）でアルゼンチン登録車両を照会。車両・登録情報の確認に利用。"
     },
     "argentina_api_company_lookup": {
       "title": "アルゼンチン - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "description": "CUIT（documentType CUIT + documentNumber）でアルゼンチン法人を照会。KYB・取引先審査向け。"
     },
     "bolivia_api_vehicle": {
       "title": "ボリビア - 車両検証",
@@ -653,8 +653,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - 入国管理状況検証",
-      "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
+      "title": "コロンビア — 外国人CE（Cédula de Extranjero）",
+      "description": "コロンビアの外国人向け CE を照会し、本人情報・在留状況などを取得します。GET /v2/co/foreigner-id/ce に documentNumber と expeditionDate を指定します。"
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombia - 車両確認",
@@ -701,8 +701,8 @@
       "description": "信頼性の高い検証と検証サービスを提供します。"
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - 入国管理状況検証",
-      "description": "Immigration records verification service のPeru. 提供 immigration status and foreigner registration information."
+      "title": "ペルー — 外国人CE（Cédula de Extranjero）",
+      "description": "ペルーの外国人向け CE（Cédula de Extranjero）を、文書番号と生年月日で照会します。在留状況・国籍・外国人登録情報などを返します。GET /v2/pe/foreigner-id/ce に documentNumber と dateOfBirth（DD/MM/YYYY）を指定します。"
     },
     "colombia_api_rues_full_v3": {
       "title": "コロンビア - RUES企業検証",
@@ -713,24 +713,24 @@
       "description": "RUES V3 business verification with comprehensive company data."
     },
     "peru_identity_lookup_v3": {
-      "title": "ペルー - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ペルー — DNI本人確認（v3）",
+      "description": "RENIEC 連携の標準 DNI 照会。documentType=DNI と 8 桁の documentNumber で GET /v3/pe/cedula。拡張データ（写真など）は /v3/pe/cedula/extra を使用。"
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "ペルー - 国民ID検証",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ペルー — DNI拡張照会（写真・住所など）",
+      "description": "RENIEC 連携の拡張 DNI 照会。写真・住所・配偶者の有無・発行／有効期限・ubigeo などを取得。GET /v3/pe/cedula/extra に documentType=DNI と 8 桁の documentNumber。任意で force=1。"
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - 入国管理状況検証",
-      "description": "Immigration records verification service のColombia. 提供 immigration status and foreigner registration information."
+      "title": "コロンビア — PPT（一時保護許可）",
+      "description": "コロンビアの PPT（Permiso de Protección Temporal）を照会します。GET /v2/co/foreigner-id/ppt に documentNumber と expeditionDate を指定します。"
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombia - 労働証明書検証",
       "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
     },
     "peru_api_company_lookup_v3": {
-      "title": "ペルー - 企業検索",
-      "description": "信頼性の高い検証と検証サービスを提供します。"
+      "title": "ペルー — 法人検索（RUC・v3）",
+      "description": "ペルー法人を RUC で照会。GET /v3/pe/company に documentType=RUC と documentNumber。商号・住所・ステータス等、公式登記ベースの KYB 向けデータ。"
     },
     "face_recognition_detect_face": {
       "title": "Face Detection",

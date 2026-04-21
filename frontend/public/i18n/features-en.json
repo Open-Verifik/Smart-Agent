@@ -465,8 +465,8 @@
       "description": "Provides reliable verification and validation services."
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - Immigration Status Verification",
-      "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
+      "title": "Colombia - Special Stay Permit (PEP)",
+      "description": "Verify the Colombian PEP (Permiso Especial de Permanencia) using GET /v2/co/foreigner-id/pep with documentNumber and expeditionDate."
     },
     "ocr_scan_studio": {
       "title": "OCR Document Scan Studio",
@@ -653,8 +653,8 @@
       "description": "Provides reliable verification and validation services."
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - Immigration Status Verification",
-      "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
+      "title": "Colombia - Foreigner ID Card (CE)",
+      "description": "Verify foreign nationals in Colombia using the CE (Cédula de Extranjero) via GET /v2/co/foreigner-id/ce with documentNumber and expeditionDate."
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombia - Bogota Transit Fines",
@@ -701,8 +701,8 @@
       "description": "Provides reliable verification and validation services."
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - Immigration Status Verification",
-      "description": "Immigration records verification service for Peru. Provides immigration status and foreigner registration information."
+      "title": "Peru - Foreigner ID Card (CE)",
+      "description": "Verify foreign residents in Peru using the CE (Cédula de Extranjero) via GET /v2/pe/foreigner-id/ce with documentNumber and dateOfBirth (DD/MM/YYYY)."
     },
     "colombia_api_rues_full_v3": {
       "title": "Colombia - RUES Business Verification",
@@ -713,24 +713,24 @@
       "description": "RUES V3 business verification with comprehensive company data."
     },
     "peru_identity_lookup_v3": {
-      "title": "Peru - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Peru — DNI verification (v3)",
+      "description": "Standard Peruvian DNI check via RENIEC: validate documentNumber with documentType=DNI. GET /v3/pe/cedula — core identity fields without the extended /cedula/extra payload."
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "Peru - National ID Verification",
-      "description": "Provides reliable verification and validation services."
+      "title": "Peru — Extended DNI (full record)",
+      "description": "RENIEC extended lookup for Peruvian DNI: photo (base64), civil status, address, expedition/expiration dates, ubigeo, and more. GET /v3/pe/cedula/extra with documentType=DNI and documentNumber (8 digits). Optional force=1."
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - Immigration Status Verification",
-      "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
+      "title": "Colombia - Temporary Protection Permit (PPT)",
+      "description": "Verify the Colombian PPT (Permiso de Protección Temporal) using GET /v2/co/foreigner-id/ppt with documentNumber and expeditionDate."
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombia - Labor Certificates Verification",
       "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
     },
     "peru_api_company_lookup_v3": {
-      "title": "Peru - Company Lookup",
-      "description": "Provides reliable verification and validation services."
+      "title": "Peru — Company lookup (RUC, v3)",
+      "description": "Peruvian business lookup by RUC: GET /v3/pe/company with documentType=RUC and documentNumber. Returns legal name, status, address, and taxpayer fields from official registries for KYB."
     },
     "face_recognition_detect_face": {
       "title": "Face Detection",

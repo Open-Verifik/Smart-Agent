@@ -75,8 +75,12 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
                                         class="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-800/60 dark:text-slate-400"
                                     >
                                         <tr>
-                                            <th class="px-3 py-2 font-medium">Name</th>
-                                            <th class="px-3 py-2 font-medium">Value</th>
+                                            <th class="px-3 py-2 font-medium">
+                                                {{ 'postman.requestEditor.headers.key' | transloco }}
+                                            </th>
+                                            <th class="px-3 py-2 font-medium">
+                                                {{ 'postman.requestEditor.headers.value' | transloco }}
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800">

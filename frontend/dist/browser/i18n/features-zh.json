@@ -465,8 +465,8 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - 移民状态验证",
-      "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
+      "title": "哥伦比亚 — PEP（特别居留许可）",
+      "description": "核验哥伦比亚 PEP（Permiso Especial de Permanencia）。使用 GET /v2/co/foreigner-id/pep，传入 documentNumber 与 expeditionDate。"
     },
     "ocr_scan_studio": {
       "title": "OCR Document Scan Studio",
@@ -653,8 +653,8 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - 移民状态验证",
-      "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
+      "title": "哥伦比亚 — 外国人 CE（Cédula de Extranjero）",
+      "description": "核验哥伦比亚外国人 CE 证件，返回身份与居留等信息。使用 GET /v2/co/foreigner-id/ce，传入 documentNumber 与 expeditionDate。"
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombia - 车辆验证",
@@ -701,8 +701,8 @@
       "description": "提供可靠的验证和验证服务。"
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - 移民状态验证",
-      "description": "Immigration records verification service 为 Peru. 提供 immigration status and foreigner registration information."
+      "title": "秘鲁 — 外国人 CE（Cédula de Extranjero）",
+      "description": "核验秘鲁外国人 CE 证件，凭证件号码与出生日期查询。使用 GET /v2/pe/foreigner-id/ce，传入 documentNumber 与 dateOfBirth（DD/MM/YYYY）。"
     },
     "colombia_api_rues_full_v3": {
       "title": "哥伦比亚 - RUES企业验证",
@@ -713,24 +713,24 @@
       "description": "RUES V3 business verification with comprehensive company data."
     },
     "peru_identity_lookup_v3": {
-      "title": "秘鲁 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "秘鲁 — DNI 核验（v3）",
+      "description": "通过 RENIEC 的标准秘鲁 DNI 核验：documentType=DNI 与 documentNumber。GET /v3/pe/cedula。需要照片等扩展字段请用 /v3/pe/cedula/extra。"
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "秘鲁 - 国民身份证验证",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "秘鲁 — DNI 扩展查询（含照片等）",
+      "description": "通过 RENIEC 扩展查询秘鲁 DNI：返回 base64 照片、婚姻状况、地址、签发/失效日期、ubigeo 等。使用 GET /v3/pe/cedula/extra，传入 documentType=DNI 与 8 位 documentNumber。可选 force=1。"
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - 移民状态验证",
-      "description": "Immigration records verification service 为 Colombia. 提供 immigration status and foreigner registration information."
+      "title": "哥伦比亚 — PPT（临时保护许可）",
+      "description": "核验哥伦比亚 PPT（Permiso de Protección Temporal）。使用 GET /v2/co/foreigner-id/ppt，传入 documentNumber 与 expeditionDate。"
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombia - 劳动证书验证",
       "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
     },
     "peru_api_company_lookup_v3": {
-      "title": "秘鲁 - 企业查询",
-      "description": "提供可靠的验证和验证服务。"
+      "title": "秘鲁 — 企业查询（RUC·v3）",
+      "description": "按秘鲁 RUC 查询企业：GET /v3/pe/company，传入 documentType=RUC 与 documentNumber。返回官方登记信息，适用于 KYB。"
     },
     "face_recognition_detect_face": {
       "title": "Face Detection",

@@ -465,8 +465,8 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - Verificación de Estado Migratorio",
-      "description": "Servicio de verificación de registros migratorios para Colombia. Proporciona estado migratorio e información de registro de extranjeros."
+      "title": "Colombia — PEP (Permiso Especial de Permanencia)",
+      "description": "Consulta el PEP colombiano. Usa GET /v2/co/foreigner-id/pep con documentNumber y expeditionDate."
     },
     "ocr_scan_studio": {
       "title": "Escaneo OCR de Documentos Studio",
@@ -653,8 +653,8 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - Verificación de Estado Migratorio",
-      "description": "Servicio de verificación de registros migratorios para Colombia. Proporciona estado migratorio e información de registro de extranjeros."
+      "title": "Colombia — CE (Cédula de Extranjero)",
+      "description": "Consulta la cédula de extranjero (CE) en Colombia. Usa GET /v2/co/foreigner-id/ce con documentNumber y expeditionDate."
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombia - Multas de Tránsito Bogotá",
@@ -701,8 +701,8 @@
       "description": "Proporciona servicios confiables de verificación y validación."
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - Verificación de Estado Migratorio",
-      "description": "Servicio de verificación de registros migratorios para Peru. Proporciona estado migratorio e información de registro de extranjeros."
+      "title": "Perú — CE (Cédula de Extranjero)",
+      "description": "Consulta la cédula de extranjero (CE) en Perú. Usa GET /v2/pe/foreigner-id/ce con documentNumber y dateOfBirth (DD/MM/AAAA)."
     },
     "colombia_api_rues_full_v3": {
       "title": "Colombia - Verificación Empresarial RUES",
@@ -713,24 +713,24 @@
       "description": "Verificación empresarial RUES V3 con datos completos de la empresa."
     },
     "peru_identity_lookup_v3": {
-      "title": "Perú - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Perú — Verificación de DNI (v3)",
+      "description": "Consulta estándar de DNI peruano vía RENIEC con documentType=DNI y documentNumber. GET /v3/pe/cedula. Para datos extendidos (foto, etc.) use /v3/pe/cedula/extra."
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "Perú - Verificación de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Perú — DNI extendido (registro completo)",
+      "description": "Consulta extendida RENIEC del DNI peruano: foto en base64, estado civil, dirección, fechas de expedición/vencimiento, ubigeo y más. GET /v3/pe/cedula/extra con documentType=DNI y documentNumber (8 dígitos). Opcional force=1."
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - Verificación de Estado Migratorio",
-      "description": "Servicio de verificación de registros migratorios para Colombia. Proporciona estado migratorio e información de registro de extranjeros."
+      "title": "Colombia — PPT (Permiso de Protección Temporal)",
+      "description": "Consulta el PPT colombiano. Usa GET /v2/co/foreigner-id/ppt con documentNumber y expeditionDate."
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombia - Verificación de Certificados Laborales",
       "description": "Servicio de verificación de certificados laborales para Colombia. Proporciona certificaciones relacionadas con el trabajo e información del estado laboral."
     },
     "peru_api_company_lookup_v3": {
-      "title": "Perú - Consulta de Empresa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Perú — Consulta de empresa (RUC, v3)",
+      "description": "Consulta de empresas peruanas por RUC: GET /v3/pe/company con documentType=RUC y documentNumber. Datos registrales oficiales para KYB."
     },
     "face_recognition_detect_face": {
       "title": "Detección Facial",

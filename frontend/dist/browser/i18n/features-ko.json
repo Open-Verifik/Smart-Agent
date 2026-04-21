@@ -465,8 +465,8 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
+      "title": "콜롬비아 — PEP(특별 체류 허가)",
+      "description": "콜롬비아 PEP(Permiso Especial de Permanencia)를 조회합니다. GET /v2/co/foreigner-id/pep에 documentNumber와 expeditionDate를 전달합니다."
     },
     "ocr_scan_studio": {
       "title": "OCR Document Scan Studio",
@@ -653,8 +653,8 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
+      "title": "콜롬비아 — 외국인 CE(Cédula de Extranjero)",
+      "description": "콜롬비아 외국인 CE를 조회해 신원·체류 정보 등을 반환합니다. GET /v2/co/foreigner-id/ce에 documentNumber와 expeditionDate를 전달합니다."
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombia - 차량 확인",
@@ -701,8 +701,8 @@
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Peru. 제공 immigration status and foreigner registration information."
+      "title": "페루 — 외국인 CE(Cédula de Extranjero)",
+      "description": "페루 외국인 CE를 문서 번호와 생년월일로 조회합니다. 체류·국적·등록 정보 등을 반환합니다. GET /v2/pe/foreigner-id/ce에 documentNumber와 dateOfBirth(DD/MM/YYYY)를 전달합니다."
     },
     "colombia_api_rues_full_v3": {
       "title": "콜롬비아 - RUES 기업 검증",
@@ -713,24 +713,24 @@
       "description": "RUES V3 business verification with comprehensive company data."
     },
     "peru_identity_lookup_v3": {
-      "title": "페루 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "페루 — DNI 본인 확인(v3)",
+      "description": "RENIEC 연동 표준 DNI 조회. documentType=DNI·documentNumber로 GET /v3/pe/cedula. 사진 등 확장 필드는 /v3/pe/cedula/extra."
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "페루 - 국민ID 검증",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "페루 — DNI 확장 조회(사진·주소 등)",
+      "description": "RENIEC 연동 페루 DNI 확장 조회: 사진(base64), 혼인 여부, 주소, 발급·만료일, ubigeo 등. GET /v3/pe/cedula/extra에 documentType=DNI와 8자리 documentNumber. 선택 force=1."
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - 이민 상태 확인",
-      "description": "Immigration records verification service 를 위한 Colombia. 제공 immigration status and foreigner registration information."
+      "title": "콜롬비아 — PPT(임시 보호 허가)",
+      "description": "콜롬비아 PPT(Permiso de Protección Temporal)를 조회합니다. GET /v2/co/foreigner-id/ppt에 documentNumber와 expeditionDate를 전달합니다."
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombia - 노동 증명서 확인",
       "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
     },
     "peru_api_company_lookup_v3": {
-      "title": "페루 - 기업 조회",
-      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+      "title": "페루 — 기업 조회(RUC·v3)",
+      "description": "페루 법인 RUC 조회. GET /v3/pe/company에 documentType=RUC·documentNumber. 공식 등기 기반 KYB 데이터."
     },
     "face_recognition_detect_face": {
       "title": "Face Detection",

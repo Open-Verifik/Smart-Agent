@@ -465,8 +465,8 @@
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombie - Immigration Status Verification",
-      "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
+      "title": "Colombie — PEP (permiso especial de permanencia)",
+      "description": "Vérifie le PEP colombien (Permiso Especial de Permanencia) via GET /v2/co/foreigner-id/pep avec documentNumber et expeditionDate."
     },
     "ocr_scan_studio": {
       "title": "OCR Document Scan Studio",
@@ -653,8 +653,8 @@
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombie - Immigration Status Verification",
-      "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
+      "title": "Colombie — CE (cédula de extranjero)",
+      "description": "Vérifie la cédula CE pour étrangers en Colombie via GET /v2/co/foreigner-id/ce avec documentNumber et expeditionDate."
     },
     "colombia_api_vehicle_fines_bogota": {
       "title": "Colombie - Vérification de Véhicule",
@@ -701,8 +701,8 @@
       "description": "Fournit des services de vérification et de validation fiables."
     },
     "peru_api_identity_ce_foreigner_id": {
-      "title": "Pérou - Immigration Status Verification",
-      "description": "Immigration records verification service for Peru. Provides immigration status and foreigner registration information."
+      "title": "Pérou — CE (cédula de extranjero)",
+      "description": "Vérifie la cédula CE pour étrangers au Pérou via GET /v2/pe/foreigner-id/ce avec documentNumber et dateOfBirth (JJ/MM/AAAA)."
     },
     "colombia_api_rues_full_v3": {
       "title": "Colombie - Vérification RUES",
@@ -713,24 +713,24 @@
       "description": "RUES V3 business verification with comprehensive company data."
     },
     "peru_identity_lookup_v3": {
-      "title": "Pérou - Vérification d'Identité Nationale",
-      "description": "Fournit des services de vérification et de validation fiables."
+      "title": "Pérou — Vérification DNI (v3)",
+      "description": "Contrôle standard du DNI péruvien via RENIEC : documentType=DNI et documentNumber. GET /v3/pe/cedula. Pour le détail étendu (photo, etc.), utilisez /v3/pe/cedula/extra."
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "Pérou - Vérification d'Identité Nationale",
-      "description": "Fournit des services de vérification et de validation fiables."
+      "title": "Pérou — DNI étendu (dossier complet)",
+      "description": "Consultation RENIEC étendue du DNI péruvien : photo (base64), état civil, adresse, dates d'émission/d'expiration, ubigeo, etc. GET /v3/pe/cedula/extra avec documentType=DNI et documentNumber (8 chiffres). Optionnel force=1."
     },
     "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombie - Immigration Status Verification",
-      "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
+      "title": "Colombie — PPT (permiso de protección temporal)",
+      "description": "Vérifie le PPT colombien (Permiso de Protección Temporal) via GET /v2/co/foreigner-id/ppt avec documentNumber et expeditionDate."
     },
     "colombia_api_min_trabajo_v3": {
       "title": "Colombie - Labor Certificates Verification",
       "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
     },
     "peru_api_company_lookup_v3": {
-      "title": "Pérou - Recherche d'Entreprise",
-      "description": "Fournit des services de vérification et de validation fiables."
+      "title": "Pérou — Recherche d'entreprise (RUC, v3)",
+      "description": "Recherche de sociétés péruviennes par RUC : GET /v3/pe/company avec documentType=RUC et documentNumber. Données officielles pour KYB."
     },
     "face_recognition_detect_face": {
       "title": "Face Detection",
