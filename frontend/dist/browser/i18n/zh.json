@@ -2055,6 +2055,16 @@
       "basePrice": "基础价格：$0.30/请求 — 您的计划折扣可降低成本",
       "estimatedTotal": "应付"
     },
+    "estimator": {
+      "modeRequests": "按请求数",
+      "modeBudget": "按月度预算",
+      "requestsLabel": "您需要多少次请求？",
+      "budgetLabel": "您的目标支出是多少？",
+      "budgetPlaceholder": "例如 1000",
+      "referenceLabel": "按计划匹配：",
+      "resolvedRequests": "预估用量",
+      "closestFor": "{{plan}} 上最接近的总额"
+    },
     "apiBreakdown": {
       "button": "比较API价格",
       "title": "各计划API定价",

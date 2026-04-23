@@ -2062,6 +2062,16 @@
       "basePrice": "Precio base: $0.30/solicitud — el descuento de tu plan reduce el costo",
       "estimatedTotal": "A pagar"
     },
+    "estimator": {
+      "modeRequests": "Por solicitudes",
+      "modeBudget": "Por presupuesto mensual",
+      "requestsLabel": "¿Cuántas solicitudes necesitas?",
+      "budgetLabel": "¿Cuánto quieres gastar?",
+      "budgetPlaceholder": "ej. 1000",
+      "referenceLabel": "Calcular para el plan:",
+      "resolvedRequests": "Volumen estimado",
+      "closestFor": "Total más cercano en {{plan}}"
+    },
     "apiBreakdown": {
       "button": "Comparar precios de API",
       "title": "Precios de API por plan",

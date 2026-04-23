@@ -57,17 +57,19 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     hasBillingSetup = false;
     hasPaymentMethod = false;
 
-    // Request slider
+    // Request estimator (single source of truth: requestsPerMonth)
     requestsPerMonth = 2000;
     requestsPerYear = 24000;
     readonly BASE_REQUEST_PRICE = 0.3;
     readonly MONTHLY_SLIDER_MAX = 20000;
-    readonly MONTHLY_SLIDER_STEP = 100;
+    readonly MONTHLY_SLIDER_STEP = 1;
     readonly YEARLY_SLIDER_MAX = 500000;
-    readonly YEARLY_SLIDER_STEP = 1000;
+    readonly YEARLY_SLIDER_STEP = 1;
 
-    // UI Version toggle (v1 = current design, v2 = privy-inspired)
-    uiVersion: 'v1' | 'v2' = 'v1';
+    // Estimator mode: pick exact requests, or invert from a target monthly budget
+    estimatorMode: 'requests' | 'budget' = 'requests';
+    targetMonthlyBudget: number | null = null;
+    budgetReferencePlanId = '';
 
     // Dialog state
     showPlanChangeDialog = false;
@@ -112,11 +114,6 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
-    }
-
-    // UI Version toggle
-    toggleUiVersion(): void {
-        this.uiVersion = this.uiVersion === 'v1' ? 'v2' : 'v1';
     }
 
     // Navigation
@@ -356,12 +353,168 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
 
     onSliderChange(event: Event): void {
         const value = Number((event.target as HTMLInputElement).value);
+        this._setRequestsFromInterval(value);
+        this._syncBudgetFromRequests();
+    }
+
+    /**
+     * Direct numeric input for requests. Clamps to [0, sliderMax] and keeps
+     * monthly/yearly buckets in sync. Triggered by both modes' inputs.
+     */
+    onRequestsInput(rawValue: string | number): void {
+        const parsed = Math.max(0, Math.min(this.sliderMax, Math.round(Number(rawValue) || 0)));
+        this._setRequestsFromInterval(parsed);
+        this._syncBudgetFromRequests();
+    }
+
+    /**
+     * User typed a target monthly $ amount: pick the plan + R that get closest
+     * to that target, then set reference + `requestsPerMonth` (not a static ref plan).
+     * Tie-break: same error => higher R (more API volume for the same spend).
+     */
+    onBudgetInput(rawValue: string | number): void {
+        const target = Math.max(0, Number(rawValue) || 0);
+        this.targetMonthlyBudget = target;
+        this._autoPickReferenceAndRequestsForTarget(target);
+    }
+
+    onReferencePlanChange(planId: string): void {
+        this.budgetReferencePlanId = planId;
+        if (this.estimatorMode === 'budget' && this.targetMonthlyBudget != null) {
+            const plan = this.plans.find((p) => p._id === planId);
+            if (plan) {
+                const r = this._findBestRForTargetPlan(plan, this.targetMonthlyBudget);
+                this.requestsPerMonth = r;
+                this.requestsPerYear = r * 12;
+            }
+        }
+    }
+
+    setEstimatorMode(mode: 'requests' | 'budget'): void {
+        this.estimatorMode = mode;
+        if (mode === 'budget') {
+            // Seed budget from current reference plan total so the UI doesn't jump
+            const plan = this._getReferencePlan();
+            this.targetMonthlyBudget = plan
+                ? Math.round(this.getEstimatedTotal(plan))
+                : null;
+        }
+    }
+
+    /**
+     * Honest "closest achievable" copy: when the user types a target budget,
+     * the discrete cost-per-request grid usually can't hit it exactly. Returns
+     * the rounded delta (positive = over budget, negative = under).
+     */
+    getBudgetDelta(): number | null {
+        if (this.estimatorMode !== 'budget' || this.targetMonthlyBudget == null) return null;
+        const plan = this._getReferencePlan();
+        if (!plan) return null;
+        const achieved = this.getEstimatedTotal(plan);
+        return Math.round((achieved - this.targetMonthlyBudget) * 100) / 100;
+    }
+
+    /** Exact monthly total achievable for the budget reference plan. */
+    getBudgetAchievedTotal(): number {
+        const plan = this._getReferencePlan();
+        return plan ? this.getEstimatedTotal(plan) : 0;
+    }
+
+    get budgetReferencePlan(): SubscriptionPlan | null {
+        return this._getReferencePlan();
+    }
+
+    private _setRequestsFromInterval(value: number): void {
         if (this.selectedInterval === 'year') {
             this.requestsPerYear = value;
             this.requestsPerMonth = Math.round(value / 12);
         } else {
             this.requestsPerMonth = value;
             this.requestsPerYear = value * 12;
+        }
+    }
+
+    private _syncBudgetFromRequests(): void {
+        if (this.estimatorMode !== 'budget') return;
+        const plan = this._getReferencePlan();
+        if (!plan) return;
+        this.targetMonthlyBudget = Math.round(this.getEstimatedTotal(plan));
+    }
+
+    private _getReferencePlan(): SubscriptionPlan | null {
+        const candidates = this.plans.filter((p) => p._id);
+        if (!candidates.length) return null;
+        const byId = candidates.find((p) => p._id === this.budgetReferencePlanId);
+        if (byId) return byId;
+        const bestId = this.getBestValuePlanId();
+        return candidates.find((p) => p._id === bestId) || candidates[0];
+    }
+
+    /**
+     * Total monthly price for a plan at an explicit R (ignores `requestsPerMonth` on the component).
+     */
+    private _getEstimatedTotalForR(plan: SubscriptionPlan, r: number): number {
+        const base = this.getBaseMonthlyAmount(plan);
+        const inc = this.getIncludedRequests(plan);
+        const ppr = this.getEffectiveCostPerRequest(plan);
+        const useInc = isFinite(inc) ? inc : 0;
+        const extra = Math.max(0, r - useInc);
+        return base + extra * ppr;
+    }
+
+    /**
+     * Integer R in [0, cap] that minimizes |f(R) - target| for this plan.
+     * Ties: prefer larger R (more included usage / volume for the same error).
+     */
+    private _findBestRForTargetPlan(plan: SubscriptionPlan, target: number): number {
+        const cap = this.MONTHLY_SLIDER_MAX;
+        let bestR = 0;
+        let bestErr = Infinity;
+        for (let r = 0; r <= cap; r++) {
+            const total = this._getEstimatedTotalForR(plan, r);
+            const err = Math.abs(total - target);
+            if (err < bestErr) {
+                bestErr = err;
+                bestR = r;
+            } else if (err === bestErr && r > bestR) {
+                bestR = r;
+            }
+        }
+        return bestR;
+    }
+
+    /**
+     * Among visible plans, pick the one that can get closest to `target` monthly
+     * (using its own optimal R), then set `budgetReferencePlanId` and requests.
+     * Tie on error: pick the pair with the larger R (e.g. $1000 → Business at ~6.7k
+     * over Plus at 5k when both can hit the target exactly).
+     */
+    private _autoPickReferenceAndRequestsForTarget(target: number): void {
+        const list = this.visiblePlans.filter((p) => p._id);
+        if (!list.length) return;
+
+        let bestPlan: SubscriptionPlan | null = null;
+        let bestR = 0;
+        let bestErr = Infinity;
+
+        for (const plan of list) {
+            const r = this._findBestRForTargetPlan(plan, target);
+            const total = this._getEstimatedTotalForR(plan, r);
+            const err = Math.abs(total - target);
+            if (err < bestErr) {
+                bestErr = err;
+                bestR = r;
+                bestPlan = plan;
+            } else if (err === bestErr && r > bestR) {
+                bestR = r;
+                bestPlan = plan;
+            }
+        }
+
+        if (bestPlan?._id) {
+            this.budgetReferencePlanId = bestPlan._id;
+            this.requestsPerMonth = bestR;
+            this.requestsPerYear = bestR * 12;
         }
     }
 
@@ -751,6 +904,11 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         processedPlans.sort((a, b) => (a.amount || 0) - (b.amount || 0));
 
         this.plans = processedPlans;
+
+        // Initialise budget reference plan (best value first time, otherwise keep)
+        if (!this.budgetReferencePlanId || !this.plans.some((p) => p._id === this.budgetReferencePlanId)) {
+            this.budgetReferencePlanId = this.getBestValuePlanId();
+        }
     }
 
     private _formatCurrentSubscription(): void {

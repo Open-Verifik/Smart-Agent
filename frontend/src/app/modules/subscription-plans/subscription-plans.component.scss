@@ -25,17 +25,17 @@ $dark-text-secondary: rgba(255, 255, 255, 0.7);
 $dark-text-muted: rgba(255, 255, 255, 0.4);
 
 // ================================
-// ACCENT COLORS
+// ACCENT COLORS (flat, calm — Privy-inspired)
 // ================================
-$primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-$secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-$success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-$accent-purple: #8b5cf6;
+$primary-gradient: #6366f1; // flat for easier tone-down across many call sites
+$secondary-gradient: #6366f1;
+$success-gradient: #059669;
+$accent-purple: #6366f1;
 $accent-blue: #3b82f6;
-$accent-green: #10b981;
+$accent-green: #059669;
 $danger-red: #ef4444;
-$glow-purple: rgba(139, 92, 246, 0.3);
-$glow-blue: rgba(59, 130, 246, 0.3);
+$glow-purple: rgba(99, 102, 241, 0.18);
+$glow-blue: rgba(59, 130, 246, 0.18);
 
 // ================================
 // MIXINS
@@ -47,15 +47,15 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 @mixin glass-card-light {
   background: $light-card;
   border: 1px solid $light-card-border;
-  border-radius: 20px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 @mixin glass-card-dark {
   background: $dark-card;
   backdrop-filter: blur(20px);
   border: 1px solid $dark-card-border;
-  border-radius: 20px;
+  border-radius: 14px;
 }
 
 // ================================
@@ -73,19 +73,15 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   }
 }
 
-// Background Pattern
+// Background Pattern (deliberately very subtle to keep the surface calm)
 .bg-pattern {
   position: absolute;
   inset: 0;
-  background-image: 
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  background-image: radial-gradient(circle at 50% -10%, rgba(99, 102, 241, 0.04) 0%, transparent 55%);
   pointer-events: none;
 
   :host-context(.dark) & {
-    background-image: 
-      radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%);
+    background-image: radial-gradient(circle at 50% -10%, rgba(99, 102, 241, 0.10) 0%, transparent 55%);
   }
 }
 
@@ -113,56 +109,54 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 // HEADER SECTION
 // ================================
 .header {
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 
   .badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.18);
     border-radius: 100px;
     color: $accent-purple;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 600;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 
     :host-context(.dark) & {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
-      border-color: rgba(139, 92, 246, 0.3);
+      background: rgba(99, 102, 241, 0.16);
+      border-color: rgba(99, 102, 241, 0.3);
     }
 
     svg {
-      width: 18px;
-      height: 18px;
+      width: 14px;
+      height: 14px;
     }
   }
 
   h1 {
-    font-size: 36px;
-    font-weight: 800;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     color: $light-text-primary;
-    margin: 0 0 12px;
-    line-height: 1.2;
+    margin: 0 0 6px;
+    line-height: 1.25;
 
     :host-context(.dark) & {
-      background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: $dark-text-primary;
     }
 
     @media (min-width: 768px) {
-      font-size: 48px;
+      font-size: 30px;
     }
   }
 
   p {
-    font-size: 18px;
+    font-size: 14px;
     color: $light-text-secondary;
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.55;
 
     :host-context(.dark) & {
       color: $dark-text-secondary;
@@ -745,34 +739,40 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
   .toggle-wrapper {
     display: inline-flex;
-    @include glass-card-light;
-    padding: 6px;
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: 10px;
+    padding: 4px;
 
     :host-context(.dark) & {
-      @include glass-card-dark;
+      background: rgba(255, 255, 255, 0.06);
     }
   }
 
   button {
     position: relative;
-    padding: 12px 32px;
-    font-size: 15px;
+    padding: 8px 20px;
+    font-size: 13px;
     font-weight: 600;
-    color: $light-text-muted;
+    color: $light-text-secondary;
     background: transparent;
     border: none;
-    border-radius: 14px;
+    border-radius: 8px;
     cursor: pointer;
-    @include smooth-transition;
+    transition: background 0.15s, color 0.15s;
 
     :host-context(.dark) & {
-      color: $dark-text-muted;
+      color: $dark-text-secondary;
     }
 
     &.active {
-      background: $primary-gradient;
-      color: white;
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+      background: $light-surface;
+      color: $light-text-primary;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+      :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.08);
+        color: $dark-text-primary;
+      }
     }
 
     &:not(.active):hover {
@@ -786,11 +786,11 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     .save-badge {
       position: absolute;
       top: -6px;
-      right: -6px;
-      padding: 3px 8px;
-      background: $success-gradient;
-      border-radius: 100px;
-      font-size: 10px;
+      right: -8px;
+      padding: 1px 6px;
+      background: $accent-green;
+      border-radius: 4px;
+      font-size: 9px;
       font-weight: 700;
       color: white;
       letter-spacing: 0.02em;
@@ -851,24 +851,28 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 // ================================
 .plan-card {
   position: relative;
-  @include glass-card-light;
-  padding: 32px;
+  background: $light-surface;
+  border: 1px solid $light-card-border;
+  border-radius: 16px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 400px;
+  min-height: 320px;
   @include smooth-transition;
 
   :host-context(.dark) & {
-    @include glass-card-dark;
+    background: $dark-surface;
+    border-color: $dark-card-border;
   }
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 
     :host-context(.dark) & {
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+      border-color: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -892,27 +896,26 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
   .popular-badge {
     position: absolute;
-    top: -12px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 6px 16px;
-    background: $primary-gradient;
+    padding: 3px 10px;
+    background: $accent-purple;
     border-radius: 100px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: white;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
     white-space: nowrap;
   }
 
   .plan-card-header {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 
     h3 {
-      font-size: 24px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 600;
       color: $light-text-primary;
       margin: 0 0 4px;
 
@@ -941,7 +944,7 @@ $glow-blue: rgba(59, 130, 246, 0.3);
       gap: 2px;
 
       .currency {
-        font-size: 24px;
+        font-size: 18px;
         font-weight: 600;
         color: $light-text-primary;
 
@@ -951,22 +954,19 @@ $glow-blue: rgba(59, 130, 246, 0.3);
       }
 
       .price-amount {
-        font-size: 56px;
-        font-weight: 800;
+        font-size: 36px;
+        font-weight: 700;
         color: $light-text-primary;
         line-height: 1;
         letter-spacing: -0.02em;
 
         :host-context(.dark) & {
-          background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+          color: $dark-text-primary;
         }
       }
 
       .price-period {
-        font-size: 16px;
+        font-size: 14px;
         color: $light-text-muted;
         margin-left: 4px;
 
@@ -1068,17 +1068,14 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     }
 
     .total-number {
-      font-size: 36px;
-      font-weight: 800;
+      font-size: 28px;
+      font-weight: 700;
       color: $light-text-primary;
       line-height: 1;
       letter-spacing: -0.02em;
 
       :host-context(.dark) & {
-        background: linear-gradient(135deg, #ffffff, rgba(255,255,255,0.85));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: $dark-text-primary;
       }
     }
 
@@ -1127,21 +1124,20 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
   .plan-card-btn {
     width: 100%;
-    padding: 16px 24px;
-    font-size: 15px;
+    padding: 12px 20px;
+    font-size: 14px;
     font-weight: 600;
-    border-radius: 14px;
+    border-radius: 10px;
     cursor: pointer;
     @include smooth-transition;
     border: none;
 
     &.btn-primary {
-      background: $primary-gradient;
+      background: $accent-purple;
       color: white;
 
       &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        background: color.adjust($accent-purple, $lightness: -6%);
       }
     }
 
@@ -1259,54 +1255,79 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 }
 
 // ================================
-// REQUEST SLIDER SECTION
+// REQUEST ESTIMATOR (calmer, setup-host inspired)
 // ================================
-.slider-section {
-  @include glass-card-light;
-  padding: 28px 32px;
+.estimator-card {
+  background: $light-surface;
+  border: 1px solid $light-card-border;
+  border-radius: 16px;
+  padding: 24px 28px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
 
   :host-context(.dark) & {
-    @include glass-card-dark;
+    background: $dark-surface;
+    border-color: $dark-card-border;
   }
 }
 
-.slider-header {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.slider-label-row {
+.estimator-mode-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
+}
 
-  .slider-label {
-    font-size: 16px;
-    font-weight: 600;
-    color: $light-text-primary;
+.estimator-mode-toggle {
+  display: inline-flex;
+  padding: 4px;
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 10px;
+  gap: 2px;
 
-    :host-context(.dark) & {
-      color: $dark-text-primary;
-    }
+  :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.06);
   }
 
-  .slider-value-pill {
-    padding: 6px 14px;
-    background: $primary-gradient;
-    border-radius: 100px;
-    font-size: 14px;
-    font-weight: 700;
-    color: white;
-    white-space: nowrap;
+  button {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $light-text-secondary;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+
+    &:hover:not(.active) {
+      color: $light-text-primary;
+
+      :host-context(.dark) & {
+        color: $dark-text-primary;
+      }
+    }
+
+    &.active {
+      background: $light-surface;
+      color: $light-text-primary;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+
+      :host-context(.dark) & {
+        background: rgba(255, 255, 255, 0.08);
+        color: $dark-text-primary;
+      }
+    }
   }
 }
 
-.slider-hint {
+.estimator-hint {
   font-size: 13px;
   color: $light-text-muted;
   margin: 0;
@@ -1315,6 +1336,172 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     color: $dark-text-muted;
   }
 }
+
+.estimator-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.estimator-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: $light-text-secondary;
+
+  :host-context(.dark) & {
+    color: $dark-text-secondary;
+  }
+}
+
+.estimator-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: $light-surface;
+  border: 1px solid $light-card-border;
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 48px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: $dark-card-border;
+  }
+
+  &:focus-within {
+    border-color: $accent-purple;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+
+  .estimator-input-prefix {
+    font-size: 18px;
+    font-weight: 600;
+    color: $light-text-secondary;
+    margin-right: 4px;
+
+    :host-context(.dark) & {
+      color: $dark-text-secondary;
+    }
+  }
+
+  .estimator-input-suffix {
+    font-size: 13px;
+    color: $light-text-muted;
+    white-space: nowrap;
+
+    :host-context(.dark) & {
+      color: $dark-text-muted;
+    }
+  }
+}
+
+.estimator-number-input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 20px;
+  font-weight: 600;
+  color: $light-text-primary;
+  padding: 0 8px 0 0;
+  -moz-appearance: textfield;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  :host-context(.dark) & {
+    color: $dark-text-primary;
+  }
+}
+
+.estimator-reference-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.estimator-reference-label {
+  font-size: 12px;
+  color: $light-text-muted;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+}
+
+.estimator-reference-select {
+  padding: 6px 10px;
+  font-size: 13px;
+  color: $light-text-primary;
+  background: $light-surface;
+  border: 1px solid $light-card-border;
+  border-radius: 8px;
+  cursor: pointer;
+
+  :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: $dark-card-border;
+    color: $dark-text-primary;
+  }
+}
+
+.estimator-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 1px solid $light-card-border;
+
+  :host-context(.dark) & {
+    border-color: $dark-card-border;
+  }
+}
+
+.estimator-summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.estimator-summary-label {
+  color: $light-text-muted;
+
+  :host-context(.dark) & {
+    color: $dark-text-muted;
+  }
+}
+
+.estimator-summary-value {
+  font-weight: 600;
+  color: $light-text-primary;
+
+  :host-context(.dark) & {
+    color: $dark-text-primary;
+  }
+}
+
+.estimator-delta {
+  margin-left: 6px;
+  font-weight: 500;
+  color: $light-text-muted;
+
+  &.over {
+    color: $danger-red;
+  }
+  &.under {
+    color: $accent-green;
+  }
+}
+
 
 .slider-track-wrapper {
   display: flex;
@@ -1326,7 +1513,7 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
 .slider-input {
   width: 100%;
-  height: 6px;
+  height: 4px;
   appearance: none;
   -webkit-appearance: none;
   border-radius: 100px;
@@ -1336,27 +1523,27 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 
   &::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
-    background: $primary-gradient;
+    width: 16px;
+    height: 16px;
+    background: $accent-purple;
+    border: 2px solid $light-surface;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
     cursor: pointer;
     @include smooth-transition;
 
     &:hover {
-      transform: scale(1.15);
-      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+      transform: scale(1.1);
     }
   }
 
   &::-moz-range-thumb {
-    width: 22px;
-    height: 22px;
-    background: $primary-gradient;
+    width: 16px;
+    height: 16px;
+    background: $accent-purple;
+    border: 2px solid $light-surface;
     border-radius: 50%;
-    border: none;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.18);
     cursor: pointer;
   }
 }
@@ -1393,9 +1580,9 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 .plan-cost-chip {
   flex: 1;
   min-width: 0;
-  padding: 16px 18px;
-  border-radius: 16px;
-  background: rgba(99, 102, 241, 0.04);
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: $light-bg;
   border: 1px solid $light-card-border;
   display: flex;
   flex-direction: column;
@@ -1410,16 +1597,16 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   }
 
   &.best-value {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
-    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.06);
+    border-color: rgba(16, 185, 129, 0.35);
 
     :host-context(.dark) & {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(99, 102, 241, 0.12) 100%);
+      background: rgba(16, 185, 129, 0.10);
       border-color: rgba(16, 185, 129, 0.4);
     }
 
     .chip-plan-name {
-      color: $accent-green;
+      color: #059669;
     }
   }
 
@@ -1474,20 +1661,12 @@ $glow-blue: rgba(59, 130, 246, 0.3);
   }
 
   .chip-best-value-label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    color: $accent-green;
+    color: #059669;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-top: 6px;
-
-    svg {
-      width: 13px;
-      height: 13px;
-    }
+    margin-top: 4px;
   }
 }
 
@@ -1737,29 +1916,26 @@ $glow-blue: rgba(59, 130, 246, 0.3);
 // BEST VALUE CARD HIGHLIGHT
 // ================================
 .plan-card.best-value-card {
-  border-color: rgba(16, 185, 129, 0.35);
-  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.4);
 
   :host-context(.dark) & {
-    border-color: rgba(16, 185, 129, 0.4);
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.45);
   }
 }
 
 .best-value-badge {
   position: absolute;
-  top: -12px;
+  top: -10px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 6px 16px;
-  background: $success-gradient;
+  padding: 3px 10px;
+  background: $accent-green;
   border-radius: 100px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: white;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   white-space: nowrap;
 }
 // ============================================
@@ -1803,455 +1979,6 @@ $glow-blue: rgba(59, 130, 246, 0.3);
     &.active {
       background: #6366f1;
       color: white;
-    }
-  }
-}
-
-// ============================================
-// V2: PRIVY.IO INSPIRED DESIGN
-// ============================================
-.subscription-page-v2 {
-  min-height: 100vh;
-  background: #fafafa;
-  padding: 48px 24px;
-
-  :host-context(.dark) & {
-    background: #0a0a0a;
-  }
-}
-
-.v2-container {
-  max-width: 960px;
-  margin: 0 auto;
-}
-
-// V2 Header
-.v2-header {
-  text-align: center;
-  margin-bottom: 48px;
-
-  h1 {
-    font-size: 32px;
-    font-weight: 600;
-    color: #111;
-    margin: 0 0 8px;
-    letter-spacing: -0.02em;
-
-    :host-context(.dark) & {
-      color: #fff;
-    }
-  }
-
-  p {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-
-    :host-context(.dark) & {
-      color: #888;
-    }
-  }
-}
-
-// V2 Current Plan Banner
-.v2-current-banner {
-  margin-bottom: 48px;
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-
-  :host-context(.dark) & {
-    background: #141414;
-    border-color: #262626;
-  }
-
-  .banner-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-
-  .banner-info {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
-    .current-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #10b981;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .plan-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: #111;
-
-      :host-context(.dark) & {
-        color: #fff;
-      }
-    }
-
-    .plan-price {
-      font-size: 14px;
-      color: #666;
-
-      :host-context(.dark) & {
-        color: #888;
-      }
-    }
-  }
-
-  .banner-actions {
-    display: flex;
-    gap: 8px;
-  }
-}
-
-// V2 Buttons
-.v2-btn {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-
-  &.v2-btn-primary {
-    background: #111;
-    color: #fff;
-    border: none;
-
-    :host-context(.dark) & {
-      background: #fff;
-      color: #111;
-    }
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-
-  &.v2-btn-outline {
-    background: transparent;
-    color: #111;
-    border: 1px solid #e5e5e5;
-
-    :host-context(.dark) & {
-      color: #fff;
-      border-color: #333;
-    }
-
-    &:hover {
-      background: #f5f5f5;
-
-      :host-context(.dark) & {
-        background: #1a1a1a;
-      }
-    }
-  }
-}
-
-// V2 Interval Toggle
-.v2-interval-toggle {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-bottom: 40px;
-  padding: 4px;
-  background: #f0f0f0;
-  border-radius: 10px;
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
-
-  :host-context(.dark) & {
-    background: #1a1a1a;
-  }
-
-  button {
-    position: relative;
-    padding: 10px 24px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #666;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-
-    :host-context(.dark) & {
-      color: #888;
-    }
-
-    &.active {
-      background: #fff;
-      color: #111;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-      :host-context(.dark) & {
-        background: #262626;
-        color: #fff;
-      }
-    }
-
-    .save-tag {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      padding: 2px 6px;
-      font-size: 10px;
-      font-weight: 600;
-      color: #fff;
-      background: #10b981;
-      border-radius: 4px;
-    }
-  }
-}
-
-// V2 Loading
-.v2-loading {
-  display: flex;
-  justify-content: center;
-  padding: 80px;
-
-  .v2-spinner {
-    width: 32px;
-    height: 32px;
-    border: 2px solid #e5e5e5;
-    border-top-color: #111;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-
-    :host-context(.dark) & {
-      border-color: #333;
-      border-top-color: #fff;
-    }
-  }
-}
-
-// V2 Plans Grid
-.v2-plans-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-// V2 Plan Card
-.v2-plan-card {
-  position: relative;
-  padding: 24px;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  transition: all 0.15s;
-
-  :host-context(.dark) & {
-    background: #141414;
-    border-color: #262626;
-  }
-
-  &:hover {
-    border-color: #d0d0d0;
-
-    :host-context(.dark) & {
-      border-color: #333;
-    }
-  }
-
-  &.recommended {
-    border-color: #111;
-
-    :host-context(.dark) & {
-      border-color: #fff;
-    }
-  }
-
-  &.current {
-    background: #f9fafb;
-    border-color: #10b981;
-
-    :host-context(.dark) & {
-      background: #0f1f1a;
-      border-color: #10b981;
-    }
-  }
-
-  .v2-card-badge {
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 4px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #fff;
-    background: #111;
-    border-radius: 4px;
-
-    :host-context(.dark) & {
-      background: #fff;
-      color: #111;
-    }
-  }
-
-  .v2-card-header {
-    margin-bottom: 20px;
-
-    h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: #111;
-      margin: 0 0 8px;
-
-      :host-context(.dark) & {
-        color: #fff;
-      }
-    }
-
-    .v2-price {
-      .amount {
-        font-size: 32px;
-        font-weight: 700;
-        color: #111;
-
-        :host-context(.dark) & {
-          color: #fff;
-        }
-      }
-
-      .period {
-        font-size: 14px;
-        color: #666;
-
-        :host-context(.dark) & {
-          color: #888;
-        }
-      }
-
-      .amount-text {
-        font-size: 16px;
-        font-weight: 500;
-        color: #666;
-
-        :host-context(.dark) & {
-          color: #888;
-        }
-      }
-    }
-  }
-
-  .v2-card-discount {
-    display: inline-flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 4px 6px;
-    padding: 6px 12px;
-    margin-bottom: 16px;
-    background: rgba(16, 185, 129, 0.1);
-    border-radius: 6px;
-    font-size: 13px;
-
-    :host-context(.dark) & {
-      background: rgba(16, 185, 129, 0.15);
-    }
-
-    .discount-value {
-      font-weight: 600;
-      color: #059669;
-
-      :host-context(.dark) & {
-        color: #34d399;
-      }
-    }
-
-    .discount-context {
-      font-size: 12px;
-      color: #64748b;
-
-      :host-context(.dark) & {
-        color: #94a3b8;
-      }
-    }
-  }
-
-  .v2-card-btn {
-    width: 100%;
-    padding: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-    background: #111;
-    color: #fff;
-    border: none;
-
-    :host-context(.dark) & {
-      background: #fff;
-      color: #111;
-    }
-
-    &:hover:not(:disabled) {
-      opacity: 0.9;
-    }
-
-    &.current {
-      background: #f0fdf4;
-      color: #10b981;
-      cursor: default;
-
-      :host-context(.dark) & {
-        background: #052e1f;
-        color: #10b981;
-      }
-    }
-
-    &:disabled:not(.current) {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-}
-
-// V2 Back Link
-.v2-back-link {
-  display: flex;
-  justify-content: center;
-  margin-top: 32px;
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    font-size: 14px;
-    color: #666;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s;
-
-    :host-context(.dark) & {
-      color: #888;
-    }
-
-    &:hover {
-      color: #111;
-
-      :host-context(.dark) & {
-        color: #fff;
-      }
-    }
-
-    svg {
-      width: 16px;
     }
   }
 }

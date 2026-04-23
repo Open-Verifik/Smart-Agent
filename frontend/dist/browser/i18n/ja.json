@@ -2055,6 +2055,16 @@
       "basePrice": "基本料金: $0.30/リクエスト — プランの割引でコスト削減",
       "estimatedTotal": "お支払い"
     },
+    "estimator": {
+      "modeRequests": "リクエスト数で指定",
+      "modeBudget": "月額予算で指定",
+      "requestsLabel": "何件のリクエストが必要ですか？",
+      "budgetLabel": "目標支出はいくらですか？",
+      "budgetPlaceholder": "例: 1000",
+      "referenceLabel": "プランに合わせる：",
+      "resolvedRequests": "推定ボリューム",
+      "closestFor": "{{plan}} で最も近い合計"
+    },
     "apiBreakdown": {
       "button": "API価格を比較",
       "title": "プラン別API価格",

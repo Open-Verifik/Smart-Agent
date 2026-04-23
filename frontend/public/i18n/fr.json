@@ -2062,6 +2062,16 @@
       "basePrice": "Prix de base : 0,30 $/requête — la réduction de votre plan réduit le coût",
       "estimatedTotal": "À payer"
     },
+    "estimator": {
+      "modeRequests": "Par requêtes",
+      "modeBudget": "Par budget mensuel",
+      "requestsLabel": "Combien de requêtes vous faut-il ?",
+      "budgetLabel": "Quel est votre budget cible ?",
+      "budgetPlaceholder": "ex. 1000",
+      "referenceLabel": "Ajuster pour le plan :",
+      "resolvedRequests": "Volume estimé",
+      "closestFor": "Total le plus proche sur {{plan}}"
+    },
     "apiBreakdown": {
       "button": "Comparer les prix des API",
       "title": "Prix des API par plan",

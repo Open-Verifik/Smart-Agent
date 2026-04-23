@@ -2055,6 +2055,16 @@
       "basePrice": "기본 가격: $0.30/요청 — 플랜 할인으로 비용 절감",
       "estimatedTotal": "결제 금액"
     },
+    "estimator": {
+      "modeRequests": "요청 수로 지정",
+      "modeBudget": "월 예산으로 지정",
+      "requestsLabel": "몇 건의 요청이 필요하신가요?",
+      "budgetLabel": "목표 지출은 얼마인가요?",
+      "budgetPlaceholder": "예: 1000",
+      "referenceLabel": "플랜에 맞추기:",
+      "resolvedRequests": "예상 사용량",
+      "closestFor": "{{plan}}에서 가장 가까운 총액"
+    },
     "apiBreakdown": {
       "button": "API 가격 비교",
       "title": "플랜별 API 가격",

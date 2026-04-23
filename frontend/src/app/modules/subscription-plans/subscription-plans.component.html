@@ -17,21 +17,7 @@
 >
 </plan-change-dialog>
 
-<!-- UI Version Toggle (Dev only) -->
-<div class="ui-version-toggle" *ngIf="false">
-    <span class="toggle-label">UI Version:</span>
-    <button class="version-btn" [class.active]="uiVersion === 'v1'" (click)="uiVersion = 'v1'">
-        V1
-    </button>
-    <button class="version-btn" [class.active]="uiVersion === 'v2'" (click)="uiVersion = 'v2'">
-        V2 (Privy)
-    </button>
-</div>
-
-<!-- ============================================ -->
-<!-- V1: CURRENT DESIGN (Add Credits Style) -->
-<!-- ============================================ -->
-<div class="subscription-page" *ngIf="uiVersion === 'v1'">
+<div class="subscription-page">
     <!-- Background Pattern -->
     <div class="bg-pattern"></div>
 
@@ -312,15 +298,52 @@
                 <div class="spinner"></div>
             </div>
 
-            <!-- Slider: full-width above cards -->
-            <div class="slider-section" *ngIf="!loadingPlans && plans.length > 0">
-                <div class="slider-header">
-                    <div class="slider-label-row">
-                        <span class="slider-label">{{
-                            'subscriptionPlans.requestSlider.label' | transloco
-                        }}</span>
-                        <span class="slider-value-pill">
-                            {{ formatNumber(sliderValue) }}
+            <!-- Estimator: dual mode (requests vs monthly budget) -->
+            <div class="estimator-card" *ngIf="!loadingPlans && plans.length > 0">
+                <div class="estimator-mode-row">
+                    <div class="estimator-mode-toggle" role="tablist">
+                        <button
+                            type="button"
+                            role="tab"
+                            [attr.aria-selected]="estimatorMode === 'requests'"
+                            [class.active]="estimatorMode === 'requests'"
+                            (click)="setEstimatorMode('requests')"
+                        >
+                            {{ 'subscriptionPlans.estimator.modeRequests' | transloco }}
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            [attr.aria-selected]="estimatorMode === 'budget'"
+                            [class.active]="estimatorMode === 'budget'"
+                            (click)="setEstimatorMode('budget')"
+                        >
+                            {{ 'subscriptionPlans.estimator.modeBudget' | transloco }}
+                        </button>
+                    </div>
+                    <p class="estimator-hint">
+                        {{ 'subscriptionPlans.requestSlider.basePrice' | transloco }}
+                    </p>
+                </div>
+
+                <!-- Requests mode -->
+                <div class="estimator-input-row" *ngIf="estimatorMode === 'requests'">
+                    <label class="estimator-label" for="estimator-requests-input">
+                        {{ 'subscriptionPlans.estimator.requestsLabel' | transloco }}
+                    </label>
+                    <div class="estimator-input-group">
+                        <input
+                            id="estimator-requests-input"
+                            type="number"
+                            class="estimator-number-input"
+                            min="0"
+                            [max]="sliderMax"
+                            step="1"
+                            inputmode="numeric"
+                            [value]="sliderValue"
+                            (input)="onRequestsInput($any($event.target).value)"
+                        />
+                        <span class="estimator-input-suffix">
                             {{
                                 (selectedInterval === 'year'
                                     ? 'subscriptionPlans.requestSlider.requestsPerYear'
@@ -329,11 +352,48 @@
                             }}
                         </span>
                     </div>
-                    <p class="slider-hint">
-                        {{ 'subscriptionPlans.requestSlider.basePrice' | transloco }}
-                    </p>
                 </div>
 
+                <!-- Budget mode -->
+                <div class="estimator-input-row" *ngIf="estimatorMode === 'budget'">
+                    <label class="estimator-label" for="estimator-budget-input">
+                        {{ 'subscriptionPlans.estimator.budgetLabel' | transloco }}
+                    </label>
+                    <div class="estimator-input-group">
+                        <span class="estimator-input-prefix">$</span>
+                        <input
+                            id="estimator-budget-input"
+                            type="number"
+                            class="estimator-number-input"
+                            min="0"
+                            step="1"
+                            inputmode="numeric"
+                            [placeholder]="'subscriptionPlans.estimator.budgetPlaceholder' | transloco"
+                            [value]="targetMonthlyBudget"
+                            (input)="onBudgetInput($any($event.target).value)"
+                        />
+                        <span class="estimator-input-suffix">
+                            /{{ 'subscriptionPlans.interval.month' | transloco }}
+                        </span>
+                    </div>
+                    <div class="estimator-reference-row" *ngIf="visiblePlans.length > 1">
+                        <label class="estimator-reference-label" for="estimator-reference-plan">
+                            {{ 'subscriptionPlans.estimator.referenceLabel' | transloco }}
+                        </label>
+                        <select
+                            id="estimator-reference-plan"
+                            class="estimator-reference-select"
+                            [ngModel]="budgetReferencePlanId"
+                            (ngModelChange)="onReferencePlanChange($event)"
+                        >
+                            <option *ngFor="let plan of visiblePlans" [value]="plan._id">
+                                {{ plan.name }}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Slider as secondary "quick adjust" -->
                 <div class="slider-track-wrapper">
                     <input
                         type="range"
@@ -343,7 +403,7 @@
                         [step]="sliderStep"
                         [value]="sliderValue"
                         [style.background]="
-                            'linear-gradient(to right, #8b5cf6 ' +
+                            'linear-gradient(to right, #6366f1 ' +
                             (sliderValue / sliderMax) * 100 +
                             '%, #e2e8f0 ' +
                             (sliderValue / sliderMax) * 100 +
@@ -356,7 +416,44 @@
                     </div>
                 </div>
 
-                <!-- Per-plan cost chips (horizontal row) -->
+                <!-- Resolved summary line: requests + closest-total honesty -->
+                <div class="estimator-summary">
+                    <div class="estimator-summary-row">
+                        <span class="estimator-summary-label">
+                            {{ 'subscriptionPlans.estimator.resolvedRequests' | transloco }}
+                        </span>
+                        <span class="estimator-summary-value">
+                            {{ sliderValue | number: '1.0-0' }}
+                            {{
+                                (selectedInterval === 'year'
+                                    ? 'subscriptionPlans.requestSlider.requestsPerYear'
+                                    : 'subscriptionPlans.requestSlider.requests'
+                                ) | transloco
+                            }}
+                        </span>
+                    </div>
+                    <div
+                        class="estimator-summary-row"
+                        *ngIf="estimatorMode === 'budget' && budgetReferencePlan"
+                    >
+                        <span class="estimator-summary-label">
+                            {{ 'subscriptionPlans.estimator.closestFor' | transloco: { plan: budgetReferencePlan.name } }}
+                        </span>
+                        <span class="estimator-summary-value">
+                            ${{ getBudgetAchievedTotal() | number: '1.0-0' }}/{{ 'subscriptionPlans.interval.month' | transloco }}
+                            <span
+                                class="estimator-delta"
+                                *ngIf="getBudgetDelta() as delta"
+                                [class.over]="delta > 0"
+                                [class.under]="delta < 0"
+                            >
+                                ({{ delta > 0 ? '+' : '' }}${{ delta | number: '1.0-2' }})
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Per-plan cost chips (compact row) -->
                 <div class="plan-cost-chips" *ngIf="!showApiBreakdown && requestsPerMonth > 0">
                     <ng-container *ngFor="let plan of visiblePlans">
                         <div
@@ -380,20 +477,13 @@
                                 class="chip-best-value-label"
                                 *ngIf="plan._id === getBestValuePlanId()"
                             >
-                                <svg viewBox="0 0 20 20" fill="currentColor">
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clip-rule="evenodd"
-                                    />
-                                </svg>
                                 {{ 'subscriptionPlans.requestSlider.bestValue' | transloco }}
                             </div>
                         </div>
                     </ng-container>
                 </div>
 
-                <!-- Compare API prices button -->
+                <!-- Compare API prices link -->
                 <div class="slider-actions" *ngIf="!showApiBreakdown">
                     <button
                         type="button"
@@ -683,125 +773,6 @@
                     {{ 'subscriptionPlans.backToCurrentPlan' | transloco }}
                 </button>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================ -->
-<!-- V2: PRIVY.IO INSPIRED DESIGN -->
-<!-- ============================================ -->
-<div class="subscription-page-v2" *ngIf="uiVersion === 'v2'">
-    <div class="v2-container">
-        <!-- Header -->
-        <header class="v2-header">
-            <ng-container *ngIf="!currentSubscription">
-                <h1>{{ 'subscriptionPlans.title' | transloco }}</h1>
-                <p>{{ 'subscriptionPlans.subtitle' | transloco }}</p>
-            </ng-container>
-            <ng-container *ngIf="currentSubscription">
-                <h1>{{ 'subscriptionPlans.titleWithPlan' | transloco }}</h1>
-                <p>{{ 'subscriptionPlans.subtitleWithPlan' | transloco }}</p>
-            </ng-container>
-        </header>
-
-        <!-- Current Plan Banner (if has subscription) -->
-        <div class="v2-current-banner" *ngIf="currentSubscription && currentView === 'current'">
-            <div class="banner-content">
-                <div class="banner-info">
-                    <span class="current-label">Current plan</span>
-                    <span class="plan-name">{{ currentSubscription.name }}</span>
-                    <span class="plan-price"
-                        >${{ currentSubscription.subscriptionPlan.amount | number: '1.0-0' }}/{{
-                            currentSubscription.subscriptionPlan.interval
-                        }}</span
-                    >
-                </div>
-                <div class="banner-actions">
-                    <button class="v2-btn v2-btn-outline" (click)="manageBilling()">
-                        Manage billing
-                    </button>
-                    <button class="v2-btn v2-btn-primary" (click)="switchToExplore()">
-                        Change plan
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Interval Toggle -->
-        <div class="v2-interval-toggle" *ngIf="currentView === 'explore' || !currentSubscription">
-            <button [class.active]="selectedInterval === 'month'" (click)="changeInterval('month')">
-                Monthly
-            </button>
-            <button [class.active]="selectedInterval === 'year'" (click)="changeInterval('year')">
-                Annual
-                <span class="save-tag">-20%</span>
-            </button>
-        </div>
-
-        <!-- Loading -->
-        <div class="v2-loading" *ngIf="loadingPlans">
-            <div class="v2-spinner"></div>
-        </div>
-
-        <!-- Plans Grid -->
-        <div
-            class="v2-plans-grid"
-            *ngIf="!loadingPlans && (currentView === 'explore' || !currentSubscription)"
-        >
-            <div
-                *ngFor="let plan of visiblePlans; trackBy: trackByPlan"
-                class="v2-plan-card"
-                [class.recommended]="plan.name === 'Plus'"
-                [class.current]="plan.code === currentSubscription?.subscriptionPlan?.code"
-            >
-                <div class="v2-card-badge" *ngIf="plan.name === 'Plus'">Recommended</div>
-
-                <div class="v2-card-header">
-                    <h3>{{ plan.name }}</h3>
-                    <div class="v2-price">
-                        <span class="amount">${{ plan.amount | number: '1.0-0' }}</span>
-                        <span class="period">/{{ plan.interval }}</span>
-                    </div>
-                </div>
-
-                <div class="v2-card-discount" *ngIf="plan.discount?.discount">
-                    <span class="discount-value">{{ getDiscountDisplayText(plan) }}</span>
-                    <span class="discount-context">{{
-                        'subscriptionPlans.discountDescription' | transloco
-                    }}</span>
-                </div>
-
-                <button
-                    class="v2-card-btn"
-                    [class.current]="plan.code === currentSubscription?.subscriptionPlan?.code"
-                    [disabled]="plan.code === currentSubscription?.subscriptionPlan?.code"
-                    (click)="upgradePlan(plan)"
-                >
-                    <ng-container *ngIf="plan.code === currentSubscription?.subscriptionPlan?.code"
-                        >Current plan</ng-container
-                    >
-                    <ng-container *ngIf="plan.code !== currentSubscription?.subscriptionPlan?.code">
-                        <ng-container *ngIf="!currentSubscription">Select plan</ng-container>
-                        <ng-container *ngIf="currentSubscription">
-                            {{ plan.isDowngrade ? 'Downgrade' : 'Upgrade' }}
-                        </ng-container>
-                    </ng-container>
-                </button>
-            </div>
-        </div>
-
-        <!-- Back Link -->
-        <div class="v2-back-link" *ngIf="currentSubscription && currentView === 'explore'">
-            <button (click)="switchToCurrent()">
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                    <path
-                        fill-rule="evenodd"
-                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                        clip-rule="evenodd"
-                    />
-                </svg>
-                Back to current plan
-            </button>
         </div>
     </div>
 </div>
