@@ -1,0 +1,13 @@
+---
+description: When adding features or doc URLs for FR/PT/KO/JA/ZH, align with verifik-documentation partial-locale URL rules.
+globs:
+  - frontend/public/i18n/features-*.json
+  - frontend/scripts/src/assets/i18n-features/*.json
+  - frontend/src/app/modules/postman/**/*
+---
+
+# Partial-locale docs (cross-repo)
+
+- Public doc URLs for partial locales must use **one** path prefix: `/verifik-{locale}/<category>/<page>/`. Never store or suggest `/verifik-fr/fr-docs/...` or other `*-docs` segments.
+- Process and country rollout checklist: see **`docs/PARTIAL_LOCALE_DOCS.md`** in this repo (points to `verifik-documentation/internal/PARTIAL_LOCALE_DOCS_PLAYBOOK.md`).
+- After MDX changes in the docs repo, run **`verifik-backend/scripts/seed-app-feature-docs.js`** to refresh `AppFeature.docs` (use `--dry-run` and `--only=` when scoping).
