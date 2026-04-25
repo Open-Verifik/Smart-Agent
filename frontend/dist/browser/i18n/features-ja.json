@@ -340,6 +340,18 @@
       "title": "アルゼンチン - 国民ID検証",
       "description": "DNI（documentType DNIAR + documentNumber）でアルゼンチン国民を照会。公式記録ベースの本人確認に利用。"
     },
+    "argentina_api_identity_lookup_extra": {
+      "title": "アルゼンチン - 本人確認（拡張）",
+      "description": "より深いKYC向けの拡張アルゼンチン本人確認。"
+    },
+    "chile_api_transport_vehicle": {
+      "title": "チリ - 交通・車両情報",
+      "description": "コンプライアンス、フリート、保険向けのチリの交通・車両データ。"
+    },
+    "cl_certificate_verify": {
+      "title": "チリ - 証明書照合",
+      "description": "チリで発行された戸籍・登録系証明書の照合。"
+    },
     "ecuador_api_company_lookup": {
       "title": "エクアドル - 企業検索",
       "description": "RUCEC（documentType RUCEC + documentNumber）でエクアドル法人を照会。GET /v2/ec/company。KYB・取引先審査向け。"

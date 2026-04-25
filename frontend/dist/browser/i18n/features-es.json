@@ -340,6 +340,18 @@
       "title": "Argentina - Verificación de Identidad",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
+    "argentina_api_identity_lookup_extra": {
+      "title": "Argentina - Verificación de identidad (extendida)",
+      "description": "Verificación de identidad argentina ampliada para KYC y onboarding más profundos."
+    },
+    "chile_api_transport_vehicle": {
+      "title": "Chile - Transporte e información de vehículos",
+      "description": "Datos de transporte y vehículo en Chile para cumplimiento, flotas y seguros."
+    },
+    "cl_certificate_verify": {
+      "title": "Chile - Verificación de certificados",
+      "description": "Verifica certificados civiles y de registro emitidos en Chile."
+    },
     "ecuador_api_company_lookup": {
       "title": "Ecuador - Consulta de Empresa",
       "description": "Proporciona servicios confiables de verificación y validación."

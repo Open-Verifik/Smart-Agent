@@ -340,6 +340,18 @@
       "title": "阿根廷 - 国民身份证验证",
       "description": "提供可靠的验证和验证服务。"
     },
+    "argentina_api_identity_lookup_extra": {
+      "title": "阿根廷 - 国民身份证验证（扩展）",
+      "description": "扩展的阿根廷国民身份验证，用于更深入的 KYC 与注册。"
+    },
+    "chile_api_transport_vehicle": {
+      "title": "智利 - 交通与车辆信息",
+      "description": "智利的交通与车辆数据，用于合规、车队与保险。"
+    },
+    "cl_certificate_verify": {
+      "title": "智利 - 证书核验",
+      "description": "核验智利签发的民事与登记证书。"
+    },
     "ecuador_api_company_lookup": {
       "title": "厄瓜多尔 - 企业查询",
       "description": "提供可靠的验证和验证服务。"

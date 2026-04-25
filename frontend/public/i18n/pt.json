@@ -1257,7 +1257,18 @@
     "payments": "Pagamentos",
     "solutions": "Soluções",
     "verification": "Verificação",
-    "email": "E-mail"
+    "email": "E-mail",
+    "AUTHENTICATION": "Autenticação",
+    "BIOMETRICS_APIS": "APIs de biometria",
+    "IDENTITY_VALIDATION": "Validação de identidade",
+    "EMAIL": "E-mail",
+    "FACEVERIFICATION": "Verificação facial",
+    "GOVERNMENT_VALIDATION": "Validação governamental",
+    "MESSAGING": "Mensageria",
+    "PAYMENTS": "Pagamentos",
+    "SEARCH": "Pesquisa",
+    "SOLUTIONS": "Soluções",
+    "VERIFICATION": "Verificação"
   },
   "settings": {
     "title": "Configurações",

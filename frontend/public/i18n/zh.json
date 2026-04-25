@@ -1257,7 +1257,18 @@
     "payments": "支付",
     "solutions": "解决方案",
     "verification": "核验",
-    "email": "电子邮件"
+    "email": "电子邮件",
+    "AUTHENTICATION": "身份认证",
+    "BIOMETRICS_APIS": "生物识别 API",
+    "IDENTITY_VALIDATION": "身份验证",
+    "EMAIL": "电子邮件",
+    "FACEVERIFICATION": "人脸验证",
+    "GOVERNMENT_VALIDATION": "政府验证",
+    "MESSAGING": "消息",
+    "PAYMENTS": "支付",
+    "SEARCH": "搜索",
+    "SOLUTIONS": "解决方案",
+    "VERIFICATION": "核验"
   },
   "settings": {
     "title": "设置",

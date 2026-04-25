@@ -1257,7 +1257,18 @@
     "payments": "支払い",
     "solutions": "ソリューション",
     "verification": "検証",
-    "email": "メール"
+    "email": "メール",
+    "AUTHENTICATION": "認証",
+    "BIOMETRICS_APIS": "生体認証 API",
+    "IDENTITY_VALIDATION": "本人確認",
+    "EMAIL": "メール",
+    "FACEVERIFICATION": "顔認証",
+    "GOVERNMENT_VALIDATION": "政府バリデーション",
+    "MESSAGING": "メッセージング",
+    "PAYMENTS": "決済",
+    "SEARCH": "検索",
+    "SOLUTIONS": "ソリューション",
+    "VERIFICATION": "照合"
   },
   "settings": {
     "title": "設定",

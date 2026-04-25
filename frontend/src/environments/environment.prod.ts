@@ -24,6 +24,9 @@ export const environment = {
     get kycBaseUrl(): string {
         return isStaging() ? 'https://access.app' : 'https://access.verifik.co';
     },
+    get documentationBaseUrl(): string {
+        return 'https://docs.verifik.co';
+    },
     // Blockchain Config
     rpcUrl: 'https://wild-bitter-meadow.avalanche-mainnet.quiknode.pro/e2565749ca44c2873fe2a0a747f5ac68ae7eb14f/ext/bc/C/rpc/',
     tokenTicker: 'VKA',

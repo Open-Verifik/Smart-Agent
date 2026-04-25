@@ -223,7 +223,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                 (click)="toggleCategory(category.name)"
                 class="text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header"
               >
-                <span>{{ category.name }}</span>
+                <span>{{ 'categories.' + category.name | transloco }}</span>
                 <mat-icon
                   class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
                   [class.rotate-180]="collapsedCategories().has(category.name)"
@@ -345,7 +345,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
               (click)="toggleCategory(category.name)"
               class="text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header"
             >
-              <span>{{ category.name }}</span>
+              <span>{{ 'categories.' + category.name | transloco }}</span>
               <mat-icon
                 class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
                 [class.rotate-180]="collapsedCategories().has(category.name)"
@@ -532,7 +532,7 @@ export class SidebarComponent {
     const filtered = this.filteredEndpoints().filter((ep) => !ep.postmanFolderId);
     const groups = filtered.reduce(
       (acc, endpoint) => {
-        const category = endpoint.category || 'Other';
+        const category = endpoint.category || 'OTHER';
         if (!acc[category]) {
           acc[category] = [];
         }
@@ -571,7 +571,7 @@ export class SidebarComponent {
           return acc;
         }
 
-        const category = endpoint.category || 'Other';
+        const category = endpoint.category || 'OTHER';
         if (!acc[category]) {
           acc[category] = [];
         }

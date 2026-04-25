@@ -340,6 +340,18 @@
       "title": "Argentine - Vérification d'Identité Nationale",
       "description": "Fournit des services de vérification et de validation fiables."
     },
+    "argentina_api_identity_lookup_extra": {
+      "title": "Argentine - Vérification d'identité (étendue)",
+      "description": "Vérification d'identité argentine étendue pour un KYC et un onboarding approfondis."
+    },
+    "chile_api_transport_vehicle": {
+      "title": "Chili - Transports et informations véhicule",
+      "description": "Données transport et véhicule au Chili pour la conformité, les flottes et l'assurance."
+    },
+    "cl_certificate_verify": {
+      "title": "Chili - Vérification de certificats",
+      "description": "Vérification des certificats civils et d'état civil délivrés au Chili."
+    },
     "ecuador_api_company_lookup": {
       "title": "Équateur - Recherche d'Entreprise",
       "description": "Fournit des services de vérification et de validation fiables."

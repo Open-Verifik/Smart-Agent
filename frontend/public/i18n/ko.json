@@ -1257,7 +1257,18 @@
     "payments": "결제",
     "solutions": "솔루션",
     "verification": "검증",
-    "email": "이메일"
+    "email": "이메일",
+    "AUTHENTICATION": "인증",
+    "BIOMETRICS_APIS": "생체인증 API",
+    "IDENTITY_VALIDATION": "신원 확인",
+    "EMAIL": "이메일",
+    "FACEVERIFICATION": "안면 인증",
+    "GOVERNMENT_VALIDATION": "정부 검증",
+    "MESSAGING": "메시징",
+    "PAYMENTS": "결제",
+    "SEARCH": "검색",
+    "SOLUTIONS": "솔루션",
+    "VERIFICATION": "검증"
   },
   "settings": {
     "title": "설정",

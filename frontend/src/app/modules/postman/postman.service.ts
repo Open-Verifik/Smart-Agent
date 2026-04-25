@@ -221,11 +221,20 @@ export class PostmanService {
         });
     }
 
+    /**
+     * Normalizes API `baseCategory` / `group` to a stable UPPER_SNAKE string for
+     * grouping and `categories.*` i18n keys (avoids keys with spaces or apostrophes).
+     */
     private _mapCategory(category: string): string {
         if (!category) {
             return 'OTHER';
         }
-        return category.toUpperCase().replace('-', ' ');
+        return category
+            .trim()
+            .toUpperCase()
+            .replace(/'/g, '')
+            .replace(/[\s-]+/g, '_')
+            .replace(/_+/g, '_');
     }
 
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {

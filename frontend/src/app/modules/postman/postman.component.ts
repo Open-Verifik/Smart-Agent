@@ -39,6 +39,9 @@ const POSTMAN_COUNTRY_ISO: Record<string, 'world' | string> = {
     Spain: 'es',
     Israel: 'il',
     Nicaragua: 'ni',
+    India: 'in',
+    'Czech Republic': 'cz',
+    Czechia: 'cz',
 };
 
 type PostmanCountryFlagUi =
@@ -350,7 +353,9 @@ export class PostmanComponent {
 
         return Object.entries(counts)
             .map(([name, count]) => ({ name, count }))
-            .sort((a, b) => b.count - a.count);
+            .sort((a, b) =>
+                a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
+            );
     });
 
     // Payment Method State
@@ -413,8 +418,7 @@ export class PostmanComponent {
                         this._postmanService.selectEndpoint(found);
                     }
                 }
-            },
-            { allowSignalWrites: true }
+            }
         );
 
         // Effect: Sync URL country param -> selectedCountry, gated on loaded catalog
@@ -440,8 +444,7 @@ export class PostmanComponent {
                 } else if (this._postmanService.selectedCountry() !== null) {
                     this._postmanService.selectedCountry.set(null);
                 }
-            },
-            { allowSignalWrites: true }
+            }
         );
 
         // Effect: Selected Endpoint -> Sync URL (code + country together, so the

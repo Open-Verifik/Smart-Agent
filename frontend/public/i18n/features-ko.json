@@ -340,6 +340,18 @@
       "title": "아르헨티나 - 국민ID 검증",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
     },
+    "argentina_api_identity_lookup_extra": {
+      "title": "아르헨티나 - 신원 확인(확장)",
+      "description": "심화 KYC를 위한 확장된 아르헨티나 신원 확인."
+    },
+    "chile_api_transport_vehicle": {
+      "title": "칠레 - 교통·차량 정보",
+      "description": "규정 준수, 플릿, 보험을 위한 칠레 교통·차량 데이터."
+    },
+    "cl_certificate_verify": {
+      "title": "칠레 - 증명서 검증",
+      "description": "칠레에서 발급한 민·등기 증명서 검증."
+    },
     "ecuador_api_company_lookup": {
       "title": "에콰도르 - 기업 조회",
       "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."

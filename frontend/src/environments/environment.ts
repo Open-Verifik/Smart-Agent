@@ -4,6 +4,8 @@ export const environment = {
     baseUrl: 'http://localhost:3006',
     smartAgentUrl: 'http://localhost:3060',
     apiUrl: 'https://verifik.app',
+    /** Docusaurus public site (e.g. MDX internal links in API docs overview). */
+    documentationBaseUrl: 'https://docs.verifik.co',
     appUrl: 'http://localhost:3006',
     projectId: '6266193db77ccc8111730c90',
     loginProjectFlowId: '658ed28b0990f300134d7b78',
