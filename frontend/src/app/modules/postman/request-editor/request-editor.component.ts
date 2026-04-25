@@ -18,7 +18,7 @@ import {
 import { SubscriptionService } from '../../subscription-plans/subscription.service';
 import { PostmanService } from '../postman.service';
 import { ApiEndpoint } from '../postman.types';
-import { buildPostmanEffectiveUrl } from '../postman-url.util';
+import { arePostmanRequestInputsSatisfied, buildPostmanEffectiveUrl } from '../postman-url.util';
 import { AboutEndpointComponent } from './about-endpoint.component';
 
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -129,7 +129,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         mat-flat-button
                         color="primary"
                         (click)="sendRequest()"
-                        [disabled]="isLoading()"
+                        [disabled]="isLoading() || !canSendRequest()"
                     >
                         <span *ngIf="!isLoading()">{{
                             'postman.requestEditor.send' | transloco
@@ -744,9 +744,16 @@ export class RequestEditorComponent {
         this.endpoint()!.headers!.splice(index, 1);
     }
 
+    canSendRequest(): boolean {
+        return arePostmanRequestInputsSatisfied(this.endpoint());
+    }
+
     sendRequest() {
         // Just send the request. If x402 is selected and no payment provided,
         // the backend will return 402, which we catch in the effect above.
+        if (!this.canSendRequest()) {
+            return;
+        }
         this._postmanService.sendRequest(this.endpoint()!);
     }
 

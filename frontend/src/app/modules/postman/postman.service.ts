@@ -12,7 +12,11 @@ import {
     PostmanLayoutData,
     PostmanLayoutResponse,
 } from './postman.types';
-import { buildPostmanEffectiveUrl, getPostmanPathParamKeysForEndpoint } from './postman-url.util';
+import {
+    arePostmanRequestInputsSatisfied,
+    buildPostmanEffectiveUrl,
+    getPostmanPathParamKeysForEndpoint,
+} from './postman-url.util';
 
 import { HttpParams } from '@angular/common/http';
 import { environment } from 'environments/environment';
@@ -526,6 +530,9 @@ export class PostmanService {
     }
 
     sendRequest(endpoint: ApiEndpoint) {
+        if (!arePostmanRequestInputsSatisfied(endpoint)) {
+            return;
+        }
         this.isLoading.set(true);
         this.response.set(null);
         this.error.set(null);

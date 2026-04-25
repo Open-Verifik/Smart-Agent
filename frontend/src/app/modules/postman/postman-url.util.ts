@@ -45,3 +45,33 @@ export function buildPostmanEffectiveUrl(endpoint: ApiEndpoint): string {
 export function getPostmanPathParamKeysForEndpoint(endpoint: ApiEndpoint): string[] | undefined {
     return endpoint.code ? POSTMAN_PATH_PARAM_KEYS_BY_CODE[endpoint.code] : undefined;
 }
+
+/**
+ * True when path segments (if any) and every `required` query param are non-empty (trim).
+ * Path keys must be satisfied even if the backend did not set `required` on the dependency.
+ */
+export function arePostmanRequestInputsSatisfied(
+    endpoint: ApiEndpoint | null | undefined
+): boolean {
+    if (!endpoint) {
+        return false;
+    }
+
+    const pathKeys = getPostmanPathParamKeysForEndpoint(endpoint);
+    if (pathKeys?.length) {
+        for (const key of pathKeys) {
+            const v = endpoint.params?.find((p) => p.key === key)?.value;
+            if (!String(v ?? '').trim()) {
+                return false;
+            }
+        }
+    }
+
+    for (const p of endpoint.params ?? []) {
+        if (p.required && !String(p.value ?? '').trim()) {
+            return false;
+        }
+    }
+
+    return true;
+}
