@@ -1957,9 +1957,8 @@
       "maximum": "最大"
     },
     "hero": {
-      "badge": "スマートクレジット",
-      "title": "AIエージェントを強化",
-      "subtitle": "クレジットを購入して、無制限のAI検証、身元確認、スマートエージェント機能を解除します。"
+      "title": "Verifik のあらゆるワークフローに使えるクレジット",
+      "subtitle": "SmartCheck、SmartEnroll、APIリクエスト、本人確認フローでクレジットを利用できます。"
     }
   },
   "pricing": {

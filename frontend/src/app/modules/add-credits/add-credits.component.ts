@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -39,7 +39,6 @@ export type AddCreditsSidebarPlanTier = {
     ],
     templateUrl: './add-credits.component.html',
     styleUrls: ['./add-credits.component.scss'],
-    encapsulation: ViewEncapsulation.None,
 })
 export class AddCreditsComponent implements OnInit {
     private _creditsService = inject(CreditsService);

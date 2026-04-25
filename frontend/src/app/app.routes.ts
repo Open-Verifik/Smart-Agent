@@ -64,7 +64,9 @@ export const appRoutes: Route[] = [
             {
                 path: 'add-credits',
                 loadChildren: () =>
-                    import('app/modules/add-credits/add-credits.routes').then((m) => m.default),
+                    import('app/modules/add-credits/add-credits.routes').then(
+                        (m) => m.ADD_CREDITS_ROUTES
+                    ),
             },
             {
                 path: 'smart-enroll',

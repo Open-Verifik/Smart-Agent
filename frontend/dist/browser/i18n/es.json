@@ -1873,7 +1873,7 @@
   "addCredits": {
     "title": "Agregar Créditos",
     "subtitle": "Administra tus créditos y métodos de pago",
-    "availableCredits": "CRÉDITOS DISPONIBLES",
+    "availableCredits": "Créditos disponibles",
     "purchaseCredits": "Comprar Créditos",
     "addCard": "Agregar Tarjeta",
     "noCards": "Sin métodos de pago",
@@ -1964,9 +1964,8 @@
       "maximum": "Máximo"
     },
     "hero": {
-      "badge": "Créditos Inteligentes",
-      "title": "Potencia Tus Agentes de IA",
-      "subtitle": "Compra créditos para desbloquear verificaciones ilimitadas impulsadas por IA, verificaciones de identidad y capacidades de agentes inteligentes."
+      "title": "Créditos para cada flujo de Verifik",
+      "subtitle": "Usa créditos en SmartCheck, SmartEnroll, solicitudes API y flujos de verificación de identidad dentro de la plataforma Verifik."
     }
   },
   "pricing": {

@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { AddCreditsComponent } from './add-credits.component';
 
-export default [
+export const ADD_CREDITS_ROUTES: Routes = [
     {
         path: '',
-        component: AddCreditsComponent,
+        loadComponent: () =>
+            import('./add-credits.component').then((m) => m.AddCreditsComponent),
     },
-] as Routes;
+];

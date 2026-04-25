@@ -1957,9 +1957,8 @@
       "maximum": "最大"
     },
     "hero": {
-      "badge": "智能积分",
-      "title": "增强您的AI代理",
-      "subtitle": "购买积分以解锁无限的AI驱动验证、身份检查和智能代理功能。"
+      "title": "适用于 Verifik 所有流程的积分",
+      "subtitle": "积分可用于 SmartCheck、SmartEnroll、API 请求以及 Verifik 平台上的身份验证流程。"
     }
   },
   "pricing": {
