@@ -1,9 +1,23 @@
 status-check-subscribe {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 0;
+    max-height: inherit;
+    overflow: hidden;
     background: white;
 
     .dark & {
         background: #111827; // bg-gray-900
+    }
+
+    .status-check-subscribe__dialog {
+        max-height: 90vh;
+        max-height: 90dvh;
+    }
+
+    .status-check-subscribe__body {
+        -webkit-overflow-scrolling: touch;
     }
 
     .mat-mdc-form-field-subscript-wrapper {
@@ -17,7 +31,12 @@ status-check-subscribe {
     .mat-mdc-standard-chip {
         --mdc-chip-elevated-container-color: #f3f4f6;
         --mdc-chip-label-text-color: #374151;
+        max-width: 100%;
         border-radius: 8px !important;
+
+        .mdc-evolution-chip__text-label {
+            overflow-wrap: anywhere;
+        }
 
         .dark & {
             --mdc-chip-elevated-container-color: #374151;

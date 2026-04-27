@@ -38,6 +38,9 @@ export class SubscribeComponent implements OnInit {
     public loading: boolean = false;
     public currentSubscription: any = null;
 
+    /** Sorted snapshot of emails when the dialog opened; used to disable save until the list changes. */
+    private _initialEmailsSorted: string[] = [];
+
     constructor(
         @Inject(MAT_DIALOG_DATA) public data: any,
         private _dialogRef: MatDialogRef<SubscribeComponent>,
@@ -63,9 +66,30 @@ export class SubscribeComponent implements OnInit {
                 }
             }
         }
+
+        this.emails = this.emails.map((e) => e.trim()).filter(Boolean);
+        this._initialEmailsSorted = this._sortedEmailsSnapshot(this.emails);
     }
 
     ngOnInit(): void {}
+
+    /**
+     * True when the user has added or removed at least one email compared to the initial list.
+     */
+    get isEmailListModified(): boolean {
+        return (
+            JSON.stringify(this._sortedEmailsSnapshot(this.emails)) !==
+            JSON.stringify(this._initialEmailsSorted)
+        );
+    }
+
+    get isPrimaryActionDisabled(): boolean {
+        return this.loading || !this.isEmailListModified;
+    }
+
+    private _sortedEmailsSnapshot(list: string[]): string[] {
+        return [...list].map((e) => e.trim()).filter(Boolean).sort((a, b) => a.localeCompare(b));
+    }
 
     add(event: MatChipInputEvent): void {
         const value = (event.value || '').trim();

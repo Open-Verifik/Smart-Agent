@@ -492,6 +492,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
                 data: item,
                 width: '100%',
                 maxWidth: '480px',
+                maxHeight: '90vh',
                 panelClass: 'subscribe-dialog-panel',
             });
 

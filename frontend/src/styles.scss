@@ -24,6 +24,10 @@ body {
 .subscribe-dialog-panel .mat-mdc-dialog-surface {
     border-radius: 20px !important;
     padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
     overflow: hidden !important;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
 }
