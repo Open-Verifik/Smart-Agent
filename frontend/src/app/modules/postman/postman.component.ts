@@ -6,6 +6,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {
+    POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
+    PostmanHistoryPrefillPayload,
+} from './postman-history-prefill';
 import { PostmanService } from './postman.service';
 import { ApiEndpoint } from './postman.types';
 import { RequestEditorComponent } from './request-editor/request-editor.component';
@@ -473,6 +477,13 @@ export class PostmanComponent {
                 replaceUrl: true,
             });
         });
+
+        effect(() => {
+            const selected = this._postmanService.selectedEndpoint();
+            if (!selected?.code) return;
+
+            queueMicrotask(() => this.applyHistoryPrefill(selected));
+        });
     }
 
     toggleSidebar() {
@@ -521,5 +532,101 @@ export class PostmanComponent {
         if (newSizePercent > 80) newSizePercent = 80;
 
         this.requestPanelSize = newSizePercent;
+    }
+
+    private applyHistoryPrefill(endpoint: ApiEndpoint): void {
+        const raw = sessionStorage.getItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY);
+        if (!raw) return;
+
+        let payload: PostmanHistoryPrefillPayload;
+        try {
+            payload = JSON.parse(raw);
+        } catch {
+            sessionStorage.removeItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY);
+            return;
+        }
+
+        if (payload.source !== 'history' || payload.v !== 1) {
+            sessionStorage.removeItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY);
+            return;
+        }
+
+        if (payload.code !== endpoint.code) return;
+
+        const endpointCopy = this.applyPrefillToEndpoint(endpoint, payload.paramValues || {});
+        this._postmanService.paymentMethod.set(payload.paymentMode || 'credits');
+        this._postmanService.selectedEndpoint.set(endpointCopy);
+        sessionStorage.removeItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY);
+    }
+
+    private applyPrefillToEndpoint(
+        endpoint: ApiEndpoint,
+        paramValues: Record<string, unknown>
+    ): ApiEndpoint {
+        const endpointCopy: ApiEndpoint = JSON.parse(JSON.stringify(endpoint));
+        const remaining = { ...paramValues };
+
+        endpointCopy.params?.forEach((param) => {
+            if (!Object.prototype.hasOwnProperty.call(paramValues, param.key)) return;
+
+            param.value = this.prefillValueToString(paramValues[param.key]);
+            delete remaining[param.key];
+        });
+
+        const remainingEntries = Object.entries(remaining);
+        if (!remainingEntries.length) return endpointCopy;
+
+        if (endpointCopy.method === 'GET' || endpointCopy.method === 'DELETE') {
+            endpointCopy.params = endpointCopy.params || [];
+            remainingEntries.forEach(([key, value]) => {
+                endpointCopy.params?.push({
+                    key,
+                    value: this.prefillValueToString(value),
+                    type: 'string',
+                    required: false,
+                    description: '',
+                });
+            });
+
+            return endpointCopy;
+        }
+
+        endpointCopy.body = {
+            ...this.bodyToObject(endpointCopy.body),
+            ...remaining,
+        };
+
+        return endpointCopy;
+    }
+
+    private bodyToObject(body: unknown): Record<string, unknown> {
+        if (!body) return {};
+
+        if (typeof body === 'object' && !Array.isArray(body)) {
+            return { ...(body as Record<string, unknown>) };
+        }
+
+        if (typeof body === 'string') {
+            try {
+                const parsed = JSON.parse(body);
+                return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+            } catch {
+                return {};
+            }
+        }
+
+        return {};
+    }
+
+    private prefillValueToString(value: unknown): string {
+        if (value == null) return '';
+        if (typeof value === 'string') return value;
+        if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+
+        try {
+            return JSON.stringify(value);
+        } catch {
+            return String(value);
+        }
     }
 }

@@ -1,227 +1,264 @@
-<div class="flex flex-col flex-auto min-w-0">
-  <!-- Header -->
-  <div
-    class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent"
-  >
-    <div class="flex-1 min-w-0">
-      <!-- Breadcrumbs -->
-      <div class="flex flex-wrap items-center font-medium text-xs text-secondary leading-none">
-        <a class="cursor-pointer text-primary-500 hover:underline">Verifik</a>
-        <mat-icon
-          class="icon-size-4 mx-2 text-secondary"
-          [svgIcon]="'heroicons_solid:chevron-right'"
-        ></mat-icon>
-        <span class="cursor-default">{{ 'nav.history' | transloco }}</span>
-      </div>
-      <!-- Title -->
-      <div class="mt-2 flex items-center justify-between">
-        <h2
-          class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate"
-        >
-          {{ 'history.title' | transloco }}
-        </h2>
+<ng-container *transloco="let t">
+  <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <header
+      class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+    >
+      <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+        <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+          <a
+            routerLink="/home"
+            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+          >
+            Verifik
+          </a>
+          <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+          <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t('nav.history') }}</span>
+        </div>
 
-        <!-- Toggle -->
-        <div
-          class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 ml-4"
-        >
-          <button
-            class="px-3 py-1.5 rounded-md transition-all text-xs font-medium"
-            [class.bg-slate-100]="mode() === 'credits'"
-            [class.text-slate-900]="mode() === 'credits'"
-            [class.dark:bg-slate-700]="mode() === 'credits'"
-            [class.dark:text-white]="mode() === 'credits'"
-            [class.text-slate-500]="mode() !== 'credits'"
-            (click)="setMode('credits')"
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="min-w-0">
+            <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-4xl">
+              {{ t('history.title') }}
+            </h1>
+            <p class="mt-2 max-w-2xl text-sm text-stone-500 dark:text-stone-400">
+              {{ t('history.subtitle') }}
+            </p>
+          </div>
+
+          <div
+            class="flex items-center rounded-xl border border-stone-200 bg-white p-1 shadow-sm dark:border-gray-800 dark:bg-gray-900"
           >
-            CREDITS
-          </button>
-          <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
-          <button
-            class="px-3 py-1.5 rounded-md transition-all text-xs font-medium"
-            [class.bg-slate-100]="mode() === 'x402'"
-            [class.text-slate-900]="mode() === 'x402'"
-            [class.dark:bg-slate-700]="mode() === 'x402'"
-            [class.dark:text-white]="mode() === 'x402'"
-            [class.text-slate-500]="mode() !== 'x402'"
-            (click)="setMode('x402')"
-          >
-            x402
-          </button>
+            <button
+              type="button"
+              class="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
+              [class.bg-stone-950]="mode() === 'credits'"
+              [class.text-white]="mode() === 'credits'"
+              [class.text-stone-500]="mode() !== 'credits'"
+              [class.hover:text-stone-900]="mode() !== 'credits'"
+              [class.dark:bg-white]="mode() === 'credits'"
+              [class.dark:text-gray-950]="mode() === 'credits'"
+              [class.dark:text-gray-400]="mode() !== 'credits'"
+              [class.dark:hover:text-white]="mode() !== 'credits'"
+              (click)="setMode('credits')"
+            >
+              CREDITS
+            </button>
+            <button
+              type="button"
+              class="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
+              [class.bg-stone-950]="mode() === 'x402'"
+              [class.text-white]="mode() === 'x402'"
+              [class.text-stone-500]="mode() !== 'x402'"
+              [class.hover:text-stone-900]="mode() !== 'x402'"
+              [class.dark:bg-white]="mode() === 'x402'"
+              [class.dark:text-gray-950]="mode() === 'x402'"
+              [class.dark:text-gray-400]="mode() !== 'x402'"
+              [class.dark:hover:text-white]="mode() !== 'x402'"
+              (click)="setMode('x402')"
+            >
+              x402
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <!-- Main Content -->
-  <div class="flex flex-col flex-auto p-6 sm:p-10">
-    <div class="flex flex-col bg-card shadow overflow-hidden rounded-2xl w-full">
-      <div class="overflow-x-auto">
-        <table mat-table [dataSource]="dataSource" class="w-full bg-transparent" matSort>
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-6">
-              {{ 'history.table.status' | transloco }}
-            </th>
-            <td mat-cell *matCellDef="let request" class="pl-6 py-4">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="getStatusColor(request.statusCode)"
-                *ngIf="request.statusCode"
-              >
-                {{ getStatusLabel(request.statusCode) }} ({{ request.statusCode }})
-              </span>
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400"
-                *ngIf="!request.statusCode"
-              >
-                {{ 'history.table.confirmed' | transloco }}
-              </span>
-            </td>
-          </ng-container>
+    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+      <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+        <div
+          class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/80"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-5 py-4 dark:border-gray-800 md:px-6">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-gray-500">
+                {{ mode() === 'credits' ? 'CREDITS' : 'x402' }}
+              </p>
+              <p class="mt-1 text-sm font-medium text-stone-800 dark:text-gray-100">
+                {{ t('history.table.requestsCount', { count: total() }) }}
+              </p>
+            </div>
+            <div class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-500 dark:bg-gray-800 dark:text-gray-400">
+              <span class="h-2 w-2 rounded-full" [class.bg-emerald-400]="!loading()" [class.bg-amber-400]="loading()"></span>
+              {{ loading() ? t('history.table.loading') : t('history.table.live') }}
+            </div>
+          </div>
 
-          <!-- Service Column -->
-          <ng-container matColumnDef="service">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              {{ 'history.table.service' | transloco }}
-            </th>
-            <td mat-cell *matCellDef="let request" class="py-4">
-              <div class="flex flex-col">
-                <span class="font-medium text-slate-900 dark:text-slate-100">{{
-                  request.endpoint || request.code || request.serviceId
-                }}</span>
-                <span class="text-xs text-secondary mt-1">{{ request.project }}</span>
-              </div>
-            </td>
-          </ng-container>
-
-          <!-- Parameters Column -->
-          <ng-container matColumnDef="parameters">
-            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.parameters' | transloco }}</th>
-            <td mat-cell *matCellDef="let request" class="py-4">
-              <div class="flex flex-col gap-1">
-                <span
-                  class="font-mono text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded inline-block w-fit"
-                  >{{ request.method }}</span
-                >
-                <div class="flex flex-col gap-0.5 mt-1" *ngIf="request.params">
-                  <div
-                    *ngFor="let param of formatParams(request.params)"
-                    class="text-xs text-secondary"
+          <div class="overflow-x-auto">
+            <table mat-table [dataSource]="dataSource" class="w-full min-w-[980px] bg-transparent" matSort>
+              <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-6">
+                  {{ t('history.table.status') }}
+                </th>
+                <td mat-cell *matCellDef="let request" class="pl-6 py-5">
+                  <span
+                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                    [ngClass]="getStatusColor(request.statusCode)"
+                    *ngIf="request.statusCode"
                   >
-                    <span class="font-medium text-slate-700 dark:text-slate-300"
-                      >{{ param.key }}:</span
-                    >
-                    <span class="ml-1">{{ param.value }}</span>
-                  </div>
-                </div>
-                <span
-                  *ngIf="!request.params || formatParams(request.params).length === 0"
-                  class="text-xs text-secondary italic"
-                  >{{ 'history.table.noParams' | transloco }}</span
-                >
-              </div>
-            </td>
-          </ng-container>
-
-          <!-- RequestID Column (x402) -->
-          <ng-container matColumnDef="requestId">
-            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.requestId' | transloco }}</th>
-            <td mat-cell *matCellDef="let request" class="py-4 font-mono text-xs">
-              {{ request.requestId }}
-            </td>
-          </ng-container>
-
-          <!-- Amount Column (x402) -->
-          <ng-container matColumnDef="amount">
-            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.amount' | transloco }}</th>
-            <td mat-cell *matCellDef="let request" class="py-4 font-mono text-xs text-green-600">
-              <ng-container *ngIf="mode() === 'x402'">
-                {{ request.paymentAmount || request.cost }}
-                <span class="text-xs text-gray-500">AVAX</span>
+                    {{ getStatusLabel(request.statusCode) }} ({{ request.statusCode }})
+                  </span>
+                  <span
+                    class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    *ngIf="!request.statusCode"
+                  >
+                    {{ t('history.table.confirmed') }}
+                  </span>
+                </td>
               </ng-container>
-              <ng-container *ngIf="mode() !== 'x402'"> $ {{ request.cost }} </ng-container>
-            </td>
-          </ng-container>
 
-          <!-- Transaction Hash Column (x402) -->
-          <ng-container matColumnDef="transactionHash">
-            <th mat-header-cell *matHeaderCellDef>{{ 'history.table.txHash' | transloco }}</th>
-            <td mat-cell *matCellDef="let request" class="py-4">
-              <a
-                [href]="snowtraceUrl + '/tx/' + request.paymentTx"
-                target="_blank"
-                class="text-blue-500 hover:underline font-mono text-xs"
-              >
-                {{ shortHash(request.paymentTx) }}
-              </a>
-              <button mat-icon-button (click)="copyText(request.paymentTx)" class="ml-1 w-6 h-6">
-                <mat-icon class="icon-size-3">content_copy</mat-icon>
-              </button>
-            </td>
-          </ng-container>
+              <ng-container matColumnDef="service">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  {{ t('history.table.service') }}
+                </th>
+                <td mat-cell *matCellDef="let request" class="py-5">
+                  <div class="flex min-w-0 flex-col gap-1">
+                    <span class="max-w-[280px] truncate text-sm font-semibold text-stone-950 dark:text-white">
+                      {{ request.endpoint || request.code || request.serviceId }}
+                    </span>
+                    <span class="max-w-[280px] truncate font-mono text-xs text-stone-400 dark:text-gray-500">
+                      {{ request.code || request.project || request.serviceId }}
+                    </span>
+                  </div>
+                </td>
+              </ng-container>
 
-          <!-- Date Column -->
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              {{ 'history.table.date' | transloco }}
-            </th>
-            <td mat-cell *matCellDef="let request" class="py-4 whitespace-nowrap text-secondary">
-              {{ formatDate(request.createdAt || request.timestamp) }}
-            </td>
-          </ng-container>
+              <ng-container matColumnDef="parameters">
+                <th mat-header-cell *matHeaderCellDef>{{ t('history.table.parameters') }}</th>
+                <td mat-cell *matCellDef="let request" class="py-5">
+                  <div class="flex max-w-[360px] flex-col gap-2">
+                    <span
+                      class="inline-flex w-fit rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-stone-600 dark:bg-gray-800 dark:text-gray-300"
+                    >
+                      {{ request.method || 'GET' }}
+                    </span>
+                    <div class="flex flex-wrap gap-1.5" *ngIf="formatParams(request.params).length > 0">
+                      <span
+                        *ngFor="let param of formatParams(request.params)"
+                        class="max-w-full truncate rounded-lg border border-stone-200 bg-stone-50 px-2 py-1 text-xs text-stone-600 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-300"
+                        [matTooltip]="param.key + ': ' + formatParamValue(param.value)"
+                      >
+                        <span class="font-semibold text-stone-800 dark:text-gray-100">{{ param.key }}:</span>
+                        {{ formatParamValue(param.value) }}
+                      </span>
+                    </div>
+                    <span
+                      *ngIf="formatParams(request.params).length === 0"
+                      class="text-xs italic text-stone-400 dark:text-gray-500"
+                    >
+                      {{ t('history.table.noParams') }}
+                    </span>
+                  </div>
+                </td>
+              </ng-container>
 
-          <!-- Duration Column -->
-          <ng-container matColumnDef="duration">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header class="pr-6">
-              {{ 'history.table.duration' | transloco }}
-            </th>
-            <td mat-cell *matCellDef="let request" class="pr-6 py-4 text-secondary text-right">
-              {{ formatDuration(request.duration) }}
-            </td>
-          </ng-container>
+              <ng-container matColumnDef="amount">
+                <th mat-header-cell *matHeaderCellDef>{{ t('history.table.amount') }}</th>
+                <td mat-cell *matCellDef="let request" class="py-5 font-mono text-xs text-emerald-600 dark:text-emerald-400">
+                  <ng-container *ngIf="mode() === 'x402'">
+                    {{ request.paymentAmount || request.cost || '-' }}
+                    <span class="text-stone-400">AVAX</span>
+                  </ng-container>
+                  <ng-container *ngIf="mode() !== 'x402'"> $ {{ request.cost || 0 }} </ng-container>
+                </td>
+              </ng-container>
 
-          <tr
-            mat-header-row
-            *matHeaderRowDef="displayedColumns"
-            class="h-12 text-xs font-semibold uppercase text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
-          ></tr>
-          <tr
-            mat-row
-            *matRowDef="let row; columns: displayedColumns"
-            class="hover:bg-gray-50 dark:hover:bg-black dark:hover:bg-opacity-5 transition-colors cursor-default"
-          ></tr>
+              <ng-container matColumnDef="transactionHash">
+                <th mat-header-cell *matHeaderCellDef>{{ t('history.table.txHash') }}</th>
+                <td mat-cell *matCellDef="let request" class="py-5">
+                  <div class="flex items-center gap-1" *ngIf="request.paymentTx; else noTransaction">
+                    <a
+                      [href]="snowtraceUrl + '/tx/' + request.paymentTx"
+                      target="_blank"
+                      class="font-mono text-xs font-medium text-blue-600 underline-offset-4 hover:underline dark:text-blue-400"
+                    >
+                      {{ shortHash(request.paymentTx) }}
+                    </a>
+                    <button mat-icon-button type="button" (click)="copyText(request.paymentTx)" class="!h-7 !w-7">
+                      <mat-icon class="icon-size-3">content_copy</mat-icon>
+                    </button>
+                  </div>
+                  <ng-template #noTransaction>
+                    <span class="text-xs text-stone-400">-</span>
+                  </ng-template>
+                </td>
+              </ng-container>
 
-          <!-- No Data -->
-          <tr *matNoDataRow>
-            <td
-              [attr.colspan]="displayedColumns.length"
-              class="p-8 text-center text-secondary text-lg"
-            >
-              <div class="flex flex-col items-center justify-center">
-                <mat-icon
-                  class="icon-size-12 mb-4 text-hint"
-                  [svgIcon]="'heroicons_outline:clipboard-document-list'"
-                ></mat-icon>
-                <span>{{ 'history.table.noRequests' | transloco }}</span>
-              </div>
-            </td>
-          </tr>
-        </table>
+              <ng-container matColumnDef="date">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  {{ t('history.table.date') }}
+                </th>
+                <td mat-cell *matCellDef="let request" class="whitespace-nowrap py-5 text-sm text-stone-500 dark:text-gray-400">
+                  {{ formatDate(request.createdAt || request.timestamp) }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="cost">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  {{ t('history.table.cost') }}
+                </th>
+                <td mat-cell *matCellDef="let request" class="whitespace-nowrap py-5">
+                  <span class="inline-flex rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-gray-200">
+                    {{ formatCost(request.cost) }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="pr-6 text-right">
+                  {{ t('history.table.actions') }}
+                </th>
+                <td mat-cell *matCellDef="let request" class="pr-6 py-5 text-right">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="!rounded-xl"
+                    [disabled]="!canRepeatRequest(request)"
+                    [matTooltip]="canRepeatRequest(request) ? t('history.actions.repeatTooltip') : t('history.actions.repeatUnavailable')"
+                    (click)="repeatRequest(request)"
+                  >
+                    <mat-icon class="mr-1 !h-4 !w-4">replay</mat-icon>
+                    {{ t('history.actions.repeat') }}
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr
+                mat-header-row
+                *matHeaderRowDef="displayedColumns"
+                class="h-12 bg-stone-50 text-xs font-semibold uppercase tracking-[0.12em] text-stone-400 dark:bg-gray-900 dark:text-gray-500"
+              ></tr>
+              <tr
+                mat-row
+                *matRowDef="let row; columns: displayedColumns"
+                class="border-b border-stone-100 transition-colors hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
+              ></tr>
+
+              <tr *matNoDataRow>
+                <td [attr.colspan]="displayedColumns.length" class="px-6 py-16 text-center">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-gray-800">
+                      <mat-icon class="icon-size-7 text-stone-400" svgIcon="heroicons_outline:clipboard-document-list"></mat-icon>
+                    </div>
+                    <span class="text-sm font-medium text-stone-700 dark:text-gray-200">{{ t('history.table.noRequests') }}</span>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <mat-paginator
+            class="border-t border-stone-100 dark:border-gray-800"
+            [length]="total()"
+            [pageSize]="pageSize()"
+            [pageIndex]="pageIndex()"
+            [pageSizeOptions]="[5, 10, 25, 100]"
+            [showFirstLastButtons]="true"
+            (page)="onPaginatorEvent($event)"
+            aria-label="Select page of requests"
+          >
+          </mat-paginator>
+        </div>
       </div>
-
-      <!-- Paginator -->
-      <mat-paginator
-        class="border-t"
-        [length]="total()"
-        [pageSize]="pageSize()"
-        [pageIndex]="pageIndex()"
-        [pageSizeOptions]="[5, 10, 25, 100]"
-        [showFirstLastButtons]="true"
-        (page)="onPaginatorEvent($event)"
-        aria-label="Select page of requests"
-      >
-      </mat-paginator>
-    </div>
+    </main>
   </div>
-</div>
+</ng-container>

@@ -9,7 +9,7 @@ import {
   signal,
   effect,
 } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
@@ -21,6 +21,10 @@ import { DateTime } from 'luxon';
 import { HistoryService, ApiRequest } from './history.service';
 import { AgentWalletService } from '../chat/services/agent-wallet.service';
 import { environment } from '../../../environments/environment';
+import {
+  POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
+  PostmanHistoryPrefillPayload,
+} from '../postman/postman-history-prefill';
 
 @Component({
   selector: 'history',
@@ -33,6 +37,7 @@ import { environment } from '../../../environments/environment';
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
+    RouterLink,
     TranslocoModule,
   ],
   templateUrl: './history.component.html',
@@ -43,7 +48,7 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort: MatSort;
 
   // Key Properties
-  displayedColumns: string[] = ['status', 'service', 'parameters', 'date', 'duration'];
+  displayedColumns: string[] = ['status', 'service', 'parameters', 'date', 'cost'];
   dataSource = new MatTableDataSource<any>([]);
 
   // Inject Services
@@ -70,10 +75,10 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       const allRequests = this.requests();
       if (this.mode() === 'credits') {
         this.dataSource.data = allRequests; // Show all for CREDITS (server filters usually) or filter client-side if mixed
-        this.displayedColumns = ['status', 'service', 'parameters', 'date', 'duration'];
+        this.displayedColumns = ['status', 'service', 'parameters', 'date', 'cost', 'actions'];
       } else {
         this.dataSource.data = allRequests; // Show all from public endpoint (already filtered by wallet)
-        this.displayedColumns = ['service', 'transactionHash', 'amount', 'date'];
+        this.displayedColumns = ['service', 'transactionHash', 'amount', 'date', 'actions'];
       }
     });
   }
@@ -159,8 +164,8 @@ export class HistoryComponent implements OnInit, AfterViewInit {
         const parsed = DateTime.fromISO(String(raw));
         return parsed.isValid ? parsed.toMillis() : new Date(raw).getTime() || 0;
       }
-      case 'duration':
-        return typeof row.duration === 'number' ? row.duration : -1;
+      case 'cost':
+        return Number(row.cost ?? 0) || 0;
       case 'amount':
         return Number(row.paymentAmount ?? row.cost ?? 0) || 0;
       default: {
@@ -201,13 +206,10 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     return 'Failed';
   }
 
-  /**
-   * Format duration
-   */
-  formatDuration(ms: number): string {
-    if (!ms && ms !== 0) return '-';
-    if (ms < 1000) return `${ms}ms`;
-    return `${(ms / 1000).toFixed(2)}s`;
+  formatCost(cost: number | string | undefined | null): string {
+    const value = Number(cost);
+    if (!Number.isFinite(value)) return '-';
+    return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} credits`;
   }
 
   /**
@@ -222,6 +224,43 @@ export class HistoryComponent implements OnInit, AfterViewInit {
       .map((key) => ({ key, value: params[key] }));
 
     return filteredParams;
+  }
+
+  formatParamValue(value: any): string {
+    const text = typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value);
+    return text.length > 72 ? `${text.substring(0, 69)}...` : text;
+  }
+
+  canRepeatRequest(request: ApiRequest): boolean {
+    return !!request?.code;
+  }
+
+  repeatRequest(request: ApiRequest) {
+    if (!this.canRepeatRequest(request)) return;
+
+    const payload: PostmanHistoryPrefillPayload = {
+      v: 1,
+      source: 'history',
+      code: request.code,
+      paramValues: this.buildRepeatParams(request.params),
+      paymentMode: this.mode(),
+      method: request.method,
+      requestId: request._id,
+    };
+
+    sessionStorage.setItem(POSTMAN_HISTORY_PREFILL_STORAGE_KEY, JSON.stringify(payload));
+    this._router.navigate(['/postman'], { queryParams: { code: request.code } });
+  }
+
+  private buildRepeatParams(params: any): Record<string, unknown> {
+    if (!params || typeof params !== 'object') return {};
+
+    return Object.keys(params).reduce<Record<string, unknown>>((acc, key) => {
+      if (!key.startsWith('_')) {
+        acc[key] = params[key];
+      }
+      return acc;
+    }, {});
   }
 
   /**

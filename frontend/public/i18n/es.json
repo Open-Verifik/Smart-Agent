@@ -1867,7 +1867,18 @@
       "duration": "Duración",
       "noRequests": "No se encontraron solicitudes",
       "noParams": "Sin parámetros",
-      "confirmed": "Confirmado"
+      "confirmed": "Confirmado",
+      "actions": "Acciones",
+      "requestsCount": "{{count}} solicitudes totales",
+      "loading": "Cargando",
+      "live": "En vivo",
+      "cost": "Costo"
+    },
+    "subtitle": "Audita llamadas de API, revisa los parámetros y repite validaciones sin reconstruir la solicitud.",
+    "actions": {
+      "repeat": "Repetir",
+      "repeatTooltip": "Abrir esta solicitud en Postman con los mismos parámetros",
+      "repeatUnavailable": "Esta solicitud no se puede repetir porque no tiene código de feature"
     }
   },
   "addCredits": {

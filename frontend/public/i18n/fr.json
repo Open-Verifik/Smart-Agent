@@ -1867,7 +1867,18 @@
       "duration": "Durée",
       "noRequests": "Aucune requête trouvée",
       "noParams": "Aucun paramètre",
-      "confirmed": "Confirmé"
+      "confirmed": "Confirmé",
+      "actions": "Actions",
+      "requestsCount": "{{count}} requêtes au total",
+      "loading": "Chargement",
+      "live": "En direct",
+      "cost": "Coût"
+    },
+    "subtitle": "Auditez les appels API, inspectez les paramètres et relancez les validations sans reconstruire la requête.",
+    "actions": {
+      "repeat": "Relancer",
+      "repeatTooltip": "Ouvrir cette requête dans Postman avec les mêmes paramètres",
+      "repeatUnavailable": "Cette requête ne peut pas être relancée car elle n’a pas de code de fonctionnalité"
     }
   },
   "addCredits": {

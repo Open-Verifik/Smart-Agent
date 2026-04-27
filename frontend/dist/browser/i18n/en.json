@@ -1867,7 +1867,18 @@
       "duration": "Duration",
       "noRequests": "No requests found",
       "noParams": "No parameters",
-      "confirmed": "Confirmed"
+      "confirmed": "Confirmed",
+      "actions": "Actions",
+      "requestsCount": "{{count}} total requests",
+      "loading": "Loading",
+      "live": "Live",
+      "cost": "Cost"
+    },
+    "subtitle": "Audit API calls, inspect request payloads, and replay validations without rebuilding the request.",
+    "actions": {
+      "repeat": "Repeat",
+      "repeatTooltip": "Open this request in Postman with the same parameters",
+      "repeatUnavailable": "This request cannot be replayed because it has no feature code"
     }
   },
   "addCredits": {

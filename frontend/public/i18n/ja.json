@@ -1860,7 +1860,18 @@
       "duration": "所要時間",
       "noRequests": "リクエストが見つかりません",
       "noParams": "パラメータなし",
-      "confirmed": "確認済み"
+      "confirmed": "確認済み",
+      "actions": "アクション",
+      "requestsCount": "合計 {{count}} 件のリクエスト",
+      "loading": "読み込み中",
+      "live": "ライブ",
+      "cost": "コスト"
+    },
+    "subtitle": "API 呼び出しを監査し、リクエスト値を確認して、作り直さずに検証を再実行できます。",
+    "actions": {
+      "repeat": "再実行",
+      "repeatTooltip": "同じパラメータでこのリクエストを Postman で開く",
+      "repeatUnavailable": "機能コードがないため、このリクエストは再実行できません"
     }
   },
   "addCredits": {

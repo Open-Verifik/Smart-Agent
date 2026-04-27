@@ -1860,7 +1860,18 @@
       "duration": "时长",
       "noRequests": "未找到请求",
       "noParams": "无参数",
-      "confirmed": "已确认"
+      "confirmed": "已确认",
+      "actions": "操作",
+      "requestsCount": "共 {{count}} 个请求",
+      "loading": "加载中",
+      "live": "实时",
+      "cost": "费用"
+    },
+    "subtitle": "审计 API 调用、检查请求参数，并在无需重建请求的情况下重复验证。",
+    "actions": {
+      "repeat": "重复",
+      "repeatTooltip": "使用相同参数在 Postman 中打开此请求",
+      "repeatUnavailable": "此请求没有功能代码，无法重复执行"
     }
   },
   "addCredits": {

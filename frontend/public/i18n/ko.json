@@ -1860,7 +1860,18 @@
       "duration": "소요 시간",
       "noRequests": "요청을 찾을 수 없습니다",
       "noParams": "매개변수 없음",
-      "confirmed": "확인됨"
+      "confirmed": "확인됨",
+      "actions": "작업",
+      "requestsCount": "총 {{count}}개 요청",
+      "loading": "불러오는 중",
+      "live": "실시간",
+      "cost": "비용"
+    },
+    "subtitle": "API 호출을 감사하고 요청 값을 확인한 뒤 요청을 다시 만들지 않고 검증을 반복하세요.",
+    "actions": {
+      "repeat": "반복",
+      "repeatTooltip": "같은 매개변수로 이 요청을 Postman에서 열기",
+      "repeatUnavailable": "기능 코드가 없어 이 요청을 반복할 수 없습니다"
     }
   },
   "addCredits": {

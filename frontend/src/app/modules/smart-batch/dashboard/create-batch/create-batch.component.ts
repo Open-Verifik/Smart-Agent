@@ -18,6 +18,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
+import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
+import * as XLSX from 'xlsx';
 import { BatchConfiguration, SmartBatchService } from '../../smart-batch.service';
 import { TutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
@@ -363,10 +365,8 @@ export class CreateBatchComponent implements OnInit {
             this.parseCSV(file);
         } else if (extension === 'jsonl') {
             this.parseJSONL(file);
-        } else if (extension === 'xlsx') {
-            this.parseError.set(
-                'XLSX parsing requires a library. Please use CSV or JSONL for now.'
-            );
+        } else if (extension === 'xlsx' || extension === 'xls') {
+            this.parseXLSX(file);
         } else {
             this.parseError.set(`Unsupported file format: .${extension}`);
         }
@@ -385,13 +385,16 @@ export class CreateBatchComponent implements OnInit {
                 }
 
                 const headers = this.parseCSVLine(lines[0]);
-                this.previewColumns.set(headers);
+                if (!headers.some((h) => h.trim())) {
+                    this.parseError.set('CSV header row is empty or invalid.');
+                    return;
+                }
 
-                const rows: any[] = [];
+                const rows: Record<string, unknown>[] = [];
                 for (let i = 1; i < lines.length; i++) {
                     const values = this.parseCSVLine(lines[i]);
                     if (values.length === headers.length) {
-                        const row: any = {};
+                        const row: Record<string, unknown> = {};
                         headers.forEach((header, idx) => {
                             row[header] = values[idx];
                         });
@@ -399,15 +402,94 @@ export class CreateBatchComponent implements OnInit {
                     }
                 }
 
-                this.parsedRows.set(rows);
+                const { fieldOrder, rows: sanitized } = sanitizePapaObjectRows(rows, headers);
+                if (sanitized.length === 0) {
+                    this.parseError.set(
+                        'CSV has no data rows. Remove leading or trailing empty rows, or fill in at least one row.'
+                    );
+                    this.previewColumns.set(fieldOrder);
+                    this.parsedRows.set([]);
+                    this.validationResult.set(null);
+                    return;
+                }
+                this.previewColumns.set(fieldOrder);
+                this.parsedRows.set(sanitized);
 
                 // Validate all data (headers + row values)
-                this.validateAllData(headers, rows);
+                this.validateAllData(fieldOrder, sanitized);
             } catch (err) {
                 this.parseError.set('Failed to parse CSV file.');
             }
         };
         reader.readAsText(file);
+    }
+
+    /**
+     * Parse first worksheet from Excel; trimming empty leading/trailing rows and columns
+     * and fully empty data rows is handled by shared spreadsheet sanitizers.
+     */
+    private parseXLSX(file: File): void {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const result = e.target?.result;
+                if (!result || !(result instanceof ArrayBuffer)) {
+                    this.parseError.set('Failed to read Excel file.');
+                    return;
+                }
+                const workbook = XLSX.read(result, { type: 'array' });
+                const firstSheet = workbook.SheetNames[0];
+                if (!firstSheet) {
+                    this.parseError.set('The workbook has no sheets.');
+                    return;
+                }
+                const sheet = workbook.Sheets[firstSheet];
+                const matrix = XLSX.utils.sheet_to_json(sheet, {
+                    header: 1,
+                    defval: '',
+                }) as unknown[][];
+                const { rows: grid } = sanitizeMatrix(matrix);
+                if (grid.length < 2) {
+                    this.parseError.set('Excel must have a header row and at least one data row.');
+                    this.previewColumns.set([]);
+                    this.parsedRows.set([]);
+                    this.validationResult.set(null);
+                    return;
+                }
+                const headerRow = grid[0].map((c) => String(c ?? '').trim());
+                if (!headerRow.some((h) => h)) {
+                    this.parseError.set('Excel header row is empty or invalid.');
+                    this.previewColumns.set([]);
+                    this.parsedRows.set([]);
+                    this.validationResult.set(null);
+                    return;
+                }
+                const dataRows = grid.slice(1);
+                const objects: Record<string, unknown>[] = dataRows.map((cells) => {
+                    const row: Record<string, unknown> = {};
+                    headerRow.forEach((field, index) => {
+                        if (field) row[field] = (cells as unknown[])[index] ?? '';
+                    });
+                    return row;
+                });
+                const { fieldOrder, rows: sanitized } = sanitizePapaObjectRows(objects, headerRow);
+                if (sanitized.length === 0) {
+                    this.parseError.set(
+                        'Excel has no data rows. Remove empty rows or fill in at least one data row.'
+                    );
+                    this.previewColumns.set(fieldOrder);
+                    this.parsedRows.set([]);
+                    this.validationResult.set(null);
+                    return;
+                }
+                this.previewColumns.set(fieldOrder);
+                this.parsedRows.set(sanitized);
+                this.validateAllData(fieldOrder, sanitized);
+            } catch {
+                this.parseError.set('Failed to parse Excel file.');
+            }
+        };
+        reader.readAsArrayBuffer(file);
     }
 
     parseCSVLine(line: string): string[] {
@@ -444,20 +526,30 @@ export class CreateBatchComponent implements OnInit {
                     return;
                 }
 
-                const rows: any[] = [];
+                const rows: Record<string, unknown>[] = [];
                 const allKeys = new Set<string>();
 
                 for (const line of lines) {
-                    const obj = JSON.parse(line);
+                    const obj = JSON.parse(line) as Record<string, unknown>;
                     rows.push(obj);
                     Object.keys(obj).forEach((key) => allKeys.add(key));
                 }
 
-                this.previewColumns.set(Array.from(allKeys));
-                this.parsedRows.set(rows);
+                const keyOrder = Array.from(allKeys);
+                const { fieldOrder, rows: sanitized } = sanitizePapaObjectRows(rows, keyOrder);
+                if (sanitized.length === 0) {
+                    this.parseError.set(
+                        'JSONL has no data rows. Remove empty lines or provide at least one object with at least one value.'
+                    );
+                    this.previewColumns.set(fieldOrder);
+                    this.parsedRows.set([]);
+                    this.validationResult.set(null);
+                    return;
+                }
+                this.previewColumns.set(fieldOrder);
+                this.parsedRows.set(sanitized);
 
-                // Validate all data (headers + row values)
-                this.validateAllData(Array.from(allKeys), rows);
+                this.validateAllData(fieldOrder, sanitized);
             } catch (err) {
                 this.parseError.set('Failed to parse JSONL file. Ensure each line is valid JSON.');
             }
