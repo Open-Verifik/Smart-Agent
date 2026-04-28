@@ -763,6 +763,41 @@
                                         'batchProcessing.json' | transloco
                                     }}</mat-button-toggle>
                                 </mat-button-toggle-group>
+                                @if (selectedRow() && hasPendingSteps(selectedRow()!)) {
+                                    <button
+                                        mat-stroked-button
+                                        class="!rounded-lg !border-indigo-300 !text-indigo-700"
+                                        (click)="continuePendingSteps(selectedRow()!)"
+                                        [disabled]="isContinuingRow(selectedRow()!)"
+                                        [matTooltip]="
+                                            'batchProcessing.continuePendingStepsHint'
+                                                | transloco
+                                                    : {
+                                                          count: getPendingStepCount(selectedRow()!),
+                                                      }
+                                        "
+                                    >
+                                        <span class="inline-flex items-center gap-2">
+                                            @if (isContinuingRow(selectedRow()!)) {
+                                                <mat-icon class="animate-spin icon-size-4"
+                                                    >refresh</mat-icon
+                                                >
+                                                {{ 'batchProcessing.continuing' | transloco }}
+                                            } @else {
+                                                <mat-icon class="icon-size-4">play_arrow</mat-icon>
+                                                {{
+                                                    'batchProcessing.continuePendingSteps'
+                                                        | transloco
+                                                            : {
+                                                                  count: getPendingStepCount(
+                                                                      selectedRow()!
+                                                                  ),
+                                                              }
+                                                }}
+                                            }
+                                        </span>
+                                    </button>
+                                }
                                 @if (selectedRow()?.status === 'completed') {
                                     <button
                                         mat-flat-button

@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule } from '@jsverse/transloco';
@@ -26,13 +27,18 @@ import {
     AppFeature,
     BatchConfiguration,
     BatchStep,
+    getEffectiveSmartBatchSuccessWhen,
     SmartBatch,
     SmartBatchRow,
     SmartBatchRowStatus,
     SmartBatchService,
+    SmartBatchSuccessWhenRule,
 } from '../../smart-batch.service';
 
 type RowFilter = 'all' | 'completed' | 'failed' | 'partial';
+type StepExecutionResult =
+    | { sequence: number; result: any }
+    | { sequence: number; error: { step: number; message: string; code: string } };
 
 @Component({
     selector: 'batch-processing',
@@ -72,6 +78,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     isProcessing = signal(false);
     isStarting = signal(false);
     retryingStepKey = signal<string | null>(null);
+    continuingRowIndex = signal<number | null>(null);
 
     // Current processing state
     currentRowIndex = signal<number | null>(null);
@@ -274,62 +281,211 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         const batchId = this.batchId();
         if (!batchId) return;
 
-        const results: Record<number, any> = {};
-        const errors: { step: number; message: string; code: string }[] = [];
+        const enabledSequences = steps.map((step) => step.sequence);
+        const initialResults = { ...(row.results || {}) };
+        const initialErrors = [...(row.errors || [])];
+        const stepsToRun = this._getRunnableSteps(steps, initialResults, initialErrors);
 
-        for (const step of steps) {
+        await this._runSteps(row, stepsToRun, initialResults, initialErrors, {
+            batchId,
+            enabledSequences,
+            persistProgress: true,
+        });
+    }
+
+    /**
+     * Persists row snapshot to the API and refreshes local batch + selected row (live UI).
+     * @param isFinal When false, row status is `processing`; when true, uses derived terminal outcome.
+     */
+    private async _persistRowProgress(
+        batchId: string,
+        rowIndex: number,
+        results: Record<number, any>,
+        errors: { step: number; message: string; code: string }[],
+        enabledSequences: number[],
+        isFinal: boolean
+    ): Promise<void> {
+        const status: SmartBatchRowStatus = isFinal
+            ? this._deriveRowOutcome(results, errors, enabledSequences)
+            : 'processing';
+
+        const updatedBatch = await firstValueFrom(
+            this._smartBatchService.updateBatchRow(batchId, rowIndex, {
+                status,
+                results,
+                errors,
+            })
+        );
+        this.batch.set(updatedBatch.data);
+        const sel = this.selectedRow();
+        if (sel?.rowIndex === rowIndex) {
+            const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === rowIndex);
+            if (updatedRow) {
+                this.selectedRow.set(updatedRow);
+            }
+        }
+    }
+
+    private async _runSteps(
+        row: SmartBatchRow,
+        steps: BatchStep[],
+        initialResults: Record<number, any>,
+        initialErrors: { step: number; message: string; code: string }[],
+        persist?: {
+            batchId: string;
+            enabledSequences: number[];
+            persistProgress: boolean;
+        }
+    ): Promise<{
+        results: Record<number, any>;
+        errors: { step: number; message: string; code: string }[];
+    }> {
+        const results = { ...initialResults };
+        let errors = [...initialErrors];
+        const doPersist = persist?.persistProgress && !!persist.batchId;
+
+        for (let i = 0; i < steps.length; i++) {
             if (this._processingAborted) break;
 
+            const step = steps[i];
+            this.currentRowIndex.set(row.rowIndex);
             this.currentStepIndex.set(step.sequence);
 
-            try {
-                // Build params from inputData + step config (no previous results merging)
-                const params = this._buildStepParams(row.inputData, step);
+            const outcome = await this._executeStep(row, step);
+            if ('result' in outcome) {
+                results[step.sequence] = outcome.result;
+                errors = this._withoutStepError(errors, step.sequence);
+            } else {
+                delete results[step.sequence];
+                errors = this._replaceStepError(errors, outcome.error);
+            }
 
-                // Get the appFeature details
-                const feature = step.appFeature as AppFeature;
-                const featureUrl = feature?.url;
-                const featureMethod = feature?.method || 'GET';
-
-                if (!featureUrl) {
-                    throw new Error(`Step ${step.sequence} has no URL configured`);
+            if (doPersist && persist) {
+                const isLast = i === steps.length - 1;
+                try {
+                    await this._persistRowProgress(
+                        persist.batchId,
+                        row.rowIndex,
+                        results,
+                        errors,
+                        persist.enabledSequences,
+                        isLast
+                    );
+                } catch (err) {
+                    console.error(`Failed to persist row ${row.rowIndex} after step ${step.sequence}:`, err);
                 }
-
-                // Make the API call from the frontend with user's JWT
-                const response = await firstValueFrom(
-                    this._smartBatchService.executeFeatureRequest(featureUrl, featureMethod, params)
-                );
-
-                // Store result keyed by step sequence
-                results[step.sequence] = response.data;
-            } catch (err: any) {
-                console.error(`Step ${step.sequence} failed for row ${row.rowIndex}:`, err);
-                errors.push({
-                    step: step.sequence,
-                    message: err?.error?.message || err?.message || 'Step execution failed',
-                    code: err?.error?.code || 'STEP_ERROR',
-                });
-
             }
         }
 
-        if (this._processingAborted) return;
+        return { results, errors };
+    }
 
-        const status = this._deriveRowOutcome(results, errors, steps.map((step) => step.sequence));
+    private async _executeStep(row: SmartBatchRow, step: BatchStep): Promise<StepExecutionResult> {
+        const params = this._buildStepParams(row.inputData, step);
+        const feature = step.appFeature as AppFeature;
 
-        // Update the row in backend
         try {
-            const updatedBatch = await firstValueFrom(
-                this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                    status,
-                    results,
-                    errors,
-                })
+            const featureUrl = feature?.url;
+            const featureMethod = feature?.method || 'GET';
+
+            if (!featureUrl) {
+                throw new Error(`Step ${step.sequence} has no URL configured`);
+            }
+
+            const response = await firstValueFrom(
+                this._smartBatchService.executeFeatureRequest(featureUrl, featureMethod, params)
             );
-            this.batch.set(updatedBatch.data);
-        } catch (err) {
-            console.error(`Failed to update row ${row.rowIndex}:`, err);
+
+            return { sequence: step.sequence, result: response.data };
+        } catch (err: unknown) {
+            if (
+                err instanceof HttpErrorResponse &&
+                this._matchesSmartBatchSuccessWhen(feature, err.status, this._httpErrorBodyCode(err))
+            ) {
+                return {
+                    sequence: step.sequence,
+                    result: this._normalizeSmartBatchBenignResult(feature, params, err),
+                };
+            }
+
+            const anyErr = err as { error?: { message?: string; code?: string }; message?: string };
+            console.error(`Step ${step.sequence} failed for row ${row.rowIndex}:`, err);
+            return {
+                sequence: step.sequence,
+                error: {
+                    step: step.sequence,
+                    message: anyErr?.error?.message || anyErr?.message || 'Step execution failed',
+                    code: anyErr?.error?.code || 'STEP_ERROR',
+                },
+            };
         }
+    }
+
+    private _httpErrorBodyCode(err: HttpErrorResponse): string | undefined {
+        const body = err.error;
+        if (body && typeof body === 'object' && 'code' in body) {
+            const c = (body as { code?: unknown }).code;
+            return c != null ? String(c) : undefined;
+        }
+        return undefined;
+    }
+
+    private _matchesSmartBatchSuccessWhen(
+        feature: AppFeature,
+        httpStatus: number,
+        responseCode: string | undefined
+    ): boolean {
+        const rules = getEffectiveSmartBatchSuccessWhen(feature);
+        if (!rules?.length) return false;
+
+        return rules.some((rule: SmartBatchSuccessWhenRule) => {
+            if (rule.httpStatus !== httpStatus) return false;
+            const codes = rule.responseCodes;
+            if (codes?.length) {
+                return responseCode != null && codes.includes(responseCode);
+            }
+            return true;
+        });
+    }
+
+    /**
+     * Normalized payload stored as step result when an HTTP error is treated as success (matches API "no record" shapes).
+     */
+    private _normalizeSmartBatchBenignResult(
+        feature: AppFeature,
+        params: Record<string, unknown>,
+        err: HttpErrorResponse
+    ): unknown {
+        const meta = {
+            smartBatchInterpretation: 'no_record',
+            benignHttpStatus: err.status,
+        };
+
+        if (feature.code === 'colombia_pep_lookup') {
+            return {
+                documentType: params.documentType,
+                documentNumber: params.documentNumber,
+                detail: [],
+                ...meta,
+            };
+        }
+
+        if (feature.code === 'api_colombia_contracts') {
+            return {
+                documentType: params.documentType,
+                documentNumber: params.documentNumber,
+                contractor: [],
+                contracts: [],
+                ...meta,
+            };
+        }
+
+        const out: Record<string, unknown> = { ...meta };
+        for (const dep of feature.dependencies || []) {
+            const f = dep.field;
+            if (f && params[f] !== undefined) out[f] = params[f];
+        }
+        return out;
     }
 
     /**
@@ -371,60 +527,124 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const feature = step.appFeature as AppFeature;
-        const featureUrl = feature?.url;
-        const featureMethod = feature?.method || 'GET';
         const retryKey = this._getRetryKey(row, step);
-
-        if (!featureUrl) return;
+        const enabledSequences = this.configSteps().map((configStep) => configStep.sequence);
 
         this.retryingStepKey.set(retryKey);
+        this.currentRowIndex.set(row.rowIndex);
+        this.currentStepIndex.set(step.sequence);
 
         const results = { ...(row.results || {}) };
-        let errors = this._withoutStepError(row.errors || [], step.sequence);
+        let errors = [...(row.errors || [])];
+        const retryOutcome = await this._executeStep(row, step);
 
         try {
-            const params = this._buildStepParams(row.inputData, step);
-            const response = await firstValueFrom(
-                this._smartBatchService.executeFeatureRequest(featureUrl, featureMethod, params)
-            );
+            if ('result' in retryOutcome) {
+                results[step.sequence] = retryOutcome.result;
+                errors = this._withoutStepError(errors, step.sequence);
+                const remainingSteps = this.configSteps().filter(
+                    (configStep) =>
+                        configStep.sequence > step.sequence &&
+                        !this._hasStepResult(results, configStep.sequence) &&
+                        !this.getStepError({ ...row, errors }, configStep.sequence)
+                );
 
-            results[step.sequence] = response.data;
-        } catch (err: any) {
-            delete results[step.sequence];
-            errors = [
-                ...errors,
-                {
-                    step: step.sequence,
-                    message: err?.error?.message || err?.message || 'Step execution failed',
-                    code: err?.error?.code || 'STEP_ERROR',
-                },
-            ];
-        }
+                if (remainingSteps.length === 0) {
+                    const status = this._deriveRowOutcome(results, errors, enabledSequences);
+                    try {
+                        const updatedBatch = await firstValueFrom(
+                            this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
+                                status,
+                                results,
+                                errors,
+                            })
+                        );
+                        this.batch.set(updatedBatch.data);
+                        const updatedRow = updatedBatch.data.rows.find(
+                            (item) => item.rowIndex === row.rowIndex
+                        );
+                        if (updatedRow) {
+                            this.selectedRow.set(updatedRow);
+                        }
+                    } catch (err) {
+                        console.error(`Failed to update row ${row.rowIndex}:`, err);
+                    }
+                } else {
+                    try {
+                        await this._persistRowProgress(
+                            batchId,
+                            row.rowIndex,
+                            results,
+                            errors,
+                            enabledSequences,
+                            false
+                        );
+                    } catch (err) {
+                        console.error(`Failed to persist row ${row.rowIndex} after retry:`, err);
+                    }
 
-        const status = this._deriveRowOutcome(
-            results,
-            errors,
-            this.configSteps().map((configStep) => configStep.sequence)
-        );
+                    const resumed = await this._runSteps(row, remainingSteps, results, errors, {
+                        batchId,
+                        enabledSequences,
+                        persistProgress: true,
+                    });
+                    Object.assign(results, resumed.results);
+                    errors = resumed.errors;
+                }
+            } else {
+                delete results[step.sequence];
+                errors = this._replaceStepError(errors, retryOutcome.error);
 
-        try {
-            const updatedBatch = await firstValueFrom(
-                this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                    status,
-                    results,
-                    errors,
-                })
-            );
-            this.batch.set(updatedBatch.data);
-            const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === row.rowIndex);
-            if (updatedRow) {
-                this.selectedRow.set(updatedRow);
+                const status = this._deriveRowOutcome(results, errors, enabledSequences);
+                const updatedBatch = await firstValueFrom(
+                    this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
+                        status,
+                        results,
+                        errors,
+                    })
+                );
+                this.batch.set(updatedBatch.data);
+                const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === row.rowIndex);
+                if (updatedRow) {
+                    this.selectedRow.set(updatedRow);
+                }
             }
         } catch (err) {
             console.error(`Failed to retry step ${step.sequence} for row ${row.rowIndex}:`, err);
         } finally {
             this.retryingStepKey.set(null);
+            this.currentRowIndex.set(null);
+            this.currentStepIndex.set(null);
+        }
+    }
+
+    async continuePendingSteps(row: SmartBatchRow): Promise<void> {
+        const batchId = this.batchId();
+        if (!batchId || this.isProcessing() || this.isContinuingRow(row)) return;
+
+        const steps = this.configSteps();
+        const enabledSequences = steps.map((configStep) => configStep.sequence);
+        const initialResults = { ...(row.results || {}) };
+        const initialErrors = [...(row.errors || [])];
+        const stepsToRun = this._getRunnableSteps(steps, initialResults, initialErrors);
+
+        if (stepsToRun.length === 0) return;
+
+        this.continuingRowIndex.set(row.rowIndex);
+        this.currentRowIndex.set(row.rowIndex);
+
+        try {
+            await this._runSteps(row, stepsToRun, initialResults, initialErrors, {
+                batchId,
+                enabledSequences,
+                persistProgress: true,
+            });
+        } catch (err) {
+            console.error(`Failed to continue row ${row.rowIndex}:`, err);
+        } finally {
+            this.continuingRowIndex.set(null);
+            this.currentRowIndex.set(null);
+            this.currentStepIndex.set(null);
         }
     }
 
@@ -593,13 +813,11 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     getRowStepStatus(row: SmartBatchRow, stepSequence: number): 'pending' | 'completed' | 'failed' {
-        // Check if currently processing this step
         if (
-            this.isProcessing() &&
             this.currentRowIndex() === row.rowIndex &&
             this.currentStepIndex() === stepSequence
         ) {
-            return 'pending'; // Show as in-progress
+            return 'pending';
         }
 
         if (!row.results || typeof row.results !== 'object') {
@@ -609,8 +827,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             return 'pending';
         }
 
-        const stepResult = row.results[stepSequence];
-        if (stepResult === null || stepResult === undefined) {
+        if (!this._hasStepResult(row.results, stepSequence)) {
             const stepError = row.errors?.find((e) => e.step === stepSequence);
             if (stepError) return 'failed';
             return 'pending';
@@ -622,8 +839,20 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return row.errors?.find((error) => error.step === stepSequence);
     }
 
+    hasPendingSteps(row: SmartBatchRow): boolean {
+        return this.getPendingStepCount(row) > 0;
+    }
+
+    getPendingStepCount(row: SmartBatchRow): number {
+        return this._getRunnableSteps(this.configSteps(), row.results || {}, row.errors || []).length;
+    }
+
     isRetryingStep(row: SmartBatchRow, step: BatchStep): boolean {
         return this.retryingStepKey() === this._getRetryKey(row, step);
+    }
+
+    isContinuingRow(row: SmartBatchRow): boolean {
+        return this.continuingRowIndex() === row.rowIndex;
     }
 
     private _deriveRowOutcome(
@@ -631,11 +860,11 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         errors: { step: number; message: string; code: string }[],
         enabledSequences: number[]
     ): SmartBatchRowStatus {
-        const completedSteps = enabledSequences.filter(
-            (sequence) => results?.[sequence] !== undefined && results?.[sequence] !== null
+        const completedSteps = enabledSequences.filter((sequence) =>
+            this._hasStepResult(results, sequence)
         ).length;
 
-        if (errors.length === 0) return 'completed';
+        if (completedSteps === enabledSequences.length && errors.length === 0) return 'completed';
         if (completedSteps === 0) return 'failed';
         return 'partial';
     }
@@ -645,6 +874,29 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         stepSequence: number
     ): { step: number; message: string; code: string }[] {
         return errors.filter((error) => error.step !== stepSequence);
+    }
+
+    private _replaceStepError(
+        errors: { step: number; message: string; code: string }[],
+        error: { step: number; message: string; code: string }
+    ): { step: number; message: string; code: string }[] {
+        return [...this._withoutStepError(errors, error.step), error];
+    }
+
+    private _getRunnableSteps(
+        steps: BatchStep[],
+        results: Record<number, any>,
+        errors: { step: number; message: string; code: string }[]
+    ): BatchStep[] {
+        return steps.filter(
+            (step) =>
+                !this._hasStepResult(results, step.sequence) &&
+                !errors.some((error) => error.step === step.sequence)
+        );
+    }
+
+    private _hasStepResult(results: Record<number, any> | null | undefined, stepSequence: number): boolean {
+        return results?.[stepSequence] !== undefined && results?.[stepSequence] !== null;
     }
 
     private _getRetryKey(row: SmartBatchRow, step: BatchStep): string {

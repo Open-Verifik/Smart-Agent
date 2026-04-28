@@ -1167,7 +1167,10 @@
     "continueOnFailureTitle": "エンドポイントが失敗してもバッチは継続します",
     "continueOnFailureBody": "各エンドポイントは独立して試行されます。1つのチェックが失敗しても残りのチェックは実行され、失敗したステップだけ再試行できるように行は一部完了として表示されます。",
     "retryStep": "再試行",
-    "retrying": "再試行中..."
+    "retrying": "再試行中...",
+    "continuePendingSteps": "保留中 {{count}} 件を続行",
+    "continuing": "続行中...",
+    "continuePendingStepsHint": "完了済みのチェックはスキップし、保留中の {{count}} 件のみ実行します。"
   },
   "batchDashboard": {
     "backToSmartBatch": "Smart Batchに戻る",

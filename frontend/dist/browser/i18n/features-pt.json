@@ -1167,7 +1167,10 @@
     "continueOnFailureTitle": "O lote continua quando um endpoint falha",
     "continueOnFailureBody": "Cada endpoint é tentado de forma independente. Se uma verificação falhar, as demais continuam e a linha fica parcial para tentar novamente apenas as etapas com falha.",
     "retryStep": "Tentar novamente",
-    "retrying": "Tentando novamente..."
+    "retrying": "Tentando novamente...",
+    "continuePendingSteps": "Continuar {{count}} pendentes",
+    "continuing": "Continuando...",
+    "continuePendingStepsHint": "Executa {{count}} verificações pendentes e ignora as concluídas."
   },
   "batchDashboard": {
     "backToSmartBatch": "Voltar ao Smart Batch",

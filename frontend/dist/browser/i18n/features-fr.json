@@ -1167,7 +1167,10 @@
     "continueOnFailureTitle": "Le lot continue quand un endpoint échoue",
     "continueOnFailureBody": "Chaque endpoint est tenté indépendamment. Si une vérification échoue, les autres continuent et la ligne est marquée partielle afin de réessayer uniquement les étapes échouées.",
     "retryStep": "Réessayer",
-    "retrying": "Nouvelle tentative..."
+    "retrying": "Nouvelle tentative...",
+    "continuePendingSteps": "Continuer {{count}} en attente",
+    "continuing": "Continuation...",
+    "continuePendingStepsHint": "Exécute {{count}} vérifications en attente et ignore celles terminées."
   },
   "batchDashboard": {
     "backToSmartBatch": "Retour à Smart Batch",

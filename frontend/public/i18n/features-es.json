@@ -1187,7 +1187,10 @@
     "continueOnFailureTitle": "El lote continúa cuando falla un endpoint",
     "continueOnFailureBody": "Cada endpoint se intenta de forma independiente. Si una consulta falla, las demás siguen ejecutándose y la fila queda como parcial para reintentar solo los pasos fallidos.",
     "retryStep": "Reintentar",
-    "retrying": "Reintentando..."
+    "retrying": "Reintentando...",
+    "continuePendingSteps": "Continuar {{count}} pendientes",
+    "continuing": "Continuando...",
+    "continuePendingStepsHint": "Ejecuta {{count}} verificaciones pendientes y omite las completadas."
   },
   "batchDashboard": {
     "backToSmartBatch": "Volver a Smart Batch",

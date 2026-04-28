@@ -1187,7 +1187,10 @@
     "continueOnFailureTitle": "Batch continues when an endpoint fails",
     "continueOnFailureBody": "Each endpoint is attempted independently. If one check fails, the remaining checks still run and the row is marked partial so you can retry only the failed steps.",
     "retryStep": "Retry",
-    "retrying": "Retrying..."
+    "retrying": "Retrying...",
+    "continuePendingSteps": "Continue {{count}} pending",
+    "continuing": "Continuing...",
+    "continuePendingStepsHint": "Runs {{count}} pending checks and skips completed checks."
   },
   "batchDashboard": {
     "backToSmartBatch": "Back to Smart Batch",

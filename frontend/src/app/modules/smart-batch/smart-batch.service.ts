@@ -5,6 +5,29 @@ import { tap } from 'rxjs';
 
 export type SmartBatchRowStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'partial';
 
+/** Smart Batch: treat matching HTTP responses as a successful step (e.g. 404 NotFound = no record). */
+export interface SmartBatchSuccessWhenRule {
+    httpStatus: number;
+    /** If set and non-empty, `err.error.code` must match one of these. */
+    responseCodes?: string[];
+}
+
+/**
+ * Pilot features: same rules as seeds in verifik `app-features-final.json`. Used when `smartBatchSuccessWhen`
+ * is not yet present on the AppFeature document (e.g. before DB sync).
+ */
+const SMART_BATCH_SUCCESS_WHEN_FALLBACK: Record<string, SmartBatchSuccessWhenRule[]> = {
+    colombia_pep_lookup: [{ httpStatus: 404, responseCodes: ['NotFound'] }],
+    api_colombia_contracts: [{ httpStatus: 404, responseCodes: ['NotFound'] }],
+};
+
+export const getEffectiveSmartBatchSuccessWhen = (
+    feature: AppFeature
+): SmartBatchSuccessWhenRule[] | undefined => {
+    if (feature.smartBatchSuccessWhen?.length) return feature.smartBatchSuccessWhen;
+    return SMART_BATCH_SUCCESS_WHEN_FALLBACK[feature.code];
+};
+
 export interface BatchConfiguration {
     _id?: string;
     id?: string;
@@ -47,6 +70,8 @@ export interface AppFeature {
     method?: string;
     url?: string;
     requiredParams?: string[];
+    dependencies?: { field: string }[];
+    smartBatchSuccessWhen?: SmartBatchSuccessWhenRule[];
 }
 
 @Injectable({

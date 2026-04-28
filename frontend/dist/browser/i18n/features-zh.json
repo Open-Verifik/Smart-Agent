@@ -1167,7 +1167,10 @@
     "continueOnFailureTitle": "端点失败时批次仍会继续",
     "continueOnFailureBody": "每个端点都会独立尝试。如果某项检查失败，其余检查仍会继续运行，并将该行标记为部分完成，以便只重试失败的步骤。",
     "retryStep": "重试",
-    "retrying": "正在重试..."
+    "retrying": "正在重试...",
+    "continuePendingSteps": "继续 {{count}} 个待处理",
+    "continuing": "正在继续...",
+    "continuePendingStepsHint": "运行 {{count}} 个待处理检查，并跳过已完成的检查。"
   },
   "batchDashboard": {
     "backToSmartBatch": "返回 Smart Batch",
