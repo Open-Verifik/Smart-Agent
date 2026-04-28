@@ -17,7 +17,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import {
+    detectBestCsvDelimiter,
+    getDelimiterMismatchHintKind,
+    parseCSVLine,
+    stripBom,
+} from 'app/core/utils/csv-parse.util';
 import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
 import * as XLSX from 'xlsx';
 import { BatchConfiguration, SmartBatchService } from '../../smart-batch.service';
@@ -79,6 +85,7 @@ export class CreateBatchComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _formBuilder = inject(FormBuilder);
     private _dialog = inject(MatDialog);
+    private _transloco = inject(TranslocoService);
 
     private readonly TUTORIAL_STORAGE_KEY = 'smart-batch-tutorial-shown';
 
@@ -102,6 +109,8 @@ export class CreateBatchComponent implements OnInit {
     parseError = signal<string | null>(null);
     parsedRows = signal<any[]>([]);
     previewColumns = signal<string[]>([]);
+    /** Non-fatal CSV parse notices (skipped rows, delimiter hints). */
+    csvParseWarnings = signal<string[]>([]);
 
     // Computed: Extract required fields from all steps
     requiredFields = computed<RequiredField[]>(() => {
@@ -143,6 +152,10 @@ export class CreateBatchComponent implements OnInit {
     templateFields = computed(() => {
         return this.requiredFields().filter((f) => f.required);
     });
+
+    requiredFieldCount = computed(() => this.requiredFields().filter((f) => f.required).length);
+
+    optionalFieldCount = computed(() => this.requiredFields().filter((f) => !f.required).length);
 
     // Computed: All unique fields (required + optional)
     allFields = computed(() => {
@@ -302,8 +315,8 @@ export class CreateBatchComponent implements OnInit {
             headers.map(() => '').join(','), // Empty row as placeholder
         ].join('\n');
 
-        // Create and download the file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        // Leading BOM helps Excel recognize UTF-8
+        const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
 
@@ -356,6 +369,7 @@ export class CreateBatchComponent implements OnInit {
     handleFile(file: File) {
         this.selectedFile.set(file);
         this.parseError.set(null);
+        this.csvParseWarnings.set([]);
         this.parsedRows.set([]);
         this.previewColumns.set([]);
 
@@ -376,29 +390,38 @@ export class CreateBatchComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const text = e.target?.result as string;
-                const lines = text.split('\n').filter((line) => line.trim());
+                const text = stripBom(String(e.target?.result ?? ''));
+                const lines = text
+                    .split('\n')
+                    .map((line) => line.replace(/\r$/, ''))
+                    .filter((line) => line.trim());
 
                 if (lines.length < 2) {
                     this.parseError.set('CSV must have a header row and at least one data row.');
                     return;
                 }
 
-                const headers = this.parseCSVLine(lines[0]);
+                const { delimiter } = detectBestCsvDelimiter(lines);
+                const headers = parseCSVLine(lines[0], delimiter);
                 if (!headers.some((h) => h.trim())) {
                     this.parseError.set('CSV header row is empty or invalid.');
                     return;
                 }
 
                 const rows: Record<string, unknown>[] = [];
+                let skippedRowCount = 0;
+                const dataLineCount = lines.length - 1;
+
                 for (let i = 1; i < lines.length; i++) {
-                    const values = this.parseCSVLine(lines[i]);
+                    const values = parseCSVLine(lines[i], delimiter);
                     if (values.length === headers.length) {
                         const row: Record<string, unknown> = {};
                         headers.forEach((header, idx) => {
                             row[header] = values[idx];
                         });
                         rows.push(row);
+                    } else {
+                        skippedRowCount += 1;
                     }
                 }
 
@@ -410,18 +433,177 @@ export class CreateBatchComponent implements OnInit {
                     this.previewColumns.set(fieldOrder);
                     this.parsedRows.set([]);
                     this.validationResult.set(null);
+                    this.csvParseWarnings.set(
+                        this.buildCsvParseWarnings(
+                            skippedRowCount,
+                            dataLineCount,
+                            lines[0],
+                            fieldOrder.length
+                        )
+                    );
                     return;
                 }
-                this.previewColumns.set(fieldOrder);
-                this.parsedRows.set(sanitized);
 
-                // Validate all data (headers + row values)
-                this.validateAllData(fieldOrder, sanitized);
+                const csvWarnings = this.buildCsvParseWarnings(
+                    skippedRowCount,
+                    dataLineCount,
+                    lines[0],
+                    fieldOrder.length
+                );
+                this.applyConfiguredFieldFilterAndContinue(fieldOrder, sanitized, csvWarnings);
             } catch (err) {
                 this.parseError.set('Failed to parse CSV file.');
             }
         };
         reader.readAsText(file);
+    }
+
+    private buildCsvParseWarnings(
+        skippedRowCount: number,
+        dataLineCount: number,
+        headerLine: string,
+        parsedColumnCount: number
+    ): string[] {
+        const messages: string[] = [];
+
+        if (skippedRowCount > 0) {
+            messages.push(
+                this._transloco.translate('createBatch.skippedRowsNotice', {
+                    skipped: skippedRowCount,
+                    total: dataLineCount,
+                })
+            );
+        }
+
+        const hint = getDelimiterMismatchHintKind(headerLine, parsedColumnCount);
+        if (hint === 'semicolon') {
+            messages.push(this._transloco.translate('createBatch.delimiterHintSemicolon'));
+        } else if (hint === 'tab') {
+            messages.push(this._transloco.translate('createBatch.delimiterHintTab'));
+        }
+
+        return messages;
+    }
+
+    /**
+     * Keeps only columns that match batch configuration (required + optional). When the
+     * configuration defines no fields, the parsed table is left unchanged.
+     */
+    private restrictRowsToConfiguredFields(
+        parsedFieldOrder: string[],
+        rows: Record<string, unknown>[]
+    ):
+        | {
+              ok: true;
+              fieldOrder: string[];
+              rows: Record<string, unknown>[];
+              droppedHeaders: string[];
+          }
+        | { ok: false; errorMessage: string } {
+        const defs = this.requiredFields();
+        if (!defs.length) {
+            return {
+                ok: true,
+                fieldOrder: parsedFieldOrder,
+                rows: rows.map((r) => ({ ...r })),
+                droppedHeaders: [],
+            };
+        }
+
+        const allowedLower = new Set(defs.map((d) => d.field.toLowerCase()));
+        const droppedHeaders = parsedFieldOrder.filter(
+            (h) => h.trim().length > 0 && !allowedLower.has(h.trim().toLowerCase())
+        );
+
+        const configFieldOrder = defs.map((d) => d.field);
+        const matchedFields = configFieldOrder.filter((f) =>
+            parsedFieldOrder.some((h) => h.trim().toLowerCase() === f.toLowerCase())
+        );
+
+        if (matchedFields.length === 0) {
+            return {
+                ok: false,
+                errorMessage: this._transloco.translate('createBatch.noMatchingColumns', {
+                    fields: configFieldOrder.join(', '),
+                }),
+            };
+        }
+
+        const strippedRows = rows.map((row) => {
+            const out: Record<string, unknown> = {};
+            matchedFields.forEach((field) => {
+                const fk = this.findColumnKey(row, field);
+                if (fk) {
+                    out[field] = row[fk];
+                }
+            });
+            return out;
+        });
+
+        return {
+            ok: true,
+            fieldOrder: matchedFields,
+            rows: strippedRows,
+            droppedHeaders,
+        };
+    }
+
+    private formatDroppedColumnList(headers: string[]): string {
+        const max = 20;
+        const slice = headers.slice(0, max);
+        const suffix = headers.length > max ? '…' : '';
+        return `${slice.join(', ')}${suffix}`;
+    }
+
+    /**
+     * Drops columns not in the batch configuration, re-sanitizes rows, updates UI state, runs validation.
+     */
+    private applyConfiguredFieldFilterAndContinue(
+        fieldOrder: string[],
+        rows: Record<string, unknown>[],
+        parseWarnings: string[]
+    ): void {
+        const restricted = this.restrictRowsToConfiguredFields(fieldOrder, rows);
+        if (restricted.ok === false) {
+            this.parseError.set(restricted.errorMessage);
+            this.previewColumns.set([]);
+            this.parsedRows.set([]);
+            this.validationResult.set(null);
+            this.csvParseWarnings.set(parseWarnings);
+            return;
+        }
+
+        let warnings = parseWarnings;
+        if (restricted.droppedHeaders.length > 0) {
+            warnings = [
+                ...warnings,
+                this._transloco.translate('createBatch.strippedUnknownColumnsNotice', {
+                    count: restricted.droppedHeaders.length,
+                    columns: this.formatDroppedColumnList(restricted.droppedHeaders),
+                }),
+            ];
+        }
+
+        const { fieldOrder: fo, rows: sanitized } = sanitizePapaObjectRows(
+            restricted.rows,
+            restricted.fieldOrder
+        );
+
+        if (sanitized.length === 0) {
+            this.parseError.set(
+                this._transloco.translate('createBatch.noDataRowsAfterColumnFilter')
+            );
+            this.previewColumns.set(fo);
+            this.parsedRows.set([]);
+            this.validationResult.set(null);
+            this.csvParseWarnings.set(warnings);
+            return;
+        }
+
+        this.previewColumns.set(fo);
+        this.parsedRows.set(sanitized);
+        this.csvParseWarnings.set(warnings);
+        this.validateAllData(fo, sanitized);
     }
 
     /**
@@ -482,36 +664,12 @@ export class CreateBatchComponent implements OnInit {
                     this.validationResult.set(null);
                     return;
                 }
-                this.previewColumns.set(fieldOrder);
-                this.parsedRows.set(sanitized);
-                this.validateAllData(fieldOrder, sanitized);
+                this.applyConfiguredFieldFilterAndContinue(fieldOrder, sanitized, []);
             } catch {
                 this.parseError.set('Failed to parse Excel file.');
             }
         };
         reader.readAsArrayBuffer(file);
-    }
-
-    parseCSVLine(line: string): string[] {
-        const result: string[] = [];
-        let current = '';
-        let inQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                result.push(current.trim());
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        result.push(current.trim());
-
-        return result;
     }
 
     parseJSONL(file: File) {
@@ -546,10 +704,7 @@ export class CreateBatchComponent implements OnInit {
                     this.validationResult.set(null);
                     return;
                 }
-                this.previewColumns.set(fieldOrder);
-                this.parsedRows.set(sanitized);
-
-                this.validateAllData(fieldOrder, sanitized);
+                this.applyConfiguredFieldFilterAndContinue(fieldOrder, sanitized, []);
             } catch (err) {
                 this.parseError.set('Failed to parse JSONL file. Ensure each line is valid JSON.');
             }
@@ -627,6 +782,8 @@ export class CreateBatchComponent implements OnInit {
             });
         });
 
+        this.appendDocumentNumberTypePairErrors(requiredFieldDefs, rows, errors);
+
         // Build error maps for quick lookup
         const errorsByRow = new Map<number, CellError[]>();
         const errorsByColumn = new Map<string, CellError[]>();
@@ -688,6 +845,82 @@ export class CreateBatchComponent implements OnInit {
         return false;
     }
 
+    private static readonly DOCUMENT_NUMBER_FIELD = 'documentNumber';
+    private static readonly DOCUMENT_TYPE_FIELD = 'documentType';
+
+    /** Placeholders treated as empty for document number/type pairing only */
+    private static readonly PAIR_VALUE_PLACEHOLDERS = new Set(['-', 'n/a', 'na']);
+
+    /**
+     * True when the value is empty or a common spreadsheet placeholder (-, n/a).
+     * Used only for paired documentNumber + documentType validation.
+     */
+    private isEffectivelyEmptyForPairing(value: unknown): boolean {
+        if (value === null || value === undefined) return true;
+        const normalized = String(value).trim();
+        if (!normalized) return true;
+        return CreateBatchComponent.PAIR_VALUE_PLACEHOLDERS.has(normalized.toLowerCase());
+    }
+
+    /**
+     * When both fields exist in the batch configuration, each row must have both filled or both empty.
+     */
+    private appendDocumentNumberTypePairErrors(
+        requiredFieldDefs: RequiredField[],
+        rows: unknown[],
+        errors: CellError[]
+    ): void {
+        const configured = new Set(requiredFieldDefs.map((f) => f.field.toLowerCase()));
+        const docNumKey = CreateBatchComponent.DOCUMENT_NUMBER_FIELD.toLowerCase();
+        const docTypeKey = CreateBatchComponent.DOCUMENT_TYPE_FIELD.toLowerCase();
+        if (!configured.has(docNumKey) || !configured.has(docTypeKey)) {
+            return;
+        }
+
+        rows.forEach((row, rowIndex) => {
+            const r = row as Record<string, unknown>;
+            const numKey = this.findColumnKey(r, CreateBatchComponent.DOCUMENT_NUMBER_FIELD);
+            const typeKey = this.findColumnKey(r, CreateBatchComponent.DOCUMENT_TYPE_FIELD);
+            const numRaw = numKey ? r[numKey] : undefined;
+            const typeRaw = typeKey ? r[typeKey] : undefined;
+            const numEmpty = this.isEffectivelyEmptyForPairing(numRaw);
+            const typeEmpty = this.isEffectivelyEmptyForPairing(typeRaw);
+
+            if (numEmpty === typeEmpty) {
+                return;
+            }
+
+            const hasMissingError = (column: string) =>
+                errors.some(
+                    (e) => e.rowIndex === rowIndex && e.column === column && e.type === 'missing'
+                );
+
+            if (!numEmpty && typeEmpty) {
+                if (!hasMissingError(CreateBatchComponent.DOCUMENT_TYPE_FIELD)) {
+                    errors.push({
+                        rowIndex,
+                        column: CreateBatchComponent.DOCUMENT_TYPE_FIELD,
+                        type: 'missing',
+                        message: this._transloco.translate(
+                            'createBatch.pairDocumentTypeRequiredWhenNumber'
+                        ),
+                    });
+                }
+            } else if (numEmpty && !typeEmpty) {
+                if (!hasMissingError(CreateBatchComponent.DOCUMENT_NUMBER_FIELD)) {
+                    errors.push({
+                        rowIndex,
+                        column: CreateBatchComponent.DOCUMENT_NUMBER_FIELD,
+                        type: 'missing',
+                        message: this._transloco.translate(
+                            'createBatch.pairDocumentNumberRequiredWhenType'
+                        ),
+                    });
+                }
+            }
+        });
+    }
+
     /** Get cell error for template binding */
     getCellError(rowIndex: number, column: string): CellError | null {
         const key = `${rowIndex}-${column.toLowerCase()}`;
@@ -725,6 +958,7 @@ export class CreateBatchComponent implements OnInit {
         this.parsedRows.set([]);
         this.previewColumns.set([]);
         this.parseError.set(null);
+        this.csvParseWarnings.set([]);
         this.validationResult.set(null);
     }
 
