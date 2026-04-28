@@ -18,10 +18,20 @@ import {
 import { SubscriptionService } from '../../subscription-plans/subscription.service';
 import { PostmanService } from '../postman.service';
 import { ApiEndpoint } from '../postman.types';
-import { arePostmanRequestInputsSatisfied, buildPostmanEffectiveUrl } from '../postman-url.util';
+import {
+    endpointShowsGroupedRequestGuidance,
+    filterVisibleXorDocumentRows,
+    getPostmanRequestValidationIssues,
+    getPostmanXorParamLayout,
+    isPostmanRequestValid,
+    PostmanParamRowRef,
+    PostmanValidationIssue,
+} from '../postman-request-validation';
+import { buildPostmanEffectiveUrl } from '../postman-url.util';
 import { AboutEndpointComponent } from './about-endpoint.component';
 
 import { TranslocoPipe } from '@jsverse/transloco';
+import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
 
 /**
  * Stable UI string for numeric prices (avoids float artifacts like 0.3000000005).
@@ -171,68 +181,284 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                     <!-- Params -->
                     <mat-tab [label]="'postman.requestEditor.tabs.params' | transloco">
-                        <div class="p-4 overflow-y-auto h-full space-y-4">
-                            <div
-                                class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
-                            >
-                                <div class="flex-1">
-                                    {{ 'postman.requestEditor.params.key' | transloco }}
-                                </div>
-                                <div class="flex-1">
-                                    {{ 'postman.requestEditor.params.value' | transloco }}
-                                </div>
-                                <div class="flex-1">
-                                    {{ 'postman.requestEditor.params.description' | transloco }}
-                                </div>
-                                <div class="w-8"></div>
-                                <!-- Spacer for delete button -->
-                            </div>
-                            <div
-                                *ngFor="let param of endpoint()?.params; let i = index"
-                                class="flex gap-2 items-start"
-                            >
-                                <input
-                                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                    [(ngModel)]="param.key"
-                                    [placeholder]="
-                                        'postman.requestEditor.params.keyPlaceholder' | transloco
-                                    "
-                                />
-                                @if (param.enum?.length) {
-                                    <select
-                                        class="postman-param-value-select flex-1 min-w-0 px-3 py-2 pr-8 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
-                                        [(ngModel)]="param.value"
-                                    >
-                                        @for (opt of paramValueOptions(param); track opt) {
-                                            <option [value]="opt">{{ opt }}</option>
-                                        }
-                                    </select>
-                                } @else {
-                                    <input
-                                        class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                        [(ngModel)]="param.value"
-                                        [placeholder]="
-                                            'postman.requestEditor.params.valuePlaceholder'
-                                                | transloco
-                                        "
-                                    />
-                                }
-                                <input
-                                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                    [(ngModel)]="param.description"
-                                    [placeholder]="
-                                        'postman.requestEditor.params.descriptionPlaceholder'
-                                            | transloco
-                                    "
-                                />
-                                <button
-                                    mat-icon-button
-                                    (click)="removeParam(i)"
-                                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 mt-0.5"
+                        <div class="p-4 overflow-y-auto h-full space-y-4 select-text">
+                            @if (showDependencyGuidanceBanner()) {
+                                <div
+                                    class="select-text rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 shadow-sm dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-100"
                                 >
-                                    <mat-icon class="icon-size-4">delete</mat-icon>
-                                </button>
-                            </div>
+                                    <div class="flex items-start gap-2">
+                                        <mat-icon
+                                            class="icon-size-5 flex-shrink-0 text-amber-600 dark:text-amber-300"
+                                            >info</mat-icon
+                                        >
+                                        <div class="space-y-1.5 min-w-0">
+                                            <div
+                                                class="font-semibold text-amber-900 dark:text-amber-50"
+                                            >
+                                                {{
+                                                    'postman.requestEditor.validation.groupedModesTitle'
+                                                        | transloco
+                                                }}
+                                            </div>
+                                            <p
+                                                class="leading-relaxed text-amber-900/90 dark:text-amber-100/90"
+                                            >
+                                                {{
+                                                    'postman.requestEditor.validation.groupedModesBody'
+                                                        | transloco
+                                                }}
+                                            </p>
+                                            @if (endpointHasDateFormatDeps()) {
+                                                <p
+                                                    class="text-xs font-medium text-amber-800/90 dark:text-amber-200/90"
+                                                >
+                                                    {{
+                                                        'postman.requestEditor.validation.groupedModesDateLine'
+                                                            | transloco: {
+                                                                  format: primaryDependencyDateFormat(),
+                                                              }
+                                                    }}
+                                                </p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (requestValidationIssues().length) {
+                                <div
+                                    class="select-text rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-950 shadow-sm dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-50"
+                                >
+                                    <div class="flex items-start gap-2">
+                                        <mat-icon
+                                            class="icon-size-5 flex-shrink-0 text-rose-600 dark:text-rose-300"
+                                            >error_outline</mat-icon
+                                        >
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-semibold mb-1.5">
+                                                {{
+                                                    'postman.requestEditor.validation.fixIssuesBeforeSend'
+                                                        | transloco
+                                                }}
+                                            </div>
+                                            <ul class="list-disc space-y-1 pl-4">
+                                                @for (
+                                                    issue of requestValidationIssues();
+                                                    track issue.translationKey + (issue.field || '')
+                                                ) {
+                                                    <li>
+                                                        {{
+                                                            issue.translationKey
+                                                                | transloco: (issue.translationParams || {})
+                                                        }}
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            @if (postmanXorParamLayout(); as L) {
+                                @switch (L.kind) {
+                                    @case ('xor') {
+                                        <p
+                                            class="text-sm leading-relaxed text-slate-600 dark:text-slate-400"
+                                        >
+                                            {{ 'createBatch.searchModesIntro' | transloco }}
+                                        </p>
+                                        <div class="flex flex-col gap-4">
+                                            <div
+                                                class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                                            >
+                                                <h5
+                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                >
+                                                    {{
+                                                        'createBatch.searchModeOptionFullName'
+                                                            | transloco
+                                                    }}
+                                                </h5>
+                                                <div
+                                                    class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                >
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.key'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.value'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.description'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="w-8"></div>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    @for (item of L.nameRows; track item.index) {
+                                                        <ng-container
+                                                            *ngTemplateOutlet="
+                                                                postmanParamRow;
+                                                                context: {
+                                                                    $implicit: item,
+                                                                    xOrOptionRow: true,
+                                                                }
+                                                            "
+                                                        ></ng-container>
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                                            >
+                                                <h5
+                                                    class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                >
+                                                    {{
+                                                        'createBatch.searchModeOptionDocument'
+                                                            | transloco
+                                                    }}
+                                                </h5>
+                                                @if (documentTypeConditionalDobValues(); as dobVals) {
+                                                    <p
+                                                        class="mb-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400"
+                                                    >
+                                                        {{
+                                                            'createBatch.dateOfBirthConditionalHint'
+                                                                | transloco: { values: dobVals }
+                                                        }}
+                                                    </p>
+                                                }
+                                                <div
+                                                    class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                >
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.key'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.value'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.description'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="w-8"></div>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    @for (
+                                                        item of visibleXorDocumentRows();
+                                                        track item.index
+                                                    ) {
+                                                        <ng-container
+                                                            *ngTemplateOutlet="
+                                                                postmanParamRow;
+                                                                context: {
+                                                                    $implicit: item,
+                                                                    xOrOptionRow: true,
+                                                                    showXorDocumentTypePlaceholder: true,
+                                                                }
+                                                            "
+                                                        ></ng-container>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        @if (L.otherRows.length) {
+                                            <div class="space-y-2 pt-2">
+                                                <h4
+                                                    class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400"
+                                                >
+                                                    {{
+                                                        'postman.requestEditor.params.otherParameters'
+                                                            | transloco
+                                                    }}
+                                                </h4>
+                                                <div
+                                                    class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                >
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.key'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.value'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        {{
+                                                            'postman.requestEditor.params.description'
+                                                                | transloco
+                                                        }}
+                                                    </div>
+                                                    <div class="w-8"></div>
+                                                </div>
+                                                <div class="space-y-2">
+                                                    @for (item of L.otherRows; track item.index) {
+                                                        <ng-container
+                                                            *ngTemplateOutlet="
+                                                                postmanParamRow;
+                                                                context: { $implicit: item }
+                                                            "
+                                                        ></ng-container>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                    @default {
+                                        <div
+                                            class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                        >
+                                            <div class="flex-1">
+                                                {{ 'postman.requestEditor.params.key' | transloco }}
+                                            </div>
+                                            <div class="flex-1">
+                                                {{
+                                                    'postman.requestEditor.params.value' | transloco
+                                                }}
+                                            </div>
+                                            <div class="flex-1">
+                                                {{
+                                                    'postman.requestEditor.params.description'
+                                                        | transloco
+                                                }}
+                                            </div>
+                                            <div class="w-8"></div>
+                                        </div>
+                                        <div class="space-y-2">
+                                            @for (item of L.allRows; track item.index) {
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        postmanParamRow;
+                                                        context: { $implicit: item }
+                                                    "
+                                                ></ng-container>
+                                            }
+                                        </div>
+                                    }
+                                }
+                            }
+
                             <div class="pt-4">
                                 <button
                                     mat-stroked-button
@@ -305,15 +531,37 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         [label]="'postman.requestEditor.tabs.body' | transloco"
                         *ngIf="endpoint()?.method !== 'GET'"
                     >
-                        <div class="p-4 h-full flex flex-col">
+                        <div class="p-4 h-full flex flex-col gap-2 min-h-0">
                             <div
-                                class="text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wider"
+                                class="text-xs font-semibold text-slate-500 uppercase tracking-wider"
                             >
                                 {{ 'postman.requestEditor.body.jsonBody' | transloco }}
                             </div>
+                            @if (bodyLevelValidationIssues().length) {
+                                <ul
+                                    class="select-text cursor-default text-xs text-rose-600 dark:text-rose-400 space-y-0.5 list-disc pl-4 flex-shrink-0"
+                                >
+                                    @for (
+                                        issue of bodyLevelValidationIssues();
+                                        track issue.translationKey + (issue.field || '')
+                                    ) {
+                                        <li>
+                                            {{
+                                                issue.translationKey
+                                                    | transloco: (issue.translationParams || {})
+                                            }}
+                                        </li>
+                                    }
+                                </ul>
+                            }
                             <textarea
-                                class="flex-1 w-full p-4 font-mono text-sm bg-slate-50 border border-slate-200 rounded-xl dark:bg-slate-800 dark:border-slate-700 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-                                [ngModel]="bodyString"
+                                class="flex-1 w-full min-h-[200px] p-4 font-mono text-sm bg-slate-50 border rounded-xl dark:bg-slate-800 dark:border-slate-700 resize-none focus:outline-none transition-all"
+                                [ngClass]="
+                                    bodyLevelValidationIssues().length
+                                        ? 'border-rose-400 ring-2 ring-rose-500/25'
+                                        : 'border-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500'
+                                "
+                                [ngModel]="bodyDraft()"
                                 (ngModelChange)="updateBody($event)"
                             ></textarea>
                         </div>
@@ -321,6 +569,139 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                 </mat-tab-group>
             </div>
         </div>
+
+        <ng-template
+            #postmanParamRow
+            let-item
+            let-xOrOptionRow="xOrOptionRow"
+            let-showXorDocumentTypePlaceholder="showXorDocumentTypePlaceholder"
+        >
+            <div class="flex gap-2 items-start">
+                <input
+                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                    [ngModel]="item.param.key"
+                    (ngModelChange)="item.param.key = $event; onRequestInputsChanged()"
+                    [placeholder]="'postman.requestEditor.params.keyPlaceholder' | transloco"
+                />
+                <div class="flex-1 min-w-0 flex flex-col gap-1">
+                    @if (
+                        item.param.requiredWhen?.in?.length ||
+                        item.param.required ||
+                        (!xOrOptionRow &&
+                            !item.param.requiredWhen?.in?.length &&
+                            !item.param.required) ||
+                        item.param.dateFormat
+                    ) {
+                        <div class="flex flex-wrap items-center gap-1">
+                            @if (item.param.requiredWhen?.in?.length) {
+                                <span
+                                    class="inline-flex items-center rounded-md border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-violet-200"
+                                >
+                                    {{
+                                        'postman.requestEditor.validation.badgeConditional'
+                                            | transloco
+                                    }}
+                                </span>
+                            } @else if (item.param.required) {
+                                <span
+                                    class="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                                >
+                                    {{
+                                        'postman.requestEditor.validation.badgeRequired'
+                                            | transloco
+                                    }}
+                                </span>
+                            } @else if (!xOrOptionRow) {
+                                <span
+                                    class="inline-flex items-center rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-600 dark:bg-slate-800/60 dark:text-slate-400"
+                                >
+                                    {{
+                                        'postman.requestEditor.validation.badgeOptional'
+                                            | transloco
+                                    }}
+                                </span>
+                            }
+                            @if (item.param.dateFormat) {
+                                <span
+                                    class="text-[10px] font-medium text-slate-500 dark:text-slate-400"
+                                >
+                                    {{
+                                        'postman.requestEditor.validation.dateFormatHint'
+                                            | transloco: { format: item.param.dateFormat }
+                                    }}
+                                </span>
+                            }
+                        </div>
+                    }
+                    @if (item.param.enum?.length) {
+                        <select
+                            class="postman-param-value-select w-full min-w-0 px-3 py-2 pr-8 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
+                            [ngClass]="
+                                firstIssueForField(item.param.key)
+                                    ? 'border-rose-400 ring-2 ring-rose-500/30'
+                                    : 'border-slate-200'
+                            "
+                            [ngModel]="item.param.value"
+                            (ngModelChange)="
+                                item.param.value = $event; onRequestInputsChanged()
+                            "
+                        >
+                            @if (
+                                showXorDocumentTypePlaceholder &&
+                                item.param.key === 'documentType'
+                            ) {
+                                <option value="">
+                                    {{
+                                        'postman.requestEditor.params.documentTypePlaceholder'
+                                            | transloco
+                                    }}
+                                </option>
+                            }
+                            @for (opt of paramValueOptions(item.param); track opt) {
+                                <option [value]="opt">{{ opt }}</option>
+                            }
+                        </select>
+                    } @else {
+                        <input
+                            class="w-full min-w-0 px-3 py-2 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                            [ngClass]="
+                                firstIssueForField(item.param.key)
+                                    ? 'border-rose-400 ring-2 ring-rose-500/30'
+                                    : 'border-slate-200'
+                            "
+                            [ngModel]="item.param.value"
+                            (ngModelChange)="
+                                item.param.value = $event; onRequestInputsChanged()
+                            "
+                            [placeholder]="
+                                'postman.requestEditor.params.valuePlaceholder' | transloco
+                            "
+                        />
+                    }
+                    @if (firstIssueForField(item.param.key); as iss) {
+                        <p class="text-xs text-rose-600 dark:text-rose-400 leading-snug">
+                            {{
+                                iss.translationKey | transloco: (iss.translationParams || {})
+                            }}
+                        </p>
+                    }
+                </div>
+                <input
+                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                    [(ngModel)]="item.param.description"
+                    [placeholder]="
+                        'postman.requestEditor.params.descriptionPlaceholder' | transloco
+                    "
+                />
+                <button
+                    mat-icon-button
+                    (click)="onDeleteParamRow(item, xOrOptionRow)"
+                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 mt-0.5"
+                >
+                    <mat-icon class="icon-size-4">delete</mat-icon>
+                </button>
+            </div>
+        </ng-template>
 
         <ng-template #noSelection>
             <div class="h-full flex flex-col items-center justify-center text-slate-400">
@@ -506,7 +887,89 @@ export class RequestEditorComponent {
     paymentReceiver = signal<string>(''); // Wallet address from backend
     walletBalance = signal<string>('0'); // Current wallet balance
 
-    bodyString = '';
+    /** Draft JSON for POST/PATCH/PUT — drives validation and stays in sync with the textarea. */
+    readonly bodyDraft = signal<string>('');
+
+    private readonly _validationInputsTick = signal(0);
+
+    onRequestInputsChanged(): void {
+        this._validationInputsTick.update((n) => n + 1);
+    }
+
+    readonly showDependencyGuidanceBanner = computed(() =>
+        endpointShowsGroupedRequestGuidance(this.endpoint())
+    );
+
+    readonly endpointHasDateFormatDeps = computed(() =>
+        (this.endpoint()?.dependencies ?? []).some((d) => !!d.dateFormat)
+    );
+
+    readonly primaryDependencyDateFormat = computed(() => {
+        const d = (this.endpoint()?.dependencies ?? []).find((x) => x.dateFormat);
+        return d?.dateFormat ?? 'dd/MM/yyyy';
+    });
+
+    readonly requestValidationIssues = computed(() => {
+        this._validationInputsTick();
+        const ep = this.endpoint();
+        const draft =
+            ep?.method === 'GET' || ep?.method === 'DELETE' ? null : this.bodyDraft();
+        return getPostmanRequestValidationIssues(ep, draft, { lenientEmptyXor: true });
+    });
+
+    readonly visibleXorDocumentRows = computed(() => {
+        this._validationInputsTick();
+        const ep = this.endpoint();
+        const L = getPostmanXorParamLayout(ep);
+        if (L.kind !== 'xor') {
+            return [];
+        }
+        return filterVisibleXorDocumentRows(ep, L.documentRows);
+    });
+
+    /** Issues tied to JSON body (invalid JSON or dependency field keys). */
+    readonly bodyLevelValidationIssues = computed(() => {
+        const ep = this.endpoint();
+        if (!ep || ep.method === 'GET' || ep.method === 'DELETE') return [];
+        const depKeys = new Set((ep.dependencies ?? []).map((d) => d.field));
+        return this.requestValidationIssues().filter(
+            (i) =>
+                !i.field ||
+                i.translationKey === 'postman.requestEditor.validation.invalidJsonBody' ||
+                depKeys.has(i.field)
+        );
+    });
+
+    readonly postmanXorParamLayout = computed(() => getPostmanXorParamLayout(this.endpoint()));
+
+    readonly documentTypeConditionalDobValues = computed(() => {
+        this._validationInputsTick();
+        const ep = this.endpoint();
+        const L = getPostmanXorParamLayout(ep);
+        if (L.kind !== 'xor') {
+            return null;
+        }
+        const visible = filterVisibleXorDocumentRows(ep, L.documentRows);
+        const hasVisibleDob = visible.some((r) => r.param.key === 'dateOfBirth');
+        if (!hasVisibleDob) {
+            return null;
+        }
+        const deps = (ep?.dependencies ?? []).filter(
+            (d) =>
+                d &&
+                typeof d.field === 'string' &&
+                isClientVisibleBatchDependencyField(d.field)
+        );
+        const dob = deps.find(
+            (d) => d.field === 'dateOfBirth' && (d.requiredWhen?.in?.length ?? 0) > 0
+        );
+        return dob?.requiredWhen?.in?.join(', ') ?? null;
+    });
+
+    firstIssueForField(field: string | null | undefined): PostmanValidationIssue | null {
+        if (!field) return null;
+        return this.requestValidationIssues().find((i) => i.field === field) ?? null;
+    }
 
     /**
      * Options for enum-backed params; if current value is not in the enum (legacy state), prepend it so the select stays valid.
@@ -606,9 +1069,9 @@ export class RequestEditorComponent {
 
             // Handle Body
             if (ep && ep.body) {
-                this.bodyString = JSON.stringify(ep.body, null, 2);
+                this.bodyDraft.set(JSON.stringify(ep.body, null, 2));
             } else {
-                this.bodyString = '';
+                this.bodyDraft.set('');
             }
 
             // Handle Documentation Fetching
@@ -708,29 +1171,60 @@ export class RequestEditorComponent {
     }
 
     updateBody(value: string) {
-        this.bodyString = value;
+        this.bodyDraft.set(value);
+        this.onRequestInputsChanged();
         try {
             this.endpoint()!.body = JSON.parse(value);
-        } catch (e) {
-            // Invalid JSON, ignore for now or show error
+        } catch {
+            /* invalid JSON — validation surfaces issue; keep last parsed body if any */
         }
     }
 
     addParam() {
-        if (!this.endpoint()!.params) {
-            this.endpoint()!.params = [];
-        }
-        this.endpoint()!.params!.push({
-            key: '',
-            value: '',
-            description: '',
-            type: 'string', // Default type
-            required: false, // Default required status
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep) return ep;
+            const params = [...(ep.params ?? [])];
+            params.push({
+                key: '',
+                value: '',
+                description: '',
+                type: 'string',
+                required: false,
+            });
+            return { ...ep, params };
         });
+        this.onRequestInputsChanged();
+    }
+
+    /**
+     * XOR Option A/B rows are catalog-defined: reset value only so dependency keys stay aligned.
+     */
+    clearXorParamRow(item: PostmanParamRowRef): void {
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep?.params || item.index < 0 || item.index >= ep.params.length) return ep;
+            if (ep.params[item.index] !== item.param) return ep;
+            const params = ep.params.map((p, i) => (i === item.index ? { ...p, value: '' } : p));
+            return { ...ep, params };
+        });
+        this.onRequestInputsChanged();
+    }
+
+    onDeleteParamRow(item: PostmanParamRowRef, xOrOptionRow?: boolean): void {
+        if (xOrOptionRow) {
+            this.clearXorParamRow(item);
+            return;
+        }
+        this.removeParam(item.index);
     }
 
     removeParam(index: number) {
-        this.endpoint()!.params!.splice(index, 1);
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep?.params) return ep;
+            if (index < 0 || index >= ep.params.length) return ep;
+            const params = ep.params.filter((_, i) => i !== index);
+            return { ...ep, params };
+        });
+        this.onRequestInputsChanged();
     }
 
     addHeader() {
@@ -745,7 +1239,11 @@ export class RequestEditorComponent {
     }
 
     canSendRequest(): boolean {
-        return arePostmanRequestInputsSatisfied(this.endpoint());
+        const ep = this.endpoint();
+        if (!ep) return false;
+        const draft =
+            ep.method === 'GET' || ep.method === 'DELETE' ? null : this.bodyDraft();
+        return isPostmanRequestValid(ep, draft);
     }
 
     sendRequest() {

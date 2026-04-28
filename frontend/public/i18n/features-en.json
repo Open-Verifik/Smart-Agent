@@ -835,7 +835,7 @@
     "country": "Country",
     "countryRequired": "Country is required",
     "mergeStrategy": "Merge Strategy",
-    "sequential": "Sequential (One by one)",
+    "sequential": "Sequential (ordered, continues after failures)",
     "parallelIndependent": "Parallel Independent",
     "parallelWithFallback": "Parallel with Fallback",
     "inputFieldsFormat": "Input Fields Format",
@@ -901,6 +901,7 @@
     "fixHighlightedCells": "Fix the highlighted cells to continue",
     "missingValues": "{{count}} missing value(s)",
     "invalidValues": "{{count}} invalid value(s)",
+    "invalidDateFormat": "\"{{field}}\" must be a valid date in {{format}} format.",
     "moreRowsHaveErrors": "{{count}} more rows have errors (not shown in preview)",
     "estimatedCost": "Estimated Cost",
     "rows": "rows",
@@ -916,7 +917,26 @@
     "noMatchingColumns": "No column headers match this batch. Include at least one of: {{fields}}.",
     "noDataRowsAfterColumnFilter": "After removing unused columns, no data rows remain. Make sure your file has values under the expected field names.",
     "pairDocumentTypeRequiredWhenNumber": "\"documentType\" is required when \"documentNumber\" is set (provide both or leave both empty).",
-    "pairDocumentNumberRequiredWhenType": "\"documentNumber\" is required when \"documentType\" is set (provide both or leave both empty)."
+    "pairDocumentNumberRequiredWhenType": "\"documentNumber\" is required when \"documentType\" is set (provide both or leave both empty).",
+    "validationXorBothModes": "Use either full name or document type and number, not both ({{step}}).",
+    "validationXorNeitherMode": "Provide full name or document type and number ({{step}}).",
+    "validationLeakDocumentWhenFullName": "When searching by full name, leave \"{{field}}\" empty ({{step}}).",
+    "validationLeakFullNameWhenDocument": "When searching by document, leave \"{{field}}\" empty ({{step}}).",
+    "validationConditionalRequired": "\"{{field}}\" is required when \"{{whenField}}\" is one of: {{values}} ({{step}}).",
+    "dependencyRuleIssues": "{{count}} rule conflict(s)",
+    "validationIssuesListSeparator": ", ",
+    "validationIssuesBanner": "Found {{issueCount}} issue(s) in {{rowCount}} row(s): {{breakdown}}. Check the highlighted cells below.",
+    "missingRequiredColumns": "Missing required columns: {{fields}}. Please download the template for the correct format.",
+    "disabledCreating": "Creating batch...",
+    "disabledNoFile": "Upload a file with data to continue",
+    "disabledNoBatchName": "Enter a batch name to continue",
+    "disabledFixDataErrors": "Fix the errors in your data to continue",
+    "searchModesIntro": "Each row must use one approach only: either search by full name, or by document type and number (plus date of birth when required for certain types). Do not mix both in the same row.",
+    "searchModeOptionFullName": "Option A — Search by full name",
+    "searchModeOptionDocument": "Option B — Search by document",
+    "dateOfBirthConditionalHint": "When document type is one of: {{values}}, the dateOfBirth column is required for that row.",
+    "fieldConditional": "Conditional",
+    "fieldConditionalDetail": "Required when {{whenField}} is one of: {{values}}."
   },
   "batchTutorial": {
     "stepOf": "Step {{current}} of {{total}}",
@@ -1138,6 +1158,7 @@
     "rowNumber": "Row {{index}}",
     "completed": "Completed",
     "failed": "Failed",
+    "partial": "Partial",
     "recordsVerified": "{{count}} records verified",
     "noCompletedRecordsYet": "No completed records yet",
     "verified": "Verified",
@@ -1160,8 +1181,13 @@
     "successful": "Successful",
     "requestsFailed": "requests failed",
     "requestsSuccessful": "requests successful",
+    "requestsPartial": "records need retry",
     "all": "All",
-    "noResultsFound": "No results found"
+    "noResultsFound": "No results found",
+    "continueOnFailureTitle": "Batch continues when an endpoint fails",
+    "continueOnFailureBody": "Each endpoint is attempted independently. If one check fails, the remaining checks still run and the row is marked partial so you can retry only the failed steps.",
+    "retryStep": "Retry",
+    "retrying": "Retrying..."
   },
   "batchDashboard": {
     "backToSmartBatch": "Back to Smart Batch",
@@ -1196,6 +1222,7 @@
     "created": "Created",
     "actions": "Actions",
     "viewDetails": "View Details",
-    "failedCount": "({{count}} failed)"
+    "failedCount": "({{count}} failed)",
+    "partialCount": "({{count}} partial)"
   }
 }

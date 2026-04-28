@@ -835,7 +835,7 @@
     "country": "国",
     "countryRequired": "国は必須です",
     "mergeStrategy": "マージ戦略",
-    "sequential": "順次（1つずつ）",
+    "sequential": "順次（順番に実行し、失敗後も継続）",
     "parallelIndependent": "並列独立",
     "parallelWithFallback": "フォールバック付き並列",
     "inputFieldsFormat": "入力フィールド形式",
@@ -901,6 +901,7 @@
     "fixHighlightedCells": "ハイライトされたセルを修正して続行",
     "missingValues": "{{count}} 件の欠損値",
     "invalidValues": "{{count}} 件の無効な値",
+    "invalidDateFormat": "「{{field}}」は {{format}} 形式の有効な日付にしてください。",
     "moreRowsHaveErrors": "さらに {{count}} 行にエラーがあります（プレビューには表示されていません）",
     "estimatedCost": "推定コスト",
     "rows": "行",
@@ -916,7 +917,26 @@
     "noMatchingColumns": "バッチと一致する列見出しがありません。次のいずれかを含めてください: {{fields}}.",
     "noDataRowsAfterColumnFilter": "不要な列を削除した後、データ行が残りません。想定フィールド名の下に値があるか確認してください。",
     "pairDocumentTypeRequiredWhenNumber": "\"documentNumber\" がある場合は \"documentType\" も必須です（両方入力するか、両方空にしてください）。",
-    "pairDocumentNumberRequiredWhenType": "\"documentType\" がある場合は \"documentNumber\" も必須です（両方入力するか、両方空にしてください）。"
+    "pairDocumentNumberRequiredWhenType": "\"documentType\" がある場合は \"documentNumber\" も必須です（両方入力するか、両方空にしてください）。",
+    "validationXorBothModes": "氏名全文と（文書種別＋番号）はどちらか一方のみ入力してください（{{step}}）。",
+    "validationXorNeitherMode": "氏名全文、または文書種別と番号のいずれかを入力してください（{{step}}）。",
+    "validationLeakDocumentWhenFullName": "氏名で検索する場合は「{{field}}」は空にしてください（{{step}}）。",
+    "validationLeakFullNameWhenDocument": "文書で検索する場合は「{{field}}」は空にしてください（{{step}}）。",
+    "validationConditionalRequired": "「{{whenField}}」が次のいずれかのとき「{{field}}」が必須です: {{values}}（{{step}}）。",
+    "dependencyRuleIssues": "ルール抵触 {{count}} 件",
+    "validationIssuesListSeparator": "、",
+    "validationIssuesBanner": "{{rowCount}} 行で問題が {{issueCount}} 件あります: {{breakdown}}。下のハイライトされたセルを確認してください。",
+    "missingRequiredColumns": "必須の列がありません: {{fields}}。正しい形式はテンプレートをダウンロードしてください。",
+    "disabledCreating": "バッチを作成しています...",
+    "disabledNoFile": "続行するにはデータ入りのファイルをアップロードしてください",
+    "disabledNoBatchName": "続行するにはバッチ名を入力してください",
+    "disabledFixDataErrors": "データのエラーを修正してから続行してください",
+    "searchModesIntro": "各行ではどちらか一方のみを使ってください。氏名での検索、または文書種別と番号での検索です（種別によっては生年月日が追加で必要になります）。同一行で両方を混在させないでください。",
+    "searchModeOptionFullName": "オプション A — 氏名で検索",
+    "searchModeOptionDocument": "オプション B — 文書で検索",
+    "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
+    "fieldConditional": "条件付き必須",
+    "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。"
   },
   "batchTutorial": {
     "stepOf": "ステップ {{current}} / {{total}}",
@@ -1118,6 +1138,7 @@
     "rowNumber": "行 {{index}}",
     "completed": "完了",
     "failed": "失敗",
+    "partial": "一部完了",
     "recordsVerified": "{{count}}件のレコードを検証済み",
     "noCompletedRecordsYet": "まだ完了したレコードはありません",
     "verified": "検証済み",
@@ -1140,8 +1161,13 @@
     "successful": "成功",
     "requestsFailed": "リクエスト失敗",
     "requestsSuccessful": "リクエスト成功",
+    "requestsPartial": "再試行が必要なレコード",
     "all": "すべて",
-    "noResultsFound": "結果が見つかりません"
+    "noResultsFound": "結果が見つかりません",
+    "continueOnFailureTitle": "エンドポイントが失敗してもバッチは継続します",
+    "continueOnFailureBody": "各エンドポイントは独立して試行されます。1つのチェックが失敗しても残りのチェックは実行され、失敗したステップだけ再試行できるように行は一部完了として表示されます。",
+    "retryStep": "再試行",
+    "retrying": "再試行中..."
   },
   "batchDashboard": {
     "backToSmartBatch": "Smart Batchに戻る",
@@ -1176,6 +1202,7 @@
     "created": "作成日",
     "actions": "操作",
     "viewDetails": "詳細を表示",
-    "failedCount": "({{count}}件失敗)"
+    "failedCount": "({{count}}件失敗)",
+    "partialCount": "({{count}}件一部完了)"
   }
 }

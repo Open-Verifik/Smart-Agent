@@ -82,6 +82,18 @@ export interface SidebarFolderNode {
     endpoints: ApiEndpoint[];
 }
 
+/** AppFeature dependency slice used for Postman request validation (parity with Smart Batch). */
+export interface PostmanDependencyMeta {
+    field: string;
+    type?: string;
+    required?: boolean;
+    enum?: string[] | null;
+    description?: string;
+    dependencyGroup?: string;
+    requiredWhen?: { field: string; in?: string[] };
+    dateFormat?: string;
+}
+
 export interface ApiEndpoint {
     id: string;
     label: string;
@@ -98,6 +110,9 @@ export interface ApiEndpoint {
         description?: string;
         /** Allowed values from app-features `dependencies[].enum` (GET query params). */
         enum?: string[];
+        dependencyGroup?: string;
+        requiredWhen?: { field: string; in?: string[] };
+        dateFormat?: string;
     }[];
     body?: any;
     category?: string;
@@ -113,6 +128,8 @@ export interface ApiEndpoint {
     isFavorite?: boolean;
     /** Rich, localized documentation served by `AppFeature.docs` (seeded from Docusaurus MDX). */
     docs?: EndpointDocs;
+    /** Copy of app-feature `dependencies` for grouped / conditional / date validation (GET + POST). */
+    dependencies?: PostmanDependencyMeta[];
 }
 
 export const API_ENDPOINTS: ApiEndpoint[] = [

@@ -202,7 +202,11 @@ export class BatchDashboardComponent implements OnInit {
 
     getBatchProgress(batch: SmartBatch): number {
         if (batch.totalRows === 0) return 0;
-        return ((batch.completedRows + batch.failedRows) / batch.totalRows) * 100;
+        return (
+            ((batch.completedRows + batch.failedRows + (batch.partialRows || 0)) /
+                batch.totalRows) *
+            100
+        );
     }
 
     formatDate(dateString?: string): string {

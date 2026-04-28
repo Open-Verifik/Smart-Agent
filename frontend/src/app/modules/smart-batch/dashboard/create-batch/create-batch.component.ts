@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
     FormBuilder,
     FormGroup,
@@ -18,6 +19,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { distinctUntilChanged, map, startWith } from 'rxjs';
 import {
     detectBestCsvDelimiter,
     getDelimiterMismatchHintKind,
@@ -26,6 +28,10 @@ import {
 } from 'app/core/utils/csv-parse.util';
 import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
 import * as XLSX from 'xlsx';
+import {
+    isClientVisibleBatchDependencyField,
+    stripClientHiddenRowFields,
+} from '../../smart-batch-dependency.constants';
 import { BatchConfiguration, SmartBatchService } from '../../smart-batch.service';
 import { TutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
@@ -38,13 +44,29 @@ interface RequiredField {
     enumValues?: string[];
     type?: string;
     description?: string;
+    dependencyGroup?: string;
+    requiredWhen?: { field: string; in?: string[] };
+    /** When set (e.g. dd/MM/yyyy), non-empty cell values must match for batch validation. */
+    dateFormat?: string;
+}
+
+/** AppFeature dependency entry (subset used by batch validation) */
+interface FeatureDependency {
+    field: string;
+    type?: string;
+    required?: boolean;
+    enum?: string[] | null;
+    description?: string;
+    dependencyGroup?: string;
+    requiredWhen?: { field: string; in?: string[] };
+    dateFormat?: string;
 }
 
 /** Represents a validation error for a specific cell */
 interface CellError {
     rowIndex: number;
     column: string;
-    type: 'missing' | 'invalid_enum' | 'invalid_type';
+    type: 'missing' | 'invalid_enum' | 'invalid_type' | 'dependency_rule';
     message: string;
     expectedValues?: string[];
 }
@@ -55,6 +77,12 @@ interface ValidationResult {
     errors: CellError[];
     errorsByRow: Map<number, CellError[]>;
     errorsByColumn: Map<string, CellError[]>;
+}
+
+/** CSV parse notice resolved in the template with the transloco pipe (updates on language change). */
+interface CsvParseWarningNotice {
+    key: string;
+    params?: Record<string, unknown>;
 }
 
 @Component({
@@ -87,6 +115,16 @@ export class CreateBatchComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
 
+    /** Depends on active language so computeds can re-translate when the user switches locale. */
+    private readonly _translocoLang = toSignal(
+        this._transloco.langChanges$.pipe(
+            startWith(this._transloco.getActiveLang()),
+            map(() => this._transloco.getActiveLang()),
+            distinctUntilChanged()
+        ),
+        { initialValue: this._transloco.getActiveLang() }
+    );
+
     private readonly TUTORIAL_STORAGE_KEY = 'smart-batch-tutorial-shown';
 
     configId = signal<string | null>(null);
@@ -107,10 +145,12 @@ export class CreateBatchComponent implements OnInit {
     selectedFile = signal<File | null>(null);
     isDragging = signal(false);
     parseError = signal<string | null>(null);
+    /** Required column names missing from the upload (message from i18n in the template). */
+    missingRequiredColumnsFields = signal<string | null>(null);
     parsedRows = signal<any[]>([]);
     previewColumns = signal<string[]>([]);
     /** Non-fatal CSV parse notices (skipped rows, delimiter hints). */
-    csvParseWarnings = signal<string[]>([]);
+    csvParseWarnings = signal<CsvParseWarningNotice[]>([]);
 
     // Computed: Extract required fields from all steps
     requiredFields = computed<RequiredField[]>(() => {
@@ -126,7 +166,9 @@ export class CreateBatchComponent implements OnInit {
                 const dependencies = feature?.dependencies || [];
 
                 dependencies.forEach((dep: any) => {
-                    // Only add if not already present or if this one is required
+                    if (!dep?.field) return;
+                    if (!isClientVisibleBatchDependencyField(dep.field)) return;
+                    const prev = fieldsMap.get(dep.field);
                     if (!fieldsMap.has(dep.field) || dep.required) {
                         fieldsMap.set(dep.field, {
                             field: dep.field,
@@ -136,6 +178,14 @@ export class CreateBatchComponent implements OnInit {
                             enumValues: dep.enum || undefined,
                             type: dep.type || 'string',
                             description: dep.description || undefined,
+                            dependencyGroup: dep.dependencyGroup,
+                            requiredWhen: dep.requiredWhen,
+                            dateFormat: dep.dateFormat ?? prev?.dateFormat,
+                        });
+                    } else if (dep.dateFormat && !prev?.dateFormat) {
+                        fieldsMap.set(dep.field, {
+                            ...prev,
+                            dateFormat: dep.dateFormat,
                         });
                     }
                 });
@@ -162,6 +212,11 @@ export class CreateBatchComponent implements OnInit {
         return this.requiredFields();
     });
 
+    /**
+     * When non-null, the expected-fields panel uses a two-column XOR layout (full name vs document).
+     */
+    xorExpectedFieldGroups = computed(() => this.computeMergedXorFieldGroups(this.requiredFields()));
+
     // Validation state
     validationResult = signal<ValidationResult | null>(null);
 
@@ -178,19 +233,80 @@ export class CreateBatchComponent implements OnInit {
         return cellMap;
     });
 
+    /**
+     * Row-level / cell validation summary (red banner under the file card).
+     * Uses translate() + _translocoLang so copy stays in sync when switching language after upload.
+     */
+    cellValidationIssueBanner = computed(() => {
+        this._translocoLang();
+        const result = this.validationResult();
+        if (!result || result.isValid || result.errors.length === 0) return null;
+
+        const missingCount = result.errors.filter((e) => e.type === 'missing').length;
+        const invalidEnumCount = result.errors.filter(
+            (e) => e.type === 'invalid_enum' || e.type === 'invalid_type'
+        ).length;
+        const ruleCount = result.errors.filter((e) => e.type === 'dependency_rule').length;
+        const rowsAffected = new Set(result.errors.map((e) => e.rowIndex)).size;
+
+        const parts: string[] = [];
+        if (missingCount > 0) {
+            parts.push(this._transloco.translate('createBatch.missingValues', { count: missingCount }));
+        }
+        if (invalidEnumCount > 0) {
+            parts.push(
+                this._transloco.translate('createBatch.invalidValues', { count: invalidEnumCount })
+            );
+        }
+        if (ruleCount > 0) {
+            parts.push(
+                this._transloco.translate('createBatch.dependencyRuleIssues', { count: ruleCount })
+            );
+        }
+        const breakdown = parts.join(this._transloco.translate('createBatch.validationIssuesListSeparator'));
+
+        return this._transloco.translate('createBatch.validationIssuesBanner', {
+            issueCount: result.errors.length,
+            rowCount: rowsAffected,
+            breakdown,
+        });
+    });
+
+    fileCardIssueBanner = computed(() => {
+        const raw = this.parseError();
+        if (raw) return { mode: 'raw' as const, text: raw };
+        const missing = this.missingRequiredColumnsFields();
+        if (missing) {
+            return {
+                mode: 'i18n' as const,
+                key: 'createBatch.missingRequiredColumns',
+                params: { fields: missing },
+            };
+        }
+        const cell = this.cellValidationIssueBanner();
+        if (cell) return { mode: 'raw' as const, text: cell };
+        return null;
+    });
+
+    hasBlockingFileIssues = computed(() => this.fileCardIssueBanner() !== null);
+
     // Computed: Summary of errors for display
     errorSummary = computed(() => {
         const result = this.validationResult();
-        if (!result || result.isValid) return null;
+        if (!result || result.isValid || result.errors.length === 0) return null;
 
         const missingCount = result.errors.filter((e) => e.type === 'missing').length;
-        const invalidEnumCount = result.errors.filter((e) => e.type === 'invalid_enum').length;
+        const invalidEnumCount = result.errors.filter(
+            (e) => e.type === 'invalid_enum' || e.type === 'invalid_type'
+        ).length;
+        const dependencyRuleCount = result.errors.filter((e) => e.type === 'dependency_rule').length;
         const rowsWithErrors = new Set(result.errors.map((e) => e.rowIndex)).size;
 
         return {
             totalErrors: result.errors.length,
             missingCount,
             invalidEnumCount,
+            dependencyRuleCount,
             rowsWithErrors,
         };
     });
@@ -205,13 +321,24 @@ export class CreateBatchComponent implements OnInit {
 
     /** Reason the Create Batch button is disabled (for tooltip) */
     createBatchDisabledReason = computed(() => {
-        this.batchFormValid(); // depend on signal so tooltip updates when name is filled
-        if (this.isSubmitting()) return 'Creating batch...';
-        if (this.parseError()) return this.parseError()!;
-        if (this.parsedRows().length === 0) return 'Upload a file with data to continue';
-        if (!this.batchForm.get('name')?.value?.trim()) return 'Enter a batch name to continue';
+        this.batchFormValid();
+        this._translocoLang();
+        if (this.isSubmitting()) return this._transloco.translate('createBatch.disabledCreating');
+        const banner = this.fileCardIssueBanner();
+        if (banner?.mode === 'raw') return banner.text;
+        if (banner?.mode === 'i18n') {
+            return this._transloco.translate(banner.key, banner.params);
+        }
+        if (this.parsedRows().length === 0) {
+            return this._transloco.translate('createBatch.disabledNoFile');
+        }
+        if (!this.batchForm.get('name')?.value?.trim()) {
+            return this._transloco.translate('createBatch.disabledNoBatchName');
+        }
         const validation = this.validationResult();
-        if (validation && !validation.isValid) return 'Fix the errors in your data to continue';
+        if (validation && !validation.isValid) {
+            return this._transloco.translate('createBatch.disabledFixDataErrors');
+        }
         return null;
     });
 
@@ -369,6 +496,7 @@ export class CreateBatchComponent implements OnInit {
     handleFile(file: File) {
         this.selectedFile.set(file);
         this.parseError.set(null);
+        this.missingRequiredColumnsFields.set(null);
         this.csvParseWarnings.set([]);
         this.parsedRows.set([]);
         this.previewColumns.set([]);
@@ -463,23 +591,21 @@ export class CreateBatchComponent implements OnInit {
         dataLineCount: number,
         headerLine: string,
         parsedColumnCount: number
-    ): string[] {
-        const messages: string[] = [];
+    ): CsvParseWarningNotice[] {
+        const messages: CsvParseWarningNotice[] = [];
 
         if (skippedRowCount > 0) {
-            messages.push(
-                this._transloco.translate('createBatch.skippedRowsNotice', {
-                    skipped: skippedRowCount,
-                    total: dataLineCount,
-                })
-            );
+            messages.push({
+                key: 'createBatch.skippedRowsNotice',
+                params: { skipped: skippedRowCount, total: dataLineCount },
+            });
         }
 
         const hint = getDelimiterMismatchHintKind(headerLine, parsedColumnCount);
         if (hint === 'semicolon') {
-            messages.push(this._transloco.translate('createBatch.delimiterHintSemicolon'));
+            messages.push({ key: 'createBatch.delimiterHintSemicolon' });
         } else if (hint === 'tab') {
-            messages.push(this._transloco.translate('createBatch.delimiterHintTab'));
+            messages.push({ key: 'createBatch.delimiterHintTab' });
         }
 
         return messages;
@@ -561,10 +687,11 @@ export class CreateBatchComponent implements OnInit {
     private applyConfiguredFieldFilterAndContinue(
         fieldOrder: string[],
         rows: Record<string, unknown>[],
-        parseWarnings: string[]
+        parseWarnings: CsvParseWarningNotice[]
     ): void {
         const restricted = this.restrictRowsToConfiguredFields(fieldOrder, rows);
         if (restricted.ok === false) {
+            this.missingRequiredColumnsFields.set(null);
             this.parseError.set(restricted.errorMessage);
             this.previewColumns.set([]);
             this.parsedRows.set([]);
@@ -573,14 +700,17 @@ export class CreateBatchComponent implements OnInit {
             return;
         }
 
-        let warnings = parseWarnings;
+        let warnings = [...parseWarnings];
         if (restricted.droppedHeaders.length > 0) {
             warnings = [
                 ...warnings,
-                this._transloco.translate('createBatch.strippedUnknownColumnsNotice', {
-                    count: restricted.droppedHeaders.length,
-                    columns: this.formatDroppedColumnList(restricted.droppedHeaders),
-                }),
+                {
+                    key: 'createBatch.strippedUnknownColumnsNotice',
+                    params: {
+                        count: restricted.droppedHeaders.length,
+                        columns: this.formatDroppedColumnList(restricted.droppedHeaders),
+                    },
+                },
             ];
         }
 
@@ -714,20 +844,18 @@ export class CreateBatchComponent implements OnInit {
 
     /** Comprehensive validation of all rows and cells */
     private validateAllData(uploadedHeaders: string[], rows: any[]) {
+        const config = this.configuration();
         const requiredFieldDefs = this.requiredFields();
         const errors: CellError[] = [];
 
-        // First check: Are all required columns present?
         const missingColumns = requiredFieldDefs
             .filter((f) => f.required)
             .filter((f) => !uploadedHeaders.some((h) => h.toLowerCase() === f.field.toLowerCase()));
 
         if (missingColumns.length > 0) {
-            // If columns are missing, we can't validate rows - just set error message
             const fieldNames = missingColumns.map((f) => f.field).join(', ');
-            this.parseError.set(
-                `Missing required columns: ${fieldNames}. Please download the template for the correct format.`
-            );
+            this.parseError.set(null);
+            this.missingRequiredColumnsFields.set(fieldNames);
             this.validationResult.set({
                 isValid: false,
                 errors: [],
@@ -737,65 +865,46 @@ export class CreateBatchComponent implements OnInit {
             return;
         }
 
-        // Create a lookup for field definitions by field name (case-insensitive)
-        const fieldDefMap = new Map<string, RequiredField>();
-        requiredFieldDefs.forEach((f) => {
-            fieldDefMap.set(f.field.toLowerCase(), f);
-        });
+        this.missingRequiredColumnsFields.set(null);
 
-        // Validate each row
+        if (!config?.steps?.length) {
+            this.finalizeValidation(errors);
+            return;
+        }
+
+        const sortedSteps = [...config.steps].sort((a, b) => a.sequence - b.sequence);
+
         rows.forEach((row, rowIndex) => {
-            // Check each required field
-            requiredFieldDefs.forEach((fieldDef) => {
-                const columnKey = this.findColumnKey(row, fieldDef.field);
-                const value = columnKey ? row[columnKey] : undefined;
-
-                // Check for missing required values
-                if (fieldDef.required && this.isEmptyValue(value)) {
-                    errors.push({
-                        rowIndex,
-                        column: fieldDef.field,
-                        type: 'missing',
-                        message: `"${fieldDef.field}" is required but empty`,
-                    });
-                }
-
-                // Check for invalid enum values (only if value is present)
-                if (
-                    fieldDef.enumValues &&
-                    fieldDef.enumValues.length > 0 &&
-                    !this.isEmptyValue(value)
-                ) {
-                    const normalizedValue = String(value).trim().toLowerCase();
-                    const validValues = fieldDef.enumValues.map((v) => v.toLowerCase());
-
-                    if (!validValues.includes(normalizedValue)) {
-                        errors.push({
-                            rowIndex,
-                            column: fieldDef.field,
-                            type: 'invalid_enum',
-                            message: `"${value}" is not a valid value. Expected: ${fieldDef.enumValues.join(', ')}`,
-                            expectedValues: fieldDef.enumValues,
-                        });
-                    }
-                }
+            const r = row as Record<string, unknown>;
+            sortedSteps.forEach((step) => {
+                const feature = step.appFeature as any;
+                const rawDeps = feature?.dependencies || [];
+                const deps: FeatureDependency[] = rawDeps.filter(
+                    (d: any) =>
+                        d &&
+                        typeof d.field === 'string' &&
+                        d.field.length > 0 &&
+                        isClientVisibleBatchDependencyField(d.field)
+                );
+                if (!deps.length) return;
+                const stepLabel = feature?.name || 'Unknown Step';
+                this.appendStepDependencyValidationErrors(r, rowIndex, deps, stepLabel, errors);
             });
         });
 
-        this.appendDocumentNumberTypePairErrors(requiredFieldDefs, rows, errors);
+        this.finalizeValidation(errors);
+    }
 
-        // Build error maps for quick lookup
+    private finalizeValidation(errors: CellError[]) {
         const errorsByRow = new Map<number, CellError[]>();
         const errorsByColumn = new Map<string, CellError[]>();
 
         errors.forEach((error) => {
-            // By row
             if (!errorsByRow.has(error.rowIndex)) {
                 errorsByRow.set(error.rowIndex, []);
             }
             errorsByRow.get(error.rowIndex)!.push(error);
 
-            // By column
             if (!errorsByColumn.has(error.column)) {
                 errorsByColumn.set(error.column, []);
             }
@@ -810,23 +919,417 @@ export class CreateBatchComponent implements OnInit {
         };
 
         this.validationResult.set(validationResult);
+        this.parseError.set(null);
+        if (errors.length === 0) {
+            this.missingRequiredColumnsFields.set(null);
+        }
+    }
 
-        // Set parse error message if there are errors
-        if (errors.length > 0) {
-            const missingCount = errors.filter((e) => e.type === 'missing').length;
-            const enumCount = errors.filter((e) => e.type === 'invalid_enum').length;
-            const rowsAffected = new Set(errors.map((e) => e.rowIndex)).size;
+    private appendStepDependencyValidationErrors(
+        row: Record<string, unknown>,
+        rowIndex: number,
+        deps: FeatureDependency[],
+        stepName: string,
+        errors: CellError[]
+    ): void {
+        const xorMeta = this.buildXorGroupMetadata(deps);
 
-            let errorMsg = `Found ${errors.length} issue${errors.length > 1 ? 's' : ''} in ${rowsAffected} row${rowsAffected > 1 ? 's' : ''}: `;
-            const parts: string[] = [];
-            if (missingCount > 0)
-                parts.push(`${missingCount} missing value${missingCount > 1 ? 's' : ''}`);
-            if (enumCount > 0) parts.push(`${enumCount} invalid value${enumCount > 1 ? 's' : ''}`);
-            errorMsg += parts.join(', ') + '. Check the highlighted cells below.';
+        if (!xorMeta) {
+            this.appendLegacyStepValidation(row, rowIndex, deps, errors);
+            return;
+        }
 
-            this.parseError.set(errorMsg);
-        } else {
-            this.parseError.set(null);
+        const { docGroupIds, nameGroupIds } = xorMeta;
+        const mode1Active = this.isDocumentSearchModeActive(row, deps, docGroupIds);
+        const mode2Active = this.isFullNameModeActive(row, deps, nameGroupIds);
+
+        if (mode1Active && mode2Active) {
+            errors.push({
+                rowIndex,
+                column: 'fullName',
+                type: 'dependency_rule',
+                message: this._transloco.translate('createBatch.validationXorBothModes', {
+                    step: stepName,
+                }),
+            });
+            return;
+        }
+
+        if (!mode1Active && !mode2Active) {
+            errors.push({
+                rowIndex,
+                column: 'fullName',
+                type: 'dependency_rule',
+                message: this._transloco.translate('createBatch.validationXorNeitherMode', {
+                    step: stepName,
+                }),
+            });
+            return;
+        }
+
+        if (mode2Active) {
+            for (const d of deps) {
+                const g = this.normalizeDependencyGroup(d);
+                if (g === null || !docGroupIds.has(g)) continue;
+                if (!this.isEffectivelyEmptyForMode(this.getRowCellRaw(row, d.field))) {
+                    errors.push({
+                        rowIndex,
+                        column: d.field,
+                        type: 'dependency_rule',
+                        message: this._transloco.translate(
+                            'createBatch.validationLeakDocumentWhenFullName',
+                            {
+                                step: stepName,
+                                field: d.field,
+                            }
+                        ),
+                    });
+                }
+            }
+        }
+
+        if (mode1Active) {
+            for (const d of deps) {
+                const g = this.normalizeDependencyGroup(d);
+                if (g === null || !nameGroupIds.has(g)) continue;
+                if (!this.isEffectivelyEmptyForMode(this.getRowCellRaw(row, d.field))) {
+                    errors.push({
+                        rowIndex,
+                        column: d.field,
+                        type: 'dependency_rule',
+                        message: this._transloco.translate(
+                            'createBatch.validationLeakFullNameWhenDocument',
+                            {
+                                step: stepName,
+                                field: d.field,
+                            }
+                        ),
+                    });
+                }
+            }
+
+            this.appendDocumentTypeNumberPairErrorsForDeps(row, rowIndex, deps, docGroupIds, errors);
+
+            for (const d of deps) {
+                const g = this.normalizeDependencyGroup(d);
+                if (g === null || !docGroupIds.has(g)) continue;
+                if (!d.requiredWhen) continue;
+                if (!this.requiredWhenPredicateMatches(row, d.requiredWhen)) continue;
+                if (this.isEffectivelyEmptyForMode(this.getRowCellRaw(row, d.field))) {
+                    const when = d.requiredWhen;
+                    errors.push({
+                        rowIndex,
+                        column: d.field,
+                        type: 'missing',
+                        message: this._transloco.translate('createBatch.validationConditionalRequired', {
+                            step: stepName,
+                            field: d.field,
+                            whenField: when.field,
+                            values: (when.in || []).join(', '),
+                        }),
+                    });
+                }
+            }
+        }
+
+        for (const d of deps) {
+            const g = this.normalizeDependencyGroup(d);
+            const isGrouped = g !== null;
+            let applies = true;
+            if (isGrouped) {
+                applies =
+                    (mode1Active && docGroupIds.has(g)) || (mode2Active && nameGroupIds.has(g));
+            }
+            if (!applies) continue;
+
+            const raw = this.getRowCellRaw(row, d.field);
+            if (d.required && this.isEmptyValue(raw)) {
+                errors.push({
+                    rowIndex,
+                    column: d.field,
+                    type: 'missing',
+                    message: `"${d.field}" is required but empty`,
+                });
+            }
+            this.appendEnumErrorIfAny(rowIndex, d, raw, errors);
+            this.appendDateFormatErrorIfAny(rowIndex, d, raw, errors);
+        }
+    }
+
+    private appendDateFormatErrorIfAny(
+        rowIndex: number,
+        d: FeatureDependency,
+        raw: unknown,
+        errors: CellError[]
+    ): void {
+        if (!d.dateFormat || this.isEmptyValue(raw)) return;
+        if (this.valueMatchesDependencyDateFormat(raw, d.dateFormat)) return;
+        errors.push({
+            rowIndex,
+            column: d.field,
+            type: 'invalid_type',
+            message: this._transloco.translate('createBatch.invalidDateFormat', {
+                field: d.field,
+                format: d.dateFormat,
+            }),
+        });
+    }
+
+    /**
+     * Supports declared `dateFormat` from AppFeature dependencies (e.g. dd/MM/yyyy for Colombia / global checks).
+     */
+    private valueMatchesDependencyDateFormat(raw: unknown, format: string): boolean {
+        const s = String(raw ?? '').trim();
+        if (!s) return true;
+        const norm = format.replace(/\s+/g, '').toLowerCase();
+        if (norm === 'dd/mm/yyyy') {
+            return this.isCalendarDdMmYyyy(s);
+        }
+        return true;
+    }
+
+    private isCalendarDdMmYyyy(value: string): boolean {
+        const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(value);
+        if (!m) return false;
+        const d = parseInt(m[1], 10);
+        const mo = parseInt(m[2], 10);
+        const y = parseInt(m[3], 10);
+        if (mo < 1 || mo > 12 || d < 1 || d > 31) return false;
+        const dt = new Date(y, mo - 1, d);
+        return dt.getFullYear() === y && dt.getMonth() === mo - 1 && dt.getDate() === d;
+    }
+
+    private appendLegacyStepValidation(
+        row: Record<string, unknown>,
+        rowIndex: number,
+        deps: FeatureDependency[],
+        errors: CellError[]
+    ): void {
+        for (const d of deps) {
+            const raw = this.getRowCellRaw(row, d.field);
+            if (d.required && this.isEmptyValue(raw)) {
+                errors.push({
+                    rowIndex,
+                    column: d.field,
+                    type: 'missing',
+                    message: `"${d.field}" is required but empty`,
+                });
+            }
+            this.appendEnumErrorIfAny(rowIndex, d, raw, errors);
+            this.appendDateFormatErrorIfAny(rowIndex, d, raw, errors);
+        }
+
+        const hasType = deps.some((d) => d.field === 'documentType');
+        const hasNum = deps.some((d) => d.field === 'documentNumber');
+        if (hasType && hasNum) {
+            this.appendDocumentTypeNumberPairErrorsForDeps(row, rowIndex, deps, null, errors);
+        }
+    }
+
+    private appendEnumErrorIfAny(
+        rowIndex: number,
+        d: FeatureDependency,
+        raw: unknown,
+        errors: CellError[]
+    ): void {
+        const enums = d.enum;
+        if (!enums || !Array.isArray(enums) || enums.length === 0) return;
+        if (this.isEmptyValue(raw)) return;
+        const normalizedValue = String(raw).trim().toLowerCase();
+        const validValues = enums.map((v) => String(v).toLowerCase());
+
+        if (!validValues.includes(normalizedValue)) {
+            errors.push({
+                rowIndex,
+                column: d.field,
+                type: 'invalid_enum',
+                message: `"${raw}" is not a valid value. Expected: ${enums.join(', ')}`,
+                expectedValues: enums,
+            });
+        }
+    }
+
+    private normalizeDependencyGroup(d: { dependencyGroup?: string }): string | null {
+        if (d.dependencyGroup == null) return null;
+        const s = String(d.dependencyGroup).trim();
+        return s.length ? s : null;
+    }
+
+    /**
+     * Build XOR section lists from merged required fields (same semantics as step validation XOR).
+     */
+    private computeMergedXorFieldGroups(fields: RequiredField[]): {
+        nameFields: RequiredField[];
+        documentFields: RequiredField[];
+        dobWhenValues: string | null;
+    } | null {
+        const minimal: FeatureDependency[] = fields.map((f) => ({
+            field: f.field,
+            dependencyGroup: f.dependencyGroup,
+            requiredWhen: f.requiredWhen,
+        }));
+        const xor = this.buildXorGroupMetadata(minimal);
+        if (!xor) return null;
+
+        const { docGroupIds, nameGroupIds } = xor;
+
+        const nameFields = fields
+            .filter((f) => {
+                const g = this.normalizeDependencyGroup(f);
+                return g !== null && nameGroupIds.has(g);
+            })
+            .sort((a, b) => a.field.localeCompare(b.field));
+
+        const docOrder = ['documentType', 'documentNumber', 'dateOfBirth', 'expirationDate'];
+        const docFields = fields.filter((f) => {
+            const g = this.normalizeDependencyGroup(f);
+            return g !== null && docGroupIds.has(g);
+        });
+        const documentFields = [...docFields].sort((a, b) => {
+            const ia = docOrder.indexOf(a.field);
+            const ib = docOrder.indexOf(b.field);
+            if (ia === -1 && ib === -1) return a.field.localeCompare(b.field);
+            if (ia === -1) return 1;
+            if (ib === -1) return -1;
+            return ia - ib;
+        });
+
+        const dob = documentFields.find(
+            (d) => d.field === 'dateOfBirth' && d.requiredWhen?.in?.length
+        );
+        const dobWhenValues = dob?.requiredWhen?.in?.join(', ') ?? null;
+
+        if (nameFields.length === 0 || documentFields.length === 0) return null;
+
+        return { nameFields, documentFields, dobWhenValues };
+    }
+
+    private buildXorGroupMetadata(deps: FeatureDependency[]): {
+        docGroupIds: Set<string>;
+        nameGroupIds: Set<string>;
+    } | null {
+        const grouped = new Map<string, FeatureDependency[]>();
+        for (const d of deps) {
+            const g = this.normalizeDependencyGroup(d);
+            if (g === null) continue;
+            if (!grouped.has(g)) grouped.set(g, []);
+            grouped.get(g)!.push(d);
+        }
+        if (grouped.size < 2) return null;
+
+        const docGroupIds = new Set<string>();
+        const nameGroupIds = new Set<string>();
+        for (const [gid, list] of grouped) {
+            if (list.some((x) => x.field === 'documentType' || x.field === 'documentNumber')) {
+                docGroupIds.add(gid);
+            }
+            if (list.some((x) => x.field === 'fullName')) {
+                nameGroupIds.add(gid);
+            }
+        }
+        if (docGroupIds.size === 0 || nameGroupIds.size === 0) return null;
+        return { docGroupIds, nameGroupIds };
+    }
+
+    private isDocumentSearchModeActive(
+        row: Record<string, unknown>,
+        deps: FeatureDependency[],
+        docGroupIds: Set<string>
+    ): boolean {
+        for (const d of deps) {
+            const g = this.normalizeDependencyGroup(d);
+            if (g === null || !docGroupIds.has(g)) continue;
+            if (d.field !== 'documentType' && d.field !== 'documentNumber') continue;
+            if (!this.isEffectivelyEmptyForMode(this.getRowCellRaw(row, d.field))) return true;
+        }
+        return false;
+    }
+
+    private isFullNameModeActive(
+        row: Record<string, unknown>,
+        deps: FeatureDependency[],
+        nameGroupIds: Set<string>
+    ): boolean {
+        for (const d of deps) {
+            const g = this.normalizeDependencyGroup(d);
+            if (g === null || !nameGroupIds.has(g)) continue;
+            if (d.field !== 'fullName') continue;
+            if (!this.isEffectivelyEmptyForMode(this.getRowCellRaw(row, d.field))) return true;
+        }
+        return false;
+    }
+
+    private requiredWhenPredicateMatches(
+        row: Record<string, unknown>,
+        when: { field?: string; in?: string[] }
+    ): boolean {
+        if (!when?.field || !when.in?.length) return false;
+        const v = this.getRowCellRaw(row, when.field);
+        if (this.isEffectivelyEmptyForMode(v)) return false;
+        const norm = String(v).trim().toLowerCase();
+        return when.in.some((x) => String(x).trim().toLowerCase() === norm);
+    }
+
+    private getRowCellRaw(row: Record<string, unknown>, field: string): unknown {
+        const k = this.findColumnKey(row, field);
+        return k ? row[k] : undefined;
+    }
+
+    private appendDocumentTypeNumberPairErrorsForDeps(
+        row: Record<string, unknown>,
+        rowIndex: number,
+        deps: FeatureDependency[],
+        docGroupIds: Set<string> | null,
+        errors: CellError[]
+    ): void {
+        const inDocGroup = (d: FeatureDependency) => {
+            const g = this.normalizeDependencyGroup(d);
+            if (docGroupIds) {
+                return g !== null && docGroupIds.has(g);
+            }
+            return true;
+        };
+
+        const hasType = deps.some((d) => d.field === 'documentType' && inDocGroup(d));
+        const hasNum = deps.some((d) => d.field === 'documentNumber' && inDocGroup(d));
+        if (!hasType || !hasNum) return;
+
+        const numKey = this.findColumnKey(row, CreateBatchComponent.DOCUMENT_NUMBER_FIELD);
+        const typeKey = this.findColumnKey(row, CreateBatchComponent.DOCUMENT_TYPE_FIELD);
+        const numRaw = numKey ? row[numKey] : undefined;
+        const typeRaw = typeKey ? row[typeKey] : undefined;
+        const numEmpty = this.isEffectivelyEmptyForMode(numRaw);
+        const typeEmpty = this.isEffectivelyEmptyForMode(typeRaw);
+
+        if (numEmpty === typeEmpty) return;
+
+        const hasMissingError = (column: string) =>
+            errors.some(
+                (e) => e.rowIndex === rowIndex && e.column === column && e.type === 'missing'
+            );
+
+        if (!numEmpty && typeEmpty) {
+            if (!hasMissingError(CreateBatchComponent.DOCUMENT_TYPE_FIELD)) {
+                errors.push({
+                    rowIndex,
+                    column: CreateBatchComponent.DOCUMENT_TYPE_FIELD,
+                    type: 'missing',
+                    message: this._transloco.translate(
+                        'createBatch.pairDocumentTypeRequiredWhenNumber'
+                    ),
+                });
+            }
+        } else if (numEmpty && !typeEmpty) {
+            if (!hasMissingError(CreateBatchComponent.DOCUMENT_NUMBER_FIELD)) {
+                errors.push({
+                    rowIndex,
+                    column: CreateBatchComponent.DOCUMENT_NUMBER_FIELD,
+                    type: 'missing',
+                    message: this._transloco.translate(
+                        'createBatch.pairDocumentNumberRequiredWhenType'
+                    ),
+                });
+            }
         }
     }
 
@@ -848,77 +1351,24 @@ export class CreateBatchComponent implements OnInit {
     private static readonly DOCUMENT_NUMBER_FIELD = 'documentNumber';
     private static readonly DOCUMENT_TYPE_FIELD = 'documentType';
 
-    /** Placeholders treated as empty for document number/type pairing only */
+    /** Placeholders treated as empty for XOR mode detection and document pairing */
     private static readonly PAIR_VALUE_PLACEHOLDERS = new Set(['-', 'n/a', 'na']);
 
     /**
      * True when the value is empty or a common spreadsheet placeholder (-, n/a).
-     * Used only for paired documentNumber + documentType validation.
+     * Used for dependency-group modes and paired documentNumber + documentType validation.
      */
-    private isEffectivelyEmptyForPairing(value: unknown): boolean {
+    private isEffectivelyEmptyForMode(value: unknown): boolean {
         if (value === null || value === undefined) return true;
         const normalized = String(value).trim();
         if (!normalized) return true;
         return CreateBatchComponent.PAIR_VALUE_PLACEHOLDERS.has(normalized.toLowerCase());
     }
 
-    /**
-     * When both fields exist in the batch configuration, each row must have both filled or both empty.
-     */
-    private appendDocumentNumberTypePairErrors(
-        requiredFieldDefs: RequiredField[],
-        rows: unknown[],
-        errors: CellError[]
-    ): void {
-        const configured = new Set(requiredFieldDefs.map((f) => f.field.toLowerCase()));
-        const docNumKey = CreateBatchComponent.DOCUMENT_NUMBER_FIELD.toLowerCase();
-        const docTypeKey = CreateBatchComponent.DOCUMENT_TYPE_FIELD.toLowerCase();
-        if (!configured.has(docNumKey) || !configured.has(docTypeKey)) {
-            return;
-        }
-
-        rows.forEach((row, rowIndex) => {
-            const r = row as Record<string, unknown>;
-            const numKey = this.findColumnKey(r, CreateBatchComponent.DOCUMENT_NUMBER_FIELD);
-            const typeKey = this.findColumnKey(r, CreateBatchComponent.DOCUMENT_TYPE_FIELD);
-            const numRaw = numKey ? r[numKey] : undefined;
-            const typeRaw = typeKey ? r[typeKey] : undefined;
-            const numEmpty = this.isEffectivelyEmptyForPairing(numRaw);
-            const typeEmpty = this.isEffectivelyEmptyForPairing(typeRaw);
-
-            if (numEmpty === typeEmpty) {
-                return;
-            }
-
-            const hasMissingError = (column: string) =>
-                errors.some(
-                    (e) => e.rowIndex === rowIndex && e.column === column && e.type === 'missing'
-                );
-
-            if (!numEmpty && typeEmpty) {
-                if (!hasMissingError(CreateBatchComponent.DOCUMENT_TYPE_FIELD)) {
-                    errors.push({
-                        rowIndex,
-                        column: CreateBatchComponent.DOCUMENT_TYPE_FIELD,
-                        type: 'missing',
-                        message: this._transloco.translate(
-                            'createBatch.pairDocumentTypeRequiredWhenNumber'
-                        ),
-                    });
-                }
-            } else if (numEmpty && !typeEmpty) {
-                if (!hasMissingError(CreateBatchComponent.DOCUMENT_NUMBER_FIELD)) {
-                    errors.push({
-                        rowIndex,
-                        column: CreateBatchComponent.DOCUMENT_NUMBER_FIELD,
-                        type: 'missing',
-                        message: this._transloco.translate(
-                            'createBatch.pairDocumentNumberRequiredWhenType'
-                        ),
-                    });
-                }
-            }
-        });
+    /** `requiredWhen` predicate present — show as conditional in expected-field cards (unless also globally required). */
+    fieldHasConditionalRule(field: RequiredField): boolean {
+        const w = field.requiredWhen;
+        return Boolean(w?.field && Array.isArray(w.in) && w.in.length > 0);
     }
 
     /** Get cell error for template binding */
@@ -960,6 +1410,7 @@ export class CreateBatchComponent implements OnInit {
         this.parseError.set(null);
         this.csvParseWarnings.set([]);
         this.validationResult.set(null);
+        this.missingRequiredColumnsFields.set(null);
     }
 
     submit() {
@@ -970,7 +1421,9 @@ export class CreateBatchComponent implements OnInit {
         const payload = {
             batchConfiguration: this.configId()!,
             name: this.batchForm.value.name,
-            rows: this.parsedRows(),
+            rows: this.parsedRows().map((r) =>
+                stripClientHiddenRowFields(r as Record<string, unknown>)
+            ),
         };
 
         this._smartBatchService.createSmartBatch(payload).subscribe({

@@ -1,0 +1,8 @@
+fullName,documentType,documentNumber,dateOfBirth,expirationDate
+,CCPA,10001,1990-05-10,
+,CI,10002,1985/11/22,
+,CE,10003,,15-03-2030
+,PPT,10004,,01.11.2028
+,PEP,10005,,2030-12-31
+,DUI,10006,32/01/1990,
+,CPF,10007,not-a-date,

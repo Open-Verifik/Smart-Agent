@@ -3,6 +3,8 @@ import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { tap } from 'rxjs';
 
+export type SmartBatchRowStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'partial';
+
 export interface BatchConfiguration {
     _id?: string;
     id?: string;
@@ -182,7 +184,7 @@ export class SmartBatchService {
         batchId: string,
         rowIndex: number,
         update: {
-            status: 'pending' | 'processing' | 'completed' | 'failed';
+            status: SmartBatchRowStatus;
             results?: Record<number, any>;
             errors?: { step: number; message: string; code: string }[];
         }
@@ -204,6 +206,7 @@ export interface SmartBatch {
     totalRows: number;
     completedRows: number;
     failedRows: number;
+    partialRows?: number;
     startedAt?: string;
     completedAt?: string;
     createdAt?: string;
@@ -213,7 +216,7 @@ export interface SmartBatch {
 export interface SmartBatchRow {
     rowIndex: number;
     inputData: any;
-    status: 'pending' | 'processing' | 'completed' | 'failed';
+    status: SmartBatchRowStatus;
     results: Record<number, any>;
     errors: { step: number; message: string; code: string }[];
     processedAt?: string;
@@ -224,6 +227,7 @@ export interface SmartBatchStats {
     totalRows: number;
     completedRows: number;
     failedRows: number;
+    partialRows?: number;
     pendingRows: number;
     statusBreakdown: {
         draft: number;

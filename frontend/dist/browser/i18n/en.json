@@ -1576,7 +1576,9 @@
         "addParam": "Add Param",
         "keyPlaceholder": "Key",
         "valuePlaceholder": "Value",
-        "descriptionPlaceholder": "Description"
+        "descriptionPlaceholder": "Description",
+        "documentTypePlaceholder": "Select document type",
+        "otherParameters": "Other parameters"
       },
       "headers": {
         "key": "Key",
@@ -1603,11 +1605,27 @@
           "field": "Field",
           "type": "Type",
           "required": "Required",
+          "conditional": "Conditional (when)",
+          "dateFormat": "Date format",
           "allowed": "Allowed",
           "description": "Description"
         },
         "yes": "Yes",
         "no": "No"
+      },
+      "validation": {
+        "groupedModesTitle": "How to fill this request",
+        "groupedModesBody": "Use one approach only: search by full name, or by document fields (type, number, and any dates required for that document type). Do not mix both in the same request.",
+        "groupedModesDateLine": "When a date field applies, use this format: {{format}}.",
+        "fixIssuesBeforeSend": "Fix these issues before sending:",
+        "badgeRequired": "Required",
+        "badgeOptional": "Optional",
+        "badgeConditional": "Conditional",
+        "dateFormatHint": "Format: {{format}}",
+        "fieldRequired": "\"{{field}}\" is required for this request ({{step}}).",
+        "invalidEnum": "\"{{value}}\" is not valid for \"{{field}}\". Expected: {{expected}}.",
+        "invalidJsonBody": "Body must be valid JSON.",
+        "pathSegmentRequired": "URL path segment \"{{segment}}\" is required."
       }
     },
     "responseViewer": {

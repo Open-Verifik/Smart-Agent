@@ -19,6 +19,7 @@ import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
+import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
 import { BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 
 @Component({
@@ -323,5 +324,12 @@ export class CreateBatchConfigComponent {
                 },
             });
         }
+    }
+
+    /** Dependencies shown in the wizard (hides internal-only fields such as `force`). */
+    visibleDependencies(feature: { dependencies?: { field?: string }[] } | null | undefined) {
+        const deps = feature?.dependencies;
+        if (!deps?.length) return [];
+        return deps.filter((d) => d?.field && isClientVisibleBatchDependencyField(d.field));
     }
 }

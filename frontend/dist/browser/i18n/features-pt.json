@@ -835,7 +835,7 @@
     "country": "País",
     "countryRequired": "O país é obrigatório",
     "mergeStrategy": "Estratégia de Mesclagem",
-    "sequential": "Sequencial (Um por um)",
+    "sequential": "Sequencial (em ordem, continua após falhas)",
     "parallelIndependent": "Paralelo Independente",
     "parallelWithFallback": "Paralelo com Fallback",
     "inputFieldsFormat": "Formato dos Campos de Entrada",
@@ -901,6 +901,7 @@
     "fixHighlightedCells": "Corrija as células destacadas para continuar",
     "missingValues": "{{count}} valor(es) faltando(s)",
     "invalidValues": "{{count}} valor(es) inválido(s)",
+    "invalidDateFormat": "\"{{field}}\" deve ser uma data válida no formato {{format}}.",
     "moreRowsHaveErrors": "{{count}} linhas adicionais têm erros (não mostradas na pré-visualização)",
     "estimatedCost": "Custo Estimado",
     "rows": "linhas",
@@ -916,7 +917,26 @@
     "noMatchingColumns": "Nenhum cabeçalho de coluna corresponde a este lote. Inclua pelo menos um destes: {{fields}}.",
     "noDataRowsAfterColumnFilter": "Após remover colunas não usadas, não restaram linhas de dados. Confira se o arquivo tem valores nos nomes de campo esperados.",
     "pairDocumentTypeRequiredWhenNumber": "\"documentType\" é obrigatório quando \"documentNumber\" está preenchido (informe os dois ou deixe os dois vazios).",
-    "pairDocumentNumberRequiredWhenType": "\"documentNumber\" é obrigatório quando \"documentType\" está preenchido (informe os dois ou deixe os dois vazios)."
+    "pairDocumentNumberRequiredWhenType": "\"documentNumber\" é obrigatório quando \"documentType\" está preenchido (informe os dois ou deixe os dois vazios).",
+    "validationXorBothModes": "Use nome completo ou tipo e número de documento, não ambos ({{step}}).",
+    "validationXorNeitherMode": "Informe nome completo ou tipo e número de documento ({{step}}).",
+    "validationLeakDocumentWhenFullName": "Ao buscar por nome completo, deixe \"{{field}}\" vazio ({{step}}).",
+    "validationLeakFullNameWhenDocument": "Ao buscar por documento, deixe \"{{field}}\" vazio ({{step}}).",
+    "validationConditionalRequired": "\"{{field}}\" é obrigatório quando \"{{whenField}}\" é um de: {{values}} ({{step}}).",
+    "dependencyRuleIssues": "{{count}} conflito(s) de regra(s)",
+    "validationIssuesListSeparator": ", ",
+    "validationIssuesBanner": "Encontrado(s) {{issueCount}} problema(s) em {{rowCount}} linha(s): {{breakdown}}. Verifique as células destacadas abaixo.",
+    "missingRequiredColumns": "Faltam colunas obrigatórias: {{fields}}. Baixe o modelo para o formato correto.",
+    "disabledCreating": "Criando o lote...",
+    "disabledNoFile": "Envie um arquivo com dados para continuar",
+    "disabledNoBatchName": "Informe um nome do lote para continuar",
+    "disabledFixDataErrors": "Corrija os erros nos dados para continuar",
+    "searchModesIntro": "Cada linha deve usar apenas uma abordagem: busca por nome completo ou por tipo e número do documento (mais data de nascimento quando determinados tipos exigirem). Não misture os dois na mesma linha.",
+    "searchModeOptionFullName": "Opção A — Busca por nome completo",
+    "searchModeOptionDocument": "Opção B — Busca por documento",
+    "dateOfBirthConditionalHint": "Quando o tipo de documento for um de: {{values}}, a coluna dateOfBirth é obrigatória nessa linha.",
+    "fieldConditional": "Condicional",
+    "fieldConditionalDetail": "Obrigatório quando {{whenField}} for um de: {{values}}."
   },
   "batchTutorial": {
     "stepOf": "Passo {{current}} de {{total}}",
@@ -1118,6 +1138,7 @@
     "rowNumber": "Linha {{index}}",
     "completed": "Concluído",
     "failed": "Falhou",
+    "partial": "Parcial",
     "recordsVerified": "{{count}} registros verificados",
     "noCompletedRecordsYet": "Nenhum registro concluído ainda",
     "verified": "Verificado",
@@ -1140,8 +1161,13 @@
     "successful": "Bem-sucedidos",
     "requestsFailed": "solicitações falharam",
     "requestsSuccessful": "solicitações bem-sucedidas",
+    "requestsPartial": "registros para tentar novamente",
     "all": "Todos",
-    "noResultsFound": "Nenhum resultado encontrado"
+    "noResultsFound": "Nenhum resultado encontrado",
+    "continueOnFailureTitle": "O lote continua quando um endpoint falha",
+    "continueOnFailureBody": "Cada endpoint é tentado de forma independente. Se uma verificação falhar, as demais continuam e a linha fica parcial para tentar novamente apenas as etapas com falha.",
+    "retryStep": "Tentar novamente",
+    "retrying": "Tentando novamente..."
   },
   "batchDashboard": {
     "backToSmartBatch": "Voltar ao Smart Batch",
@@ -1176,6 +1202,7 @@
     "created": "Criado",
     "actions": "Ações",
     "viewDetails": "Ver detalhes",
-    "failedCount": "({{count}} falharam)"
+    "failedCount": "({{count}} falharam)",
+    "partialCount": "({{count}} parciais)"
   }
 }

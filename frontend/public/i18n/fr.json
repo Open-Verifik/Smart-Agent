@@ -1576,7 +1576,9 @@
         "addParam": "Ajouter Paramètre",
         "keyPlaceholder": "Clé",
         "valuePlaceholder": "Valeur",
-        "descriptionPlaceholder": "Description"
+        "descriptionPlaceholder": "Description",
+        "documentTypePlaceholder": "Sélectionner le type de document",
+        "otherParameters": "Autres paramètres"
       },
       "headers": {
         "key": "Clé",
@@ -1603,11 +1605,27 @@
           "field": "Champ",
           "type": "Type",
           "required": "Requis",
+          "conditional": "Conditionnel (quand)",
+          "dateFormat": "Format de date",
           "allowed": "Autorisés",
           "description": "Description"
         },
         "yes": "Oui",
         "no": "Non"
+      },
+      "validation": {
+        "groupedModesTitle": "Comment remplir cette requête",
+        "groupedModesBody": "Utilisez une seule approche : recherche par nom complet, ou par les champs du document (type, numéro et dates requises pour ce type). Ne combinez pas les deux dans la même requête.",
+        "groupedModesDateLine": "Lorsqu'un champ date s'applique, utilisez ce format : {{format}}.",
+        "fixIssuesBeforeSend": "Corrigez les éléments suivants avant d'envoyer :",
+        "badgeRequired": "Requis",
+        "badgeOptional": "Facultatif",
+        "badgeConditional": "Conditionnel",
+        "dateFormatHint": "Format : {{format}}",
+        "fieldRequired": "« {{field}} » est requis pour cette requête ({{step}}).",
+        "invalidEnum": "« {{value}} » n'est pas valide pour « {{field}} ». Valeurs attendues : {{expected}}.",
+        "invalidJsonBody": "Le corps doit être un JSON valide.",
+        "pathSegmentRequired": "Le segment d'URL « {{segment}} » est obligatoire."
       }
     },
     "responseViewer": {
@@ -1867,18 +1885,7 @@
       "duration": "Durée",
       "noRequests": "Aucune requête trouvée",
       "noParams": "Aucun paramètre",
-      "confirmed": "Confirmé",
-      "actions": "Actions",
-      "requestsCount": "{{count}} requêtes au total",
-      "loading": "Chargement",
-      "live": "En direct",
-      "cost": "Coût"
-    },
-    "subtitle": "Auditez les appels API, inspectez les paramètres et relancez les validations sans reconstruire la requête.",
-    "actions": {
-      "repeat": "Relancer",
-      "repeatTooltip": "Ouvrir cette requête dans Postman avec les mêmes paramètres",
-      "repeatUnavailable": "Cette requête ne peut pas être relancée car elle n’a pas de code de fonctionnalité"
+      "confirmed": "Confirmé"
     }
   },
   "addCredits": {

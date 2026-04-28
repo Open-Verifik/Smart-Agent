@@ -835,7 +835,7 @@
     "country": "国家",
     "countryRequired": "国家为必填项",
     "mergeStrategy": "合并策略",
-    "sequential": "顺序（逐一）",
+    "sequential": "顺序（按顺序执行，失败后继续）",
     "parallelIndependent": "并行独立",
     "parallelWithFallback": "带回退的并行",
     "inputFieldsFormat": "输入字段格式",
@@ -901,6 +901,7 @@
     "fixHighlightedCells": "修复高亮单元格以继续",
     "missingValues": "{{count}} 个缺失值",
     "invalidValues": "{{count}} 个无效值",
+    "invalidDateFormat": "「{{field}}」必须是 {{format}} 格式的有效日期。",
     "moreRowsHaveErrors": "还有 {{count}} 行有错误（预览中未显示）",
     "estimatedCost": "预估成本",
     "rows": "行",
@@ -916,7 +917,26 @@
     "noMatchingColumns": "没有列标题与此批次匹配。请至少包含以下之一：{{fields}}。",
     "noDataRowsAfterColumnFilter": "移除未使用的列后没有数据行。请确认文件中预期字段名下有值。",
     "pairDocumentTypeRequiredWhenNumber": "填写了 \"documentNumber\" 则必须同时填写 \"documentType\"（两项都填或都留空）。",
-    "pairDocumentNumberRequiredWhenType": "填写了 \"documentType\" 则必须同时填写 \"documentNumber\"（两项都填或都留空）。"
+    "pairDocumentNumberRequiredWhenType": "填写了 \"documentType\" 则必须同时填写 \"documentNumber\"（两项都填或都留空）。",
+    "validationXorBothModes": "请仅使用全名或证件类型与号码之一（{{step}}）。",
+    "validationXorNeitherMode": "请填写全名或证件类型与号码（{{step}}）。",
+    "validationLeakDocumentWhenFullName": "按全名检索时请将 \"{{field}}\" 留空（{{step}}）。",
+    "validationLeakFullNameWhenDocument": "按证件检索时请将 \"{{field}}\" 留空（{{step}}）。",
+    "validationConditionalRequired": "当 \"{{whenField}}\" 为以下之一时，\"{{field}}\" 为必填：{{values}}（{{step}}）。",
+    "dependencyRuleIssues": "{{count}} 条规则冲突",
+    "validationIssuesListSeparator": "，",
+    "validationIssuesBanner": "在 {{rowCount}} 行中发现 {{issueCount}} 个问题：{{breakdown}}。请查看下方高亮的单元格。",
+    "missingRequiredColumns": "缺少必需列：{{fields}}。请下载模板以使用正确格式。",
+    "disabledCreating": "正在创建批次...",
+    "disabledNoFile": "请上传包含数据的文件以继续",
+    "disabledNoBatchName": "请输入批次名称以继续",
+    "disabledFixDataErrors": "请修正数据中的错误后再继续",
+    "searchModesIntro": "每一行只能采用一种方式：按全名检索，或按证件类型与号码检索（部分类型可能还需要出生日期）。请勿在同一行混用两种方式。",
+    "searchModeOptionFullName": "方式 A — 按全名检索",
+    "searchModeOptionDocument": "方式 B — 按证件检索",
+    "dateOfBirthConditionalHint": "当证件类型（documentType）为以下之一时，该行必须填写 dateOfBirth 列：{{values}}",
+    "fieldConditional": "条件必填",
+    "fieldConditionalDetail": "当 {{whenField}} 为以下之一时必填：{{values}}。"
   },
   "batchTutorial": {
     "stepOf": "第 {{current}} 步，共 {{total}} 步",
@@ -1118,6 +1138,7 @@
     "rowNumber": "第 {{index}} 行",
     "completed": "已完成",
     "failed": "失败",
+    "partial": "部分完成",
     "recordsVerified": "{{count}} 条记录已验证",
     "noCompletedRecordsYet": "尚无已完成的记录",
     "verified": "已验证",
@@ -1140,8 +1161,13 @@
     "successful": "成功",
     "requestsFailed": "请求失败",
     "requestsSuccessful": "请求成功",
+    "requestsPartial": "需要重试的记录",
     "all": "全部",
-    "noResultsFound": "未找到结果"
+    "noResultsFound": "未找到结果",
+    "continueOnFailureTitle": "端点失败时批次仍会继续",
+    "continueOnFailureBody": "每个端点都会独立尝试。如果某项检查失败，其余检查仍会继续运行，并将该行标记为部分完成，以便只重试失败的步骤。",
+    "retryStep": "重试",
+    "retrying": "正在重试..."
   },
   "batchDashboard": {
     "backToSmartBatch": "返回 Smart Batch",
@@ -1176,6 +1202,7 @@
     "created": "创建时间",
     "actions": "操作",
     "viewDetails": "查看详情",
-    "failedCount": "（{{count}} 个失败）"
+    "failedCount": "（{{count}} 个失败）",
+    "partialCount": "（{{count}} 个部分完成）"
   }
 }

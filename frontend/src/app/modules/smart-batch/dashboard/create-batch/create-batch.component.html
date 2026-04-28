@@ -159,80 +159,189 @@
                             </div>
                         </div>
 
+                        <!-- Expected field cards: shared template (flat grid or XOR grouped layout) -->
+                        <ng-template #expectedFieldCard let-field="field">
+                            <div
+                                class="flex items-start gap-3 rounded-xl border bg-white p-3 dark:bg-gray-800/60"
+                                [ngClass]="
+                                    field.required
+                                        ? 'border-orange-200 dark:border-orange-800/50'
+                                        : fieldHasConditionalRule(field)
+                                          ? 'border-sky-200 dark:border-sky-800/50'
+                                          : 'border-stone-200 dark:border-gray-700'
+                                "
+                            >
+                                <div
+                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                                    [ngClass]="
+                                        field.required
+                                            ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+                                            : fieldHasConditionalRule(field)
+                                              ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300'
+                                              : 'bg-stone-100 text-stone-500 dark:bg-gray-700'
+                                    "
+                                >
+                                    <mat-icon *ngIf="field.required" class="icon-size-4"
+                                        >priority_high</mat-icon
+                                    >
+                                    <mat-icon
+                                        *ngIf="!field.required && fieldHasConditionalRule(field)"
+                                        class="icon-size-4"
+                                        >rule_folder</mat-icon
+                                    >
+                                    <mat-icon
+                                        *ngIf="!field.required && !fieldHasConditionalRule(field)"
+                                        class="icon-size-4"
+                                        >remove</mat-icon
+                                    >
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <code
+                                            class="rounded bg-stone-100 px-1.5 py-0.5 text-sm font-medium text-stone-900 dark:bg-gray-700 dark:text-white"
+                                            >{{ field.field }}</code
+                                        >
+                                        <span
+                                            *ngIf="field.required"
+                                            class="text-[10px] font-bold uppercase text-orange-600 dark:text-orange-400"
+                                            >{{ 'createBatch.required' | transloco }}</span
+                                        >
+                                        <span
+                                            *ngIf="
+                                                !field.required && fieldHasConditionalRule(field)
+                                            "
+                                            class="text-[10px] font-bold uppercase text-sky-700 dark:text-sky-300"
+                                            >{{ 'createBatch.fieldConditional' | transloco }}</span
+                                        >
+                                        <span
+                                            *ngIf="
+                                                !field.required && !fieldHasConditionalRule(field)
+                                            "
+                                            class="text-[10px] font-medium uppercase text-stone-400"
+                                            >{{ 'createBatch.optional' | transloco }}</span
+                                        >
+                                        <span
+                                            *ngIf="field.enumValues?.length"
+                                            class="text-[10px] font-medium uppercase text-violet-600 dark:text-violet-400"
+                                        >
+                                            • {{ 'createBatch.options' | transloco }}
+                                        </span>
+                                    </div>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{
+                                            'createBatch.usedBy'
+                                                | transloco: { stepName: field.stepName }
+                                        }}
+                                    </p>
+                                    <p
+                                        *ngIf="
+                                            fieldHasConditionalRule(field) && !field.required
+                                        "
+                                        class="mt-1.5 text-xs leading-relaxed text-sky-800 dark:text-sky-200"
+                                    >
+                                        {{
+                                            'createBatch.fieldConditionalDetail'
+                                                | transloco
+                                                    : {
+                                                          whenField:
+                                                              field.requiredWhen?.field ?? '',
+                                                          values:
+                                                              (field.requiredWhen?.in || []).join(
+                                                                  ', '
+                                                              ),
+                                                      }
+                                        }}
+                                    </p>
+                                    <div
+                                        *ngIf="field.enumValues?.length"
+                                        class="mt-2 flex flex-wrap gap-1"
+                                    >
+                                        <span
+                                            *ngFor="let val of field.enumValues"
+                                            class="rounded border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] text-violet-700 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300"
+                                        >
+                                            {{ val }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-template>
+
                         <div *ngIf="requiredFields().length > 0">
                             <h4
                                 class="mb-3 text-sm font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300"
                             >
                                 {{ 'createBatch.expectedFieldsHeading' | transloco }}
                             </h4>
-                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                <div
-                                    *ngFor="let field of requiredFields()"
-                                    class="flex items-start gap-3 rounded-xl border bg-white p-3 dark:bg-gray-800/60"
-                                    [ngClass]="
-                                        field.required
-                                            ? 'border-orange-200 dark:border-orange-800/50'
-                                            : 'border-stone-200 dark:border-gray-700'
-                                    "
+
+                            <ng-container *ngIf="xorExpectedFieldGroups() as xor; else flatExpectedFields">
+                                <p
+                                    class="mb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-400"
                                 >
+                                    {{ 'createBatch.searchModesIntro' | transloco }}
+                                </p>
+                                <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                                     <div
-                                        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                                        [ngClass]="
-                                            field.required
-                                                ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
-                                                : 'bg-stone-100 text-stone-500 dark:bg-gray-700'
-                                        "
+                                        class="rounded-2xl border border-stone-200/90 bg-stone-50/50 p-4 dark:border-gray-700 dark:bg-gray-900/40"
                                     >
-                                        <mat-icon *ngIf="field.required" class="icon-size-4"
-                                            >priority_high</mat-icon
+                                        <h5
+                                            class="mb-3 text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
                                         >
-                                        <mat-icon *ngIf="!field.required" class="icon-size-4"
-                                            >remove</mat-icon
-                                        >
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <code
-                                                class="rounded bg-stone-100 px-1.5 py-0.5 text-sm font-medium text-stone-900 dark:bg-gray-700 dark:text-white"
-                                                >{{ field.field }}</code
-                                            >
-                                            <span
-                                                *ngIf="field.required"
-                                                class="text-[10px] font-bold uppercase text-orange-600 dark:text-orange-400"
-                                                >{{ 'createBatch.required' | transloco }}</span
-                                            >
-                                            <span
-                                                *ngIf="!field.required"
-                                                class="text-[10px] font-medium uppercase text-stone-400"
-                                                >{{ 'createBatch.optional' | transloco }}</span
-                                            >
-                                            <span
-                                                *ngIf="field.enumValues?.length"
-                                                class="text-[10px] font-medium uppercase text-violet-600 dark:text-violet-400"
-                                            >
-                                                • {{ 'createBatch.options' | transloco }}
-                                            </span>
+                                            {{ 'createBatch.searchModeOptionFullName' | transloco }}
+                                        </h5>
+                                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <ng-container *ngFor="let field of xor.nameFields">
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        expectedFieldCard;
+                                                        context: { field: field }
+                                                    "
+                                                ></ng-container>
+                                            </ng-container>
                                         </div>
-                                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                    </div>
+                                    <div
+                                        class="rounded-2xl border border-stone-200/90 bg-stone-50/50 p-4 dark:border-gray-700 dark:bg-gray-900/40"
+                                    >
+                                        <h5
+                                            class="mb-3 text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                        >
+                                            {{ 'createBatch.searchModeOptionDocument' | transloco }}
+                                        </h5>
+                                        <p
+                                            *ngIf="xor.dobWhenValues as values"
+                                            class="mb-3 text-xs leading-relaxed text-stone-600 dark:text-stone-400"
+                                        >
                                             {{
-                                                'createBatch.usedBy'
-                                                    | transloco: { stepName: field.stepName }
+                                                'createBatch.dateOfBirthConditionalHint'
+                                                    | transloco: { values: values }
                                             }}
                                         </p>
-                                        <div
-                                            *ngIf="field.enumValues?.length"
-                                            class="mt-2 flex flex-wrap gap-1"
-                                        >
-                                            <span
-                                                *ngFor="let val of field.enumValues"
-                                                class="rounded border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] text-violet-700 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300"
-                                            >
-                                                {{ val }}
-                                            </span>
+                                        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                            <ng-container *ngFor="let field of xor.documentFields">
+                                                <ng-container
+                                                    *ngTemplateOutlet="
+                                                        expectedFieldCard;
+                                                        context: { field: field }
+                                                    "
+                                                ></ng-container>
+                                            </ng-container>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </ng-container>
+                            <ng-template #flatExpectedFields>
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    <ng-container *ngFor="let field of requiredFields()">
+                                        <ng-container
+                                            *ngTemplateOutlet="
+                                                expectedFieldCard;
+                                                context: { field: field }
+                                            "
+                                        ></ng-container>
+                                    </ng-container>
+                                </div>
+                            </ng-template>
                         </div>
 
                         <div
@@ -364,28 +473,38 @@
                             </button>
                         </div>
 
-                        <div
-                            *ngIf="parseError()"
-                            class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50/90 p-4 dark:border-red-900/50 dark:bg-red-950/30"
-                        >
-                            <mat-icon class="shrink-0 text-red-600 dark:text-red-400"
-                                >error</mat-icon
+                        <ng-container *ngIf="fileCardIssueBanner() as banner">
+                            <div
+                                class="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50/90 p-4 dark:border-red-900/50 dark:bg-red-950/30"
                             >
-                            <div>
-                                <p class="font-medium text-red-800 dark:text-red-200">
-                                    {{ parseError() }}
-                                </p>
-                                <button
-                                    mat-button
-                                    color="primary"
-                                    class="!-ml-4 !mt-2 rounded-xl"
-                                    (click)="downloadTemplate()"
+                                <mat-icon class="shrink-0 text-red-600 dark:text-red-400"
+                                    >error</mat-icon
                                 >
-                                    <mat-icon class="mr-1 !h-4 !w-4">download</mat-icon>
-                                    {{ 'createBatch.downloadCsvTemplate' | transloco }}
-                                </button>
+                                <div>
+                                    <p
+                                        *ngIf="banner.mode === 'raw'"
+                                        class="font-medium text-red-800 dark:text-red-200"
+                                    >
+                                        {{ banner.text }}
+                                    </p>
+                                    <p
+                                        *ngIf="banner.mode === 'i18n'"
+                                        class="font-medium text-red-800 dark:text-red-200"
+                                    >
+                                        {{ banner.key | transloco: banner.params }}
+                                    </p>
+                                    <button
+                                        mat-button
+                                        color="primary"
+                                        class="!-ml-4 !mt-2 rounded-xl"
+                                        (click)="downloadTemplate()"
+                                    >
+                                        <mat-icon class="mr-1 !h-4 !w-4">download</mat-icon>
+                                        {{ 'createBatch.downloadCsvTemplate' | transloco }}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        </ng-container>
 
                         <div
                             *ngIf="csvParseWarnings().length > 0"
@@ -397,12 +516,14 @@
                             <ul
                                 class="list-disc space-y-1 pl-4 text-sm text-amber-900 dark:text-amber-100"
                             >
-                                <li *ngFor="let notice of csvParseWarnings()">{{ notice }}</li>
+                                <li *ngFor="let notice of csvParseWarnings()">
+                                    {{ notice.key | transloco: notice.params }}
+                                </li>
                             </ul>
                         </div>
 
                         <div
-                            *ngIf="parsedRows().length > 0 && !parseError()"
+                            *ngIf="parsedRows().length > 0 && !hasBlockingFileIssues()"
                             class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/90 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/25"
                         >
                             <mat-icon class="text-emerald-600 dark:text-emerald-400"
@@ -431,7 +552,7 @@
                     *ngIf="parsedRows().length > 0"
                     class="rounded-2xl border bg-white p-6 shadow-sm dark:bg-gray-900"
                     [ngClass]="
-                        parseError()
+                        hasBlockingFileIssues()
                             ? 'border-red-300 dark:border-red-900/50'
                             : 'border-stone-200/90 dark:border-gray-800'
                     "
@@ -487,6 +608,17 @@
                                     'createBatch.invalidValues'
                                         | transloco
                                             : { count: errorSummary()?.invalidEnumCount || 0 }
+                                }}
+                            </span>
+                            <span
+                                *ngIf="errorSummary()?.dependencyRuleCount"
+                                class="flex items-center gap-1.5 text-red-800 dark:text-red-200"
+                            >
+                                <span class="h-3 w-3 rounded-sm bg-amber-600"></span>
+                                {{
+                                    'createBatch.dependencyRuleIssues'
+                                        | transloco
+                                            : { count: errorSummary()?.dependencyRuleCount || 0 }
                                 }}
                             </span>
                         </div>
@@ -598,7 +730,7 @@
 
                 <!-- Cost Estimate -->
                 <div
-                    *ngIf="parsedRows().length > 0 && !parseError()"
+                    *ngIf="parsedRows().length > 0 && !hasBlockingFileIssues()"
                     class="rounded-2xl border border-stone-200/90 bg-stone-900 px-6 py-6 text-white shadow-sm dark:border-gray-700 dark:bg-stone-950"
                 >
                     <div class="flex items-center justify-between gap-4">
@@ -631,7 +763,7 @@
                     </button>
                     <span
                         [matTooltip]="
-                            (!hasValidData() || parseError()) && createBatchDisabledReason()
+                            (!hasValidData() || hasBlockingFileIssues()) && createBatchDisabledReason()
                                 ? createBatchDisabledReason()
                                 : ''
                         "
@@ -640,7 +772,7 @@
                             mat-flat-button
                             color="primary"
                             type="button"
-                            [disabled]="!hasValidData() || isSubmitting() || parseError()"
+                            [disabled]="!hasValidData() || isSubmitting() || hasBlockingFileIssues()"
                             (click)="submit()"
                             class="min-w-32 rounded-xl"
                         >

@@ -7,13 +7,17 @@ import { AgentWalletService } from 'app/modules/chat/services/agent-wallet.servi
 import {
     API_ENDPOINTS,
     ApiEndpoint,
+    PostmanDependencyMeta,
     PostmanEndpointRowDto,
     PostmanFolderDto,
     PostmanLayoutData,
     PostmanLayoutResponse,
 } from './postman.types';
 import {
-    arePostmanRequestInputsSatisfied,
+    getPostmanRequestValidationIssues,
+    getPostmanXorGroupMetadata,
+} from './postman-request-validation';
+import {
     buildPostmanEffectiveUrl,
     getPostmanPathParamKeysForEndpoint,
 } from './postman-url.util';
@@ -153,6 +157,9 @@ export class PostmanService {
                             headers: current.headers?.length ? current.headers : match.headers,
                             params: this._mergeEndpointParams(current.params, match.params),
                             body: current.body ?? match.body,
+                            dependencies: match.dependencies?.length
+                                ? match.dependencies
+                                : current.dependencies,
                         };
                     });
                 }),
@@ -244,6 +251,22 @@ export class PostmanService {
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
         const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
 
+        const rawDeps: any[] = Array.isArray(feature.dependencies) ? feature.dependencies : [];
+        const dependencies: PostmanDependencyMeta[] = rawDeps
+            .filter((d) => d && typeof d.field === 'string' && d.field.length > 0)
+            .map((dependency: any) => ({
+                field: dependency.field,
+                type: dependency.type,
+                required: dependency.required,
+                enum: dependency.enum ?? undefined,
+                description: dependency.description,
+                dependencyGroup: dependency.dependencyGroup,
+                requiredWhen: dependency.requiredWhen,
+                dateFormat: dependency.dateFormat,
+            }));
+
+        const xorMeta = dependencies.length ? getPostmanXorGroupMetadata(dependencies) : null;
+
         return {
             id: feature._id || feature.code,
             label: feature.name,
@@ -265,12 +288,26 @@ export class PostmanService {
                     value: 'Bearer <token>',
                 },
             ],
+            ...(dependencies.length ? { dependencies } : {}),
             params:
                 method === 'GET' && feature.dependencies
                     ? feature.dependencies.map((dependency: any) => {
-                          const defaultVal =
-                              dependency.default ||
-                              (dependency.enum && dependency.enum.length ? dependency.enum[0] : '');
+                          const groupId =
+                              dependency.dependencyGroup != null
+                                  ? String(dependency.dependencyGroup).trim()
+                                  : '';
+                          const isXorDocumentType =
+                              dependency.field === 'documentType' &&
+                              xorMeta &&
+                              groupId.length > 0 &&
+                              xorMeta.docGroupIds.has(groupId);
+
+                          const defaultVal = isXorDocumentType
+                              ? dependency.default ?? ''
+                              : dependency.default ||
+                                (dependency.enum && dependency.enum.length
+                                    ? dependency.enum[0]
+                                    : '');
 
                           let desc = dependency.description;
                           if (!desc && dependency.enum && dependency.enum.length) {
@@ -289,6 +326,11 @@ export class PostmanService {
                               required: dependency.required,
                               description: desc,
                               ...(enumList ? { enum: enumList } : {}),
+                              ...(dependency.dependencyGroup != null && String(dependency.dependencyGroup).trim()
+                                  ? { dependencyGroup: String(dependency.dependencyGroup).trim() }
+                                  : {}),
+                              ...(dependency.requiredWhen ? { requiredWhen: dependency.requiredWhen } : {}),
+                              ...(dependency.dateFormat ? { dateFormat: dependency.dateFormat } : {}),
                           };
                       })
                     : [],
@@ -355,6 +397,9 @@ export class PostmanService {
             ...existing,
             enum: enumMerged,
             description,
+            dependencyGroup: existing.dependencyGroup ?? match.dependencyGroup,
+            requiredWhen: existing.requiredWhen ?? match.requiredWhen,
+            dateFormat: existing.dateFormat ?? match.dateFormat,
         };
     }
 
@@ -384,6 +429,7 @@ export class PostmanService {
                 params: this._mergeEndpointParams(existing.params, match.params),
                 body: existing.body ?? match.body,
                 documentationUrl: existing.documentationUrl || match.documentationUrl,
+                dependencies: match.dependencies?.length ? match.dependencies : existing.dependencies,
             };
         });
 
@@ -530,7 +576,15 @@ export class PostmanService {
     }
 
     sendRequest(endpoint: ApiEndpoint) {
-        if (!arePostmanRequestInputsSatisfied(endpoint)) {
+        const postDraft =
+            endpoint.method === 'GET' || endpoint.method === 'DELETE'
+                ? undefined
+                : JSON.stringify(
+                      endpoint.body && typeof endpoint.body === 'object' ? endpoint.body : {},
+                      null,
+                      2
+                  );
+        if (getPostmanRequestValidationIssues(endpoint, postDraft).length > 0) {
             return;
         }
         this.isLoading.set(true);

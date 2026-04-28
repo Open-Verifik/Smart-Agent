@@ -123,6 +123,12 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
                                                 {{ 'postman.requestEditor.about.paramsColumns.required' | transloco }}
                                             </th>
                                             <th class="px-3 py-2 font-medium">
+                                                {{ 'postman.requestEditor.about.paramsColumns.conditional' | transloco }}
+                                            </th>
+                                            <th class="px-3 py-2 font-medium">
+                                                {{ 'postman.requestEditor.about.paramsColumns.dateFormat' | transloco }}
+                                            </th>
+                                            <th class="px-3 py-2 font-medium">
                                                 {{ 'postman.requestEditor.about.paramsColumns.allowed' | transloco }}
                                             </th>
                                             <th class="px-3 py-2 font-medium">
@@ -141,6 +147,16 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
                                                 </td>
                                                 <td class="px-3 py-2 text-slate-600 dark:text-slate-300">
                                                     {{ (row.required ? 'postman.requestEditor.about.yes' : 'postman.requestEditor.about.no') | transloco }}
+                                                </td>
+                                                <td class="px-3 py-2 text-slate-600 dark:text-slate-300 text-sm">
+                                                    @if (row.conditionalHint) {
+                                                        {{ row.conditionalHint }}
+                                                    } @else {
+                                                        <span class="text-slate-400">—</span>
+                                                    }
+                                                </td>
+                                                <td class="px-3 py-2 text-slate-600 dark:text-slate-300 font-mono text-xs">
+                                                    {{ row.dateFormat || '—' }}
                                                 </td>
                                                 <td class="px-3 py-2">
                                                     @if (row.allowed?.length) {
@@ -361,10 +377,29 @@ export class AboutEndpointComponent {
     readonly paramsRows = computed(() => {
         const doc = this.activeDoc();
         const catalog = this._endpoint()?.params ?? [];
-        const byField = new Map<string, { type?: string; required?: boolean; allowed?: string[] }>();
+        const byField = new Map<
+            string,
+            {
+                type?: string;
+                required?: boolean;
+                allowed?: string[];
+                requiredWhen?: { field: string; in?: string[] };
+                dateFormat?: string;
+            }
+        >();
         for (const p of catalog) {
-            byField.set(p.key, { type: p.type, required: p.required, allowed: p.enum });
+            byField.set(p.key, {
+                type: p.type,
+                required: p.required,
+                allowed: p.enum,
+                requiredWhen: p.requiredWhen,
+                dateFormat: p.dateFormat,
+            });
         }
+        const conditionalHint = (rw?: { field: string; in?: string[] }): string | undefined => {
+            if (!rw?.field || !rw.in?.length) return undefined;
+            return `${rw.field}: ${rw.in.join(', ')}`;
+        };
         if (doc?.params?.length) {
             return doc.params.map((row) => {
                 const extra = byField.get(row.field) || {};
@@ -375,6 +410,8 @@ export class AboutEndpointComponent {
                     required: !!extra.required,
                     allowed: extra.allowed,
                     description: row.description,
+                    conditionalHint: conditionalHint(extra.requiredWhen),
+                    dateFormat: extra.dateFormat,
                 };
             });
         }
@@ -384,6 +421,8 @@ export class AboutEndpointComponent {
             required: !!p.required,
             allowed: p.enum,
             description: p.description || '',
+            conditionalHint: conditionalHint(p.requiredWhen),
+            dateFormat: p.dateFormat,
         }));
     });
 

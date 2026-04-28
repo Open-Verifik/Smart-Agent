@@ -158,9 +158,9 @@
                 </div>
 
                 <!-- Summary Stats -->
-                @if (completedRows().length > 0 || failedRows().length > 0) {
+                @if (completedRows().length > 0 || partialRows().length > 0 || failedRows().length > 0) {
                     <div class="mt-4 pt-4 border-t border-gray-100">
-                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                             <!-- Total Cost -->
                             <div class="flex items-center gap-3 px-4 py-3 bg-indigo-50 rounded-lg">
                                 <div
@@ -208,6 +208,33 @@
                                 </div>
                             </div>
 
+                            <!-- Partial -->
+                            @if (partialRows().length > 0) {
+                                <div
+                                    class="flex items-center gap-3 px-4 py-3 bg-amber-50 rounded-lg cursor-pointer transition-all hover:shadow-md"
+                                    [class.ring-2]="recordFilter() === 'partial'"
+                                    [class.ring-amber-400]="recordFilter() === 'partial'"
+                                    (click)="setRecordFilter('partial')"
+                                >
+                                    <div
+                                        class="shrink-0 w-9 h-9 rounded-lg bg-amber-100 flex items-center justify-center"
+                                    >
+                                        <mat-icon class="text-amber-600 !text-xl">warning</mat-icon>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs text-amber-600 font-medium">
+                                            {{ 'batchProcessing.partial' | transloco }}
+                                        </p>
+                                        <p class="text-lg font-bold text-amber-700 leading-tight">
+                                            {{ partialRows().length }}
+                                            <span class="text-xs font-normal text-amber-600">{{
+                                                'batchProcessing.requestsPartial' | transloco
+                                            }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+
                             <!-- Failed (only when there are failures) -->
                             @if (failedRows().length > 0) {
                                 <div
@@ -250,6 +277,22 @@
         } @else {
             <!-- Records Table Card -->
             <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                <div
+                    class="mx-5 mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                >
+                    <div class="flex gap-3">
+                        <mat-icon class="text-amber-600 !text-xl shrink-0">info</mat-icon>
+                        <div>
+                            <p class="font-semibold">
+                                {{ 'batchProcessing.continueOnFailureTitle' | transloco }}
+                            </p>
+                            <p class="mt-0.5 text-amber-700">
+                                {{ 'batchProcessing.continueOnFailureBody' | transloco }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Table Header: Tabs + Search -->
                 <div class="px-5 pt-4 pb-0">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -286,6 +329,25 @@
                                     }}</span>
                                 </span>
                             </button>
+                            @if (partialRows().length > 0) {
+                                <button
+                                    class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
+                                    [ngClass]="
+                                        recordFilter() === 'partial'
+                                            ? 'bg-white text-gray-900 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-700'
+                                    "
+                                    (click)="setRecordFilter('partial')"
+                                >
+                                    <span class="inline-flex items-center gap-1">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        {{ 'batchProcessing.partial' | transloco }}
+                                        <span class="text-xs text-gray-400">{{
+                                            partialRows().length
+                                        }}</span>
+                                    </span>
+                                </button>
+                            }
                             @if (failedRows().length > 0) {
                                 <button
                                     class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
@@ -385,7 +447,7 @@
                     }
 
                     <!-- Completed Rows -->
-                    @if (recordFilter() !== 'failed') {
+                    @if (recordFilter() !== 'failed' && recordFilter() !== 'partial') {
                         @for (row of completedRows(); track row.rowIndex) {
                             <div
                                 class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
@@ -441,8 +503,106 @@
                         }
                     }
 
+                    <!-- Partial Rows -->
+                    @if (recordFilter() !== 'completed' && recordFilter() !== 'failed') {
+                        @for (row of partialRows(); track row.rowIndex) {
+                            <div
+                                class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
+                                (click)="selectRow(row)"
+                                [class.bg-amber-50]="selectedRow()?.rowIndex === row.rowIndex"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span
+                                        class="shrink-0 w-7 h-7 rounded-md bg-amber-50 flex items-center justify-center text-xs font-mono text-amber-600"
+                                    >
+                                        {{ row.rowIndex + 1 }}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                            {{
+                                                row.inputData?.documentNumber ||
+                                                    row.inputData?.name ||
+                                                    ('batchProcessing.rowNumber'
+                                                        | transloco: { index: row.rowIndex + 1 })
+                                            }}
+                                        </p>
+                                        <p class="text-xs text-gray-400 truncate">
+                                            {{
+                                                row.errors?.[0]?.message ||
+                                                    ('batchProcessing.partial' | transloco)
+                                            }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="hidden sm:flex items-center gap-0.5 mr-1">
+                                        @for (step of configSteps(); track step.sequence) {
+                                            @switch (getRowStepStatus(row, step.sequence)) {
+                                                @case ('completed') {
+                                                    <div
+                                                        class="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center"
+                                                        [matTooltip]="
+                                                            'batchProcessing.stepStatusCompleted'
+                                                                | transloco
+                                                                    : { step: getStepName(step) }
+                                                        "
+                                                    >
+                                                        <mat-icon
+                                                            class="text-emerald-600 !text-[10px] !w-2.5 !h-2.5"
+                                                            >check</mat-icon
+                                                        >
+                                                    </div>
+                                                }
+                                                @case ('failed') {
+                                                    <div
+                                                        class="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center"
+                                                        [matTooltip]="
+                                                            'batchProcessing.stepStatusFailed'
+                                                                | transloco
+                                                                    : { step: getStepName(step) }
+                                                        "
+                                                    >
+                                                        <mat-icon
+                                                            class="text-red-600 !text-[10px] !w-2.5 !h-2.5"
+                                                            >close</mat-icon
+                                                        >
+                                                    </div>
+                                                }
+                                                @default {
+                                                    <div
+                                                        class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center"
+                                                        [matTooltip]="
+                                                            'batchProcessing.stepStatusSkipped'
+                                                                | transloco
+                                                                    : { step: getStepName(step) }
+                                                        "
+                                                    >
+                                                        <mat-icon
+                                                            class="text-gray-400 !text-[10px] !w-2.5 !h-2.5"
+                                                            >remove</mat-icon
+                                                        >
+                                                    </div>
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <span
+                                        class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-700"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        {{ 'batchProcessing.partial' | transloco }}
+                                    </span>
+                                    <mat-icon
+                                        class="!text-base text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >chevron_right</mat-icon
+                                    >
+                                </div>
+                            </div>
+                        }
+                    }
+
                     <!-- Failed Rows -->
-                    @if (recordFilter() !== 'completed') {
+                    @if (recordFilter() !== 'completed' && recordFilter() !== 'partial') {
                         @for (row of failedRows(); track row.rowIndex) {
                             <div
                                 class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
@@ -544,6 +704,7 @@
                     @if (
                         pendingRows().length === 0 &&
                         completedRows().length === 0 &&
+                        partialRows().length === 0 &&
                         failedRows().length === 0
                     ) {
                         <div class="py-16 text-center">
@@ -697,30 +858,75 @@
                                                         getStepName(step)
                                                     }}</span>
                                                 </div>
-                                                <span
-                                                    class="text-xs font-medium px-2 py-1 rounded-full"
-                                                    [class]="
-                                                        getRowStepStatus(
-                                                            selectedRow()!,
-                                                            step.sequence
-                                                        ) === 'completed'
-                                                            ? 'bg-emerald-100 text-emerald-600'
-                                                            : getRowStepStatus(
-                                                                    selectedRow()!,
-                                                                    step.sequence
-                                                                ) === 'failed'
-                                                              ? 'bg-red-100 text-red-600'
-                                                              : 'bg-gray-100 text-gray-500'
-                                                    "
-                                                >
-                                                    {{
-                                                        'batchProcessing.' +
+                                                <div class="flex items-center gap-2">
+                                                    <span
+                                                        class="text-xs font-medium px-2 py-1 rounded-full"
+                                                        [class]="
                                                             getRowStepStatus(
                                                                 selectedRow()!,
                                                                 step.sequence
-                                                            ) | transloco
-                                                    }}
-                                                </span>
+                                                            ) === 'completed'
+                                                                ? 'bg-emerald-100 text-emerald-600'
+                                                                : getRowStepStatus(
+                                                                        selectedRow()!,
+                                                                        step.sequence
+                                                                    ) === 'failed'
+                                                                  ? 'bg-red-100 text-red-600'
+                                                                  : 'bg-gray-100 text-gray-500'
+                                                        "
+                                                    >
+                                                        {{
+                                                            'batchProcessing.' +
+                                                                getRowStepStatus(
+                                                                    selectedRow()!,
+                                                                    step.sequence
+                                                                ) | transloco
+                                                        }}
+                                                    </span>
+                                                    @if (
+                                                        getRowStepStatus(
+                                                            selectedRow()!,
+                                                            step.sequence
+                                                        ) === 'failed'
+                                                    ) {
+                                                        <button
+                                                            mat-stroked-button
+                                                            class="!h-8 !rounded-lg !border-amber-300 !text-amber-700"
+                                                            (click)="retryStep(selectedRow()!, step)"
+                                                            [disabled]="
+                                                                isRetryingStep(selectedRow()!, step)
+                                                            "
+                                                        >
+                                                            <span
+                                                                class="inline-flex items-center gap-1.5"
+                                                            >
+                                                                @if (
+                                                                    isRetryingStep(
+                                                                        selectedRow()!,
+                                                                        step
+                                                                    )
+                                                                ) {
+                                                                    <mat-icon
+                                                                        class="animate-spin !text-base"
+                                                                        >refresh</mat-icon
+                                                                    >
+                                                                    {{
+                                                                        'batchProcessing.retrying'
+                                                                            | transloco
+                                                                    }}
+                                                                } @else {
+                                                                    <mat-icon class="!text-base"
+                                                                        >restart_alt</mat-icon
+                                                                    >
+                                                                    {{
+                                                                        'batchProcessing.retryStep'
+                                                                            | transloco
+                                                                    }}
+                                                                }
+                                                            </span>
+                                                        </button>
+                                                    }
+                                                </div>
                                             </div>
                                             @if (selectedRow()?.results?.[step.sequence]) {
                                                 @if (detailsViewMode() === 'readable') {

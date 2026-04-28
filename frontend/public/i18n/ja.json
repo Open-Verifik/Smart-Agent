@@ -1576,7 +1576,9 @@
         "addParam": "パラメータを追加",
         "keyPlaceholder": "キー",
         "valuePlaceholder": "値",
-        "descriptionPlaceholder": "説明"
+        "descriptionPlaceholder": "説明",
+        "documentTypePlaceholder": "書類の種類を選択",
+        "otherParameters": "その他のパラメータ"
       },
       "headers": {
         "key": "キー",
@@ -1603,11 +1605,27 @@
           "field": "フィールド",
           "type": "型",
           "required": "必須",
+          "conditional": "条件付き（いつ）",
+          "dateFormat": "日付形式",
           "allowed": "許可値",
           "description": "説明"
         },
         "yes": "はい",
         "no": "いいえ"
+      },
+      "validation": {
+        "groupedModesTitle": "このリクエストの入力方法",
+        "groupedModesBody": "次のいずれか一方だけを使用してください：氏名全文での検索、または書類情報（種別・番号・その種別に必要な日付）による検索。同一リクエストで両方を混在させないでください。",
+        "groupedModesDateLine": "日付フィールドがある場合は、次の形式を使用してください：{{format}}。",
+        "fixIssuesBeforeSend": "送信する前に次の項目を修正してください：",
+        "badgeRequired": "必須",
+        "badgeOptional": "任意",
+        "badgeConditional": "条件付き",
+        "dateFormatHint": "形式：{{format}}",
+        "fieldRequired": "このリクエストでは「{{field}}」が必須です（{{step}}）。",
+        "invalidEnum": "「{{field}}」の値「{{value}}」は無効です。次が期待されます：{{expected}}。",
+        "invalidJsonBody": "本文は有効なJSONである必要があります。",
+        "pathSegmentRequired": "URLパスの「{{segment}}」セグメントが必須です。"
       }
     },
     "responseViewer": {

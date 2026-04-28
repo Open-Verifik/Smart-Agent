@@ -1576,7 +1576,9 @@
         "addParam": "Adicionar Parâmetro",
         "keyPlaceholder": "Chave",
         "valuePlaceholder": "Valor",
-        "descriptionPlaceholder": "Descrição"
+        "descriptionPlaceholder": "Descrição",
+        "documentTypePlaceholder": "Selecione o tipo de documento",
+        "otherParameters": "Outros parâmetros"
       },
       "headers": {
         "key": "Chave",
@@ -1603,11 +1605,27 @@
           "field": "Campo",
           "type": "Tipo",
           "required": "Obrigatório",
+          "conditional": "Condicional (quando)",
+          "dateFormat": "Formato de data",
           "allowed": "Permitidos",
           "description": "Descrição"
         },
         "yes": "Sim",
         "no": "Não"
+      },
+      "validation": {
+        "groupedModesTitle": "Como preencher esta solicitação",
+        "groupedModesBody": "Use apenas uma abordagem: busca por nome completo ou por dados do documento (tipo, número e datas exigidas para esse tipo). Não misture as duas na mesma solicitação.",
+        "groupedModesDateLine": "Quando houver campo de data, use este formato: {{format}}.",
+        "fixIssuesBeforeSend": "Corrija o seguinte antes de enviar:",
+        "badgeRequired": "Obrigatório",
+        "badgeOptional": "Opcional",
+        "badgeConditional": "Condicional",
+        "dateFormatHint": "Formato: {{format}}",
+        "fieldRequired": "\"{{field}}\" é obrigatório nesta solicitação ({{step}}).",
+        "invalidEnum": "\"{{value}}\" não é válido para \"{{field}}\". Esperado: {{expected}}.",
+        "invalidJsonBody": "O corpo deve ser JSON válido.",
+        "pathSegmentRequired": "O segmento de caminho da URL \"{{segment}}\" é obrigatório."
       }
     },
     "responseViewer": {
@@ -1861,18 +1879,7 @@
       "duration": "Duração",
       "noRequests": "Nenhuma solicitação encontrada",
       "noParams": "Sem parâmetros",
-      "confirmed": "Confirmado",
-      "actions": "Ações",
-      "requestsCount": "{{count}} solicitações no total",
-      "loading": "Carregando",
-      "live": "Ao vivo",
-      "cost": "Custo"
-    },
-    "subtitle": "Audite chamadas de API, revise os parâmetros e repita validações sem reconstruir a solicitação.",
-    "actions": {
-      "repeat": "Repetir",
-      "repeatTooltip": "Abrir esta solicitação no Postman com os mesmos parâmetros",
-      "repeatUnavailable": "Esta solicitação não pode ser repetida porque não tem código de feature"
+      "confirmed": "Confirmado"
     }
   },
   "addCredits": {

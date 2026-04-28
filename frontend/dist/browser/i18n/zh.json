@@ -1576,7 +1576,9 @@
         "addParam": "添加参数",
         "keyPlaceholder": "键",
         "valuePlaceholder": "值",
-        "descriptionPlaceholder": "描述"
+        "descriptionPlaceholder": "描述",
+        "documentTypePlaceholder": "选择证件类型",
+        "otherParameters": "其他参数"
       },
       "headers": {
         "key": "键",
@@ -1603,11 +1605,27 @@
           "field": "字段",
           "type": "类型",
           "required": "必填",
+          "conditional": "条件（当）",
+          "dateFormat": "日期格式",
           "allowed": "允许值",
           "description": "描述"
         },
         "yes": "是",
         "no": "否"
+      },
+      "validation": {
+        "groupedModesTitle": "如何填写此请求",
+        "groupedModesBody": "请只选择一种方式：按全名搜索，或按证件字段（类型、号码以及该类型所需的日期）搜索。请勿在同一请求中混用两种方式。",
+        "groupedModesDateLine": "涉及日期字段时，请使用此格式：{{format}}。",
+        "fixIssuesBeforeSend": "发送前请修正以下问题：",
+        "badgeRequired": "必填",
+        "badgeOptional": "可选",
+        "badgeConditional": "条件",
+        "dateFormatHint": "格式：{{format}}",
+        "fieldRequired": "此请求需要填写「{{field}}」（{{step}}）。",
+        "invalidEnum": "「{{field}}」的值「{{value}}」无效。应为：{{expected}}。",
+        "invalidJsonBody": "请求体必须是有效的 JSON。",
+        "pathSegmentRequired": "URL 路径段「{{segment}}」为必填。"
       }
     },
     "responseViewer": {
@@ -1860,18 +1878,7 @@
       "duration": "时长",
       "noRequests": "未找到请求",
       "noParams": "无参数",
-      "confirmed": "已确认",
-      "actions": "操作",
-      "requestsCount": "共 {{count}} 个请求",
-      "loading": "加载中",
-      "live": "实时",
-      "cost": "费用"
-    },
-    "subtitle": "审计 API 调用、检查请求参数，并在无需重建请求的情况下重复验证。",
-    "actions": {
-      "repeat": "重复",
-      "repeatTooltip": "使用相同参数在 Postman 中打开此请求",
-      "repeatUnavailable": "此请求没有功能代码，无法重复执行"
+      "confirmed": "已确认"
     }
   },
   "addCredits": {

@@ -1,33 +1,65 @@
-<div class="flex flex-col w-full h-full min-h-screen relative">
-    <!-- Background pattern -->
-    <div
-        class="fixed inset-0 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 pointer-events-none"
+<div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <header
+        class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
     >
-        <div
-            class="absolute inset-0 bg-[radial-gradient(ellipse_at_20%_20%,rgba(99,102,241,0.08),transparent_50%),radial-gradient(ellipse_at_80%_80%,rgba(139,92,246,0.08),transparent_50%)]"
-        ></div>
-    </div>
+        <div class="mx-auto flex w-full max-w-5xl flex-col gap-5">
+            <div
+                class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+            >
+                <a
+                    routerLink="/chat"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                >
+                    Verifik
+                </a>
+                <mat-icon
+                    class="icon-size-4 mx-2 text-stone-400"
+                    svgIcon="heroicons_solid:chevron-right"
+                ></mat-icon>
+                <a
+                    routerLink="/smart-batch"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                >
+                    {{ 'smartBatchLanding.title' | transloco }}
+                </a>
+                <mat-icon
+                    class="icon-size-4 mx-2 text-stone-400"
+                    svgIcon="heroicons_solid:chevron-right"
+                ></mat-icon>
+                <span class="cursor-default text-stone-600 dark:text-stone-300">
+                    {{ (isEditMode() ? 'createBatchConfig.edit' : 'createBatchConfig.create') | transloco }}
+                    {{ 'createBatchConfig.batchConfiguration' | transloco }}
+                </span>
+            </div>
 
-    <!-- Content -->
-    <div class="relative z-10 flex flex-col w-full h-full">
-        <!-- Top Bar -->
-        <div
-            class="flex items-center justify-between px-8 py-5 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl"
-        >
-            <div class="flex items-center gap-3">
-                <button mat-icon-button routerLink="/smart-batch">
-                    <mat-icon>arrow_back</mat-icon>
-                </button>
-                <h1 class="text-xl font-bold text-slate-900 dark:text-white">
-                    {{ (isEditMode() ? 'createBatchConfig.edit' : 'createBatchConfig.create') | transloco }} {{ 'createBatchConfig.batchConfiguration' | transloco }}
-                </h1>
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex min-w-0 items-start gap-3">
+                    <button
+                        mat-icon-button
+                        type="button"
+                        routerLink="/smart-batch"
+                        class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                        [attr.aria-label]="'batchDashboard.backToSmartBatch' | transloco"
+                    >
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div class="min-w-0">
+                        <h1
+                            class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl"
+                        >
+                            {{ (isEditMode() ? 'createBatchConfig.edit' : 'createBatchConfig.create') | transloco }}
+                            {{ 'createBatchConfig.batchConfiguration' | transloco }}
+                        </h1>
+                    </div>
+                </div>
             </div>
         </div>
+    </header>
 
-        <div class="flex-1 overflow-auto p-8 max-w-5xl mx-auto w-full">
-            <!-- Glass card container -->
+    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+        <div class="mx-auto w-full max-w-5xl">
             <div
-                class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg p-8"
+                class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:p-8"
             >
                 <mat-stepper #stepper orientation="vertical" class="bg-transparent" [linear]="true">
                     <!-- Step 1: Basic Info -->
@@ -35,9 +67,9 @@
                         <ng-template matStepLabel>{{ 'createBatchConfig.basicInformation' | transloco }}</ng-template>
                         <form
                             [formGroup]="step1Form"
-                            class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4"
+                            class="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2"
                         >
-                            <mat-form-field appearance="outline" class="w-full col-span-2">
+                            <mat-form-field appearance="outline" class="col-span-2 w-full">
                                 <mat-label>{{ 'createBatchConfig.configurationName' | transloco }}</mat-label>
                                 <input
                                     matInput
@@ -47,7 +79,7 @@
                                 <mat-error>{{ 'createBatchConfig.nameRequired' | transloco }}</mat-error>
                             </mat-form-field>
 
-                            <mat-form-field appearance="outline" class="w-full col-span-2">
+                            <mat-form-field appearance="outline" class="col-span-2 w-full">
                                 <mat-label>{{ 'createBatchConfig.description' | transloco }}</mat-label>
                                 <textarea
                                     matInput
@@ -109,6 +141,8 @@
                                 <button
                                     mat-flat-button
                                     color="primary"
+                                    type="button"
+                                    class="rounded-xl"
                                     (click)="onNext(1)"
                                     [disabled]="step1Form.invalid || isSavingStep()"
                                 >
@@ -122,11 +156,9 @@
                     <!-- Step 2: Feature Selection -->
                     <mat-step>
                         <ng-template matStepLabel>{{ 'createBatchConfig.selectEndpoints' | transloco }}</ng-template>
-                        <div class="flex flex-col gap-6 pt-4 h-[600px]">
-                            <!-- Fixed height for layout -->
-
+                        <div class="flex h-[600px] flex-col gap-6 pt-4">
                             <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-medium text-slate-500 uppercase">
+                                <h3 class="text-sm font-medium uppercase text-stone-500 dark:text-stone-400">
                                     {{ 'createBatchConfig.availableFeatures' | transloco }}
                                     <span *ngIf="endpointSearchQuery()"
                                         >({{ filteredAvailableFeatures().length }} of
@@ -141,25 +173,22 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 h-full min-h-0">
-                                <!-- Available List -->
+                            <div class="grid h-full min-h-0 grid-cols-1 gap-8 md:grid-cols-2">
                                 <div
-                                    class="flex flex-col border border-slate-200/80 dark:border-slate-700/80 rounded-xl overflow-hidden bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm"
+                                    class="flex flex-col overflow-hidden rounded-xl border border-stone-200/90 bg-white dark:border-gray-800 dark:bg-gray-900/60"
                                 >
                                     <div
-                                        class="bg-slate-50/80 dark:bg-slate-900/50 px-4 py-3 border-b border-slate-200/80 dark:border-slate-700/80 font-medium text-sm"
+                                        class="border-b border-stone-200/90 bg-stone-50/80 px-4 py-3 text-sm font-medium dark:border-gray-800 dark:bg-gray-800/40"
                                     >
                                         {{ 'createBatchConfig.available' | transloco }}
                                     </div>
-                                    <div
-                                        class="p-2 border-b border-slate-200/80 dark:border-slate-700/80"
-                                    >
+                                    <div class="border-b border-stone-200/90 p-2 dark:border-gray-800">
                                         <mat-form-field
                                             appearance="outline"
-                                            class="w-full !mb-0"
+                                            class="!mb-0 w-full"
                                             subscriptSizing="dynamic"
                                         >
-                                            <mat-icon matPrefix class="text-slate-400 icon-size-5"
+                                            <mat-icon matPrefix class="icon-size-5 text-stone-400"
                                                 >search</mat-icon
                                             >
                                             <input
@@ -182,30 +211,30 @@
                                             </button>
                                         </mat-form-field>
                                     </div>
-                                    <div class="flex-1 overflow-y-auto p-2 space-y-2">
+                                    <div class="flex-1 space-y-2 overflow-y-auto p-2">
                                         <div
                                             *ngFor="let feature of filteredAvailableFeatures()"
                                             (click)="toggleFeature(feature)"
                                             [class.opacity-50]="isSelected(feature)"
-                                            class="flex items-center justify-between p-3 rounded-lg border border-transparent hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-600 cursor-pointer transition-all select-none"
+                                            class="flex cursor-pointer select-none items-center justify-between rounded-lg border border-transparent p-3 transition-all hover:border-stone-200 hover:bg-stone-50 dark:hover:border-gray-600 dark:hover:bg-gray-800"
                                         >
                                             <div class="flex items-center gap-3">
                                                 <div
-                                                    class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs"
+                                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-600"
                                                 >
                                                     {{ feature.code | slice: 0 : 2 | uppercase }}
                                                 </div>
-                                                <div class="flex flex-col min-w-0 flex-1">
+                                                <div class="flex min-w-0 flex-1 flex-col">
                                                     <span
-                                                        class="font-medium text-slate-900 dark:text-white text-sm"
+                                                        class="text-sm font-medium text-stone-900 dark:text-white"
                                                         >{{ feature.name }}</span
                                                     >
                                                     <span
-                                                        class="text-xs font-mono text-blue-600 dark:text-blue-400 truncate"
+                                                        class="truncate font-mono text-xs text-blue-600 dark:text-blue-400"
                                                         [title]="getEndpointDisplay(feature)"
                                                         >{{ getEndpointDisplay(feature) }}</span
                                                     >
-                                                    <span class="text-xs text-slate-500 truncate"
+                                                    <span class="truncate text-xs text-stone-500"
                                                         >{{
                                                             feature.description | slice: 0 : 50
                                                         }}...</span
@@ -214,12 +243,12 @@
                                             </div>
                                             <mat-icon
                                                 *ngIf="isSelected(feature)"
-                                                class="text-green-500 icon-size-5"
+                                                class="icon-size-5 text-green-500"
                                                 >check_circle</mat-icon
                                             >
                                             <mat-icon
                                                 *ngIf="!isSelected(feature)"
-                                                class="text-slate-300 icon-size-5"
+                                                class="icon-size-5 text-stone-300"
                                                 >add_circle_outline</mat-icon
                                             >
                                         </div>
@@ -228,30 +257,30 @@
                                                 !isLoadingFeatures() &&
                                                 filteredAvailableFeatures().length === 0
                                             "
-                                            class="flex flex-col items-center justify-center py-8 text-slate-400 text-sm"
+                                            class="flex flex-col items-center justify-center py-8 text-sm text-stone-400"
                                         >
-                                            <mat-icon class="icon-size-10 mb-2"
-                                                >search_off</mat-icon
-                                            >
+                                            <mat-icon class="icon-size-10 mb-2">search_off</mat-icon>
                                             <span
-                                                >{{ 'createBatchConfig.noEndpointsMatch' | transloco: { query: endpointSearchQuery() } }}</span
+                                                >{{
+                                                    'createBatchConfig.noEndpointsMatch'
+                                                        | transloco: { query: endpointSearchQuery() }
+                                                }}</span
                                             >
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Selected List (Drag & Drop) -->
                                 <div
-                                    class="flex flex-col border border-blue-200/80 dark:border-blue-800/50 rounded-xl overflow-hidden bg-blue-50/60 dark:bg-blue-900/20 backdrop-blur-sm"
+                                    class="flex flex-col overflow-hidden rounded-xl border border-blue-200/80 bg-blue-50/60 dark:border-blue-800/50 dark:bg-blue-900/20"
                                 >
                                     <div
-                                        class="bg-blue-100/60 dark:bg-blue-900/30 px-4 py-3 border-b border-blue-200/80 dark:border-blue-800/50 font-medium text-sm text-blue-700 dark:text-blue-300"
+                                        class="border-b border-blue-200/80 bg-blue-100/60 px-4 py-3 text-sm font-medium text-blue-700 dark:border-blue-800/50 dark:bg-blue-900/30 dark:text-blue-300"
                                     >
                                         {{ 'createBatchConfig.selectedSteps' | transloco }}
                                     </div>
                                     <div
                                         cdkDropList
-                                        class="flex-1 overflow-y-auto p-2 space-y-2"
+                                        class="flex-1 space-y-2 overflow-y-auto p-2"
                                         (cdkDropListDropped)="drop($event)"
                                     >
                                         <div
@@ -260,21 +289,21 @@
                                                 let i = index
                                             "
                                             cdkDrag
-                                            class="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 shadow-sm cursor-move"
+                                            class="flex cursor-move items-center justify-between gap-3 rounded-lg border border-stone-200 bg-white p-3 shadow-sm dark:border-gray-600 dark:bg-gray-900"
                                         >
-                                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                            <div class="flex min-w-0 flex-1 items-center gap-3">
                                                 <span
-                                                    class="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-xs font-bold font-mono"
+                                                    class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-stone-100 font-mono text-xs font-bold text-stone-500 dark:bg-gray-800"
                                                 >
                                                     {{ i + 1 }}
                                                 </span>
-                                                <div class="flex flex-col min-w-0 flex-1">
+                                                <div class="flex min-w-0 flex-1 flex-col">
                                                     <span
-                                                        class="font-medium text-slate-900 dark:text-white text-sm"
+                                                        class="text-sm font-medium text-stone-900 dark:text-white"
                                                         >{{ feature.name }}</span
                                                     >
                                                     <span
-                                                        class="text-xs font-mono text-blue-600 dark:text-blue-400 truncate"
+                                                        class="truncate font-mono text-xs text-blue-600 dark:text-blue-400"
                                                         [title]="getEndpointDisplay(feature)"
                                                         >{{ getEndpointDisplay(feature) }}</span
                                                     >
@@ -283,6 +312,7 @@
                                             <button
                                                 mat-icon-button
                                                 color="warn"
+                                                type="button"
                                                 (click)="
                                                     toggleFeature(feature); $event.stopPropagation()
                                                 "
@@ -293,24 +323,26 @@
 
                                         <div
                                             *ngIf="selectedFeatures().length === 0"
-                                            class="flex flex-col items-center justify-center h-full text-slate-400 opacity-60"
+                                            class="flex h-full flex-col items-center justify-center text-stone-400 opacity-60"
                                         >
-                                            <mat-icon class="icon-size-8 mb-2"
-                                                >playlist_add</mat-icon
-                                            >
-                                            <span class="text-sm"
-                                                >{{ 'createBatchConfig.selectFeaturesToAdd' | transloco }}</span
-                                            >
+                                            <mat-icon class="icon-size-8 mb-2">playlist_add</mat-icon>
+                                            <span class="text-sm">{{
+                                                'createBatchConfig.selectFeaturesToAdd' | transloco
+                                            }}</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="pt-4 flex gap-3">
-                                <button mat-button matStepperPrevious>{{ 'createBatchConfig.back' | transloco }}</button>
+                            <div class="flex gap-3 pt-4">
+                                <button mat-button type="button" matStepperPrevious>{{
+                                    'createBatchConfig.back' | transloco
+                                }}</button>
                                 <button
                                     mat-flat-button
                                     color="primary"
+                                    type="button"
+                                    class="rounded-xl"
                                     (click)="onNext(2)"
                                     [disabled]="selectedFeatures().length === 0 || isSavingStep()"
                                 >
@@ -324,8 +356,8 @@
                     <!-- Step 3: Review Parameters -->
                     <mat-step>
                         <ng-template matStepLabel>{{ 'createBatchConfig.reviewParameters' | transloco }}</ng-template>
-                        <div class="pt-4 flex flex-col gap-4">
-                            <p class="text-sm text-slate-500 mb-2">
+                        <div class="flex flex-col gap-4 pt-4">
+                            <p class="mb-2 text-sm text-stone-500 dark:text-stone-400">
                                 {{ 'createBatchConfig.reviewParamsIntro' | transloco }}
                             </p>
 
@@ -333,69 +365,63 @@
                                 <mat-expansion-panel
                                     *ngFor="let feature of selectedFeatures(); let i = index"
                                     [expanded]="i === 0"
-                                    class="!bg-white/60 dark:!bg-slate-800/60 !backdrop-blur-sm"
+                                    class="!border !border-stone-200/90 !bg-white dark:!border-gray-800 dark:!bg-gray-900/80"
                                 >
                                     <mat-expansion-panel-header class="!h-auto !min-h-[3.5rem]">
-                                        <mat-panel-title class="!flex-1 !min-w-0 !mr-4">
-                                            <span class="flex flex-col gap-0.5 w-full">
-                                                <span class="flex items-center gap-2 w-full">
+                                        <mat-panel-title class="!mr-4 !min-w-0 !flex-1">
+                                            <span class="flex w-full flex-col gap-0.5">
+                                                <span class="flex w-full items-center gap-2">
                                                     <span
-                                                        class="font-mono text-xs text-slate-400 shrink-0"
+                                                        class="shrink-0 font-mono text-xs text-stone-400"
                                                         >{{ i + 1 }}.</span
                                                     >
                                                     <span
-                                                        class="font-medium text-slate-900 dark:text-white min-w-0 break-words"
+                                                        class="min-w-0 break-words font-medium text-stone-900 dark:text-white"
                                                         >{{ feature.name }}</span
                                                     >
                                                 </span>
                                                 <span
-                                                    class="text-xs font-mono text-blue-600 dark:text-blue-400 pl-5"
+                                                    class="pl-5 font-mono text-xs text-blue-600 dark:text-blue-400"
                                                     >{{ getEndpointDisplay(feature) }}</span
                                                 >
                                             </span>
                                         </mat-panel-title>
-                                        <mat-panel-description
-                                            class="!flex-none"
-                                        ></mat-panel-description>
+                                        <mat-panel-description class="!flex-none"></mat-panel-description>
                                     </mat-expansion-panel-header>
 
-                                    <!-- Read-only Parameters Display -->
                                     <div class="pt-4">
-                                        <div *ngIf="feature.dependencies?.length > 0">
+                                        <div *ngIf="visibleDependencies(feature).length > 0">
                                             <h4
-                                                class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3"
+                                                class="mb-3 text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400"
                                             >
                                                 {{ 'createBatchConfig.requiredParameters' | transloco }}
                                             </h4>
                                             <div class="flex flex-wrap gap-2">
                                                 <ng-container
-                                                    *ngFor="let dep of feature.dependencies"
+                                                    *ngFor="let dep of visibleDependencies(feature)"
                                                 >
                                                     <span
-                                                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                                                        class="inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-100 px-3 py-1.5 dark:border-gray-700 dark:bg-gray-800"
                                                     >
                                                         <span
-                                                            class="font-medium text-sm text-slate-700 dark:text-slate-300"
+                                                            class="text-sm font-medium text-stone-700 dark:text-stone-300"
                                                             >{{ dep.field }}</span
                                                         >
                                                         <span
                                                             *ngIf="dep.required"
-                                                            class="text-xs text-orange-500 font-medium"
+                                                            class="text-xs font-medium text-orange-500"
                                                             >{{ 'createBatchConfig.required' | transloco }}</span
                                                         >
                                                     </span>
                                                 </ng-container>
                                             </div>
-                                            <p class="text-xs text-slate-400 mt-3">
+                                            <p class="mt-3 text-xs text-stone-400 dark:text-stone-500">
                                                 {{ 'createBatchConfig.parametersMappedHint' | transloco }}
                                             </p>
                                         </div>
                                         <div
-                                            *ngIf="
-                                                !feature.dependencies ||
-                                                feature.dependencies.length === 0
-                                            "
-                                            class="text-sm text-slate-400 italic"
+                                            *ngIf="visibleDependencies(feature).length === 0"
+                                            class="text-sm italic text-stone-400"
                                         >
                                             {{ 'createBatchConfig.noParametersRequired' | transloco }}
                                         </div>
@@ -403,11 +429,15 @@
                                 </mat-expansion-panel>
                             </mat-accordion>
 
-                            <div class="pt-6 flex gap-3">
-                                <button mat-button matStepperPrevious>{{ 'createBatchConfig.back' | transloco }}</button>
+                            <div class="flex gap-3 pt-6">
+                                <button mat-button type="button" matStepperPrevious>{{
+                                    'createBatchConfig.back' | transloco
+                                }}</button>
                                 <button
                                     mat-flat-button
                                     color="primary"
+                                    type="button"
+                                    class="rounded-xl"
                                     (click)="onNext(3)"
                                     [disabled]="isSavingStep()"
                                 >
@@ -421,68 +451,70 @@
                     <!-- Step 4: Review -->
                     <mat-step>
                         <ng-template matStepLabel>{{ 'createBatchConfig.reviewAndCreate' | transloco }}</ng-template>
-                        <div class="pt-6 max-w-2xl">
-                            <h3 class="text-lg font-bold mb-4">{{ 'createBatchConfig.summary' | transloco }}</h3>
+                        <div class="max-w-2xl pt-6">
+                            <h3 class="mb-4 text-lg font-bold text-stone-900 dark:text-white">
+                                {{ 'createBatchConfig.summary' | transloco }}
+                            </h3>
 
                             <div
-                                class="bg-slate-50 dark:bg-slate-900 rounded-lg p-6 border border-slate-200 dark:border-slate-800 space-y-4"
+                                class="space-y-4 rounded-xl border border-stone-200/90 bg-stone-50 p-6 dark:border-gray-800 dark:bg-gray-800/40"
                             >
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <span class="block text-xs text-slate-500 uppercase"
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
                                             >{{ 'createBatchConfig.configurationName' | transloco }}</span
                                         >
-                                        <span class="font-medium text-slate-900 dark:text-white">{{
+                                        <span class="font-medium text-stone-900 dark:text-white">{{
                                             step1Form.get('name')?.value
                                         }}</span>
                                     </div>
                                     <div>
-                                        <span class="block text-xs text-slate-500 uppercase"
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
                                             >{{ 'createBatchConfig.country' | transloco }}</span
                                         >
-                                        <span class="font-medium text-slate-900 dark:text-white">{{
+                                        <span class="font-medium text-stone-900 dark:text-white">{{
                                             step1Form.get('country')?.value
                                         }}</span>
                                     </div>
                                     <div>
-                                        <span class="block text-xs text-slate-500 uppercase"
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
                                             >{{ 'createBatchConfig.mergeStrategy' | transloco }}</span
                                         >
                                         <span
-                                            class="font-medium text-slate-900 dark:text-white capitalize"
+                                            class="font-medium capitalize text-stone-900 dark:text-white"
                                             >{{ step1Form.get('mergeStrategy')?.value }}</span
                                         >
                                     </div>
                                     <div>
-                                        <span class="block text-xs text-slate-500 uppercase"
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
                                             >{{ 'createBatchConfig.totalSteps' | transloco }}</span
                                         >
-                                        <span class="font-medium text-slate-900 dark:text-white"
-                                            >{{ 'createBatchConfig.stepsCount' | transloco: { count: selectedFeatures().length } }}</span
-                                        >
+                                        <span class="font-medium text-stone-900 dark:text-white">{{
+                                            'createBatchConfig.stepsCount'
+                                                | transloco: { count: selectedFeatures().length }
+                                        }}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="mt-8">
                                 <h4
-                                    class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-3"
+                                    class="mb-3 text-sm font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400"
                                 >
                                     {{ 'createBatchConfig.estimatedCostPerRecord' | transloco }}
                                 </h4>
                                 <div
-                                    class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/10 border border-green-200 dark:border-green-800/30 rounded-xl p-5"
+                                    class="rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-5 dark:border-green-800/30 dark:from-green-900/20 dark:to-emerald-900/10"
                                 >
-                                    <!-- Breakdown list -->
-                                    <div class="space-y-2 mb-4">
+                                    <div class="mb-4 space-y-2">
                                         <div
                                             *ngFor="let feature of selectedFeatures()"
                                             class="flex justify-between text-sm"
                                         >
-                                            <span class="text-slate-600 dark:text-slate-400">{{
+                                            <span class="text-stone-600 dark:text-stone-400">{{
                                                 feature.name
                                             }}</span>
-                                            <span class="font-medium text-slate-900 dark:text-white"
+                                            <span class="font-medium text-stone-900 dark:text-white"
                                                 >${{
                                                     (
                                                         feature.price ||
@@ -493,25 +525,29 @@
                                             >
                                         </div>
                                     </div>
-                                    <!-- Total -->
                                     <div
-                                        class="flex justify-between items-center pt-3 border-t border-green-200 dark:border-green-800/50"
+                                        class="flex items-center justify-between border-t border-green-200 pt-3 dark:border-green-800/50"
                                     >
                                         <span class="font-medium text-green-700 dark:text-green-300"
                                             >{{ 'createBatchConfig.totalPerRecord' | transloco }}</span
                                         >
-                                        <span
-                                            class="text-2xl font-bold text-green-700 dark:text-green-300"
+                                        <span class="text-2xl font-bold text-green-700 dark:text-green-300"
                                             >${{ totalCostPerRecord().toFixed(2) }}</span
                                         >
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="pt-8 flex gap-3">
-                                <button mat-button matStepperPrevious>{{ 'createBatchConfig.back' | transloco }}</button>
-                                <button mat-flat-button color="primary" (click)="submit()">
-                                    {{ (isEditMode() ? 'createBatchConfig.updateConfiguration' : 'createBatchConfig.createConfiguration') | transloco }}
+                            <div class="flex gap-3 pt-8">
+                                <button mat-button type="button" matStepperPrevious>{{
+                                    'createBatchConfig.back' | transloco
+                                }}</button>
+                                <button mat-flat-button color="primary" type="button" class="rounded-xl" (click)="submit()">
+                                    {{
+                                        (isEditMode()
+                                            ? 'createBatchConfig.updateConfiguration'
+                                            : 'createBatchConfig.createConfiguration') | transloco
+                                    }}
                                 </button>
                             </div>
                         </div>
@@ -519,5 +555,5 @@
                 </mat-stepper>
             </div>
         </div>
-    </div>
+    </main>
 </div>
