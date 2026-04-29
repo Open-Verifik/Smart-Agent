@@ -1218,7 +1218,8 @@
                                                                 field of getStepResultDisplayFields(
                                                                     selectedRow()?.results?.[
                                                                         step.sequence
-                                                                    ]
+                                                                    ],
+                                                                    getStepFeatureCode(step)
                                                                 );
                                                                 track $index
                                                             ) {
@@ -1316,16 +1317,64 @@
                                                     <div
                                                         class="px-4 py-3 bg-white border-t border-gray-100"
                                                     >
-                                                        <pre
-                                                            class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64 m-0"
-                                                            >{{
-                                                                formatStepResultJsonForDetail(
-                                                                    selectedRow()?.results?.[
-                                                                        step.sequence
-                                                                    ]
-                                                                )
-                                                            }}</pre
-                                                        >
+                                                        <div class="relative">
+                                                            @if (
+                                                                selectedRow()?.results?.[
+                                                                    step.sequence
+                                                                ] != null
+                                                            ) {
+                                                                <button
+                                                                    type="button"
+                                                                    mat-icon-button
+                                                                    class="!absolute top-1.5 right-1.5 z-10 !h-9 !min-h-9 !w-auto !min-w-9 !rounded-lg !border border-gray-200/90 !bg-white/95 px-1.5 shadow-sm hover:!border-gray-300 hover:bg-white"
+                                                                    [matTooltip]="
+                                                                        'smartReport.copyJson'
+                                                                            | transloco
+                                                                    "
+                                                                    [attr.aria-label]="
+                                                                        'smartReport.copyJson'
+                                                                            | transloco
+                                                                    "
+                                                                    (click)="
+                                                                        copyBatchStepJsonToClipboard(
+                                                                            selectedRow()!
+                                                                                .rowIndex,
+                                                                            step.sequence
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    @if (
+                                                                        batchJsonCopyShowsCopied(
+                                                                            selectedRow()!
+                                                                                .rowIndex,
+                                                                            step.sequence
+                                                                        )
+                                                                    ) {
+                                                                        <span
+                                                                            class="text-xs font-medium text-emerald-700 whitespace-nowrap px-1"
+                                                                            >{{
+                                                                                'smartReport.copied'
+                                                                                    | transloco
+                                                                            }}</span
+                                                                        >
+                                                                    } @else {
+                                                                        <mat-icon class="!text-[18px] text-gray-600"
+                                                                            >content_copy</mat-icon
+                                                                        >
+                                                                    }
+                                                                </button>
+                                                            }
+                                                            <pre
+                                                                class="bg-gray-50 rounded-lg p-3 pr-14 text-xs font-mono text-gray-800 overflow-auto max-h-64 m-0 border border-gray-100"
+                                                                >{{
+                                                                    formatStepResultJsonForDetail(
+                                                                        selectedRow()?.results?.[
+                                                                            step.sequence
+                                                                        ]
+                                                                    )
+                                                                }}</pre
+                                                            >
+                                                        </div>
                                                     </div>
                                                 }
                                             }

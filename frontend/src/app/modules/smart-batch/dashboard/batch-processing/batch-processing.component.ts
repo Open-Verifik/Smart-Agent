@@ -32,6 +32,7 @@ import {
     getBatchInputCsvHeaders,
     inputDataValueForCsvCell,
 } from '../../batch-input-csv.util';
+import { getStepDisplayFields } from '../../step-result-presenters/registry';
 import {
     AppFeature,
     BatchConfiguration,
@@ -132,6 +133,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     ruesCategoryEditing = signal(false);
     /** Draft value while editing RUES category (Apply persists to server). */
     ruesCategoryDraft = signal('');
+
+    /** `{rowIndex}_{stepSequence}` while that step JSON block shows “Copied” feedback */
+    batchJsonCopyFeedbackKey = signal<string | null>(null);
+    private _batchJsonCopyClearTimer: ReturnType<typeof setTimeout> | null = null;
 
     // Current processing state
     currentRowIndex = signal<number | null>(null);
@@ -289,6 +294,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this._processingAborted = true;
+        this._clearBatchJsonCopyTimer();
         this._destroy$.next();
         this._destroy$.complete();
     }
@@ -1035,6 +1041,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return `batch-row-${rowIndex + 1}-step-${stepSequence}.pdf`;
     }
 
+    /** `AppFeature.code` when `appFeature` is expanded (matches report viewer). */
+    getStepFeatureCode(step: BatchStep): string | undefined {
+        const feature = step.appFeature;
+        return typeof feature === 'object' && feature != null && 'code' in feature
+            ? (feature as AppFeature).code
+            : undefined;
+    }
+
     /**
      * Flatten a step result object into label/value rows for document-style display.
      * Nested objects/arrays are summarized briefly (input data only; use getStepResultDisplayFields for PDF steps).
@@ -1067,43 +1081,41 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Step result rows for readable panel: embedded PDF previews for pdfBase64 / PDF data URLs.
+     * Step result rows for readable panel: recursive flatten + presenters (report viewer parity).
+     * Top-level PDF fields are stripped for flattening (RUES needs one pass on the rest), then PDF iframes appended.
      */
-    getStepResultDisplayFields(data: any): StepResultDisplayField[] {
-        if (data == null || typeof data !== 'object') {
-            return [{ kind: 'text', label: 'Result', value: data != null ? String(data) : '—' }];
-        }
-        const entries: StepResultDisplayField[] = [];
-        for (const key of Object.keys(data)) {
-            const raw = data[key];
-            const label = this._labelFromApiKey(key);
+    getStepResultDisplayFields(data: any, featureCode?: string | null): StepResultDisplayField[] {
+        const ctx = { featureCode: featureCode ?? undefined };
 
+        if (data == null || typeof data !== 'object' || Array.isArray(data)) {
+            return getStepDisplayFields(ctx, data).map((r) => ({
+                kind: 'text' as const,
+                label: r.label,
+                value: r.value,
+            }));
+        }
+
+        const o = data as Record<string, unknown>;
+        const sanitized: Record<string, unknown> = { ...o };
+        const pdfPanels: StepResultDisplayField[] = [];
+
+        for (const key of Object.keys(o)) {
+            const raw = o[key];
             if (this._shouldTreatAsEmbeddedPdf(key, raw)) {
-                entries.push({
+                delete sanitized[key];
+                pdfPanels.push({
                     kind: 'pdf',
-                    label,
-                    dataUrl: this._normalizePdfDataUrl(raw),
+                    label: this._labelFromApiKey(key),
+                    dataUrl: this._normalizePdfDataUrl(raw as string),
                 });
-                continue;
             }
-
-            let value: string;
-            if (raw == null) {
-                value = '—';
-            } else if (Array.isArray(raw)) {
-                value =
-                    raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
-            } else if (typeof raw === 'object') {
-                value =
-                    typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
-                        ? `{ ${Object.keys(raw).slice(0, 3).join(', ')}${Object.keys(raw).length > 3 ? '…' : ''} }`
-                        : '—';
-            } else {
-                value = String(raw);
-            }
-            entries.push({ kind: 'text', label, value });
         }
-        return entries;
+
+        const textRows: StepResultDisplayField[] = getStepDisplayFields(ctx, sanitized).map(
+            (r) => ({ kind: 'text', label: r.label, value: r.value })
+        );
+
+        return [...textRows, ...pdfPanels];
     }
 
     /** Input data as label/value pairs for readable display; empty if not an object */
@@ -1240,6 +1252,41 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         } catch {
             return this.formatJson(stepResult);
         }
+    }
+
+    private _clearBatchJsonCopyTimer(): void {
+        if (this._batchJsonCopyClearTimer != null) {
+            clearTimeout(this._batchJsonCopyClearTimer);
+            this._batchJsonCopyClearTimer = null;
+        }
+    }
+
+    batchJsonCopyShowsCopied(rowIndex: number, sequence: number): boolean {
+        return this.batchJsonCopyFeedbackKey() === `${rowIndex}_${sequence}`;
+    }
+
+    copyBatchStepJsonToClipboard(rowIndex: number, sequence: number): void {
+        const row = this.selectedRow();
+        if (!row || row.rowIndex !== rowIndex) return;
+        const text = this.formatStepResultJsonForDetail(row.results?.[sequence]);
+        const key = `${rowIndex}_${sequence}`;
+        void navigator.clipboard.writeText(text).then(
+            () => {
+                this._clearBatchJsonCopyTimer();
+                this.batchJsonCopyFeedbackKey.set(key);
+                this._batchJsonCopyClearTimer = setTimeout(() => {
+                    this.batchJsonCopyFeedbackKey.update((c) => (c === key ? null : c));
+                    this._batchJsonCopyClearTimer = null;
+                }, 2400);
+            },
+            () => {
+                this._snack.open(
+                    this._transloco.translate('smartReport.failedToCopy'),
+                    this._transloco.translate('batchProcessing.failedExportDismiss'),
+                    { duration: 3000 }
+                );
+            }
+        );
     }
 
     getRowStepStatus(row: SmartBatchRow, stepSequence: number): 'pending' | 'completed' | 'failed' {

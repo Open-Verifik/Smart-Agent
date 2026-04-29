@@ -1,6 +1,6 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -30,15 +30,22 @@ import {
     SmartBatchService,
 } from '../smart-batch.service';
 import { SmartReport, SmartReportService, SmartReportTemplate } from '../smart-report.service';
+import { sortStepExportFieldLabels } from '../step-result-display.util';
+import { getStepDisplayFields } from '../step-result-presenters/registry';
 import {
     buildRowDataForResolution,
     TemplateMatchResult,
     validateTemplateAgainstData,
 } from '../template-match.util';
 
+/** First N batch rows scanned only to discover column labels (Excel v1 AG Grid / exports). */
+const STEP_FIELD_LABEL_SAMPLE_ROW_LIMIT = 200;
+
 export interface StepBlockDescriptor {
     sequence: number;
     label: string;
+    /** AppFeature.code from configuration; used for step-result presenters */
+    featureCode?: string;
 }
 
 export interface StepResultBlock extends StepBlockDescriptor {
@@ -48,7 +55,7 @@ export interface StepResultBlock extends StepBlockDescriptor {
 /** Record-grouped: each record has all its step results (for Table, JSON, Excel v1) */
 export interface RecordResultBlock {
     rowIndex: number;
-    steps: { sequence: number; label: string; data: any }[];
+    steps: { sequence: number; label: string; featureCode?: string; data: any }[];
 }
 
 @Component({
@@ -77,7 +84,7 @@ export interface RecordResultBlock {
     templateUrl: './report-viewer.component.html',
     animations: [fuseAnimations],
 })
-export class ReportViewerComponent implements OnInit {
+export class ReportViewerComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _snack = inject(MatSnackBar);
@@ -217,6 +224,7 @@ export class ReportViewerComponent implements OnInit {
             steps: order.map((block) => ({
                 sequence: block.sequence,
                 label: block.label,
+                featureCode: block.featureCode,
                 data: row.results?.[block.sequence] ?? null,
             })),
         }));
@@ -284,6 +292,10 @@ export class ReportViewerComponent implements OnInit {
         this.previewPageIndex.set(Math.min(Math.max(0, index), max));
     }
 
+    /** Key `{rowIndex}_{sequence}` while that step JSON copy feedback is visible */
+    jsonCopyFeedbackKey = signal<string | null>(null);
+    private _jsonCopyClearTimer: ReturnType<typeof setTimeout> | null = null;
+
     constructor() {
         effect(() => {
             const all = this.previewDataForAllRows();
@@ -292,6 +304,47 @@ export class ReportViewerComponent implements OnInit {
                 this.previewPageIndex.set(0);
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this._clearJsonCopyTimer();
+    }
+
+    private _clearJsonCopyTimer(): void {
+        if (this._jsonCopyClearTimer != null) {
+            clearTimeout(this._jsonCopyClearTimer);
+            this._jsonCopyClearTimer = null;
+        }
+    }
+
+    jsonCopyShowsCopied(rowIndex: number, sequence: number): boolean {
+        return this.jsonCopyFeedbackKey() === this._stepJsonFeedbackKey(rowIndex, sequence);
+    }
+
+    private _stepJsonFeedbackKey(rowIndex: number, sequence: number): string {
+        return `${rowIndex}_${sequence}`;
+    }
+
+    copyStepJsonToClipboard(stepData: unknown, rowIndex: number, sequence: number): void {
+        const text = this.formatJson(stepData);
+        const key = this._stepJsonFeedbackKey(rowIndex, sequence);
+        void navigator.clipboard.writeText(text).then(
+            () => {
+                this._clearJsonCopyTimer();
+                this.jsonCopyFeedbackKey.set(key);
+                this._jsonCopyClearTimer = setTimeout(() => {
+                    this.jsonCopyFeedbackKey.update((current) =>
+                        current === key ? null : current
+                    );
+                    this._jsonCopyClearTimer = null;
+                }, 2400);
+            },
+            () => {
+                this._snack.open(this._transloco.translate('smartReport.failedToCopy'), 'Close', {
+                    duration: 3000,
+                });
+            }
+        );
     }
 
     templateMatch = computed<TemplateMatchResult | null>(() => {
@@ -335,13 +388,13 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         allFieldLabels.add(f.label)
                     );
                 }
             }
         }
-        const fieldLabels = Array.from(allFieldLabels);
+        const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const colDefs: ColDef[] = [
             { field: 'step', headerName: 'Step', width: 220, flex: 0 },
             { field: 'rowNum', headerName: 'Row #', width: 80, flex: 0 },
@@ -358,20 +411,20 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         allFieldLabels.add(f.label)
                     );
                 }
             }
         }
-        const fieldLabels = Array.from(allFieldLabels);
+        const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const rows: any[] = [];
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 const row: any = { step: block.label, rowNum: rowResult.rowIndex + 1 };
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         fieldsMap.set(f.label, f.value)
                     );
                 }
@@ -388,13 +441,16 @@ export class ReportViewerComponent implements OnInit {
         const order = this.stepBlocksOrder();
 
         const allFieldLabels = new Set<string>();
-        // Sample first 50 rows for columns to avoid iterating 14k rows just for columns
-        const sampleRows = filteredRows.slice(0, 50);
+        // Sample first N rows for column labels only (full row pass still builds cells).
+        // Flattened step results can add many distinct keys; 200 balances coverage vs startup cost.
+        const sampleRows = filteredRows.slice(0, STEP_FIELD_LABEL_SAMPLE_ROW_LIMIT);
         for (const row of sampleRows) {
             for (const block of order) {
                 const data = row.results?.[block.sequence];
                 if (data != null) {
-                    this.getStepResultFields(data).forEach((f) => allFieldLabels.add(f.label));
+                    this.getStepResultFields(data, block.featureCode).forEach((f) =>
+                        allFieldLabels.add(f.label)
+                    );
                 }
                 // Check if documentNumber and documentType are available in inputData
                 if (row.inputData?.documentNumber) allFieldLabels.add('Document Number');
@@ -402,7 +458,7 @@ export class ReportViewerComponent implements OnInit {
             }
         }
 
-        const fieldLabels = Array.from(allFieldLabels);
+        const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const gridRows: any[] = [];
 
         for (const row of filteredRows) {
@@ -413,7 +469,7 @@ export class ReportViewerComponent implements OnInit {
                 const fieldsMap = new Map<string, string>();
 
                 if (stepData != null) {
-                    this.getStepResultFields(stepData).forEach((f) =>
+                    this.getStepResultFields(stepData, block.featureCode).forEach((f) =>
                         fieldsMap.set(f.label, f.value)
                     );
                 }
@@ -511,6 +567,7 @@ export class ReportViewerComponent implements OnInit {
             .map((s) => ({
                 sequence: s.sequence,
                 label: this._getStepLabel(s),
+                featureCode: (s.appFeature as { code?: string })?.code,
             }));
         if (steps.length > 0) {
             this.stepBlocksOrder.set(steps);
@@ -529,37 +586,14 @@ export class ReportViewerComponent implements OnInit {
     }
 
     /**
-     * Flatten a step result object into label/value rows for human-readable display.
-     * Same logic as batch-processing component.
+     * Flatten a step result into label/value rows (Table, CSV, Excel, AG Grid).
+     * Delegates to recursive flatten plus optional presenters (e.g. Colombia RUES).
      */
-    getStepResultFields(data: any): { label: string; value: string }[] {
-        if (data == null || typeof data !== 'object') {
-            return [{ label: 'Result', value: data != null ? String(data) : '—' }];
-        }
-        const entries: { label: string; value: string }[] = [];
-        for (const key of Object.keys(data)) {
-            const label = key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, (s) => s.toUpperCase())
-                .trim();
-            const raw = data[key];
-            let value: string;
-            if (raw == null) {
-                value = '—';
-            } else if (Array.isArray(raw)) {
-                value =
-                    raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
-            } else if (typeof raw === 'object') {
-                value =
-                    typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
-                        ? `{ ${Object.keys(raw).slice(0, 3).join(', ')}${Object.keys(raw).length > 3 ? '…' : ''} }`
-                        : '—';
-            } else {
-                value = String(raw);
-            }
-            entries.push({ label, value });
-        }
-        return entries;
+    getStepResultFields(
+        data: any,
+        featureCode?: string | null
+    ): { label: string; value: string }[] {
+        return getStepDisplayFields({ featureCode: featureCode ?? undefined }, data);
     }
 
     /** Format object as pretty-printed JSON for display */
@@ -884,7 +918,7 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         allFieldLabels.add(f.label)
                     );
                 }
@@ -893,14 +927,14 @@ export class ReportViewerComponent implements OnInit {
                 if (rowResult.inputData?.documentType) allFieldLabels.add('Document Type');
             }
         }
-        const fieldLabels = Array.from(allFieldLabels);
+        const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const headerRow = ['Step', 'Row #', ...fieldLabels];
         const csvRows = [this._escapeCsvRow(headerRow)];
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         fieldsMap.set(f.label, f.value)
                     );
                 }
@@ -945,7 +979,7 @@ export class ReportViewerComponent implements OnInit {
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         allFieldLabels.add(f.label)
                     );
                 }
@@ -954,14 +988,14 @@ export class ReportViewerComponent implements OnInit {
                 if (rowResult.inputData?.documentType) allFieldLabels.add('Document Type');
             }
         }
-        const fieldLabels = Array.from(allFieldLabels);
+        const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const sheetData: (string | number)[][] = [];
         sheetData.push(['Step', 'Row #', ...fieldLabels]);
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 const fieldsMap = new Map<string, string>();
                 if (rowResult.data != null) {
-                    this.getStepResultFields(rowResult.data).forEach((f) =>
+                    this.getStepResultFields(rowResult.data, block.featureCode).forEach((f) =>
                         fieldsMap.set(f.label, f.value)
                     );
                 }

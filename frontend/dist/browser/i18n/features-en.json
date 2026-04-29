@@ -1,1272 +1,1274 @@
 {
-  "appFeatures": {
-    "feature_email_login": {
-      "title": "API Key Access via Email",
-      "description": "Request a one-time password (OTP) sent to the client's email for API authentication."
-    },
-    "colombia_special_api_identity_lookup": {
-      "title": "Colombia - Private Citizen Information",
-      "description": "Access private citizen information for Colombian nationals. This service provides comprehensive personal data including detailed identity verification. Contact Verifik customer service for more details."
-    },
-    "colombia_api_identity_lookup": {
-      "title": "Colombia - National ID Verification",
-      "description": "Verify Colombian national ID (cédula) information. Get full name, document status, and basic citizen verification data."
-    },
-    "colombia_special_api_police_identity_lookup": {
-      "title": "Colombia - Police Records Check",
-      "description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date."
-    },
-    "world_api_dea": {
-      "title": "Global - DEA Background Check",
-      "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. Search by full name OR document number with document type. Verify individuals against international drug enforcement records."
-    },
-    "colombia_api_military_situation": {
-      "title": "Colombia - Military Service Records",
-      "description": "Verify military service records through Colombia's military system. Check service status, military obligations, and service records. Requires Colombian ID (CC) and document number."
-    },
-    "colombia_api_rethus": {
-      "title": "Colombia - Health Records Verification",
-      "description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number."
-    },
-    "colombia_api_rues": {
-      "title": "Colombia - Company Registration Verification",
-      "description": "Verify company registration through Colombia's RUES (Registro Único Empresarial y Social) system. Check business registration, legal status, and company information. Requires document type and document number."
-    },
-    "colombia_api_dian": {
-      "title": "Colombia - Tax Information Verification",
-      "description": "Verify tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. Check tax status, obligations, and compliance records. Requires document type and document number."
-    },
-    "peru_api_company_lookup": {
-      "title": "Peru - Business Registration Lookup",
-      "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
-    },
-    "colombia_api_judicial_process_details": {
-      "title": "Colombia - Judicial Process Details",
-      "description": "Comprehensive details of a specific judicial process in Colombia using its process number."
-    },
-    "colombia_api_vehicle_soat": {
-      "title": "Colombia - Vehicle SOAT Status",
-      "description": "Verify the active SOAT (Compulsory Traffic Accident Insurance) policies and details for a given vehicle plate."
-    },
-    "usa_api_vehicle": {
-      "title": "USA - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "world_api_onu": {
-      "title": "Global - UN Sanctions Check",
-      "description": "Check individuals and entities against United Nations sanctions lists. Search by full name OR document number with document type. Verify compliance with international sanctions regimes."
-    },
-    "feature_kyc_solution": {
-      "title": "KYC Solution",
-      "description": "Provides reliable verification and validation services."
-    },
-    "world_api_covid": {
-      "title": "Global - COVID Statistics",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_affiliations": {
-      "title": "Colombia - Health & Social Security Affiliations",
-      "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
-    },
-    "colombia_api_contraloria_certificate": {
-      "title": "Colombia - Contraloría Certificate",
-      "description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF."
-    },
-    "peru_identity_lookup": {
-      "title": "Peru - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "venezuela_api_identity_lookup": {
-      "title": "Venezuela — National ID (CCVE)",
-      "description": "National cédula (CCVE) lookup for Venezuelan citizens. GET /v2/ve/cedula with required query parameter documentNumber; returns structured names for KYC and fraud prevention."
-    },
-    "colombia_api_vehicle_complete": {
-      "title": "Colombia - Complete Vehicle Information",
-      "description": "Get comprehensive vehicle information for Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
-    },
-    "mexico_api_vehicle": {
-      "title": "Mexico - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "feature_passwordless_solution": {
-      "title": "Passwordless Authentication",
-      "description": "Provides reliable verification and validation services."
-    },
-    "world_api_interpol": {
-      "title": "Global - Interpol Background Check",
-      "description": "International background check using Interpol databases. Search by full name OR document number with document type. Verify individuals against international criminal records and wanted lists."
-    },
-    "colombia_api_sena": {
-      "title": "Colombia - SENA Certificates",
-      "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
-    },
-    "world_api_ofac": {
-      "title": "Global - OFAC Sanctions Check",
-      "description": "Check individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. Search by full name OR document number with document type. Verify compliance with US economic sanctions."
-    },
-    "colombia_api_registraduria_certificate": {
-      "title": "Colombia - Electoral Records Verification",
-      "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information."
-    },
-    "colombia_api_delinquent_debtors": {
-      "title": "Colombia - Delinquent Debtors (BDME)",
-      "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
-    },
-    "world_api_fbi": {
-      "title": "Global - FBI Background Check",
-      "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. Search by full name OR document number with document type. Verify individuals against federal criminal records."
-    },
-    "mexico_identity_lookup": {
-      "title": "Mexico - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "ecuador_api_identity_lookup": {
-      "title": "Ecuador - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_driver": {
-      "title": "Colombia - Driver License Verification (RUNT)",
-      "description": "Verify Colombian driver license status and validity through the RUNT system."
-    },
-    "peru_api_vehicle": {
-      "title": "Peru - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "peru_api_vehicle_soat": {
-      "title": "Peru - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "ecuador_api_vehicle": {
-      "title": "Ecuador - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "feature_data_api": {
-      "title": "Data API",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_min_trabajo": {
-      "title": "Colombia - Labor Certificates Verification",
-      "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
-    },
-    "colombia_api_registraduria_voting": {
-      "title": "Colombia - Electoral Records Verification",
-      "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information."
-    },
-    "world_api_europol": {
-      "title": "Global - Europol Background Check",
-      "description": "European background check using Europol databases. Search by full name OR document number with document type. Verify individuals against European criminal records and intelligence databases."
-    },
-    "colombia_api_criminal_history": {
-      "title": "Colombia - Legal Background Check",
-      "description": "Legal background verification service for Colombia citizens. Provides information about legal proceedings and judicial records."
-    },
-    "colombia_api_judicial_processes": {
-      "title": "Colombia - Judicial Processes",
-      "description": "Search for judicial processes using document number across Colombian courts."
-    },
-    "colombia_api_vehicle": {
-      "title": "Colombia - Basic Vehicle Information",
-      "description": "Retrieve general registration data and basic characteristics of a Colombian vehicle by its license plate."
-    },
-    "colombia_api_pico_placa": {
-      "title": "Colombia - Pico y Placa Restrictions",
-      "description": "Check current transit restrictions (Pico y Placa) for a specific vehicle across various Colombian cities."
-    },
-    "feature_pdf_generator": {
-      "title": "PDF Report Generator",
-      "description": "Provides reliable verification and validation services."
-    },
-    "panama_api_identity_full_lookup": {
-      "title": "Panama - National ID Verification",
-      "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
-    },
-    "chile_api_identity_lookup": {
-      "title": "Chile - Identity Verification",
-      "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention."
-    },
-    "costarica_api_identity_lookup": {
-      "title": "Costa Rica — National ID (CCCR)",
-      "description": "Verify Costa Rican national ID (CCCR cédula): GET /v2/cr/cedula with documentType CCCR and documentNumber for KYC and fraud prevention."
-    },
-    "ecuador_api_criminal_history": {
-      "title": "Ecuador - Criminal History",
-      "description": "Provides reliable verification and validation services."
-    },
-    "chile_api_vehicle": {
-      "title": "Chile - Vehicle Verification",
-      "description": "Look up vehicles registered in Chile by license plate: chassis, engine, make, model, year, color, fines when available, and owner details when the source exposes them—ideal for fleet, insurance, and compliance."
-    },
-    "panama_api_identity_lookup": {
-      "title": "Panama - National ID Verification",
-      "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
-    },
-    "panama_api_vehicle": {
-      "title": "Panama - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "chile_api_business_lookup": {
-      "title": "Chile - Company Lookup",
-      "description": "Look up Chilean companies by RUT: legal name, business category, activity, and authorized service lines from official registry data for KYB and vendor due diligence."
-    },
-    "spain_api_identity_lookup": {
-      "title": "Spain - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "ecuador_api_vehicle_fines": {
-      "title": "Ecuador - Vehicle Fines",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_vehicle_complete_by_plate": {
-      "title": "Colombia - Complete Vehicle Report (By Plate)",
-      "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its license plate number."
-    },
-    "colombia_api_vehicle_complete_by_vin": {
-      "title": "Colombia - Complete Vehicle Report (By VIN)",
-      "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its Vehicle Identification Number (VIN)."
-    },
-    "peru_identity_extra_lookup": {
-      "title": "Peru - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_lawyers": {
-      "title": "Colombia - Lawyers Verification",
-      "description": "Verify lawyer registration and professional status with the Colombian bar."
-    },
-    "brasil_api_identity_lookup": {
-      "title": "Brazil - Identity Verification",
-      "description": "Verify Brazilian CPF with date of birth against official sources: confirm name, date of birth, and identity fields for KYC, onboarding, and fraud prevention."
-    },
-    "usa_api_driver_license_lookup": {
-      "title": "USA - Driver License Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "co_bogota_taxi_plate": {
-      "title": "Bogotá taxi by plate",
-      "description": "Look up registered Bogotá taxi driver and operation card data using the vehicle license plate."
-    },
-    "co_bogota_taxi_driver_card": {
-      "title": "Bogotá taxi by control card",
-      "description": "Look up registered Bogotá taxi driver and operation card data using the taxi control card number."
-    },
-    "india_api_epic_lookup": {
-      "title": "India EPIC name lookup",
-      "description": "Returns name-related details for an Indian EPIC (Voter ID) number from ECI electoral search."
-    },
-    "india_api_epic_voting_lookup": {
-      "title": "India EPIC polling lookup",
-      "description": "Returns polling and electoral location details for an EPIC (Voter ID) number."
-    },
-    "usa_api_driver_license_lookup_kansas": {
-      "title": "Kansas driver's license verification",
-      "description": "Validate Kansas driver license status, expiration, restrictions, endorsements, and designations from the license number."
-    },
-    "consultar_procesos_judiciales": {
-      "title": "Colombia - Judicial Processes",
-      "description": "Check complete judicial history and active legal processes."
-    },
-    "credit_intent": {
-      "title": "Credit Purchase Intent",
-      "description": "Provides reliable verification and validation services."
-    },
-    "ip-lookup": {
-      "title": "IP Geolocation Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_judicial_records": {
-      "title": "Colombia - Judicial Records",
-      "description": "Access judicial background records and legal history for Colombian citizens."
-    },
-    "communication_messaging_sms": {
-      "title": "SMS Messaging",
-      "description": "Provides reliable verification and validation services."
-    },
-    "communication_colombia_messaging_whatsapp": {
-      "title": "Colombia - WhatsApp Messaging",
-      "description": "Provides reliable verification and validation services."
-    },
-    "communication_global_messaging_whatsapp": {
-      "title": "Global - WhatsApp Messaging",
-      "description": "Provides reliable verification and validation services."
-    },
-    "communication_global_email_otp": {
-      "title": "Email OTP",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_liveness_3d": {
-      "title": "3D Liveness Detection",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_estimate_age_3d": {
-      "title": "3D Age Estimation",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_check_age_3d": {
-      "title": "3D Age Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_enrollment_3d": {
-      "title": "3D Biometric Enrollment",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_id_scan_only": {
-      "title": "ID Document Scan",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_liveness_2d": {
-      "title": "2D Liveness Detection",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_estimate_age_2d": {
-      "title": "2D Age Estimation",
-      "description": "Provides reliable verification and validation services."
-    },
-    "biometrics_check_age_2d": {
-      "title": "2D Age Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "credit_intent_kyc_passwordless": {
-      "title": "KYC Passwordless Credit Intent",
-      "description": "Provides reliable verification and validation services."
-    },
-    "brasil_api_company_lookup": {
-      "title": "Brazil - Company Lookup",
-      "description": "Look up Brazilian companies by CNPJ (documentType CNPJ + documentNumber): registry-backed company data for KYB, vendor onboarding, and compliance."
-    },
-    "brasil_api_vehicle": {
-      "title": "Brazil - Vehicle Verification",
-      "description": "Query Brazilian vehicle data by license plate (plate): registration-oriented fields for fleet, insurance, and asset checks—scope depends on source availability."
-    },
-    "argentina_api_identity_lookup": {
-      "title": "Argentina - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "argentina_api_identity_lookup_extra": {
-      "title": "Argentina - National ID verification (extended)",
-      "description": "Extended Argentine national ID verification for deeper KYC and onboarding."
-    },
-    "chile_api_transport_vehicle": {
-      "title": "Chile - Transport & vehicle information",
-      "description": "Chilean transport and vehicle data for compliance, fleet, and insurance workflows."
-    },
-    "cl_certificate_verify": {
-      "title": "Chile - Certificate verification",
-      "description": "Verify civil and registry certificates issued in Chile."
-    },
-    "ecuador_api_company_lookup": {
-      "title": "Ecuador - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "usa_api_ssn": {
-      "title": "USA - SSN Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_dian_invoicer": {
-      "title": "Colombia - DIAN Electronic Invoicer Status",
-      "description": "Verify electronic invoicing (facturación electrónica) registration status with DIAN."
-    },
-    "api_colombia_contracts": {
-      "title": "Colombia - Government Contracts Verification",
-      "description": "Verify government contracts and procurement records in Colombia."
-    },
-    "colombia_api_police_rnmc": {
-      "title": "Colombia - Police Records Check",
-      "description": "Police records verification service for Colombia citizens. Provides information about police interactions and records."
-    },
-    "bolivia_api_identity_lookup": {
-      "title": "Bolivia - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_pep_lookup": {
-      "title": "Colombia - Politically Exposed Persons (PEP) Lookup",
-      "description": "Check if a person is listed as politically exposed (PEP) for compliance purposes."
-    },
-    "api_autodata_manufacturers": {
-      "title": "Vehicle Manufacturers Database",
-      "description": "Provides reliable verification and validation services."
-    },
-    "world_api_phone_lookup": {
-      "title": "Global - Phone Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "Mexico_api_ine_model_e": {
-      "title": "Mexico - INE Model E",
-      "description": "Provides reliable verification and validation services."
-    },
-    "Mexico_api_ine_model_d": {
-      "title": "Mexico - INE Model D",
-      "description": "Provides reliable verification and validation services."
-    },
-    "Mexico_api_ine_model_c": {
-      "title": "Mexico - INE Model C",
-      "description": "Provides reliable verification and validation services."
-    },
-    "api_autodata_enginer": {
-      "title": "Vehicle Engine Database",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_rues_full": {
-      "title": "Colombia - RUES Business Verification",
-      "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
-    },
-    "api_autodata_enginer_code": {
-      "title": "Vehicle Engine Code Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "api_autodata_selection": {
-      "title": "Vehicle Selection Database",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_sisconmp": {
-      "title": "Colombia - SISCONMP Transport Verification",
-      "description": "Verify transport and cargo operator registration in the SISCONMP system."
-    },
-    "data_finance_incomestatement": {
-      "title": "Financial - Income Statement",
-      "description": "Provides reliable verification and validation services."
-    },
-    "data_finance_balancesheet": {
-      "title": "Financial - Balance Sheet",
-      "description": "Provides reliable verification and validation services."
-    },
-    "data_finance_cashflow": {
-      "title": "Financial - Cash Flow",
-      "description": "Provides reliable verification and validation services."
-    },
-    "data_finance_stockprice": {
-      "title": "Financial - Stock Price",
-      "description": "Provides reliable verification and validation services."
-    },
-    "paraguay_api_identity_lookup": {
-      "title": "Paraguay - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "canada_api_driver_license_alberta": {
-      "title": "Canada - Driver License",
-      "description": "Provides reliable verification and validation services."
-    },
-    "canada_api_driver_license_ontario": {
-      "title": "Canada - Driver License",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_vehicle_complete_by_plate_simplified": {
-      "title": "Colombia - Simplified Vehicle Report",
-      "description": "A streamlined version of the vehicle background check focusing on essential legal and physical status markers."
-    },
-    "canada_api_driver_license_quebec": {
-      "title": "Canada - Driver License",
-      "description": "Provides reliable verification and validation services."
-    },
-    "ocr_scan_pro": {
-      "title": "OCR Document Scan Pro",
-      "description": "Provides reliable verification and validation services."
-    },
-    "el_salvador_api_identity_lookup": {
-      "title": "El Salvador - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "canada_api_driver_license_british-columbia": {
-      "title": "Canada - Driver License",
-      "description": "Provides reliable verification and validation services."
-    },
-    "ocr_scan_gpt": {
-      "title": "OCR Document Scan GPT",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_identity_lookup_extra": {
-      "title": "Colombia - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_identity_lookup_premium": {
-      "title": "Colombia - National ID Premium (CC)",
-      "description": "Premium CC lookup: expedition date resolved automatically, same enriched fields as /v2/co/cedula/extra. GET/POST /v2/co/cedula/premium."
-    },
-    "colombia_api_identity_pep_foreigner_id": {
-      "title": "Colombia - Special Stay Permit (PEP)",
-      "description": "Verify the Colombian PEP (Permiso Especial de Permanencia) using GET /v2/co/foreigner-id/pep with documentNumber and expeditionDate."
-    },
-    "ocr_scan_studio": {
-      "title": "OCR Document Scan Studio",
-      "description": "Provides reliable verification and validation services."
-    },
-    "canada_api_company": {
-      "title": "Canada - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "us_api_passport_entries": {
-      "title": "us api passport entries",
-      "description": "Provides reliable verification and validation services."
-    },
-    "mexico_api_company": {
-      "title": "Mexico - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_compare": {
-      "title": "Face Comparison",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_compare_live": {
-      "title": "Live Face Comparison",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_liveness": {
-      "title": "Face Liveness Detection",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_search_live_face": {
-      "title": "Live Face Search",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_verify": {
-      "title": "Face Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_detect": {
-      "title": "Face Detection",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_search_crops": {
-      "title": "Face Search (Crops)",
-      "description": "Provides reliable verification and validation services."
-    },
-    "face_recognition_search": {
-      "title": "Face Search",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_plate": {
-      "title": "Colombia - Fasecolda Vehicle Values (by Plate)",
-      "description": "Get vehicle commercial values from Fasecolda by license plate."
-    },
-    "colombia_api_vehicle_valores_fasecolda_by_code": {
-      "title": "Colombia - Fasecolda Vehicle Values (by Code)",
-      "description": "Get vehicle commercial values from Fasecolda by vehicle code."
-    },
-    "usa_api_company": {
-      "title": "USA - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_runt_owners": {
-      "title": "Colombia - Vehicle Owners Verification (RUNT)",
-      "description": "Verify vehicle ownership and registered owners through the RUNT system."
-    },
-    "chile_api_driver_license": {
-      "title": "Chile - Driver License",
-      "description": "Retrieve Chilean driver license details by license document number: RUT, class, control dates, address, restrictions, and registry fields for workforce screening and mobility compliance."
-    },
-    "colombia_api_lawyers_certificate": {
-      "title": "Colombia - Lawyers Verification",
-      "description": "Obtain lawyer certification and professional status verification."
-    },
-    "argentina_api_vehicle": {
-      "title": "Argentina - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "argentina_api_company_lookup": {
-      "title": "Argentina - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "bolivia_api_vehicle": {
-      "title": "Bolivia - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "brasil_api_criminal_history": {
-      "title": "Brazil - Background Check",
-      "description": "Brazilian individual background check (CPF + date of birth): screening-oriented results with identity fields and official report output when available—not legal advice."
-    },
-    "bolivia_api_business_lookup": {
-      "title": "Bolivia - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "costa_rica_api_business_lookup": {
-      "title": "Costa Rica — Company Lookup (NITE)",
-      "description": "KYB lookup for Costa Rican companies: GET /v2/cr/company with documentType NITE and documentNumber for registration and business verification."
-    },
-    "paraguay_api_business_lookup": {
-      "title": "Paraguay - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-      "title": "Colombia - Fasecolda Accident History",
-      "description": "Check vehicle accident and claim history from Fasecolda by plate."
-    },
-    "colombia_api_vehicle_tax": {
-      "title": "Colombia - Vehicle Tax Status",
-      "description": "Check the payment status and history of annual vehicular taxes (Impuesto de Vehículos)."
-    },
-    "colombia_api_vehicle_accidentality_bogota": {
-      "title": "Colombia - Bogota Vehicle Accidents",
-      "description": "Look up accident records and traffic incidents registered specifically within the Bogota municipal transit database."
-    },
-    "api_data_sheet_vehicle": {
-      "title": "Vehicle Data Sheet",
-      "description": "Provides reliable verification and validation services."
-    },
-    "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brazil - Vehicle Data Sheet (by Plate)",
-      "description": "Extended Brazilian vehicle technical data sheet by plate (data-sheet-by-plate): richer vehicle specification fields than the basic plate lookup, subject to registry coverage."
-    },
-    "face_recognition_search_active_user": {
-      "title": "Face Search (Active User)",
-      "description": "Provides reliable verification and validation services."
-    },
-    "matpis_appointments": {
-      "title": "MATPIS Appointments",
-      "description": "Provides reliable verification and validation services."
-    },
-    "chile_api_taxpayer_lookup": {
-      "title": "Chile - Taxpayer (RUT) Lookup",
-      "description": "Query Chilean taxpayer RUT records: identity and name fields returned by the source for tax-related verification and entity matching."
-    },
-    "chile_api_validate": {
-      "title": "Chile - Identity Document Validation",
-      "description": "Strengthened validation flow for Chilean identity documents (RUN/RUT) using document type and number, with optional serial number, for additional authenticity checks."
-    },
-    "colombia_api_simit_agreements": {
-      "title": "Colombia - SIMIT Payment Agreements",
-      "description": "Verify active payment agreements for transit fines registered in SIMIT."
-    },
-    "colombia_api_simit_suspensions": {
-      "title": "Colombia - SIMIT License Suspensions",
-      "description": "Check for driver license suspensions or cancellations in the SIMIT system."
-    },
-    "colombia_api_simit_subpoenas": {
-      "title": "Colombia - SIMIT Traffic Subpoenas",
-      "description": "Look up active transit subpoenas (comparendos) associated with an ID or vehicle."
-    },
-    "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - SIMIT Subpoena Details",
-      "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
-    },
-    "colombia_api_simit_resolutions": {
-      "title": "Colombia - SIMIT Resolutions",
-      "description": "Access formal resolutions for traffic infractions that have reached the sanction stage."
-    },
-    "colombia_api_simit_complete": {
-      "title": "Colombia - SIMIT Complete Transit History",
-      "description": "Comprehensive transit background check including fines, agreements, and suspensions by ID."
-    },
-    "colombia_api_simit_plate": {
-      "title": "Colombia - SIMIT Fines by Plate",
-      "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate."
-    },
-    "world_api_passport_entries": {
-      "title": "world api passport entries",
-      "description": "Provides reliable verification and validation services."
-    },
-    "validate-document": {
-      "title": "validate-document",
-      "description": "Provides reliable verification and validation services."
-    },
-    "costa_rica_api_vehicle": {
-      "title": "Costa Rica — Vehicle Verification",
-      "description": "Look up a Costa Rican vehicle by license plate: GET /v2/cr/vehicle with required query parameter plate; returns owner and vehicle details, infraction and ownership history when available."
-    },
-    "paraguay_api_vehicle": {
-      "title": "Paraguay - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "usa_api_vehicle_lookup_by_vin": {
-      "title": "USA - Vehicle Lookup by VIN",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - Foreigner ID Card (CE)",
-      "description": "Verify foreign nationals in Colombia using the CE (Cédula de Extranjero) via GET /v2/co/foreigner-id/ce with documentNumber and expeditionDate."
-    },
-    "colombia_api_vehicle_fines_bogota": {
-      "title": "Colombia - Bogota Transit Fines",
-      "description": "Verify outstanding local traffic penalties and fines restricted to the city of Bogota."
-    },
-    "colombia_api_vehicle_fines_medellin": {
-      "title": "Colombia - Medellin Transit Fines",
-      "description": "Verify outstanding local traffic penalties and fines restricted to the city of Medellin."
-    },
-    "guatemala_api_identity_lookup": {
-      "title": "Guatemala - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "honduras_api_identity_lookup": {
-      "title": "Honduras - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "republica_dominicana_api_citizen_lookup": {
-      "title": "Dominican Republic - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "venezuela_foreigner_api": {
-      "title": "Venezuela — Foreign Resident ID (CEVE)",
-      "description": "Foreigner cédula (CEVE) lookup for foreign residents in Venezuela. GET /v2/ve/foreigner-id with required documentNumber; national CCVE holders use /v2/ve/cedula."
-    },
-    "colombia_sisben_api_lookup": {
-      "title": "Colombia - SISBEN Score Verification",
-      "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios) score and classification."
-    },
-    "spain_api_vehicle_lookup": {
-      "title": "Spain - Vehicle Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "spain_api_company_lookup": {
-      "title": "Spain - Company Lookup",
-      "description": "Provides reliable verification and validation services."
-    },
-    "panama_api_business_lookup": {
-      "title": "Panama - Company Lookup",
-      "description": "Look up Panamanian companies by RUC: legal name, status, representatives, and registry fields from official sources for KYB and due diligence."
-    },
-    "uruguay_api_identity_lookup": {
-      "title": "Uruguay - National ID Verification",
-      "description": "Provides reliable verification and validation services."
-    },
-    "peru_api_identity_ce_foreigner_id": {
-      "title": "Peru - Foreigner ID Card (CE)",
-      "description": "Verify foreign residents in Peru using the CE (Cédula de Extranjero) via GET /v2/pe/foreigner-id/ce with documentNumber and dateOfBirth (DD/MM/YYYY)."
-    },
-    "colombia_api_rues_full_v3": {
-      "title": "Colombia - RUES Business Verification",
-      "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing."
-    },
-    "colombia_api_rues_v3": {
-      "title": "Colombia - RUES Business Verification",
-      "description": "RUES V3 business verification with comprehensive company data."
-    },
-    "peru_identity_lookup_v3": {
-      "title": "Peru — DNI verification (v3)",
-      "description": "Standard Peruvian DNI check via RENIEC: validate documentNumber with documentType=DNI. GET /v3/pe/cedula — core identity fields without the extended /cedula/extra payload."
-    },
-    "peru_identity_extra_lookup_v3": {
-      "title": "Peru — Extended DNI (full record)",
-      "description": "RENIEC extended lookup for Peruvian DNI: photo (base64), civil status, address, expedition/expiration dates, ubigeo, and more. GET /v3/pe/cedula/extra with documentType=DNI and documentNumber (8 digits). Optional force=1."
-    },
-    "colombia_api_identity_ppt_foreigner_id": {
-      "title": "Colombia - Temporary Protection Permit (PPT)",
-      "description": "Verify the Colombian PPT (Permiso de Protección Temporal) using GET /v2/co/foreigner-id/ppt with documentNumber and expeditionDate."
-    },
-    "colombia_api_min_trabajo_v3": {
-      "title": "Colombia - Labor Certificates Verification",
-      "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
-    },
-    "peru_api_company_lookup_v3": {
-      "title": "Peru — Company lookup (RUC, v3)",
-      "description": "Peruvian business lookup by RUC: GET /v3/pe/company with documentType=RUC and documentNumber. Returns legal name, status, address, and taxpayer fields from official registries for KYB."
-    },
-    "face_recognition_detect_face": {
-      "title": "Face Detection",
-      "description": "Provides reliable verification and validation services."
-    },
-    "document-liveness": {
-      "title": "Document Liveness Detection",
-      "description": "Provides reliable verification and validation services."
-    },
-    "colombia_api_inpec": {
-      "title": "Colombia - INPEC Penitentiary Records",
-      "description": "Verify penitentiary and incarceration records through the INPEC system."
-    },
-    "colombia_sigep_by_name": {
-      "title": "Colombia - SIGEP Public Officials Search",
-      "description": "Search Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
-    },
-    "colombia_sigep_by_number": {
-      "title": "Colombia - SIGEP Official Lookup by Document",
-      "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). Get complete professional information from SIGEP records."
-    },
-    "colombia_inpec_lookup": {
-      "title": "Colombia - INPEC Penitentiary Records",
-      "description": "Look up penitentiary records and incarceration history."
-    },
-    "zelf-proofs": {
-      "title": "Zelf Proofs",
-      "description": "Zelf Proofs service for identity verification and document validation. This service provides comprehensive proof generation capabilities for various identity documents and verification processes."
-    },
-    "zelf-proof-liveness-active-user": {
-      "title": "Zelf Proof with Liveness (Active user)",
-      "description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
-    },
-    "biometrics_api_create_person": {
-      "title": "Biometrics - Create Person (no liveness)",
-      "description": "Create a new person record for identity management. Used for indexing and future face recognition search."
-    },
-    "biometrics_api_create_person_liveness": {
-      "title": "Biometrics - Create Person with Liveness Detection",
-      "description": "Create a new person record with integrated liveness detection. Ensures the user is physically present during enrollment."
-    },
-    "guatemala_api_identity_extra_lookup": {
-      "title": "Guatemala - Identity Extra Lookup",
-      "description": "Comprehensive identity verification for Guatemala citizens including additional data points."
+    "appFeatures": {
+        "feature_email_login": {
+            "title": "API Key Access via Email",
+            "description": "Request a one-time password (OTP) sent to the client's email for API authentication."
+        },
+        "colombia_special_api_identity_lookup": {
+            "title": "Colombia - Private Citizen Information",
+            "description": "Access private citizen information for Colombian nationals. This service provides comprehensive personal data including detailed identity verification. Contact Verifik customer service for more details."
+        },
+        "colombia_api_identity_lookup": {
+            "title": "Colombia - National ID Verification",
+            "description": "Verify Colombian national ID (cédula) information. Get full name, document status, and basic citizen verification data."
+        },
+        "colombia_special_api_police_identity_lookup": {
+            "title": "Colombia - Police Records Check",
+            "description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date."
+        },
+        "world_api_dea": {
+            "title": "Global - DEA Background Check",
+            "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. Search by full name OR document number with document type. Verify individuals against international drug enforcement records."
+        },
+        "colombia_api_military_situation": {
+            "title": "Colombia - Military Service Records",
+            "description": "Verify military service records through Colombia's military system. Check service status, military obligations, and service records. Requires Colombian ID (CC) and document number."
+        },
+        "colombia_api_rethus": {
+            "title": "Colombia - Health Records Verification",
+            "description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number."
+        },
+        "colombia_api_rues": {
+            "title": "Colombia - Company Registration Verification",
+            "description": "Verify company registration through Colombia's RUES (Registro Único Empresarial y Social) system. Check business registration, legal status, and company information. Requires document type and document number."
+        },
+        "colombia_api_dian": {
+            "title": "Colombia - Tax Information Verification",
+            "description": "Verify tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. Check tax status, obligations, and compliance records. Requires document type and document number."
+        },
+        "peru_api_company_lookup": {
+            "title": "Peru - Business Registration Lookup",
+            "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
+        },
+        "colombia_api_judicial_process_details": {
+            "title": "Colombia - Judicial Process Details",
+            "description": "Comprehensive details of a specific judicial process in Colombia using its process number."
+        },
+        "colombia_api_vehicle_soat": {
+            "title": "Colombia - Vehicle SOAT Status",
+            "description": "Verify the active SOAT (Compulsory Traffic Accident Insurance) policies and details for a given vehicle plate."
+        },
+        "usa_api_vehicle": {
+            "title": "USA - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "world_api_onu": {
+            "title": "Global - UN Sanctions Check",
+            "description": "Check individuals and entities against United Nations sanctions lists. Search by full name OR document number with document type. Verify compliance with international sanctions regimes."
+        },
+        "feature_kyc_solution": {
+            "title": "KYC Solution",
+            "description": "Provides reliable verification and validation services."
+        },
+        "world_api_covid": {
+            "title": "Global - COVID Statistics",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_affiliations": {
+            "title": "Colombia - Health & Social Security Affiliations",
+            "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
+        },
+        "colombia_api_contraloria_certificate": {
+            "title": "Colombia - Contraloría Certificate",
+            "description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF."
+        },
+        "peru_identity_lookup": {
+            "title": "Peru - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "venezuela_api_identity_lookup": {
+            "title": "Venezuela — National ID (CCVE)",
+            "description": "National cédula (CCVE) lookup for Venezuelan citizens. GET /v2/ve/cedula with required query parameter documentNumber; returns structured names for KYC and fraud prevention."
+        },
+        "colombia_api_vehicle_complete": {
+            "title": "Colombia - Complete Vehicle Information",
+            "description": "Get comprehensive vehicle information for Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
+        },
+        "mexico_api_vehicle": {
+            "title": "Mexico - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "feature_passwordless_solution": {
+            "title": "Passwordless Authentication",
+            "description": "Provides reliable verification and validation services."
+        },
+        "world_api_interpol": {
+            "title": "Global - Interpol Background Check",
+            "description": "International background check using Interpol databases. Search by full name OR document number with document type. Verify individuals against international criminal records and wanted lists."
+        },
+        "colombia_api_sena": {
+            "title": "Colombia - SENA Certificates",
+            "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+        },
+        "world_api_ofac": {
+            "title": "Global - OFAC Sanctions Check",
+            "description": "Check individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. Search by full name OR document number with document type. Verify compliance with US economic sanctions."
+        },
+        "colombia_api_registraduria_certificate": {
+            "title": "Colombia - Electoral Records Verification",
+            "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information."
+        },
+        "colombia_api_delinquent_debtors": {
+            "title": "Colombia - Delinquent Debtors (BDME)",
+            "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
+        },
+        "world_api_fbi": {
+            "title": "Global - FBI Background Check",
+            "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. Search by full name OR document number with document type. Verify individuals against federal criminal records."
+        },
+        "mexico_identity_lookup": {
+            "title": "Mexico - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "ecuador_api_identity_lookup": {
+            "title": "Ecuador - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_driver": {
+            "title": "Colombia - Driver License Verification (RUNT)",
+            "description": "Verify Colombian driver license status and validity through the RUNT system."
+        },
+        "peru_api_vehicle": {
+            "title": "Peru - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "peru_api_vehicle_soat": {
+            "title": "Peru - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "ecuador_api_vehicle": {
+            "title": "Ecuador - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "feature_data_api": {
+            "title": "Data API",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_min_trabajo": {
+            "title": "Colombia - Labor Certificates Verification",
+            "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
+        },
+        "colombia_api_registraduria_voting": {
+            "title": "Colombia - Electoral Records Verification",
+            "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information."
+        },
+        "world_api_europol": {
+            "title": "Global - Europol Background Check",
+            "description": "European background check using Europol databases. Search by full name OR document number with document type. Verify individuals against European criminal records and intelligence databases."
+        },
+        "colombia_api_criminal_history": {
+            "title": "Colombia - Legal Background Check",
+            "description": "Legal background verification service for Colombia citizens. Provides information about legal proceedings and judicial records."
+        },
+        "colombia_api_judicial_processes": {
+            "title": "Colombia - Judicial Processes",
+            "description": "Search for judicial processes using document number across Colombian courts."
+        },
+        "colombia_api_vehicle": {
+            "title": "Colombia - Basic Vehicle Information",
+            "description": "Retrieve general registration data and basic characteristics of a Colombian vehicle by its license plate."
+        },
+        "colombia_api_pico_placa": {
+            "title": "Colombia - Pico y Placa Restrictions",
+            "description": "Check current transit restrictions (Pico y Placa) for a specific vehicle across various Colombian cities."
+        },
+        "feature_pdf_generator": {
+            "title": "PDF Report Generator",
+            "description": "Provides reliable verification and validation services."
+        },
+        "panama_api_identity_full_lookup": {
+            "title": "Panama - National ID Verification",
+            "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
+        },
+        "chile_api_identity_lookup": {
+            "title": "Chile - Identity Verification",
+            "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention."
+        },
+        "costarica_api_identity_lookup": {
+            "title": "Costa Rica — National ID (CCCR)",
+            "description": "Verify Costa Rican national ID (CCCR cédula): GET /v2/cr/cedula with documentType CCCR and documentNumber for KYC and fraud prevention."
+        },
+        "ecuador_api_criminal_history": {
+            "title": "Ecuador - Criminal History",
+            "description": "Provides reliable verification and validation services."
+        },
+        "chile_api_vehicle": {
+            "title": "Chile - Vehicle Verification",
+            "description": "Look up vehicles registered in Chile by license plate: chassis, engine, make, model, year, color, fines when available, and owner details when the source exposes them—ideal for fleet, insurance, and compliance."
+        },
+        "panama_api_identity_lookup": {
+            "title": "Panama - National ID Verification",
+            "description": "Verify Panamanian CCPA national ID: match document number with full name and date of birth against official civil-registry data for KYC and onboarding."
+        },
+        "panama_api_vehicle": {
+            "title": "Panama - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "chile_api_business_lookup": {
+            "title": "Chile - Company Lookup",
+            "description": "Look up Chilean companies by RUT: legal name, business category, activity, and authorized service lines from official registry data for KYB and vendor due diligence."
+        },
+        "spain_api_identity_lookup": {
+            "title": "Spain - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "ecuador_api_vehicle_fines": {
+            "title": "Ecuador - Vehicle Fines",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_vehicle_complete_by_plate": {
+            "title": "Colombia - Complete Vehicle Report (By Plate)",
+            "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its license plate number."
+        },
+        "colombia_api_vehicle_complete_by_vin": {
+            "title": "Colombia - Complete Vehicle Report (By VIN)",
+            "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its Vehicle Identification Number (VIN)."
+        },
+        "peru_identity_extra_lookup": {
+            "title": "Peru - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_lawyers": {
+            "title": "Colombia - Lawyers Verification",
+            "description": "Verify lawyer registration and professional status with the Colombian bar."
+        },
+        "brasil_api_identity_lookup": {
+            "title": "Brazil - Identity Verification",
+            "description": "Verify Brazilian CPF with date of birth against official sources: confirm name, date of birth, and identity fields for KYC, onboarding, and fraud prevention."
+        },
+        "usa_api_driver_license_lookup": {
+            "title": "USA - Driver License Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "co_bogota_taxi_plate": {
+            "title": "Bogotá taxi by plate",
+            "description": "Look up registered Bogotá taxi driver and operation card data using the vehicle license plate."
+        },
+        "co_bogota_taxi_driver_card": {
+            "title": "Bogotá taxi by control card",
+            "description": "Look up registered Bogotá taxi driver and operation card data using the taxi control card number."
+        },
+        "india_api_epic_lookup": {
+            "title": "India EPIC name lookup",
+            "description": "Returns name-related details for an Indian EPIC (Voter ID) number from ECI electoral search."
+        },
+        "india_api_epic_voting_lookup": {
+            "title": "India EPIC polling lookup",
+            "description": "Returns polling and electoral location details for an EPIC (Voter ID) number."
+        },
+        "usa_api_driver_license_lookup_kansas": {
+            "title": "Kansas driver's license verification",
+            "description": "Validate Kansas driver license status, expiration, restrictions, endorsements, and designations from the license number."
+        },
+        "consultar_procesos_judiciales": {
+            "title": "Colombia - Judicial Processes",
+            "description": "Check complete judicial history and active legal processes."
+        },
+        "credit_intent": {
+            "title": "Credit Purchase Intent",
+            "description": "Provides reliable verification and validation services."
+        },
+        "ip-lookup": {
+            "title": "IP Geolocation Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_judicial_records": {
+            "title": "Colombia - Judicial Records",
+            "description": "Access judicial background records and legal history for Colombian citizens."
+        },
+        "communication_messaging_sms": {
+            "title": "SMS Messaging",
+            "description": "Provides reliable verification and validation services."
+        },
+        "communication_colombia_messaging_whatsapp": {
+            "title": "Colombia - WhatsApp Messaging",
+            "description": "Provides reliable verification and validation services."
+        },
+        "communication_global_messaging_whatsapp": {
+            "title": "Global - WhatsApp Messaging",
+            "description": "Provides reliable verification and validation services."
+        },
+        "communication_global_email_otp": {
+            "title": "Email OTP",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_liveness_3d": {
+            "title": "3D Liveness Detection",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_estimate_age_3d": {
+            "title": "3D Age Estimation",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_check_age_3d": {
+            "title": "3D Age Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_enrollment_3d": {
+            "title": "3D Biometric Enrollment",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_id_scan_only": {
+            "title": "ID Document Scan",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_liveness_2d": {
+            "title": "2D Liveness Detection",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_estimate_age_2d": {
+            "title": "2D Age Estimation",
+            "description": "Provides reliable verification and validation services."
+        },
+        "biometrics_check_age_2d": {
+            "title": "2D Age Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "credit_intent_kyc_passwordless": {
+            "title": "KYC Passwordless Credit Intent",
+            "description": "Provides reliable verification and validation services."
+        },
+        "brasil_api_company_lookup": {
+            "title": "Brazil - Company Lookup",
+            "description": "Look up Brazilian companies by CNPJ (documentType CNPJ + documentNumber): registry-backed company data for KYB, vendor onboarding, and compliance."
+        },
+        "brasil_api_vehicle": {
+            "title": "Brazil - Vehicle Verification",
+            "description": "Query Brazilian vehicle data by license plate (plate): registration-oriented fields for fleet, insurance, and asset checks—scope depends on source availability."
+        },
+        "argentina_api_identity_lookup": {
+            "title": "Argentina - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "argentina_api_identity_lookup_extra": {
+            "title": "Argentina - National ID verification (extended)",
+            "description": "Extended Argentine national ID verification for deeper KYC and onboarding."
+        },
+        "chile_api_transport_vehicle": {
+            "title": "Chile - Transport & vehicle information",
+            "description": "Chilean transport and vehicle data for compliance, fleet, and insurance workflows."
+        },
+        "cl_certificate_verify": {
+            "title": "Chile - Certificate verification",
+            "description": "Verify civil and registry certificates issued in Chile."
+        },
+        "ecuador_api_company_lookup": {
+            "title": "Ecuador - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "usa_api_ssn": {
+            "title": "USA - SSN Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_dian_invoicer": {
+            "title": "Colombia - DIAN Electronic Invoicer Status",
+            "description": "Verify electronic invoicing (facturación electrónica) registration status with DIAN."
+        },
+        "api_colombia_contracts": {
+            "title": "Colombia - Government Contracts Verification",
+            "description": "Verify government contracts and procurement records in Colombia."
+        },
+        "colombia_api_police_rnmc": {
+            "title": "Colombia - Police Records Check",
+            "description": "Police records verification service for Colombia citizens. Provides information about police interactions and records."
+        },
+        "bolivia_api_identity_lookup": {
+            "title": "Bolivia - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_pep_lookup": {
+            "title": "Colombia - Politically Exposed Persons (PEP) Lookup",
+            "description": "Check if a person is listed as politically exposed (PEP) for compliance purposes."
+        },
+        "api_autodata_manufacturers": {
+            "title": "Vehicle Manufacturers Database",
+            "description": "Provides reliable verification and validation services."
+        },
+        "world_api_phone_lookup": {
+            "title": "Global - Phone Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "Mexico_api_ine_model_e": {
+            "title": "Mexico - INE Model E",
+            "description": "Provides reliable verification and validation services."
+        },
+        "Mexico_api_ine_model_d": {
+            "title": "Mexico - INE Model D",
+            "description": "Provides reliable verification and validation services."
+        },
+        "Mexico_api_ine_model_c": {
+            "title": "Mexico - INE Model C",
+            "description": "Provides reliable verification and validation services."
+        },
+        "api_autodata_enginer": {
+            "title": "Vehicle Engine Database",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_rues_full": {
+            "title": "Colombia - RUES Business Verification",
+            "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
+        },
+        "api_autodata_enginer_code": {
+            "title": "Vehicle Engine Code Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "api_autodata_selection": {
+            "title": "Vehicle Selection Database",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_sisconmp": {
+            "title": "Colombia - SISCONMP Transport Verification",
+            "description": "Verify transport and cargo operator registration in the SISCONMP system."
+        },
+        "data_finance_incomestatement": {
+            "title": "Financial - Income Statement",
+            "description": "Provides reliable verification and validation services."
+        },
+        "data_finance_balancesheet": {
+            "title": "Financial - Balance Sheet",
+            "description": "Provides reliable verification and validation services."
+        },
+        "data_finance_cashflow": {
+            "title": "Financial - Cash Flow",
+            "description": "Provides reliable verification and validation services."
+        },
+        "data_finance_stockprice": {
+            "title": "Financial - Stock Price",
+            "description": "Provides reliable verification and validation services."
+        },
+        "paraguay_api_identity_lookup": {
+            "title": "Paraguay - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "canada_api_driver_license_alberta": {
+            "title": "Canada - Driver License",
+            "description": "Provides reliable verification and validation services."
+        },
+        "canada_api_driver_license_ontario": {
+            "title": "Canada - Driver License",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_vehicle_complete_by_plate_simplified": {
+            "title": "Colombia - Simplified Vehicle Report",
+            "description": "A streamlined version of the vehicle background check focusing on essential legal and physical status markers."
+        },
+        "canada_api_driver_license_quebec": {
+            "title": "Canada - Driver License",
+            "description": "Provides reliable verification and validation services."
+        },
+        "ocr_scan_pro": {
+            "title": "OCR Document Scan Pro",
+            "description": "Provides reliable verification and validation services."
+        },
+        "el_salvador_api_identity_lookup": {
+            "title": "El Salvador - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "canada_api_driver_license_british-columbia": {
+            "title": "Canada - Driver License",
+            "description": "Provides reliable verification and validation services."
+        },
+        "ocr_scan_gpt": {
+            "title": "OCR Document Scan GPT",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_identity_lookup_extra": {
+            "title": "Colombia - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_identity_lookup_premium": {
+            "title": "Colombia - National ID Premium (CC)",
+            "description": "Premium CC lookup: expedition date resolved automatically, same enriched fields as /v2/co/cedula/extra. GET/POST /v2/co/cedula/premium."
+        },
+        "colombia_api_identity_pep_foreigner_id": {
+            "title": "Colombia - Special Stay Permit (PEP)",
+            "description": "Verify the Colombian PEP (Permiso Especial de Permanencia) using GET /v2/co/foreigner-id/pep with documentNumber and expeditionDate."
+        },
+        "ocr_scan_studio": {
+            "title": "OCR Document Scan Studio",
+            "description": "Provides reliable verification and validation services."
+        },
+        "canada_api_company": {
+            "title": "Canada - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "us_api_passport_entries": {
+            "title": "us api passport entries",
+            "description": "Provides reliable verification and validation services."
+        },
+        "mexico_api_company": {
+            "title": "Mexico - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_compare": {
+            "title": "Face Comparison",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_compare_live": {
+            "title": "Live Face Comparison",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_liveness": {
+            "title": "Face Liveness Detection",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_search_live_face": {
+            "title": "Live Face Search",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_verify": {
+            "title": "Face Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_detect": {
+            "title": "Face Detection",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_search_crops": {
+            "title": "Face Search (Crops)",
+            "description": "Provides reliable verification and validation services."
+        },
+        "face_recognition_search": {
+            "title": "Face Search",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_plate": {
+            "title": "Colombia - Fasecolda Vehicle Values (by Plate)",
+            "description": "Get vehicle commercial values from Fasecolda by license plate."
+        },
+        "colombia_api_vehicle_valores_fasecolda_by_code": {
+            "title": "Colombia - Fasecolda Vehicle Values (by Code)",
+            "description": "Get vehicle commercial values from Fasecolda by vehicle code."
+        },
+        "usa_api_company": {
+            "title": "USA - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_runt_owners": {
+            "title": "Colombia - Vehicle Owners Verification (RUNT)",
+            "description": "Verify vehicle ownership and registered owners through the RUNT system."
+        },
+        "chile_api_driver_license": {
+            "title": "Chile - Driver License",
+            "description": "Retrieve Chilean driver license details by license document number: RUT, class, control dates, address, restrictions, and registry fields for workforce screening and mobility compliance."
+        },
+        "colombia_api_lawyers_certificate": {
+            "title": "Colombia - Lawyers Verification",
+            "description": "Obtain lawyer certification and professional status verification."
+        },
+        "argentina_api_vehicle": {
+            "title": "Argentina - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "argentina_api_company_lookup": {
+            "title": "Argentina - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "bolivia_api_vehicle": {
+            "title": "Bolivia - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "brasil_api_criminal_history": {
+            "title": "Brazil - Background Check",
+            "description": "Brazilian individual background check (CPF + date of birth): screening-oriented results with identity fields and official report output when available—not legal advice."
+        },
+        "bolivia_api_business_lookup": {
+            "title": "Bolivia - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "costa_rica_api_business_lookup": {
+            "title": "Costa Rica — Company Lookup (NITE)",
+            "description": "KYB lookup for Costa Rican companies: GET /v2/cr/company with documentType NITE and documentNumber for registration and business verification."
+        },
+        "paraguay_api_business_lookup": {
+            "title": "Paraguay - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+            "title": "Colombia - Fasecolda Accident History",
+            "description": "Check vehicle accident and claim history from Fasecolda by plate."
+        },
+        "colombia_api_vehicle_tax": {
+            "title": "Colombia - Vehicle Tax Status",
+            "description": "Check the payment status and history of annual vehicular taxes (Impuesto de Vehículos)."
+        },
+        "colombia_api_vehicle_accidentality_bogota": {
+            "title": "Colombia - Bogota Vehicle Accidents",
+            "description": "Look up accident records and traffic incidents registered specifically within the Bogota municipal transit database."
+        },
+        "api_data_sheet_vehicle": {
+            "title": "Vehicle Data Sheet",
+            "description": "Provides reliable verification and validation services."
+        },
+        "api_data_sheet_vehicle_by-plate_br": {
+            "title": "Brazil - Vehicle Data Sheet (by Plate)",
+            "description": "Extended Brazilian vehicle technical data sheet by plate (data-sheet-by-plate): richer vehicle specification fields than the basic plate lookup, subject to registry coverage."
+        },
+        "face_recognition_search_active_user": {
+            "title": "Face Search (Active User)",
+            "description": "Provides reliable verification and validation services."
+        },
+        "matpis_appointments": {
+            "title": "MATPIS Appointments",
+            "description": "Provides reliable verification and validation services."
+        },
+        "chile_api_taxpayer_lookup": {
+            "title": "Chile - Taxpayer (RUT) Lookup",
+            "description": "Query Chilean taxpayer RUT records: identity and name fields returned by the source for tax-related verification and entity matching."
+        },
+        "chile_api_validate": {
+            "title": "Chile - Identity Document Validation",
+            "description": "Strengthened validation flow for Chilean identity documents (RUN/RUT) using document type and number, with optional serial number, for additional authenticity checks."
+        },
+        "colombia_api_simit_agreements": {
+            "title": "Colombia - SIMIT Payment Agreements",
+            "description": "Verify active payment agreements for transit fines registered in SIMIT."
+        },
+        "colombia_api_simit_suspensions": {
+            "title": "Colombia - SIMIT License Suspensions",
+            "description": "Check for driver license suspensions or cancellations in the SIMIT system."
+        },
+        "colombia_api_simit_subpoenas": {
+            "title": "Colombia - SIMIT Traffic Subpoenas",
+            "description": "Look up active transit subpoenas (comparendos) associated with an ID or vehicle."
+        },
+        "colombia_api_simit_subpoenas_details": {
+            "title": "Colombia - SIMIT Subpoena Details",
+            "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+        },
+        "colombia_api_simit_resolutions": {
+            "title": "Colombia - SIMIT Resolutions",
+            "description": "Access formal resolutions for traffic infractions that have reached the sanction stage."
+        },
+        "colombia_api_simit_complete": {
+            "title": "Colombia - SIMIT Complete Transit History",
+            "description": "Comprehensive transit background check including fines, agreements, and suspensions by ID."
+        },
+        "colombia_api_simit_plate": {
+            "title": "Colombia - SIMIT Fines by Plate",
+            "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate."
+        },
+        "world_api_passport_entries": {
+            "title": "world api passport entries",
+            "description": "Provides reliable verification and validation services."
+        },
+        "validate-document": {
+            "title": "validate-document",
+            "description": "Provides reliable verification and validation services."
+        },
+        "costa_rica_api_vehicle": {
+            "title": "Costa Rica — Vehicle Verification",
+            "description": "Look up a Costa Rican vehicle by license plate: GET /v2/cr/vehicle with required query parameter plate; returns owner and vehicle details, infraction and ownership history when available."
+        },
+        "paraguay_api_vehicle": {
+            "title": "Paraguay - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "usa_api_vehicle_lookup_by_vin": {
+            "title": "USA - Vehicle Lookup by VIN",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_identity_ce_foreigner_id": {
+            "title": "Colombia - Foreigner ID Card (CE)",
+            "description": "Verify foreign nationals in Colombia using the CE (Cédula de Extranjero) via GET /v2/co/foreigner-id/ce with documentNumber and expeditionDate."
+        },
+        "colombia_api_vehicle_fines_bogota": {
+            "title": "Colombia - Bogota Transit Fines",
+            "description": "Verify outstanding local traffic penalties and fines restricted to the city of Bogota."
+        },
+        "colombia_api_vehicle_fines_medellin": {
+            "title": "Colombia - Medellin Transit Fines",
+            "description": "Verify outstanding local traffic penalties and fines restricted to the city of Medellin."
+        },
+        "guatemala_api_identity_lookup": {
+            "title": "Guatemala - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "honduras_api_identity_lookup": {
+            "title": "Honduras - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "republica_dominicana_api_citizen_lookup": {
+            "title": "Dominican Republic - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "venezuela_foreigner_api": {
+            "title": "Venezuela — Foreign Resident ID (CEVE)",
+            "description": "Foreigner cédula (CEVE) lookup for foreign residents in Venezuela. GET /v2/ve/foreigner-id with required documentNumber; national CCVE holders use /v2/ve/cedula."
+        },
+        "colombia_sisben_api_lookup": {
+            "title": "Colombia - SISBEN Score Verification",
+            "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios) score and classification."
+        },
+        "spain_api_vehicle_lookup": {
+            "title": "Spain - Vehicle Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "spain_api_company_lookup": {
+            "title": "Spain - Company Lookup",
+            "description": "Provides reliable verification and validation services."
+        },
+        "panama_api_business_lookup": {
+            "title": "Panama - Company Lookup",
+            "description": "Look up Panamanian companies by RUC: legal name, status, representatives, and registry fields from official sources for KYB and due diligence."
+        },
+        "uruguay_api_identity_lookup": {
+            "title": "Uruguay - National ID Verification",
+            "description": "Provides reliable verification and validation services."
+        },
+        "peru_api_identity_ce_foreigner_id": {
+            "title": "Peru - Foreigner ID Card (CE)",
+            "description": "Verify foreign residents in Peru using the CE (Cédula de Extranjero) via GET /v2/pe/foreigner-id/ce with documentNumber and dateOfBirth (DD/MM/YYYY)."
+        },
+        "colombia_api_rues_full_v3": {
+            "title": "Colombia - RUES Business Verification",
+            "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing."
+        },
+        "colombia_api_rues_v3": {
+            "title": "Colombia - RUES Business Verification",
+            "description": "RUES V3 business verification with comprehensive company data."
+        },
+        "peru_identity_lookup_v3": {
+            "title": "Peru — DNI verification (v3)",
+            "description": "Standard Peruvian DNI check via RENIEC: validate documentNumber with documentType=DNI. GET /v3/pe/cedula — core identity fields without the extended /cedula/extra payload."
+        },
+        "peru_identity_extra_lookup_v3": {
+            "title": "Peru — Extended DNI (full record)",
+            "description": "RENIEC extended lookup for Peruvian DNI: photo (base64), civil status, address, expedition/expiration dates, ubigeo, and more. GET /v3/pe/cedula/extra with documentType=DNI and documentNumber (8 digits). Optional force=1."
+        },
+        "colombia_api_identity_ppt_foreigner_id": {
+            "title": "Colombia - Temporary Protection Permit (PPT)",
+            "description": "Verify the Colombian PPT (Permiso de Protección Temporal) using GET /v2/co/foreigner-id/ppt with documentNumber and expeditionDate."
+        },
+        "colombia_api_min_trabajo_v3": {
+            "title": "Colombia - Labor Certificates Verification",
+            "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
+        },
+        "peru_api_company_lookup_v3": {
+            "title": "Peru — Company lookup (RUC, v3)",
+            "description": "Peruvian business lookup by RUC: GET /v3/pe/company with documentType=RUC and documentNumber. Returns legal name, status, address, and taxpayer fields from official registries for KYB."
+        },
+        "face_recognition_detect_face": {
+            "title": "Face Detection",
+            "description": "Provides reliable verification and validation services."
+        },
+        "document-liveness": {
+            "title": "Document Liveness Detection",
+            "description": "Provides reliable verification and validation services."
+        },
+        "colombia_api_inpec": {
+            "title": "Colombia - INPEC Penitentiary Records",
+            "description": "Verify penitentiary and incarceration records through the INPEC system."
+        },
+        "colombia_sigep_by_name": {
+            "title": "Colombia - SIGEP Public Officials Search",
+            "description": "Search Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
+        },
+        "colombia_sigep_by_number": {
+            "title": "Colombia - SIGEP Official Lookup by Document",
+            "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). Get complete professional information from SIGEP records."
+        },
+        "colombia_inpec_lookup": {
+            "title": "Colombia - INPEC Penitentiary Records",
+            "description": "Look up penitentiary records and incarceration history."
+        },
+        "zelf-proofs": {
+            "title": "Zelf Proofs",
+            "description": "Zelf Proofs service for identity verification and document validation. This service provides comprehensive proof generation capabilities for various identity documents and verification processes."
+        },
+        "zelf-proof-liveness-active-user": {
+            "title": "Zelf Proof with Liveness (Active user)",
+            "description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+        },
+        "biometrics_api_create_person": {
+            "title": "Biometrics - Create Person (no liveness)",
+            "description": "Create a new person record for identity management. Used for indexing and future face recognition search."
+        },
+        "biometrics_api_create_person_liveness": {
+            "title": "Biometrics - Create Person with Liveness Detection",
+            "description": "Create a new person record with integrated liveness detection. Ensures the user is physically present during enrollment."
+        },
+        "guatemala_api_identity_extra_lookup": {
+            "title": "Guatemala - Identity Extra Lookup",
+            "description": "Comprehensive identity verification for Guatemala citizens including additional data points."
+        }
+    },
+    "smartBatchLanding": {
+        "title": "Smart Batch",
+        "subtitle": "Manage your batch processing configurations and report templates.",
+        "configurationsTab": "Configurations",
+        "reportTemplatesTab": "Report Templates",
+        "createConfiguration": "Create Configuration",
+        "createTemplate": "Create Template",
+        "createTemplateFirstHint": "Create a configuration first to add report templates",
+        "loadingConfigurations": "Loading configurations...",
+        "loadingTemplates": "Loading templates...",
+        "noConfigurations": "No configurations found",
+        "noConfigurationsDesc": "Create your first batch configuration to start automating data processing.",
+        "createFirstConfiguration": "Create Configuration",
+        "noTemplates": "No report templates yet",
+        "noTemplatesDesc": "Create a template from a configuration's report builder to design your PDF exports.",
+        "noTemplatesHint": "Open a configuration, run a batch, then use Generate Report to create and edit templates.",
+        "steps": "Steps",
+        "strategy": "Strategy",
+        "inactive": "Inactive",
+        "sections": "Sections",
+        "pageSize": "Page size",
+        "pdfEngine": "PDF engine",
+        "linkedTo": "Linked to",
+        "standalone": "Standalone",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteConfirmation": "Are you sure you want to delete this template?",
+        "noDescription": "No description provided."
+    },
+    "createBatchConfig": {
+        "edit": "Edit",
+        "create": "Create",
+        "batchConfiguration": "Batch Configuration",
+        "basicInformation": "Basic Information",
+        "configurationName": "Configuration Name",
+        "namePlaceholder": "e.g. Colombian ID Verification Batch",
+        "nameRequired": "Name is required",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe the purpose of this batch...",
+        "country": "Country",
+        "countryRequired": "Country is required",
+        "mergeStrategy": "Merge Strategy",
+        "sequential": "Sequential (ordered, continues after failures)",
+        "parallelIndependent": "Parallel Independent",
+        "parallelWithFallback": "Parallel with Fallback",
+        "inputFieldsFormat": "Input Fields Format",
+        "resultOutputFormat": "Result Output Format",
+        "saving": "Saving...",
+        "next": "Next",
+        "selectEndpoints": "Select Endpoints",
+        "availableFeatures": "Available Features",
+        "loadingFeatures": "Loading features...",
+        "available": "Available",
+        "searchPlaceholder": "Search by title or endpoint...",
+        "noEndpointsMatch": "No endpoints match \"{{query}}\"",
+        "selectedSteps": "Selected Steps (Drag to reorder)",
+        "selectFeaturesToAdd": "Select features to add steps",
+        "back": "Back",
+        "reviewParameters": "Review Parameters",
+        "reviewParamsIntro": "Review the required parameters for each endpoint. These will be provided when running the batch.",
+        "requiredParameters": "Required Parameters",
+        "parametersMappedHint": "These parameters will be mapped from your input file when running the batch.",
+        "noParametersRequired": "No parameters required for this endpoint.",
+        "required": "Required",
+        "reviewAndCreate": "Review & Create",
+        "summary": "Summary",
+        "totalSteps": "Total Steps",
+        "stepsCount": "{{count}} steps",
+        "estimatedCostPerRecord": "Estimated Cost per Record",
+        "totalPerRecord": "Total per record",
+        "updateConfiguration": "Update Configuration",
+        "createConfiguration": "Create Configuration"
+    },
+    "createBatch": {
+        "createNewBatch": "Create New Batch",
+        "uploadDataWith": "Upload data to process with \"{{name}}\"",
+        "showTutorial": "Show Tutorial",
+        "loadingConfiguration": "Loading configuration...",
+        "csvFileRequirements": "Upload format & expected fields",
+        "requiredFieldsCount": "{{count}} required field(s) based on your configuration",
+        "fieldCountsSummary": "{{required}} required, {{optional}} optional — from your batch configuration",
+        "quickStart": "Quick Start",
+        "quickStartDesc": "Download the comma-separated (CSV) UTF-8 template with the correct column headers, add your rows, then upload it here. Excel exports often use semicolons in some regions; this uploader auto-detects comma, semicolon, or tab.",
+        "downloadCsvTemplate": "Download CSV Template",
+        "requiredFields": "Required Fields",
+        "expectedFieldsHeading": "Expected field names",
+        "required": "Required",
+        "optional": "Optional",
+        "options": "Options",
+        "usedBy": "Used by: {{stepName}}",
+        "noFieldsRequired": "No column layout is defined for this configuration. You may upload a comma-, semicolon-, or tab-separated file; headers should match your data.",
+        "proTip": "Use the exact camelCase field names below as column headers (order does not matter). Files are UTF-8; separators are detected automatically (comma, semicolon, or tab). Columns not listed for this batch are removed from the upload. Rows with the wrong number of columns are skipped — check the notice under your file if counts disagree.",
+        "batchDetails": "Batch Details",
+        "batchName": "Batch Name",
+        "batchNamePlaceholder": "e.g., January 2026 Background Checks",
+        "batchNameHint": "Give your batch a descriptive name",
+        "uploadData": "Upload Data",
+        "template": "Template",
+        "dropOrClick": "Drop your file here or click to browse",
+        "acceptsFiles": "Accepts {{formats}} files",
+        "removeFile": "Remove file",
+        "rowsParsedSuccess": "{{count}} rows parsed successfully",
+        "columnsDetected": "{{count}} columns detected",
+        "dataPreview": "Data Preview",
+        "issuesCount": "{{count}} issue(s)",
+        "fixHighlightedCells": "Fix the highlighted cells to continue",
+        "missingValues": "{{count}} missing value(s)",
+        "invalidValues": "{{count}} invalid value(s)",
+        "invalidDateFormat": "\"{{field}}\" must be a valid date in {{format}} format.",
+        "moreRowsHaveErrors": "{{count}} more rows have errors (not shown in preview)",
+        "estimatedCost": "Estimated Cost",
+        "rows": "rows",
+        "steps": "steps",
+        "cancel": "Cancel",
+        "creating": "Creating...",
+        "createBatch": "Create Batch",
+        "errorsInRow": "{{count}} error(s) in this row",
+        "skippedRowsNotice": "{{skipped}} of {{total}} data rows were skipped because they did not match the header column count.",
+        "delimiterHintSemicolon": "Only one column was detected while the header looks semicolon-separated. If this is wrong, check for inconsistent quoting or save the file as comma-separated CSV.",
+        "delimiterHintTab": "Only one column was detected while the header looks tab-separated. If this is wrong, try exporting again or use the template.",
+        "strippedUnknownColumnsNotice": "Removed {{count}} column(s) not used by this batch: {{columns}}.",
+        "noMatchingColumns": "No column headers match this batch. Include at least one of: {{fields}}.",
+        "noDataRowsAfterColumnFilter": "After removing unused columns, no data rows remain. Make sure your file has values under the expected field names.",
+        "pairDocumentTypeRequiredWhenNumber": "\"documentType\" is required when \"documentNumber\" is set (provide both or leave both empty).",
+        "pairDocumentNumberRequiredWhenType": "\"documentNumber\" is required when \"documentType\" is set (provide both or leave both empty).",
+        "validationXorBothModes": "Use either full name or document type and number, not both ({{step}}).",
+        "validationXorNeitherMode": "Provide full name or document type and number ({{step}}).",
+        "validationLeakDocumentWhenFullName": "When searching by full name, leave \"{{field}}\" empty ({{step}}).",
+        "validationLeakFullNameWhenDocument": "When searching by document, leave \"{{field}}\" empty ({{step}}).",
+        "validationConditionalRequired": "\"{{field}}\" is required when \"{{whenField}}\" is one of: {{values}} ({{step}}).",
+        "dependencyRuleIssues": "{{count}} rule conflict(s)",
+        "validationIssuesListSeparator": ", ",
+        "validationIssuesBanner": "Found {{issueCount}} issue(s) in {{rowCount}} row(s): {{breakdown}}. Check the highlighted cells below.",
+        "missingRequiredColumns": "Missing required columns: {{fields}}. Please download the template for the correct format.",
+        "disabledCreating": "Creating batch...",
+        "disabledNoFile": "Upload a file with data to continue",
+        "disabledNoBatchName": "Enter a batch name to continue",
+        "disabledFixDataErrors": "Fix the errors in your data to continue",
+        "searchModesIntro": "Each row must use one approach only: either search by full name, or by document type and number (plus date of birth when required for certain types). Do not mix both in the same row.",
+        "searchModeOptionFullName": "Option A — Search by full name",
+        "searchModeOptionDocument": "Option B — Search by document",
+        "dateOfBirthConditionalHint": "When document type is one of: {{values}}, the dateOfBirth column is required for that row.",
+        "fieldConditional": "Conditional",
+        "fieldConditionalDetail": "Required when {{whenField}} is one of: {{values}}."
+    },
+    "batchTutorial": {
+        "stepOf": "Step {{current}} of {{total}}",
+        "back": "Back",
+        "next": "Next",
+        "getStarted": "Get Started",
+        "welcomeTitle": "Welcome to Batch Creation!",
+        "welcomeDesc": "This wizard will help you upload and process data in bulk. Let's walk through the key steps together.",
+        "welcomeTip": "You can replay this tutorial anytime by clicking the help button in the top right corner.",
+        "step1Title": "Step 1: Name Your Batch",
+        "step1Desc": "Give your batch a descriptive name so you can easily identify it later. For example: \"January 2026 Verifications\" or \"HR Background Checks Q1\".",
+        "step2Title": "Step 2: Download the Template",
+        "step2Desc": "Before uploading, download the CSV template. This template includes all the required columns based on your batch configuration.",
+        "step2Tip": "The template ensures your data has the correct format and all required fields are present.",
+        "step3Title": "Step 3: Fill Your Data",
+        "step3Desc": "Open the template in Excel or Google Sheets and fill in your data. Each row represents one record to be processed.",
+        "step3Tip": "Make sure all required fields (marked with *) are filled in. Empty required fields will cause errors.",
+        "step4Title": "Step 4: Upload Your File",
+        "step4Desc": "Drag and drop your completed CSV file into the upload area, or click to browse. We'll validate the data and show you a preview.",
+        "step5Title": "Step 5: Review & Submit",
+        "step5Desc": "Check the data preview to make sure everything looks correct. Review the estimated cost, then click \"Create Batch\" to start processing!",
+        "step5Tip": "You can remove the file and upload a different one if you spot any issues."
+    },
+    "smartReport": {
+        "generateReport": "Generate Report",
+        "batchReport": "Batch Report",
+        "createTemplate": "Create Template",
+        "selectTemplate": "Select Template",
+        "noTemplatesFound": "No templates found",
+        "sections": "sections",
+        "templateMatchesData": "Template matches data",
+        "missingFields": "{{count}} missing field(s)",
+        "dataMatch": "Data match",
+        "templateMatchesBatchData": "Template matches the batch data",
+        "templateReadyToUse": "Ready to use. You can customize this template in the builder anytime.",
+        "editInBuilder": "Edit in builder",
+        "missingFieldsEditInBuilder": "{{count}} field(s) missing from batch data. Edit the template in the builder to fix.",
+        "editWithRealData": "Edit with real data",
+        "editTemplateWithRealData": "Edit template with real data",
+        "paths": "Paths",
+        "actions": "Actions",
+        "generatePdf": "Generate PDF",
+        "generating": "Generating...",
+        "downloadPdf": "Download PDF",
+        "sendViaEmail": "Send via Email",
+        "sending": "Sending...",
+        "stepResultsLayout": "Step results layout",
+        "reportForRecord": "Report for record #{{index}}",
+        "dragSectionsReorder": "Drag sections to reorder. Layout is print-ready.",
+        "collapseContent": "Collapse content",
+        "expandContent": "Expand content",
+        "noStepResultsYet": "No step results yet",
+        "processBatchToSeeResults": "Process the batch to see each endpoint's results here.",
+        "row": "Row",
+        "result": "Result",
+        "viewModeReadable": "Readable",
+        "viewModeTable": "Table",
+        "viewModeJson": "JSON",
+        "viewModeExcelAg": "Excel v1",
+        "viewModeExcelHt": "Excel v2",
+        "downloadAsCsv": "Download CSV",
+        "downloadAsExcel": "Download Excel",
+        "exportData": "Export Data",
+        "detailedExportHint": "Each field becomes its own column—exports can be wide. Use filters in Excel or Sheets to move through many columns.",
+        "copyJson": "Copy JSON",
+        "csvDownloaded": "CSV downloaded",
+        "excelDownloaded": "Excel downloaded",
+        "step": "Step",
+        "preview": "Preview",
+        "previewSameAsBuilder": "Same preview as report builder — template rendered with batch data",
+        "previewPage": "Page",
+        "previewPageOf": "of",
+        "previewPrevious": "Previous page",
+        "previewNext": "Next page",
+        "generatingPdf": "Generating PDF...",
+        "noPreviewAvailable": "No preview available",
+        "selectTemplateAndBatch": "Select a template and ensure the batch has processed rows",
+        "back": "Back",
+        "generateReportFirst": "Generate a report first",
+        "emailSent": "Email sent!",
+        "failedToSendEmail": "Failed to send email",
+        "pdfDownloaded": "PDF downloaded",
+        "failedToDownloadPdf": "Failed to download PDF",
+        "invalidPdfReceived": "Invalid PDF received from server",
+        "editReportTemplate": "Edit Report Template",
+        "newReportTemplate": "New Report Template",
+        "designReportLayout": "Design your report layout with drag & drop",
+        "sendSample": "Send Sample",
+        "sendingSample": "Sending sample...",
+        "saveTemplateFirst": "Save template first to enable sample sending",
+        "saveTemplate": "Save Template",
+        "saving": "Saving...",
+        "templateSettings": "Template Settings",
+        "templateName": "Template Name",
+        "templateNamePlaceholder": "My Report Template",
+        "pageSize": "Page Size",
+        "orientation": "Orientation",
+        "portrait": "Portrait",
+        "landscape": "Landscape",
+        "pdfEngine": "PDF Engine",
+        "primaryColor": "Primary Color",
+        "helperData": "Helper Data",
+        "helperDataHint": "Use these paths in Data Field or Table sections",
+        "openFromReportViewer": "Open from report viewer with batch data to see available paths",
+        "copyPath": "Copy path",
+        "copyPathForTable": "Copy path (use for Table section)",
+        "addSections": "Add Sections",
+        "reportLayout": "Report Layout",
+        "dragToReorder": "Drag to reorder sections",
+        "addSectionsFromAbove": "Add sections from above",
+        "section": "Section",
+        "edit": "Edit",
+        "duplicate": "Duplicate",
+        "delete": "Delete",
+        "titleText": "Title Text",
+        "reportTitle": "Report Title",
+        "content": "Content",
+        "enterTextContent": "Enter text content...",
+        "label": "Label",
+        "fieldLabel": "Field label",
+        "dataPath": "Data Path",
+        "dataPathPlaceholder": "results.1.fullName",
+        "dotSeparatedPath": "Dot-separated path to data (e.g. results.1.fullName)",
+        "tableTitle": "Table Title",
+        "tableLabel": "Table label",
+        "dataPathObject": "Data Path (object)",
+        "pathToObject": "Path to an object whose keys become rows",
+        "imageUrl": "Image URL",
+        "altText": "Alt Text",
+        "companyLogo": "Company Logo",
+        "heightPx": "Height (px)",
+        "color": "Color",
+        "style": "Style",
+        "textAlign": "Text Align",
+        "fontSize": "Font Size",
+        "fontWeight": "Font Weight",
+        "normal": "Normal",
+        "bold": "Bold",
+        "textColor": "Text Color",
+        "livePreviewWithSample": "Live preview with sample data",
+        "missing": "Missing",
+        "workspaceLogo": "Workspace Logo",
+        "uploadLogo": "Upload Logo",
+        "remove": "Remove",
+        "footerLegend": "Footer Legend",
+        "footerLegendPlaceholder": "Add disclaimer, legal text, or notes that appear at the bottom of every page...",
+        "pageNumbers": "Page Numbers",
+        "pageNumberPosition": "Position",
+        "watermark": "Watermark",
+        "watermarkText": "✦ Text",
+        "watermarkLogo": "🖼 Logo",
+        "watermarkTextPlaceholder": "CONFIDENTIAL",
+        "watermarkOpacity": "Opacity",
+        "watermarkLogoHint": "Upload a logo above to use it as watermark",
+        "watermarkPattern": "Layout",
+        "watermarkSingle": "◇ Single",
+        "watermarkRepeated": "◈ Repeated",
+        "securityTitle": "PDF Password Protection",
+        "securityPassword": "Password",
+        "securityPasswordPlaceholder": "Set a secure password...",
+        "securityPasswordHint": "This password will be required to open the generated PDF.",
+        "sendSampleReport": "Send Sample Report",
+        "sendReport": "Send Report",
+        "enterRecipientsAndSubject": "Enter recipient email(s) and optional subject",
+        "recipientEmails": "Recipient email(s)",
+        "recipientsPlaceholder": "email1@example.com, email2@example.com",
+        "separateEmailsWithCommas": "Separate multiple emails with commas",
+        "atLeastOneRecipient": "At least one recipient is required",
+        "enterValidEmails": "Please enter valid email address(es)",
+        "subjectOptional": "Subject (optional)",
+        "subjectOptionalPlaceholder": "Sample Report: Template Preview",
+        "reportBatchPlaceholder": "Report - Batch",
+        "cancel": "Cancel",
+        "noSectionsToPreview": "No sections to preview",
+        "untitled": "Untitled",
+        "textContent": "Text content...",
+        "field": "Field",
+        "noDataAtPath": "No data at path \"{{path}}\"",
+        "image": "Image",
+        "failedToSaveTemplatePreference": "Failed to save template preference",
+        "pleaseSelectTemplate": "Please select a template",
+        "reportGenerated": "Report generated!",
+        "failedToGenerateReport": "Failed to generate report",
+        "failedToCreateReport": "Failed to create report",
+        "sectionHeader": "Header",
+        "sectionText": "Text Block",
+        "sectionField": "Data Field",
+        "sectionTable": "Table",
+        "sectionImage": "Image",
+        "sectionDivider": "Divider",
+        "sectionSpacer": "Spacer",
+        "sectionNumber": "Section #{{num}}",
+        "samplePdfSentSuccess": "Sample PDF sent successfully",
+        "failedToSendSamplePdf": "Failed to send sample PDF",
+        "copied": "Copied",
+        "failedToCopy": "Failed to copy",
+        "searchRecords": "Search records...",
+        "typeToFind": "Type to find...",
+        "signature": "Signature",
+        "dragSignatureToPosition": "Drag signature in preview to position it.",
+        "drawSignature": "Draw Signature",
+        "saveSignature": "Save Signature",
+        "useMouseOrFingerToSign": "Use your mouse or finger to sign above.",
+        "clear": "Clear"
+    },
+    "batchProcessing": {
+        "backToDashboard": "Back to Dashboard",
+        "batchProcessing": "Batch Processing",
+        "records": "records",
+        "status": "Status",
+        "starting": "Starting...",
+        "startProcessing": "Start Processing",
+        "pause": "Pause",
+        "generateReport": "Generate Report",
+        "processing": "Processing...",
+        "processingSteps": "Processing Steps",
+        "credits": "credits",
+        "pending": "Pending",
+        "recordsWaiting": "{{count}} records waiting",
+        "allRecordsProcessed": "All records processed!",
+        "rowNumber": "Row {{index}}",
+        "completed": "Completed",
+        "failed": "Failed",
+        "partial": "Partial",
+        "recordsVerified": "{{count}} records verified",
+        "noCompletedRecordsYet": "No completed records yet",
+        "verified": "Verified",
+        "skipped": "Skipped",
+        "rowDetails": "Row #{{index}} Details",
+        "readable": "Readable",
+        "json": "JSON",
+        "generatePdfReport": "Generate PDF Report",
+        "inputData": "Input Data",
+        "stepResults": "Step Results",
+        "errors": "Errors",
+        "stepError": "Step {{step}}: {{code}}",
+        "stepStatusCompleted": "{{step}}: Completed",
+        "stepStatusFailed": "{{step}}: Failed",
+        "stepStatusPending": "{{step}}: Pending",
+        "stepStatusSkipped": "{{step}}: Skipped",
+        "draft": "Draft",
+        "cancelled": "Cancelled",
+        "totalCost": "Total Cost",
+        "successful": "Successful",
+        "requestsFailed": "requests failed",
+        "requestsSuccessful": "requests successful",
+        "requestsPartial": "records need retry",
+        "all": "All",
+        "noResultsFound": "No results found",
+        "continueOnFailureTitle": "Batch continues when an endpoint fails",
+        "continueOnFailureBody": "Each endpoint is attempted independently. If one check fails, the remaining checks still run and the row is marked partial so you can retry only the failed steps.",
+        "retryStep": "Retry",
+        "retrying": "Retrying...",
+        "continuePendingSteps": "Continue {{count}} pending",
+        "continuing": "Continuing...",
+        "continuePendingStepsHint": "Runs {{count}} pending checks and skips completed checks.",
+        "openPdfInNewTab": "Open in new tab",
+        "downloadPdf": "Download PDF",
+        "pdfPreview": "PDF preview",
+        "pdfOmittedForJsonView": "[PDF omitted — use Readable view to preview]",
+        "downloadFailedInputsCsv": "Download failed inputs (CSV)",
+        "downloadFailedInputsCsvTooltip": "Export original input columns for all failed rows (ignores search) so you can re-upload them as a new batch.",
+        "failedExportNoRows": "No failed rows to export.",
+        "failedExportDone": "Exported {{count}} failed rows to CSV.",
+        "failedExportDismiss": "Close",
+        "ruesCategory": "Registry category",
+        "ruesCategoryNone": "(none — optional)",
+        "ruesCategorySaved": "Input saved.",
+        "ruesCategorySaveFailed": "Could not save input. Try again.",
+        "ruesCategoryHint": "Optional. Clearing removes category from this row’s saved inputs; some RUES v3 endpoints still default to RM when the query omits category.",
+        "ruesCategoryEdit": "Edit category",
+        "ruesCategoryApply": "Apply",
+        "ruesCategoryCancel": "Cancel"
+    },
+    "batchDashboard": {
+        "backToSmartBatch": "Back to Smart Batch",
+        "loading": "Loading...",
+        "batchProcessingDashboard": "Batch processing dashboard",
+        "createBatch": "Create Batch",
+        "steps": "Steps",
+        "strategy": "Strategy",
+        "format": "Format",
+        "costPerRow": "Cost/Row",
+        "processingSteps": "Processing Steps",
+        "disabled": "Disabled",
+        "costBreakdown": "Cost Breakdown",
+        "totalPerRow": "Total per row",
+        "total": "Total",
+        "totalBatches": "Total Batches",
+        "success": "Success",
+        "completedRows": "Completed Rows",
+        "queue": "Queue",
+        "pendingRows": "Pending Rows",
+        "error": "Error",
+        "failedRows": "Failed Rows",
+        "loadingBatches": "Loading batches...",
+        "noBatchesYet": "No batches yet",
+        "createFirstBatchDescription": "Create your first batch to start processing data with this configuration.",
+        "createFirstBatch": "Create First Batch",
+        "batches": "Batches",
+        "name": "Name",
+        "status": "Status",
+        "progress": "Progress",
+        "rows": "Rows",
+        "created": "Created",
+        "actions": "Actions",
+        "viewDetails": "View Details",
+        "failedCount": "({{count}} failed)",
+        "partialCount": "({{count}} partial)"
+    },
+    "addCredits": {
+        "promo": {
+            "weekOneUsd50": {
+                "badge": "Limited promotion",
+                "title": "Double credit value when you recharge $50 in your first week",
+                "body": "If you purchase $50 USD of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge.",
+                "accountCreatedNotice": "You must complete the $50 purchase before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
+                "deadline": "Complete your qualifying purchase by {{expiresAt}}",
+                "walletStrip": "Limited: pick {{amountUsd}} USD when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
+                "dialogDouble": "First-week promo: you pay {{payUsd}} for this recharge and receive {{receivedUsd}} in total credited value—including the matched bonus."
+            }
+        },
+        "purchaseDialog": {
+            "errors": {
+                "duplicate_credit_purchase_quick": "We just added credits for this dollar amount. Wait a moment or pick a different total.",
+                "duplicate_credit_purchase_same_day": "You already added credits for this amount today. Choose a different amount, or try again tomorrow.",
+                "credit_purchase_invalid_amount": "That amount is outside the allowed range. Adjust the number and try again.",
+                "kycVerificationStartFailed": "We could not open KYC verification. Please try again or contact support.",
+                "selectPaymentMethod": "Choose a saved card to continue.",
+                "amountOutOfRange": "Enter an amount between {{minUsd}} and {{maxUsd}}.",
+                "paymentPendingVerification": "Your payment is pending. Credits will appear after your bank confirms the charge."
+            }
+        }
     }
-  },
-  "smartBatchLanding": {
-    "title": "Smart Batch",
-    "subtitle": "Manage your batch processing configurations and report templates.",
-    "configurationsTab": "Configurations",
-    "reportTemplatesTab": "Report Templates",
-    "createConfiguration": "Create Configuration",
-    "createTemplate": "Create Template",
-    "createTemplateFirstHint": "Create a configuration first to add report templates",
-    "loadingConfigurations": "Loading configurations...",
-    "loadingTemplates": "Loading templates...",
-    "noConfigurations": "No configurations found",
-    "noConfigurationsDesc": "Create your first batch configuration to start automating data processing.",
-    "createFirstConfiguration": "Create Configuration",
-    "noTemplates": "No report templates yet",
-    "noTemplatesDesc": "Create a template from a configuration's report builder to design your PDF exports.",
-    "noTemplatesHint": "Open a configuration, run a batch, then use Generate Report to create and edit templates.",
-    "steps": "Steps",
-    "strategy": "Strategy",
-    "inactive": "Inactive",
-    "sections": "Sections",
-    "pageSize": "Page size",
-    "pdfEngine": "PDF engine",
-    "linkedTo": "Linked to",
-    "standalone": "Standalone",
-    "edit": "Edit",
-    "delete": "Delete",
-    "deleteConfirmation": "Are you sure you want to delete this template?",
-    "noDescription": "No description provided."
-  },
-  "createBatchConfig": {
-    "edit": "Edit",
-    "create": "Create",
-    "batchConfiguration": "Batch Configuration",
-    "basicInformation": "Basic Information",
-    "configurationName": "Configuration Name",
-    "namePlaceholder": "e.g. Colombian ID Verification Batch",
-    "nameRequired": "Name is required",
-    "description": "Description",
-    "descriptionPlaceholder": "Describe the purpose of this batch...",
-    "country": "Country",
-    "countryRequired": "Country is required",
-    "mergeStrategy": "Merge Strategy",
-    "sequential": "Sequential (ordered, continues after failures)",
-    "parallelIndependent": "Parallel Independent",
-    "parallelWithFallback": "Parallel with Fallback",
-    "inputFieldsFormat": "Input Fields Format",
-    "resultOutputFormat": "Result Output Format",
-    "saving": "Saving...",
-    "next": "Next",
-    "selectEndpoints": "Select Endpoints",
-    "availableFeatures": "Available Features",
-    "loadingFeatures": "Loading features...",
-    "available": "Available",
-    "searchPlaceholder": "Search by title or endpoint...",
-    "noEndpointsMatch": "No endpoints match \"{{query}}\"",
-    "selectedSteps": "Selected Steps (Drag to reorder)",
-    "selectFeaturesToAdd": "Select features to add steps",
-    "back": "Back",
-    "reviewParameters": "Review Parameters",
-    "reviewParamsIntro": "Review the required parameters for each endpoint. These will be provided when running the batch.",
-    "requiredParameters": "Required Parameters",
-    "parametersMappedHint": "These parameters will be mapped from your input file when running the batch.",
-    "noParametersRequired": "No parameters required for this endpoint.",
-    "required": "Required",
-    "reviewAndCreate": "Review & Create",
-    "summary": "Summary",
-    "totalSteps": "Total Steps",
-    "stepsCount": "{{count}} steps",
-    "estimatedCostPerRecord": "Estimated Cost per Record",
-    "totalPerRecord": "Total per record",
-    "updateConfiguration": "Update Configuration",
-    "createConfiguration": "Create Configuration"
-  },
-  "createBatch": {
-    "createNewBatch": "Create New Batch",
-    "uploadDataWith": "Upload data to process with \"{{name}}\"",
-    "showTutorial": "Show Tutorial",
-    "loadingConfiguration": "Loading configuration...",
-    "csvFileRequirements": "Upload format & expected fields",
-    "requiredFieldsCount": "{{count}} required field(s) based on your configuration",
-    "fieldCountsSummary": "{{required}} required, {{optional}} optional — from your batch configuration",
-    "quickStart": "Quick Start",
-    "quickStartDesc": "Download the comma-separated (CSV) UTF-8 template with the correct column headers, add your rows, then upload it here. Excel exports often use semicolons in some regions; this uploader auto-detects comma, semicolon, or tab.",
-    "downloadCsvTemplate": "Download CSV Template",
-    "requiredFields": "Required Fields",
-    "expectedFieldsHeading": "Expected field names",
-    "required": "Required",
-    "optional": "Optional",
-    "options": "Options",
-    "usedBy": "Used by: {{stepName}}",
-    "noFieldsRequired": "No column layout is defined for this configuration. You may upload a comma-, semicolon-, or tab-separated file; headers should match your data.",
-    "proTip": "Use the exact camelCase field names below as column headers (order does not matter). Files are UTF-8; separators are detected automatically (comma, semicolon, or tab). Columns not listed for this batch are removed from the upload. Rows with the wrong number of columns are skipped — check the notice under your file if counts disagree.",
-    "batchDetails": "Batch Details",
-    "batchName": "Batch Name",
-    "batchNamePlaceholder": "e.g., January 2026 Background Checks",
-    "batchNameHint": "Give your batch a descriptive name",
-    "uploadData": "Upload Data",
-    "template": "Template",
-    "dropOrClick": "Drop your file here or click to browse",
-    "acceptsFiles": "Accepts {{formats}} files",
-    "removeFile": "Remove file",
-    "rowsParsedSuccess": "{{count}} rows parsed successfully",
-    "columnsDetected": "{{count}} columns detected",
-    "dataPreview": "Data Preview",
-    "issuesCount": "{{count}} issue(s)",
-    "fixHighlightedCells": "Fix the highlighted cells to continue",
-    "missingValues": "{{count}} missing value(s)",
-    "invalidValues": "{{count}} invalid value(s)",
-    "invalidDateFormat": "\"{{field}}\" must be a valid date in {{format}} format.",
-    "moreRowsHaveErrors": "{{count}} more rows have errors (not shown in preview)",
-    "estimatedCost": "Estimated Cost",
-    "rows": "rows",
-    "steps": "steps",
-    "cancel": "Cancel",
-    "creating": "Creating...",
-    "createBatch": "Create Batch",
-    "errorsInRow": "{{count}} error(s) in this row",
-    "skippedRowsNotice": "{{skipped}} of {{total}} data rows were skipped because they did not match the header column count.",
-    "delimiterHintSemicolon": "Only one column was detected while the header looks semicolon-separated. If this is wrong, check for inconsistent quoting or save the file as comma-separated CSV.",
-    "delimiterHintTab": "Only one column was detected while the header looks tab-separated. If this is wrong, try exporting again or use the template.",
-    "strippedUnknownColumnsNotice": "Removed {{count}} column(s) not used by this batch: {{columns}}.",
-    "noMatchingColumns": "No column headers match this batch. Include at least one of: {{fields}}.",
-    "noDataRowsAfterColumnFilter": "After removing unused columns, no data rows remain. Make sure your file has values under the expected field names.",
-    "pairDocumentTypeRequiredWhenNumber": "\"documentType\" is required when \"documentNumber\" is set (provide both or leave both empty).",
-    "pairDocumentNumberRequiredWhenType": "\"documentNumber\" is required when \"documentType\" is set (provide both or leave both empty).",
-    "validationXorBothModes": "Use either full name or document type and number, not both ({{step}}).",
-    "validationXorNeitherMode": "Provide full name or document type and number ({{step}}).",
-    "validationLeakDocumentWhenFullName": "When searching by full name, leave \"{{field}}\" empty ({{step}}).",
-    "validationLeakFullNameWhenDocument": "When searching by document, leave \"{{field}}\" empty ({{step}}).",
-    "validationConditionalRequired": "\"{{field}}\" is required when \"{{whenField}}\" is one of: {{values}} ({{step}}).",
-    "dependencyRuleIssues": "{{count}} rule conflict(s)",
-    "validationIssuesListSeparator": ", ",
-    "validationIssuesBanner": "Found {{issueCount}} issue(s) in {{rowCount}} row(s): {{breakdown}}. Check the highlighted cells below.",
-    "missingRequiredColumns": "Missing required columns: {{fields}}. Please download the template for the correct format.",
-    "disabledCreating": "Creating batch...",
-    "disabledNoFile": "Upload a file with data to continue",
-    "disabledNoBatchName": "Enter a batch name to continue",
-    "disabledFixDataErrors": "Fix the errors in your data to continue",
-    "searchModesIntro": "Each row must use one approach only: either search by full name, or by document type and number (plus date of birth when required for certain types). Do not mix both in the same row.",
-    "searchModeOptionFullName": "Option A — Search by full name",
-    "searchModeOptionDocument": "Option B — Search by document",
-    "dateOfBirthConditionalHint": "When document type is one of: {{values}}, the dateOfBirth column is required for that row.",
-    "fieldConditional": "Conditional",
-    "fieldConditionalDetail": "Required when {{whenField}} is one of: {{values}}."
-  },
-  "batchTutorial": {
-    "stepOf": "Step {{current}} of {{total}}",
-    "back": "Back",
-    "next": "Next",
-    "getStarted": "Get Started",
-    "welcomeTitle": "Welcome to Batch Creation!",
-    "welcomeDesc": "This wizard will help you upload and process data in bulk. Let's walk through the key steps together.",
-    "welcomeTip": "You can replay this tutorial anytime by clicking the help button in the top right corner.",
-    "step1Title": "Step 1: Name Your Batch",
-    "step1Desc": "Give your batch a descriptive name so you can easily identify it later. For example: \"January 2026 Verifications\" or \"HR Background Checks Q1\".",
-    "step2Title": "Step 2: Download the Template",
-    "step2Desc": "Before uploading, download the CSV template. This template includes all the required columns based on your batch configuration.",
-    "step2Tip": "The template ensures your data has the correct format and all required fields are present.",
-    "step3Title": "Step 3: Fill Your Data",
-    "step3Desc": "Open the template in Excel or Google Sheets and fill in your data. Each row represents one record to be processed.",
-    "step3Tip": "Make sure all required fields (marked with *) are filled in. Empty required fields will cause errors.",
-    "step4Title": "Step 4: Upload Your File",
-    "step4Desc": "Drag and drop your completed CSV file into the upload area, or click to browse. We'll validate the data and show you a preview.",
-    "step5Title": "Step 5: Review & Submit",
-    "step5Desc": "Check the data preview to make sure everything looks correct. Review the estimated cost, then click \"Create Batch\" to start processing!",
-    "step5Tip": "You can remove the file and upload a different one if you spot any issues."
-  },
-  "smartReport": {
-    "generateReport": "Generate Report",
-    "batchReport": "Batch Report",
-    "createTemplate": "Create Template",
-    "selectTemplate": "Select Template",
-    "noTemplatesFound": "No templates found",
-    "sections": "sections",
-    "templateMatchesData": "Template matches data",
-    "missingFields": "{{count}} missing field(s)",
-    "dataMatch": "Data match",
-    "templateMatchesBatchData": "Template matches the batch data",
-    "templateReadyToUse": "Ready to use. You can customize this template in the builder anytime.",
-    "editInBuilder": "Edit in builder",
-    "missingFieldsEditInBuilder": "{{count}} field(s) missing from batch data. Edit the template in the builder to fix.",
-    "editWithRealData": "Edit with real data",
-    "editTemplateWithRealData": "Edit template with real data",
-    "paths": "Paths",
-    "actions": "Actions",
-    "generatePdf": "Generate PDF",
-    "generating": "Generating...",
-    "downloadPdf": "Download PDF",
-    "sendViaEmail": "Send via Email",
-    "sending": "Sending...",
-    "stepResultsLayout": "Step results layout",
-    "reportForRecord": "Report for record #{{index}}",
-    "dragSectionsReorder": "Drag sections to reorder. Layout is print-ready.",
-    "collapseContent": "Collapse content",
-    "expandContent": "Expand content",
-    "noStepResultsYet": "No step results yet",
-    "processBatchToSeeResults": "Process the batch to see each endpoint's results here.",
-    "row": "Row",
-    "result": "Result",
-    "viewModeReadable": "Readable",
-    "viewModeTable": "Table",
-    "viewModeJson": "JSON",
-    "viewModeExcelAg": "Excel v1",
-    "viewModeExcelHt": "Excel v2",
-    "downloadAsCsv": "Download CSV",
-    "downloadAsExcel": "Download Excel",
-    "exportData": "Export Data",
-    "csvDownloaded": "CSV downloaded",
-    "excelDownloaded": "Excel downloaded",
-    "step": "Step",
-    "preview": "Preview",
-    "previewSameAsBuilder": "Same preview as report builder — template rendered with batch data",
-    "previewPage": "Page",
-    "previewPageOf": "of",
-    "previewPrevious": "Previous page",
-    "previewNext": "Next page",
-    "generatingPdf": "Generating PDF...",
-    "noPreviewAvailable": "No preview available",
-    "selectTemplateAndBatch": "Select a template and ensure the batch has processed rows",
-    "back": "Back",
-    "generateReportFirst": "Generate a report first",
-    "emailSent": "Email sent!",
-    "failedToSendEmail": "Failed to send email",
-    "pdfDownloaded": "PDF downloaded",
-    "failedToDownloadPdf": "Failed to download PDF",
-    "invalidPdfReceived": "Invalid PDF received from server",
-    "editReportTemplate": "Edit Report Template",
-    "newReportTemplate": "New Report Template",
-    "designReportLayout": "Design your report layout with drag & drop",
-    "sendSample": "Send Sample",
-    "sendingSample": "Sending sample...",
-    "saveTemplateFirst": "Save template first to enable sample sending",
-    "saveTemplate": "Save Template",
-    "saving": "Saving...",
-    "templateSettings": "Template Settings",
-    "templateName": "Template Name",
-    "templateNamePlaceholder": "My Report Template",
-    "pageSize": "Page Size",
-    "orientation": "Orientation",
-    "portrait": "Portrait",
-    "landscape": "Landscape",
-    "pdfEngine": "PDF Engine",
-    "primaryColor": "Primary Color",
-    "helperData": "Helper Data",
-    "helperDataHint": "Use these paths in Data Field or Table sections",
-    "openFromReportViewer": "Open from report viewer with batch data to see available paths",
-    "copyPath": "Copy path",
-    "copyPathForTable": "Copy path (use for Table section)",
-    "addSections": "Add Sections",
-    "reportLayout": "Report Layout",
-    "dragToReorder": "Drag to reorder sections",
-    "addSectionsFromAbove": "Add sections from above",
-    "section": "Section",
-    "edit": "Edit",
-    "duplicate": "Duplicate",
-    "delete": "Delete",
-    "titleText": "Title Text",
-    "reportTitle": "Report Title",
-    "content": "Content",
-    "enterTextContent": "Enter text content...",
-    "label": "Label",
-    "fieldLabel": "Field label",
-    "dataPath": "Data Path",
-    "dataPathPlaceholder": "results.1.fullName",
-    "dotSeparatedPath": "Dot-separated path to data (e.g. results.1.fullName)",
-    "tableTitle": "Table Title",
-    "tableLabel": "Table label",
-    "dataPathObject": "Data Path (object)",
-    "pathToObject": "Path to an object whose keys become rows",
-    "imageUrl": "Image URL",
-    "altText": "Alt Text",
-    "companyLogo": "Company Logo",
-    "heightPx": "Height (px)",
-    "color": "Color",
-    "style": "Style",
-    "textAlign": "Text Align",
-    "fontSize": "Font Size",
-    "fontWeight": "Font Weight",
-    "normal": "Normal",
-    "bold": "Bold",
-    "textColor": "Text Color",
-    "livePreviewWithSample": "Live preview with sample data",
-    "missing": "Missing",
-    "workspaceLogo": "Workspace Logo",
-    "uploadLogo": "Upload Logo",
-    "remove": "Remove",
-    "footerLegend": "Footer Legend",
-    "footerLegendPlaceholder": "Add disclaimer, legal text, or notes that appear at the bottom of every page...",
-    "pageNumbers": "Page Numbers",
-    "pageNumberPosition": "Position",
-    "watermark": "Watermark",
-    "watermarkText": "✦ Text",
-    "watermarkLogo": "🖼 Logo",
-    "watermarkTextPlaceholder": "CONFIDENTIAL",
-    "watermarkOpacity": "Opacity",
-    "watermarkLogoHint": "Upload a logo above to use it as watermark",
-    "watermarkPattern": "Layout",
-    "watermarkSingle": "◇ Single",
-    "watermarkRepeated": "◈ Repeated",
-    "securityTitle": "PDF Password Protection",
-    "securityPassword": "Password",
-    "securityPasswordPlaceholder": "Set a secure password...",
-    "securityPasswordHint": "This password will be required to open the generated PDF.",
-    "sendSampleReport": "Send Sample Report",
-    "sendReport": "Send Report",
-    "enterRecipientsAndSubject": "Enter recipient email(s) and optional subject",
-    "recipientEmails": "Recipient email(s)",
-    "recipientsPlaceholder": "email1@example.com, email2@example.com",
-    "separateEmailsWithCommas": "Separate multiple emails with commas",
-    "atLeastOneRecipient": "At least one recipient is required",
-    "enterValidEmails": "Please enter valid email address(es)",
-    "subjectOptional": "Subject (optional)",
-    "subjectOptionalPlaceholder": "Sample Report: Template Preview",
-    "reportBatchPlaceholder": "Report - Batch",
-    "cancel": "Cancel",
-    "noSectionsToPreview": "No sections to preview",
-    "untitled": "Untitled",
-    "textContent": "Text content...",
-    "field": "Field",
-    "noDataAtPath": "No data at path \"{{path}}\"",
-    "image": "Image",
-    "failedToSaveTemplatePreference": "Failed to save template preference",
-    "pleaseSelectTemplate": "Please select a template",
-    "reportGenerated": "Report generated!",
-    "failedToGenerateReport": "Failed to generate report",
-    "failedToCreateReport": "Failed to create report",
-    "sectionHeader": "Header",
-    "sectionText": "Text Block",
-    "sectionField": "Data Field",
-    "sectionTable": "Table",
-    "sectionImage": "Image",
-    "sectionDivider": "Divider",
-    "sectionSpacer": "Spacer",
-    "sectionNumber": "Section #{{num}}",
-    "samplePdfSentSuccess": "Sample PDF sent successfully",
-    "failedToSendSamplePdf": "Failed to send sample PDF",
-    "copied": "Copied",
-    "failedToCopy": "Failed to copy",
-    "searchRecords": "Search records...",
-    "typeToFind": "Type to find...",
-    "signature": "Signature",
-    "dragSignatureToPosition": "Drag signature in preview to position it.",
-    "drawSignature": "Draw Signature",
-    "saveSignature": "Save Signature",
-    "useMouseOrFingerToSign": "Use your mouse or finger to sign above.",
-    "clear": "Clear"
-  },
-  "batchProcessing": {
-    "backToDashboard": "Back to Dashboard",
-    "batchProcessing": "Batch Processing",
-    "records": "records",
-    "status": "Status",
-    "starting": "Starting...",
-    "startProcessing": "Start Processing",
-    "pause": "Pause",
-    "generateReport": "Generate Report",
-    "processing": "Processing...",
-    "processingSteps": "Processing Steps",
-    "credits": "credits",
-    "pending": "Pending",
-    "recordsWaiting": "{{count}} records waiting",
-    "allRecordsProcessed": "All records processed!",
-    "rowNumber": "Row {{index}}",
-    "completed": "Completed",
-    "failed": "Failed",
-    "partial": "Partial",
-    "recordsVerified": "{{count}} records verified",
-    "noCompletedRecordsYet": "No completed records yet",
-    "verified": "Verified",
-    "skipped": "Skipped",
-    "rowDetails": "Row #{{index}} Details",
-    "readable": "Readable",
-    "json": "JSON",
-    "generatePdfReport": "Generate PDF Report",
-    "inputData": "Input Data",
-    "stepResults": "Step Results",
-    "errors": "Errors",
-    "stepError": "Step {{step}}: {{code}}",
-    "stepStatusCompleted": "{{step}}: Completed",
-    "stepStatusFailed": "{{step}}: Failed",
-    "stepStatusPending": "{{step}}: Pending",
-    "stepStatusSkipped": "{{step}}: Skipped",
-    "draft": "Draft",
-    "cancelled": "Cancelled",
-    "totalCost": "Total Cost",
-    "successful": "Successful",
-    "requestsFailed": "requests failed",
-    "requestsSuccessful": "requests successful",
-    "requestsPartial": "records need retry",
-    "all": "All",
-    "noResultsFound": "No results found",
-    "continueOnFailureTitle": "Batch continues when an endpoint fails",
-    "continueOnFailureBody": "Each endpoint is attempted independently. If one check fails, the remaining checks still run and the row is marked partial so you can retry only the failed steps.",
-    "retryStep": "Retry",
-    "retrying": "Retrying...",
-    "continuePendingSteps": "Continue {{count}} pending",
-    "continuing": "Continuing...",
-    "continuePendingStepsHint": "Runs {{count}} pending checks and skips completed checks.",
-    "openPdfInNewTab": "Open in new tab",
-    "downloadPdf": "Download PDF",
-    "pdfPreview": "PDF preview",
-    "pdfOmittedForJsonView": "[PDF omitted — use Readable view to preview]",
-    "downloadFailedInputsCsv": "Download failed inputs (CSV)",
-    "downloadFailedInputsCsvTooltip": "Export original input columns for all failed rows (ignores search) so you can re-upload them as a new batch.",
-    "failedExportNoRows": "No failed rows to export.",
-    "failedExportDone": "Exported {{count}} failed rows to CSV.",
-    "failedExportDismiss": "Close",
-    "ruesCategory": "Registry category",
-    "ruesCategoryNone": "(none — optional)",
-    "ruesCategorySaved": "Input saved.",
-    "ruesCategorySaveFailed": "Could not save input. Try again.",
-    "ruesCategoryHint": "Optional. Clearing removes category from this row’s saved inputs; some RUES v3 endpoints still default to RM when the query omits category.",
-    "ruesCategoryEdit": "Edit category",
-    "ruesCategoryApply": "Apply",
-    "ruesCategoryCancel": "Cancel"
-  },
-  "batchDashboard": {
-    "backToSmartBatch": "Back to Smart Batch",
-    "loading": "Loading...",
-    "batchProcessingDashboard": "Batch processing dashboard",
-    "createBatch": "Create Batch",
-    "steps": "Steps",
-    "strategy": "Strategy",
-    "format": "Format",
-    "costPerRow": "Cost/Row",
-    "processingSteps": "Processing Steps",
-    "disabled": "Disabled",
-    "costBreakdown": "Cost Breakdown",
-    "totalPerRow": "Total per row",
-    "total": "Total",
-    "totalBatches": "Total Batches",
-    "success": "Success",
-    "completedRows": "Completed Rows",
-    "queue": "Queue",
-    "pendingRows": "Pending Rows",
-    "error": "Error",
-    "failedRows": "Failed Rows",
-    "loadingBatches": "Loading batches...",
-    "noBatchesYet": "No batches yet",
-    "createFirstBatchDescription": "Create your first batch to start processing data with this configuration.",
-    "createFirstBatch": "Create First Batch",
-    "batches": "Batches",
-    "name": "Name",
-    "status": "Status",
-    "progress": "Progress",
-    "rows": "Rows",
-    "created": "Created",
-    "actions": "Actions",
-    "viewDetails": "View Details",
-    "failedCount": "({{count}} failed)",
-    "partialCount": "({{count}} partial)"
-  },
-  "addCredits": {
-    "promo": {
-      "weekOneUsd50": {
-        "badge": "Limited promotion",
-        "title": "Double credit value when you recharge $50 in your first week",
-        "body": "If you purchase $50 USD of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge.",
-        "accountCreatedNotice": "You must complete the $50 purchase before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
-        "deadline": "Complete your qualifying purchase by {{expiresAt}}",
-        "walletStrip": "Limited: pick {{amountUsd}} USD when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
-        "dialogDouble": "First-week promo: you pay {{payUsd}} for this recharge and receive {{receivedUsd}} in total credited value—including the matched bonus."
-      }
-    },
-    "purchaseDialog": {
-      "errors": {
-        "duplicate_credit_purchase_quick": "We just added credits for this dollar amount. Wait a moment or pick a different total.",
-        "duplicate_credit_purchase_same_day": "You already added credits for this amount today. Choose a different amount, or try again tomorrow.",
-        "credit_purchase_invalid_amount": "That amount is outside the allowed range. Adjust the number and try again.",
-        "kycVerificationStartFailed": "We could not open KYC verification. Please try again or contact support.",
-        "selectPaymentMethod": "Choose a saved card to continue.",
-        "amountOutOfRange": "Enter an amount between {{minUsd}} and {{maxUsd}}.",
-        "paymentPendingVerification": "Your payment is pending. Credits will appear after your bank confirms the charge."
-      }
-    }
-  }
 }

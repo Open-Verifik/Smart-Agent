@@ -278,6 +278,9 @@
                                         <p class="text-xs text-gray-500 mb-2 uppercase font-medium">
                                             {{ 'smartReport.exportData' | transloco }}
                                         </p>
+                                        <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                                            {{ 'smartReport.detailedExportHint' | transloco }}
+                                        </p>
                                         <div class="space-y-2">
                                             <button
                                                 mat-stroked-button
@@ -502,9 +505,10 @@
                                                                                 <tbody>
                                                                                     @for (
                                                                                         field of getStepResultFields(
-                                                                                            step.data
+                                                                                            step.data,
+                                                                                            step.featureCode
                                                                                         );
-                                                                                        track field.label
+                                                                                        track $index
                                                                                     ) {
                                                                                         <tr
                                                                                             class="border-b border-gray-100 last:border-0"
@@ -567,14 +571,60 @@
                                                                                 }})</span
                                                                             >
                                                                         </p>
-                                                                        <pre
-                                                                            class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64"
-                                                                            >{{
-                                                                                formatJson(
-                                                                                    step.data
-                                                                                )
-                                                                            }}</pre
-                                                                        >
+                                                                        <div class="relative">
+                                                                            @if (
+                                                                                step.data != null
+                                                                            ) {
+                                                                                <button
+                                                                                    type="button"
+                                                                                    mat-icon-button
+                                                                                    class="!absolute top-1.5 right-1.5 z-10 !h-9 !min-h-9 !w-auto !min-w-9 !rounded-lg !border border-gray-200/90 !bg-white/95 px-1.5 shadow-sm hover:!border-gray-300 hover:bg-white"
+                                                                                    [matTooltip]="
+                                                                                        'smartReport.copyJson'
+                                                                                            | transloco
+                                                                                    "
+                                                                                    [attr.aria-label]="
+                                                                                        'smartReport.copyJson'
+                                                                                            | transloco
+                                                                                    "
+                                                                                    (click)="
+                                                                                        copyStepJsonToClipboard(
+                                                                                            step.data,
+                                                                                            recordBlock.rowIndex,
+                                                                                            step.sequence
+                                                                                        )
+                                                                                    "
+                                                                                >
+                                                                                    @if (
+                                                                                        jsonCopyShowsCopied(
+                                                                                            recordBlock.rowIndex,
+                                                                                            step.sequence
+                                                                                        )
+                                                                                    ) {
+                                                                                        <span
+                                                                                            class="text-xs font-medium text-emerald-700 whitespace-nowrap px-1"
+                                                                                            >{{
+                                                                                                'smartReport.copied'
+                                                                                                    | transloco
+                                                                                            }}</span
+                                                                                        >
+                                                                                    } @else {
+                                                                                        <mat-icon
+                                                                                            class="!text-[18px] text-gray-600"
+                                                                                            >content_copy</mat-icon
+                                                                                        >
+                                                                                    }
+                                                                                </button>
+                                                                            }
+                                                                            <pre
+                                                                                class="bg-gray-50 rounded-lg p-3 pr-14 text-xs font-mono text-gray-800 overflow-auto max-h-64 border border-gray-100"
+                                                                                >{{
+                                                                                    formatJson(
+                                                                                        step.data
+                                                                                    )
+                                                                                }}</pre
+                                                                            >
+                                                                        </div>
                                                                     </div>
                                                                 }
                                                             </div>
