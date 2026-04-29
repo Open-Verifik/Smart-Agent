@@ -1170,7 +1170,11 @@
     "retrying": "再試行中...",
     "continuePendingSteps": "保留中 {{count}} 件を続行",
     "continuing": "続行中...",
-    "continuePendingStepsHint": "完了済みのチェックはスキップし、保留中の {{count}} 件のみ実行します。"
+    "continuePendingStepsHint": "完了済みのチェックはスキップし、保留中の {{count}} 件のみ実行します。",
+    "openPdfInNewTab": "新しいタブで開く",
+    "downloadPdf": "PDF をダウンロード",
+    "pdfPreview": "PDF のプレビュー",
+    "pdfOmittedForJsonView": "[PDF は省略 — 読みやすい表示でプレビュー]"
   },
   "batchDashboard": {
     "backToSmartBatch": "Smart Batchに戻る",
@@ -1207,5 +1211,29 @@
     "viewDetails": "詳細を表示",
     "failedCount": "({{count}}件失敗)",
     "partialCount": "({{count}}件一部完了)"
+  },
+  "addCredits": {
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "期間限定",
+        "title": "アカウント作成から1週間以内に50ドルチャージでクレジット価値が2倍",
+        "body": "Verifik のクライアント・アカウント作成から7日以内に、合計50米ドルのクレジットをご購入いただいた場合（初回ログインではなく、登録済みプロフィール上の作成日時が基準です）、同一金額のボーナスクレジットを付与します。該当するチャージについて、ご利用いただけるクレジット価値はお支払い額の2倍相当になります。",
+        "accountCreatedNotice": "クライアント登録から1週間が経過する前に、この50ドル分の購入を完了する必要があります。この期間を過ぎた場合、または本プロモーションを1回ご利用済みの場合は、通常レートが適用されます。",
+        "deadline": "資格を満たす購入は {{expiresAt}} までに完了してください",
+        "walletStrip": "初週プロモ：クレジット購入で {{amountUsd}} を選択すると、この初週中は価値が2倍になります（詳細は上のバナー）。",
+        "dialogDouble": "初週プロモ：{{payUsd}} をお支払いすると、総クレジット価値は {{receivedUsd}} になります（ボーナス込み）。"
+      }
+    },
+    "purchaseDialog": {
+      "errors": {
+        "duplicate_credit_purchase_quick": "このドル建ての金額は追加済みです。少し待つか別の金額にしてください。",
+        "duplicate_credit_purchase_same_day": "この金額のクレジットは本日追加済みです。別の金額か、翌日にもう一度どうぞ。",
+        "credit_purchase_invalid_amount": "その金額は範囲外です。金額を直して試してください。",
+        "kycVerificationStartFailed": "KYCの画面を開けませんでした。再試行するかサポートにお問い合わせください。",
+        "selectPaymentMethod": "続行する保存済みのカードを選んでください。",
+        "amountOutOfRange": "{{minUsd}} から {{maxUsd}} の範囲で金額を入力してください。",
+        "paymentPendingVerification": "お支払いの確認が保留中です。銀行の承認後にクレジットが反映されます。"
+      }
+    }
   }
 }

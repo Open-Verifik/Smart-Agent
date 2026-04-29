@@ -5,6 +5,10 @@ import { getPostmanPathParamKeysForEndpoint } from './postman-url.util';
 const DOCUMENT_NUMBER_FIELD = 'documentNumber';
 const DOCUMENT_TYPE_FIELD = 'documentType';
 
+const FIELD_REQUIRED_TRANSLATION_KEY = 'postman.requestEditor.validation.fieldRequired';
+const PAIR_NUMBER_WHEN_TYPE_KEY = 'createBatch.pairDocumentNumberRequiredWhenType';
+const PAIR_TYPE_WHEN_NUMBER_KEY = 'createBatch.pairDocumentTypeRequiredWhenNumber';
+
 const PAIR_VALUE_PLACEHOLDERS = new Set(['-', 'n/a', 'na']);
 
 export interface PostmanValidationIssue {
@@ -236,6 +240,37 @@ const appendDateFormatIssueIfAny = (
         translationKey: 'createBatch.invalidDateFormat',
         translationParams: { field: d.field, format: d.dateFormat },
     });
+};
+
+/**
+ * When document type/number pair rules already emit a specific issue, drop generic `fieldRequired`
+ * for the same field to avoid duplicate bullets (e.g. Contraloría documentNumber).
+ */
+const dedupeFieldRequiredWhenDocumentPairIssue = (
+    issues: PostmanValidationIssue[]
+): PostmanValidationIssue[] => {
+    const pairFields = new Set<string>();
+    for (const i of issues) {
+        if (
+            i.translationKey === PAIR_NUMBER_WHEN_TYPE_KEY ||
+            i.translationKey === PAIR_TYPE_WHEN_NUMBER_KEY
+        ) {
+            if (i.field) {
+                pairFields.add(i.field);
+            }
+        }
+    }
+    if (pairFields.size === 0) {
+        return issues;
+    }
+    return issues.filter(
+        (i) =>
+            !(
+                i.translationKey === FIELD_REQUIRED_TRANSLATION_KEY &&
+                i.field &&
+                pairFields.has(i.field)
+            )
+    );
 };
 
 const appendLegacyDependencyIssues = (
@@ -507,7 +542,7 @@ export const getPostmanRequestValidationIssues = (
         issues.push(...legacyParamIssues(endpoint, stepLabel));
     }
 
-    return issues;
+    return dedupeFieldRequiredWhenDocumentPairIssue(issues);
 };
 
 export const isPostmanRequestValid = (

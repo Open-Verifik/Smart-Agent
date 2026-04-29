@@ -1296,7 +1296,9 @@
       "webhooks": "Webhooks",
       "webhooks_desc": "Webhookエンドポイントを設定",
       "billing_details": "請求情報",
-      "billing_details_desc": "請求情報を管理"
+      "billing_details_desc": "請求情報を管理",
+      "payment_history": "お支払い履歴",
+      "payment_history_desc": "領収書・請求書・取引履歴を確認"
     },
     "profile": {
       "title": "プロフィール設定",
@@ -1321,6 +1323,51 @@
       "save_error": "プロフィールの保存に失敗しました。もう一度お試しください。",
       "invalid_file_type": "無効なファイルタイプです。PNGまたはJPGを使用してください。",
       "file_too_large": "ファイルが大きすぎます。最大サイズは5MBです。"
+    },
+    "paymentHistory": {
+      "title": "お支払い履歴",
+      "subtitle": "クレジット購入およびサブスクリプション料金を確認できます。経理や税務用に領収書のプレビュー、ダウンロード、印刷、またはメール送信が可能です。",
+      "tableTitle": "取引",
+      "tableSubtitle": "このアカウントに紐づく承認済みのお支払いです。",
+      "loadingHint": "取引を読み込み中...",
+      "transactionsCount": "取引 {{count}} 件",
+      "refresh": "更新",
+      "tryAgain": "再試行",
+      "emptyTitle": "まだ取引がありません",
+      "emptySubtitle": "クレジット購入およびサブスクリプション料金は承認後にここに表示されます。",
+      "date": "日付",
+      "description": "内容",
+      "method": "方法",
+      "amount": "金額",
+      "actions": "操作",
+      "viewInvoice": "インボイスを見る",
+      "page": "ページ",
+      "previous": "前へ",
+      "next": "次へ",
+      "subscriptionPayment": "サブスクリプション支払い",
+      "creditRecharge": "クレジット購入",
+      "verifikInvoice": "Verifik 請求書",
+      "invoicePreview": "請求書プレビュー",
+      "invoiceActions": "請求書のアクション",
+      "download": "ダウンロード",
+      "print": "印刷",
+      "stripeInvoice": "Stripe 請求書",
+      "stripeInvoiceDesc": "このサブスクリプション取引には Stripe 発行の元請求書もあります。",
+      "openStripeInvoice": "Stripe 請求書を開く",
+      "downloadStripePdf": "Stripe の PDF をダウンロード",
+      "emailTitle": "メールで送信",
+      "emailSubtitle": "Verifik の PDF が添付されます。既定ではアカウントのメールですが別の宛先にも送れます。",
+      "emailLabel": "宛先メール",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "sendEmail": "請求書を送信",
+      "emailSent": "メールで請求書を送信しました。",
+      "emailError": "送信に失敗しました。再度お試しください。",
+      "loadError": "支払い履歴を読み込めませんでした。",
+      "invoiceLoadError": "請求書の PDF を読み込めませんでした。",
+      "iframeTitle": "Verifik 請求書 PDF",
+      "statusApproved": "承認済み",
+      "methodSubscription": "サブスク",
+      "methodCard": "カード"
     },
     "api_key": {
       "title": "APIキー管理",
@@ -1578,7 +1625,8 @@
         "valuePlaceholder": "値",
         "descriptionPlaceholder": "説明",
         "documentTypePlaceholder": "書類の種類を選択",
-        "otherParameters": "その他のパラメータ"
+        "otherParameters": "その他のパラメータ",
+        "requiredFieldLegend": "* 必須項目"
       },
       "headers": {
         "key": "キー",
@@ -1648,7 +1696,15 @@
       "method": "メソッド",
       "url": "URL",
       "responseBody": "レスポンスボディ",
-      "backToNormal": "通常表示に戻る"
+      "backToNormal": "通常表示に戻る",
+      "pdfPreview": "PDF プレビュー",
+      "openPdfInNewTab": "新しいタブで開く",
+      "downloadPdf": "PDF をダウンロード",
+      "insufficientCreditsTitle": "クレジットが不足しています",
+      "insufficientCreditsBody": "このリクエストを実行するにはアカウントへクレジットを追加してください。検証ごとにクレジットが消費されます。",
+      "insufficientCreditsCostHint": "このエンドポイントはリクエストあたり約 {{cost}} クレジットです。",
+      "insufficientCreditsCta": "クレジットを追加",
+      "errorTechnicalDetails": "技術詳細"
     },
     "jsonTable": {
       "array": "配列",
@@ -1886,6 +1942,11 @@
       "cost": "コスト"
     },
     "subtitle": "API 呼び出しを監査し、リクエスト値を確認して、作り直さずに検証を再実行できます。",
+    "status": {
+      "success": "成功",
+      "notFound": "見つかりません",
+      "failed": "失敗"
+    },
     "actions": {
       "repeat": "再実行",
       "repeatTooltip": "同じパラメータでこのリクエストを Postman で開く",
@@ -1950,6 +2011,17 @@
       "bestValue": "ベストバリュー",
       "viewAllPlans": "すべてのプランを表示"
     },
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "期間限定",
+        "title": "アカウント作成から1週間以内に50ドルチャージでクレジット価値が2倍",
+        "body": "Verifik のクライアント・アカウント作成から7日以内に、合計50米ドルのクレジットをご購入いただいた場合（初回ログインではなく、登録済みプロフィール上の作成日時が基準です）、同一金額のボーナスクレジットを付与します。該当するチャージについて、ご利用いただけるクレジット価値はお支払い額の2倍相当になります。",
+        "accountCreatedNotice": "クライアント登録から1週間が経過する前に、この50ドル分の購入を完了する必要があります。この期間を過ぎた場合、または本プロモーションを1回ご利用済みの場合は、通常レートが適用されます。",
+        "deadline": "資格を満たす購入は {{expiresAt}} までに完了してください",
+        "walletStrip": "初週プロモ：クレジット購入で {{amountUsd}} を選択すると、この初週中は価値が2倍になります（詳細は上のバナー）。",
+        "dialogDouble": "初週プロモ：{{payUsd}} をお支払いすると、総クレジット価値は {{receivedUsd}} になります（ボーナス込み）。"
+      }
+    },
     "purchaseDialog": {
       "title": "クレジットを購入",
       "selectAmount": "金額を選択",
@@ -1981,6 +2053,7 @@
         "message": "クレジットの購入を続けるには、KYC認証を完了する必要があります。",
         "description": "これは本人確認と規制遵守のための一度限りのプロセスです。",
         "startKyc": "KYC認証を開始",
+        "close": "閉じる",
         "contactSupport": "サポートに連絡"
       },
       "maximum": "最大"

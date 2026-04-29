@@ -1170,7 +1170,11 @@
     "retrying": "正在重试...",
     "continuePendingSteps": "继续 {{count}} 个待处理",
     "continuing": "正在继续...",
-    "continuePendingStepsHint": "运行 {{count}} 个待处理检查，并跳过已完成的检查。"
+    "continuePendingStepsHint": "运行 {{count}} 个待处理检查，并跳过已完成的检查。",
+    "openPdfInNewTab": "在新标签页中打开",
+    "downloadPdf": "下载 PDF",
+    "pdfPreview": "PDF 预览",
+    "pdfOmittedForJsonView": "[PDF 已省略 — 请使用可读视图预览]"
   },
   "batchDashboard": {
     "backToSmartBatch": "返回 Smart Batch",
@@ -1207,5 +1211,29 @@
     "viewDetails": "查看详情",
     "failedCount": "（{{count}} 个失败）",
     "partialCount": "（{{count}} 个部分完成）"
+  },
+  "addCredits": {
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "限时优惠",
+        "title": "注册首周内充值 50 美元，积分价值翻倍",
+        "body": "在您创建 Verifik 客户账户后的 7 天内，若累计购买不少于 50 美元的积分（以客户档案上的创建时间为准，而非仅首次登录），我们将另行发放等额赠送积分；该笔符合资格的充值在您账户中体现的可用额度价值相当于金额的两倍（按美元计）。",
+        "accountCreatedNotice": "必须在客户账户注册满一周之前完成这笔 50 美元购买；超过该期限或本优惠已成功使用过一次后，将按标准价格计费。",
+        "deadline": "请在 {{expiresAt}} 前完成符合条件的首笔购买",
+        "walletStrip": "首周进行中：购买积分时请选 {{amountUsd}}，有效期内享有双倍额度价值（见上方横幅）。",
+        "dialogDouble": "首周优惠：本次支付 {{payUsd}}，到账总积分价值为 {{receivedUsd}}（含等额赠送）。"
+      }
+    },
+    "purchaseDialog": {
+      "errors": {
+        "duplicate_credit_purchase_quick": "刚刚已为该金额加过额度。请稍候或换一个金额。",
+        "duplicate_credit_purchase_same_day": "今天你已为该金额加过额度，请换别的数额或明天再试。",
+        "credit_purchase_invalid_amount": "金额不在允许的范围内，请改动后再试。",
+        "kycVerificationStartFailed": "无法打开身份验证页面。请重试或联系客服。",
+        "selectPaymentMethod": "请先选择一张已保存的银行卡。",
+        "amountOutOfRange": "请输入 {{minUsd}} 至 {{maxUsd}} 之间的金额。",
+        "paymentPendingVerification": "付款待银行确认完成后，额度会到账。"
+      }
+    }
   }
 }

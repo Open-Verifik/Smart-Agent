@@ -91,11 +91,12 @@
                 </th>
                 <td mat-cell *matCellDef="let request" class="pl-6 py-5">
                   <span
-                    class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold"
+                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold"
                     [ngClass]="getStatusColor(request.statusCode)"
                     *ngIf="request.statusCode"
                   >
-                    {{ getStatusLabel(request.statusCode) }} ({{ request.statusCode }})
+                    <span>{{ t(getStatusLabelKey(request.statusCode)) }}</span>
+                    <span class="font-mono font-normal opacity-90">({{ request.statusCode }})</span>
                   </span>
                   <span
                     class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400"

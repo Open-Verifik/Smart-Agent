@@ -1170,7 +1170,11 @@
     "retrying": "Tentando novamente...",
     "continuePendingSteps": "Continuar {{count}} pendentes",
     "continuing": "Continuando...",
-    "continuePendingStepsHint": "Executa {{count}} verificações pendentes e ignora as concluídas."
+    "continuePendingStepsHint": "Executa {{count}} verificações pendentes e ignora as concluídas.",
+    "openPdfInNewTab": "Abrir em nova guia",
+    "downloadPdf": "Baixar PDF",
+    "pdfPreview": "Pré-visualização do PDF",
+    "pdfOmittedForJsonView": "[PDF omitido — use a visualização Legível para pré-visualizar]"
   },
   "batchDashboard": {
     "backToSmartBatch": "Voltar ao Smart Batch",
@@ -1207,5 +1211,29 @@
     "viewDetails": "Ver detalhes",
     "failedCount": "({{count}} falharam)",
     "partialCount": "({{count}} parciais)"
+  },
+  "addCredits": {
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "Promoção limitada",
+        "title": "Valor dobrado ao recarregar US$ 50 na sua primeira semana",
+        "body": "Se você comprar US$ 50 em créditos em até sete dias após a criação da conta cliente Verifik (vale a hora cadastrada no perfil da conta cliente, não só o primeiro login), adicionamos bônus equivalente em créditos. Nessa compra qualificada, o valor disponível equivale ao dobro do montante.",
+        "accountCreatedNotice": "É obrigatório concluir a compra de US$ 50 antes que se complete uma semana inteira desde o cadastro da conta cliente. Depois do prazo ou após usar esta promo uma vez, aplicam-se os preços normais.",
+        "deadline": "Conclua a compra elegível até {{expiresAt}}",
+        "walletStrip": "Primeira semana ativa: escolha {{amountUsd}} na compra de créditos — dobramos o valor utilizável enquanto a promo vigorar (veja faixa acima).",
+        "dialogDouble": "Promo primeira semana: você paga {{payUsd}} nesta recarga e recebe {{receivedUsd}} de valor total em créditos, bônus incluídos."
+      }
+    },
+    "purchaseDialog": {
+      "errors": {
+        "duplicate_credit_purchase_quick": "Esse valor acabou de ser incluído. Aguarde um instante ou escolha um total diferente.",
+        "duplicate_credit_purchase_same_day": "Você já adicionou créditos neste valor hoje. Use outro valor ou volte amanhã.",
+        "credit_purchase_invalid_amount": "Esse valor está fora da faixa permitida. Corrija o valor e tente de novo.",
+        "kycVerificationStartFailed": "Não foi possível abrir a verificação KYC. Tente de novo ou fale com o suporte.",
+        "selectPaymentMethod": "Escolha um cartão salvo para continuar.",
+        "amountOutOfRange": "Digite um valor entre {{minUsd}} e {{maxUsd}}.",
+        "paymentPendingVerification": "Pagamento pendente de confirmação. Os créditos aparecem após o banco aprovar."
+      }
+    }
   }
 }

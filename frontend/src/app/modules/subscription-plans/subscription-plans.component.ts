@@ -16,6 +16,10 @@ import { Subject } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
+    extractClientSettingsPayload,
+    invoiceBillingDetailsComplete,
+} from '../settings/utils/invoice-billing-complete';
+import {
     applyApiRequestDiscountToBasePrice,
     formatBenefitRowsFromChanges,
     hasOtherPlanWithApiDiscount,
@@ -964,13 +968,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         // Check billing configuration and payment methods
         this._subscriptionService.getBillingConfig({ findOne: true }).subscribe({
             next: (response) => {
-                const inv = response?.data?.invoiceSettings;
-                this.hasBillingSetup = !!(
-                    inv &&
-                    inv.type &&
-                    (inv.person || inv.business) &&
-                    inv.address
-                );
+                const cs = extractClientSettingsPayload(response);
+                const inv = cs?.invoiceSettings;
+                this.hasBillingSetup = invoiceBillingDetailsComplete(inv);
                 if (!this.hasBillingSetup) {
                     this.showBillingRequiredModal = true;
                 }

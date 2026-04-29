@@ -198,12 +198,12 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   }
 
   /**
-   * Get status label
+   * Transloco key for HTTP status badge label (paired with status code in template).
    */
-  getStatusLabel(statusCode: number): string {
-    if (statusCode >= 200 && statusCode < 300) return 'Success';
-    if (statusCode === 404) return 'Not Found';
-    return 'Failed';
+  getStatusLabelKey(statusCode: number): string {
+    if (statusCode >= 200 && statusCode < 300) return 'history.status.success';
+    if (statusCode === 404) return 'history.status.notFound';
+    return 'history.status.failed';
   }
 
   formatCost(cost: number | string | undefined | null): string {

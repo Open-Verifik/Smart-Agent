@@ -1,5 +1,8 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -7,10 +10,18 @@ import { PostmanService } from '../postman.service';
 import { JsonTableComponent } from './json-table.component';
 import { environment } from '../../../../environments/environment';
 
+/** Stable numeric string for endpoint price display (same idea as Postman request editor). */
+function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
+  if (!Number.isFinite(value)) {
+    return '0';
+  }
+  return parseFloat(value.toFixed(maxDecimals)).toString();
+}
+
 @Component({
   selector: 'postman-response-viewer',
   standalone: true,
-  imports: [CommonModule, JsonTableComponent, MatButtonModule, MatIconModule, TranslocoPipe],
+  imports: [CommonModule, JsonTableComponent, RouterModule, MatButtonModule, MatIconModule, TranslocoPipe],
   host: { class: 'block h-full' },
   template: `
     <div class="flex flex-col h-full overflow-hidden bg-transparent">
@@ -160,20 +171,131 @@ import { environment } from '../../../../environments/environment';
             <div *ngIf="viewMode() === 'table'" class="h-full">
               <postman-json-table [data]="parsedBody()"></postman-json-table>
             </div>
+
+            <div *ngIf="normalizedPdfDataUrlFromBody() as pdfUrl" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 shrink-0">
+              <div
+                class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2"
+              >
+                {{ 'postman.responseViewer.pdfPreview' | transloco }}
+              </div>
+              <iframe
+                [title]="'postman.responseViewer.pdfPreview' | transloco"
+                class="min-h-[360px] w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+                [src]="sanitizePdfIframeSrc(pdfUrl)"
+              ></iframe>
+              <div class="flex flex-wrap gap-2 mt-3">
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="!text-xs"
+                  (click)="openPdfInNewTab(pdfUrl)"
+                >
+                  <span class="inline-flex items-center gap-2">
+                    <mat-icon class="!w-4 !h-4">open_in_new</mat-icon>
+                    {{ 'postman.responseViewer.openPdfInNewTab' | transloco }}
+                  </span>
+                </button>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="!text-xs"
+                  (click)="downloadPdf(pdfUrl, postmanPdfDownloadFilename())"
+                >
+                  <span class="inline-flex items-center gap-2">
+                    <mat-icon class="!w-4 !h-4">download</mat-icon>
+                    {{ 'postman.responseViewer.downloadPdf' | transloco }}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         <ng-template #noResponse>
-          <div
-            *ngIf="error()"
-            class="text-red-600 p-4 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-900/50 max-w-full"
-          >
-            <div class="font-bold mb-2 flex items-center gap-2">
-              <span class="material-icons text-sm">error_outline</span>
-              {{ 'postman.responseViewer.error' | transloco }}
+          <ng-container *ngIf="error()">
+            <!-- Insufficient credits (credits mode + 403) -->
+            <div
+              *ngIf="insufficientCreditsError(); else genericExplorerError"
+              class="rounded-xl border border-stone-200/90 bg-stone-50/90 dark:border-gray-800 dark:bg-gray-950/90 p-4 max-w-full shadow-sm backdrop-blur-sm"
+            >
+              <div
+                class="rounded-xl border border-stone-200/80 bg-white/95 dark:border-gray-800 dark:bg-gray-900/80 p-5"
+              >
+                <div class="flex flex-wrap items-start gap-4">
+                  <div
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-300"
+                  >
+                    <mat-icon class="!h-7 !w-7">account_balance_wallet</mat-icon>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h3
+                      class="text-lg font-semibold tracking-tight text-stone-900 dark:text-white"
+                    >
+                      {{ 'postman.responseViewer.insufficientCreditsTitle' | transloco }}
+                    </h3>
+                    <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                      {{ 'postman.responseViewer.insufficientCreditsBody' | transloco }}
+                    </p>
+                    <p
+                      *ngIf="endpointCreditsCostFormatted() as costStr"
+                      class="mt-2 text-xs text-stone-500 dark:text-stone-400"
+                    >
+                      {{
+                        'postman.responseViewer.insufficientCreditsCostHint'
+                          | transloco: { cost: costStr }
+                      }}
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-5">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    routerLink="/add-credits"
+                    class="!rounded-xl"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <mat-icon class="!h-5 !w-5">add_circle</mat-icon>
+                      {{ 'postman.responseViewer.insufficientCreditsCta' | transloco }}
+                    </span>
+                  </button>
+                </div>
+              </div>
             </div>
-            <pre class="text-xs select-text overflow-x-auto">{{ error() | json }}</pre>
-          </div>
+
+            <ng-template #genericExplorerError>
+              <div
+                class="text-red-700 dark:text-red-300 rounded-xl border border-red-200/90 bg-red-50/90 dark:border-red-900/50 dark:bg-red-950/30 p-4 max-w-full"
+              >
+                <div class="mb-3 flex flex-wrap items-center gap-2 font-bold">
+                  <span class="material-icons text-base">error_outline</span>
+                  {{ 'postman.responseViewer.error' | transloco }}
+                  <span
+                    *ngIf="httpError() as httpErr"
+                    class="rounded-md bg-white/70 px-2 py-0.5 text-xs font-mono font-semibold dark:bg-black/25"
+                  >
+                    {{ httpErr.status }} {{ httpErr.statusText }}
+                  </span>
+                </div>
+                <p
+                  *ngIf="genericErrorBackendMessage()"
+                  class="mb-3 text-sm text-red-800/95 dark:text-red-100/95"
+                >
+                  {{ genericErrorBackendMessage() }}
+                </p>
+                <details class="rounded-lg border border-red-200/80 bg-white/60 p-3 dark:border-red-900/40 dark:bg-slate-900/40">
+                  <summary class="cursor-pointer text-xs font-medium text-red-800 dark:text-red-200">
+                    {{ 'postman.responseViewer.errorTechnicalDetails' | transloco }}
+                  </summary>
+                  <pre
+                    class="mt-3 max-h-64 overflow-auto text-xs leading-relaxed text-red-900/90 dark:text-red-100/90 select-text"
+                    >{{ errorDetailPayload() | json }}</pre
+                  >
+                </details>
+              </div>
+            </ng-template>
+          </ng-container>
 
           <div
             *ngIf="!error() && !isLoading()"
@@ -348,11 +470,86 @@ import { environment } from '../../../../environments/environment';
 })
 export class ResponseViewerComponent {
   private _postmanService = inject(PostmanService);
+  private _sanitizer = inject(DomSanitizer);
   response = this._postmanService.response;
   responseTime = this._postmanService.responseTime;
   isLoading = this._postmanService.isLoading;
   error = this._postmanService.error;
   selectedEndpoint = this._postmanService.selectedEndpoint;
+  paymentMethod = this._postmanService.paymentMethod;
+
+  httpError = computed(() => {
+    const err = this.error();
+
+    return err instanceof HttpErrorResponse ? err : null;
+  });
+
+  /**
+   * True when Explorer is in credits mode and backend returned FORBIDDEN with a credit-shortage message.
+   */
+  insufficientCreditsError = computed(() => {
+    if (this.paymentMethod() !== 'credits') return false;
+
+    const err = this.httpError();
+
+    if (!err || err.status !== 403) return false;
+
+    const body = err.error;
+
+    if (typeof body !== 'object' || body === null) return false;
+
+    const raw = body as { message?: string; code?: string };
+    const msg = (raw.message ?? '').toLowerCase();
+    const code = raw.code ?? '';
+    const mentionsCreditsIssue =
+      msg.includes('credit') || msg.includes('enought') || msg.includes('not enough');
+
+    return code === 'FORBIDDEN' && mentionsCreditsIssue;
+  });
+
+  endpointCreditsCostFormatted = computed(() => {
+    const ep = this.selectedEndpoint();
+    const cost = ep?.estimatedCost;
+
+    if (cost == null || !Number.isFinite(Number(cost))) return null;
+
+    return formatPostmanCreditsPrice(Number(cost));
+  });
+
+  genericErrorBackendMessage = computed(() => {
+    const err = this.error();
+
+    if (!(err instanceof HttpErrorResponse)) return null;
+
+    const e = err.error;
+
+    if (
+      typeof e === 'object' &&
+      e !== null &&
+      typeof (e as { message?: unknown }).message === 'string'
+    ) {
+      return (e as { message: string }).message;
+    }
+
+    if (typeof e === 'string' && e.length) return e;
+
+    return null;
+  });
+
+  /** Safe payload for the technical-details block (avoid dumping HttpErrorResponse quirks). */
+  errorDetailPayload = computed(() => {
+    const err = this.error();
+
+    if (!(err instanceof HttpErrorResponse)) return err ?? null;
+
+    return {
+      status: err.status,
+      statusText: err.statusText,
+      url: err.url,
+      message: err.message,
+      error: err.error,
+    };
+  });
 
   viewMode = signal<'json' | 'table'>('json');
   isFullScreen = signal(false);
@@ -371,6 +568,16 @@ export class ResponseViewerComponent {
       }
     }
     return body;
+  });
+
+  /**
+   * Normalized `data:application/pdf;base64,...` from nested response (e.g. `data.pdfBase64`), or null.
+   */
+  normalizedPdfDataUrlFromBody = computed(() => {
+    const pb = this.parsedBody();
+    if (pb === null || pb === undefined || typeof pb !== 'object') return null;
+    const raw = this._extractFirstPdfDataUrlDeep(pb);
+    return raw ? this._normalizePdfDataUrl(raw) : null;
   });
 
   copyJson() {
@@ -402,6 +609,84 @@ export class ResponseViewerComponent {
       // But to be safe and responsive...
       this.isPrinting.set(false);
     }, 500);
+  }
+
+  sanitizePdfIframeSrc(dataUrl: string): SafeResourceUrl {
+    return this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl.trim());
+  }
+
+  openPdfInNewTab(dataUrl: string): void {
+    window.open(this._normalizePdfDataUrl(dataUrl), '_blank', 'noopener,noreferrer');
+  }
+
+  downloadPdf(dataUrl: string, filename: string): void {
+    const normalized = this._normalizePdfDataUrl(dataUrl);
+    let blobUrl: string;
+    try {
+      const b64 = this._pdfBase64Payload(normalized);
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: 'application/pdf' });
+      blobUrl = URL.createObjectURL(blob);
+    } catch {
+      return;
+    }
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl;
+    anchor.download = filename || 'document.pdf';
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+  }
+
+  /** Default download name for API Explorer PDF payloads. */
+  postmanPdfDownloadFilename(): string {
+    return 'api-response.pdf';
+  }
+
+  private _maybePdfPayload(key: string, v: string): boolean {
+    const t = v.trim();
+    if (!t) return false;
+    if (key.toLowerCase() === 'pdfbase64') return true;
+    return t.toLowerCase().startsWith('data:application/pdf;base64,');
+  }
+
+  private _normalizePdfDataUrl(raw: string): string {
+    const t = raw.trim();
+    return t.startsWith('data:') ? t : `data:application/pdf;base64,${t}`;
+  }
+
+  private _pdfBase64Payload(dataUrlOrBase64: string): string {
+    const t = dataUrlOrBase64.trim();
+    const ix = t.indexOf('base64,');
+    if (ix !== -1) return t.slice(ix + 7);
+    return t;
+  }
+
+  /** Walk nested objects and arrays; return first raw PDF string matched. */
+  private _extractFirstPdfDataUrlDeep(value: unknown): string | null {
+    if (value === null || typeof value !== 'object') return null;
+    if (Array.isArray(value)) {
+      for (const el of value) {
+        const found = this._extractFirstPdfDataUrlDeep(el);
+        if (found) return found;
+      }
+      return null;
+    }
+    const obj = value as Record<string, unknown>;
+    for (const key of Object.keys(obj)) {
+      const v = obj[key];
+      if (typeof v === 'string' && this._maybePdfPayload(key, v)) {
+        return v;
+      }
+      if (v !== null && typeof v === 'object') {
+        const nested = this._extractFirstPdfDataUrlDeep(v);
+        if (nested) return nested;
+      }
+    }
+    return null;
   }
 
   /**

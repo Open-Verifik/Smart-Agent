@@ -1,0 +1,250 @@
+<!-- Panel Header -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        {{ 'settings.api_key.title' | transloco }}
+    </h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">
+        {{ 'settings.api_key.subtitle' | transloco }}
+    </p>
+</div>
+
+<!-- New Token Alert -->
+<div *ngIf="showNewTokenAlert" class="new-token-alert mb-6">
+    <div class="flex items-start gap-4">
+        <div class="alert-icon-success">
+            <mat-icon>check_circle</mat-icon>
+        </div>
+        <div class="flex-1">
+            <h3 class="font-semibold text-green-800">
+                {{ 'settings.api_key.new_token_generated' | transloco }}
+            </h3>
+            <p class="text-green-700 text-sm mt-1">
+                {{ 'settings.api_key.copy_token_warning' | transloco }}
+            </p>
+        </div>
+        <button mat-icon-button (click)="dismissNewTokenAlert()" class="text-green-600">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+</div>
+
+<!-- Current Token Card -->
+<div class="content-card mb-6">
+    <div class="card-header">
+        <div class="flex items-center gap-3">
+            <div class="card-icon blue">
+                <mat-icon>vpn_key</mat-icon>
+            </div>
+            <div>
+                <h2 class="font-semibold text-gray-900 dark:text-white">
+                    {{ 'settings.api_key.current_token' | transloco }}
+                </h2>
+                <p class="text-gray-500 text-xs">
+                    {{ 'settings.api_key.bearer_token_info' | transloco }}
+                </p>
+            </div>
+        </div>
+        <div class="token-status">
+            <span class="status-dot"></span>
+            {{ 'settings.api_key.active' | transloco }}
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="token-display-wrapper">
+            <div class="token-display" (click)="copyToken()">
+                <code class="token-text">
+                    {{ hidePassword ? getMaskedToken() : accessToken }}
+                </code>
+            </div>
+            <div class="token-actions">
+                <button
+                    mat-icon-button
+                    (click)="hidePassword = !hidePassword"
+                    [matTooltip]="
+                        hidePassword
+                            ? ('settings.api_key.show_token' | transloco)
+                            : ('settings.api_key.hide_token' | transloco)
+                    "
+                    class="action-btn"
+                >
+                    <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+                </button>
+                <button
+                    mat-icon-button
+                    (click)="copyToken()"
+                    [matTooltip]="'settings.api_key.copy_token' | transloco"
+                    class="action-btn"
+                >
+                    <mat-icon>content_copy</mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <p class="usage-hint">
+            <mat-icon class="inline-icon">info</mat-icon>
+            {{ 'settings.api_key.usage_hint' | transloco }}
+        </p>
+    </div>
+</div>
+
+<!-- Action Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Renew Token Card -->
+    <div class="action-card">
+        <div class="action-card-header">
+            <div class="action-icon renew">
+                <mat-icon>autorenew</mat-icon>
+            </div>
+            <h3 class="action-title">
+                {{ 'settings.api_key.renew_token' | transloco }}
+            </h3>
+        </div>
+        <p class="action-description">
+            {{ 'settings.api_key.renew_description' | transloco }}
+        </p>
+
+        <div *ngIf="!showRenewPanel" class="action-footer">
+            <button
+                mat-stroked-button
+                color="primary"
+                (click)="toggleRenewPanel()"
+                class="action-button"
+            >
+                {{ 'settings.api_key.extend_validity' | transloco }}
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        </div>
+
+        <!-- Renew Panel -->
+        <div *ngIf="showRenewPanel" class="expand-panel">
+            <div class="panel-content">
+                <label class="panel-label">
+                    {{ 'settings.api_key.select_expiration' | transloco }}
+                </label>
+                <div class="expiration-grid">
+                    <button
+                        *ngFor="let option of expirationOptions"
+                        (click)="selectedExpiration = option.value"
+                        [class.selected]="selectedExpiration === option.value"
+                        class="expiration-option"
+                    >
+                        {{ option.label }}
+                        <span class="expiration-unit">{{ 'settings.api_key.months' | transloco }}</span>
+                    </button>
+                </div>
+
+                <div class="panel-actions">
+                    <button mat-button (click)="toggleRenewPanel()" [disabled]="isRenewing">
+                        {{ 'settings.api_key.cancel' | transloco }}
+                    </button>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        (click)="renewToken()"
+                        [disabled]="isRenewing"
+                        class="confirm-btn"
+                    >
+                        <mat-spinner *ngIf="isRenewing" diameter="18" class="mr-2"></mat-spinner>
+                        {{
+                            isRenewing
+                                ? ('settings.api_key.renewing' | transloco)
+                                : ('settings.api_key.renew_now' | transloco)
+                        }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revoke & Generate New Card -->
+    <div class="action-card danger">
+        <div class="action-card-header">
+            <div class="action-icon revoke">
+                <mat-icon>sync_problem</mat-icon>
+            </div>
+            <h3 class="action-title">
+                {{ 'settings.api_key.revoke_generate' | transloco }}
+            </h3>
+        </div>
+        <p class="action-description">
+            {{ 'settings.api_key.revoke_description' | transloco }}
+        </p>
+
+        <div *ngIf="!showRevokeConfirm" class="action-footer">
+            <button
+                mat-stroked-button
+                color="warn"
+                (click)="toggleRevokeConfirm()"
+                class="action-button danger"
+            >
+                {{ 'settings.api_key.revoke_all' | transloco }}
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        </div>
+
+        <!-- Revoke Confirmation Panel -->
+        <div *ngIf="showRevokeConfirm" class="expand-panel danger">
+            <div class="panel-content">
+                <div class="warning-box">
+                    <mat-icon class="warning-icon">warning</mat-icon>
+                    <div>
+                        <p class="warning-title">
+                            {{ 'settings.api_key.warning_title' | transloco }}
+                        </p>
+                        <p class="warning-text">
+                            {{ 'settings.api_key.warning_text' | transloco }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="panel-actions">
+                    <button mat-button (click)="toggleRevokeConfirm()" [disabled]="isRevoking">
+                        {{ 'settings.api_key.cancel' | transloco }}
+                    </button>
+                    <button
+                        mat-flat-button
+                        color="warn"
+                        (click)="revokeAndGenerateNew()"
+                        [disabled]="isRevoking"
+                        class="confirm-btn danger"
+                    >
+                        <mat-spinner *ngIf="isRevoking" diameter="18" class="mr-2"></mat-spinner>
+                        {{
+                            isRevoking
+                                ? ('settings.api_key.revoking' | transloco)
+                                : ('settings.api_key.confirm_revoke' | transloco)
+                        }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Documentation Link -->
+<div class="docs-card mt-6">
+    <div class="flex items-center gap-4">
+        <div class="docs-icon">
+            <mat-icon>menu_book</mat-icon>
+        </div>
+        <div class="flex-1">
+            <h3 class="font-medium text-gray-900 dark:text-white">
+                {{ 'settings.api_key.need_help' | transloco }}
+            </h3>
+            <p class="text-gray-500 text-sm">
+                {{ 'settings.api_key.docs_description' | transloco }}
+            </p>
+        </div>
+        <a
+            href="https://docs.verifik.co/authentication/renew-your-token-jwt"
+            target="_blank"
+            rel="noopener noreferrer"
+            mat-stroked-button
+            class="docs-button"
+        >
+            {{ 'settings.api_key.view_docs' | transloco }}
+            <mat-icon>open_in_new</mat-icon>
+        </a>
+    </div>
+</div>

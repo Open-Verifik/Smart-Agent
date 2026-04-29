@@ -4,12 +4,19 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
+import type { SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
+import { UserService } from '../../core/user/user.service';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
+import {
+    extractClientSettingsPayload,
+    invoiceBillingDetailsComplete,
+} from '../settings/utils/invoice-billing-complete';
+import { BillingRequiredDialogComponent } from '../subscription-plans/billing-required-dialog/billing-required-dialog.component';
 import { SubscriptionPlan } from '../subscription-plans/subscription-plan.types';
 import { SubscriptionService } from '../subscription-plans/subscription.service';
 import { AutoRechargeSettingsComponent } from './auto-recharge-settings/auto-recharge-settings.component';
@@ -36,6 +43,7 @@ export type AddCreditsSidebarPlanTier = {
         MatProgressSpinnerModule,
         PaymentCardComponent,
         RouterModule,
+        BillingRequiredDialogComponent,
     ],
     templateUrl: './add-credits.component.html',
     styleUrls: ['./add-credits.component.scss'],
@@ -46,6 +54,9 @@ export class AddCreditsComponent implements OnInit {
     private _subscriptionService = inject(SubscriptionService);
     private _dialog = inject(MatDialog);
     private _authService = inject(AuthService);
+    private _userService = inject(UserService);
+    private _activatedRoute = inject(ActivatedRoute);
+    private _router = inject(Router);
 
     // Signals from service
     cards = this._creditsService.cards;
@@ -57,6 +68,26 @@ export class AddCreditsComponent implements OnInit {
     /** Pricing table tiers for sidebar (monthly plans from API). */
     pricingPlansLoading = signal(false);
     sidebarPlanTiers = signal<AddCreditsSidebarPlanTier[]>([]);
+
+    /** Session-driven first-week promotion (server-calculated eligibility). */
+    weekOneUsd50Promotion = signal<SmartAgentWeekOneUsd50Promotion | undefined>(undefined);
+
+    showWeekOneUsd50PromoBanner = computed(() =>
+        Boolean(this.weekOneUsd50Promotion()?.eligible),
+    );
+
+    /** `GET /v2/client-settings` resolved (success or failure). */
+    billingCheckResolved = signal(false);
+
+    /** Invoice billing details sufficient for taxable purchases per subscription-plans rules. */
+    hasBillingSetup = signal(false);
+
+    showBillingRequiredModal = false;
+
+    /** Enables purchase/add-card when billing questionnaire is satisfied. */
+    billingActionsAllowed = computed(
+        () => this.billingCheckResolved() && this.hasBillingSetup(),
+    );
 
     // Computed values
     hasCards = computed(() => this.cards().length > 0);
@@ -73,8 +104,85 @@ export class AddCreditsComponent implements OnInit {
             return;
         }
 
-        // Load data and clean up expired cards
-        this.loadData();
+        this._maybeSyncStripeCheckoutThenLoadData();
+        this._loadBillingGateForAddCredits();
+    }
+
+    /**
+     * Billing details (invoiceSettings) gate — same completeness as subscription-plans.
+     */
+    private _loadBillingGateForAddCredits(): void {
+        this._subscriptionService.getBillingConfig({ findOne: true }).subscribe({
+            next: (response) => {
+                const cs = extractClientSettingsPayload(response);
+                const inv = cs?.invoiceSettings;
+                const ok = invoiceBillingDetailsComplete(inv);
+
+                this.hasBillingSetup.set(ok);
+                this.billingCheckResolved.set(true);
+
+                if (!ok) {
+                    this.showBillingRequiredModal = true;
+                }
+            },
+            error: (err) => {
+                console.error('Error loading billing config:', err);
+                this.hasBillingSetup.set(false);
+                this.billingCheckResolved.set(true);
+                this.showBillingRequiredModal = true;
+            },
+        });
+    }
+
+    goToBillingDetails(): void {
+        this.showBillingRequiredModal = false;
+        void this._router.navigate(['/settings', 'billing-details'], {
+            queryParams: { returnUrl: '/add-credits' },
+        });
+    }
+
+    /**
+     * @returns True when caller should bail (billing missing or awaiting billing GET).
+     */
+    private _billingGateBlocksPurchaseOrCardSetup(): boolean {
+        if (!this.billingCheckResolved()) {
+            return true;
+        }
+
+        if (this.hasBillingSetup()) {
+            return false;
+        }
+
+        this.showBillingRequiredModal = true;
+
+        return true;
+    }
+
+    /**
+     * If Stripe redirects back with Checkout session id, persist card before webhook arrives.
+     */
+    private _maybeSyncStripeCheckoutThenLoadData(): void {
+        const qp = this._activatedRoute.snapshot.queryParamMap;
+        const sessionRaw = qp.get('session_id') ?? qp.get('sessionId');
+
+        if (!sessionRaw?.startsWith('cs_')) {
+            this.loadData();
+            return;
+        }
+
+        this._paymentService.syncCheckoutSession(sessionRaw).subscribe({
+            next: () => {
+                void this._router
+                    .navigate(['/add-credits'], { replaceUrl: true })
+                    .then(() => this.loadData());
+            },
+            error: (err) => {
+                console.error('Failed to sync card from Stripe Checkout:', err);
+                void this._router
+                    .navigate(['/add-credits'], { replaceUrl: true })
+                    .then(() => this.loadData());
+            },
+        });
     }
 
     loadData(): void {
@@ -83,16 +191,27 @@ export class AddCreditsComponent implements OnInit {
             cards: this._creditsService.getCards(),
             balance: this._creditsService.getBalance(),
             autoRecharge: this._creditsService.getAutoRechargeConfig(),
+            session: this._userService.get().pipe(
+                catchError((err) => {
+                    console.error('Failed to load session:', err);
+                    return of(null);
+                }),
+            ),
             pricing: this._subscriptionService
                 .getPricingTableDisplay({ lang: this._getCurrentLang() })
                 .pipe(
                     catchError((err) => {
                         console.error('Failed to load pricing table for sidebar:', err);
                         return of({ data: { plans: [] as SubscriptionPlan[] } });
-                    })
+                    }),
                 ),
         }).subscribe({
             next: (result) => {
+                const promo = result.session?.promotion;
+                this.weekOneUsd50Promotion.set(
+                    promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
+                );
+
                 const rawPlans = result.pricing?.data?.plans ?? [];
                 this.sidebarPlanTiers.set(this._buildSidebarPlanTiers(rawPlans));
                 this.pricingPlansLoading.set(false);
@@ -323,8 +442,10 @@ export class AddCreditsComponent implements OnInit {
     }
 
     openAddCardDialog(): void {
-        // For Stripe, we redirect to their checkout session
-        // No dialog needed - just call the service
+        if (this._billingGateBlocksPurchaseOrCardSetup()) {
+            return;
+        }
+
         this._paymentService.createStripeCard().subscribe({
             next: () => {
                 // Redirect happens in the service
@@ -336,10 +457,17 @@ export class AddCreditsComponent implements OnInit {
     }
 
     /**
-     * Opens the purchase flow UI. Actual charging, 3DS (`confirmCardPayment`), and
-     * `POST /v2/credits/purchase/confirm` are handled in {@link PurchaseCreditsDialogComponent}.
+     * Opens the purchase modal. Credit charge + i18n strings for duplicate/KYC/other API errors live in
+     * {@link PurchaseCreditsDialogComponent} and are merged from `public/i18n/{lang}.json` plus `public/i18n/features-{lang}.json`
+     * (see `TranslocoHttpLoader`: `addCredits.purchaseDialog.*`).
+     *
+     * Actual charging, 3DS (`confirmCardPayment`), and `POST /v2/credits/purchase/confirm` are handled in {@link PurchaseCreditsDialogComponent}.
      */
     openPurchaseCreditsDialog(): void {
+        if (this._billingGateBlocksPurchaseOrCardSetup()) {
+            return;
+        }
+
         const currentCards = this.cards();
         if (currentCards.length === 0) {
             // If no cards, open add card dialog first
@@ -352,9 +480,11 @@ export class AddCreditsComponent implements OnInit {
 
         const dialogRef = this._dialog.open(PurchaseCreditsDialogComponent, {
             width: '500px',
-            maxWidth: '90vw',
+            maxWidth: '92vw',
+            panelClass: 'purchase-credits-dialog-panel',
             data: {
                 card: cardToUse,
+                promotion: this.weekOneUsd50Promotion(),
             },
         });
 

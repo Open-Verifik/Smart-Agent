@@ -1293,6 +1293,8 @@
       "team_desc": "Manage your team members",
       "billing_details": "Billing Details",
       "billing_details_desc": "Manage your billing information",
+      "payment_history": "Payment History",
+      "payment_history_desc": "View receipts, invoices, and transaction history",
       "api_key": "API Key",
       "api_key_desc": "Manage your API access tokens",
       "webhooks": "Webhooks",
@@ -1321,6 +1323,51 @@
       "save_error": "Failed to save profile. Please try again.",
       "invalid_file_type": "Invalid file type. Please use PNG or JPG.",
       "file_too_large": "File is too large. Maximum size is 5MB."
+    },
+    "paymentHistory": {
+      "title": "Payment History",
+      "subtitle": "Review your credit purchases and subscription payments. Preview, download, print, or email Verifik receipts for accounting and tax records.",
+      "tableTitle": "Transactions",
+      "tableSubtitle": "Approved payments tied to this account.",
+      "loadingHint": "Loading transactions...",
+      "transactionsCount": "{{count}} transactions",
+      "refresh": "Refresh",
+      "tryAgain": "Try again",
+      "emptyTitle": "No transactions yet",
+      "emptySubtitle": "Credit purchases and subscription payments will appear here once approved.",
+      "date": "Date",
+      "description": "Description",
+      "method": "Method",
+      "amount": "Amount",
+      "actions": "Actions",
+      "viewInvoice": "View invoice",
+      "page": "Page",
+      "previous": "Previous",
+      "next": "Next",
+      "subscriptionPayment": "Subscription payment",
+      "creditRecharge": "Credit recharge",
+      "verifikInvoice": "Verifik invoice",
+      "invoicePreview": "Invoice preview",
+      "invoiceActions": "Invoice actions",
+      "download": "Download",
+      "print": "Print",
+      "stripeInvoice": "Stripe invoice",
+      "stripeInvoiceDesc": "This subscription transaction also has Stripe's original invoice.",
+      "openStripeInvoice": "Open Stripe invoice",
+      "downloadStripePdf": "Download Stripe PDF",
+      "emailTitle": "Send by email",
+      "emailSubtitle": "The Verifik PDF will be attached. Your account email is used by default, but you can send it to another recipient.",
+      "emailLabel": "Recipient email",
+      "emailInvalid": "Enter a valid email address",
+      "sendEmail": "Send invoice",
+      "emailSent": "Invoice sent by email.",
+      "emailError": "Failed to send the invoice. Please try again.",
+      "loadError": "Failed to load payment history.",
+      "invoiceLoadError": "Failed to load the invoice PDF.",
+      "iframeTitle": "Verifik invoice PDF",
+      "statusApproved": "approved",
+      "methodSubscription": "Subscription",
+      "methodCard": "Card"
     },
     "api_key": {
       "title": "API Key Management",
@@ -1578,7 +1625,8 @@
         "valuePlaceholder": "Value",
         "descriptionPlaceholder": "Description",
         "documentTypePlaceholder": "Select document type",
-        "otherParameters": "Other parameters"
+        "otherParameters": "Other parameters",
+        "requiredFieldLegend": "* Required field"
       },
       "headers": {
         "key": "Key",
@@ -1648,7 +1696,15 @@
       "method": "Method",
       "url": "URL",
       "responseBody": "Response Body",
-      "backToNormal": "Back to normal view"
+      "backToNormal": "Back to normal view",
+      "pdfPreview": "PDF preview",
+      "openPdfInNewTab": "Open in new tab",
+      "downloadPdf": "Download PDF",
+      "insufficientCreditsTitle": "Not enough credits",
+      "insufficientCreditsBody": "Add credits to your account to run this request. Each validation consumes credits.",
+      "insufficientCreditsCostHint": "This endpoint charges about {{cost}} credits per request.",
+      "insufficientCreditsCta": "Add credits",
+      "errorTechnicalDetails": "Technical details"
     },
     "jsonTable": {
       "array": "Array",
@@ -1893,6 +1949,11 @@
       "cost": "Cost"
     },
     "subtitle": "Audit API calls, inspect request payloads, and replay validations without rebuilding the request.",
+    "status": {
+      "success": "Success",
+      "notFound": "Not Found",
+      "failed": "Failed"
+    },
     "actions": {
       "repeat": "Repeat",
       "repeatTooltip": "Open this request in Postman with the same parameters",
@@ -1955,9 +2016,20 @@
       "plus": "Plus",
       "business": "Business",
       "bestValue": "BEST VALUE",
-      "viewAllPlans": "View All Plans"
-    },
-    "purchaseDialog": {
+            "viewAllPlans": "View All Plans"
+        },
+        "promo": {
+            "weekOneUsd50": {
+                "badge": "Limited promotion",
+                "title": "Double credit value when you recharge $50 in your first week",
+                "body": "If you purchase $50 USD of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge.",
+                "accountCreatedNotice": "You must complete the $50 purchase before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
+                "deadline": "Complete your qualifying purchase by {{expiresAt}}",
+                "walletStrip": "Limited: pick {{amountUsd}} USD when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
+                "dialogDouble": "First-week promo: you pay {{payUsd}} for this recharge and receive {{receivedUsd}} in total credited value—including the matched bonus."
+            }
+        },
+        "purchaseDialog": {
       "title": "Purchase Credits",
       "selectAmount": "Select Amount",
       "customAmount": "Custom Amount",
@@ -1981,13 +2053,21 @@
         "contactSupport": "If you have questions, please contact support.",
         "stripeNotConfigured": "Payment could not be completed. Card verification is not available. Please try again or contact support.",
         "payment3dsFailed": "Card verification failed. Please try again or use another card.",
-        "paymentFailedImmediate": "Payment was declined. Please try another card or contact support."
+        "paymentFailedImmediate": "Payment was declined. Please try another card or contact support.",
+        "duplicate_credit_purchase_quick": "We just added credits for this dollar amount. Wait a moment or pick a different total.",
+        "duplicate_credit_purchase_same_day": "You already added credits for this amount today. Choose a different amount, or try again tomorrow.",
+        "credit_purchase_invalid_amount": "That amount is outside the allowed range. Adjust the number and try again.",
+        "kycVerificationStartFailed": "We could not open KYC verification. Please try again or contact support.",
+        "selectPaymentMethod": "Choose a saved card to continue.",
+        "amountOutOfRange": "Enter an amount between {{minUsd}} and {{maxUsd}}.",
+        "paymentPendingVerification": "Your payment is pending. Credits will appear after your bank confirms the charge."
       },
       "kyc": {
         "title": "KYC Required",
         "message": "To continue purchasing credits, you need to complete KYC verification.",
         "description": "This is a one-time process to verify your identity and comply with regulations.",
         "startKyc": "Start KYC Verification",
+        "close": "Close",
         "contactSupport": "Contact Support"
       },
       "maximum": "Maximum"

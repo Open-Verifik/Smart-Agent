@@ -1,5 +1,19 @@
+// Fill the centered-layout content column between header/footer (stretch with flex chain).
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  min-height: 0;
+}
+
 .settings-container {
-  height: 100%;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 
   :host-context(.dark) & {

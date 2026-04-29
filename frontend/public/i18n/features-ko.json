@@ -1170,7 +1170,11 @@
     "retrying": "재시도 중...",
     "continuePendingSteps": "대기 중 {{count}}개 계속",
     "continuing": "계속 진행 중...",
-    "continuePendingStepsHint": "완료된 검사는 건너뛰고 대기 중인 {{count}}개 검사만 실행합니다."
+    "continuePendingStepsHint": "완료된 검사는 건너뛰고 대기 중인 {{count}}개 검사만 실행합니다.",
+    "openPdfInNewTab": "새 탭에서 열기",
+    "downloadPdf": "PDF 다운로드",
+    "pdfPreview": "PDF 미리보기",
+    "pdfOmittedForJsonView": "[PDF 생략 — 읽기 쉬운 보기에서 미리보기]"
   },
   "batchDashboard": {
     "backToSmartBatch": "Smart Batch로 돌아가기",
@@ -1207,5 +1211,29 @@
     "viewDetails": "자세히 보기",
     "failedCount": "({{count}}개 실패)",
     "partialCount": "({{count}}개 부분 완료)"
+  },
+  "addCredits": {
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "기간 한정",
+        "title": "가입 후 첫 주 안에 US$50을 충전하면 크레딧 가치가 두 배 수준으로",
+        "body": "Verifik 클라이언트 계정이 생성된 날로부터 7일 안에 크레딧 US$50을 구매하면(단순 첫 로그인이 아니라 등록된 클라이언트 프로필의 생성 시각 기준), 동일한 금액의 보너스 크레딧을 추가합니다. 해당 구매에 대해 활용 가능한 크레딧 가치는 충전 금액의 두 배와 같습니다.",
+        "accountCreatedNotice": "클라이언트 계정 등록 후 1주일이 지나기 전까지 US$50 구매를 완료해야 합니다. 해당 기간이 지나거나, 이 혜택을 한 번 사용한 뒤에는 일반 요금이 적용됩니다.",
+        "deadline": "조건 충족 구매 마감: {{expiresAt}}",
+        "walletStrip": "첫 주 프로모션: 크레딧 구매 시 {{amountUsd}}를 선택하면, 기간 중 적용 크레딧 가치가 두 배입니다(위 배너 참고).",
+        "dialogDouble": "첫 주 프로모션: 이번 충전에 {{payUsd}}를 결제하면 총 {{receivedUsd}} 상당 크레딧 가치가 제공됩니다(보너스 포함)."
+      }
+    },
+    "purchaseDialog": {
+      "errors": {
+        "duplicate_credit_purchase_quick": "이 미화 금액으로 방금 크레딧이 추가되었습니다. 잠시 후 재시도하거나 다른 금액을 고르세요.",
+        "duplicate_credit_purchase_same_day": "오늘 이 금액으로 크레딧을 넣었습니다. 다른 금액으로 하시거나 내일 다시 해 보세요.",
+        "credit_purchase_invalid_amount": "허용된 범위가 아닌 금액입니다. 수정한 뒤 다시 시도하세요.",
+        "kycVerificationStartFailed": "KYC 확인 화면을 열 수 없습니다. 다시 시도하거나 고객지원에 문의하세요.",
+        "selectPaymentMethod": "저장된 카드를 선택하고 계속하세요.",
+        "amountOutOfRange": "{{minUsd}}에서 {{maxUsd}} 사이 금액을 입력하세요.",
+        "paymentPendingVerification": "결제 확인 대기 중입니다. 은행 승인 후 크레딧이 적립됩니다."
+      }
+    }
   }
 }

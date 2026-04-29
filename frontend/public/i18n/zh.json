@@ -1296,7 +1296,9 @@
       "webhooks": "Webhooks",
       "webhooks_desc": "配置Webhook端点",
       "billing_details": "账单信息",
-      "billing_details_desc": "管理您的账单信息"
+      "billing_details_desc": "管理您的账单信息",
+      "payment_history": "支付记录",
+      "payment_history_desc": "查看收据、发票与交易明细"
     },
     "profile": {
       "title": "个人资料设置",
@@ -1321,6 +1323,51 @@
       "save_error": "保存个人资料失败。请重试。",
       "invalid_file_type": "无效的文件类型。请使用PNG或JPG。",
       "file_too_large": "文件太大。最大大小为5MB。"
+    },
+    "paymentHistory": {
+      "title": "支付记录",
+      "subtitle": "在此查看点数购买与订阅付款。可为账务与报税预览、下载、打印或通过邮件发送 Verifik 收据。",
+      "tableTitle": "交易",
+      "tableSubtitle": "已批准且归属于本账户的付款。",
+      "loadingHint": "正在加载交易记录...",
+      "transactionsCount": "{{count}} 笔交易",
+      "refresh": "刷新",
+      "tryAgain": "重试",
+      "emptyTitle": "暂无交易",
+      "emptySubtitle": "点数购买或订阅付款在批准后，将显示在此处。",
+      "date": "日期",
+      "description": "说明",
+      "method": "方式",
+      "amount": "金额",
+      "actions": "操作",
+      "viewInvoice": "查看收据",
+      "page": "页码",
+      "previous": "上一页",
+      "next": "下一页",
+      "subscriptionPayment": "订阅付款",
+      "creditRecharge": "点数充值",
+      "verifikInvoice": "Verifik 收据",
+      "invoicePreview": "收据预览",
+      "invoiceActions": "收据操作",
+      "download": "下载",
+      "print": "打印",
+      "stripeInvoice": "Stripe 收据",
+      "stripeInvoiceDesc": "此订阅交易还包含 Stripe 原始发票链接。",
+      "openStripeInvoice": "打开 Stripe 收据",
+      "downloadStripePdf": "下载 Stripe PDF",
+      "emailTitle": "通过邮件发送",
+      "emailSubtitle": "将作为附件附上 Verifik 生成的 PDF；默认使用您的账户邮箱，也可填写其他收件人。",
+      "emailLabel": "收件人邮箱",
+      "emailInvalid": "请输入有效的邮箱地址",
+      "sendEmail": "发送收据",
+      "emailSent": "已通过邮件发送收据。",
+      "emailError": "发送失败，请重试。",
+      "loadError": "无法加载支付记录。",
+      "invoiceLoadError": "无法加载收据 PDF。",
+      "iframeTitle": "Verifik 收据 PDF",
+      "statusApproved": "已通过",
+      "methodSubscription": "订阅",
+      "methodCard": "银行卡"
     },
     "api_key": {
       "title": "API密钥管理",
@@ -1578,7 +1625,8 @@
         "valuePlaceholder": "值",
         "descriptionPlaceholder": "描述",
         "documentTypePlaceholder": "选择证件类型",
-        "otherParameters": "其他参数"
+        "otherParameters": "其他参数",
+        "requiredFieldLegend": "* 必填字段"
       },
       "headers": {
         "key": "键",
@@ -1648,7 +1696,15 @@
       "method": "方法",
       "url": "URL",
       "responseBody": "响应体",
-      "backToNormal": "返回正常视图"
+      "backToNormal": "返回正常视图",
+      "pdfPreview": "PDF 预览",
+      "openPdfInNewTab": "在新标签页中打开",
+      "downloadPdf": "下载 PDF",
+      "insufficientCreditsTitle": "积分不足",
+      "insufficientCreditsBody": "请为账户充值积分后再运行此请求。每次验证都会消耗积分。",
+      "insufficientCreditsCostHint": "此接口每次请求约消耗 {{cost}} 积分。",
+      "insufficientCreditsCta": "充值积分",
+      "errorTechnicalDetails": "技术详情"
     },
     "jsonTable": {
       "array": "数组",
@@ -1867,6 +1923,7 @@
   },
   "history": {
     "title": "请求历史",
+    "subtitle": "审计 API 调用、查看请求参数，并无需重建请求即可重放验证。",
     "table": {
       "status": "状态",
       "service": "服务",
@@ -1878,7 +1935,22 @@
       "duration": "时长",
       "noRequests": "未找到请求",
       "noParams": "无参数",
-      "confirmed": "已确认"
+      "confirmed": "已确认",
+      "actions": "操作",
+      "requestsCount": "共 {{count}} 条请求",
+      "loading": "加载中",
+      "live": "实时",
+      "cost": "费用"
+    },
+    "status": {
+      "success": "成功",
+      "notFound": "未找到",
+      "failed": "失败"
+    },
+    "actions": {
+      "repeat": "重试",
+      "repeatTooltip": "在 Postman 中使用相同参数打开此请求",
+      "repeatUnavailable": "无法重放此请求，因为缺少功能代码"
     }
   },
   "addCredits": {
@@ -1939,6 +2011,17 @@
       "bestValue": "最佳价值",
       "viewAllPlans": "查看所有计划"
     },
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "限时优惠",
+        "title": "注册首周内充值 50 美元，积分价值翻倍",
+        "body": "在您创建 Verifik 客户账户后的 7 天内，若累计购买不少于 50 美元的积分（以客户档案上的创建时间为准，而非仅首次登录），我们将另行发放等额赠送积分；该笔符合资格的充值在您账户中体现的可用额度价值相当于金额的两倍（按美元计）。",
+        "accountCreatedNotice": "必须在客户账户注册满一周之前完成这笔 50 美元购买；超过该期限或本优惠已成功使用过一次后，将按标准价格计费。",
+        "deadline": "请在 {{expiresAt}} 前完成符合条件的首笔购买",
+        "walletStrip": "首周进行中：购买积分时请选 {{amountUsd}}，有效期内享有双倍额度价值（见上方横幅）。",
+        "dialogDouble": "首周优惠：本次支付 {{payUsd}}，到账总积分价值为 {{receivedUsd}}（含等额赠送）。"
+      }
+    },
     "purchaseDialog": {
       "title": "购买积分",
       "selectAmount": "选择金额",
@@ -1970,6 +2053,7 @@
         "message": "要继续购买积分，您需要完成KYC验证。",
         "description": "这是验证身份和遵守法规的一次性流程。",
         "startKyc": "开始KYC验证",
+        "close": "关闭",
         "contactSupport": "联系支持"
       },
       "maximum": "最大"

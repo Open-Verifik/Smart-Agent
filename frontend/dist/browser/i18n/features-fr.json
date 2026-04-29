@@ -1170,7 +1170,11 @@
     "retrying": "Nouvelle tentative...",
     "continuePendingSteps": "Continuer {{count}} en attente",
     "continuing": "Continuation...",
-    "continuePendingStepsHint": "Exécute {{count}} vérifications en attente et ignore celles terminées."
+    "continuePendingStepsHint": "Exécute {{count}} vérifications en attente et ignore celles terminées.",
+    "openPdfInNewTab": "Ouvrir dans un nouvel onglet",
+    "downloadPdf": "Télécharger le PDF",
+    "pdfPreview": "Aperçu du PDF",
+    "pdfOmittedForJsonView": "[PDF omis — utilisez la vue lisible pour l’aperçu]"
   },
   "batchDashboard": {
     "backToSmartBatch": "Retour à Smart Batch",
@@ -1207,5 +1211,29 @@
     "viewDetails": "Voir les détails",
     "failedCount": "({{count}} échoués)",
     "partialCount": "({{count}} partiels)"
+  },
+  "addCredits": {
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "Promotion limitée",
+        "title": "Double valeur en crédits si vous rechargez 50 $ la première semaine",
+        "body": "Si vous achetez pour 50 USD de crédits dans les sept jours suivant la création de votre compte client Verifik (critère : horodatage du profil client enregistré, pas uniquement la première connexion), nous ajoutons un même montant en crédits bonus. Pour cet achat qualifié, la valeur équivalente en crédits est le double du montant.",
+        "accountCreatedNotice": "Vous devez finaliser cet achat de 50 $ avant que ne s’écoule une semaine complète depuis l’inscription du compte client ; après ce délai, ou après utilisation une fois de l’offre, les tarifs standards s’appliquent.",
+        "deadline": "Finalisez l’achat éligible avant le {{expiresAt}}",
+        "walletStrip": "Première semaine : choisissez {{amountUsd}} lors de l’achat — nous doublons la valeur en crédits tant que l’offre est active (voir la bannière ci-dessus).",
+        "dialogDouble": "Offre première semaine : vous payez {{payUsd}} pour cette recharge et recevez {{receivedUsd}} de valeur totale en crédits, bonus inclus."
+      }
+    },
+    "purchaseDialog": {
+      "errors": {
+        "duplicate_credit_purchase_quick": "Les crédits pour ce montant viennent d’être ajoutés. Patientez quelques minutes ou choisissez un autre total.",
+        "duplicate_credit_purchase_same_day": "Ce montant a déjà été acheté aujourd’hui. Choisissez autre chose ou réessayez demain.",
+        "credit_purchase_invalid_amount": "Ce montant est hors limite autorisée. Corrigez le montant puis réessayez.",
+        "kycVerificationStartFailed": "Impossible d’ouvrir la vérification KYC. Réessayez ou contactez le support.",
+        "selectPaymentMethod": "Choisissez une carte enregistrée pour continuer.",
+        "amountOutOfRange": "Saisissez un montant entre {{minUsd}} et {{maxUsd}}.",
+        "paymentPendingVerification": "Le paiement est en attente. Les crédits apparaîtront après confirmation par votre banque."
+      }
+    }
   }
 }

@@ -1296,7 +1296,9 @@
       "webhooks": "Webhooks",
       "webhooks_desc": "Webhook 엔드포인트 구성",
       "billing_details": "청구 정보",
-      "billing_details_desc": "청구 정보 관리"
+      "billing_details_desc": "청구 정보 관리",
+      "payment_history": "결제 내역",
+      "payment_history_desc": "영수증·청구서 및 거래 기록 확인"
     },
     "profile": {
       "title": "프로필 설정",
@@ -1321,6 +1323,51 @@
       "save_error": "프로필 저장에 실패했습니다. 다시 시도하세요.",
       "invalid_file_type": "잘못된 파일 형식입니다. PNG 또는 JPG를 사용하세요.",
       "file_too_large": "파일이 너무 큽니다. 최대 크기는 5MB입니다."
+    },
+    "paymentHistory": {
+      "title": "결제 내역",
+      "subtitle": "크레딧 구매 및 구독 결제를 검토할 수 있습니다. 회계 및 세금용 영수증을 미리보기, 다운로드, 인쇄하거나 이메일로 보낼 수 있습니다.",
+      "tableTitle": "거래",
+      "tableSubtitle": "이 계정에 연결된 승인된 결제입니다.",
+      "loadingHint": "거래를 불러오는 중...",
+      "transactionsCount": "거래 {{count}}건",
+      "refresh": "새로고침",
+      "tryAgain": "다시 시도",
+      "emptyTitle": "거래 내역 없음",
+      "emptySubtitle": "크레딧 구매 및 구독 결제는 승인되면 여기에 표시됩니다.",
+      "date": "날짜",
+      "description": "설명",
+      "method": "수단",
+      "amount": "금액",
+      "actions": "작업",
+      "viewInvoice": "청구서 보기",
+      "page": "페이지",
+      "previous": "이전",
+      "next": "다음",
+      "subscriptionPayment": "구독 결제",
+      "creditRecharge": "크레딧 충전",
+      "verifikInvoice": "Verifik 청구서",
+      "invoicePreview": "청구서 미리보기",
+      "invoiceActions": "청구서 작업",
+      "download": "다운로드",
+      "print": "인쇄",
+      "stripeInvoice": "Stripe 청구서",
+      "stripeInvoiceDesc": "이 구독 거래에는 Stripe 원본 청구서도 있습니다.",
+      "openStripeInvoice": "Stripe 청구서 열기",
+      "downloadStripePdf": "Stripe PDF 다운로드",
+      "emailTitle": "이메일로 보내기",
+      "emailSubtitle": "Verifik PDF가 첨부됩니다. 계정 이메일이 기본이며 다른 받는 사람에게도 보낼 수 있습니다.",
+      "emailLabel": "받는 사람 이메일",
+      "emailInvalid": "유효한 이메일을 입력하세요",
+      "sendEmail": "청구서 보내기",
+      "emailSent": "청구서를 이메일로 보냈습니다.",
+      "emailError": "청구서를 보내지 못했습니다. 다시 시도하세요.",
+      "loadError": "결제 내역을 불러오지 못했습니다.",
+      "invoiceLoadError": "청구서 PDF를 불러오지 못했습니다.",
+      "iframeTitle": "Verifik 청구서 PDF",
+      "statusApproved": "승인됨",
+      "methodSubscription": "구독",
+      "methodCard": "카드"
     },
     "api_key": {
       "title": "API 키 관리",
@@ -1578,7 +1625,8 @@
         "valuePlaceholder": "값",
         "descriptionPlaceholder": "설명",
         "documentTypePlaceholder": "문서 유형 선택",
-        "otherParameters": "기타 매개변수"
+        "otherParameters": "기타 매개변수",
+        "requiredFieldLegend": "* 필수 항목"
       },
       "headers": {
         "key": "키",
@@ -1648,7 +1696,15 @@
       "method": "메서드",
       "url": "URL",
       "responseBody": "응답 본문",
-      "backToNormal": "일반 보기로 돌아가기"
+      "backToNormal": "일반 보기로 돌아가기",
+      "pdfPreview": "PDF 미리보기",
+      "openPdfInNewTab": "새 탭에서 열기",
+      "downloadPdf": "PDF 다운로드",
+      "insufficientCreditsTitle": "크레딧이 부족합니다",
+      "insufficientCreditsBody": "이 요청을 실행하려면 계정에 크레딧을 추가하세요. 검증마다 크레딧이 차감됩니다.",
+      "insufficientCreditsCostHint": "이 엔드포인트는 요청당 약 {{cost}} 크레딧이 소모됩니다.",
+      "insufficientCreditsCta": "크레딧 추가",
+      "errorTechnicalDetails": "기술 세부 정보"
     },
     "jsonTable": {
       "array": "배열",
@@ -1867,6 +1923,7 @@
   },
   "history": {
     "title": "요청 기록",
+    "subtitle": "API 호출을 검토하고 요청 페이로드를 확인한 뒤, 요청을 다시 만들지 않고 검증을 재실행하세요.",
     "table": {
       "status": "상태",
       "service": "서비스",
@@ -1878,7 +1935,22 @@
       "duration": "소요 시간",
       "noRequests": "요청을 찾을 수 없습니다",
       "noParams": "매개변수 없음",
-      "confirmed": "확인됨"
+      "confirmed": "확인됨",
+      "actions": "작업",
+      "requestsCount": "총 {{count}}개 요청",
+      "loading": "로딩 중",
+      "live": "실시간",
+      "cost": "비용"
+    },
+    "status": {
+      "success": "성공",
+      "notFound": "찾을 수 없음",
+      "failed": "실패"
+    },
+    "actions": {
+      "repeat": "다시 실행",
+      "repeatTooltip": "동일한 매개변수로 Postman에서 이 요청 열기",
+      "repeatUnavailable": "기능 코드가 없어 이 요청을 다시 실행할 수 없습니다"
     }
   },
   "addCredits": {
@@ -1939,6 +2011,17 @@
       "bestValue": "최고 가치",
       "viewAllPlans": "모든 플랜 보기"
     },
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "기간 한정",
+        "title": "계정 생성 후 1주일 안에 $50 충전 시 크레딧 가치 두 배",
+        "body": "Verifik 클라이언트 계정이 만들어진 날부터 7일 이내에 총 50달러 크레딧을 구매하면(첫 로그인이 아니라 등록된 프로필의 생성 시각 기준), 동일 금액의 보너스 크레딧이 추가됩니다. 해당 충전에 대해 이용 가능한 크레딧 가치는 실제 결제 금액의 두 배에 해당합니다.",
+        "accountCreatedNotice": "클라이언트 계정 등록 후 1주일이 지나기 전에 이 50달러 결제를 완료해야 합니다. 기간이 지난 후이거나 프로모션을 한 번 사용한 뒤에는 일반 요금이 적용됩니다.",
+        "deadline": "조건을 충족하는 구매를 {{expiresAt}} 전까지 완료하세요",
+        "walletStrip": "첫 주 프로모: 크레딧 구매 시 {{amountUsd}}를 선택하면 이 첫 주 동안 가치가 두 배입니다(자세히는 상단 배너).",
+        "dialogDouble": "첫 주 프로모: {{payUsd}} 결제 시 총 크레딧 가치는 {{receivedUsd}}입니다(보너스 포함)."
+      }
+    },
     "purchaseDialog": {
       "title": "크레딧 구매",
       "selectAmount": "금액 선택",
@@ -1970,6 +2053,7 @@
         "message": "크레딧 구매를 계속하려면 KYC 인증을 완료해야 합니다.",
         "description": "신원 확인 및 규정 준수를 위한 일회성 프로세스입니다.",
         "startKyc": "KYC 인증 시작",
+        "close": "닫기",
         "contactSupport": "지원팀 문의"
       },
       "maximum": "최대"

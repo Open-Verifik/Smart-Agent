@@ -406,321 +406,378 @@
                 </div>
 
                 <!-- Table Body -->
-                <div class="max-h-[560px] overflow-y-auto divide-y divide-gray-100">
-                    <!-- Pending Rows -->
-                    @if (recordFilter() === 'all') {
-                        @for (row of pendingRows(); track row.rowIndex) {
-                            <div
-                                class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
-                                (click)="selectRow(row)"
-                                [class.bg-indigo-50]="selectedRow()?.rowIndex === row.rowIndex"
-                            >
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <span
-                                        class="shrink-0 w-7 h-7 rounded-md bg-gray-100 flex items-center justify-center text-xs font-mono text-gray-500"
+                @if (virtualTableItems().length > 0) {
+                    <cdk-virtual-scroll-viewport itemSize="72" class="block h-[560px]">
+                        <ng-container
+                            *cdkVirtualFor="
+                                let item of virtualTableItems();
+                                trackBy: trackByVirtualRow
+                            "
+                        >
+                            @switch (item.kind) {
+                                @case ('pending') {
+                                    <div
+                                        class="group grid h-[72px] cursor-pointer grid-cols-[1fr_auto] items-center border-b border-gray-100 px-5 py-3 transition-colors hover:bg-gray-50"
+                                        (click)="selectRow(item.row)"
+                                        [class.bg-indigo-50]="
+                                            selectedRow()?.rowIndex === item.row.rowIndex
+                                        "
                                     >
-                                        {{ row.rowIndex + 1 }}
-                                    </span>
-                                    <div class="min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                            {{
-                                                row.inputData?.documentNumber ||
-                                                    row.inputData?.name ||
-                                                    ('batchProcessing.rowNumber'
-                                                        | transloco: { index: row.rowIndex + 1 })
-                                            }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span
-                                        class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-600"
-                                    >
-                                        <span
-                                            class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-pulse"
-                                        ></span>
-                                        {{ 'batchProcessing.' + row.status | transloco }}
-                                    </span>
-                                </div>
-                            </div>
-                        }
-                    }
-
-                    <!-- Completed Rows -->
-                    @if (recordFilter() !== 'failed' && recordFilter() !== 'partial') {
-                        @for (row of completedRows(); track row.rowIndex) {
-                            <div
-                                class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
-                                (click)="selectRow(row)"
-                                [class.bg-indigo-50]="selectedRow()?.rowIndex === row.rowIndex"
-                            >
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <span
-                                        class="shrink-0 w-7 h-7 rounded-md bg-emerald-50 flex items-center justify-center text-xs font-mono text-emerald-600"
-                                    >
-                                        {{ row.rowIndex + 1 }}
-                                    </span>
-                                    <div class="min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                            {{
-                                                row.inputData?.documentNumber ||
-                                                    row.inputData?.name ||
-                                                    ('batchProcessing.rowNumber'
-                                                        | transloco: { index: row.rowIndex + 1 })
-                                            }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <!-- Step dots -->
-                                    <div class="hidden sm:flex items-center gap-0.5 mr-1">
-                                        @for (step of configSteps(); track step.sequence) {
-                                            <div
-                                                class="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center"
-                                                [matTooltip]="getStepName(step)"
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <span
+                                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-gray-100 font-mono text-xs text-gray-500"
                                             >
-                                                <mat-icon
-                                                    class="text-emerald-600 !text-[10px] !w-2.5 !h-2.5"
-                                                    >check</mat-icon
+                                                {{ item.row.rowIndex + 1 }}
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p
+                                                    class="truncate text-sm font-medium text-gray-900"
                                                 >
+                                                    {{
+                                                        item.row.inputData?.documentNumber ||
+                                                            item.row.inputData?.name ||
+                                                            ('batchProcessing.rowNumber'
+                                                                | transloco
+                                                                    : {
+                                                                          index:
+                                                                              item.row.rowIndex +
+                                                                              1,
+                                                                      })
+                                                    }}
+                                                </p>
                                             </div>
-                                        }
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span
+                                                class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600"
+                                            >
+                                                <span
+                                                    class="h-1.5 w-1.5 animate-pulse rounded-full bg-gray-400"
+                                                ></span>
+                                                {{ 'batchProcessing.' + item.row.status | transloco }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <span
-                                        class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700"
-                                    >
-                                        <span
-                                            class="w-1.5 h-1.5 rounded-full bg-emerald-500"
-                                        ></span>
-                                        {{ 'batchProcessing.verified' | transloco }}
-                                    </span>
-                                    <mat-icon
-                                        class="!text-base text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >chevron_right</mat-icon
-                                    >
-                                </div>
-                            </div>
-                        }
-                    }
-
-                    <!-- Partial Rows -->
-                    @if (recordFilter() !== 'completed' && recordFilter() !== 'failed') {
-                        @for (row of partialRows(); track row.rowIndex) {
-                            <div
-                                class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
-                                (click)="selectRow(row)"
-                                [class.bg-amber-50]="selectedRow()?.rowIndex === row.rowIndex"
-                            >
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <span
-                                        class="shrink-0 w-7 h-7 rounded-md bg-amber-50 flex items-center justify-center text-xs font-mono text-amber-600"
-                                    >
-                                        {{ row.rowIndex + 1 }}
-                                    </span>
-                                    <div class="min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                            {{
-                                                row.inputData?.documentNumber ||
-                                                    row.inputData?.name ||
-                                                    ('batchProcessing.rowNumber'
-                                                        | transloco: { index: row.rowIndex + 1 })
-                                            }}
-                                        </p>
-                                        <p class="text-xs text-gray-400 truncate">
-                                            {{
-                                                row.errors?.[0]?.message ||
-                                                    ('batchProcessing.partial' | transloco)
-                                            }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="hidden sm:flex items-center gap-0.5 mr-1">
-                                        @for (step of configSteps(); track step.sequence) {
-                                            @switch (getRowStepStatus(row, step.sequence)) {
-                                                @case ('completed') {
-                                                    <div
-                                                        class="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center"
-                                                        [matTooltip]="
-                                                            'batchProcessing.stepStatusCompleted'
-                                                                | transloco
-                                                                    : { step: getStepName(step) }
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            class="text-emerald-600 !text-[10px] !w-2.5 !h-2.5"
-                                                            >check</mat-icon
-                                                        >
-                                                    </div>
-                                                }
-                                                @case ('failed') {
-                                                    <div
-                                                        class="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center"
-                                                        [matTooltip]="
-                                                            'batchProcessing.stepStatusFailed'
-                                                                | transloco
-                                                                    : { step: getStepName(step) }
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            class="text-red-600 !text-[10px] !w-2.5 !h-2.5"
-                                                            >close</mat-icon
-                                                        >
-                                                    </div>
-                                                }
-                                                @default {
-                                                    <div
-                                                        class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center"
-                                                        [matTooltip]="
-                                                            'batchProcessing.stepStatusSkipped'
-                                                                | transloco
-                                                                    : { step: getStepName(step) }
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            class="text-gray-400 !text-[10px] !w-2.5 !h-2.5"
-                                                            >remove</mat-icon
-                                                        >
-                                                    </div>
-                                                }
-                                            }
-                                        }
-                                    </div>
-                                    <span
-                                        class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-700"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                        {{ 'batchProcessing.partial' | transloco }}
-                                    </span>
-                                    <mat-icon
-                                        class="!text-base text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >chevron_right</mat-icon
-                                    >
-                                </div>
-                            </div>
-                        }
-                    }
-
-                    <!-- Failed Rows -->
-                    @if (recordFilter() !== 'completed' && recordFilter() !== 'partial') {
-                        @for (row of failedRows(); track row.rowIndex) {
-                            <div
-                                class="group px-5 py-3 grid grid-cols-[1fr_auto] items-center hover:bg-gray-50 cursor-pointer transition-colors"
-                                (click)="selectRow(row)"
-                                [class.bg-red-50]="selectedRow()?.rowIndex === row.rowIndex"
-                            >
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <span
-                                        class="shrink-0 w-7 h-7 rounded-md bg-red-50 flex items-center justify-center text-xs font-mono text-red-600"
-                                    >
-                                        {{ row.rowIndex + 1 }}
-                                    </span>
-                                    <div class="min-w-0">
-                                        <p class="text-sm font-medium text-gray-900 truncate">
-                                            {{
-                                                row.inputData?.documentNumber ||
-                                                    row.inputData?.name ||
-                                                    ('batchProcessing.rowNumber'
-                                                        | transloco: { index: row.rowIndex + 1 })
-                                            }}
-                                        </p>
-                                        <p class="text-xs text-gray-400 truncate">
-                                            {{
-                                                row.errors?.[0]?.message ||
-                                                    ('batchProcessing.failed' | transloco)
-                                            }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <!-- Step dots -->
-                                    <div class="hidden sm:flex items-center gap-0.5 mr-1">
-                                        @for (step of configSteps(); track step.sequence) {
-                                            @switch (getRowStepStatus(row, step.sequence)) {
-                                                @case ('completed') {
-                                                    <div
-                                                        class="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center"
-                                                        [matTooltip]="
-                                                            'batchProcessing.stepStatusCompleted'
-                                                                | transloco
-                                                                    : { step: getStepName(step) }
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            class="text-emerald-600 !text-[10px] !w-2.5 !h-2.5"
-                                                            >check</mat-icon
-                                                        >
-                                                    </div>
-                                                }
-                                                @case ('failed') {
-                                                    <div
-                                                        class="w-4 h-4 rounded-full bg-red-100 flex items-center justify-center"
-                                                        [matTooltip]="
-                                                            'batchProcessing.stepStatusFailed'
-                                                                | transloco
-                                                                    : { step: getStepName(step) }
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            class="text-red-600 !text-[10px] !w-2.5 !h-2.5"
-                                                            >close</mat-icon
-                                                        >
-                                                    </div>
-                                                }
-                                                @default {
-                                                    <div
-                                                        class="w-4 h-4 rounded-full bg-gray-100 flex items-center justify-center"
-                                                        [matTooltip]="
-                                                            'batchProcessing.stepStatusSkipped'
-                                                                | transloco
-                                                                    : { step: getStepName(step) }
-                                                        "
-                                                    >
-                                                        <mat-icon
-                                                            class="text-gray-400 !text-[10px] !w-2.5 !h-2.5"
-                                                            >remove</mat-icon
-                                                        >
-                                                    </div>
-                                                }
-                                            }
-                                        }
-                                    </div>
-                                    <span
-                                        class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-red-50 text-red-700"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                                        {{ 'batchProcessing.failed' | transloco }}
-                                    </span>
-                                    <mat-icon
-                                        class="!text-base text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >chevron_right</mat-icon
-                                    >
-                                </div>
-                            </div>
-                        }
-                    }
-
-                    <!-- Empty State -->
-                    @if (
-                        pendingRows().length === 0 &&
-                        completedRows().length === 0 &&
-                        partialRows().length === 0 &&
-                        failedRows().length === 0
-                    ) {
-                        <div class="py-16 text-center">
-                            <mat-icon class="!text-5xl !w-12 !h-12 text-gray-300 mb-3">{{
-                                searchQuery() ? 'search_off' : 'hourglass_empty'
-                            }}</mat-icon>
-                            <p class="text-sm text-gray-400">
-                                @if (searchQuery()) {
-                                    {{ 'batchProcessing.noResultsFound' | transloco }}
-                                } @else {
-                                    {{ 'batchProcessing.noCompletedRecordsYet' | transloco }}
                                 }
-                            </p>
-                        </div>
-                    }
-                </div>
+                                @case ('completed') {
+                                    <div
+                                        class="group grid h-[72px] cursor-pointer grid-cols-[1fr_auto] items-center border-b border-gray-100 px-5 py-3 transition-colors hover:bg-gray-50"
+                                        (click)="selectRow(item.row)"
+                                        [class.bg-indigo-50]="
+                                            selectedRow()?.rowIndex === item.row.rowIndex
+                                        "
+                                    >
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <span
+                                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-50 font-mono text-xs text-emerald-600"
+                                            >
+                                                {{ item.row.rowIndex + 1 }}
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p
+                                                    class="truncate text-sm font-medium text-gray-900"
+                                                >
+                                                    {{
+                                                        item.row.inputData?.documentNumber ||
+                                                            item.row.inputData?.name ||
+                                                            ('batchProcessing.rowNumber'
+                                                                | transloco
+                                                                    : {
+                                                                          index:
+                                                                              item.row.rowIndex +
+                                                                              1,
+                                                                      })
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <!-- Step dots -->
+                                            <div class="mr-1 hidden items-center gap-0.5 sm:flex">
+                                                @for (step of configSteps(); track step.sequence) {
+                                                    <div
+                                                        class="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100"
+                                                        [matTooltip]="getStepName(step)"
+                                                    >
+                                                        <mat-icon
+                                                            class="text-emerald-600 !h-2.5 !w-2.5 !text-[10px]"
+                                                            >check</mat-icon
+                                                        >
+                                                    </div>
+                                                }
+                                            </div>
+                                            <span
+                                                class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700"
+                                            >
+                                                <span
+                                                    class="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                                                ></span>
+                                                {{ 'batchProcessing.verified' | transloco }}
+                                            </span>
+                                            <mat-icon
+                                                class="!text-base text-gray-300 opacity-0 transition-opacity group-hover:opacity-100"
+                                                >chevron_right</mat-icon
+                                            >
+                                        </div>
+                                    </div>
+                                }
+                                @case ('partial') {
+                                    <div
+                                        class="group grid h-[72px] cursor-pointer grid-cols-[1fr_auto] items-center border-b border-gray-100 px-5 py-3 transition-colors hover:bg-gray-50"
+                                        (click)="selectRow(item.row)"
+                                        [class.bg-amber-50]="
+                                            selectedRow()?.rowIndex === item.row.rowIndex
+                                        "
+                                    >
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <span
+                                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-amber-50 font-mono text-xs text-amber-600"
+                                            >
+                                                {{ item.row.rowIndex + 1 }}
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p
+                                                    class="truncate text-sm font-medium text-gray-900"
+                                                >
+                                                    {{
+                                                        item.row.inputData?.documentNumber ||
+                                                            item.row.inputData?.name ||
+                                                            ('batchProcessing.rowNumber'
+                                                                | transloco
+                                                                    : {
+                                                                          index:
+                                                                              item.row.rowIndex +
+                                                                              1,
+                                                                      })
+                                                    }}
+                                                </p>
+                                                <p class="truncate text-xs text-gray-400">
+                                                    {{
+                                                        item.row.errors?.[0]?.message ||
+                                                            ('batchProcessing.partial' | transloco)
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <div class="mr-1 hidden items-center gap-0.5 sm:flex">
+                                                @for (step of configSteps(); track step.sequence) {
+                                                    @switch (
+                                                        getRowStepStatus(item.row, step.sequence)
+                                                    ) {
+                                                        @case ('completed') {
+                                                            <div
+                                                                class="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.stepStatusCompleted'
+                                                                        | transloco
+                                                                            : {
+                                                                                  step: getStepName(
+                                                                                      step
+                                                                                  ),
+                                                                              }
+                                                                "
+                                                            >
+                                                                <mat-icon
+                                                                    class="text-emerald-600 !h-2.5 !w-2.5 !text-[10px]"
+                                                                    >check</mat-icon
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @case ('failed') {
+                                                            <div
+                                                                class="flex h-4 w-4 items-center justify-center rounded-full bg-red-100"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.stepStatusFailed'
+                                                                        | transloco
+                                                                            : {
+                                                                                  step: getStepName(
+                                                                                      step
+                                                                                  ),
+                                                                              }
+                                                                "
+                                                            >
+                                                                <mat-icon
+                                                                    class="text-red-600 !h-2.5 !w-2.5 !text-[10px]"
+                                                                    >close</mat-icon
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @default {
+                                                            <div
+                                                                class="flex h-4 w-4 items-center justify-center rounded-full bg-gray-100"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.stepStatusSkipped'
+                                                                        | transloco
+                                                                            : {
+                                                                                  step: getStepName(
+                                                                                      step
+                                                                                  ),
+                                                                              }
+                                                                "
+                                                            >
+                                                                <mat-icon
+                                                                    class="text-gray-400 !h-2.5 !w-2.5 !text-[10px]"
+                                                                    >remove</mat-icon
+                                                                >
+                                                            </div>
+                                                        }
+                                                    }
+                                                }
+                                            </div>
+                                            <span
+                                                class="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700"
+                                            >
+                                                <span
+                                                    class="h-1.5 w-1.5 rounded-full bg-amber-500"
+                                                ></span>
+                                                {{ 'batchProcessing.partial' | transloco }}
+                                            </span>
+                                            <mat-icon
+                                                class="!text-base text-gray-300 opacity-0 transition-opacity group-hover:opacity-100"
+                                                >chevron_right</mat-icon
+                                            >
+                                        </div>
+                                    </div>
+                                }
+                                @case ('failed') {
+                                    <div
+                                        class="group grid h-[72px] cursor-pointer grid-cols-[1fr_auto] items-center border-b border-gray-100 px-5 py-3 transition-colors hover:bg-gray-50"
+                                        (click)="selectRow(item.row)"
+                                        [class.bg-red-50]="
+                                            selectedRow()?.rowIndex === item.row.rowIndex
+                                        "
+                                    >
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <span
+                                                class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-red-50 font-mono text-xs text-red-600"
+                                            >
+                                                {{ item.row.rowIndex + 1 }}
+                                            </span>
+                                            <div class="min-w-0">
+                                                <p
+                                                    class="truncate text-sm font-medium text-gray-900"
+                                                >
+                                                    {{
+                                                        item.row.inputData?.documentNumber ||
+                                                            item.row.inputData?.name ||
+                                                            ('batchProcessing.rowNumber'
+                                                                | transloco
+                                                                    : {
+                                                                          index:
+                                                                              item.row.rowIndex +
+                                                                              1,
+                                                                      })
+                                                    }}
+                                                </p>
+                                                <p class="truncate text-xs text-gray-400">
+                                                    {{
+                                                        item.row.errors?.[0]?.message ||
+                                                            ('batchProcessing.failed' | transloco)
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <!-- Step dots -->
+                                            <div class="mr-1 hidden items-center gap-0.5 sm:flex">
+                                                @for (step of configSteps(); track step.sequence) {
+                                                    @switch (
+                                                        getRowStepStatus(item.row, step.sequence)
+                                                    ) {
+                                                        @case ('completed') {
+                                                            <div
+                                                                class="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.stepStatusCompleted'
+                                                                        | transloco
+                                                                            : {
+                                                                                  step: getStepName(
+                                                                                      step
+                                                                                  ),
+                                                                              }
+                                                                "
+                                                            >
+                                                                <mat-icon
+                                                                    class="text-emerald-600 !h-2.5 !w-2.5 !text-[10px]"
+                                                                    >check</mat-icon
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @case ('failed') {
+                                                            <div
+                                                                class="flex h-4 w-4 items-center justify-center rounded-full bg-red-100"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.stepStatusFailed'
+                                                                        | transloco
+                                                                            : {
+                                                                                  step: getStepName(
+                                                                                      step
+                                                                                  ),
+                                                                              }
+                                                                "
+                                                            >
+                                                                <mat-icon
+                                                                    class="text-red-600 !h-2.5 !w-2.5 !text-[10px]"
+                                                                    >close</mat-icon
+                                                                >
+                                                            </div>
+                                                        }
+                                                        @default {
+                                                            <div
+                                                                class="flex h-4 w-4 items-center justify-center rounded-full bg-gray-100"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.stepStatusSkipped'
+                                                                        | transloco
+                                                                            : {
+                                                                                  step: getStepName(
+                                                                                      step
+                                                                                  ),
+                                                                              }
+                                                                "
+                                                            >
+                                                                <mat-icon
+                                                                    class="text-gray-400 !h-2.5 !w-2.5 !text-[10px]"
+                                                                    >remove</mat-icon
+                                                                >
+                                                            </div>
+                                                        }
+                                                    }
+                                                }
+                                            </div>
+                                            <span
+                                                class="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700"
+                                            >
+                                                <span
+                                                    class="h-1.5 w-1.5 rounded-full bg-red-500"
+                                                ></span>
+                                                {{ 'batchProcessing.failed' | transloco }}
+                                            </span>
+                                            <mat-icon
+                                                class="!text-base text-gray-300 opacity-0 transition-opacity group-hover:opacity-100"
+                                                >chevron_right</mat-icon
+                                            >
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </ng-container>
+                    </cdk-virtual-scroll-viewport>
+                } @else {
+                    <!-- Empty State -->
+                    <div class="py-16 text-center">
+                        <mat-icon class="!mb-3 !h-12 !w-12 !text-5xl text-gray-300">{{
+                            searchQuery() ? 'search_off' : 'hourglass_empty'
+                        }}</mat-icon>
+                        <p class="text-sm text-gray-400">
+                            @if (searchQuery()) {
+                                {{ 'batchProcessing.noResultsFound' | transloco }}
+                            } @else {
+                                {{ 'batchProcessing.noCompletedRecordsYet' | transloco }}
+                            }
+                        </p>
+                    </div>
+                }
             </div>
 
             <!-- Row Detail Panel -->
@@ -970,25 +1027,100 @@
                                                     >
                                                         <div class="space-y-0">
                                                             @for (
-                                                                field of getStepResultFields(
+                                                                field of getStepResultDisplayFields(
                                                                     selectedRow()?.results?.[
                                                                         step.sequence
                                                                     ]
                                                                 );
-                                                                track field.label
+                                                                track $index
                                                             ) {
-                                                                <div
-                                                                    class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm"
-                                                                >
-                                                                    <span
-                                                                        class="text-gray-500 min-w-[140px] shrink-0"
-                                                                        >{{ field.label }}</span
+                                                                @if (field.kind === 'pdf') {
+                                                                    <div
+                                                                        class="py-4 border-b border-gray-100 last:border-0 text-sm flex flex-col gap-3"
                                                                     >
-                                                                    <span
-                                                                        class="text-gray-900 font-medium break-words"
-                                                                        >{{ field.value }}</span
+                                                                        <span class="text-gray-500">{{
+                                                                            field.label
+                                                                        }}</span>
+                                                                        <iframe
+                                                                            [title]="
+                                                                                'batchProcessing.pdfPreview'
+                                                                                    | transloco
+                                                                            "
+                                                                            class="min-h-[420px] w-full rounded-lg border border-gray-200 bg-gray-50"
+                                                                            [src]="
+                                                                                sanitizePdfIframeSrc(
+                                                                                    field.dataUrl
+                                                                                )
+                                                                            "
+                                                                        ></iframe>
+                                                                        <div class="flex flex-wrap gap-2">
+                                                                            <button
+                                                                                mat-stroked-button
+                                                                                type="button"
+                                                                                class="!rounded-lg"
+                                                                                (click)="
+                                                                                    openPdfInNewTab(
+                                                                                        field.dataUrl
+                                                                                    )
+                                                                                "
+                                                                            >
+                                                                                <span
+                                                                                    class="inline-flex items-center gap-2"
+                                                                                >
+                                                                                    <mat-icon
+                                                                                        class="!text-lg"
+                                                                                        >open_in_new</mat-icon
+                                                                                    >
+                                                                                    {{
+                                                                                        'batchProcessing.openPdfInNewTab'
+                                                                                            | transloco
+                                                                                    }}
+                                                                                </span>
+                                                                            </button>
+                                                                            <button
+                                                                                mat-stroked-button
+                                                                                type="button"
+                                                                                class="!rounded-lg"
+                                                                                (click)="
+                                                                                    downloadPdf(
+                                                                                        field.dataUrl,
+                                                                                        getStepPdfFilename(
+                                                                                            selectedRow()!
+                                                                                                .rowIndex,
+                                                                                            step.sequence
+                                                                                        )
+                                                                                    )
+                                                                                "
+                                                                            >
+                                                                                <span
+                                                                                    class="inline-flex items-center gap-2"
+                                                                                >
+                                                                                    <mat-icon
+                                                                                        class="!text-lg"
+                                                                                        >download</mat-icon
+                                                                                    >
+                                                                                    {{
+                                                                                        'batchProcessing.downloadPdf'
+                                                                                            | transloco
+                                                                                    }}
+                                                                                </span>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                } @else {
+                                                                    <div
+                                                                        class="flex gap-4 py-2 border-b border-gray-100 last:border-0 text-sm"
                                                                     >
-                                                                </div>
+                                                                        <span
+                                                                            class="text-gray-500 min-w-[140px] shrink-0"
+                                                                            >{{ field.label }}</span
+                                                                        >
+                                                                        <span
+                                                                            class="text-gray-900 font-medium break-words"
+                                                                            >{{ field.value }}</span
+                                                                        >
+                                                                    </div>
+                                                                }
                                                             }
                                                         </div>
                                                     </div>
@@ -999,7 +1131,7 @@
                                                         <pre
                                                             class="bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-800 overflow-auto max-h-64 m-0"
                                                             >{{
-                                                                formatJson(
+                                                                formatStepResultJsonForDetail(
                                                                     selectedRow()?.results?.[
                                                                         step.sequence
                                                                     ]

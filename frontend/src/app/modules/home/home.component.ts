@@ -7,8 +7,12 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import { SessionService } from '../../core/services/session.service';
+import type { SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
+import { UserService } from '../../core/user/user.service';
 import { DashboardData, HomeService } from './home.service';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
@@ -48,6 +52,7 @@ export class HomeComponent implements OnInit {
     private _matDialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _router = inject(Router);
+    private _userService = inject(UserService);
 
     isAuthenticated = signal(false);
     loading = this._homeService.loading;
@@ -59,6 +64,11 @@ export class HomeComponent implements OnInit {
     chartDistribution: ApexOptions | null = null;
     chartLastMonth: ApexOptions | null = null;
     chartUsageLine: ApexOptions | null = null;
+
+    /** Session-driven first-week promotion (server-calculated eligibility). */
+    weekOneUsd50Promotion = signal<SmartAgentWeekOneUsd50Promotion | undefined>(undefined);
+
+    showWeekOneUsd50PromoBanner = computed(() => Boolean(this.weekOneUsd50Promotion()?.eligible));
 
     /** Combined podium: dashboard.topCodes.overall enriched with `failed` from top-sales */
     podium = computed<PodiumEntry[]>(() => {
@@ -104,6 +114,23 @@ export class HomeComponent implements OnInit {
 
     ngOnInit(): void {
         this.isAuthenticated.set(this._sessionService.hasValidAuthentication());
+
+        if (this.isAuthenticated()) {
+            this._userService
+                .get()
+                .pipe(
+                    catchError((err) => {
+                        console.error('Failed to load session for promotions:', err);
+                        return of(null);
+                    }),
+                )
+                .subscribe((user) => {
+                    const promo = user?.promotion;
+                    this.weekOneUsd50Promotion.set(
+                        promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
+                    );
+                });
+        }
 
         this._installApexSvgFix();
 

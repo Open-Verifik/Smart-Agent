@@ -1,3 +1,4 @@
+import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -19,9 +20,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, Subject } from 'rxjs';
 import {
     AppFeature,
@@ -36,6 +38,17 @@ import {
 } from '../../smart-batch.service';
 
 type RowFilter = 'all' | 'completed' | 'failed' | 'partial';
+type VirtualTableItemKind = 'pending' | 'completed' | 'partial' | 'failed';
+type VirtualTableItem = {
+    kind: VirtualTableItemKind;
+    row: SmartBatchRow;
+};
+
+/** Readable row detail: plain text/value or embedded PDF preview */
+export type StepResultDisplayField =
+    | { kind: 'text'; label: string; value: string }
+    | { kind: 'pdf'; label: string; dataUrl: string };
+
 type StepExecutionResult =
     | { sequence: number; result: any }
     | { sequence: number; error: { step: number; message: string; code: string } };
@@ -55,6 +68,7 @@ type StepExecutionResult =
         MatProgressBarModule,
         MatProgressSpinnerModule,
         MatTooltipModule,
+        ScrollingModule,
         TranslocoModule,
     ],
     templateUrl: './batch-processing.component.html',
@@ -64,6 +78,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _smartBatchService = inject(SmartBatchService);
+    private _sanitizer = inject(DomSanitizer);
+    private _transloco = inject(TranslocoService);
     private _destroy$ = new Subject<void>();
     private _processingAborted = false;
 
@@ -126,6 +142,27 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         let rows = b.rows.filter((r) => r.status === 'partial');
         if (query) rows = rows.filter((r) => this._matchesSearch(r, query));
         return rows;
+    });
+
+    virtualTableItems = computed<VirtualTableItem[]>(() => {
+        const toItems = (kind: VirtualTableItemKind, rows: SmartBatchRow[]) =>
+            rows.map((row) => ({ kind, row }));
+
+        switch (this.recordFilter()) {
+            case 'completed':
+                return toItems('completed', this.completedRows());
+            case 'partial':
+                return toItems('partial', this.partialRows());
+            case 'failed':
+                return toItems('failed', this.failedRows());
+            default:
+                return [
+                    ...toItems('pending', this.pendingRows()),
+                    ...toItems('completed', this.completedRows()),
+                    ...toItems('partial', this.partialRows()),
+                    ...toItems('failed', this.failedRows()),
+                ];
+        }
     });
 
     // Total credits consumed: completedRows × sum of all step prices
@@ -713,6 +750,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this.recordFilter.set(filter);
     }
 
+    trackByVirtualRow(_index: number, item: VirtualTableItem): number {
+        return item.row.rowIndex;
+    }
+
     getStatusColor(status: string): string {
         switch (status) {
             case 'completed':
@@ -761,9 +802,83 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return feature?.price ?? feature?.smartCheckPrice ?? 0;
     }
 
+    private _labelFromApiKey(key: string): string {
+        return key
+            .replace(/([A-Z])/g, ' $1')
+            .replace(/^./, (s) => s.toUpperCase())
+            .trim();
+    }
+
+    private _isPdfBase64PropertyKey(key: string): boolean {
+        return key.toLowerCase() === 'pdfbase64';
+    }
+
+    private _isPdfApplicationDataUrl(value: string): boolean {
+        return value.trim().toLowerCase().startsWith('data:application/pdf;base64,');
+    }
+
+    /**
+     * True when API key is pdfBase64, or the value is explicitly a PDF data URL.
+     */
+    private _shouldTreatAsEmbeddedPdf(key: string, raw: unknown): raw is string {
+        return (
+            typeof raw === 'string' &&
+            raw.length > 0 &&
+            (this._isPdfBase64PropertyKey(key) || this._isPdfApplicationDataUrl(raw))
+        );
+    }
+
+    private _normalizePdfDataUrl(raw: string): string {
+        const t = raw.trim();
+        return t.startsWith('data:') ? t : `data:application/pdf;base64,${t}`;
+    }
+
+    private _pdfBase64Payload(dataUrlOrBase64: string): string {
+        const t = dataUrlOrBase64.trim();
+        const ix = t.indexOf('base64,');
+        if (ix !== -1) return t.slice(ix + 7);
+        return t;
+    }
+
+    sanitizePdfIframeSrc(dataUrl: string): SafeResourceUrl {
+        return this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl.trim());
+    }
+
+    openPdfInNewTab(dataUrl: string): void {
+        const url = this._normalizePdfDataUrl(dataUrl);
+        window.open(url, '_blank', 'noopener,noreferrer');
+    }
+
+    /** Download anchor using a blob URL (more reliable across browsers than data URLs). */
+    downloadPdf(dataUrl: string, filename: string): void {
+        const normalized = this._normalizePdfDataUrl(dataUrl);
+        let blobUrl: string;
+        try {
+            const b64 = this._pdfBase64Payload(normalized);
+            const binary = atob(b64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            const blob = new Blob([bytes], { type: 'application/pdf' });
+            blobUrl = URL.createObjectURL(blob);
+        } catch {
+            return;
+        }
+        const anchor = document.createElement('a');
+        anchor.href = blobUrl;
+        anchor.download = filename || 'document.pdf';
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+    }
+
+    getStepPdfFilename(rowIndex: number, stepSequence: number): string {
+        return `batch-row-${rowIndex + 1}-step-${stepSequence}.pdf`;
+    }
+
     /**
      * Flatten a step result object into label/value rows for document-style display.
-     * Nested objects/arrays are summarized briefly.
+     * Nested objects/arrays are summarized briefly (input data only; use getStepResultDisplayFields for PDF steps).
      */
     getStepResultFields(data: any): { label: string; value: string }[] {
         if (data == null || typeof data !== 'object') {
@@ -771,10 +886,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
         const entries: { label: string; value: string }[] = [];
         for (const key of Object.keys(data)) {
-            const label = key
-                .replace(/([A-Z])/g, ' $1')
-                .replace(/^./, (s) => s.toUpperCase())
-                .trim();
+            const label = this._labelFromApiKey(key);
             const raw = data[key];
             let value: string;
             if (raw == null) {
@@ -795,6 +907,46 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return entries;
     }
 
+    /**
+     * Step result rows for readable panel: embedded PDF previews for pdfBase64 / PDF data URLs.
+     */
+    getStepResultDisplayFields(data: any): StepResultDisplayField[] {
+        if (data == null || typeof data !== 'object') {
+            return [{ kind: 'text', label: 'Result', value: data != null ? String(data) : '—' }];
+        }
+        const entries: StepResultDisplayField[] = [];
+        for (const key of Object.keys(data)) {
+            const raw = data[key];
+            const label = this._labelFromApiKey(key);
+
+            if (this._shouldTreatAsEmbeddedPdf(key, raw)) {
+                entries.push({
+                    kind: 'pdf',
+                    label,
+                    dataUrl: this._normalizePdfDataUrl(raw),
+                });
+                continue;
+            }
+
+            let value: string;
+            if (raw == null) {
+                value = '—';
+            } else if (Array.isArray(raw)) {
+                value =
+                    raw.length === 0 ? '—' : `[${raw.length} item${raw.length === 1 ? '' : 's'}]`;
+            } else if (typeof raw === 'object') {
+                value =
+                    typeof raw === 'object' && raw !== null && Object.keys(raw).length > 0
+                        ? `{ ${Object.keys(raw).slice(0, 3).join(', ')}${Object.keys(raw).length > 3 ? '…' : ''} }`
+                        : '—';
+            } else {
+                value = String(raw);
+            }
+            entries.push({ kind: 'text', label, value });
+        }
+        return entries;
+    }
+
     /** Input data as label/value pairs for readable display; empty if not an object */
     getInputDataFields(): { label: string; value: string }[] {
         const input = this.selectedRow()?.inputData;
@@ -809,6 +961,32 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             return JSON.stringify(obj, null, 2);
         } catch {
             return String(obj);
+        }
+    }
+
+    /** Step-result JSON in detail panel; replaces PDF payloads with a short placeholder. */
+    formatStepResultJsonForDetail(stepResult: unknown): string {
+        if (stepResult == null) return '—';
+        if (typeof stepResult !== 'object') {
+            try {
+                return JSON.stringify(stepResult, null, 2);
+            } catch {
+                return String(stepResult);
+            }
+        }
+        const placeholder = this._transloco.translate('batchProcessing.pdfOmittedForJsonView');
+        const copy: Record<string, unknown> = {};
+        const src = stepResult as Record<string, unknown>;
+        for (const key of Object.keys(src)) {
+            const raw = src[key];
+            copy[key] = this._shouldTreatAsEmbeddedPdf(key, raw)
+                ? placeholder
+                : raw;
+        }
+        try {
+            return JSON.stringify(copy, null, 2);
+        } catch {
+            return this.formatJson(stepResult);
         }
     }
 

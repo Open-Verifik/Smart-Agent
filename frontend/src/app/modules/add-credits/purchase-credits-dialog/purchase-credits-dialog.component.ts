@@ -9,6 +9,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { loadStripe } from '@stripe/stripe-js';
 import { environment } from 'environments/environment';
 import { MAX_CREDIT_PURCHASE_USD, MIN_CREDIT_PURCHASE_USD } from '../add-credits.constants';
+import type { SmartAgentWeekOneUsd50Promotion } from 'app/core/user/user.types';
 import { PaymentCard } from '../services/credits.service';
 import {
     CreditPurchaseTransaction,
@@ -18,20 +19,18 @@ import {
 
 export interface PurchaseCreditsDialogData {
     card: PaymentCard;
+    promotion?: SmartAgentWeekOneUsd50Promotion;
 }
 
 const PURCHASE_ERROR_KEYS = {
     stripeNotConfigured: 'addCredits.purchaseDialog.errors.stripeNotConfigured',
     payment3dsFailed: 'addCredits.purchaseDialog.errors.payment3dsFailed',
     paymentFailedImmediate: 'addCredits.purchaseDialog.errors.paymentFailedImmediate',
+    duplicateCreditPurchaseQuick: 'addCredits.purchaseDialog.errors.duplicate_credit_purchase_quick',
+    duplicateCreditPurchaseSameDay: 'addCredits.purchaseDialog.errors.duplicate_credit_purchase_same_day',
+    creditPurchaseInvalidAmount: 'addCredits.purchaseDialog.errors.credit_purchase_invalid_amount',
 } as const;
 
-const PURCHASE_ERROR_FALLBACKS: Record<keyof typeof PURCHASE_ERROR_KEYS, string> = {
-    stripeNotConfigured:
-        'Payment could not be completed. Card verification is not available. Please try again.',
-    payment3dsFailed: 'Card verification failed. Please try again or use another card.',
-    paymentFailedImmediate: 'Payment was declined. Please try another card or contact support.',
-};
 
 @Component({
     selector: 'app-purchase-credits-dialog',
@@ -77,6 +76,26 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         if (this.data?.card) {
             this.selectedCardId = this.data.card._id;
         }
+    }
+
+    showWeekOneDoubleCreditsHint(): boolean {
+        const p = this.data?.promotion;
+
+        if (!p?.eligible) {
+            return false;
+        }
+
+        const targetUsd = p.purchaseUsdAmount;
+
+        if (this.loading) {
+            return false;
+        }
+
+        if (this.isCustomAmount) {
+            return Number(this.customAmountValue) === targetUsd;
+        }
+
+        return !this.isCustomAmount && this.selectedAmount === targetUsd;
     }
 
     selectPresetAmount(amount: number): void {
@@ -129,7 +148,9 @@ export class PurchaseCreditsDialogComponent implements OnInit {
             },
             error: (err) => {
                 this.loading = false;
-                this.error = 'Failed to start KYC verification. Please contact support.';
+                this.error = this._transloco.translate(
+                    'addCredits.purchaseDialog.errors.kycVerificationStartFailed'
+                );
             },
         });
     }
@@ -144,9 +165,26 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     }
 
     private _translatePurchaseError(key: keyof typeof PURCHASE_ERROR_KEYS): string {
-        const path = PURCHASE_ERROR_KEYS[key];
-        const translated = this._transloco.translate(path);
-        return translated === path ? PURCHASE_ERROR_FALLBACKS[key] : translated;
+        return this._transloco.translate(PURCHASE_ERROR_KEYS[key]);
+    }
+
+    /** Maps `/v2/credits/purchase` API error bodies to localized text. */
+    private _purchaseCreditsApiError(err: unknown): string {
+        const slug = `${(err as { error?: { message?: string } })?.error?.message ?? ''}`;
+
+        if (slug.includes('duplicate_credit_purchase_quick')) {
+            return this._translatePurchaseError('duplicateCreditPurchaseQuick');
+        }
+        if (slug.includes('duplicate_credit_purchase_same_day')) {
+            return this._translatePurchaseError('duplicateCreditPurchaseSameDay');
+        }
+        if (slug.includes('credit_purchase_invalid_amount')) {
+            return this._translatePurchaseError('creditPurchaseInvalidAmount');
+        }
+
+        const raw = slug.trim();
+
+        return raw || this._transloco.translate('addCredits.purchaseDialog.errors.purchaseFailed');
     }
 
     /**
@@ -198,12 +236,23 @@ export class PurchaseCreditsDialogComponent implements OnInit {
 
     purchase(): void {
         if (!this.selectedCardId) {
-            this.error = 'Please select a payment method';
+            this.error = this._transloco.translate(
+                'addCredits.purchaseDialog.errors.selectPaymentMethod'
+            );
             return;
         }
 
         if (!this.isValidAmount()) {
-            this.error = `Amount must be between $${MIN_CREDIT_PURCHASE_USD} and $${MAX_CREDIT_PURCHASE_USD.toLocaleString('en-US')}`;
+            this.error = this._transloco.translate(
+                'addCredits.purchaseDialog.errors.amountOutOfRange',
+                {
+                    minUsd: `$${MIN_CREDIT_PURCHASE_USD}`,
+                    maxUsd: `$${MAX_CREDIT_PURCHASE_USD.toLocaleString(undefined, {
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
+                    })}`,
+                }
+            );
             return;
         }
 
@@ -222,7 +271,9 @@ export class PurchaseCreditsDialogComponent implements OnInit {
                     const data = response.data;
                     if (!data) {
                         this.loading = false;
-                        this.error = 'Failed to purchase credits';
+                        this.error = this._transloco.translate(
+                            'addCredits.purchaseDialog.errors.purchaseFailed'
+                        );
                         return;
                     }
 
@@ -250,8 +301,9 @@ export class PurchaseCreditsDialogComponent implements OnInit {
 
                     if (tx.status === 'pending') {
                         this.loading = false;
-                        this.error =
-                            'Payment is pending verification. Credits will be added once payment is confirmed.';
+                        this.error = this._transloco.translate(
+                            'addCredits.purchaseDialog.errors.paymentPendingVerification'
+                        );
                         setTimeout(() => {
                             this._dialogRef.close('success');
                         }, 2000);
@@ -271,7 +323,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
                         this.kycRequired = true;
                         this.error = null; // Clear error to show pure KYC state
                     } else {
-                        this.error = err.error?.message || 'Failed to purchase credits';
+                        this.error = this._purchaseCreditsApiError(err);
                     }
                 },
             });

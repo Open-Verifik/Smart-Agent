@@ -9,6 +9,59 @@
         </p>
     </div>
 
+    @if (isAuthenticated() && showWeekOneUsd50PromoBanner()) {
+        <section
+            class="mb-8 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 px-5 py-6 dark:border-emerald-900/60 dark:from-emerald-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"
+        >
+            <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+                <div class="flex min-w-0 flex-1 items-start gap-4">
+                    <div
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"
+                    >
+                        <mat-icon style="transform: scale(1.08)">verified</mat-icon>
+                    </div>
+                    <div class="min-w-0 space-y-2">
+                        <p
+                            class="inline-flex rounded-full border border-emerald-200/90 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-900 dark:border-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200"
+                        >
+                            {{ 'addCredits.promo.weekOneUsd50.badge' | transloco }}
+                        </p>
+                        <h2 class="text-lg font-semibold leading-snug text-emerald-950 dark:text-emerald-50">
+                            {{ 'addCredits.promo.weekOneUsd50.title' | transloco }}
+                        </h2>
+                        <p class="max-w-3xl text-sm leading-relaxed text-emerald-950/95 dark:text-emerald-100/95">
+                            {{ 'addCredits.promo.weekOneUsd50.body' | transloco }}
+                        </p>
+                        <p class="text-xs font-medium leading-relaxed text-emerald-900 dark:text-emerald-200">
+                            {{ 'addCredits.promo.weekOneUsd50.accountCreatedNotice' | transloco }}
+                        </p>
+                        <p class="text-sm font-semibold text-emerald-950 dark:text-emerald-50">
+                            {{
+                                'addCredits.promo.weekOneUsd50.deadline'
+                                    | transloco
+                                        : {
+                                              expiresAt:
+                                                  (weekOneUsd50Promotion()?.expiresAt | date: 'medium') || '',
+                                          }
+                            }}
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0 sm:pt-1">
+                    <a
+                        mat-flat-button
+                        color="primary"
+                        routerLink="/add-credits"
+                        class="rounded-xl"
+                    >
+                        <mat-icon class="mr-2">payments</mat-icon>
+                        {{ 'addCredits.purchaseCredits' | transloco }}
+                    </a>
+                </div>
+            </div>
+        </section>
+    }
+
     <!-- Statistics Section -->
     <section class="mb-8">
         <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">

@@ -1,0 +1,226 @@
+<!-- Panel Header -->
+<div class="mb-8">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+        {{ 'settings.general.title' | transloco }}
+    </h1>
+    <p class="mt-2 text-gray-600 dark:text-gray-400">
+        {{ 'settings.general.subtitle' | transloco }}
+    </p>
+</div>
+
+<div *ngIf="!workspaceLoaded" class="flex items-center justify-center py-12">
+    <mat-spinner diameter="32"></mat-spinner>
+</div>
+
+<div *ngIf="workspaceLoaded">
+    <!-- Workspace Card -->
+    <div class="content-card mb-6">
+        <div class="card-body p-0">
+            <!-- Logo Upload Section -->
+            <div class="p-6 border-b border-gray-100 dark:border-gray-700">
+                <div class="flex flex-col gap-1 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ 'settings.general.logo' | transloco }}
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        {{ 'settings.general.logo_desc' | transloco }}
+                    </p>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-8 items-start">
+                    <!-- Preview Circle -->
+                    <div class="shrink-0">
+                        <div
+                            class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
+                        >
+                            <img
+                                *ngIf="workspaceLogo"
+                                [src]="workspaceLogo"
+                                class="w-full h-full object-cover"
+                                alt="Workspace logo"
+                            />
+                            <mat-icon
+                                *ngIf="!workspaceLogo"
+                                class="text-gray-400"
+                                style="
+                                    width: 40px;
+                                    height: 40px;
+                                    font-size: 40px;
+                                "
+                                >business</mat-icon
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Drop Zone -->
+                    <div class="flex-1 w-full">
+                        <input
+                            id="workspaceLogoInput"
+                            type="file"
+                            class="hidden"
+                            (change)="onWorkspaceLogoBrowse($event)"
+                            accept=".png,.jpg,.jpeg"
+                        />
+                        <label
+                            for="workspaceLogoInput"
+                            class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
+                            (drop)="onWorkspaceLogoDropped($event)"
+                            (dragover)="onDragOver($event)"
+                        >
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <mat-icon
+                                    class="text-gray-400 mb-2"
+                                    style="
+                                        width: 32px;
+                                        height: 32px;
+                                        font-size: 32px;
+                                    "
+                                    >cloud_upload</mat-icon
+                                >
+                                <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                                    <span class="font-semibold text-blue-600">{{
+                                        'settings.profile.drag_drop' | transloco
+                                    }}</span>
+                                    {{ 'settings.profile.or_click' | transloco }}
+                                </p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">
+                                    {{ 'settings.profile.file_types' | transloco }}
+                                </p>
+                            </div>
+                        </label>
+
+                        <div *ngIf="workspaceLogo" class="flex justify-end">
+                            <button
+                                mat-stroked-button
+                                color="warn"
+                                (click)="removeWorkspaceLogo()"
+                                class="text-sm"
+                            >
+                                {{ 'settings.general.remove_logo' | transloco }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workspace Name -->
+            <div class="p-6">
+                <div class="flex flex-col gap-1 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ 'settings.general.workspace_name' | transloco }}
+                    </h3>
+                    <p class="text-sm text-gray-500">
+                        {{ 'settings.general.workspace_name_desc' | transloco }}
+                    </p>
+                </div>
+
+                <div class="flex flex-col gap-4 max-w-lg">
+                    <div class="flex flex-col gap-1.5">
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            {{ 'settings.general.name_label' | transloco }}
+                        </label>
+                        <input
+                            type="text"
+                            [(ngModel)]="workspaceName"
+                            class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                            [placeholder]="'settings.general.name_placeholder' | transloco"
+                        />
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            class="!bg-blue-600 hover:!bg-blue-700 text-white px-8 h-11 rounded-lg workspace-save-btn"
+                            (click)="saveWorkspace()"
+                            [disabled]="isSavingWorkspace || !workspaceName?.trim()"
+                        >
+                            <span class="workspace-save-btn-content">
+                                <mat-spinner
+                                    *ngIf="isSavingWorkspace"
+                                    diameter="18"
+                                    class="workspace-save-spinner"
+                                ></mat-spinner>
+                                <span class="workspace-save-text">
+                                    {{
+                                        isSavingWorkspace
+                                            ? ('settings.general.saving' | transloco)
+                                            : workspace
+                                              ? ('settings.general.update' | transloco)
+                                              : ('settings.general.create' | transloco)
+                                    }}
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div *ngIf="showDangerZone" class="danger-zone-card">
+        <div class="flex items-start justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-red-700 dark:text-red-400 mb-2">
+                    {{ 'settings.general.delete_workspace' | transloco }}
+                </h3>
+                <p class="text-sm text-red-600/80 dark:text-red-400/80 max-w-2xl leading-relaxed">
+                    {{ 'settings.general.delete_warning' | transloco }}
+                </p>
+            </div>
+            <button
+                mat-stroked-button
+                color="warn"
+                class="!bg-white hover:!bg-red-50 dark:!bg-red-900/20 whitespace-nowrap"
+                (click)="openDeleteWorkspaceDialog()"
+            >
+                {{ 'settings.general.delete_workspace' | transloco }}
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Workspace Dialog -->
+<ng-template #deleteWorkspaceDialog>
+    <div class="delete-dialog flex flex-col bg-white dark:bg-gray-900 p-6">
+        <div class="flex items-start gap-4 mb-6">
+            <div
+                class="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center"
+            >
+                <mat-icon class="text-red-600 dark:text-red-400">warning</mat-icon>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                    {{ 'settings.general.delete_workspace' | transloco }}
+                </h2>
+                <p class="text-gray-500 dark:text-gray-400">
+                    {{ 'settings.general.delete_confirm_message' | transloco }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3">
+            <button mat-stroked-button mat-dialog-close>
+                {{ 'settings.general.cancel' | transloco }}
+            </button>
+            <button
+                mat-flat-button
+                color="warn"
+                [disabled]="isDeletingWorkspace"
+                (click)="confirmDeleteWorkspace()"
+            >
+                <mat-spinner
+                    *ngIf="isDeletingWorkspace"
+                    diameter="18"
+                    class="mr-2"
+                ></mat-spinner>
+                {{
+                    isDeletingWorkspace
+                        ? ('settings.general.deleting' | transloco)
+                        : ('settings.general.delete_confirm' | transloco)
+                }}
+            </button>
+        </div>
+    </div>
+</ng-template>

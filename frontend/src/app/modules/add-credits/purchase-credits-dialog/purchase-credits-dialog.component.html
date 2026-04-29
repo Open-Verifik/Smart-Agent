@@ -1,57 +1,73 @@
-<div class="purchase-credits-dialog">
+<div
+    class="flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+>
     <!-- Normal Purchase Flow -->
     <ng-container *ngIf="!kycRequired">
-        <!-- Header -->
-        <div class="dialog-header">
-            <h2 class="dialog-title">{{ 'addCredits.purchaseDialog.title' | transloco }}</h2>
-            <p class="dialog-subtitle">{{ 'addCredits.hero.subtitle' | transloco }}</p>
-        </div>
+        <header class="border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:p-6">
+            <h2 class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                {{ 'addCredits.purchaseDialog.title' | transloco }}
+            </h2>
+            <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                {{ 'addCredits.hero.subtitle' | transloco }}
+            </p>
+        </header>
 
-        <mat-dialog-content class="p-0">
-            <!-- Error Message -->
-            <div *ngIf="error" class="error-message">
-                <mat-icon>error_outline</mat-icon>
-                <p>{{ error }}</p>
+        <mat-dialog-content class="!flex !max-h-[min(62vh,480px)] !flex-col !gap-6 !overflow-y-auto px-5 py-6 dark:text-stone-100 md:p-6">
+            <!-- Notice (payment guardrails, declines, etc.) -->
+            <div
+                *ngIf="error"
+                class="flex gap-3 rounded-xl border border-amber-200/80 bg-amber-50 px-4 py-3 text-sm dark:border-amber-900/50 dark:bg-amber-950/30"
+                role="alert"
+            >
+                <mat-icon
+                    class="shrink-0 text-amber-600 dark:text-amber-400"
+                    style="font-size: 22px; width: 22px; height: 22px"
+                    >info</mat-icon
+                >
+                <p class="m-0 flex-1 leading-relaxed text-amber-950 dark:text-amber-100">{{ error }}</p>
             </div>
 
             <!-- Amount Selection Section -->
-            <div class="section">
-                <label class="section-label">{{
-                    'addCredits.purchaseDialog.selectAmount' | transloco
-                }}</label>
+            <section class="flex flex-col gap-3">
+                <label class="text-sm font-semibold text-stone-950 dark:text-white">
+                    {{ 'addCredits.purchaseDialog.selectAmount' | transloco }}
+                </label>
 
-                <!-- Preset Amounts Grid -->
-                <div class="amount-grid">
+                <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     <button
                         *ngFor="let amount of creditAmounts"
                         type="button"
-                        class="amount-button"
-                        [class.selected]="selectedAmount === amount && !isCustomAmount"
+                        class="flex h-11 min-h-[2.75rem] items-center justify-center rounded-xl border text-base font-semibold transition disabled:opacity-50"
+                        [ngClass]="{
+                            'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-sm ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-950/40 dark:text-indigo-200':
+                                selectedAmount === amount && !isCustomAmount,
+                            'border-stone-200 bg-transparent text-stone-900 hover:border-stone-300 dark:border-gray-700 dark:text-white dark:hover:border-gray-600':
+                                selectedAmount !== amount || isCustomAmount
+                        }"
                         (click)="selectPresetAmount(amount)"
                         [disabled]="loading"
                     >
-                        <span class="amount-value">${{ amount }}</span>
+                        <span>${{ amount }}</span>
                     </button>
                 </div>
 
-                <!-- Custom Amount Toggle & Input -->
-                <div class="custom-amount-wrapper">
+                <div class="flex flex-col gap-2 pt-1">
                     <button
                         type="button"
-                        class="custom-toggle"
-                        [class.active]="isCustomAmount"
+                        class="inline-flex items-center gap-2 self-start text-sm font-medium text-indigo-600 transition hover:text-indigo-500 disabled:opacity-50 dark:text-indigo-400 dark:hover:text-indigo-300"
+                        [class.font-semibold]="isCustomAmount"
                         (click)="toggleCustomAmount()"
                         [disabled]="loading"
                     >
-                        <mat-icon>edit</mat-icon>
+                        <mat-icon class="text-lg" style="width: 18px; height: 18px">edit</mat-icon>
                         <span>{{ 'addCredits.purchaseDialog.customAmount' | transloco }}</span>
                     </button>
 
-                    <div *ngIf="isCustomAmount" class="custom-input-container">
-                        <span class="currency-symbol">$</span>
+                    <div *ngIf="isCustomAmount" class="flex items-center gap-3 rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-3 dark:border-gray-700 dark:bg-gray-950/50">
+                        <span class="text-lg font-semibold text-stone-500 dark:text-stone-400">$</span>
                         <input
                             type="number"
-                            class="custom-input"
+                            class="min-w-0 flex-1 border-0 bg-transparent text-lg font-semibold text-stone-950 outline-none dark:text-white"
                             [(ngModel)]="customAmountValue"
                             (ngModelChange)="onCustomAmountChange($event)"
                             placeholder="40"
@@ -62,84 +78,134 @@
                     </div>
                 </div>
 
-                <p class="amount-hint">
-                    {{ 'addCredits.purchaseDialog.minimum' | transloco }} •
-                    {{ 'addCredits.purchaseDialog.maximum' | transloco }} $2,000
+                <p class="text-xs text-stone-500 dark:text-stone-400">
+                    {{ 'addCredits.purchaseDialog.minimum' | transloco }} ·
+                    {{ 'addCredits.purchaseDialog.maximum' | transloco }}
+                    ${{ maxPurchaseUsd | number: '1.0-0' }}
                 </p>
-            </div>
+
+                <div
+                    *ngIf="showWeekOneDoubleCreditsHint()"
+                    class="flex gap-3 rounded-xl border border-emerald-200/90 bg-emerald-50 px-4 py-3 text-sm dark:border-emerald-800 dark:bg-emerald-950/40"
+                >
+                    <mat-icon
+                        class="shrink-0 text-emerald-700 dark:text-emerald-400"
+                        style="width: 22px; height: 22px; font-size: 22px"
+                        >celebration</mat-icon
+                    >
+                    <p class="m-0 flex-1 leading-relaxed text-emerald-950 dark:text-emerald-50">
+                        {{
+                            'addCredits.promo.weekOneUsd50.dialogDouble'
+                                | transloco
+                                    : {
+                                          payUsd: '$' + data.promotion!.purchaseUsdAmount,
+                                          receivedUsd: '$' + data.promotion!.purchaseUsdAmount * 2,
+                                      }
+                        }}
+                    </p>
+                </div>
+            </section>
 
             <!-- Payment Method Summary -->
-            <div class="section" *ngIf="data?.card" class="p-1">
-                <label class="section-label">{{
-                    'addCredits.purchaseDialog.paymentMethod' | transloco
-                }}</label>
+            <section *ngIf="data?.card" class="flex flex-col gap-3">
+                <label class="text-sm font-semibold text-stone-950 dark:text-white">
+                    {{ 'addCredits.purchaseDialog.paymentMethod' | transloco }}
+                </label>
 
-                <div class="payment-summary">
-                    <div class="card-option selected read-only">
-                        <div class="card-icon-wrapper">
-                            <img
-                                [src]="getCardLogo(data.card.brand)"
-                                [alt]="data.card.brand"
-                                class="brand-logo"
-                            />
-                        </div>
-
-                        <div class="card-details">
-                            <span class="card-number">•••• {{ data.card.lastFour }}</span>
-                        </div>
-
-                        <span *ngIf="data.card.isDefault" class="default-badge">{{
-                            'addCredits.paymentMethods.cardDefault' | transloco
-                        }}</span>
+                <div
+                    class="flex flex-wrap items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 dark:border-gray-700"
+                >
+                    <div
+                        class="flex h-10 w-[4.75rem] shrink-0 items-center justify-center rounded-md border border-stone-200 bg-white px-2 dark:border-gray-600 dark:bg-gray-950"
+                    >
+                        <img
+                            [src]="getCardLogo(data.card.brand)"
+                            [alt]="data.card.brand"
+                            class="max-h-[1.125rem] w-auto max-w-full object-contain"
+                        />
                     </div>
+
+                    <div class="min-w-0 flex-1">
+                        <span class="truncate font-medium tabular-nums text-stone-900 dark:text-stone-100">
+                            •••• {{ data.card.lastFour }}
+                        </span>
+                    </div>
+
+                    <span
+                        *ngIf="data.card.isDefault"
+                        class="shrink-0 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                        >{{ 'addCredits.paymentMethods.cardDefault' | transloco }}</span
+                    >
                 </div>
-            </div>
+            </section>
         </mat-dialog-content>
 
-        <!-- Dialog Actions -->
-        <div class="dialog-actions">
-            <button type="button" class="cancel-button" (click)="close()" [disabled]="loading">
+        <div class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
+            <button
+                mat-stroked-button
+                type="button"
+                class="!min-h-11 w-full !rounded-xl !border-stone-200 !font-medium sm:w-auto dark:!border-gray-700"
+                (click)="close()"
+                [disabled]="loading"
+            >
                 {{ 'addCredits.purchaseDialog.cancel' | transloco }}
             </button>
             <button
+                mat-flat-button
+                color="primary"
                 type="button"
-                class="purchase-button"
+                class="flex !min-h-11 w-full shrink-0 items-center justify-center gap-2 !rounded-xl px-5 sm:w-auto"
                 (click)="purchase()"
                 [disabled]="loading || !selectedCardId || !isValidAmount()"
             >
-                <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+                <mat-spinner *ngIf="loading" diameter="20" class="inline-block"></mat-spinner>
                 <ng-container *ngIf="!loading">
                     <span>{{ 'chat.payment.payBtn' | transloco }}</span>
-                    <span class="button-amount">${{ selectedAmount }}</span>
+                    <span class="rounded bg-white/20 px-2 py-0.5 text-sm">${{ selectedAmount }}</span>
                 </ng-container>
-                <span *ngIf="loading">{{
-                    'addCredits.purchaseDialog.purchasing' | transloco
-                }}</span>
+                <span *ngIf="loading">{{ 'addCredits.purchaseDialog.purchasing' | transloco }}</span>
             </button>
         </div>
     </ng-container>
 
     <!-- KYC Required State -->
-    <div class="kyc-state-wrapper" *ngIf="kycRequired">
-        <div class="kyc-icon-wrapper">
-            <mat-icon class="kyc-icon">verified_user</mat-icon>
+    <div *ngIf="kycRequired" class="flex flex-col items-center px-6 py-10 text-center md:py-12">
+        <div
+            class="mb-6 flex h-[5.25rem] w-[5.25rem] items-center justify-center rounded-full bg-stone-100 ring-[12px] ring-stone-100/70 dark:bg-gray-800 dark:ring-gray-900/70"
+        >
+            <mat-icon class="text-stone-600 dark:text-stone-300" style="width: 48px; height: 48px; font-size: 48px"
+                >verified_user</mat-icon
+            >
         </div>
 
-        <div class="kyc-content">
-            <h3 class="kyc-title">{{ 'addCredits.purchaseDialog.kyc.title' | transloco }}</h3>
-            <p class="kyc-description">
+        <div class="mx-auto flex max-w-sm flex-col items-center gap-4">
+            <h3 class="text-lg font-semibold tracking-tight text-stone-950 dark:text-white">
+                {{ 'addCredits.purchaseDialog.kyc.title' | transloco }}
+            </h3>
+            <p class="text-sm leading-6 text-stone-600 dark:text-stone-400">
                 {{ 'addCredits.purchaseDialog.kyc.description' | transloco }}
             </p>
 
-            <button class="start-kyc-button" (click)="startKyc()" [disabled]="loading">
-                <mat-spinner *ngIf="loading" diameter="24"></mat-spinner>
-                <span *ngIf="!loading">{{
-                    'addCredits.purchaseDialog.kyc.startKyc' | transloco
-                }}</span>
+            <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                class="!mt-1 w-full !min-h-11 !rounded-xl !px-5"
+                (click)="startKyc()"
+                [disabled]="loading"
+            >
+                <mat-spinner *ngIf="loading" diameter="24" class="inline-block"></mat-spinner>
+                <span *ngIf="!loading">{{ 'addCredits.purchaseDialog.kyc.startKyc' | transloco }}</span>
             </button>
 
-            <button class="cancel-button kyc-cancel" (click)="close()" [disabled]="loading">
-                Close
+            <button
+                mat-button
+                type="button"
+                class="!min-h-10 !rounded-xl text-sm font-medium text-stone-600 dark:text-stone-400"
+                (click)="close()"
+                [disabled]="loading"
+            >
+                {{ 'addCredits.purchaseDialog.kyc.close' | transloco }}
             </button>
         </div>
     </div>

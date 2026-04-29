@@ -1293,6 +1293,8 @@
       "team_desc": "Administra los miembros de tu equipo",
       "billing_details": "Datos de Facturación",
       "billing_details_desc": "Administra tu información de facturación",
+      "payment_history": "Historial de Pagos",
+      "payment_history_desc": "Consulta recibos, facturas e historial de transacciones",
       "api_key": "Clave API",
       "api_key_desc": "Administra tus tokens de acceso API",
       "webhooks": "Webhooks",
@@ -1321,6 +1323,51 @@
       "save_error": "Error al guardar el perfil. Intenta de nuevo.",
       "invalid_file_type": "Tipo de archivo inválido. Por favor usa PNG o JPG.",
       "file_too_large": "El archivo es muy grande. El tamaño máximo es 5MB."
+    },
+    "paymentHistory": {
+      "title": "Historial de Pagos",
+      "subtitle": "Revisa tus compras de créditos y pagos de suscripción. Previsualiza, descarga, imprime o envía recibos de Verifik para contabilidad e impuestos.",
+      "tableTitle": "Transacciones",
+      "tableSubtitle": "Pagos aprobados asociados a esta cuenta.",
+      "loadingHint": "Cargando transacciones...",
+      "transactionsCount": "{{count}} transacciones",
+      "refresh": "Actualizar",
+      "tryAgain": "Intentar de nuevo",
+      "emptyTitle": "Aún no hay transacciones",
+      "emptySubtitle": "Las compras de créditos y pagos de suscripción aparecerán aquí cuando sean aprobados.",
+      "date": "Fecha",
+      "description": "Descripción",
+      "method": "Método",
+      "amount": "Monto",
+      "actions": "Acciones",
+      "viewInvoice": "Ver factura",
+      "page": "Página",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "subscriptionPayment": "Pago de suscripción",
+      "creditRecharge": "Recarga de créditos",
+      "verifikInvoice": "Factura Verifik",
+      "invoicePreview": "Vista previa de factura",
+      "invoiceActions": "Acciones de factura",
+      "download": "Descargar",
+      "print": "Imprimir",
+      "stripeInvoice": "Factura de Stripe",
+      "stripeInvoiceDesc": "Esta transacción de suscripción también tiene la factura original de Stripe.",
+      "openStripeInvoice": "Abrir factura de Stripe",
+      "downloadStripePdf": "Descargar PDF de Stripe",
+      "emailTitle": "Enviar por correo",
+      "emailSubtitle": "Se adjuntará el PDF de Verifik. Usamos tu correo de cuenta por defecto, pero puedes enviarlo a otro destinatario.",
+      "emailLabel": "Correo del destinatario",
+      "emailInvalid": "Ingresa un correo válido",
+      "sendEmail": "Enviar factura",
+      "emailSent": "Factura enviada por correo.",
+      "emailError": "No se pudo enviar la factura. Intenta de nuevo.",
+      "loadError": "No se pudo cargar el historial de pagos.",
+      "invoiceLoadError": "No se pudo cargar el PDF de la factura.",
+      "iframeTitle": "Factura PDF de Verifik",
+      "statusApproved": "aprobada",
+      "methodSubscription": "Suscripción",
+      "methodCard": "Tarjeta"
     },
     "api_key": {
       "title": "Gestión de Clave API",
@@ -1578,7 +1625,8 @@
         "valuePlaceholder": "Valor",
         "descriptionPlaceholder": "Descripción",
         "documentTypePlaceholder": "Selecciona el tipo de documento",
-        "otherParameters": "Otros parámetros"
+        "otherParameters": "Otros parámetros",
+        "requiredFieldLegend": "* Campo obligatorio"
       },
       "headers": {
         "key": "Clave",
@@ -1648,7 +1696,15 @@
       "method": "Método",
       "url": "URL",
       "responseBody": "Cuerpo de Respuesta",
-      "backToNormal": "Volver a vista normal"
+      "backToNormal": "Volver a vista normal",
+      "pdfPreview": "Vista previa del PDF",
+      "openPdfInNewTab": "Abrir en nueva pestaña",
+      "downloadPdf": "Descargar PDF",
+      "insufficientCreditsTitle": "No tienes suficientes créditos",
+      "insufficientCreditsBody": "Añade créditos a tu cuenta para ejecutar esta solicitud. Se descuentan créditos por cada validación.",
+      "insufficientCreditsCostHint": "Este endpoint cuesta unos {{cost}} créditos por solicitud.",
+      "insufficientCreditsCta": "Añadir créditos",
+      "errorTechnicalDetails": "Detalles técnicos"
     },
     "jsonTable": {
       "array": "Arreglo",
@@ -1874,6 +1930,7 @@
   },
   "history": {
     "title": "Historial de Solicitudes",
+    "subtitle": "Audita las llamadas a la API, revisa los parámetros y repite validaciones sin reconstruir la solicitud.",
     "table": {
       "status": "Estado",
       "service": "Servicio",
@@ -1885,7 +1942,22 @@
       "duration": "Duración",
       "noRequests": "No se encontraron solicitudes",
       "noParams": "Sin parámetros",
-      "confirmed": "Confirmado"
+      "confirmed": "Confirmado",
+      "actions": "Acciones",
+      "requestsCount": "{{count}} solicitudes en total",
+      "loading": "Cargando",
+      "live": "En vivo",
+      "cost": "Costo"
+    },
+    "status": {
+      "success": "Exitoso",
+      "notFound": "No encontrado",
+      "failed": "Fallido"
+    },
+    "actions": {
+      "repeat": "Repetir",
+      "repeatTooltip": "Abrir esta solicitud en Postman con los mismos parámetros",
+      "repeatUnavailable": "Esta solicitud no se puede repetir porque no tiene código de función"
     }
   },
   "addCredits": {
@@ -1946,6 +2018,17 @@
       "bestValue": "MEJOR VALOR",
       "viewAllPlans": "Ver Todos los Planes"
     },
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "Promoción limitada",
+        "title": "Doble valor en créditos al recargar $50 durante tu primera semana",
+        "body": "Si compras créditos por $50 USD dentro de los siete días siguientes a la creación de tu cuenta de cliente Verifik (fecha de alta del perfil cliente, no solo el primer acceso), añadimos créditos de bonificación por el mismo valor. Tu saldo equivalente será el doble de esa recarga.",
+        "accountCreatedNotice": "Debes completar la compra de $50 antes de que se cumpla una semana desde el registro de la cuenta cliente. Fuera de esa ventana, o después de usar la promo una vez, aplica la tarifa habitual.",
+        "deadline": "Completa la compra calificadora antes del {{expiresAt}}",
+        "walletStrip": "Primera semana activa: elige {{amountUsd}} USD al comprar créditos; duplicamos el valor acreditado mientras aplique esta promo (ver banner).",
+        "dialogDouble": "Promo primera semana: pagas {{payUsd}} por esta recarga y recibes {{receivedUsd}} de valor total en créditos, incluyendo la bonificación."
+      }
+    },
     "purchaseDialog": {
       "title": "Comprar Créditos",
       "selectAmount": "Seleccionar Monto",
@@ -1977,6 +2060,7 @@
         "message": "Para continuar comprando créditos, necesitas completar la verificación KYC.",
         "description": "Este es un proceso único para verificar tu identidad y cumplir con las regulaciones.",
         "startKyc": "Iniciar Verificación KYC",
+        "close": "Cerrar",
         "contactSupport": "Contactar Soporte"
       },
       "maximum": "Máximo"

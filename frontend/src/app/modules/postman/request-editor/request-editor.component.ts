@@ -225,7 +225,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 </div>
                             }
 
-                            @if (requestValidationIssues().length) {
+                            @if (validationUiAfterSendAttempt() && requestValidationIssues().length) {
                                 <div
                                     class="select-text rounded-xl border border-rose-200 bg-rose-50/90 px-4 py-3 text-sm text-rose-950 shadow-sm dark:border-rose-500/40 dark:bg-rose-500/10 dark:text-rose-50"
                                 >
@@ -459,7 +459,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 }
                             }
 
-                            <div class="pt-4">
+                            <div class="pt-4 space-y-2">
                                 <button
                                     mat-stroked-button
                                     (click)="addParam()"
@@ -468,6 +468,11 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                     <mat-icon class="icon-size-4 mr-1">add</mat-icon>
                                     {{ 'postman.requestEditor.params.addParam' | transloco }}
                                 </button>
+                                <p
+                                    class="text-xs leading-relaxed text-slate-500 dark:text-slate-400"
+                                >
+                                    {{ 'postman.requestEditor.params.requiredFieldLegend' | transloco }}
+                                </p>
                             </div>
                         </div>
                     </mat-tab>
@@ -576,68 +581,31 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             let-xOrOptionRow="xOrOptionRow"
             let-showXorDocumentTypePlaceholder="showXorDocumentTypePlaceholder"
         >
-            <div class="flex gap-2 items-start">
-                <input
-                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                    [ngModel]="item.param.key"
-                    (ngModelChange)="item.param.key = $event; onRequestInputsChanged()"
-                    [placeholder]="'postman.requestEditor.params.keyPlaceholder' | transloco"
-                />
-                <div class="flex-1 min-w-0 flex flex-col gap-1">
-                    @if (
-                        item.param.requiredWhen?.in?.length ||
-                        item.param.required ||
-                        (!xOrOptionRow &&
-                            !item.param.requiredWhen?.in?.length &&
-                            !item.param.required) ||
-                        item.param.dateFormat
-                    ) {
-                        <div class="flex flex-wrap items-center gap-1">
-                            @if (item.param.requiredWhen?.in?.length) {
-                                <span
-                                    class="inline-flex items-center rounded-md border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800 dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-violet-200"
-                                >
-                                    {{
-                                        'postman.requestEditor.validation.badgeConditional'
-                                            | transloco
-                                    }}
-                                </span>
-                            } @else if (item.param.required) {
-                                <span
-                                    class="inline-flex items-center rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                                >
-                                    {{
-                                        'postman.requestEditor.validation.badgeRequired'
-                                            | transloco
-                                    }}
-                                </span>
-                            } @else if (!xOrOptionRow) {
-                                <span
-                                    class="inline-flex items-center rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-600 dark:bg-slate-800/60 dark:text-slate-400"
-                                >
-                                    {{
-                                        'postman.requestEditor.validation.badgeOptional'
-                                            | transloco
-                                    }}
-                                </span>
-                            }
-                            @if (item.param.dateFormat) {
-                                <span
-                                    class="text-[10px] font-medium text-slate-500 dark:text-slate-400"
-                                >
-                                    {{
-                                        'postman.requestEditor.validation.dateFormatHint'
-                                            | transloco: { format: item.param.dateFormat }
-                                    }}
-                                </span>
-                            }
-                        </div>
+            <div class="flex gap-2 items-center">
+                <div
+                    class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800"
+                >
+                    <input
+                        class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:text-slate-100"
+                        [ngModel]="item.param.key"
+                        (ngModelChange)="item.param.key = $event; onRequestInputsChanged()"
+                        [placeholder]="'postman.requestEditor.params.keyPlaceholder' | transloco"
+                    />
+                    @if (paramShowsRequiredKeyAsterisk(item.param)) {
+                        <span
+                            class="shrink-0 pr-2.5 text-base font-semibold leading-none text-slate-500 dark:text-slate-400"
+                            [attr.aria-label]="
+                                'postman.requestEditor.validation.badgeRequired' | transloco
+                            "
+                            >*</span>
                     }
+                </div>
+                <div class="flex flex-1 min-w-0 flex-col gap-1">
                     @if (item.param.enum?.length) {
                         <select
                             class="postman-param-value-select w-full min-w-0 px-3 py-2 pr-8 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer"
                             [ngClass]="
-                                firstIssueForField(item.param.key)
+                                firstIssueVisibleForField(item.param.key)
                                     ? 'border-rose-400 ring-2 ring-rose-500/30'
                                     : 'border-slate-200'
                             "
@@ -665,7 +633,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         <input
                             class="w-full min-w-0 px-3 py-2 bg-slate-50 border rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
                             [ngClass]="
-                                firstIssueForField(item.param.key)
+                                firstIssueVisibleForField(item.param.key)
                                     ? 'border-rose-400 ring-2 ring-rose-500/30'
                                     : 'border-slate-200'
                             "
@@ -678,7 +646,17 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             "
                         />
                     }
-                    @if (firstIssueForField(item.param.key); as iss) {
+                    @if (item.param.dateFormat) {
+                        <p
+                            class="text-[10px] font-medium leading-snug text-slate-500 dark:text-slate-400"
+                        >
+                            {{
+                                'postman.requestEditor.validation.dateFormatHint'
+                                    | transloco: { format: item.param.dateFormat }
+                            }}
+                        </p>
+                    }
+                    @if (firstIssueVisibleForField(item.param.key); as iss) {
                         <p class="text-xs text-rose-600 dark:text-rose-400 leading-snug">
                             {{
                                 iss.translationKey | transloco: (iss.translationParams || {})
@@ -696,7 +674,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                 <button
                     mat-icon-button
                     (click)="onDeleteParamRow(item, xOrOptionRow)"
-                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 mt-0.5"
+                    class="flex-shrink-0 w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500"
                 >
                     <mat-icon class="icon-size-4">delete</mat-icon>
                 </button>
@@ -892,6 +870,11 @@ export class RequestEditorComponent {
 
     private readonly _validationInputsTick = signal(0);
 
+    /**
+     * When true, show the red "Fix issues" banner and per-field validation lines (after an invalid Send attempt).
+     */
+    validationUiAfterSendAttempt = signal(false);
+
     onRequestInputsChanged(): void {
         this._validationInputsTick.update((n) => n + 1);
     }
@@ -966,9 +949,31 @@ export class RequestEditorComponent {
         return dob?.requiredWhen?.in?.join(', ') ?? null;
     });
 
+    /**
+     * Key column shows a trailing * for required or conditionally required params (replaces inline badges).
+     */
+    paramShowsRequiredKeyAsterisk(param: {
+        required?: boolean;
+        requiredWhen?: { in?: string[] };
+    }): boolean {
+        if (param.requiredWhen?.in?.length) {
+            return true;
+        }
+
+        return !!param.required;
+    }
+
     firstIssueForField(field: string | null | undefined): PostmanValidationIssue | null {
         if (!field) return null;
         return this.requestValidationIssues().find((i) => i.field === field) ?? null;
+    }
+
+    /** Like firstIssueForField but only after an invalid Send attempt (validation UI gate). */
+    firstIssueVisibleForField(field: string | null | undefined): PostmanValidationIssue | null {
+        if (!this.validationUiAfterSendAttempt()) {
+            return null;
+        }
+        return this.firstIssueForField(field);
     }
 
     /**
@@ -1024,6 +1029,16 @@ export class RequestEditorComponent {
         this._subscriptionService.getMySubscription().subscribe({
             next: (res) => this.currentSubscription.set(res?.data ?? null),
             error: () => this.currentSubscription.set(null),
+        });
+
+        let lastValidationResetEndpointCode: string | null | undefined;
+        effect(() => {
+            const code = this.endpoint()?.code ?? null;
+            if (lastValidationResetEndpointCode === code) {
+                return;
+            }
+            lastValidationResetEndpointCode = code;
+            this.validationUiAfterSendAttempt.set(false);
         });
 
         // Effect to handle 402 Payment Required errors from backend
@@ -1250,6 +1265,7 @@ export class RequestEditorComponent {
         // Just send the request. If x402 is selected and no payment provided,
         // the backend will return 402, which we catch in the effect above.
         if (!this.canSendRequest()) {
+            this.validationUiAfterSendAttempt.set(true);
             return;
         }
         this._postmanService.sendRequest(this.endpoint()!);

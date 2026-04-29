@@ -2,7 +2,7 @@
 <fuse-loading-bar></fuse-loading-bar>
 
 <div
-    class="flex w-full flex-auto justify-center bg-gray-200 dark:bg-card sm:p-4 md:p-8"
+    class="flex min-h-dvh w-full flex-auto justify-center bg-gray-200 dark:bg-card sm:p-4 md:p-8"
 >
     <!-- Navigation -->
     @if (isScreenSmall) {
@@ -28,7 +28,7 @@
 
     <!-- Wrapper -->
     <div
-        class="flex min-w-0 max-w-360 flex-auto flex-col items-center overflow-hidden shadow-2xl sm:rounded-xl dark:shadow-none"
+        class="flex min-h-0 min-w-0 max-w-360 flex-1 flex-col items-center overflow-hidden shadow-2xl sm:rounded-xl dark:shadow-none"
     >
         <!-- Header -->
         <div
@@ -89,7 +89,7 @@
         </div>
 
         <!-- Content -->
-        <div class="bg-default flex w-full flex-auto flex-col">
+        <div class="bg-default flex min-h-0 w-full flex-1 flex-col">
             <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
                  Otherwise, layout changes won't be registered and the view won't be updated! -->
             @if (true) {

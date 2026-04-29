@@ -1293,6 +1293,8 @@
       "team_desc": "Gérer les membres de votre équipe",
       "billing_details": "Détails de facturation",
       "billing_details_desc": "Gérer vos informations de facturation",
+      "payment_history": "Historique des paiements",
+      "payment_history_desc": "Consultez vos reçus, factures et historique des transactions",
       "api_key": "Clé API",
       "api_key_desc": "Gérer vos jetons d'accès API",
       "webhooks": "Webhooks",
@@ -1321,6 +1323,51 @@
       "save_error": "Échec de l'enregistrement du profil. Veuillez réessayer.",
       "invalid_file_type": "Type de fichier invalide. Veuillez utiliser PNG ou JPG.",
       "file_too_large": "Le fichier est trop volumineux. La taille maximale est de 5 Mo."
+    },
+    "paymentHistory": {
+      "title": "Historique des paiements",
+      "subtitle": "Consultez vos achats de crédits et vos paiements d'abonnement. Prévisualisez, téléchargez, imprimez ou envoyez par email les reçus Verifik pour votre comptabilité et vos obligations fiscales.",
+      "tableTitle": "Transactions",
+      "tableSubtitle": "Paiements approuvés liés à ce compte.",
+      "loadingHint": "Chargement des transactions...",
+      "transactionsCount": "{{count}} transactions",
+      "refresh": "Actualiser",
+      "tryAgain": "Réessayer",
+      "emptyTitle": "Aucune transaction pour le moment",
+      "emptySubtitle": "Les achats de crédits et paiements d'abonnement apparaîtront ici une fois approuvés.",
+      "date": "Date",
+      "description": "Description",
+      "method": "Méthode",
+      "amount": "Montant",
+      "actions": "Actions",
+      "viewInvoice": "Voir la facture",
+      "page": "Page",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "subscriptionPayment": "Paiement d'abonnement",
+      "creditRecharge": "Recharge de crédits",
+      "verifikInvoice": "Facture Verifik",
+      "invoicePreview": "Aperçu de la facture",
+      "invoiceActions": "Actions sur la facture",
+      "download": "Télécharger",
+      "print": "Imprimer",
+      "stripeInvoice": "Facture Stripe",
+      "stripeInvoiceDesc": "Cette transaction d'abonnement dispose également de la facture originale Stripe.",
+      "openStripeInvoice": "Ouvrir la facture Stripe",
+      "downloadStripePdf": "Télécharger le PDF Stripe",
+      "emailTitle": "Envoyer par e-mail",
+      "emailSubtitle": "Le PDF Verifik sera joint. L'e-mail du compte est utilisé par défaut, vous pouvez envoyer à un autre destinataire.",
+      "emailLabel": "E-mail du destinataire",
+      "emailInvalid": "Saisissez une adresse e-mail valide",
+      "sendEmail": "Envoyer la facture",
+      "emailSent": "Facture envoyée par e-mail.",
+      "emailError": "Échec de l'envoi de la facture. Veuillez réessayer.",
+      "loadError": "Impossible de charger l'historique des paiements.",
+      "invoiceLoadError": "Impossible de charger le PDF de la facture.",
+      "iframeTitle": "PDF de facture Verifik",
+      "statusApproved": "approuvé",
+      "methodSubscription": "Abonnement",
+      "methodCard": "Carte"
     },
     "api_key": {
       "title": "Gestion des clés API",
@@ -1578,7 +1625,8 @@
         "valuePlaceholder": "Valeur",
         "descriptionPlaceholder": "Description",
         "documentTypePlaceholder": "Sélectionner le type de document",
-        "otherParameters": "Autres paramètres"
+        "otherParameters": "Autres paramètres",
+        "requiredFieldLegend": "* Champ obligatoire"
       },
       "headers": {
         "key": "Clé",
@@ -1648,7 +1696,15 @@
       "method": "Méthode",
       "url": "URL",
       "responseBody": "Corps Réponse",
-      "backToNormal": "Retour vue normale"
+      "backToNormal": "Retour vue normale",
+      "pdfPreview": "Aperçu PDF",
+      "openPdfInNewTab": "Ouvrir dans un nouvel onglet",
+      "downloadPdf": "Télécharger le PDF",
+      "insufficientCreditsTitle": "Crédits insuffisants",
+      "insufficientCreditsBody": "Ajoutez des crédits à votre compte pour exécuter cette requête. Chaque validation consomme des crédits.",
+      "insufficientCreditsCostHint": "Ce point de terminaison coûte environ {{cost}} crédits par requête.",
+      "insufficientCreditsCta": "Ajouter des crédits",
+      "errorTechnicalDetails": "Détails techniques"
     },
     "jsonTable": {
       "array": "Tableau",
@@ -1874,6 +1930,7 @@
   },
   "history": {
     "title": "Historique des requêtes",
+    "subtitle": "Auditez les appels API, examinez les charges utiles des requêtes et relancez les validations sans reconstruire la requête.",
     "table": {
       "status": "Statut",
       "service": "Service",
@@ -1885,7 +1942,22 @@
       "duration": "Durée",
       "noRequests": "Aucune requête trouvée",
       "noParams": "Aucun paramètre",
-      "confirmed": "Confirmé"
+      "confirmed": "Confirmé",
+      "actions": "Actions",
+      "requestsCount": "{{count}} requêtes au total",
+      "loading": "Chargement",
+      "live": "En direct",
+      "cost": "Coût"
+    },
+    "status": {
+      "success": "Succès",
+      "notFound": "Introuvable",
+      "failed": "Échec"
+    },
+    "actions": {
+      "repeat": "Répéter",
+      "repeatTooltip": "Ouvrir cette requête dans Postman avec les mêmes paramètres",
+      "repeatUnavailable": "Cette requête ne peut pas être relancée car elle n'a pas de code de fonctionnalité"
     }
   },
   "addCredits": {
@@ -1946,6 +2018,17 @@
       "bestValue": "MEILLEURE VALEUR",
       "viewAllPlans": "Voir tous les plans"
     },
+    "promo": {
+      "weekOneUsd50": {
+        "badge": "Promotion limitée",
+        "title": "Double valeur en crédits si vous rechargez 50 $ la première semaine",
+        "body": "Si vous achetez pour 50 USD de crédits dans les sept jours suivant la création de votre compte client Verifik (critère : horodatage du profil client enregistré, pas uniquement la première connexion), nous ajoutons un même montant en crédits bonus. Pour cet achat qualifié, la valeur équivalente en crédits est le double du montant.",
+        "accountCreatedNotice": "Vous devez finaliser cet achat de 50 $ avant que ne s’écoule une semaine complète depuis l’inscription du compte client ; après ce délai, ou après utilisation une fois de l’offre, les tarifs standards s’appliquent.",
+        "deadline": "Finalisez l’achat éligible avant le {{expiresAt}}",
+        "walletStrip": "Première semaine : choisissez {{amountUsd}} lors de l’achat — nous doublons la valeur en crédits tant que l’offre est active (voir la bannière ci-dessus).",
+        "dialogDouble": "Offre première semaine : vous payez {{payUsd}} pour cette recharge et recevez {{receivedUsd}} de valeur totale en crédits, bonus inclus."
+      }
+    },
     "purchaseDialog": {
       "title": "Acheter des crédits",
       "selectAmount": "Sélectionner le montant",
@@ -1977,6 +2060,7 @@
         "message": "Pour continuer à acheter des crédits, vous devez compléter la vérification KYC.",
         "description": "Il s'agit d'un processus unique pour vérifier votre identité et se conformer aux réglementations.",
         "startKyc": "Démarrer la vérification KYC",
+        "close": "Fermer",
         "contactSupport": "Contacter le support"
       },
       "maximum": "Maximum"
