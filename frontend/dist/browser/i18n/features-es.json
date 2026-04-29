@@ -1194,7 +1194,20 @@
     "openPdfInNewTab": "Abrir en nueva pestaña",
     "downloadPdf": "Descargar PDF",
     "pdfPreview": "Vista previa del PDF",
-    "pdfOmittedForJsonView": "[PDF omitido — usa la vista Legible para previsualizarlo]"
+    "pdfOmittedForJsonView": "[PDF omitido — usa la vista Legible para previsualizarlo]",
+    "downloadFailedInputsCsv": "Descargar entradas fallidas (CSV)",
+    "downloadFailedInputsCsvTooltip": "Exporta las columnas de entrada originales de todas las filas fallidas (ignora la búsqueda) para poder subirlas de nuevo como un lote nuevo.",
+    "failedExportNoRows": "No hay filas fallidas para exportar.",
+    "failedExportDone": "Se exportaron {{count}} filas fallidas a CSV.",
+    "failedExportDismiss": "Cerrar",
+    "ruesCategory": "Categoría de registro",
+    "ruesCategoryNone": "(ninguna — opcional)",
+    "ruesCategorySaved": "Entrada guardada.",
+    "ruesCategorySaveFailed": "No se pudo guardar la entrada. Inténtalo de nuevo.",
+    "ruesCategoryHint": "Opcional. Al limpiar se quita la categoría de esta fila; algunos endpoints RUES v3 siguen usando RM si falta en la consulta.",
+    "ruesCategoryEdit": "Editar categoría",
+    "ruesCategoryApply": "Aplicar",
+    "ruesCategoryCancel": "Cancelar"
   },
   "batchDashboard": {
     "backToSmartBatch": "Volver a Smart Batch",

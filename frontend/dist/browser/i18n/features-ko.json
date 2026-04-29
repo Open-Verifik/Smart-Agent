@@ -1174,7 +1174,20 @@
     "openPdfInNewTab": "새 탭에서 열기",
     "downloadPdf": "PDF 다운로드",
     "pdfPreview": "PDF 미리보기",
-    "pdfOmittedForJsonView": "[PDF 생략 — 읽기 쉬운 보기에서 미리보기]"
+    "pdfOmittedForJsonView": "[PDF 생략 — 읽기 쉬운 보기에서 미리보기]",
+    "downloadFailedInputsCsv": "실패 입력 다운로드(CSV)",
+    "downloadFailedInputsCsvTooltip": "실패한 모든 행의 원본 입력 열을 내보냅니다(검색 무시). 새 배치로 다시 업로드할 때 사용합니다.",
+    "failedExportNoRows": "내보낼 실패 행이 없습니다.",
+    "failedExportDone": "실패 {{count}}행을 CSV로 내보냈습니다.",
+    "failedExportDismiss": "닫기",
+    "ruesCategory": "등록 카테고리",
+    "ruesCategoryNone": "(없음 — 선택)",
+    "ruesCategorySaved": "입력이 저장되었습니다.",
+    "ruesCategorySaveFailed": "입력을 저장할 수 없습니다. 다시 시도하세요.",
+    "ruesCategoryHint": "선택 사항입니다. 비우면 저장된 행에서 카테고리가 제거됩니다. 일부 RUES v3 엔드포인트는 쿼리에 category가 없으면 RM을 기본값으로 사용할 수 있습니다.",
+    "ruesCategoryEdit": "카테고리 수정",
+    "ruesCategoryApply": "적용",
+    "ruesCategoryCancel": "취소"
   },
   "batchDashboard": {
     "backToSmartBatch": "Smart Batch로 돌아가기",

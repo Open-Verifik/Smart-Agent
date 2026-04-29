@@ -18,6 +18,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -25,6 +27,11 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, Subject } from 'rxjs';
+import {
+    escapeCsvRow,
+    getBatchInputCsvHeaders,
+    inputDataValueForCsvCell,
+} from '../../batch-input-csv.util';
 import {
     AppFeature,
     BatchConfiguration,
@@ -53,6 +60,27 @@ type StepExecutionResult =
     | { sequence: number; result: any }
     | { sequence: number; error: { step: number; message: string; code: string } };
 
+/** Colombia RUES batch steps that accept an optional/query `category` (codes match seeded AppFeatures). */
+const RUES_SMART_BATCH_FEATURE_CODES = new Set<string>([
+    'colombia_api_rues',
+    'colombia_api_rues_full',
+    'colombia_api_rues_v3',
+    'colombia_api_rues_full_v3',
+]);
+
+/** Fallback when AppFeature.dependencies[].category.enum is absent (v2+v3 middleware union). */
+const RUES_CATEGORY_FALLBACK_SORTED = [
+    'RM',
+    'PROP',
+    'RUNEOL',
+    'RNT',
+    'ESAL',
+    'ESOL',
+    'RESAL',
+    'JUEGOS',
+    'EXTRANJERAS',
+];
+
 @Component({
     selector: 'batch-processing',
     standalone: true,
@@ -67,7 +95,9 @@ type StepExecutionResult =
         MatInputModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
         MatTooltipModule,
+        MatSelectModule,
         ScrollingModule,
         TranslocoModule,
     ],
@@ -80,6 +110,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _smartBatchService = inject(SmartBatchService);
     private _sanitizer = inject(DomSanitizer);
     private _transloco = inject(TranslocoService);
+    private _snack = inject(MatSnackBar);
     private _destroy$ = new Subject<void>();
     private _processingAborted = false;
 
@@ -95,6 +126,12 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     isStarting = signal(false);
     retryingStepKey = signal<string | null>(null);
     continuingRowIndex = signal<number | null>(null);
+    /** True while persisting RUES category / inputData patch for the selected row. */
+    savingRuesCategory = signal(false);
+    /** When true, show mat-select for category with Apply/Cancel instead of read-only row. */
+    ruesCategoryEditing = signal(false);
+    /** Draft value while editing RUES category (Apply persists to server). */
+    ruesCategoryDraft = signal('');
 
     // Current processing state
     currentRowIndex = signal<number | null>(null);
@@ -133,6 +170,13 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         let rows = b.rows.filter((r) => r.status === 'failed');
         if (query) rows = rows.filter((r) => this._matchesSearch(r, query));
         return rows;
+    });
+
+    /** Failed rows ignoring search — used for CSV export so every failure is included. */
+    failedRowsIgnoringSearch = computed(() => {
+        const b = this.batch();
+        if (!b?.rows) return [];
+        return b.rows.filter((r) => r.status === 'failed');
     });
 
     partialRows = computed(() => {
@@ -197,6 +241,40 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     /** Search query for record filtering */
     searchQuery = signal('');
+
+    /**
+     * True when this batch config uses Colombia RUES with a `category` input dependency (optional query param).
+     */
+    canEditRuesCategory = computed(() =>
+        this.configSteps().some((step) => {
+            const feat = step.appFeature as AppFeature & {
+                dependencies?: { field?: string; enum?: string[] }[];
+            };
+            return (
+                !!feat?.code &&
+                RUES_SMART_BATCH_FEATURE_CODES.has(feat.code) &&
+                (feat.dependencies || []).some((d) => d.field === 'category')
+            );
+        })
+    );
+
+    /** Category enum from AppFeatures when present, else middleware-aligned fallback strings. */
+    ruesCategorySelectOptionsResolved = computed(() => {
+        const union = new Set<string>();
+        for (const step of this.configSteps()) {
+            const feat = step.appFeature as AppFeature & {
+                dependencies?: { field?: string; enum?: string[] }[];
+            };
+            if (!feat?.code || !RUES_SMART_BATCH_FEATURE_CODES.has(feat.code)) continue;
+            const catDep = (feat.dependencies || []).find((d) => d.field === 'category');
+            if (catDep?.enum?.length) {
+                catDep.enum.forEach((e) => union.add(String(e)));
+            }
+        }
+        return union.size > 0
+            ? [...union].sort((a, b) => a.localeCompare(b))
+            : [...RUES_CATEGORY_FALLBACK_SORTED];
+    });
 
     @ViewChild('rowDetailPanel') rowDetailPanel!: ElementRef;
 
@@ -690,6 +768,85 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this.isProcessing.set(false);
     }
 
+    downloadFailedInputsCsv(): void {
+        const config = this.configuration();
+        const b = this.batch();
+        const failed = this.failedRowsIgnoringSearch();
+        if (!config || failed.length === 0) {
+            this._snack.open(
+                this._transloco.translate('batchProcessing.failedExportNoRows'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 3000 }
+            );
+            return;
+        }
+
+        const baseHeaders = getBatchInputCsvHeaders(config);
+        const extraKeys = new Set<string>();
+        for (const row of failed) {
+            const raw = row.inputData;
+            if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
+                Object.keys(raw as Record<string, unknown>).forEach((k) => {
+                    if (!baseHeaders.includes(k)) extraKeys.add(k);
+                });
+            }
+        }
+        const extrasSorted = [...extraKeys].sort((a, b) => a.localeCompare(b));
+        const columns =
+            baseHeaders.length > 0
+                ? [...baseHeaders, ...extrasSorted.filter((k) => !baseHeaders.includes(k))]
+                : failed[0]?.inputData != null && typeof failed[0].inputData === 'object'
+                  ? [
+                        ...Object.keys(failed[0].inputData as Record<string, unknown>).sort((a, b) =>
+                            a.localeCompare(b)
+                        ),
+                    ]
+                  : [];
+
+        if (columns.length === 0) {
+            this._snack.open(
+                this._transloco.translate('batchProcessing.failedExportNoRows'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 3000 }
+            );
+            return;
+        }
+
+        const csvRows = [escapeCsvRow(columns)];
+        for (const row of failed) {
+            const data =
+                row.inputData != null &&
+                typeof row.inputData === 'object' &&
+                !Array.isArray(row.inputData)
+                    ? (row.inputData as Record<string, unknown>)
+                    : {};
+            const cells = columns.map((key) =>
+                inputDataValueForCsvCell(
+                    Object.prototype.hasOwnProperty.call(data, key) ? data[key] : ''
+                )
+            );
+            csvRows.push(escapeCsvRow(cells));
+        }
+
+        const blob = new Blob([`\uFEFF${csvRows.join('\n')}`], {
+            type: 'text/csv;charset=utf-8;',
+        });
+        const url = URL.createObjectURL(blob);
+        const sanitizedName = (b?.name || 'batch').replace(/[^a-zA-Z0-9_.-]+/g, '_');
+        const idPart = this.batchId() || 'export';
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `failed-inputs_${sanitizedName}_${idPart}.csv`.replace(/[/\\]/g, '_');
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+        this._snack.open(
+            this._transloco.translate('batchProcessing.failedExportDone', { count: failed.length }),
+            this._transloco.translate('batchProcessing.failedExportDismiss'),
+            { duration: 2500 }
+        );
+    }
+
     generateReport(): void {
         const configId = this.configId();
         const batchId = this.batchId();
@@ -731,6 +888,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     selectRow(row: SmartBatchRow): void {
         this.selectedRow.set(row);
+        this.ruesCategoryEditing.set(false);
+        this.ruesCategoryDraft.set('');
         this.isLoadingDetail.set(true);
 
         // Brief loading state for perceived performance, then scroll
@@ -951,7 +1110,100 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     getInputDataFields(): { label: string; value: string }[] {
         const input = this.selectedRow()?.inputData;
         if (input == null || typeof input !== 'object') return [];
-        return this.getStepResultFields(input);
+        const o = input as Record<string, unknown>;
+        const excludeCategory = this.canEditRuesCategory();
+        const trimmed: Record<string, unknown> = {};
+        for (const k of Object.keys(o)) {
+            if (excludeCategory && k === 'category') continue;
+            trimmed[k] = o[k];
+        }
+        return this.getStepResultFields(trimmed);
+    }
+
+    getSelectedRuesCategoryValue(): string {
+        const raw = this.selectedRow()?.inputData?.category;
+        if (raw === null || raw === undefined || raw === '') return '';
+        return String(raw);
+    }
+
+    /** First step in failed state (for primary Retry next to RUES inputs). */
+    firstFailedStep(): BatchStep | null {
+        const row = this.selectedRow();
+        if (!row) return null;
+        for (const step of this.configSteps()) {
+            if (this.getRowStepStatus(row, step.sequence) === 'failed') {
+                return step;
+            }
+        }
+        return null;
+    }
+
+    beginRuesCategoryEdit(): void {
+        this.ruesCategoryDraft.set(this.getSelectedRuesCategoryValue());
+        this.ruesCategoryEditing.set(true);
+    }
+
+    cancelRuesCategoryEdit(): void {
+        this.ruesCategoryEditing.set(false);
+        this.ruesCategoryDraft.set('');
+    }
+
+    async applyRuesCategoryEdit(): Promise<void> {
+        const v = this.ruesCategoryDraft();
+        const current = this.getSelectedRuesCategoryValue();
+        const clearing = v === '';
+        if (!clearing && v === current) {
+            this.ruesCategoryEditing.set(false);
+            return;
+        }
+        if (clearing && current === '') {
+            this.ruesCategoryEditing.set(false);
+            return;
+        }
+        const ok = await this.saveRowInputPatch(clearing ? { category: null } : { category: v });
+        if (ok) {
+            this.ruesCategoryEditing.set(false);
+            this.ruesCategoryDraft.set('');
+        }
+    }
+
+    /** Persists merged input fields for the selected row before Retry. Returns false on skipped or failure. */
+    async saveRowInputPatch(patch: Record<string, unknown>): Promise<boolean> {
+        const bid = this.batchId();
+        const row = this.selectedRow();
+        if (!bid || row == null) return false;
+        this.savingRuesCategory.set(true);
+        try {
+            const res = await firstValueFrom(
+                this._smartBatchService.updateBatchRow(bid, row.rowIndex, {
+                    status: row.status,
+                    results: row.results,
+                    errors: row.errors ?? [],
+                    inputData: patch,
+                })
+            );
+            this.batch.set(res.data);
+            const updated = res.data.rows.find((r) => r.rowIndex === row.rowIndex);
+            if (updated) {
+                this.selectedRow.set(updated);
+            }
+            this._snack.open(
+                this._transloco.translate('batchProcessing.ruesCategorySaved'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 2000 }
+            );
+            return true;
+        } catch (err) {
+            console.error('saveRowInputPatch', err);
+            this._snack.open(
+                this._transloco.translate('batchProcessing.ruesCategorySaveFailed'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 4000 }
+            );
+            return false;
+        } finally {
+            this.savingRuesCategory.set(false);
+        }
     }
 
     /** Format object as pretty-printed JSON for display */

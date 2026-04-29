@@ -1174,7 +1174,20 @@
     "openPdfInNewTab": "新しいタブで開く",
     "downloadPdf": "PDF をダウンロード",
     "pdfPreview": "PDF のプレビュー",
-    "pdfOmittedForJsonView": "[PDF は省略 — 読みやすい表示でプレビュー]"
+    "pdfOmittedForJsonView": "[PDF は省略 — 読みやすい表示でプレビュー]",
+    "downloadFailedInputsCsv": "失敗行の入力をダウンロード (CSV)",
+    "downloadFailedInputsCsvTooltip": "すべての失敗行の元入力列をエクスポートします（検索は無視）。新しいバッチとして再アップロードできます。",
+    "failedExportNoRows": "エクスポートできる失敗行がありません。",
+    "failedExportDone": "{{count}} 件の失敗行を CSV に出力しました。",
+    "failedExportDismiss": "閉じる",
+    "ruesCategory": "登録カテゴリ",
+    "ruesCategoryNone": "（なし — 省略可）",
+    "ruesCategorySaved": "入力を保存しました。",
+    "ruesCategorySaveFailed": "入力を保存できませんでした。やり直してください。",
+    "ruesCategoryHint": "省略可能です。クリアするとこの行からカテゴリが削除されます。一部の RUES v3 ではクエリに category がないと RM が使われる場合があります。",
+    "ruesCategoryEdit": "カテゴリを編集",
+    "ruesCategoryApply": "適用",
+    "ruesCategoryCancel": "キャンセル"
   },
   "batchDashboard": {
     "backToSmartBatch": "Smart Batchに戻る",

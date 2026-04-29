@@ -1194,7 +1194,20 @@
     "openPdfInNewTab": "Open in new tab",
     "downloadPdf": "Download PDF",
     "pdfPreview": "PDF preview",
-    "pdfOmittedForJsonView": "[PDF omitted — use Readable view to preview]"
+    "pdfOmittedForJsonView": "[PDF omitted — use Readable view to preview]",
+    "downloadFailedInputsCsv": "Download failed inputs (CSV)",
+    "downloadFailedInputsCsvTooltip": "Export original input columns for all failed rows (ignores search) so you can re-upload them as a new batch.",
+    "failedExportNoRows": "No failed rows to export.",
+    "failedExportDone": "Exported {{count}} failed rows to CSV.",
+    "failedExportDismiss": "Close",
+    "ruesCategory": "Registry category",
+    "ruesCategoryNone": "(none — optional)",
+    "ruesCategorySaved": "Input saved.",
+    "ruesCategorySaveFailed": "Could not save input. Try again.",
+    "ruesCategoryHint": "Optional. Clearing removes category from this row’s saved inputs; some RUES v3 endpoints still default to RM when the query omits category.",
+    "ruesCategoryEdit": "Edit category",
+    "ruesCategoryApply": "Apply",
+    "ruesCategoryCancel": "Cancel"
   },
   "batchDashboard": {
     "backToSmartBatch": "Back to Smart Batch",

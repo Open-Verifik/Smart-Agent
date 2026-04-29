@@ -1174,7 +1174,20 @@
     "openPdfInNewTab": "在新标签页中打开",
     "downloadPdf": "下载 PDF",
     "pdfPreview": "PDF 预览",
-    "pdfOmittedForJsonView": "[PDF 已省略 — 请使用可读视图预览]"
+    "pdfOmittedForJsonView": "[PDF 已省略 — 请使用可读视图预览]",
+    "downloadFailedInputsCsv": "下载失败输入 (CSV)",
+    "downloadFailedInputsCsvTooltip": "导出所有失败行的原始输入列（不受搜索筛选影响），便于作为新批次重新上传。",
+    "failedExportNoRows": "没有可导出的失败行。",
+    "failedExportDone": "已将 {{count}} 条失败行导出为 CSV。",
+    "failedExportDismiss": "关闭",
+    "ruesCategory": "登记类别",
+    "ruesCategoryNone": "（无 — 可选）",
+    "ruesCategorySaved": "已保存输入。",
+    "ruesCategorySaveFailed": "无法保存输入，请重试。",
+    "ruesCategoryHint": "可选。清除将从本行已保存的输入中移除类别；部分 RUES v3 接口在查询未带 category 时仍可能默认使用 RM。",
+    "ruesCategoryEdit": "编辑类别",
+    "ruesCategoryApply": "应用",
+    "ruesCategoryCancel": "取消"
   },
   "batchDashboard": {
     "backToSmartBatch": "返回 Smart Batch",

@@ -70,7 +70,7 @@ export interface AppFeature {
     method?: string;
     url?: string;
     requiredParams?: string[];
-    dependencies?: { field: string }[];
+    dependencies?: { field: string; required?: boolean; enum?: string[] }[];
     smartBatchSuccessWhen?: SmartBatchSuccessWhenRule[];
 }
 
@@ -212,6 +212,8 @@ export class SmartBatchService {
             status: SmartBatchRowStatus;
             results?: Record<number, any>;
             errors?: { step: number; message: string; code: string }[];
+            /** Merged server-side into the row’s inputData; omit keys using null values to clear (server strips null/undefined keys). */
+            inputData?: Record<string, unknown>;
         }
     ) {
         return this._httpClient.put<{ data: SmartBatch }>(

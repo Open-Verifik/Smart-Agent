@@ -348,7 +348,7 @@
                                     </span>
                                 </button>
                             }
-                            @if (failedRows().length > 0) {
+                            @if (failedRowsIgnoringSearch().length > 0) {
                                 <button
                                     class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
                                     [ngClass]="
@@ -362,12 +362,28 @@
                                         <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
                                         {{ 'batchProcessing.failed' | transloco }}
                                         <span class="text-xs text-gray-400">{{
-                                            failedRows().length
+                                            failedRowsIgnoringSearch().length
                                         }}</span>
                                     </span>
                                 </button>
                             }
                         </div>
+
+                        @if (recordFilter() === 'failed' && failedRowsIgnoringSearch().length > 0) {
+                            <button
+                                mat-stroked-button
+                                color="primary"
+                                type="button"
+                                (click)="downloadFailedInputsCsv()"
+                                class="w-full shrink-0 sm:w-auto !rounded-xl"
+                                [matTooltip]="'batchProcessing.downloadFailedInputsCsvTooltip' | transloco"
+                            >
+                                <span class="inline-flex items-center gap-2 justify-center">
+                                    <mat-icon>download</mat-icon>
+                                    {{ 'batchProcessing.downloadFailedInputsCsv' | transloco }}
+                                </span>
+                            </button>
+                        }
 
                         <!-- Search -->
                         <div class="relative w-full sm:w-64">
@@ -880,6 +896,177 @@
                             <div class="border border-gray-200 rounded-lg overflow-hidden bg-white">
                                 @if (detailsViewMode() === 'readable') {
                                     <div class="px-4 py-3">
+                                        @if (canEditRuesCategory()) {
+                                            <div
+                                                class="mb-2 flex flex-col gap-2 rounded-xl border border-stone-200/80 bg-stone-50/70 px-3 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-950/50 sm:flex-row sm:items-center"
+                                            >
+                                                @if (!ruesCategoryEditing()) {
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex items-center gap-1.5">
+                                                            <p
+                                                                class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
+                                                            >
+                                                                {{
+                                                                    'batchProcessing.ruesCategory'
+                                                                        | transloco
+                                                                }}
+                                                            </p>
+                                                            <mat-icon
+                                                                class="!h-4 !w-4 !text-sm text-stone-400"
+                                                                [matTooltip]="
+                                                                    'batchProcessing.ruesCategoryHint'
+                                                                        | transloco
+                                                                "
+                                                                >info_outline</mat-icon
+                                                            >
+                                                        </div>
+                                                        <p
+                                                            class="mt-0.5 font-medium text-stone-950 dark:text-stone-100"
+                                                        >
+                                                            @if (getSelectedRuesCategoryValue()) {
+                                                                {{ getSelectedRuesCategoryValue() }}
+                                                            } @else {
+                                                                <span class="font-normal text-stone-400">{{
+                                                                    'batchProcessing.ruesCategoryNone'
+                                                                        | transloco
+                                                                }}</span>
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        class="flex shrink-0 items-center gap-1.5 sm:justify-end"
+                                                    >
+                                                        <button
+                                                            mat-icon-button
+                                                            type="button"
+                                                            class="!h-9 !w-9"
+                                                            [matTooltip]="
+                                                                'batchProcessing.ruesCategoryEdit'
+                                                                    | transloco
+                                                            "
+                                                            [attr.aria-label]="
+                                                                'batchProcessing.ruesCategoryEdit'
+                                                                    | transloco
+                                                            "
+                                                            (click)="beginRuesCategoryEdit()"
+                                                            [disabled]="savingRuesCategory()"
+                                                        >
+                                                            <mat-icon class="!text-lg">edit</mat-icon>
+                                                        </button>
+                                                        @if (firstFailedStep(); as failedStep) {
+                                                            <button
+                                                                mat-flat-button
+                                                                color="primary"
+                                                                type="button"
+                                                                class="!h-9 !min-h-9 rounded-xl px-4"
+                                                                (click)="
+                                                                    retryStep(selectedRow()!, failedStep)
+                                                                "
+                                                                [disabled]="
+                                                                    savingRuesCategory() ||
+                                                                    isRetryingStep(
+                                                                        selectedRow()!,
+                                                                        failedStep
+                                                                    )
+                                                                "
+                                                            >
+                                                                <span
+                                                                    class="inline-flex items-center gap-1.5"
+                                                                >
+                                                                    @if (
+                                                                        isRetryingStep(
+                                                                            selectedRow()!,
+                                                                            failedStep
+                                                                        )
+                                                                    ) {
+                                                                        <mat-icon
+                                                                            class="animate-spin !text-base"
+                                                                            >refresh</mat-icon
+                                                                        >
+                                                                        {{
+                                                                            'batchProcessing.retrying'
+                                                                                | transloco
+                                                                        }}
+                                                                    } @else {
+                                                                        <mat-icon class="!text-base"
+                                                                            >restart_alt</mat-icon
+                                                                        >
+                                                                        {{
+                                                                            'batchProcessing.retryStep'
+                                                                                | transloco
+                                                                        }}
+                                                                    }
+                                                                </span>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                } @else {
+                                                    <div
+                                                        class="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-center"
+                                                    >
+                                                        <label class="min-w-0 flex-1">
+                                                            <span
+                                                                class="mb-1 block text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400"
+                                                                >{{
+                                                                    'batchProcessing.ruesCategory'
+                                                                        | transloco
+                                                                }}</span
+                                                            >
+                                                            <select
+                                                                class="h-9 w-full rounded-lg border border-stone-200 bg-white px-3 text-sm font-medium text-stone-900 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 disabled:opacity-60"
+                                                                [ngModel]="ruesCategoryDraft()"
+                                                                (ngModelChange)="
+                                                                    ruesCategoryDraft.set($event)
+                                                                "
+                                                                [disabled]="savingRuesCategory()"
+                                                            >
+                                                                <option value="">
+                                                                    {{
+                                                                        'batchProcessing.ruesCategoryNone'
+                                                                            | transloco
+                                                                    }}
+                                                                </option>
+                                                                @for (
+                                                                    opt of ruesCategorySelectOptionsResolved();
+                                                                    track opt
+                                                                ) {
+                                                                    <option [value]="opt">
+                                                                        {{ opt }}
+                                                                    </option>
+                                                                }
+                                                            </select>
+                                                        </label>
+                                                        <div class="flex shrink-0 items-center gap-2">
+                                                            <button
+                                                                mat-button
+                                                                type="button"
+                                                                class="!h-9 !min-h-9 rounded-xl px-3"
+                                                                (click)="cancelRuesCategoryEdit()"
+                                                                [disabled]="savingRuesCategory()"
+                                                            >
+                                                                {{
+                                                                    'batchProcessing.ruesCategoryCancel'
+                                                                        | transloco
+                                                                }}
+                                                            </button>
+                                                            <button
+                                                                mat-flat-button
+                                                                color="primary"
+                                                                type="button"
+                                                                class="!h-9 !min-h-9 rounded-xl px-4"
+                                                                (click)="applyRuesCategoryEdit()"
+                                                                [disabled]="savingRuesCategory()"
+                                                            >
+                                                                {{
+                                                                    'batchProcessing.ruesCategoryApply'
+                                                                        | transloco
+                                                                }}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
                                         @if (getInputDataFields().length > 0) {
                                             <div class="space-y-0">
                                                 @for (
@@ -900,7 +1087,7 @@
                                                     </div>
                                                 }
                                             </div>
-                                        } @else {
+                                        } @else if (!canEditRuesCategory()) {
                                             <p class="text-sm text-gray-400 py-2">—</p>
                                         }
                                     </div>
@@ -914,7 +1101,7 @@
                         </div>
 
                         <!-- Step Results (second) -->
-                        @if (configSteps().length > 0 && selectedRow()?.results) {
+                        @if (configSteps().length > 0 && selectedRow()) {
                             <div class="mb-6">
                                 <h4 class="text-sm font-medium text-gray-500 mb-3">
                                     {{ 'batchProcessing.stepResults' | transloco }}
@@ -976,6 +1163,7 @@
                                                         }}
                                                     </span>
                                                     @if (
+                                                        !canEditRuesCategory() &&
                                                         getRowStepStatus(
                                                             selectedRow()!,
                                                             step.sequence

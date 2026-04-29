@@ -28,6 +28,7 @@ import {
 } from 'app/core/utils/csv-parse.util';
 import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
 import * as XLSX from 'xlsx';
+import { getBatchInputCsvHeaders } from '../../batch-input-csv.util';
 import {
     isClientVisibleBatchDependencyField,
     stripClientHiddenRowFields,
@@ -428,8 +429,7 @@ export class CreateBatchComponent implements OnInit {
         const config = this.configuration();
         if (!config) return;
 
-        // Get all required fields as headers
-        const headers = this.requiredFields().map((f) => f.field);
+        const headers = getBatchInputCsvHeaders(config);
 
         if (headers.length === 0) {
             // Fallback: add a placeholder header

@@ -1174,7 +1174,20 @@
     "openPdfInNewTab": "Ouvrir dans un nouvel onglet",
     "downloadPdf": "Télécharger le PDF",
     "pdfPreview": "Aperçu du PDF",
-    "pdfOmittedForJsonView": "[PDF omis — utilisez la vue lisible pour l’aperçu]"
+    "pdfOmittedForJsonView": "[PDF omis — utilisez la vue lisible pour l’aperçu]",
+    "downloadFailedInputsCsv": "Télécharger les entrées échouées (CSV)",
+    "downloadFailedInputsCsvTooltip": "Exporter les colonnes d’entrée d’origine pour toutes les lignes en échec (ignore la recherche) pour les ré-importer comme un nouveau lot.",
+    "failedExportNoRows": "Aucune ligne en échec à exporter.",
+    "failedExportDone": "{{count}} lignes en échec exportées au format CSV.",
+    "failedExportDismiss": "Fermer",
+    "ruesCategory": "Catégorie de registre",
+    "ruesCategoryNone": "(aucune — optionnel)",
+    "ruesCategorySaved": "Saisie enregistrée.",
+    "ruesCategorySaveFailed": "Impossible d’enregistrer la saisie. Réessayez.",
+    "ruesCategoryHint": "Facultatif. Effacer retire la catégorie pour cette ligne ; certains endpoints RUES v3 utilisent encore RM si la catégorie est absente de la requête.",
+    "ruesCategoryEdit": "Modifier la catégorie",
+    "ruesCategoryApply": "Appliquer",
+    "ruesCategoryCancel": "Annuler"
   },
   "batchDashboard": {
     "backToSmartBatch": "Retour à Smart Batch",
