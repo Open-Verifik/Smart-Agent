@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-enroll/projects/setup/breadcrumbs/breadcrumbs.component.scss"],
-  "sourcesContent": [":host { display: block; width: 100%; }\n"],
-  "mappings": ";AAAA;AAAQ,WAAA;AAAgB,SAAA;;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/postman/postman-history-prefill.ts"],
-  "sourcesContent": ["export const POSTMAN_HISTORY_PREFILL_STORAGE_KEY = 'smartAgent_postmanHistoryPrefill';\n\nexport interface PostmanHistoryPrefillPayload {\n    v: 1;\n    source: 'history';\n    code: string;\n    paramValues: Record<string, unknown>;\n    paymentMode: 'credits' | 'x402';\n    method?: string;\n    requestId?: string;\n}\n"],
-  "mappings": ";AAAO,IAAM,sCAAsC;",
-  "names": []
-}

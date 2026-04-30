@@ -45,6 +45,14 @@
 
                 <!-- Action Buttons -->
                 <div class="flex items-center gap-3">
+                    @if (batch() && batch()?.status !== 'processing') {
+                        <button mat-stroked-button (click)="editInputs()" class="!rounded-xl">
+                            <span class="inline-flex items-center gap-2">
+                                <mat-icon>playlist_add</mat-icon>
+                                {{ 'batchProcessing.addInputs' | transloco }}
+                            </span>
+                        </button>
+                    }
                     @if (batch()?.status === 'draft' || batch()?.status === 'pending') {
                         <button
                             mat-flat-button
@@ -59,20 +67,58 @@
                                     {{ 'batchProcessing.starting' | transloco }}
                                 } @else {
                                     <mat-icon>play_arrow</mat-icon>
-                                    {{ 'batchProcessing.startProcessing' | transloco }}
+                                    {{
+                                        (hasBatchRunProgress()
+                                            ? 'batchProcessing.resume'
+                                            : 'batchProcessing.startProcessing'
+                                        ) | transloco
+                                    }}
                                 }
                             </span>
                         </button>
                     }
-                    @if (batch()?.status === 'processing') {
-                        <button mat-stroked-button (click)="pauseProcessing()" class="!rounded-xl">
+                    @if (batch()?.status === 'processing' && isProcessing()) {
+                        <button
+                            mat-stroked-button
+                            (click)="pauseProcessing()"
+                            [disabled]="isPausing()"
+                            class="!rounded-xl"
+                        >
                             <span class="inline-flex items-center gap-2">
-                                <mat-icon>pause</mat-icon>
-                                {{ 'batchProcessing.pause' | transloco }}
+                                @if (isPausing()) {
+                                    <mat-icon class="animate-spin">refresh</mat-icon>
+                                    {{ 'batchProcessing.pausing' | transloco }}
+                                } @else {
+                                    <mat-icon>pause</mat-icon>
+                                    {{ 'batchProcessing.pause' | transloco }}
+                                }
                             </span>
                         </button>
                     }
-                    @if (batch()?.status === 'completed' || batch()?.status === 'processing') {
+                    @if (batch()?.status === 'processing' && !isProcessing()) {
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            (click)="startProcessing()"
+                            [disabled]="isStarting()"
+                            class="!rounded-xl"
+                        >
+                            <span class="inline-flex items-center gap-2">
+                                @if (isStarting()) {
+                                    <mat-icon class="animate-spin">refresh</mat-icon>
+                                    {{ 'batchProcessing.starting' | transloco }}
+                                } @else {
+                                    <mat-icon>play_arrow</mat-icon>
+                                    {{ 'batchProcessing.resume' | transloco }}
+                                }
+                            </span>
+                        </button>
+                    }
+                    @if (
+                        batch()?.status === 'completed' ||
+                        batch()?.status === 'processing' ||
+                        (batch()?.status === 'pending' && hasBatchRunProgress())
+                    ) {
                         <button
                             mat-flat-button
                             color="accent"

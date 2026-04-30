@@ -584,6 +584,15 @@
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <button
+                                        *ngIf="canAddInputs(batch)"
+                                        mat-icon-button
+                                        type="button"
+                                        [matTooltip]="'batchDashboard.addInputs' | transloco"
+                                        (click)="addInputs(batch._id!); $event.stopPropagation()"
+                                    >
+                                        <mat-icon class="icon-size-5">playlist_add</mat-icon>
+                                    </button>
+                                    <button
                                         mat-icon-button
                                         type="button"
                                         [matTooltip]="'batchDashboard.viewDetails' | transloco"

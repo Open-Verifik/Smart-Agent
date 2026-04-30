@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-batch/report-builder/signature-pad-dialog/signature-pad-dialog.component.ts"],
-  "sourcesContent": ["\n            canvas {\n                touch-action: none;\n            }\n        "],
-  "mappings": ";AACY;AACI,gBAAA;;",
-  "names": []
-}

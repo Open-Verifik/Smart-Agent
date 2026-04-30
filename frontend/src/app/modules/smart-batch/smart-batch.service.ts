@@ -164,6 +164,13 @@ export class SmartBatchService {
         );
     }
 
+    appendSmartBatchRows(batchId: string, rows: Record<string, unknown>[]) {
+        return this._httpClient.post<{ data: SmartBatch }>(
+            `${environment.apiUrl}/v2/smart-batches/${batchId}/rows/append`,
+            { rows }
+        );
+    }
+
     getSmartBatch(id: string) {
         return this._httpClient.get<{ data: SmartBatch }>(
             `${environment.apiUrl}/v2/smart-batches/${id}`,

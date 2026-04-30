@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/smart-monitor/incidents/incidents.component.scss"],
-  "sourcesContent": ["incidents {\n    display: block;\n}\n\n.incident-card {\n    transition:\n        box-shadow 0.2s ease,\n        transform 0.15s ease;\n\n    &:hover {\n        transform: translateY(-2px);\n    }\n}\n"],
-  "mappings": ";AAAA;AACI,WAAA;;AAGJ,CAAA;AACI,cACI,WAAA,KAAA,IAAA,EAAA,UAAA,MAAA;;AAGJ,CALJ,aAKI;AACI,aAAA,WAAA;;",
-  "names": []
-}

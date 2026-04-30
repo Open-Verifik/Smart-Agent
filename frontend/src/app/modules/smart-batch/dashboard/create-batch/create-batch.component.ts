@@ -33,7 +33,7 @@ import {
     isClientVisibleBatchDependencyField,
     stripClientHiddenRowFields,
 } from '../../smart-batch-dependency.constants';
-import { BatchConfiguration, SmartBatchService } from '../../smart-batch.service';
+import { BatchConfiguration, SmartBatch, SmartBatchService } from '../../smart-batch.service';
 import { TutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
 /** Represents a required field extracted from step dependencies */
@@ -86,6 +86,18 @@ interface CsvParseWarningNotice {
     params?: Record<string, unknown>;
 }
 
+interface ParsedBatchFileSummary {
+    name: string;
+    size: number;
+    rowCount: number;
+}
+
+interface ParsedBatchFileResult {
+    fieldOrder: string[];
+    rows: Record<string, unknown>[];
+    warnings: CsvParseWarningNotice[];
+}
+
 @Component({
     selector: 'create-batch',
     standalone: true,
@@ -129,9 +141,12 @@ export class CreateBatchComponent implements OnInit {
     private readonly TUTORIAL_STORAGE_KEY = 'smart-batch-tutorial-shown';
 
     configId = signal<string | null>(null);
+    batchId = signal<string | null>(null);
     configuration = signal<BatchConfiguration | null>(null);
+    existingBatch = signal<SmartBatch | null>(null);
     isLoading = signal(true);
     isSubmitting = signal(false);
+    isParsingFiles = signal(false);
     showRequiredFieldsPanel = signal(true);
 
     // Form
@@ -144,6 +159,7 @@ export class CreateBatchComponent implements OnInit {
 
     // File upload state
     selectedFile = signal<File | null>(null);
+    selectedFiles = signal<ParsedBatchFileSummary[]>([]);
     isDragging = signal(false);
     parseError = signal<string | null>(null);
     /** Required column names missing from the upload (message from i18n in the template). */
@@ -207,6 +223,10 @@ export class CreateBatchComponent implements OnInit {
     requiredFieldCount = computed(() => this.requiredFields().filter((f) => f.required).length);
 
     optionalFieldCount = computed(() => this.requiredFields().filter((f) => !f.required).length);
+
+    isAppendMode = computed(() => !!this.batchId());
+
+    isAppendBlocked = computed(() => this.existingBatch()?.status === 'processing');
 
     // Computed: All unique fields (required + optional)
     allFields = computed(() => {
@@ -316,7 +336,8 @@ export class CreateBatchComponent implements OnInit {
     hasValidData = computed(() => {
         this.batchFormValid(); // depend on signal so we re-check when form validity changes
         const validation = this.validationResult();
-        const basicValid = this.batchForm.valid && this.parsedRows().length > 0;
+        const nameValid = this.isAppendMode() || this.batchForm.valid;
+        const basicValid = nameValid && this.parsedRows().length > 0 && !this.isAppendBlocked();
         return basicValid && (!validation || validation.isValid);
     });
 
@@ -324,7 +345,13 @@ export class CreateBatchComponent implements OnInit {
     createBatchDisabledReason = computed(() => {
         this.batchFormValid();
         this._translocoLang();
-        if (this.isSubmitting()) return this._transloco.translate('createBatch.disabledCreating');
+        if (this.isSubmitting()) {
+            return this._transloco.translate(
+                this.isAppendMode() ? 'createBatch.disabledAppending' : 'createBatch.disabledCreating'
+            );
+        }
+        if (this.isParsingFiles()) return this._transloco.translate('createBatch.disabledParsing');
+        if (this.isAppendBlocked()) return this._transloco.translate('createBatch.disabledProcessing');
         const banner = this.fileCardIssueBanner();
         if (banner?.mode === 'raw') return banner.text;
         if (banner?.mode === 'i18n') {
@@ -333,7 +360,7 @@ export class CreateBatchComponent implements OnInit {
         if (this.parsedRows().length === 0) {
             return this._transloco.translate('createBatch.disabledNoFile');
         }
-        if (!this.batchForm.get('name')?.value?.trim()) {
+        if (!this.isAppendMode() && !this.batchForm.get('name')?.value?.trim()) {
             return this._transloco.translate('createBatch.disabledNoBatchName');
         }
         const validation = this.validationResult();
@@ -379,6 +406,11 @@ export class CreateBatchComponent implements OnInit {
         });
 
         const id = this._route.snapshot.paramMap.get('configId');
+        const batchId = this._route.snapshot.paramMap.get('batchId');
+        if (batchId) {
+            this.batchId.set(batchId);
+            this.loadExistingBatch(batchId);
+        }
         if (id) {
             this.configId.set(id);
             this.loadConfiguration(id);
@@ -388,6 +420,20 @@ export class CreateBatchComponent implements OnInit {
 
         // Check if we should show the tutorial
         this.checkAndShowTutorial();
+    }
+
+    loadExistingBatch(batchId: string) {
+        this._smartBatchService.getSmartBatch(batchId).subscribe({
+            next: (res) => {
+                this.existingBatch.set(res.data);
+                this.batchForm.patchValue({ name: res.data.name });
+                this.batchForm.disable({ emitEvent: false });
+                this.batchFormValid.set(true);
+            },
+            error: () => {
+                this._router.navigate(['/smart-batch', this.configId()]);
+            },
+        });
     }
 
     private checkAndShowTutorial() {
@@ -482,36 +528,208 @@ export class CreateBatchComponent implements OnInit {
 
         const files = event.dataTransfer?.files;
         if (files && files.length > 0) {
-            this.handleFile(files[0]);
+            void this.handleFiles(Array.from(files));
         }
     }
 
     onFileSelected(event: Event) {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
-            this.handleFile(input.files[0]);
+            void this.handleFiles(Array.from(input.files));
+            input.value = '';
+        }
+    }
+
+    async handleFiles(files: File[]) {
+        if (files.length === 0 || this.isAppendBlocked()) return;
+
+        this.parseError.set(null);
+        this.missingRequiredColumnsFields.set(null);
+        this.csvParseWarnings.set([]);
+        this.isParsingFiles.set(true);
+
+        try {
+            const summaries = [...this.selectedFiles()];
+            const mergedRows = [...this.parsedRows()];
+            const mergedColumns = [...this.previewColumns()];
+            const warnings = [...this.csvParseWarnings()];
+
+            for (const file of files) {
+                const parsed = await this.parseFileForMerge(file);
+                for (const col of parsed.fieldOrder) {
+                    if (!mergedColumns.some((existing) => existing.toLowerCase() === col.toLowerCase())) {
+                        mergedColumns.push(col);
+                    }
+                }
+                mergedRows.push(...parsed.rows);
+                warnings.push(...parsed.warnings);
+                summaries.push({ name: file.name, size: file.size, rowCount: parsed.rows.length });
+            }
+
+            this.selectedFile.set(files[0] ?? null);
+            this.selectedFiles.set(summaries);
+            this.previewColumns.set(mergedColumns);
+            this.parsedRows.set(mergedRows);
+            this.csvParseWarnings.set(warnings);
+            this.validateAllData(mergedColumns, mergedRows);
+        } catch (err) {
+            this.parseError.set(err instanceof Error ? err.message : 'Failed to parse file.');
+        } finally {
+            this.isParsingFiles.set(false);
         }
     }
 
     handleFile(file: File) {
-        this.selectedFile.set(file);
-        this.parseError.set(null);
-        this.missingRequiredColumnsFields.set(null);
-        this.csvParseWarnings.set([]);
-        this.parsedRows.set([]);
-        this.previewColumns.set([]);
+        void this.handleFiles([file]);
+    }
 
+    private readFileAsText(file: File): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(String(e.target?.result ?? ''));
+            reader.onerror = () => reject(new Error('Failed to read file.'));
+            reader.readAsText(file);
+        });
+    }
+
+    private readFileAsArrayBuffer(file: File): Promise<ArrayBuffer> {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target?.result;
+                if (result instanceof ArrayBuffer) resolve(result);
+                else reject(new Error('Failed to read Excel file.'));
+            };
+            reader.onerror = () => reject(new Error('Failed to read Excel file.'));
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    private async parseFileForMerge(file: File): Promise<ParsedBatchFileResult> {
         const extension = file.name.split('.').pop()?.toLowerCase();
+        if (extension === 'csv') return this.parseCsvFileForMerge(file);
+        if (extension === 'jsonl') return this.parseJsonlFileForMerge(file);
+        if (extension === 'xlsx' || extension === 'xls') return this.parseXlsxFileForMerge(file);
+        throw new Error(`Unsupported file format: .${extension}`);
+    }
 
-        if (extension === 'csv') {
-            this.parseCSV(file);
-        } else if (extension === 'jsonl') {
-            this.parseJSONL(file);
-        } else if (extension === 'xlsx' || extension === 'xls') {
-            this.parseXLSX(file);
-        } else {
-            this.parseError.set(`Unsupported file format: .${extension}`);
+    private async parseCsvFileForMerge(file: File): Promise<ParsedBatchFileResult> {
+        const text = stripBom(await this.readFileAsText(file));
+        const lines = text
+            .split('\n')
+            .map((line) => line.replace(/\r$/, ''))
+            .filter((line) => line.trim());
+
+        if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row.');
+
+        const { delimiter } = detectBestCsvDelimiter(lines);
+        const headers = parseCSVLine(lines[0], delimiter);
+        if (!headers.some((h) => h.trim())) throw new Error('CSV header row is empty or invalid.');
+
+        const rows: Record<string, unknown>[] = [];
+        let skippedRowCount = 0;
+        const dataLineCount = lines.length - 1;
+
+        for (let i = 1; i < lines.length; i++) {
+            const values = parseCSVLine(lines[i], delimiter);
+            if (values.length === headers.length) {
+                const row: Record<string, unknown> = {};
+                headers.forEach((header, idx) => {
+                    row[header] = values[idx];
+                });
+                rows.push(row);
+            } else {
+                skippedRowCount += 1;
+            }
         }
+
+        const warnings = this.buildCsvParseWarnings(
+            skippedRowCount,
+            dataLineCount,
+            lines[0],
+            headers.length
+        );
+        return this.sanitizeAndRestrictFileRows(headers, rows, warnings, 'CSV');
+    }
+
+    private async parseXlsxFileForMerge(file: File): Promise<ParsedBatchFileResult> {
+        const result = await this.readFileAsArrayBuffer(file);
+        const workbook = XLSX.read(result, { type: 'array' });
+        const firstSheet = workbook.SheetNames[0];
+        if (!firstSheet) throw new Error('The workbook has no sheets.');
+
+        const sheet = workbook.Sheets[firstSheet];
+        const matrix = XLSX.utils.sheet_to_json(sheet, {
+            header: 1,
+            defval: '',
+        }) as unknown[][];
+        const { rows: grid } = sanitizeMatrix(matrix);
+        if (grid.length < 2) throw new Error('Excel must have a header row and at least one data row.');
+
+        const headerRow = grid[0].map((c) => String(c ?? '').trim());
+        if (!headerRow.some((h) => h)) throw new Error('Excel header row is empty or invalid.');
+
+        const objects: Record<string, unknown>[] = grid.slice(1).map((cells) => {
+            const row: Record<string, unknown> = {};
+            headerRow.forEach((field, index) => {
+                if (field) row[field] = (cells as unknown[])[index] ?? '';
+            });
+            return row;
+        });
+        return this.sanitizeAndRestrictFileRows(headerRow, objects, [], 'Excel');
+    }
+
+    private async parseJsonlFileForMerge(file: File): Promise<ParsedBatchFileResult> {
+        const text = await this.readFileAsText(file);
+        const lines = text.split('\n').filter((line) => line.trim());
+        if (lines.length === 0) throw new Error('JSONL file is empty.');
+
+        const rows: Record<string, unknown>[] = [];
+        const allKeys = new Set<string>();
+        for (const line of lines) {
+            const obj = JSON.parse(line) as Record<string, unknown>;
+            rows.push(obj);
+            Object.keys(obj).forEach((key) => allKeys.add(key));
+        }
+        return this.sanitizeAndRestrictFileRows(Array.from(allKeys), rows, [], 'JSONL');
+    }
+
+    private sanitizeAndRestrictFileRows(
+        fieldOrder: string[],
+        rows: Record<string, unknown>[],
+        parseWarnings: CsvParseWarningNotice[],
+        label: string
+    ): ParsedBatchFileResult {
+        const { fieldOrder: sanitizedOrder, rows: sanitized } = sanitizePapaObjectRows(rows, fieldOrder);
+        if (sanitized.length === 0) throw new Error(`${label} has no data rows.`);
+
+        const restricted = this.restrictRowsToConfiguredFields(sanitizedOrder, sanitized);
+        if (restricted.ok === false) throw new Error(restricted.errorMessage);
+
+        let warnings = [...parseWarnings];
+        if (restricted.droppedHeaders.length > 0) {
+            warnings = [
+                ...warnings,
+                {
+                    key: 'createBatch.strippedUnknownColumnsNotice',
+                    params: {
+                        count: restricted.droppedHeaders.length,
+                        columns: this.formatDroppedColumnList(restricted.droppedHeaders),
+                    },
+                },
+            ];
+        }
+
+        const resanitized = sanitizePapaObjectRows(restricted.rows, restricted.fieldOrder);
+        if (resanitized.rows.length === 0) {
+            throw new Error(this._transloco.translate('createBatch.noDataRowsAfterColumnFilter'));
+        }
+
+        return {
+            fieldOrder: resanitized.fieldOrder,
+            rows: resanitized.rows,
+            warnings,
+        };
     }
 
     parseCSV(file: File) {
@@ -1405,6 +1623,7 @@ export class CreateBatchComponent implements OnInit {
 
     removeFile() {
         this.selectedFile.set(null);
+        this.selectedFiles.set([]);
         this.parsedRows.set([]);
         this.previewColumns.set([]);
         this.parseError.set(null);
@@ -1418,12 +1637,27 @@ export class CreateBatchComponent implements OnInit {
 
         this.isSubmitting.set(true);
 
+        const rows = this.parsedRows().map((r) =>
+            stripClientHiddenRowFields(r as Record<string, unknown>)
+        );
+
+        if (this.isAppendMode() && this.batchId()) {
+            this._smartBatchService.appendSmartBatchRows(this.batchId()!, rows).subscribe({
+                next: () => {
+                    this._router.navigate(['/smart-batch', this.configId(), 'batch', this.batchId()]);
+                },
+                error: (err) => {
+                    console.error('Failed to append batch rows:', err);
+                    this.isSubmitting.set(false);
+                },
+            });
+            return;
+        }
+
         const payload = {
             batchConfiguration: this.configId()!,
             name: this.batchForm.value.name,
-            rows: this.parsedRows().map((r) =>
-                stripClientHiddenRowFields(r as Record<string, unknown>)
-            ),
+            rows,
         };
 
         this._smartBatchService.createSmartBatch(payload).subscribe({
@@ -1438,6 +1672,10 @@ export class CreateBatchComponent implements OnInit {
     }
 
     goBack() {
+        if (this.isAppendMode() && this.batchId()) {
+            this._router.navigate(['/smart-batch', this.configId(), 'batch', this.batchId()]);
+            return;
+        }
         this._router.navigate(['/smart-batch', this.configId()]);
     }
 

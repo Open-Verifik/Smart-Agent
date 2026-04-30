@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     ElementRef,
     inject,
     OnDestroy,
@@ -151,6 +152,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     isLoading = signal(true);
     isProcessing = signal(false);
     isStarting = signal(false);
+    /** True while persisting pause (`pending`) to the API. */
+    isPausing = signal(false);
     retryingStepKey = signal<string | null>(null);
     continuingRowIndex = signal<number | null>(null);
     /** True while persisting RUES category / inputData patch for the selected row. */
@@ -321,8 +324,37 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return Math.round((finishedRows / b.totalRows) * 100);
     });
 
+    /** Any finished rows on the batch (completed / failed / partial) — use “Resume” vs “Start” copy. */
+    hasBatchRunProgress = computed(() => {
+        const b = this.batch();
+        if (!b) return false;
+        return (
+            (b.completedRows ?? 0) + (b.failedRows ?? 0) + (b.partialRows ?? 0) > 0
+        );
+    });
+
     // Selected row for detail view
     selectedRow = signal<SmartBatchRow | null>(null);
+
+    /**
+     * Keep the detail panel row in sync with `batch()` after any `batch.set()` replaces `rows`
+     * (e.g. silent refresh); avoids stale `results` / wrong step status on the selected snapshot.
+     */
+    private readonly _syncSelectedRowWithBatch = effect(() => {
+        const batch = this.batch();
+        const selected = this.selectedRow();
+        if (selected == null || !batch?.rows?.length) {
+            return;
+        }
+        const next = batch.rows.find((r) => r.rowIndex === selected.rowIndex);
+        if (!next) {
+            this.selectedRow.set(null);
+            return;
+        }
+        if (next !== selected) {
+            this.selectedRow.set(next);
+        }
+    });
 
     /** Row details display: 'readable' (label/value pairs) or 'json' (raw JSON) - applies to Input and Step Results */
     detailsViewMode = signal<'readable' | 'json'>('readable');
@@ -399,27 +431,29 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         });
     }
 
-    private _loadBatch(): void {
+    /**
+     * @param options.silent When true, skip full-page loading spinner (e.g. refresh after `_processRows`).
+     */
+    private _loadBatch(options?: { silent?: boolean }): void {
         const id = this.batchId();
         if (!id) return;
 
-        this.isLoading.set(true);
+        const silent = options?.silent === true;
+        if (!silent) {
+            this.isLoading.set(true);
+        }
         this._smartBatchService.getSmartBatch(id).subscribe({
             next: (res) => {
                 this.batch.set(res.data);
-                this.isLoading.set(false);
-
-                // Auto-resume if status is processing and we are not already processing
-                // This "auto-fixes" batches that were stuck or interrupted
-                if (res.data.status === 'processing' && !this.isProcessing()) {
-                    console.log('Resuming processing for batch:', id);
-                    this.isProcessing.set(true);
-                    this._processRows();
+                if (!silent) {
+                    this.isLoading.set(false);
                 }
             },
             error: (err) => {
                 console.error('Failed to load batch:', err);
-                this.isLoading.set(false);
+                if (!silent) {
+                    this.isLoading.set(false);
+                }
             },
         });
     }
@@ -512,8 +546,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
         await this._awaitPersistDrain();
 
-        // Reload batch to get final state
-        this._loadBatch();
+        this._loadBatch({ silent: true });
         this.isProcessing.set(false);
         this.currentRowIndex.set(null);
         this.currentStepIndex.set(null);
@@ -943,9 +976,29 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     }
 
-    pauseProcessing(): void {
+    async pauseProcessing(): Promise<void> {
+        const batchId = this.batchId();
+        if (!batchId) return;
+
         this._processingAborted = true;
         this.isProcessing.set(false);
+
+        this.isPausing.set(true);
+        try {
+            const res = await firstValueFrom(
+                this._smartBatchService.updateSmartBatch(batchId, { status: 'pending' })
+            );
+            this.batch.set(res.data);
+        } catch (err) {
+            console.error('Failed to pause batch:', err);
+            this._snack.open(
+                this._transloco.translate('batchProcessing.pauseFailed'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 4000 }
+            );
+        } finally {
+            this.isPausing.set(false);
+        }
     }
 
     /**
@@ -1088,6 +1141,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     }
 
+    editInputs(): void {
+        const configId = this.configId();
+        const batchId = this.batchId();
+        if (configId && batchId && this.batch()?.status !== 'processing') {
+            this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'inputs']);
+        }
+    }
+
     generateRowReport(row: SmartBatchRow): void {
         const configId = this.configId();
         const batchId = this.batchId();
@@ -1120,7 +1181,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     selectRow(row: SmartBatchRow): void {
-        this.selectedRow.set(row);
+        const canonical = this.batch()?.rows?.find((r) => r.rowIndex === row.rowIndex);
+        this.selectedRow.set(canonical ?? row);
         this.ruesCategoryEditing.set(false);
         this.ruesCategoryDraft.set('');
         this.isLoadingDetail.set(true);

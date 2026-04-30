@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/postman/request-editor/about-endpoint.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n            }\n            pre.hljs {\n                background-color: rgb(15 23 42);\n                color: rgb(226 232 240);\n                border-radius: 0.5rem;\n                margin: 0;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;;AAEJ,GAAA,CAAA;AACI,oBAAA,IAAA,EAAA,EAAA,EAAA,EAAA;AACA,SAAA,IAAA,GAAA,EAAA,GAAA,EAAA;AACA,iBAAA;AACA,UAAA;;",
-  "names": []
-}

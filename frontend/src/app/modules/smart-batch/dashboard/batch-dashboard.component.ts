@@ -136,6 +136,14 @@ export class BatchDashboardComponent implements OnInit {
         this._router.navigate(['/smart-batch', this.configId(), 'batch', batchId]);
     }
 
+    addInputs(batchId: string) {
+        this._router.navigate(['/smart-batch', this.configId(), 'batch', batchId, 'inputs']);
+    }
+
+    canAddInputs(batch: SmartBatch): boolean {
+        return batch.status !== 'processing';
+    }
+
     getCountryFlag(country: string): string {
         const map: Record<string, string> = {
             colombia: '🇨🇴',

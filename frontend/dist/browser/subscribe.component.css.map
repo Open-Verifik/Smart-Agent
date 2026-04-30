@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/modules/status-check/subscribe/subscribe.component.scss"],
-  "sourcesContent": ["status-check-subscribe {\n    display: flex;\n    flex-direction: column;\n    width: 100%;\n    min-height: 0;\n    max-height: inherit;\n    overflow: hidden;\n    background: white;\n\n    .dark & {\n        background: #111827; // bg-gray-900\n    }\n\n    .status-check-subscribe__dialog {\n        max-height: 90vh;\n        max-height: 90dvh;\n    }\n\n    .status-check-subscribe__body {\n        -webkit-overflow-scrolling: touch;\n    }\n\n    .mat-mdc-form-field-subscript-wrapper {\n        display: none;\n    }\n\n    .mat-mdc-chip-grid {\n        min-height: 48px;\n    }\n\n    .mat-mdc-standard-chip {\n        --mdc-chip-elevated-container-color: #f3f4f6;\n        --mdc-chip-label-text-color: #374151;\n        max-width: 100%;\n        border-radius: 8px !important;\n\n        .mdc-evolution-chip__text-label {\n            overflow-wrap: anywhere;\n        }\n\n        .dark & {\n            --mdc-chip-elevated-container-color: #374151;\n            --mdc-chip-label-text-color: #f3f4f6;\n        }\n    }\n}\n"],
-  "mappings": ";AAAA;AACI,WAAA;AACA,kBAAA;AACA,SAAA;AACA,cAAA;AACA,cAAA;AACA,YAAA;AACA,cAAA;;AAEA,CAAA,KAAA;AACI,cAAA;;AAGJ,uBAAA,CAAA;AACI,cAAA;AACA,cAAA;;AAGJ,uBAAA,CAAA;AACI,8BAAA;;AAGJ,uBAAA,CAAA;AACI,WAAA;;AAGJ,uBAAA,CAAA;AACI,cAAA;;AAGJ,uBAAA,CAAA;AACI,uCAAA;AACA,+BAAA;AACA,aAAA;AACA,iBAAA;;AAEA,uBAAA,CANJ,sBAMI,CAAA;AACI,iBAAA;;AAGJ,CA/BJ,KA+BI,uBAAA,CAVJ;AAWQ,uCAAA;AACA,+BAAA;;",
-  "names": []
-}

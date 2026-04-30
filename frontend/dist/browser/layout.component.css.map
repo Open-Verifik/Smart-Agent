@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/layout/layout.component.scss"],
-  "sourcesContent": ["layout {\n    display: flex;\n    flex: 1 1 auto;\n    width: 100%;\n    max-width: 100%;\n    min-width: 0;\n\n    /* Base styles for individual layouts */\n    > * {\n        position: relative;\n        display: flex;\n        flex: 1 1 auto;\n        width: 100%;\n    }\n\n    /* Base styles for components that load as a route */\n    router-outlet {\n        + * {\n            position: relative;\n            display: flex;\n            flex: 1 1 auto;\n            width: 100%;\n        }\n    }\n}\n"],
-  "mappings": ";AAAA;AACI,WAAA;AACA,QAAA,EAAA,EAAA;AACA,SAAA;AACA,aAAA;AACA,aAAA;;AAGA,OAAA,EAAA;AACI,YAAA;AACA,WAAA;AACA,QAAA,EAAA,EAAA;AACA,SAAA;;AAKA,OAAA,cAAA,EAAA;AACI,YAAA;AACA,WAAA;AACA,QAAA,EAAA,EAAA;AACA,SAAA;;",
-  "names": []
-}

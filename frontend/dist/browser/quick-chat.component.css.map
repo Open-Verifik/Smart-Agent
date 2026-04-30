@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/layout/common/quick-chat/quick-chat.component.scss"],
-  "sourcesContent": ["quick-chat {\n    z-index: 399;\n\n    > div {\n        overflow: hidden;\n    }\n\n    &.quick-chat-opened {\n        > div {\n            overflow: visible;\n        }\n    }\n\n    &:not(.quick-chat-opened) {\n        > div {\n            overflow: visible;\n            animation: addOverflowHidden 1ms linear 400ms;\n            animation-fill-mode: forwards;\n        }\n    }\n}\n\n/* Adjustments depending on the selected layout */\n.quick-chat-header {\n    height: 64px;\n\n    enterprise-layout &,\n    modern-layout & {\n        height: 80px !important;\n    }\n}\n\n/* Overlay */\n.quick-chat-overlay {\n    position: fixed;\n    top: 0;\n    bottom: 0;\n    left: 0;\n    right: 0;\n    z-index: 299;\n    opacity: 1;\n    background-color: transparent;\n}\n\n@keyframes addOverflowHidden {\n    0% {\n        overflow: visible;\n    }\n    99% {\n        overflow: visible;\n    }\n    100% {\n        overflow: hidden;\n    }\n}\n"],
-  "mappings": ";AAAA;AACI,WAAA;;AAEA,WAAA,EAAA;AACI,YAAA;;AAIA,UAAA,CAAA,kBAAA,EAAA;AACI,YAAA;;AAKJ,UAAA,KAAA,CANA,mBAMA,EAAA;AACI,YAAA;AACA,aAAA,kBAAA,IAAA,OAAA;AACA,uBAAA;;AAMZ,CAAA;AACI,UAAA;;AAEA,kBAAA,CAHJ;AAGI,cAAA,CAHJ;AAKQ,UAAA;;AAKR,CAAA;AACI,YAAA;AACA,OAAA;AACA,UAAA;AACA,QAAA;AACA,SAAA;AACA,WAAA;AACA,WAAA;AACA,oBAAA;;AAGJ,WA5BY;AA6BR;AACI,cAAA;;AAEJ;AACI,cAAA;;AAEJ;AACI,cAAA;;;",
-  "names": []
-}

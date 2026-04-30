@@ -35,6 +35,13 @@ export default [
             ),
     },
     {
+        path: ':configId/batch/:batchId/inputs',
+        loadComponent: () =>
+            import('app/modules/smart-batch/dashboard/create-batch/create-batch.component').then(
+                (m) => m.CreateBatchComponent
+            ),
+    },
+    {
         path: ':configId/batch/:batchId',
         loadComponent: () =>
             import(
