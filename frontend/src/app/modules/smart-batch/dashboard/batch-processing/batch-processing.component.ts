@@ -48,7 +48,7 @@ import {
     SmartBatchSuccessWhenRule,
 } from '../../smart-batch.service';
 
-type RowFilter = 'all' | 'completed' | 'failed' | 'partial';
+type RowFilter = 'all' | 'pending' | 'completed' | 'failed' | 'partial';
 
 /** Label/tooltip i18n keys + visual accent for the tab-scoped inputs export menu trigger */
 type InputsExportButtonUi = {
@@ -188,6 +188,13 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return rows;
     });
 
+    /** Pending/processing rows ignoring search — used for tab counts and input export. */
+    pendingRowsIgnoringSearch = computed(() => {
+        const b = this.batch();
+        if (!b?.rows) return [];
+        return b.rows.filter((r) => r.status === 'pending' || r.status === 'processing');
+    });
+
     completedRows = computed(() => {
         const b = this.batch();
         if (!b?.rows) return [];
@@ -220,6 +227,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         const b = this.batch();
         if (!b?.rows) return [];
         switch (this.recordFilter()) {
+            case 'pending':
+                return this.pendingRowsIgnoringSearch();
             case 'completed':
                 return b.rows.filter((r) => r.status === 'completed');
             case 'failed':
@@ -238,6 +247,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     /** Mirrors active record tab so the export trigger reads and looks distinct per filter */
     inputsExportButtonUi = computed<InputsExportButtonUi>(() => {
         switch (this.recordFilter()) {
+            case 'pending':
+                return {
+                    labelKey: 'batchProcessing.downloadInputsPending',
+                    tooltipKey: 'batchProcessing.downloadInputsTooltipPending',
+                    accentClass: '!border-blue-500 !text-blue-800 hover:!bg-blue-50/90',
+                    dotClass: 'bg-blue-500',
+                    iconClass: 'text-blue-600',
+                };
             case 'completed':
                 return {
                     labelKey: 'batchProcessing.downloadInputsSuccessful',
@@ -290,6 +307,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             rows.map((row) => ({ kind, row }));
 
         switch (this.recordFilter()) {
+            case 'pending':
+                return toItems('pending', this.pendingRows());
             case 'completed':
                 return toItems('completed', this.completedRows());
             case 'partial':
@@ -1122,6 +1141,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     private _inputsExportFilterSlug(): string {
         switch (this.recordFilter()) {
+            case 'pending':
+                return 'pending';
             case 'completed':
                 return 'completed';
             case 'failed':
