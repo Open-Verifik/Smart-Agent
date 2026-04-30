@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-tools/smart-tools.routes.ts"],
+  "sourcesContent": ["import { Routes } from '@angular/router';\n\nexport default [\n    { path: '', redirectTo: 'smart-reduce', pathMatch: 'full' },\n    {\n        path: 'smart-reduce',\n        loadComponent: () =>\n            import('app/modules/smart-tools/smart-reduce/smart-reduce.component').then(\n                (m) => m.SmartReduceComponent\n            ),\n    },\n] as Routes;\n"],
+  "mappings": ";;;AAEA,IAAA,6BAAe;EACX,EAAE,MAAM,IAAI,YAAY,gBAAgB,WAAW,OAAM;EACzD;IACI,MAAM;IACN,eAAe,MACX,OAAO,qBAA6D,EAAE,KAClE,CAAC,MAAM,EAAE,oBAAoB;;;",
+  "names": []
+}

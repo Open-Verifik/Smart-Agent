@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-batch/smart-batch-dependency.constants.ts"],
+  "sourcesContent": ["/** Dependency fields that must never appear in batch CSV / client UI (internal API use only). */\nconst CLIENT_HIDDEN_DEPENDENCY_FIELDS = new Set(['force']);\n\n/** True if this dependency `field` should be shown in Smart Batch UIs and templates. */\nexport const isClientVisibleBatchDependencyField = (field: string): boolean => {\n    if (!field) return false;\n    return !CLIENT_HIDDEN_DEPENDENCY_FIELDS.has(field);\n};\n\n/** Remove internal-only keys from an uploaded row before persisting the batch. */\nexport const stripClientHiddenRowFields = (row: Record<string, unknown>): Record<string, unknown> => {\n    const out = { ...row };\n    for (const hidden of CLIENT_HIDDEN_DEPENDENCY_FIELDS) {\n        for (const k of Object.keys(out)) {\n            if (k.toLowerCase() === hidden) {\n                delete out[k];\n            }\n        }\n    }\n    return out;\n};\n"],
+  "mappings": ";;;;;AACA,IAAM,kCAAkC,oBAAI,IAAI,CAAC,OAAO,CAAC;AAGlD,IAAM,sCAAsC,CAAC,UAA0B;AAC1E,MAAI,CAAC;AAAO,WAAO;AACnB,SAAO,CAAC,gCAAgC,IAAI,KAAK;AACrD;AAGO,IAAM,6BAA6B,CAAC,QAAyD;AAChG,QAAM,MAAM,mBAAK;AACjB,aAAW,UAAU,iCAAiC;AAClD,eAAW,KAAK,OAAO,KAAK,GAAG,GAAG;AAC9B,UAAI,EAAE,YAAW,MAAO,QAAQ;AAC5B,eAAO,IAAI,CAAC;MAChB;IACJ;EACJ;AACA,SAAO;AACX;",
+  "names": []
+}

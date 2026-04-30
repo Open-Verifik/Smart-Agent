@@ -19,6 +19,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -26,6 +27,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import * as XLSX from 'xlsx';
 import { firstValueFrom, Subject } from 'rxjs';
 import {
     escapeCsvRow,
@@ -46,6 +48,15 @@ import {
 } from '../../smart-batch.service';
 
 type RowFilter = 'all' | 'completed' | 'failed' | 'partial';
+
+/** Label/tooltip i18n keys + visual accent for the tab-scoped inputs export menu trigger */
+type InputsExportButtonUi = {
+    labelKey: string;
+    tooltipKey: string;
+    accentClass: string;
+    dotClass: string;
+    iconClass: string;
+};
 type VirtualTableItemKind = 'pending' | 'completed' | 'partial' | 'failed';
 type VirtualTableItem = {
     kind: VirtualTableItemKind;
@@ -60,6 +71,9 @@ export type StepResultDisplayField =
 type StepExecutionResult =
     | { sequence: number; result: any }
     | { sequence: number; error: { step: number; message: string; code: string } };
+
+/** Max simultaneous Verifik API calls per batch. Only used when exactly one enabled step (avoids mid-row resume ambiguity and keeps persist cadence simple). */
+const SMART_BATCH_ROW_CONCURRENCY = 5;
 
 /** Colombia RUES batch steps that accept an optional/query `category` (codes match seeded AppFeatures). */
 const RUES_SMART_BATCH_FEATURE_CODES = new Set<string>([
@@ -98,6 +112,7 @@ const RUES_CATEGORY_FALLBACK_SORTED = [
         MatProgressSpinnerModule,
         MatSnackBarModule,
         MatTooltipModule,
+        MatMenuModule,
         MatSelectModule,
         ScrollingModule,
         TranslocoModule,
@@ -114,6 +129,17 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _destroy$ = new Subject<void>();
     private _processingAborted = false;
+    /**
+     * Serialized chain for all `updateBatchRow` calls so concurrent row workers never overlap parent
+     * batch counter updates on the server (stale snapshot races).
+     */
+    private _persistChain: Promise<void> = Promise.resolve();
+
+    /** Effective parallel row workers for the current run (`1` unless single-step batch). */
+    parallelRowConcurrency = signal(1);
+
+    /** Row indexes currently executing API steps (parallel mode). */
+    processingActiveRowIndexes = signal<readonly number[]>([]);
 
     // Route params
     configId = signal<string | null>(null);
@@ -177,11 +203,74 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return rows;
     });
 
-    /** Failed rows ignoring search — used for CSV export so every failure is included. */
+    /** Failed rows ignoring search — tab counts and Failed filter use the full failure set. */
     failedRowsIgnoringSearch = computed(() => {
         const b = this.batch();
         if (!b?.rows) return [];
         return b.rows.filter((r) => r.status === 'failed');
+    });
+
+    /**
+     * Rows whose input columns are exported to CSV for the active tab (ignores search).
+     */
+    rowsForInputsCsvExport = computed(() => {
+        const b = this.batch();
+        if (!b?.rows) return [];
+        switch (this.recordFilter()) {
+            case 'completed':
+                return b.rows.filter((r) => r.status === 'completed');
+            case 'failed':
+                return b.rows.filter((r) => r.status === 'failed');
+            case 'partial':
+                return b.rows.filter((r) => r.status === 'partial');
+            default:
+                return [...b.rows];
+        }
+    });
+
+    canDownloadInputs = computed(
+        () => !!this.configuration() && this.rowsForInputsCsvExport().length > 0
+    );
+
+    /** Mirrors active record tab so the export trigger reads and looks distinct per filter */
+    inputsExportButtonUi = computed<InputsExportButtonUi>(() => {
+        switch (this.recordFilter()) {
+            case 'completed':
+                return {
+                    labelKey: 'batchProcessing.downloadInputsSuccessful',
+                    tooltipKey: 'batchProcessing.downloadInputsTooltipSuccessful',
+                    accentClass:
+                        '!border-emerald-500 !text-emerald-800 hover:!bg-emerald-50/90',
+                    dotClass: 'bg-emerald-500',
+                    iconClass: 'text-emerald-600',
+                };
+            case 'failed':
+                return {
+                    labelKey: 'batchProcessing.downloadInputsFailed',
+                    tooltipKey: 'batchProcessing.downloadInputsTooltipFailed',
+                    accentClass: '!border-red-500 !text-red-800 hover:!bg-red-50/90',
+                    dotClass: 'bg-red-500',
+                    iconClass: 'text-red-600',
+                };
+            case 'partial':
+                return {
+                    labelKey: 'batchProcessing.downloadInputsPartial',
+                    tooltipKey: 'batchProcessing.downloadInputsTooltipPartial',
+                    accentClass:
+                        '!border-amber-500 !text-amber-900 hover:!bg-amber-50/90',
+                    dotClass: 'bg-amber-500',
+                    iconClass: 'text-amber-600',
+                };
+            default:
+                return {
+                    labelKey: 'batchProcessing.downloadInputsAll',
+                    tooltipKey: 'batchProcessing.downloadInputsTooltipAll',
+                    accentClass:
+                        '!border-slate-400 !text-slate-800 hover:!bg-slate-50/90',
+                    dotClass: 'bg-slate-500',
+                    iconClass: 'text-indigo-600',
+                };
+        }
     });
 
     partialRows = computed(() => {
@@ -360,7 +449,26 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Process all pending rows by making API calls from the frontend
+     * Serialize every smart-batch row PUT against races on parent `completedRows` / aggregates.
+     */
+    private async _serializedBatchRowMutation<T>(mutation: () => Promise<T>): Promise<T> {
+        const pending = this._persistChain.then(() => mutation());
+        this._persistChain = pending.then(
+            () => undefined,
+            () => undefined
+        );
+        return pending;
+    }
+
+    private async _awaitPersistDrain(): Promise<void> {
+        await this._persistChain.catch(() => undefined);
+    }
+
+    /**
+     * Process all pending rows by making API calls from the frontend.
+     * Multi-step configs run one row at a time (sequential workers) because mid-row resume and
+     * persist-between-steps semantics are ambiguous with concurrency; parallel mode is enabled only when
+     * there is exactly one enabled step (see `SMART_BATCH_ROW_CONCURRENCY`).
      */
     private async _processRows(): Promise<void> {
         // Wait for configuration to be loaded if it isn't yet
@@ -376,23 +484,74 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             return;
         }
 
-        console.log(`Starting/Resuming processing for ${currentBatch.rows.length} rows`);
+        this._persistChain = Promise.resolve();
 
-        for (const row of currentBatch.rows) {
-            if (this._processingAborted) break;
+        const useParallelWorkers = steps.length === 1 && !this._processingAborted;
+        const parallel = useParallelWorkers ? SMART_BATCH_ROW_CONCURRENCY : 1;
 
-            // Re-check status: only process pending or rows that somehow were left as "processing"
-            if (this._isTerminalRowStatus(row.status)) continue;
+        this.parallelRowConcurrency.set(parallel);
+        this.processingActiveRowIndexes.set([]);
 
-            this.currentRowIndex.set(row.rowIndex);
-            await this._processRow(row, steps);
+        const rowsSnapshot = [...currentBatch.rows];
+        const rowsToProcess = rowsSnapshot.filter((r) => !this._isTerminalRowStatus(r.status));
+
+        console.log(
+            `Starting/Resuming processing for ${currentBatch.rows.length} rows (${parallel === 1 ? 'sequential' : `up to ${parallel} parallel`})`
+        );
+
+        if (parallel === 1) {
+            for (const row of rowsToProcess) {
+                if (this._processingAborted) break;
+
+                this.currentRowIndex.set(row.rowIndex);
+                await this._processRow(row, steps);
+            }
+        } else {
+            await this._processRowsWithConcurrency(rowsToProcess, steps, parallel);
         }
+
+        await this._awaitPersistDrain();
 
         // Reload batch to get final state
         this._loadBatch();
         this.isProcessing.set(false);
         this.currentRowIndex.set(null);
         this.currentStepIndex.set(null);
+        this.parallelRowConcurrency.set(1);
+        this.processingActiveRowIndexes.set([]);
+    }
+
+    /** Parallel worker pool over rows (single-step batches only). */
+    private async _processRowsWithConcurrency(
+        rows: SmartBatchRow[],
+        steps: BatchStep[],
+        concurrency: number
+    ): Promise<void> {
+        if (rows.length === 0 || this._processingAborted) return;
+
+        const workerCount = Math.min(concurrency, rows.length);
+        let next = 0;
+        const active = new Set<number>();
+
+        const runOneWorker = async (): Promise<void> => {
+            while (!this._processingAborted) {
+                const idx = next++;
+                if (idx >= rows.length) return;
+
+                const row = rows[idx];
+                active.add(row.rowIndex);
+                this.processingActiveRowIndexes.set([...active].sort((a, b) => a - b));
+
+                try {
+                    await this._processRow(row, steps);
+                } finally {
+                    active.delete(row.rowIndex);
+                    this.processingActiveRowIndexes.set([...active].sort((a, b) => a - b));
+                }
+            }
+        };
+
+        await Promise.all(Array.from({ length: workerCount }, () => runOneWorker()));
     }
 
     /**
@@ -430,21 +589,23 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             ? this._deriveRowOutcome(results, errors, enabledSequences)
             : 'processing';
 
-        const updatedBatch = await firstValueFrom(
-            this._smartBatchService.updateBatchRow(batchId, rowIndex, {
-                status,
-                results,
-                errors,
-            })
-        );
-        this.batch.set(updatedBatch.data);
-        const sel = this.selectedRow();
-        if (sel?.rowIndex === rowIndex) {
-            const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === rowIndex);
-            if (updatedRow) {
-                this.selectedRow.set(updatedRow);
+        return this._serializedBatchRowMutation(async () => {
+            const updatedBatch = await firstValueFrom(
+                this._smartBatchService.updateBatchRow(batchId, rowIndex, {
+                    status,
+                    results,
+                    errors,
+                })
+            );
+            this.batch.set(updatedBatch.data);
+            const sel = this.selectedRow();
+            if (sel?.rowIndex === rowIndex) {
+                const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === rowIndex);
+                if (updatedRow) {
+                    this.selectedRow.set(updatedRow);
+                }
             }
-        }
+        });
     }
 
     private async _runSteps(
@@ -464,13 +625,16 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         const results = { ...initialResults };
         let errors = [...initialErrors];
         const doPersist = persist?.persistProgress && !!persist.batchId;
+        const showFineGrainedRowStepUi = this.parallelRowConcurrency() <= 1;
 
         for (let i = 0; i < steps.length; i++) {
             if (this._processingAborted) break;
 
             const step = steps[i];
-            this.currentRowIndex.set(row.rowIndex);
-            this.currentStepIndex.set(step.sequence);
+            if (showFineGrainedRowStepUi) {
+                this.currentRowIndex.set(row.rowIndex);
+                this.currentStepIndex.set(step.sequence);
+            }
 
             const outcome = await this._executeStep(row, step);
             if ('result' in outcome) {
@@ -673,20 +837,22 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 if (remainingSteps.length === 0) {
                     const status = this._deriveRowOutcome(results, errors, enabledSequences);
                     try {
-                        const updatedBatch = await firstValueFrom(
-                            this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                                status,
-                                results,
-                                errors,
-                            })
-                        );
-                        this.batch.set(updatedBatch.data);
-                        const updatedRow = updatedBatch.data.rows.find(
-                            (item) => item.rowIndex === row.rowIndex
-                        );
-                        if (updatedRow) {
-                            this.selectedRow.set(updatedRow);
-                        }
+                        await this._serializedBatchRowMutation(async () => {
+                            const updatedBatch = await firstValueFrom(
+                                this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
+                                    status,
+                                    results,
+                                    errors,
+                                })
+                            );
+                            this.batch.set(updatedBatch.data);
+                            const updatedRow = updatedBatch.data.rows.find(
+                                (item) => item.rowIndex === row.rowIndex
+                            );
+                            if (updatedRow) {
+                                this.selectedRow.set(updatedRow);
+                            }
+                        });
                     } catch (err) {
                         console.error(`Failed to update row ${row.rowIndex}:`, err);
                     }
@@ -717,17 +883,25 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 errors = this._replaceStepError(errors, retryOutcome.error);
 
                 const status = this._deriveRowOutcome(results, errors, enabledSequences);
-                const updatedBatch = await firstValueFrom(
-                    this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                        status,
-                        results,
-                        errors,
-                    })
-                );
-                this.batch.set(updatedBatch.data);
-                const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === row.rowIndex);
-                if (updatedRow) {
-                    this.selectedRow.set(updatedRow);
+                try {
+                    await this._serializedBatchRowMutation(async () => {
+                        const updatedBatch = await firstValueFrom(
+                            this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
+                                status,
+                                results,
+                                errors,
+                            })
+                        );
+                        this.batch.set(updatedBatch.data);
+                        const updatedRow = updatedBatch.data.rows.find(
+                            (item) => item.rowIndex === row.rowIndex
+                        );
+                        if (updatedRow) {
+                            this.selectedRow.set(updatedRow);
+                        }
+                    });
+                } catch (err) {
+                    console.error(`Failed to update row ${row.rowIndex}:`, err);
                 }
             }
         } catch (err) {
@@ -774,22 +948,19 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this.isProcessing.set(false);
     }
 
-    downloadFailedInputsCsv(): void {
+    /**
+     * Builds column order and one plain object per row (input fields only) for CSV / Excel / JSON export.
+     */
+    private _buildInputsExportTable():
+        | { columns: string[]; objects: Record<string, unknown>[] }
+        | null {
         const config = this.configuration();
-        const b = this.batch();
-        const failed = this.failedRowsIgnoringSearch();
-        if (!config || failed.length === 0) {
-            this._snack.open(
-                this._transloco.translate('batchProcessing.failedExportNoRows'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 3000 }
-            );
-            return;
-        }
+        const batchRows = this.rowsForInputsCsvExport();
+        if (!config || batchRows.length === 0) return null;
 
         const baseHeaders = getBatchInputCsvHeaders(config);
         const extraKeys = new Set<string>();
-        for (const row of failed) {
+        for (const row of batchRows) {
             const raw = row.inputData;
             if (raw != null && typeof raw === 'object' && !Array.isArray(raw)) {
                 Object.keys(raw as Record<string, unknown>).forEach((k) => {
@@ -801,56 +972,112 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         const columns =
             baseHeaders.length > 0
                 ? [...baseHeaders, ...extrasSorted.filter((k) => !baseHeaders.includes(k))]
-                : failed[0]?.inputData != null && typeof failed[0].inputData === 'object'
+                : batchRows[0]?.inputData != null && typeof batchRows[0].inputData === 'object'
                   ? [
-                        ...Object.keys(failed[0].inputData as Record<string, unknown>).sort((a, b) =>
-                            a.localeCompare(b)
+                        ...Object.keys(batchRows[0].inputData as Record<string, unknown>).sort(
+                            (a, b) => a.localeCompare(b)
                         ),
                     ]
                   : [];
 
-        if (columns.length === 0) {
-            this._snack.open(
-                this._transloco.translate('batchProcessing.failedExportNoRows'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 3000 }
-            );
-            return;
-        }
+        if (columns.length === 0) return null;
 
-        const csvRows = [escapeCsvRow(columns)];
-        for (const row of failed) {
+        const objects = batchRows.map((row) => {
             const data =
                 row.inputData != null &&
                 typeof row.inputData === 'object' &&
                 !Array.isArray(row.inputData)
                     ? (row.inputData as Record<string, unknown>)
                     : {};
-            const cells = columns.map((key) =>
-                inputDataValueForCsvCell(
-                    Object.prototype.hasOwnProperty.call(data, key) ? data[key] : ''
-                )
+            const o: Record<string, unknown> = {};
+            for (const key of columns) {
+                o[key] = Object.prototype.hasOwnProperty.call(data, key) ? data[key] ?? '' : '';
+            }
+            return o;
+        });
+
+        return { columns, objects };
+    }
+
+    downloadInputsExport(format: 'xlsx' | 'csv' | 'json'): void {
+        const b = this.batch();
+        const table = this._buildInputsExportTable();
+        if (!table || !b) {
+            this._snack.open(
+                this._transloco.translate('batchProcessing.inputExportNoRows'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 3000 }
             );
-            csvRows.push(escapeCsvRow(cells));
+            return;
         }
 
-        const blob = new Blob([`\uFEFF${csvRows.join('\n')}`], {
-            type: 'text/csv;charset=utf-8;',
-        });
-        const url = URL.createObjectURL(blob);
-        const sanitizedName = (b?.name || 'batch').replace(/[^a-zA-Z0-9_.-]+/g, '_');
+        const { columns, objects } = table;
+        const rowCount = objects.length;
+        const filterSlug = this._inputsExportFilterSlug();
+        const sanitizedName = (b.name || 'batch').replace(/[^a-zA-Z0-9_.-]+/g, '_');
         const idPart = this.batchId() || 'export';
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `failed-inputs_${sanitizedName}_${idPart}.csv`.replace(/[/\\]/g, '_');
-        anchor.click();
-        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        const baseName =
+            `batch-inputs_${filterSlug}_${sanitizedName}_${idPart}`.replace(/[/\\]/g, '_');
 
+        if (format === 'csv') {
+            const csvRows = [escapeCsvRow(columns)];
+            for (const o of objects) {
+                const cells = columns.map((key) =>
+                    inputDataValueForCsvCell(
+                        Object.prototype.hasOwnProperty.call(o, key) ? o[key] : ''
+                    )
+                );
+                csvRows.push(escapeCsvRow(cells));
+            }
+            const blob = new Blob([`\uFEFF${csvRows.join('\n')}`], {
+                type: 'text/csv;charset=utf-8;',
+            });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = `${baseName}.csv`;
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        } else if (format === 'json') {
+            const blob = new Blob([JSON.stringify(objects, null, 2)], {
+                type: 'application/json;charset=utf-8;',
+            });
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = url;
+            anchor.download = `${baseName}.json`;
+            anchor.click();
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        } else {
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(objects, { header: columns });
+            XLSX.utils.book_append_sheet(wb, ws, 'Inputs');
+            const xlsxName = `${baseName}.xlsx`.replace(/[/\\]/g, '_');
+            XLSX.writeFile(wb, xlsxName);
+        }
+
+        const formatLabel = this._transloco.translate(`batchProcessing.exportFormatLabel_${format}`);
         this._snack.open(
-            this._transloco.translate('batchProcessing.failedExportDone', { count: failed.length }),
+            this._transloco.translate('batchProcessing.inputExportDoneWithFormat', {
+                count: rowCount,
+                format: formatLabel,
+            }),
             this._transloco.translate('batchProcessing.failedExportDismiss'),
             { duration: 2500 }
         );
+    }
+
+    private _inputsExportFilterSlug(): string {
+        switch (this.recordFilter()) {
+            case 'completed':
+                return 'completed';
+            case 'failed':
+                return 'failed';
+            case 'partial':
+                return 'partial';
+            default:
+                return 'all';
+        }
     }
 
     generateReport(): void {
@@ -1186,13 +1413,15 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         if (!bid || row == null) return false;
         this.savingRuesCategory.set(true);
         try {
-            const res = await firstValueFrom(
-                this._smartBatchService.updateBatchRow(bid, row.rowIndex, {
-                    status: row.status,
-                    results: row.results,
-                    errors: row.errors ?? [],
-                    inputData: patch,
-                })
+            const res = await this._serializedBatchRowMutation(() =>
+                firstValueFrom(
+                    this._smartBatchService.updateBatchRow(bid, row.rowIndex, {
+                        status: row.status,
+                        results: row.results,
+                        errors: row.errors ?? [],
+                        inputData: patch,
+                    })
+                )
             );
             this.batch.set(res.data);
             const updated = res.data.rows.find((r) => r.rowIndex === row.rowIndex);

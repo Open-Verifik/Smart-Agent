@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/modules/smart-enroll/projects/dev-api-hint-dialog.component.scss"],
+  "sourcesContent": [".dev-api-hint-dialog__title {\n    @apply m-0 text-lg font-semibold text-stone-900 dark:text-white;\n}\n\n.dev-api-hint-dialog__content {\n    @apply max-h-[min(70vh,520px)] overflow-auto pt-2;\n}\n\n.dev-api-hint-dialog__pre {\n    @apply m-0 whitespace-pre-wrap break-words rounded-lg bg-stone-950 p-4 font-mono text-xs leading-relaxed text-stone-100 dark:bg-black/70;\n}\n\n.dev-api-hint-dialog__actions {\n    @apply gap-2 px-0 pb-2 pt-4;\n}\n\n.dev-api-hint-dialog__copy-icon {\n    @apply mr-1 text-base;\n    font-size: 18px;\n    width: 18px;\n    height: 18px;\n    vertical-align: middle;\n}\n"],
+  "mappings": ";AACI,CAAA;AAAA,UAAA;AAAA,aAAA;AAAA,eAAA;AAAA,qBAAA;AAAA,SAAA,IAAA,GAAA,GAAA,GAAA,EAAA,IAAA,iBAAA,EAAA;AAAA;AAAA,CAAA,0BAAA,OAAA,CAAA,MAAA,CAAA,KAAA;AAAA,qBAAA;AAAA,SAAA,IAAA,IAAA,IAAA,IAAA,EAAA,IAAA,iBAAA,EAAA;AAAA;AAIA,CAAA;AAAA,cAAA,IAAA,IAAA,EAAA;AAAA,YAAA;AAAA,eAAA;AAAA;AAIA,CAAA;AAAA,UAAA;AAAA,eAAA;AAAA,iBAAA;AAAA,iBAAA;AAAA,mBAAA;AAAA,oBAAA,IAAA,GAAA,GAAA,EAAA,EAAA,IAAA,eAAA,EAAA;AAAA,WAAA;AAAA;IAAA,eAAA;IAAA,YAAA;IAAA,cAAA;IAAA,KAAA;IAAA,MAAA;IAAA,QAAA;IAAA,iBAAA;IAAA,aAAA;IAAA;AAAA,aAAA;AAAA,eAAA;AAAA,qBAAA;AAAA,SAAA,IAAA,IAAA,IAAA,IAAA,EAAA,IAAA,iBAAA,EAAA;AAAA;AAAA,CAAA,wBAAA,OAAA,CARA,MAQA,CARA,KAQA;AAAA,oBAAA,IAAA,EAAA,EAAA,EAAA,EAAA;AAAA;AAIA,CAAA;AAAA,OAAA;AAAA,gBAAA;AAAA,iBAAA;AAAA,kBAAA;AAAA,eAAA;AAAA;AAIA,CAAA;AAAA,gBAAA;AAAA,aAAA;AACA,aAAA;AACA,SAAA;AACA,UAAA;AACA,kBAAA;AAJA;",
+  "names": []
+}
