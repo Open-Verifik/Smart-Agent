@@ -221,6 +221,21 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     });
 
     /**
+     * Whether the user can bulk- or single-retry failed rows (not during an active client/server run).
+     */
+    canOperateRetryFailed = computed(() => {
+        const b = this.batch();
+        if (!b?.rows?.length) return false;
+        if (this.failedRowsIgnoringSearch().length === 0) return false;
+        if (b.status === 'processing') return false;
+        if (this.isProcessing() || this.isStarting()) return false;
+        return true;
+    });
+
+    /** Set while resetting one failed row and starting processing */
+    retryingFailedRowIndex = signal<number | null>(null);
+
+    /**
      * Rows whose input columns are exported to CSV for the active tab (ignores search).
      */
     rowsForInputsCsvExport = computed(() => {
@@ -1018,6 +1033,118 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         } finally {
             this.isPausing.set(false);
         }
+    }
+
+    async retryAllFailedRows(event?: Event): Promise<void> {
+        event?.stopPropagation();
+        const batchId = this.batchId();
+        const b = this.batch();
+        if (!batchId || !b?.rows?.length) return;
+        if (!this.canOperateRetryFailed()) {
+            this._snack.open(
+                this._transloco.translate('batchProcessing.retryFailedBlocked'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 4000 }
+            );
+            return;
+        }
+
+        const failCount = b.rows.filter((r) => r.status === 'failed').length;
+        if (failCount === 0) return;
+
+        this.isStarting.set(true);
+        this._processingAborted = false;
+        try {
+            const newRows = b.rows.map((r) =>
+                r.status === 'failed'
+                    ? {
+                          ...r,
+                          status: 'pending' as SmartBatchRowStatus,
+                          results: {},
+                          errors: [],
+                          processedAt: undefined,
+                      }
+                    : r
+            );
+
+            const res = await firstValueFrom(
+                this._smartBatchService.updateSmartBatch(batchId, {
+                    rows: newRows,
+                    status: 'processing',
+                })
+            );
+            this.batch.set(res.data);
+            this.isStarting.set(false);
+            this.isProcessing.set(true);
+            await this._processRows();
+        } catch (err) {
+            console.error('Failed to retry all failed rows:', err);
+            this.isStarting.set(false);
+            this.isProcessing.set(false);
+            this._snack.open(
+                this._transloco.translate('batchProcessing.retryAllFailedError'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 5000 }
+            );
+        }
+    }
+
+    async retrySingleFailedRow(row: SmartBatchRow, event?: Event): Promise<void> {
+        event?.stopPropagation();
+        const batchId = this.batchId();
+        const b = this.batch();
+        if (!batchId || !b || row.status !== 'failed') return;
+        if (!this.canOperateRetryFailed()) {
+            this._snack.open(
+                this._transloco.translate('batchProcessing.retryFailedBlocked'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 4000 }
+            );
+            return;
+        }
+
+        this.retryingFailedRowIndex.set(row.rowIndex);
+        this._processingAborted = false;
+        try {
+            await this._serializedBatchRowMutation(async () => {
+                const res = await firstValueFrom(
+                    this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
+                        status: 'pending',
+                        results: {},
+                        errors: [],
+                    })
+                );
+                this.batch.set(res.data);
+            });
+
+            this.isStarting.set(true);
+            try {
+                const res = await firstValueFrom(
+                    this._smartBatchService.updateSmartBatch(batchId, { status: 'processing' })
+                );
+                this.batch.set(res.data);
+            } finally {
+                this.isStarting.set(false);
+            }
+
+            this.isProcessing.set(true);
+            await this._processRows();
+        } catch (err) {
+            console.error(`Failed to retry failed row ${row.rowIndex}:`, err);
+            this.isStarting.set(false);
+            this.isProcessing.set(false);
+            this._snack.open(
+                this._transloco.translate('batchProcessing.retryRowFailedError'),
+                this._transloco.translate('batchProcessing.failedExportDismiss'),
+                { duration: 5000 }
+            );
+        } finally {
+            this.retryingFailedRowIndex.set(null);
+        }
+    }
+
+    isRetryingFailedRowReset(row: SmartBatchRow): boolean {
+        return this.retryingFailedRowIndex() === row.rowIndex;
     }
 
     /**

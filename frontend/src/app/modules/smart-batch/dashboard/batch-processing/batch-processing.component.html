@@ -299,7 +299,7 @@
                             }
 
                             <!-- Failed (only when there are failures) -->
-                            @if (failedRows().length > 0) {
+                            @if (failedRowsIgnoringSearch().length > 0) {
                                 <div
                                     class="flex items-center gap-3 px-4 py-3 bg-red-50 rounded-lg cursor-pointer transition-all hover:shadow-md"
                                     [class.ring-2]="recordFilter() === 'failed'"
@@ -316,7 +316,7 @@
                                             {{ 'batchProcessing.failed' | transloco }}
                                         </p>
                                         <p class="text-lg font-bold text-red-700 leading-tight">
-                                            {{ failedRows().length }}
+                                            {{ failedRowsIgnoringSearch().length }}
                                             <span class="text-xs font-normal text-red-500">{{
                                                 'batchProcessing.requestsFailed' | transloco
                                             }}</span>
@@ -357,10 +357,14 @@
                 </div>
 
                 <!-- Table Header: Tabs + Search -->
-                <div class="px-5 pt-4 pb-0">
-                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="px-5 pt-4 pb-0 overflow-x-auto">
+                    <div
+                        class="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-4"
+                    >
                         <!-- Filter Tabs -->
-                        <div class="flex items-center gap-1 bg-gray-100 rounded-lg p-0.5">
+                        <div
+                            class="flex min-w-0 flex-wrap items-center gap-1 rounded-lg bg-gray-100 p-0.5"
+                        >
                             <button
                                 class="px-3 py-1.5 text-sm font-medium rounded-md transition-all"
                                 [ngClass]="
@@ -452,84 +456,107 @@
                         </div>
 
                         <div
-                            class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:justify-end sm:gap-2"
+                            class="flex min-w-0 w-full shrink-0 flex-col gap-2 lg:max-w-[min(100%,42rem)] lg:items-end"
                         >
-                            @if (canDownloadInputs()) {
-                                @let exportUi = inputsExportButtonUi();
-                                <button
-                                    mat-stroked-button
-                                    type="button"
-                                    [matMenuTriggerFor]="inputsExportMenu"
-                                    class="w-full shrink-0 sm:w-auto !rounded-xl !border-2"
-                                    [ngClass]="exportUi.accentClass"
-                                    [matTooltip]="exportUi.tooltipKey | transloco"
-                                >
-                                    <span class="inline-flex items-center gap-1.5 justify-center">
-                                        <span
-                                            class="h-1.5 w-1.5 shrink-0 rounded-full"
-                                            [ngClass]="exportUi.dotClass"
-                                            aria-hidden="true"
-                                        ></span>
-                                        <mat-icon
-                                            class="!h-5 !w-5 shrink-0"
-                                            [ngClass]="exportUi.iconClass"
-                                            >download</mat-icon
+                            <div
+                                class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2"
+                            >
+                                @if (failedRowsIgnoringSearch().length > 0) {
+                                    <button
+                                        mat-stroked-button
+                                        type="button"
+                                        color="warn"
+                                        class="!rounded-xl !border-2 !border-red-400 !text-red-800"
+                                        [disabled]="!canOperateRetryFailed()"
+                                        [matTooltip]="'batchProcessing.retryAllFailedTooltip' | transloco"
+                                        (click)="retryAllFailedRows()"
+                                    >
+                                        <mat-icon class="!h-5 !w-5 text-red-600">replay</mat-icon>
+                                        <span class="ml-1 whitespace-nowrap">{{
+                                            'batchProcessing.retryAllFailed'
+                                                | transloco
+                                                    : { count: failedRowsIgnoringSearch().length }
+                                        }}</span>
+                                    </button>
+                                }
+                                @if (canDownloadInputs()) {
+                                    @let exportUi = inputsExportButtonUi();
+                                    <button
+                                        mat-stroked-button
+                                        type="button"
+                                        [matMenuTriggerFor]="inputsExportMenu"
+                                        class="!rounded-xl !border-2"
+                                        [ngClass]="exportUi.accentClass"
+                                        [matTooltip]="exportUi.tooltipKey | transloco"
+                                    >
+                                        <span class="inline-flex max-w-[min(100vw-4rem,22rem)] items-center gap-1.5">
+                                            <span
+                                                class="h-1.5 w-1.5 shrink-0 rounded-full"
+                                                [ngClass]="exportUi.dotClass"
+                                                aria-hidden="true"
+                                            ></span>
+                                            <mat-icon
+                                                class="!h-5 !w-5 shrink-0"
+                                                [ngClass]="exportUi.iconClass"
+                                                >download</mat-icon
+                                            >
+                                            <span class="truncate">{{ exportUi.labelKey | transloco }}</span>
+                                            <mat-icon class="!h-5 !w-5 shrink-0 opacity-70"
+                                                >arrow_drop_down</mat-icon
+                                            >
+                                        </span>
+                                    </button>
+                                    <mat-menu #inputsExportMenu="matMenu">
+                                        <button
+                                            mat-menu-item
+                                            type="button"
+                                            (click)="downloadInputsExport('xlsx')"
                                         >
-                                        <span>{{ exportUi.labelKey | transloco }}</span>
-                                        <mat-icon class="!h-5 !w-5 shrink-0 opacity-70"
-                                            >arrow_drop_down</mat-icon
+                                            <mat-icon class="align-middle">table_chart</mat-icon>
+                                            <span>{{
+                                                'batchProcessing.exportAsExcel' | transloco
+                                            }}</span>
+                                        </button>
+                                        <button
+                                            mat-menu-item
+                                            type="button"
+                                            (click)="downloadInputsExport('csv')"
                                         >
-                                    </span>
-                                </button>
-                                <mat-menu #inputsExportMenu="matMenu">
-                                    <button
-                                        mat-menu-item
-                                        type="button"
-                                        (click)="downloadInputsExport('xlsx')"
-                                    >
-                                        <mat-icon class="align-middle">table_chart</mat-icon>
-                                        <span>{{
-                                            'batchProcessing.exportAsExcel' | transloco
-                                        }}</span>
-                                    </button>
-                                    <button
-                                        mat-menu-item
-                                        type="button"
-                                        (click)="downloadInputsExport('csv')"
-                                    >
-                                        <mat-icon class="align-middle">description</mat-icon>
-                                        <span>{{
-                                            'batchProcessing.exportAsCsv' | transloco
-                                        }}</span>
-                                    </button>
-                                    <button
-                                        mat-menu-item
-                                        type="button"
-                                        (click)="downloadInputsExport('json')"
-                                    >
-                                        <mat-icon class="align-middle">data_object</mat-icon>
-                                        <span>{{
-                                            'batchProcessing.exportAsJson' | transloco
-                                        }}</span>
-                                    </button>
-                                </mat-menu>
-                            }
+                                            <mat-icon class="align-middle">description</mat-icon>
+                                            <span>{{
+                                                'batchProcessing.exportAsCsv' | transloco
+                                            }}</span>
+                                        </button>
+                                        <button
+                                            mat-menu-item
+                                            type="button"
+                                            (click)="downloadInputsExport('json')"
+                                        >
+                                            <mat-icon class="align-middle">data_object</mat-icon>
+                                            <span>{{
+                                                'batchProcessing.exportAsJson' | transloco
+                                            }}</span>
+                                        </button>
+                                    </mat-menu>
+                                }
+                            </div>
 
-                            <!-- Search -->
-                            <div class="relative w-full sm:w-64">
+                            <!-- Search: full width in column so it is never clipped -->
+                            <div class="relative w-full min-h-9 min-w-[12rem]">
                                 <mat-icon
-                                    class="absolute left-2.5 top-1/2 -translate-y-1/2 !text-lg text-gray-400 pointer-events-none"
+                                    class="absolute left-2.5 top-1/2 z-[1] -translate-y-1/2 !text-lg text-gray-400 pointer-events-none"
                                     >search</mat-icon
                                 >
                                 <input
-                                    class="w-full h-9 pl-9 pr-8 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition-all placeholder-gray-400"
+                                    class="box-border w-full min-w-0 h-9 pl-9 pr-8 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition-all placeholder-gray-400"
                                     [ngModel]="searchQuery()"
                                     (ngModelChange)="updateSearchQuery($event)"
                                     [placeholder]="'smartReport.searchRecords' | transloco"
                                 />
                                 @if (searchQuery()) {
                                     <button
-                                        class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        type="button"
+                                        class="absolute right-2 top-1/2 z-[1] -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                         (click)="updateSearchQuery('')"
                                     >
                                         <mat-icon class="!text-base !w-4 !h-4">close</mat-icon>
@@ -826,6 +853,20 @@
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2">
+                                            <button
+                                                mat-icon-button
+                                                type="button"
+                                                class="!w-8 !h-8 shrink-0 text-red-600"
+                                                [disabled]="!canOperateRetryFailed() || isRetryingFailedRowReset(item.row)"
+                                                [matTooltip]="'batchProcessing.retryThisFailedRow' | transloco"
+                                                (click)="retrySingleFailedRow(item.row, $event)"
+                                            >
+                                                @if (isRetryingFailedRowReset(item.row)) {
+                                                    <mat-spinner diameter="20"></mat-spinner>
+                                                } @else {
+                                                    <mat-icon>replay</mat-icon>
+                                                }
+                                            </button>
                                             <!-- Step dots -->
                                             <div class="mr-1 hidden items-center gap-0.5 sm:flex">
                                                 @for (step of configSteps(); track step.sequence) {
