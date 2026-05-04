@@ -1144,6 +1144,8 @@
         "startProcessing": "처리 시작",
         "pause": "일시 중지",
         "resume": "재개",
+        "parallelWorkers": "동시 처리",
+        "parallelWorkersHint": "병렬로 실행할 레코드 수(단일 단계 배치만). 낮을수록 부하와 속도 제한 위험이 줄어듭니다.",
         "pausing": "일시 중지 중...",
         "pauseFailed": "일괄 작업을 일시 중지할 수 없습니다. 다시 시도하세요.",
         "addInputs": "입력 추가",

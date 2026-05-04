@@ -1162,6 +1162,8 @@
         "startProcessing": "Iniciar procesamiento",
         "pause": "Pausar",
         "resume": "Reanudar",
+        "parallelWorkers": "A la vez",
+        "parallelWorkersHint": "Cuántos registros ejecutar en paralelo (solo lotes de un paso). Valores más bajos reducen carga y riesgo de límites.",
         "pausing": "Pausando...",
         "pauseFailed": "No se pudo pausar el lote. Inténtalo de nuevo.",
         "addInputs": "Agregar entradas",

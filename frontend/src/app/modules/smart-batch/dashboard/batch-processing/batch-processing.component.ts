@@ -1,5 +1,6 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
     Component,
     computed,
@@ -17,25 +18,23 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import * as XLSX from 'xlsx';
 import { firstValueFrom, Subject } from 'rxjs';
+import * as XLSX from 'xlsx';
 import {
     escapeCsvRow,
     getBatchInputCsvHeaders,
     inputDataValueForCsvCell,
 } from '../../batch-input-csv.util';
-import { getStepDisplayFields } from '../../step-result-presenters/registry';
 import {
     AppFeature,
     BatchConfiguration,
@@ -47,6 +46,7 @@ import {
     SmartBatchService,
     SmartBatchSuccessWhenRule,
 } from '../../smart-batch.service';
+import { getStepDisplayFields } from '../../step-result-presenters/registry';
 
 type RowFilter = 'all' | 'pending' | 'completed' | 'failed' | 'partial';
 
@@ -73,8 +73,11 @@ type StepExecutionResult =
     | { sequence: number; result: any }
     | { sequence: number; error: { step: number; message: string; code: string } };
 
-/** Max simultaneous Verifik API calls per batch. Only used when exactly one enabled step (avoids mid-row resume ambiguity and keeps persist cadence simple). */
-const SMART_BATCH_ROW_CONCURRENCY = 5;
+/** Max simultaneous Verifik API calls per batch when parallel mode applies (single-step batches only). */
+const SMART_BATCH_PARALLEL_MAX = 5;
+const SMART_BATCH_PARALLEL_MIN = 1;
+const SMART_BATCH_PARALLEL_DEFAULT = 1;
+const SMART_BATCH_PARALLEL_CONCURRENCY_STORAGE_KEY = 'smartBatch.parallelRowConcurrency';
 
 /** Colombia RUES batch steps that accept an optional/query `category` (codes match seeded AppFeatures). */
 const RUES_SMART_BATCH_FEATURE_CODES = new Set<string>([
@@ -138,6 +141,17 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     /** Effective parallel row workers for the current run (`1` unless single-step batch). */
     parallelRowConcurrency = signal(1);
+
+    /** User preference for parallel row workers (single-step batches only); persisted in localStorage. */
+    parallelRowsPreference = signal(SMART_BATCH_PARALLEL_DEFAULT);
+
+    /** Options shown in the parallel workers selector (1 … MAX). */
+    readonly parallelConcurrencyOptions: readonly number[] = Array.from(
+        { length: SMART_BATCH_PARALLEL_MAX - SMART_BATCH_PARALLEL_MIN + 1 },
+        (_, i) => i + SMART_BATCH_PARALLEL_MIN
+    );
+
+    isSingleStepBatch = computed(() => this.configSteps().length === 1);
 
     /** Row indexes currently executing API steps (parallel mode). */
     processingActiveRowIndexes = signal<readonly number[]>([]);
@@ -274,8 +288,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsSuccessful',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipSuccessful',
-                    accentClass:
-                        '!border-emerald-500 !text-emerald-800 hover:!bg-emerald-50/90',
+                    accentClass: '!border-emerald-500 !text-emerald-800 hover:!bg-emerald-50/90',
                     dotClass: 'bg-emerald-500',
                     iconClass: 'text-emerald-600',
                 };
@@ -291,8 +304,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsPartial',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipPartial',
-                    accentClass:
-                        '!border-amber-500 !text-amber-900 hover:!bg-amber-50/90',
+                    accentClass: '!border-amber-500 !text-amber-900 hover:!bg-amber-50/90',
                     dotClass: 'bg-amber-500',
                     iconClass: 'text-amber-600',
                 };
@@ -300,8 +312,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsAll',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipAll',
-                    accentClass:
-                        '!border-slate-400 !text-slate-800 hover:!bg-slate-50/90',
+                    accentClass: '!border-slate-400 !text-slate-800 hover:!bg-slate-50/90',
                     dotClass: 'bg-slate-500',
                     iconClass: 'text-indigo-600',
                 };
@@ -353,8 +364,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     progress = computed(() => {
         const b = this.batch();
         if (!b || b.totalRows === 0) return 0;
-        const finishedRows =
-            (b.completedRows || 0) + (b.failedRows || 0) + (b.partialRows || 0);
+        const finishedRows = (b.completedRows || 0) + (b.failedRows || 0) + (b.partialRows || 0);
         return Math.round((finishedRows / b.totalRows) * 100);
     });
 
@@ -362,9 +372,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     hasBatchRunProgress = computed(() => {
         const b = this.batch();
         if (!b) return false;
-        return (
-            (b.completedRows ?? 0) + (b.failedRows ?? 0) + (b.partialRows ?? 0) > 0
-        );
+        return (b.completedRows ?? 0) + (b.failedRows ?? 0) + (b.partialRows ?? 0) > 0;
     });
 
     // Selected row for detail view
@@ -439,6 +447,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     @ViewChild('rowDetailPanel') rowDetailPanel!: ElementRef;
 
     ngOnInit(): void {
+        this._loadParallelRowsPreferenceFromStorage();
         this._route.params.subscribe((params) => {
             this.configId.set(params['configId']);
             this.batchId.set(params['batchId']);
@@ -452,6 +461,45 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this._clearBatchJsonCopyTimer();
         this._destroy$.next();
         this._destroy$.complete();
+    }
+
+    private _loadParallelRowsPreferenceFromStorage(): void {
+        let initial = SMART_BATCH_PARALLEL_DEFAULT;
+        try {
+            const raw = localStorage.getItem(SMART_BATCH_PARALLEL_CONCURRENCY_STORAGE_KEY);
+            if (raw != null) {
+                const parsed = parseInt(raw, 10);
+                if (!Number.isNaN(parsed)) {
+                    initial = Math.max(
+                        SMART_BATCH_PARALLEL_MIN,
+                        Math.min(SMART_BATCH_PARALLEL_MAX, parsed)
+                    );
+                }
+            }
+        } catch {
+            /* ignore */
+        }
+        this.parallelRowsPreference.set(initial);
+    }
+
+    /**
+     * Updates parallel worker preference (single-step batches only) and persists to localStorage.
+     */
+    setParallelRowsPreference(n: number): void {
+        const rounded = Math.round(Number(n));
+        const v = Math.max(
+            SMART_BATCH_PARALLEL_MIN,
+            Math.min(
+                SMART_BATCH_PARALLEL_MAX,
+                Number.isNaN(rounded) ? SMART_BATCH_PARALLEL_DEFAULT : rounded
+            )
+        );
+        this.parallelRowsPreference.set(v);
+        try {
+            localStorage.setItem(SMART_BATCH_PARALLEL_CONCURRENCY_STORAGE_KEY, String(v));
+        } catch {
+            /* ignore */
+        }
     }
 
     private _loadConfiguration(): void {
@@ -536,7 +584,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
      * Process all pending rows by making API calls from the frontend.
      * Multi-step configs run one row at a time (sequential workers) because mid-row resume and
      * persist-between-steps semantics are ambiguous with concurrency; parallel mode is enabled only when
-     * there is exactly one enabled step (see `SMART_BATCH_ROW_CONCURRENCY`).
+     * there is exactly one enabled step (see `parallelRowsPreference` capped by MIN/MAX).
      */
     private async _processRows(): Promise<void> {
         // Wait for configuration to be loaded if it isn't yet
@@ -555,7 +603,11 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this._persistChain = Promise.resolve();
 
         const useParallelWorkers = steps.length === 1 && !this._processingAborted;
-        const parallel = useParallelWorkers ? SMART_BATCH_ROW_CONCURRENCY : 1;
+        const requested = Math.max(
+            SMART_BATCH_PARALLEL_MIN,
+            Math.min(SMART_BATCH_PARALLEL_MAX, this.parallelRowsPreference())
+        );
+        const parallel = useParallelWorkers ? requested : 1;
 
         this.parallelRowConcurrency.set(parallel);
         this.processingActiveRowIndexes.set([]);
@@ -667,7 +719,9 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             this.batch.set(updatedBatch.data);
             const sel = this.selectedRow();
             if (sel?.rowIndex === rowIndex) {
-                const updatedRow = updatedBatch.data.rows.find((item) => item.rowIndex === rowIndex);
+                const updatedRow = updatedBatch.data.rows.find(
+                    (item) => item.rowIndex === rowIndex
+                );
                 if (updatedRow) {
                     this.selectedRow.set(updatedRow);
                 }
@@ -724,7 +778,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                         isLast
                     );
                 } catch (err) {
-                    console.error(`Failed to persist row ${row.rowIndex} after step ${step.sequence}:`, err);
+                    console.error(
+                        `Failed to persist row ${row.rowIndex} after step ${step.sequence}:`,
+                        err
+                    );
                 }
             }
         }
@@ -752,7 +809,11 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         } catch (err: unknown) {
             if (
                 err instanceof HttpErrorResponse &&
-                this._matchesSmartBatchSuccessWhen(feature, err.status, this._httpErrorBodyCode(err))
+                this._matchesSmartBatchSuccessWhen(
+                    feature,
+                    err.status,
+                    this._httpErrorBodyCode(err)
+                )
             ) {
                 return {
                     sequence: step.sequence,
@@ -875,7 +936,12 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     async retryStep(row: SmartBatchRow, step: BatchStep): Promise<void> {
         const batchId = this.batchId();
-        if (!batchId || this.isProcessing() || row.status === 'pending' || row.status === 'processing') {
+        if (
+            !batchId ||
+            this.isProcessing() ||
+            row.status === 'pending' ||
+            row.status === 'processing'
+        ) {
             return;
         }
 
@@ -1150,9 +1216,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     /**
      * Builds column order and one plain object per row (input fields only) for CSV / Excel / JSON export.
      */
-    private _buildInputsExportTable():
-        | { columns: string[]; objects: Record<string, unknown>[] }
-        | null {
+    private _buildInputsExportTable(): {
+        columns: string[];
+        objects: Record<string, unknown>[];
+    } | null {
         const config = this.configuration();
         const batchRows = this.rowsForInputsCsvExport();
         if (!config || batchRows.length === 0) return null;
@@ -1190,7 +1257,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                     : {};
             const o: Record<string, unknown> = {};
             for (const key of columns) {
-                o[key] = Object.prototype.hasOwnProperty.call(data, key) ? data[key] ?? '' : '';
+                o[key] = Object.prototype.hasOwnProperty.call(data, key) ? (data[key] ?? '') : '';
             }
             return o;
         });
@@ -1215,8 +1282,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         const filterSlug = this._inputsExportFilterSlug();
         const sanitizedName = (b.name || 'batch').replace(/[^a-zA-Z0-9_.-]+/g, '_');
         const idPart = this.batchId() || 'export';
-        const baseName =
-            `batch-inputs_${filterSlug}_${sanitizedName}_${idPart}`.replace(/[/\\]/g, '_');
+        const baseName = `batch-inputs_${filterSlug}_${sanitizedName}_${idPart}`.replace(
+            /[/\\]/g,
+            '_'
+        );
 
         if (format === 'csv') {
             const csvRows = [escapeCsvRow(columns)];
@@ -1255,7 +1324,9 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             XLSX.writeFile(wb, xlsxName);
         }
 
-        const formatLabel = this._transloco.translate(`batchProcessing.exportFormatLabel_${format}`);
+        const formatLabel = this._transloco.translate(
+            `batchProcessing.exportFormatLabel_${format}`
+        );
         this._snack.open(
             this._transloco.translate('batchProcessing.inputExportDoneWithFormat', {
                 count: rowCount,
@@ -1682,9 +1753,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         const src = stepResult as Record<string, unknown>;
         for (const key of Object.keys(src)) {
             const raw = src[key];
-            copy[key] = this._shouldTreatAsEmbeddedPdf(key, raw)
-                ? placeholder
-                : raw;
+            copy[key] = this._shouldTreatAsEmbeddedPdf(key, raw) ? placeholder : raw;
         }
         try {
             return JSON.stringify(copy, null, 2);
@@ -1729,10 +1798,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     getRowStepStatus(row: SmartBatchRow, stepSequence: number): 'pending' | 'completed' | 'failed' {
-        if (
-            this.currentRowIndex() === row.rowIndex &&
-            this.currentStepIndex() === stepSequence
-        ) {
+        if (this.currentRowIndex() === row.rowIndex && this.currentStepIndex() === stepSequence) {
             return 'pending';
         }
 
@@ -1760,7 +1826,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     getPendingStepCount(row: SmartBatchRow): number {
-        return this._getRunnableSteps(this.configSteps(), row.results || {}, row.errors || []).length;
+        return this._getRunnableSteps(this.configSteps(), row.results || {}, row.errors || [])
+            .length;
     }
 
     isRetryingStep(row: SmartBatchRow, step: BatchStep): boolean {
@@ -1811,7 +1878,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         );
     }
 
-    private _hasStepResult(results: Record<number, any> | null | undefined, stepSequence: number): boolean {
+    private _hasStepResult(
+        results: Record<number, any> | null | undefined,
+        stepSequence: number
+    ): boolean {
         return results?.[stepSequence] !== undefined && results?.[stepSequence] !== null;
     }
 

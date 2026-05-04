@@ -1144,6 +1144,8 @@
         "startProcessing": "処理を開始",
         "pause": "一時停止",
         "resume": "再開",
+        "parallelWorkers": "同時件数",
+        "parallelWorkersHint": "並列実行する件数（1ステップのバッチのみ）。小さいほど負荷とレート制限リスクが下がります。",
         "pausing": "一時停止中...",
         "pauseFailed": "バッチを一時停止できませんでした。もう一度お試しください。",
         "addInputs": "入力を追加",

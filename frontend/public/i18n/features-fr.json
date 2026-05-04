@@ -1144,6 +1144,8 @@
         "startProcessing": "Démarrer le traitement",
         "pause": "Pause",
         "resume": "Reprendre",
+        "parallelWorkers": "À la fois",
+        "parallelWorkersHint": "Nombre d'enregistrements en parallèle (lots à une seule étape uniquement). Des valeurs plus basses réduisent la charge et les risques de limitation.",
         "pausing": "Mise en pause...",
         "pauseFailed": "Impossible de mettre le lot en pause. Réessayez.",
         "addInputs": "Ajouter des entrées",

@@ -1164,6 +1164,8 @@
         "startProcessing": "Start Processing",
         "pause": "Pause",
         "resume": "Resume",
+        "parallelWorkers": "At once",
+        "parallelWorkersHint": "How many records to run in parallel (single-step batches only). Lower values reduce load and rate-limit risk.",
         "pausing": "Pausing...",
         "pauseFailed": "Could not pause the batch. Try again.",
         "addInputs": "Add inputs",

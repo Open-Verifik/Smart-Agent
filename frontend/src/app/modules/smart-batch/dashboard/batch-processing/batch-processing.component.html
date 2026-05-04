@@ -44,7 +44,33 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex items-center gap-3">
+                <div class="flex flex-wrap items-center gap-3">
+                    @if (
+                        isSingleStepBatch() &&
+                        batch() &&
+                        batch()?.status !== 'completed' &&
+                        batch()?.status !== 'cancelled'
+                    ) {
+                        <mat-form-field
+                            appearance="outline"
+                            class="!w-[8.5rem] shrink-0"
+                            subscriptSizing="dynamic"
+                        >
+                            <mat-label>{{
+                                'batchProcessing.parallelWorkers' | transloco
+                            }}</mat-label>
+                            <mat-select
+                                [value]="parallelRowsPreference()"
+                                (selectionChange)="setParallelRowsPreference($event.value)"
+                                [disabled]="isStarting() || isProcessing()"
+                                [matTooltip]="'batchProcessing.parallelWorkersHint' | transloco"
+                            >
+                                @for (n of parallelConcurrencyOptions; track n) {
+                                    <mat-option [value]="n">{{ n }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
                     @if (batch() && batch()?.status !== 'processing') {
                         <button mat-stroked-button (click)="editInputs()" class="!rounded-xl">
                             <span class="inline-flex items-center gap-2">

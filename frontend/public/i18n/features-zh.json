@@ -1144,6 +1144,8 @@
         "startProcessing": "开始处理",
         "pause": "暂停",
         "resume": "继续",
+        "parallelWorkers": "并行数",
+        "parallelWorkersHint": "并行处理的记录数（仅限单步骤批次）。数值越低，负载与限流风险越小。",
         "pausing": "正在暂停...",
         "pauseFailed": "无法暂停批次，请重试。",
         "addInputs": "添加输入",
