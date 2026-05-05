@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoService } from '@jsverse/transloco';
+import { UserService } from 'app/core/user/user.service';
 import { AgentWalletService } from '../../chat/services/agent-wallet.service';
 import {
     ClientSubscription,
@@ -28,6 +29,7 @@ import {
     PostmanValidationIssue,
 } from '../postman-request-validation';
 import { buildPostmanEffectiveUrl } from '../postman-url.util';
+import { distinctUntilChanged, map, skip } from 'rxjs';
 import { AboutEndpointComponent } from './about-endpoint.component';
 
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -850,6 +852,7 @@ export class RequestEditorComponent {
     private _httpClient = inject(HttpClient);
     private _walletService = inject(AgentWalletService);
     private _subscriptionService = inject(SubscriptionService);
+    private _userService = inject(UserService);
     translocoService = inject(TranslocoService);
 
     endpoint = this._postmanService.selectedEndpoint;
@@ -1025,11 +1028,31 @@ export class RequestEditorComponent {
         return !!this.documentationContent();
     });
 
-    constructor() {
+    private _syncWorkspaceSubscription(): void {
+        if (!this._postmanService.canUseWorkspacePostmanApis()) {
+            this.currentSubscription.set(null);
+            return;
+        }
         this._subscriptionService.getMySubscription().subscribe({
             next: (res) => this.currentSubscription.set(res?.data ?? null),
             error: () => this.currentSubscription.set(null),
         });
+    }
+
+    constructor() {
+        this._syncWorkspaceSubscription();
+        this._userService.user$
+            .pipe(
+                skip(1),
+                map((user) => ({
+                    identityKey: (user as any)?._id || (user as any)?.id || null,
+                    workspacePostman: this._postmanService.canUseWorkspacePostmanApis(),
+                })),
+                distinctUntilChanged(
+                    (a, b) => a.identityKey === b.identityKey && a.workspacePostman === b.workspacePostman
+                )
+            )
+            .subscribe(() => this._syncWorkspaceSubscription());
 
         let lastValidationResetEndpointCode: string | null | undefined;
         effect(() => {

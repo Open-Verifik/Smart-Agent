@@ -33,6 +33,20 @@
     "smart_enroll_plans": "플랜",
     "smart_enroll_plans_subtitle": "Smart Enroll 구독 및 결제"
   },
+  "smartBatchLanding": {
+    "authRequiredTitle": "로그인 필요",
+    "authRequiredBody": "Smart Batch는 구성을 불러오고 배치 작업을 실행하려면 계정이 필요합니다. 계속하려면 로그인하거나 홈으로 돌아가세요.",
+    "authRequiredSignIn": "로그인",
+    "authRequiredBackHome": "홈으로",
+    "authRequiredClose": "닫기"
+  },
+  "guestFeatureAuth": {
+    "title": "로그인 필요",
+    "body": "이 영역은 Verifik 계정이 필요합니다. 계속하려면 로그인하거나 홈으로 돌아가세요.",
+    "signIn": "로그인",
+    "backHome": "홈으로",
+    "closeAria": "닫기"
+  },
   "home": {
     "welcome": {
       "title": "AI 에이전트를 위한 신뢰 레이어",

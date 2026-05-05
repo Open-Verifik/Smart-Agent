@@ -22,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartScanService } from '../smart-scan.service';
 import type { DocumentValidation } from '../smart-scan.types';
 
@@ -73,6 +74,7 @@ export class ScanListComponent implements OnInit {
     private _scanService = inject(SmartScanService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
+    private _authGate = inject(AuthRequiredGateService);
 
     viewMode = signal<'cards' | 'table'>('cards');
     scans = this._scanService.scans;
@@ -98,6 +100,13 @@ export class ScanListComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this._authGate.runWithAuthOrDialog({
+            onAuthenticated: () => this._initScanListFromRoute(),
+            panelClass: 'auth-required-dialog',
+        });
+    }
+
+    private _initScanListFromRoute(): void {
         this._route.queryParams.subscribe((params) => {
             const view = params['view'];
             const targetView = view === 'table' ? 'table' : 'cards';

@@ -10,6 +10,7 @@ import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/sl
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { environment } from 'environments/environment';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type { EnrollProject, EnrollProjectFlow, EnrollProjectMember } from '../smart-enroll-projects.types';
 
@@ -34,12 +35,20 @@ export class ProjectListComponent implements OnInit {
     private _clipboard = inject(Clipboard);
     private _projectsService = inject(SmartEnrollProjectsService);
     private _router = inject(Router);
+    private _authGate = inject(AuthRequiredGateService);
     projects = signal<EnrollProject[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
     noActivePlan = signal(false);
 
     ngOnInit(): void {
+        this._authGate.runWithAuthOrDialog({
+            onAuthenticated: () => this._loadProjectsAfterAuthGate(),
+            panelClass: 'auth-required-dialog',
+        });
+    }
+
+    private _loadProjectsAfterAuthGate(): void {
         const user = this._projectsService.parseStoredUser();
         if (user?.staff) {
             this._loadProjects();

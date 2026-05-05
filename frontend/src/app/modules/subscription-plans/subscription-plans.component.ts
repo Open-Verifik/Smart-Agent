@@ -12,6 +12,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { Subject } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
@@ -106,10 +107,18 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _route: ActivatedRoute,
         private _translocoService: TranslocoService,
-        private _snackBar: MatSnackBar
+        private _snackBar: MatSnackBar,
+        private _authGate: AuthRequiredGateService
     ) {}
 
     ngOnInit(): void {
+        this._authGate.runWithAuthOrDialog({
+            onAuthenticated: () => this._bootstrapSubscriptionPlansAfterAuth(),
+            panelClass: 'auth-required-dialog',
+        });
+    }
+
+    private _bootstrapSubscriptionPlansAfterAuth(): void {
         this._loadCurrentSubscription();
         this._checkBillingSetup();
         this._confirmSessionIfPresent();

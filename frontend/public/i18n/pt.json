@@ -33,6 +33,20 @@
     "smart_enroll_plans": "Planos",
     "smart_enroll_plans_subtitle": "Subscrição e pagamento Smart Enroll"
   },
+  "smartBatchLanding": {
+    "authRequiredTitle": "É necessário iniciar sessão",
+    "authRequiredBody": "O Smart Batch usa a sua conta para carregar configurações e executar lotes. Inicie sessão para continuar ou volte ao início.",
+    "authRequiredSignIn": "Iniciar sessão",
+    "authRequiredBackHome": "Voltar ao início",
+    "authRequiredClose": "Fechar"
+  },
+  "guestFeatureAuth": {
+    "title": "É necessário iniciar sessão",
+    "body": "Esta área usa a sua conta Verifik. Inicie sessão para continuar ou volte ao início.",
+    "signIn": "Iniciar sessão",
+    "backHome": "Voltar ao início",
+    "closeAria": "Fechar"
+  },
   "home": {
     "welcome": {
       "title": "A Camada de Confiança para Agentes de IA",

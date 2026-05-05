@@ -33,6 +33,20 @@
     "smart_enroll_plans": "Forfaits",
     "smart_enroll_plans_subtitle": "Abonnement et paiement Smart Enroll"
   },
+  "smartBatchLanding": {
+    "authRequiredTitle": "Connexion requise",
+    "authRequiredBody": "Smart Batch utilise votre compte pour charger les configurations et exécuter des lots. Connectez-vous pour continuer ou retournez à l'accueil.",
+    "authRequiredSignIn": "Se connecter",
+    "authRequiredBackHome": "Retour à l'accueil",
+    "authRequiredClose": "Fermer"
+  },
+  "guestFeatureAuth": {
+    "title": "Connexion requise",
+    "body": "Cette section utilise votre compte Verifik. Connectez-vous pour continuer ou retournez à l'accueil.",
+    "signIn": "Se connecter",
+    "backHome": "Retour à l'accueil",
+    "closeAria": "Fermer"
+  },
   "home": {
     "welcome": {
       "title": "La couche de confiance pour les agents IA",

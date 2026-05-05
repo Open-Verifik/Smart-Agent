@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartBatchService } from './smart-batch.service';
 import { SmartReportService, SmartReportTemplate } from './smart-report.service';
 
@@ -33,6 +34,7 @@ export class SmartBatchComponent implements OnInit {
     private _smartReportService = inject(SmartReportService);
     private _router = inject(Router);
     private _transloco = inject(TranslocoService);
+    private _authGate = inject(AuthRequiredGateService);
 
     configurations = this._smartBatchService.configurations;
     isLoading = this._smartBatchService.isLoading;
@@ -41,6 +43,13 @@ export class SmartBatchComponent implements OnInit {
     isLoadingTemplates = this._smartReportService.isLoading;
 
     ngOnInit() {
+        this._authGate.runWithAuthOrDialog({
+            onAuthenticated: () => this._loadLandingData(),
+            panelClass: 'auth-required-dialog',
+        });
+    }
+
+    private _loadLandingData(): void {
         this._smartBatchService.getConfigurations().subscribe({
             next: () => {},
             error: (err) => console.error('[SmartBatch] getConfigurations error', err),

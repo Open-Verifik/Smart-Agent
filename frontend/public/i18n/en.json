@@ -33,6 +33,20 @@
     "smart_enroll_plans": "Plans",
     "smart_enroll_plans_subtitle": "Smart Enroll subscription and checkout"
   },
+  "smartBatchLanding": {
+    "authRequiredTitle": "Sign in required",
+    "authRequiredBody": "Smart Batch uses your account to load configurations and run batch jobs. Sign in to continue, or go back to the home page.",
+    "authRequiredSignIn": "Sign in",
+    "authRequiredBackHome": "Back to home",
+    "authRequiredClose": "Close"
+  },
+  "guestFeatureAuth": {
+    "title": "Sign in required",
+    "body": "This area uses your Verifik account. Sign in to continue, or go back to the home page.",
+    "signIn": "Sign in",
+    "backHome": "Back to home",
+    "closeAria": "Close"
+  },
   "home": {
     "welcome": {
       "title": "The Trust Layer for AI Agents",

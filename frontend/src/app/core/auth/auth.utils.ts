@@ -11,11 +11,19 @@ export class AuthUtils {
     // -----------------------------------------------------------------------------------------------------
 
     /**
-     * Is token expired?
-     *
-     * @param token
-     * @param offsetSeconds
+     * Parsed JWT payload, or null if the string is not a decodable JWT.
      */
+    static getJwtPayload(token: string): Record<string, unknown> | null {
+        if (!token || token.trim() === '' || token.split('.').length !== 3) {
+            return null;
+        }
+        try {
+            return this._decodeToken(token) as Record<string, unknown>;
+        } catch {
+            return null;
+        }
+    }
+
     /**
      * Is token expired?
      *

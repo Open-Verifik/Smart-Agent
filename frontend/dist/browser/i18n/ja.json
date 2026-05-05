@@ -33,6 +33,20 @@
     "smart_enroll_plans": "プラン",
     "smart_enroll_plans_subtitle": "Smart Enroll の契約とお支払い"
   },
+  "smartBatchLanding": {
+    "authRequiredTitle": "サインインが必要です",
+    "authRequiredBody": "Smart Batch はアカウントで設定を読み込みバッチを実行します。続行するにはサインインするか、ホームに戻ってください。",
+    "authRequiredSignIn": "サインイン",
+    "authRequiredBackHome": "ホームに戻る",
+    "authRequiredClose": "閉じる"
+  },
+  "guestFeatureAuth": {
+    "title": "サインインが必要です",
+    "body": "このエリアでは Verifik アカウントを使用します。続行するにはサインインするか、ホームに戻ってください。",
+    "signIn": "サインイン",
+    "backHome": "ホームに戻る",
+    "closeAria": "閉じる"
+  },
   "home": {
     "welcome": {
       "title": "AIエージェントのための信頼レイヤー",

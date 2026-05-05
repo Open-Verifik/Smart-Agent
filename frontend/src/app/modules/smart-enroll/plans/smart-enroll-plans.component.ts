@@ -11,6 +11,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
+import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SubscriptionService } from 'app/modules/subscription-plans/subscription.service';
 import { SmartEnrollPlansService } from './smart-enroll-plans.service';
 import { SmartEnrollBillingRequiredDialogComponent } from './smart-enroll-billing-required-dialog.component';
@@ -77,6 +78,7 @@ interface ClientSettingsBillingPayload {
 })
 export class SmartEnrollPlansComponent implements OnInit {
     private _activatedRoute = inject(ActivatedRoute);
+    private _authGate = inject(AuthRequiredGateService);
     private _changeDetectorRef = inject(ChangeDetectorRef);
     private _dialog = inject(MatDialog);
     private _enrollPlansService = inject(SmartEnrollPlansService);
@@ -132,7 +134,13 @@ export class SmartEnrollPlansComponent implements OnInit {
 
     ngOnInit(): void {
         this.subscribingToPlan = false;
+        this._authGate.runWithAuthOrDialog({
+            onAuthenticated: () => this._runPlansEntryAfterAuthGate(),
+            panelClass: 'auth-required-dialog',
+        });
+    }
 
+    private _runPlansEntryAfterAuthGate(): void {
         const sessionId = this._activatedRoute.snapshot.queryParamMap.get('session_id')?.trim();
         if (sessionId) {
             this._subscriptionService.confirmCheckoutSession(sessionId).subscribe({

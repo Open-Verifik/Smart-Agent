@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AuthService } from 'app/core/auth/auth.service';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
 import { AgentWalletService } from 'app/modules/chat/services/agent-wallet.service';
@@ -22,7 +23,6 @@ import {
     getPostmanPathParamKeysForEndpoint,
 } from './postman-url.util';
 
-import { HttpParams } from '@angular/common/http';
 import { environment } from 'environments/environment';
 import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
 
@@ -49,7 +49,7 @@ export class PostmanService {
         if (!this.layoutLoaded()) {
             return false;
         }
-        return this._sessionService.isTokenValid();
+        return this._canUseWorkspacePostmanApis();
     });
 
     selectedEndpoint = signal<ApiEndpoint | null>(null);
@@ -62,20 +62,21 @@ export class PostmanService {
 
     constructor(private _httpClient: HttpClient) {
         this.loadExplorerData();
-        // Only reload the catalog when the *identity* changes (login / logout / account
-        // switch). Credit-only updates also emit on `user$`, and reloading there would
-        // wipe the in-progress response (the URL→endpoint effect re-runs and calls
-        // `selectEndpoint`, which clears `response`).
+        // Only reload when identity or JWT workspace claims change (login, logout,
+        // linking a Verifik client). Credit-only tweaks keep the same keys → no reload.
         this._userService.user$
             .pipe(
                 skip(1),
-                map((user) => (user as any)?._id || (user as any)?.id || null),
-                distinctUntilChanged(),
+                map((user) => ({
+                    identityKey: (user as any)?._id || (user as any)?.id || null,
+                    workspacePostman: this._canUseWorkspacePostmanApis(),
+                })),
+                distinctUntilChanged(
+                    (a, b) => a.identityKey === b.identityKey && a.workspacePostman === b.workspacePostman
+                ),
             )
             .subscribe(() => {
-                if (this._sessionService.isTokenValid()) {
-                    this.loadExplorerData();
-                }
+                this.loadExplorerData();
             });
     }
 
@@ -89,17 +90,46 @@ export class PostmanService {
     }
 
     /**
-     * Loads app-features catalog and (when authenticated) Postman layout, then merges.
+     * Workspace-only Postman APIs (`/v2/app-features/my-list`, `/v2/postman/layout`, folder CRUD)
+     * require JWT claims `clientId`, `staffId`, or `superAdminId`. Smart Agent tokens that are only
+     * “logged in” to a project often omit those claims; catalog + explorer must use `/v2/public/app-features`.
+     */
+    private _canUseWorkspacePostmanApis(): boolean {
+        if (!this._sessionService.isTokenValid()) {
+            return false;
+        }
+        const token = localStorage.getItem('accessToken');
+        if (!token?.trim()) {
+            return false;
+        }
+        const payload = AuthUtils.getJwtPayload(token);
+        if (!payload) {
+            return false;
+        }
+        const clientId = payload['clientId'];
+        const staffId = payload['staffId'];
+        const superAdminId = payload['superAdminId'];
+        return Boolean(clientId ?? staffId ?? superAdminId);
+    }
+
+    /** Same as `_canUseWorkspacePostmanApis` — exposed for UI (e.g. request editor) that must not call workspace-only APIs as guests. */
+    canUseWorkspacePostmanApis(): boolean {
+        return this._canUseWorkspacePostmanApis();
+    }
+
+    /**
+     * Loads app-features from `my-list` + Postman layout when the JWT has workspace claims; otherwise
+     * uses the public catalog (`/v2/public/app-features`) with no layout merge.
      */
     loadExplorerData(): void {
         this.layoutLoading.set(true);
         this.layoutError.set(null);
 
         const apiUrl = this._apiUrl();
-        const isAuthenticated = this._sessionService.isTokenValid();
+        const useWorkspaceApis = this._canUseWorkspacePostmanApis();
         const headers = this._authHeaders();
 
-        const featuresUrl = isAuthenticated
+        const featuresUrl = useWorkspaceApis
             ? `${apiUrl}/v2/app-features/my-list`
             : `${apiUrl}/v2/public/app-features`;
 
@@ -110,7 +140,7 @@ export class PostmanService {
             })
         );
 
-        const layout$ = isAuthenticated
+        const layout$ = useWorkspaceApis
             ? this._httpClient
                   .get<PostmanLayoutResponse>(`${apiUrl}/v2/postman/layout`, { headers })
                   .pipe(
