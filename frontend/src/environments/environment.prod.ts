@@ -7,7 +7,7 @@ export const environment = {
         return isStaging() ? 'https://x402.on-forge.com' : 'https://prod.verifik.co';
     },
     get smartAgentUrl(): string {
-        return isStaging() ? 'https://x402.on-forge.com' : 'https://x402-agent.verifik.co';
+        return isStaging() ? 'https://x402.on-forge.com' : 'https://ai.verifik.co';
     },
     get apiUrl(): string {
         return isStaging() ? 'https://staging-api.verifik.co' : 'https://prod.verifik.co';
