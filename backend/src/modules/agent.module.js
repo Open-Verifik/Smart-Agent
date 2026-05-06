@@ -42,11 +42,15 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
     // console.debug(`[Agent] Target URL: ${url}`);
     // console.debug(`[Agent] Args:`, JSON.stringify(args));
 
-    // Force usage of Local Proxy for x402 enforcement
-    // This ensures the request hits our middleware (x402.js) before going to the actual backend
-    const proxyBaseUrl = `http://localhost:${config.port}`;
+    // Force all tool URLs through the local x402 middleware so payment is
+    // validated before the request reaches Verifik. Rewrite any known public
+    // host (including the production ai.verifik.co origin) to the loopback
+    // address of this process.
+    const proxyBaseUrl = `http://127.0.0.1:${config.port}`;
 
-    if (url.startsWith("https://x402-agent.verifik.co")) {
+    if (url.startsWith("https://ai.verifik.co")) {
+        url = url.replace("https://ai.verifik.co", proxyBaseUrl);
+    } else if (url.startsWith("https://x402-agent.verifik.co")) {
         url = url.replace("https://x402-agent.verifik.co", proxyBaseUrl);
     } else if (url.startsWith("https://verifik.app")) {
         url = url.replace("https://verifik.app", proxyBaseUrl);

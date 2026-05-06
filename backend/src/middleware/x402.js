@@ -93,7 +93,10 @@ module.exports = async (ctx, next) => {
     // 1. Determine Required Price
     let requiredPriceUsd = 0.05;
 
-    // Match tool by URL suffix; allow Postman proxy via x-target-url
+    // Resolve the path to match against manifest tools.
+    // Postman /api/proxy passes the real Verifik path via x-target-url;
+    // new public /api/* routes need to match by public pathname OR verifikPath;
+    // legacy /v2/* and /v3/* continue to match by URL suffix (verifikPath).
     let pathToMatch = ctx.path;
     if (ctx.path === "/api/proxy" && ctx.header["x-target-url"]) {
         try {
@@ -105,7 +108,22 @@ module.exports = async (ctx, next) => {
             }
         }
     }
-    const matchedTool = toolsManifest.endpoints.find((t) => t.url.endsWith(pathToMatch));
+
+    /**
+     * Match a manifest tool against pathToMatch.
+     * Priority:
+     *  1. Public URL pathname == pathToMatch  (new /api/* routes)
+     *  2. verifikPath == pathToMatch          (legacy /v2 /v3 and Postman x-target-url)
+     *  3. url.endsWith(pathToMatch)           (legacy suffix fallback for orphan entries)
+     */
+    const matchTool = (t) => {
+        try {
+            if (new URL(t.url).pathname === pathToMatch) return true;
+        } catch { /* skip malformed url */ }
+        if (t.verifikPath && t.verifikPath === pathToMatch) return true;
+        return t.url.endsWith(pathToMatch);
+    };
+    const matchedTool = toolsManifest.endpoints.find(matchTool);
     if (matchedTool && typeof matchedTool.priceUsd === "number") {
         requiredPriceUsd = matchedTool.priceUsd;
     }

@@ -1,25 +1,61 @@
 const axios = require("axios");
 const https = require("https");
+const path = require("path");
 const config = require("../config");
 
 const VERIFIK_BASE_URL = config.verifik.apiUrl;
 
+/** Lazy-loaded manifest (avoids circular require at startup). */
+let _manifest = null;
+const getManifest = () => {
+    if (!_manifest) {
+        _manifest = require(path.resolve(__dirname, "../config/tools-manifest.json"));
+    }
+    return _manifest;
+};
+
 /**
- * Proxies requests to the Verifik API
+ * For `/api/*` paths, look up the tool whose public URL pathname matches
+ * `ctx.path` and return its `verifikPath` (the Verifik-backend path).
+ * Falls back to `null` so the caller can decide what to do.
+ *
+ * @param {string} ctxPath  e.g. "/api/co/cedula"
+ * @returns {string|null}   e.g. "/v2/co/cedula"
+ */
+const resolveVerifikPath = (ctxPath) => {
+    const manifest = getManifest();
+    for (const tool of manifest.endpoints || []) {
+        try {
+            if (new URL(tool.url).pathname === ctxPath) return tool.verifikPath || null;
+        } catch {
+            // malformed manifest url — skip
+        }
+    }
+    return null;
+};
+
+/**
+ * Proxies requests to the Verifik API.
  * Validates x402 payment via middleware before reaching here.
  */
 const handleRequest = async (ctx) => {
     // 1. Construct Target URL
-    // Check if x-target-url header is present (from Postman UI)
     const targetUrlHeader = ctx.get("x-target-url");
 
     let targetUrl;
     if (targetUrlHeader) {
-        // Postman UI mode - use the target URL from header
+        // Postman UI mode — caller provides the full Verifik target URL.
         targetUrl = targetUrlHeader;
+    } else if (ctx.path.startsWith("/api/")) {
+        // New public alias (/api/co/cedula → /v2/co/cedula on Verifik).
+        // Prefer manifest verifikPath for precise mapping; fall back to
+        // stripping /api/ and prepending /v2/ as a best-effort default.
+        const verifik = resolveVerifikPath(ctx.path);
+        const upstreamPath = verifik || "/v2/" + ctx.path.replace(/^\/api\/v3\//, "v3/").replace(/^\/api\//, "");
+        const baseUrl = VERIFIK_BASE_URL.replace(/\/$/, "");
+        targetUrl = `${baseUrl}${upstreamPath}`;
     } else {
-        // Regular proxy mode - use ctx.path
-        // ctx.path is e.g. "/v2/co/runt/vehiculo"
+        // Legacy /v2/* and /v3/* — path IS the Verifik path.
         const baseUrl = VERIFIK_BASE_URL.replace(/\/$/, "");
         const targetPath = ctx.path.startsWith("/") ? ctx.path : "/" + ctx.path;
         targetUrl = `${baseUrl}${targetPath}`;

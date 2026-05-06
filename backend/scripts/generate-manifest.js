@@ -178,10 +178,31 @@ const buildParameters = (dependencies) => {
 /**
  * @param {any} feature
  */
+/**
+ * Map a Verifik-relative URL to the Smart Agent public path suffix.
+ *
+ * v2/co/cedula      → api/co/cedula
+ * v3/co/rues        → api/v3/co/rues
+ * document-liveness → api/document-liveness
+ *
+ * @param {string} relativeUrl  No leading slash (e.g. "v2/co/cedula").
+ * @returns {string}            Public suffix with no leading slash.
+ */
+const toPublicPath = (relativeUrl) => {
+	if (relativeUrl.startsWith("v2/")) return "api/" + relativeUrl.slice(3);
+	if (relativeUrl.startsWith("v3/")) return "api/v3/" + relativeUrl.slice(3);
+	return "api/" + relativeUrl;
+};
+
 const featureToTool = (feature) => {
 	let relativeUrl = feature.url || "";
 	if (relativeUrl.startsWith("/")) relativeUrl = relativeUrl.substring(1);
-	const fullUrl = AGENT_BASE_URL.replace(/\/$/, "/") + relativeUrl;
+
+	/** Verifik-backend path (what we forward upstream). Always a single leading slash. */
+	const verifikPath = "/" + relativeUrl;
+	/** Public Smart Agent URL (what x402scan and agents call). */
+	const publicSuffix = toPublicPath(relativeUrl);
+	const fullUrl = AGENT_BASE_URL.replace(/\/$/, "/") + publicSuffix;
 
 	const rawPrice =
 		typeof feature.smartCheckPrice === "number"
@@ -200,6 +221,7 @@ const featureToTool = (feature) => {
 		name: feature.name,
 		category,
 		url: fullUrl,
+		verifikPath,
 		method: inferMethod(relativeUrl, feature.name),
 		description: feature.description || `Access ${feature.name} for ${feature.country || "Global"}`,
 		country: feature.country,
@@ -234,8 +256,23 @@ const main = () => {
 			console.log(`Preserving ${orphans.length} orphan endpoints (no source feature):`);
 			orphans.forEach((o) => console.log(`  - ${o.id}`));
 			for (const o of orphans) {
+				// Migrate orphan URL to the new /api/* public path if it still uses the old /v2 or /v3 scheme.
+				let migratedUrl = o.url || "";
+				let verifikPath = o.verifikPath || null;
+				try {
+					const parsed = new URL(migratedUrl);
+					const oldPath = parsed.pathname; // e.g. /v2/co/policia/consultar
+					if (!verifikPath) verifikPath = oldPath;
+					const relativeOldPath = oldPath.replace(/^\//, ""); // strip leading /
+					const newPublicSuffix = toPublicPath(relativeOldPath);
+					parsed.pathname = "/" + newPublicSuffix;
+					migratedUrl = parsed.toString().replace(/\/$/, "");
+				} catch { /* keep as-is if URL is malformed */ }
+
 				const merged = {
 					...o,
+					url: migratedUrl,
+					verifikPath,
 					category: cleanCategory(o.name || o.category || String(o.id || ""), o.country),
 				};
 				tools.push(merged);

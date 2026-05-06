@@ -5,22 +5,31 @@ const proxyController = require("../controllers/proxyController");
 const router = new Router();
 
 /**
- * Proxy Route Definition
- * Captures all requests to /v2/* (e.g. /v2/co/runt/vehiculo)
- * 1. Checks Payment (x402Middleware)
- * 2. Forwards to Verifik (proxyController)
+ * Legacy proxy routes — kept for backwards compatibility.
+ * These are the original /v2/* and /v3/* paths that hit Verifik directly.
  */
-
 router.all(/^\/v2\/.+/, x402Middleware, proxyController.handleRequest);
-
-/** Verifik v3 routes (Peru cédula v3, RUES v3, ministerio v3, etc.) — same payment + forward chain as v2 */
 router.all(/^\/v3\/.+/, x402Middleware, proxyController.handleRequest);
 
 /**
- * Generic Proxy Route for Postman UI
- * Accepts target URL in x-target-url header
- * Used by Postman view for x402 payments
+ * Generic proxy entry for Postman UI (x-target-url header required).
+ * Must be registered BEFORE the broad /api/* catch-all below so this
+ * exact path is never swallowed by the regex.
  */
 router.all("/api/proxy", x402Middleware, proxyController.handleRequest);
+
+/**
+ * Public alias routes under /api — these are the canonical paths advertised
+ * in the OpenAPI spec / x402scan discovery.
+ *
+ *   /api/v3/*  →  Verifik /v3/* (handled first so the v3 prefix is preserved)
+ *   /api/*     →  Verifik /v2/* (v2 is implicit; paths like /api/co/cedula
+ *               map to /v2/co/cedula upstream via verifikPath in the manifest)
+ *
+ * Reserved paths that must NOT hit the Verifik proxy are excluded via the
+ * negative lookahead: agent/, proxy, uploads/
+ */
+router.all(/^\/api\/v3\/.+/, x402Middleware, proxyController.handleRequest);
+router.all(/^\/api\/(?!agent\/|proxy(?:\/|$)|uploads\/).+/, x402Middleware, proxyController.handleRequest);
 
 module.exports = router;
