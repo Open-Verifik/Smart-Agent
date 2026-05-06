@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "Opção B — Busca por documento",
         "dateOfBirthConditionalHint": "Quando o tipo de documento for um de: {{values}}, a coluna dateOfBirth é obrigatória nessa linha.",
         "fieldConditional": "Condicional",
-        "fieldConditionalDetail": "Obrigatório quando {{whenField}} for um de: {{values}}."
+        "fieldConditionalDetail": "Obrigatório quando {{whenField}} for um de: {{values}}.",
+        "perEndpointIntro": "Cada cartão abaixo mostra as colunas que a planilha deve incluir para essa etapa do lote. Regras de nome versus documento valem apenas na etapa em que aparecem.",
+        "endpointStepLabel": "Etapa {{sequence}}",
+        "endpointXorRule": "Nesta etapa, escolha um modo por linha: campos de nome completo, ou tipo e número de documento (mais os condicionais indicados).",
+        "endpointRequiredFieldsLabel": "Obrigatórios",
+        "endpointConditionalFieldsLabel": "Condicionais",
+        "endpointOptionalFieldsLabel": "Opcionais",
+        "endpointNoFieldsRequired": "Nenhuma coluna obrigatória nesta etapa."
     },
     "batchTutorial": {
         "stepOf": "Passo {{current}} de {{total}}",

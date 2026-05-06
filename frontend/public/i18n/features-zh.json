@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "方式 B — 按证件检索",
         "dateOfBirthConditionalHint": "当证件类型（documentType）为以下之一时，该行必须填写 dateOfBirth 列：{{values}}",
         "fieldConditional": "条件必填",
-        "fieldConditionalDetail": "当 {{whenField}} 为以下之一时必填：{{values}}。"
+        "fieldConditionalDetail": "当 {{whenField}} 为以下之一时必填：{{values}}。",
+        "perEndpointIntro": "以下每张卡片说明该批次步骤在表格中应包含的列。姓名与证件相关规则仅适用于显示它们的步骤。",
+        "endpointStepLabel": "步骤 {{sequence}}",
+        "endpointXorRule": "此步骤中每行请选择一种方式：使用全名字段，或使用证件类型与号码（以及所列条件字段）。",
+        "endpointRequiredFieldsLabel": "必填",
+        "endpointConditionalFieldsLabel": "条件必填",
+        "endpointOptionalFieldsLabel": "可选",
+        "endpointNoFieldsRequired": "此步骤无必填列。"
     },
     "batchTutorial": {
         "stepOf": "第 {{current}} 步，共 {{total}} 步",

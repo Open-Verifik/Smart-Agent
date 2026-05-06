@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "Option B — Recherche par document",
         "dateOfBirthConditionalHint": "Lorsque le type de document est l'un des suivants : {{values}}, la colonne dateOfBirth est obligatoire pour cette ligne.",
         "fieldConditional": "Conditionnel",
-        "fieldConditionalDetail": "Obligatoire lorsque {{whenField}} est l'un des suivants : {{values}}."
+        "fieldConditionalDetail": "Obligatoire lorsque {{whenField}} est l'un des suivants : {{values}}.",
+        "perEndpointIntro": "Chaque carte ci-dessous indique les colonnes à inclure pour cette étape du lot. Les règles nom complet / document ne s'appliquent qu'à l'étape concernée.",
+        "endpointStepLabel": "Étape {{sequence}}",
+        "endpointXorRule": "Pour cette étape, choisissez un mode par ligne : champs du nom complet, ou type et numéro de document (plus les champs conditionnels indiqués).",
+        "endpointRequiredFieldsLabel": "Obligatoires",
+        "endpointConditionalFieldsLabel": "Conditionnels",
+        "endpointOptionalFieldsLabel": "Facultatifs",
+        "endpointNoFieldsRequired": "Aucune colonne obligatoire pour cette étape."
     },
     "batchTutorial": {
         "stepOf": "Étape {{current}} sur {{total}}",

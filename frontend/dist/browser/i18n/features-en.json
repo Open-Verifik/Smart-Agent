@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "Option B — Search by document",
         "dateOfBirthConditionalHint": "When document type is one of: {{values}}, the dateOfBirth column is required for that row.",
         "fieldConditional": "Conditional",
-        "fieldConditionalDetail": "Required when {{whenField}} is one of: {{values}}."
+        "fieldConditionalDetail": "Required when {{whenField}} is one of: {{values}}.",
+        "perEndpointIntro": "Below, each card shows the columns your spreadsheet should include for that batch step. Name-versus-document rules apply only to the step where they appear.",
+        "endpointStepLabel": "Step {{sequence}}",
+        "endpointXorRule": "For this step, pick one mode per row: use the full name fields, or use document type and number (plus any conditional fields listed).",
+        "endpointRequiredFieldsLabel": "Required",
+        "endpointConditionalFieldsLabel": "Conditional",
+        "endpointOptionalFieldsLabel": "Optional",
+        "endpointNoFieldsRequired": "No columns are required for this step."
     },
     "batchTutorial": {
         "stepOf": "Step {{current}} of {{total}}",

@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "옵션 B — 문서로 검색",
         "dateOfBirthConditionalHint": "문서 \"documentType\"이 다음 중 하나일 때 해당 행에서 \"dateOfBirth\" 열이 필요합니다: {{values}}",
         "fieldConditional": "조건부",
-        "fieldConditionalDetail": "{{whenField}}가 다음 중 하나일 때 필수입니다: {{values}}."
+        "fieldConditionalDetail": "{{whenField}}가 다음 중 하나일 때 필수입니다: {{values}}.",
+        "perEndpointIntro": "아래 각 카드는 해당 배치 단계에 포함되어야 할 열을 보여 줍니다. 이름과 서류 관련 규칙은 해당 단계에만 적용됩니다.",
+        "endpointStepLabel": "{{sequence}}단계",
+        "endpointXorRule": "이 단계에서는 행마다 한 가지 방식만 선택하세요. 전체 이름 필드이거나 문서 유형과 번호(표시된 조건부 필드 포함)입니다.",
+        "endpointRequiredFieldsLabel": "필수",
+        "endpointConditionalFieldsLabel": "조건부",
+        "endpointOptionalFieldsLabel": "선택",
+        "endpointNoFieldsRequired": "이 단계에 필수 열이 없습니다."
     },
     "batchTutorial": {
         "stepOf": "{{total}}단계 중 {{current}}단계",

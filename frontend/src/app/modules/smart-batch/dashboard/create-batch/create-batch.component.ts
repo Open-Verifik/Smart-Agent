@@ -33,7 +33,7 @@ import {
     isClientVisibleBatchDependencyField,
     stripClientHiddenRowFields,
 } from '../../smart-batch-dependency.constants';
-import { BatchConfiguration, SmartBatch, SmartBatchService } from '../../smart-batch.service';
+import { BatchConfiguration, BatchStep, SmartBatch, SmartBatchService } from '../../smart-batch.service';
 import { TutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
 /** Represents a required field extracted from step dependencies */
@@ -96,6 +96,28 @@ interface ParsedBatchFileResult {
     fieldOrder: string[];
     rows: Record<string, unknown>[];
     warnings: CsvParseWarningNotice[];
+}
+
+/**
+ * Per-endpoint summary used to render the "Expected fields" panel as one card per step,
+ * so customers can see exactly which fields each endpoint needs (vs the old globally
+ * deduped list where the "Used by" caption only mentioned one of N endpoints).
+ */
+interface EndpointFieldsView {
+    sequence: number;
+    name: string;
+    code: string;
+    enabled: boolean;
+    /** When set, render the two-column XOR layout (e.g. DEA: fullName XOR document fields). */
+    xor: {
+        nameFields: RequiredField[];
+        documentFields: RequiredField[];
+        dobWhenValues: string | null;
+    } | null;
+    /** Populated when `xor` is null. */
+    requiredFields: RequiredField[];
+    conditionalFields: RequiredField[];
+    optionalFields: RequiredField[];
 }
 
 @Component({
@@ -234,9 +256,25 @@ export class CreateBatchComponent implements OnInit {
     });
 
     /**
-     * When non-null, the expected-fields panel uses a two-column XOR layout (full name vs document).
+     * One view-model per configured step. Renders the "Expected fields" panel as per-endpoint
+     * cards so the XOR rule (DEA: fullName XOR documentType+documentNumber) and conditional
+     * fields stay attached to the endpoint they belong to instead of being merged across steps.
      */
-    xorExpectedFieldGroups = computed(() => this.computeMergedXorFieldGroups(this.requiredFields()));
+    endpointFieldsViews = computed<EndpointFieldsView[]>(() => {
+        const config = this.configuration();
+        if (!config?.steps) return [];
+
+        return [...config.steps]
+            .sort((a, b) => a.sequence - b.sequence)
+            .map((step) => this.buildEndpointFieldsView(step))
+            .filter(
+                (view) =>
+                    view.xor !== null ||
+                    view.requiredFields.length > 0 ||
+                    view.conditionalFields.length > 0 ||
+                    view.optionalFields.length > 0
+            );
+    });
 
     // Validation state
     validationResult = signal<ValidationResult | null>(null);
@@ -1374,9 +1412,77 @@ export class CreateBatchComponent implements OnInit {
     }
 
     /**
-     * Build XOR section lists from merged required fields (same semantics as step validation XOR).
+     * Build a per-endpoint view model from a single batch step.
+     * - Filters out client-hidden dependency fields (e.g. `force`).
+     * - When the step's deps form an XOR (e.g. fullName vs documentType+documentNumber via
+     *   `dependencyGroup`), returns the two-column XOR shape; otherwise partitions the fields
+     *   into required / conditional (`requiredWhen` set) / optional buckets.
      */
-    private computeMergedXorFieldGroups(fields: RequiredField[]): {
+    private buildEndpointFieldsView(step: BatchStep): EndpointFieldsView {
+        const feature = step.appFeature as {
+            name?: string;
+            code?: string;
+            dependencies?: unknown[];
+        };
+        const fields: RequiredField[] = ((feature?.dependencies || []) as Array<Record<string, any>>)
+            .filter((dep) => dep?.field && isClientVisibleBatchDependencyField(String(dep.field)))
+            .map((dep) => ({
+                field: String(dep.field),
+                required: dep.required || false,
+                stepName: feature?.name || 'Unknown Step',
+                stepSequence: step.sequence,
+                enumValues: (dep.enum as string[] | null | undefined) || undefined,
+                type: (dep.type as string) || 'string',
+                description: (dep.description as string) || undefined,
+                dependencyGroup: dep.dependencyGroup as string | undefined,
+                requiredWhen: dep.requiredWhen as { field: string; in?: string[] } | undefined,
+                dateFormat: (dep.dateFormat as string) || undefined,
+            }));
+
+        const xor = this.computeXorFieldGroups(fields);
+
+        const baseView = {
+            sequence: step.sequence,
+            name: feature?.name || 'Unknown Step',
+            code: feature?.code || '',
+            enabled: step.enabled !== false,
+        };
+
+        if (xor) {
+            return {
+                ...baseView,
+                xor,
+                requiredFields: [],
+                conditionalFields: [],
+                optionalFields: [],
+            };
+        }
+
+        const requiredFields = fields
+            .filter((f) => f.required)
+            .sort((a, b) => a.field.localeCompare(b.field));
+        const conditionalFields = fields
+            .filter((f) => !f.required && this.fieldHasConditionalRule(f))
+            .sort((a, b) => a.field.localeCompare(b.field));
+        const optionalFields = fields
+            .filter((f) => !f.required && !this.fieldHasConditionalRule(f))
+            .sort((a, b) => a.field.localeCompare(b.field));
+
+        return {
+            ...baseView,
+            xor: null,
+            requiredFields,
+            conditionalFields,
+            optionalFields,
+        };
+    }
+
+    /**
+     * Split a field list into XOR sections (e.g. fullName vs document fields) when the underlying
+     * `dependencyGroup` annotations describe two distinct input modes. Returns `null` when the
+     * fields don't match the XOR shape, so the caller can fall back to a flat layout.
+     */
+    private computeXorFieldGroups(fields: RequiredField[]): {
         nameFields: RequiredField[];
         documentFields: RequiredField[];
         dobWhenValues: string | null;

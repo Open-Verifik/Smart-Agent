@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "オプション B — 文書で検索",
         "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
         "fieldConditional": "条件付き必須",
-        "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。"
+        "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。",
+        "perEndpointIntro": "各カードは、そのバッチ手順でスプレッドシートに含める列を示します。氏名と書類のルールは、表示されている手順にのみ適用されます。",
+        "endpointStepLabel": "手順 {{sequence}}",
+        "endpointXorRule": "この手順では、行ごとにどちらか一方を選んでください。氏名フィールド、または文書の種類と番号（記載の条件付きフィールドを含む）。",
+        "endpointRequiredFieldsLabel": "必須",
+        "endpointConditionalFieldsLabel": "条件付き",
+        "endpointOptionalFieldsLabel": "任意",
+        "endpointNoFieldsRequired": "この手順に必須の列はありません。"
     },
     "batchTutorial": {
         "stepOf": "ステップ {{current}} / {{total}}",

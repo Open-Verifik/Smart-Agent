@@ -949,7 +949,14 @@
         "searchModeOptionDocument": "Opción B — Búsqueda por documento",
         "dateOfBirthConditionalHint": "Si el tipo de documento es uno de: {{values}}, la columna dateOfBirth es obligatoria en esa fila.",
         "fieldConditional": "Condicional",
-        "fieldConditionalDetail": "Obligatorio cuando {{whenField}} es uno de: {{values}}."
+        "fieldConditionalDetail": "Obligatorio cuando {{whenField}} es uno de: {{values}}.",
+        "perEndpointIntro": "A continuación, cada tarjeta muestra las columnas que tu hoja debe incluir para ese paso del lote. Las reglas de nombre frente a documento solo aplican al paso donde aparecen.",
+        "endpointStepLabel": "Paso {{sequence}}",
+        "endpointXorRule": "En este paso, elige un modo por fila: usa los campos de nombre completo, o el tipo y número de documento (más los condicionales indicados).",
+        "endpointRequiredFieldsLabel": "Obligatorios",
+        "endpointConditionalFieldsLabel": "Condicionales",
+        "endpointOptionalFieldsLabel": "Opcionales",
+        "endpointNoFieldsRequired": "Este paso no requiere columnas."
     },
     "batchTutorial": {
         "stepOf": "Paso {{current}} de {{total}}",
