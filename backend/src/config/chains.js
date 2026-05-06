@@ -96,7 +96,7 @@ const CHAINS = {
         hex: "0x2105",
         key: "base",
         name: "Base",
-        networkName: "base-mainnet",
+        networkName: "base",
         isTestnet: false,
         rpcUrl: process.env.X402_BASE_RPC_URL || "https://mainnet.base.org",
         blockExplorerUrl: "https://basescan.org",
