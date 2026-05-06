@@ -851,14 +851,12 @@
                         <span class="text-sm font-normal text-slate-400">AVAX</span>
                     </div>
 
-                    @if (tokenBalance() && tokenBalance() !== '0.00' && tokenBalance() !== '0.0') {
-                        <div class="text-3xl font-bold dark:text-white mt-2">
-                            {{ tokenBalance() | number: '1.0-2' }}
-                            <span class="text-sm font-normal text-slate-400">{{
-                                tokenTicker
-                            }}</span>
-                        </div>
-                    }
+                    <div class="text-3xl font-bold dark:text-white mt-2">
+                        {{ (tokenBalance() || '0') | number: '1.0-2' }}
+                        <span class="text-sm font-normal text-slate-400">{{
+                            tokenTicker
+                        }}</span>
+                    </div>
                 </div>
 
                 <button mat-stroked-button class="w-full mb-2" (click)="refreshBalance()">

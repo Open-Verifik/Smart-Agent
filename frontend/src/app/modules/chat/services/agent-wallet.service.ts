@@ -1,13 +1,21 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { ethers } from 'ethers';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
 import { environment } from 'environments/environment';
 
 /** Avalanche C-Chain Mainnet: 43114 decimal = 0xa86a hex */
 const AVALANCHE_CHAIN_ID = '0xa86a';
+
+interface WalletBalancesResponse {
+    walletAddress: string;
+    nativeBalance: string;
+    tokenAddress: string;
+    tokenBalance: string;
+}
 
 /**
  * Service for managing wallet operations including MetaMask and encrypted agent wallets.
@@ -28,10 +36,17 @@ export class AgentWalletService {
     public tokenBalance$ = this.tokenBalanceSubject.asObservable();
 
     private readonly RPC_URL = environment.rpcUrl || 'https://api.avax.network/ext/bc/C/rpc';
+    /** Smart Agent backend (proxies balance reads via server RPC) */
+    private readonly smartAgentBaseUrl = environment.smartAgentUrl || '';
+
     /** The VKA token contract address on Avalanche */
     public readonly VKA_CONTRACT_ADDRESS = environment.vkaContractAddress;
 
     private _sessionService = inject(SessionService);
+    private _http = inject(HttpClient);
+
+    /** Dedup parallel getBalance + getTokenBalance within the same refresh */
+    private inflightBackendBalances = new Map<string, Promise<WalletBalancesResponse>>();
 
     constructor(private _encryptionService: WalletEncryptionService) {
         this.provider = new ethers.JsonRpcProvider(this.RPC_URL);
@@ -83,15 +98,67 @@ export class AgentWalletService {
     }
 
     /**
+     * Aligns stored address with the extension's selected account (no account picker prompt).
+     */
+    private async syncExtensionWalletAddressSilently(): Promise<void> {
+        if (!this.isMetaMaskAccount()) return;
+        const eth = (window as any).ethereum;
+        if (!eth) return;
+        try {
+            const accounts: string[] = await eth.request({ method: 'eth_accounts' });
+            const next = accounts?.[0];
+            if (next && typeof next === 'string') {
+                localStorage.setItem('x402_agent_address', next);
+            }
+        } catch {
+            // ignore
+        }
+    }
+
+    private async getAddressForBalanceRead(): Promise<string> {
+        await this.syncExtensionWalletAddressSilently();
+        return this.getAddress();
+    }
+
+    private async loadBalancesFromBackend(
+        walletAddress: string,
+        tokenAddress: string
+    ): Promise<WalletBalancesResponse> {
+        const wallet = ethers.getAddress(walletAddress);
+        const token = ethers.getAddress(tokenAddress);
+        const key = `${wallet.toLowerCase()}:${token.toLowerCase()}`;
+        let inflight = this.inflightBackendBalances.get(key);
+        if (!inflight) {
+            const url = `${this.smartAgentBaseUrl}/api/agent/wallet-balances`;
+            inflight = firstValueFrom(
+                this._http.get<WalletBalancesResponse>(url, {
+                    params: {
+                        walletAddress: wallet,
+                        tokenAddress: token,
+                    },
+                })
+            ).finally(() => {
+                this.inflightBackendBalances.delete(key);
+            });
+            this.inflightBackendBalances.set(key, inflight);
+        }
+        return inflight;
+    }
+
+    /**
      * Fetches the native AVAX balance for the connected wallet.
      * @returns The balance formatted in AVAX (e.g., "1.5")
      */
     async getBalance(): Promise<string> {
-        const address = this.getAddress();
-        if (!address) return '0.00';
-
-        const balance = await this.provider.getBalance(address);
-        return ethers.formatEther(balance);
+        try {
+            const address = await this.getAddressForBalanceRead();
+            if (!address) return '0.00';
+            const data = await this.loadBalancesFromBackend(address, this.VKA_CONTRACT_ADDRESS);
+            return data.nativeBalance ?? '0.00';
+        } catch (err) {
+            console.warn('[AgentWallet] getBalance proxy failed', err);
+            return '0.00';
+        }
     }
 
     /**
@@ -100,21 +167,14 @@ export class AgentWalletService {
      * @returns The token balance formatted with proper decimals
      */
     async getTokenBalance(tokenAddress: string = this.VKA_CONTRACT_ADDRESS): Promise<string> {
-        const address = this.getAddress();
-        if (!address) return '0.00';
-
         try {
-            const abi = [
-                'function balanceOf(address) view returns (uint256)',
-                'function decimals() view returns (uint8)',
-            ];
-            const contract = new ethers.Contract(tokenAddress, abi, this.provider);
-            const [balance, decimals] = await Promise.all([
-                contract.balanceOf(address),
-                contract.decimals(),
-            ]);
-            return ethers.formatUnits(balance, decimals);
-        } catch {
+            const address = await this.getAddressForBalanceRead();
+            if (!address) return '0.00';
+            const normalized = ethers.getAddress(tokenAddress);
+            const data = await this.loadBalancesFromBackend(address, normalized);
+            return data.tokenBalance ?? '0.00';
+        } catch (err) {
+            console.warn('[AgentWallet] getTokenBalance proxy failed', tokenAddress, err);
             return '0.00';
         }
     }

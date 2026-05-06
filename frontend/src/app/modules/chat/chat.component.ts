@@ -997,10 +997,11 @@ export class ChatComponent implements OnInit {
     showToast = signal<boolean>(false);
     toastMessage = signal<string>('');
 
-    toggleWalletModal() {
+    async toggleWalletModal() {
         this.showWalletModal.update((show) => !show);
         if (this.showWalletModal() && this.walletAddress()) {
             this.generateQrCode(this.walletAddress());
+            await this.refreshBalance();
         }
     }
 
