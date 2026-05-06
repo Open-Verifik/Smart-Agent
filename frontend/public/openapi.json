@@ -13,15 +13,38 @@
   ],
   "tags": [
     {
-      "name": "VerifikProxy",
-      "description": "x402-gated Verifik API proxy paths"
+      "name": "KYC",
+      "description": "Identity verification, sanctions, and watchlists"
+    },
+    {
+      "name": "KYB",
+      "description": "Business, registry, and company lookups"
+    },
+    {
+      "name": "Data",
+      "description": "Government and proprietary datasets via API"
+    },
+    {
+      "name": "LATAM",
+      "description": "Strong coverage in Latin America and regional registries"
     }
   ],
+  "x-discovery": {
+    "tags": [
+      "KYC",
+      "KYB",
+      "Data",
+      "LATAM"
+    ]
+  },
   "paths": {
     "/api/dea": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_dea",
         "summary": "Global - DEA Background Check",
@@ -133,7 +156,10 @@
     "/api/usa/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "usa_api_vehicle",
         "summary": "USA - Vehicle Verification",
@@ -242,7 +268,10 @@
     "/api/co/simit/acuerdos": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_agreements",
         "summary": "Colombia - SIMIT Payment Agreements",
@@ -310,7 +339,10 @@
     "/api/co/runt/conductor": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_driver",
         "summary": "Colombia - Driver License Verification (RUNT)",
@@ -374,7 +406,10 @@
     "/api/co/registraduria/votacion": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_registraduria_voting",
         "summary": "Colombia - Electoral Records Verification",
@@ -422,7 +457,10 @@
     "/api/co/runt/vehiculo": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle",
         "summary": "Colombia - Basic Vehicle Information",
@@ -495,7 +533,10 @@
     "/api/co/simit/suspensiones": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_suspensions",
         "summary": "Colombia - SIMIT License Suspensions",
@@ -563,7 +604,10 @@
     "/api/cl/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_vehicle",
         "summary": "Chile - Vehicle Verification",
@@ -611,7 +655,10 @@
     "/api/co/runt/vehicle-by-vin": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_vin",
         "summary": "Colombia - Complete Vehicle Report (By VIN)",
@@ -659,7 +706,10 @@
     "/api/br/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_identity_lookup",
         "summary": "Brazil - National ID Verification",
@@ -728,7 +778,10 @@
     "/api/communication/email": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "communication_global_email_otp",
         "summary": "Email OTP",
@@ -784,7 +837,10 @@
     "/api/co/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup",
         "summary": "Colombia - National ID Verification",
@@ -846,7 +902,10 @@
     "/api/co/cedula/rethus": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_rethus",
         "summary": "Colombia - Health Records Verification",
@@ -906,7 +965,10 @@
     "/api/co/contraloria/certificado": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_contraloria_certificate",
         "summary": "Colombia - Certificate of Fiscal Responsibility (Contraloría)",
@@ -974,7 +1036,10 @@
     "/api/ve/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "venezuela_api_identity_lookup",
         "summary": "Venezuela - National ID Verification",
@@ -1034,7 +1099,10 @@
     "/api/mx/vehiculo/placa": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "mexico_api_vehicle",
         "summary": "Mexico - Vehicle Verification",
@@ -1082,7 +1150,10 @@
     "/api/interpol": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_interpol",
         "summary": "Global - Interpol Background Check",
@@ -1194,7 +1265,10 @@
     "/api/ofac": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_ofac",
         "summary": "Global - OFAC Sanctions Check",
@@ -1306,7 +1380,10 @@
     "/api/mx/curp": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "mexico_identity_lookup",
         "summary": "Mexico - National ID Verification",
@@ -1366,7 +1443,10 @@
     "/api/pe/vehiculo/placa": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_vehicle",
         "summary": "Peru - Vehicle Verification",
@@ -1414,7 +1494,10 @@
     "/api/pe/vehiculo/soat": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_vehicle_soat",
         "summary": "Peru - Vehicle Verification",
@@ -1462,7 +1545,10 @@
     "/api/co/procuraduria/antecedentes": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_criminal_history",
         "summary": "Colombia - Legal Background Check",
@@ -1524,7 +1610,10 @@
     "/api/cr/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "costarica_api_identity_lookup",
         "summary": "Costa Rica - National ID Verification",
@@ -1584,7 +1673,10 @@
     "/api/cl/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_business_lookup",
         "summary": "Chile - Company Lookup",
@@ -1644,7 +1736,10 @@
     "/api/ec/vehiculo/placa/multas": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_vehicle_fines",
         "summary": "Ecuador - Vehicle Fines",
@@ -1692,7 +1787,10 @@
     "/api/co/simit/comparendo": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_subpoenas_details",
         "summary": "Colombia - SIMIT Subpoena Details",
@@ -1770,7 +1868,10 @@
     "/api/br/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_company_lookup",
         "summary": "Brazil - Company Lookup",
@@ -1830,7 +1931,10 @@
     "/api/co/company/dian/invoicer": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_dian_invoicer",
         "summary": "Colombia - DIAN Electronic Invoicer Status",
@@ -1890,7 +1994,10 @@
     "/api/co/contracts": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "api_colombia_contracts",
         "summary": "Colombia - Government Contracts Verification",
@@ -1960,7 +2067,10 @@
     "/api/co/policia/rnmc": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_police_rnmc",
         "summary": "Colombia - Police Records Check",
@@ -2032,7 +2142,10 @@
     "/api/co/company/dian": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_dian",
         "summary": "Colombia - Tax Information Verification",
@@ -2092,7 +2205,10 @@
     "/api/co/rama/proceso": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_judicial_process_details",
         "summary": "Colombia - Judicial Process Details",
@@ -2148,7 +2264,10 @@
     "/api/co/simit/resoluciones": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_resolutions",
         "summary": "Colombia - SIMIT Resolutions",
@@ -2216,7 +2335,10 @@
     "/api/co/afiliaciones": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_affiliations",
         "summary": "Colombia - Health & Social Security Affiliations",
@@ -2288,7 +2410,10 @@
     "/api/co/registraduria/certificado": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_registraduria_certificate",
         "summary": "Colombia - Electoral Records Verification",
@@ -2357,7 +2482,10 @@
     "/api/co/deudoresmorosos": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_delinquent_debtors",
         "summary": "Colombia - Delinquent Debtors (BDME)",
@@ -2423,7 +2551,10 @@
     "/api/ec/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_identity_lookup",
         "summary": "Ecuador - National ID Verification",
@@ -2471,7 +2602,10 @@
     "/api/ec/vehiculo/placa": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_vehicle",
         "summary": "Ecuador - Vehicle Verification",
@@ -2519,7 +2653,10 @@
     "/api/co/simit/consultar": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_complete",
         "summary": "Colombia - SIMIT Complete Transit History",
@@ -2584,7 +2721,10 @@
     "/api/europol": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_europol",
         "summary": "Global - Europol Background Check",
@@ -2696,7 +2836,10 @@
     "/api/co/rama/procesos": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_judicial_processes",
         "summary": "Colombia - Judicial Processes",
@@ -2761,7 +2904,10 @@
     "/api/pa/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "panama_api_identity_lookup",
         "summary": "Panama - National ID Verification",
@@ -2830,7 +2976,10 @@
     "/api/es/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "spain_api_identity_lookup",
         "summary": "Spain - National ID Verification",
@@ -2900,7 +3049,10 @@
     "/api/usa/florida/driver-license": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "usa_api_driver_license_lookup",
         "summary": "USA - Driver License Verification",
@@ -2948,7 +3100,10 @@
     "/api/communication/whatsapp": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "communication_global_messaging_whatsapp",
         "summary": "Global - WhatsApp Messaging",
@@ -3014,7 +3169,10 @@
     "/api/br/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_vehicle",
         "summary": "Brazil - Vehicle Verification",
@@ -3062,7 +3220,10 @@
     "/api/ar/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "argentina_api_identity_lookup",
         "summary": "Argentina - National ID Verification",
@@ -3122,7 +3283,10 @@
     "/api/ec/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_company_lookup",
         "summary": "Ecuador - Company Lookup",
@@ -3182,7 +3346,10 @@
     "/api/co/situacion-militar": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_military_situation",
         "summary": "Colombia - Military Service Records",
@@ -3246,7 +3413,10 @@
     "/api/onu": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_onu",
         "summary": "Global - UN Sanctions Check",
@@ -3358,7 +3528,10 @@
     "/api/co/sena/certificados": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_sena",
         "summary": "Colombia - SENA Certificates",
@@ -3427,7 +3600,10 @@
     "/api/fbi": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_fbi",
         "summary": "Global - FBI Background Check",
@@ -3539,7 +3715,10 @@
     "/api/co/vehiculo/pico-y-placa": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_pico_placa",
         "summary": "Colombia - Pico y Placa Restrictions",
@@ -3587,7 +3766,10 @@
     "/api/cl/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_identity_lookup",
         "summary": "Chile - National ID Verification",
@@ -3647,7 +3829,10 @@
     "/api/co/runt/vehicle-by-plate": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_plate",
         "summary": "Colombia - Complete Vehicle Report (By Plate)",
@@ -3719,7 +3904,10 @@
     "/api/co/rama/abogados": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_lawyers",
         "summary": "Colombia - Lawyers Verification",
@@ -3781,7 +3969,10 @@
     "/api/ip-lookup": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ip-lookup",
         "summary": "IP Geolocation Lookup",
@@ -3829,7 +4020,10 @@
     "/api/communication/sms": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "communication_messaging_sms",
         "summary": "SMS Messaging",
@@ -3895,7 +4089,10 @@
     "/api/usa/ssn": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "usa_api_ssn",
         "summary": "USA - SSN Verification",
@@ -3943,7 +4140,10 @@
     "/api/co/cedula/extra": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup_extra",
         "summary": "Colombia - National ID Verification",
@@ -4012,7 +4212,10 @@
     "/api/credit-intents/kyc-passwordless": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "credit_intent_kyc_passwordless",
         "summary": "KYC Passwordless Credit Intent",
@@ -4061,7 +4264,10 @@
     "/api/co/politically-exposed-persons": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_pep_lookup",
         "summary": "Colombia - Politically Exposed Persons (PEP) Lookup",
@@ -4121,7 +4327,10 @@
     "/api/bo/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "bolivia_api_identity_lookup",
         "summary": "Bolivia - National ID Verification",
@@ -4190,7 +4399,10 @@
     "/api/cl/driver-license": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_driver_license",
         "summary": "Chile - Driver License",
@@ -4246,7 +4458,10 @@
     "/api/co/sisconmp/trainings": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_sisconmp",
         "summary": "Colombia - SISCONMP Transport Verification",
@@ -4307,7 +4522,10 @@
     "/api/co/runt/vehicle-by-plate-simplified": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_plate_simplified",
         "summary": "Colombia - Simplified Vehicle Report",
@@ -4380,7 +4598,10 @@
     "/api/ca/ontario/driver-license": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "canada_api_driver_license_ontario",
         "summary": "Canada - Driver License",
@@ -4436,7 +4657,10 @@
     "/api/ca/quebec/driver-license": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "canada_api_driver_license_quebec",
         "summary": "Canada - Driver License",
@@ -4492,7 +4716,10 @@
     "/api/ocr/scan-pro": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ocr_scan_pro",
         "summary": "OCR Document Scan Pro",
@@ -4558,7 +4785,10 @@
     "/api/ocr/scan-gpt": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ocr_scan_gpt",
         "summary": "OCR Document Scan GPT",
@@ -4622,7 +4852,10 @@
     "/api/sv/dui": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "el_salvador_api_identity_lookup",
         "summary": "El Salvador - National ID Verification",
@@ -4679,7 +4912,10 @@
     "/api/py/cic": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "paraguay_api_identity_lookup",
         "summary": "Paraguay - National ID Verification",
@@ -4727,7 +4963,10 @@
     "/api/ca/british-columbia/driver-license": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "canada_api_driver_license_british-columbia",
         "summary": "Canada - Driver License",
@@ -4788,7 +5027,10 @@
     "/api/co/foreigner-id/ce": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_ce_foreigner_id",
         "summary": "Colombia - Immigration Status Verification",
@@ -4845,7 +5087,10 @@
     "/api/co/foreigner-id/pep": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_pep_foreigner_id",
         "summary": "Colombia - Immigration Status Verification",
@@ -4902,7 +5147,10 @@
     "/api/ocr/scan-studio": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "ocr_scan_studio",
         "summary": "OCR Document Scan Studio",
@@ -4966,7 +5214,10 @@
     "/api/ca/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "canada_api_company",
         "summary": "Canada - Company Lookup",
@@ -5032,7 +5283,10 @@
     "/api/face-recognition/search-live-face": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_search_live_face",
         "summary": "Live Face Search",
@@ -5112,7 +5366,10 @@
     "/api/face-recognition/compare": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_compare",
         "summary": "Face Comparison",
@@ -5178,7 +5435,10 @@
     "/api/face-recognition/compare-live": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_compare_live",
         "summary": "Live Face Comparison",
@@ -5254,7 +5514,10 @@
     "/api/face-recognition/liveness": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_liveness",
         "summary": "Face Liveness Detection",
@@ -5315,7 +5578,10 @@
     "/api/face-recognition/verify": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_verify",
         "summary": "Face Verification",
@@ -5390,7 +5656,10 @@
     "/api/face-recognition/detect": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_detect",
         "summary": "Face Detection",
@@ -5464,7 +5733,10 @@
     "/api/face-recognition/search/crops": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_search_crops",
         "summary": "Face Search (Crops)",
@@ -5538,7 +5810,10 @@
     "/api/face-recognition/search": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_search",
         "summary": "Face Search",
@@ -5612,7 +5887,10 @@
     "/api/mx/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "mexico_api_company",
         "summary": "Mexico - Company Lookup",
@@ -5672,7 +5950,10 @@
     "/api/co/fasecolda/values-by-plate": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_valores_fasecolda_by_plate",
         "summary": "Colombia - Fasecolda Vehicle Values (by Plate)",
@@ -5728,7 +6009,10 @@
     "/api/co/fasecolda/values-by-code": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_valores_fasecolda_by_code",
         "summary": "Colombia - Fasecolda Vehicle Values (by Code)",
@@ -5784,7 +6068,10 @@
     "/api/co/simit/consultar/placa": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_plate",
         "summary": "Colombia - SIMIT Fines by Plate",
@@ -5832,7 +6119,10 @@
     "/api/ar/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "argentina_api_vehicle",
         "summary": "Argentina - Vehicle Verification",
@@ -5880,7 +6170,10 @@
     "/api/usa/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "usa_api_company",
         "summary": "USA - Company Lookup",
@@ -5928,7 +6221,10 @@
     "/api/usa/kansas/driver-license": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "usa_api_driver_license_lookup_kansas",
         "summary": "CONSULTAR LICENCIA DE KANSAS",
@@ -5999,7 +6295,10 @@
     "/api/co/fasecolda/sinister": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_sinister_fasecolda_by_plate",
         "summary": "Colombia - Fasecolda Accident History",
@@ -6055,7 +6354,10 @@
     "/api/br/background-check": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_criminal_history",
         "summary": "brasil api criminal history",
@@ -6124,7 +6426,10 @@
     "/api/cr/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "costa_rica_api_business_lookup",
         "summary": " - Company Lookup",
@@ -6184,7 +6489,10 @@
     "/api/ar/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "argentina_api_company_lookup",
         "summary": "Argentina - Company Lookup",
@@ -6244,7 +6552,10 @@
     "/api/bo/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "bolivia_api_business_lookup",
         "summary": "Bolivia - Company Lookup",
@@ -6304,7 +6615,10 @@
     "/api/co/bogota/vehicle/accidentality": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_accidentality_bogota",
         "summary": "Colombia - Bogota Vehicle Accidents",
@@ -6352,7 +6666,10 @@
     "/api/co/bogota/vehicle/tax": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_tax",
         "summary": "Colombia - Vehicle Tax Status",
@@ -6422,7 +6739,10 @@
     "/api/co/rama/certificado/vigencia": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_lawyers_certificate",
         "summary": "Colombia - Lawyers Verification",
@@ -6498,7 +6818,10 @@
     "/api/co/rama/juzgado/expedientes": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_judicial_records",
         "summary": "Colombia - Judicial Records",
@@ -6585,7 +6908,10 @@
     "/api/py/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "paraguay_api_business_lookup",
         "summary": "Paraguay - Company Lookup",
@@ -6645,7 +6971,10 @@
     "/api/cl/validate/documents": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_validate",
         "summary": "chile api validate",
@@ -6715,7 +7044,10 @@
     "/api/cl/taxpayer": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_taxpayer_lookup",
         "summary": "chile api taxpayer lookup",
@@ -6775,7 +7107,10 @@
     "/api/py/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "paraguay_api_vehicle",
         "summary": "Paraguay - Vehicle Verification",
@@ -6823,7 +7158,10 @@
     "/api/cr/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "costa_rica_api_vehicle",
         "summary": " - Vehicle Verification",
@@ -6871,7 +7209,10 @@
     "/api/usa/vehicle-by-vin": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "usa_api_vehicle_lookup_by_vin",
         "summary": "USA - Vehicle Lookup by VIN",
@@ -6919,7 +7260,10 @@
     "/api/gt/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "guatemala_api_identity_lookup",
         "summary": "Guatemala - National ID Verification",
@@ -6979,7 +7323,10 @@
     "/api/co/medellin/vehicle/fines": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_fines_medellin",
         "summary": "Colombia - Medellin Transit Fines",
@@ -7027,7 +7374,10 @@
     "/api/co/bogota/vehicle/fines": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_fines_bogota",
         "summary": "Colombia - Bogota Transit Fines",
@@ -7075,7 +7425,10 @@
     "/api/hn/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "honduras_api_identity_lookup",
         "summary": "Honduras - National ID Verification",
@@ -7135,7 +7488,10 @@
     "/api/do/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "republica_dominicana_api_citizen_lookup",
         "summary": "Dominican Republic - National ID Verification",
@@ -7195,7 +7551,10 @@
     "/api/ve/foreigner-id": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "venezuela_foreigner_api",
         "summary": "Venezuela - Immigration Status Verification",
@@ -7243,7 +7602,10 @@
     "/api/bo/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "bolivia_api_vehicle",
         "summary": "Bolivia - Vehicle Verification",
@@ -7291,7 +7653,10 @@
     "/api/uy/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "uruguay_api_identity_lookup",
         "summary": "Uruguay - National ID Verification",
@@ -7360,7 +7725,10 @@
     "/api/es/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "spain_api_company_lookup",
         "summary": "Spain - Company Lookup",
@@ -7420,7 +7788,10 @@
     "/api/pa/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "panama_api_business_lookup",
         "summary": "Panama - Company Lookup",
@@ -7489,7 +7860,10 @@
     "/api/pe/foreigner-id/ce": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_identity_ce_foreigner_id",
         "summary": "Peru - Immigration Status Verification",
@@ -7546,7 +7920,10 @@
     "/api/v3/co/rues-complete": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_rues_full_v3",
         "summary": "Colombia - RUES Business Verification",
@@ -7625,7 +8002,10 @@
     "/api/v3/co/rues": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_rues_v3",
         "summary": "Colombia - RUES Business Verification",
@@ -7704,7 +8084,10 @@
     "/api/v3/pe/cedula/extra": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_identity_extra_lookup_v3",
         "summary": "Peru - National ID Verification",
@@ -7764,7 +8147,10 @@
     "/api/v3/pe/cedula": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_identity_lookup_v3",
         "summary": "Peru - National ID Verification",
@@ -7824,7 +8210,10 @@
     "/api/co/foreigner-id/ppt": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_ppt_foreigner_id",
         "summary": "Colombia - Immigration Status Verification",
@@ -7881,7 +8270,10 @@
     "/api/v3/co/ministerio-de-trabajo/certificados": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_min_trabajo_v3",
         "summary": "Colombia - Labor Certificates Verification",
@@ -7945,7 +8337,10 @@
     "/api/co/sisben": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_sisben_api_lookup",
         "summary": "Colombia - SISBEN Score Verification",
@@ -8009,7 +8404,10 @@
     "/api/face-recognition/face-validation": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_detect_face",
         "summary": "Face Detection",
@@ -8065,7 +8463,10 @@
     "/api/v3/pe/company": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_company_lookup_v3",
         "summary": "Peru - Company Lookup",
@@ -8125,7 +8526,10 @@
     "/api/document-liveness": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "document-liveness",
         "summary": "Document Liveness Detection",
@@ -8174,7 +8578,10 @@
     "/api/credit-intents": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "credit_intent",
         "summary": "Credit Purchase Intent",
@@ -8234,7 +8641,10 @@
     "/api/face-recognition/search-active-user": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "face_recognition_search_active_user",
         "summary": "Face Search (Active User)",
@@ -8309,7 +8719,10 @@
     "/api/es/vehicle": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "spain_api_vehicle_lookup",
         "summary": "Spain - Vehicle Verification",
@@ -8357,7 +8770,10 @@
     "/api/co/sigep/name": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_sigep_by_name",
         "summary": "Colombia - SIGEP Public Officials Search",
@@ -8413,7 +8829,10 @@
     "/api/co/sigep/number": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_sigep_by_number",
         "summary": "Colombia - SIGEP Official Lookup by Document",
@@ -8474,7 +8893,10 @@
     "/api/co/inpec": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_inpec_lookup",
         "summary": "Colombia - INPEC Penitentiary Records",
@@ -8543,7 +8965,10 @@
     "/api/zelf-proof/encrypt": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "zelf-proofs",
         "summary": "Zelf Proofs",
@@ -8592,7 +9017,10 @@
     "/api/zelf-proof/encrypt-with-liveness-active-user": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "zelf-proof-liveness-active-user",
         "summary": "Zelf Proof with Liveness (Active user)",
@@ -8641,7 +9069,10 @@
     "/api/gt/cedula/extra": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "guatemala_api_identity_extra_lookup",
         "summary": "Guatemala - Identity Verification full",
@@ -8701,7 +9132,10 @@
     "/api/in/epic": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "india_api_epic_lookup",
         "summary": "CONSULTAR EPIC INDIA",
@@ -8765,7 +9199,10 @@
     "/api/in/epic/votacion": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "india_api_epic_voting_lookup",
         "summary": "CONSULTAR VOTACION EPIC INDIA",
@@ -8829,7 +9266,10 @@
     "/api/co/bogota/taxi-drivers/plate": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "co_bogota_taxi_plate",
         "summary": "Colombia - Bogotá Taxi Driver by Plate",
@@ -8887,7 +9327,10 @@
     "/api/co/bogota/taxi-drivers/card": {
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "co_bogota_taxi_driver_card",
         "summary": "Colombia - Bogotá Taxi Driver by Card",
@@ -8945,7 +9388,10 @@
     "/api/co/cedula/premium": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup_premium",
         "summary": "Colombia - National ID Premium Verification",
@@ -8993,7 +9439,10 @@
     "/api/co/policia/consultar": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_special_api_police_identity_lookup",
         "summary": "Colombia - Police Records Check",
@@ -9054,7 +9503,10 @@
     "/api/autodata/selection": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "api_autodata_selection",
         "summary": " - Data Verification Service",
@@ -9102,7 +9554,10 @@
     "/api/co/runt/propietarios": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_runt_owners",
         "summary": "Colombia - Data Verification Service",
@@ -9150,7 +9605,10 @@
     "/api/appointments": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "matpis_appointments",
         "summary": " - Data Verification Service",
@@ -9210,7 +9668,10 @@
     "/api/passport/us/entries": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "world_api_passport_entries",
         "summary": "United States - Identity Verification",
@@ -9294,7 +9755,10 @@
     "/api/proxy": {
       "get": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "api_proxy_get",
         "summary": "Proxy to Verifik (GET)",
@@ -9341,7 +9805,10 @@
       },
       "post": {
         "tags": [
-          "VerifikProxy"
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
         ],
         "operationId": "api_proxy_post",
         "summary": "Proxy to Verifik (POST)",
