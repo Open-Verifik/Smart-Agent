@@ -756,9 +756,13 @@ export class ChatComponent implements OnInit {
         });
     }
 
-    refreshBalance() {
-        this.walletService.getBalance().then((b) => this.walletBalance.set(b));
-        this.walletService.getTokenBalance().then((b) => this.tokenBalance.set(b));
+    async refreshBalance(): Promise<void> {
+        const [balance, tokenBalance] = await Promise.all([
+            this.walletService.getBalance(),
+            this.walletService.getTokenBalance(),
+        ]);
+        this.walletBalance.set(balance);
+        this.tokenBalance.set(tokenBalance);
     }
 
     getImageUrl(src: string): string {
@@ -802,9 +806,11 @@ export class ChatComponent implements OnInit {
         this.showPaymentDetails.update((v) => !v);
     }
 
-    confirmPayment(msgIndex: number) {
+    async confirmPayment(msgIndex: number) {
         const msg = this.messages()[msgIndex];
         if (!msg.payment_required) return;
+
+        await this.refreshBalance();
 
         // Open Dialog
         const dialogRef = this._matDialog.open(PaymentConfirmationComponent, {
