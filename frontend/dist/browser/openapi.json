@@ -1,9 +1,9 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Verifik Smart Agent — Verifik proxy (x402)",
+    "title": "Verifik AI — x402 KYC & Verifik proxy",
     "version": "1.0.0",
-    "description": "Paid proxy to Verifik identity and data APIs. Pricing matches runtime x402 middleware (tools-manifest.json).",
+    "description": "x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware.",
     "x-guidance": "Verifik Smart Agent proxy API — base URL: https://ai.verifik.co\n\nPAYMENT (x402): Most clients call concrete paths under /v2 or /v3. Without a valid Verifik **user** Bearer JWT, the API responds **402 Payment Required** until you pay.\n- Submit on-chain payment, then retry with header **x-payment-tx** set to the transaction hash (or **Authorization: L402 <txHash>**).\n- Optional **x-payment-chain-id** (decimal or 0x hex) selects the settlement chain; default is Avalanche C-Chain. Assets: native gas token, USDC, or VKA where configured — see runtime 402 JSON for chain-specific fields.\n\nCREDITS BYPASS: **Authorization: Bearer <user JWT>** (a normal Verifik client token, not the server service token) skips on-chain payment for the same routes.\n\nALTERNATE ENTRY: **GET/POST /api/proxy** with required header **x-target-url** pointing at the same /v2 or /v3 path (absolute or relative). Price is resolved from that target path. Prefer documented /v2 and /v3 operations when possible.\n\nOpenAPI is canonical for listing; **/.well-known/x402** lists payable resource strings (METHOD + path)."
   },
   "servers": [
