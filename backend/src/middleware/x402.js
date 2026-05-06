@@ -24,6 +24,11 @@ const {
  *     and (optionally) a VKA-equivalent ERC-20.
  *   - Solana is not validated here; it must use Sponge until we ship a
  *     dedicated verifier.
+ *
+ * Payment challenges use **x402 v2** JSON (`x402Version: 2`, CAIP-2 `eip155:*`
+ * networks in `accepts[]`, `amount`, `extensions.bazaar.schema`) so
+ * AgentCash / x402scan can index resources. Top-level `price`, `amount`,
+ * `receiver_address`, etc. remain for the Smart Agent web wallet.
  */
 
 /** @type {Map<number, ethers.JsonRpcProvider>} */
@@ -88,9 +93,9 @@ const computeUsdcAmount = (priceUsd, chain) => {
 };
 
 /**
- * x402 v1: tools such as x402scan / @agentcash/discovery read request/response
- * JSON Schema from `accepts[0].outputSchema` (fields `input` and `output`).
- * OpenAPI alone does not satisfy strict validation for the 402 probe body.
+ * x402 v1 (legacy): `accepts[0].outputSchema.input` / `.output`.
+ * x402 v2 + AgentCash / x402scan indexing: `extensions.bazaar.schema` with nested
+ * `input.properties.queryParams` or `.body` and `output.properties.example`.
  *
  * @param {{ parameters?: object } | null | undefined} tool Manifest endpoint or null
  * @returns {{ input: object, output: object }}
@@ -115,6 +120,78 @@ const buildAcceptOutputSchema = (tool) => {
         additionalProperties: true,
     };
     return { input, output };
+};
+
+/**
+ * @param {string} httpMethod
+ * @param {{ input: object, output: object }} acceptOutputSchema
+ * @returns {object}
+ */
+const buildBazaarExtensionsSchema = (httpMethod, acceptOutputSchema) => {
+    const m = (httpMethod || "GET").toUpperCase();
+    const usesQuery = m === "GET" || m === "DELETE" || m === "HEAD";
+    const inputBranch = usesQuery
+        ? { queryParams: acceptOutputSchema.input }
+        : { body: acceptOutputSchema.input };
+    return {
+        type: "object",
+        properties: {
+            input: {
+                type: "object",
+                properties: inputBranch,
+            },
+            output: {
+                type: "object",
+                properties: {
+                    example: acceptOutputSchema.output,
+                },
+            },
+        },
+    };
+};
+
+/**
+ * @param {object} opts
+ * @param {number} opts.requiredPriceUsd
+ * @param {() => Array<object>} opts.listChainsFn
+ * @param {(id: number) => object | null} opts.getChainFn
+ * @param {string | null} opts.agentAddress
+ * @returns {Promise<object[]>}
+ */
+const buildV2Accepts = async (opts) => {
+    const { requiredPriceUsd, listChainsFn, getChainFn, agentAddress } = opts;
+    /** @type {object[]} */
+    const accepts = [];
+    for (const c of listChainsFn()) {
+        const full = getChainFn(c.chainId);
+        if (!full) continue;
+        const target = c.paymentContract || agentAddress;
+        if (!target) continue;
+        const { amountWei } = await computeNativeAmount(requiredPriceUsd, full);
+        accepts.push({
+            scheme: "exact",
+            network: `eip155:${c.chainId}`,
+            amount: amountWei.toString(),
+            asset: c.nativeSymbol,
+            payTo: target,
+            maxTimeoutSeconds: 300,
+        });
+        if (c.usdcAddress) {
+            const { amountUnits } = computeUsdcAmount(requiredPriceUsd, {
+                usdcDecimals: c.usdcDecimals || 6,
+            });
+            accepts.push({
+                scheme: "exact",
+                network: `eip155:${c.chainId}`,
+                amount: amountUnits.toString(),
+                asset: c.usdcAddress,
+                payTo: target,
+                maxTimeoutSeconds: 300,
+                extra: { name: "USDC", decimals: c.usdcDecimals || 6 },
+            });
+        }
+    }
+    return accepts;
 };
 
 module.exports = async (ctx, next) => {
@@ -208,55 +285,33 @@ module.exports = async (ctx, next) => {
             }
             : null;
 
-        // Build canonical x402 v1 `accepts` entries (one per accepted asset per active chain).
-        // Required fields per x402scan / @agentcash/discovery v1 schema:
-        //   scheme, network, maxAmountRequired, resource, description, payTo,
-        //   maxTimeoutSeconds, asset
-        const resource = `${config.publicOrigin}${ctx.path}`;
+        // x402 v2 (CAIP-2 networks + `amount`) — required for AgentCash / x402scan resource indexing.
+        // Legacy wallet UI still uses the top-level `price`, `amount`, `receiver_address`, etc.
+        const resourceUrl = `${config.publicOrigin}${ctx.path}`;
         const acceptOutputSchema = buildAcceptOutputSchema(matchedTool);
-        const canonicalAccepts = [];
-        for (const c of listAcceptedChains()) {
-            const target = c.paymentContract || agentAddress;
-            if (!target) continue;
-            // Native asset entry (AVAX, ETH, OKB, …)
-            canonicalAccepts.push({
-                scheme: "exact",
-                network: c.networkName,
-                maxAmountRequired: (() => {
-                    try { return ethers.parseEther(requiredNativeStr).toString(); } catch { return "0"; }
-                })(),
-                resource,
-                description: `Pay ${requiredNativeStr} ${c.nativeSymbol} (~$${requiredPriceUsd})`,
-                payTo: target,
-                maxTimeoutSeconds: 300,
-                asset: c.nativeSymbol,
-                outputSchema: acceptOutputSchema,
-            });
-            // USDC entry
-            if (c.usdcAddress) {
-                canonicalAccepts.push({
-                    scheme: "exact",
-                    network: c.networkName,
-                    maxAmountRequired: ethers.parseUnits(
-                        requiredPriceUsd.toFixed(c.usdcDecimals || 6),
-                        c.usdcDecimals || 6
-                    ).toString(),
-                    resource,
-                    description: `Pay ${requiredPriceUsd.toFixed(2)} USDC`,
-                    payTo: target,
-                    maxTimeoutSeconds: 300,
-                    asset: c.usdcAddress,
-                    extra: { name: "USDC", decimals: c.usdcDecimals || 6 },
-                    outputSchema: acceptOutputSchema,
-                });
-            }
-        }
+        const v2Accepts = await buildV2Accepts({
+            requiredPriceUsd,
+            listChainsFn: listAcceptedChains,
+            getChainFn: getChain,
+            agentAddress,
+        });
 
         ctx.body = {
-            // ── canonical x402 v1 fields (required by x402scan / discovery) ──
-            x402Version: 1,
+            x402Version: 2,
             error: "X-PAYMENT-TX header is required",
-            accepts: canonicalAccepts,
+            resource: {
+                url: resourceUrl,
+                description:
+                    matchedTool?.description ||
+                    `Verifik x402-gated proxy for ${ctx.method} ${ctx.path}`,
+                mimeType: "application/json",
+            },
+            accepts: v2Accepts,
+            extensions: {
+                bazaar: {
+                    schema: buildBazaarExtensionsSchema(ctx.method, acceptOutputSchema),
+                },
+            },
             // ── legacy / frontend convenience fields ──
             price: `${requiredNativeStr} ${chain.nativeSymbol}`,
             priceUsd: requiredPriceUsd,
