@@ -9,7 +9,11 @@
         "withdraw": "node scripts/withdraw-funds.js",
         "withdraw:avax": "node scripts/withdraw-funds.js --asset AVAX",
         "withdraw:vka": "node scripts/withdraw-funds.js --asset VKA",
-        "send:vka": "node scripts/send-vka.js"
+        "send:vka": "node scripts/send-vka.js",
+        "sync:sponge-endpoints": "node scripts/sync-sponge-endpoints-from-manifest.js",
+        "sync:sponge-endpoints:dry-run": "DRY_RUN=1 node scripts/sync-sponge-endpoints-from-manifest.js",
+        "sponge:write-jobs": "node scripts/sync-sponge-endpoints-from-manifest.js --write-jobs",
+        "sponge:http-bulk": "node scripts/sponge-http-bulk-create.js"
     },
     "keywords": [],
     "author": "",

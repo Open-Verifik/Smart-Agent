@@ -13,6 +13,9 @@ const router = new Router();
 
 router.all(/^\/v2\/.+/, x402Middleware, proxyController.handleRequest);
 
+/** Verifik v3 routes (Peru cédula v3, RUES v3, ministerio v3, etc.) — same payment + forward chain as v2 */
+router.all(/^\/v3\/.+/, x402Middleware, proxyController.handleRequest);
+
 /**
  * Generic Proxy Route for Postman UI
  * Accepts target URL in x-target-url header
