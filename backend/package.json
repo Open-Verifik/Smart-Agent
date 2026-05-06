@@ -21,7 +21,8 @@
         "deploy:payment:avalanche": "node scripts/deploy-payment-multichain.js --chain avalanche",
         "deploy:payment:fuji": "node scripts/deploy-payment-multichain.js --chain avalanche-fuji",
         "discover:x402": "npx -y @agentcash/discovery@latest discover",
-        "print:openapi": "node -e \"const m=require('./src/config/tools-manifest.json');const b=require('./src/utils/buildOpenApiFromManifest');const c=require('./src/config');console.log(JSON.stringify(b(m,{publicOrigin:c.publicOrigin}),null,2))\""
+        "print:openapi": "node -e \"const m=require('./src/config/tools-manifest.json');const b=require('./src/utils/buildOpenApiFromManifest');const c=require('./src/config');console.log(JSON.stringify(b(m,{publicOrigin:c.publicOrigin}),null,2))\"",
+        "sync:discovery:frontend": "node scripts/sync-discovery-frontend-public.js"
     },
     "keywords": [],
     "author": "",
