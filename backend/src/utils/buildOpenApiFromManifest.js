@@ -256,9 +256,10 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 	return {
 		openapi: "3.0.3",
 		info: {
-			title: "Verifik Smart Agent — Verifik proxy (x402)",
+			title: "Verifik AI — x402 KYC & Verifik proxy",
 			version: packageJson.version || "1.0.0",
-			description: "Paid proxy to Verifik identity and data APIs. Pricing matches runtime x402 middleware (tools-manifest.json).",
+			description:
+				"x402-native KYC, KYB, and public-record APIs with strong Latin American coverage. Paid proxy to Verifik; pricing matches tools-manifest.json and runtime x402 middleware.",
 			"x-guidance": buildXGuidance(publicOrigin),
 		},
 		servers: [{ url: publicOrigin }],
