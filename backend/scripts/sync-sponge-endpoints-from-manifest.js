@@ -7,6 +7,8 @@
  *   SPONGE_SERVICE_ID       — default svc_d7x9j08brpdma8zjw (Verifik AI service)
  *   DRY_RUN=1               — or pass --dry-run: no POST requests
  *   SPONGE_REQUEST_DELAY_MS — ms between creates (default 150)
+ *   --update-existing       — PATCH existing endpoints when category or price (minor) differs from manifest (match by URL path)
+ *   UPDATE_EXISTING=1       — same as --update-existing
  *
  * @see https://gateway.paysponge.com/skill.md
  */
@@ -39,6 +41,10 @@ const dryRun =
 	process.env.DRY_RUN === "1" ||
 	process.env.DRY_RUN === "true" ||
 	process.argv.includes("--dry-run");
+const updateExisting =
+	process.argv.includes("--update-existing") ||
+	process.env.UPDATE_EXISTING === "1" ||
+	process.env.UPDATE_EXISTING === "true";
 const delayMs = Math.max(0, Number(process.env.SPONGE_REQUEST_DELAY_MS || 150));
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -64,16 +70,20 @@ const priceDisplayFromMinor = (minor) => {
 };
 
 /**
- * @param {object} manifest
+ * @param {{ country?: string, name?: string, id?: string, category?: string }} t
  */
+const categoryFromManifestTool = (t) => {
+	const raw = t.category || t.name || t.id || "";
+	return raw.length > 128 ? raw.slice(0, 128) : raw;
+};
+
 const buildJobsFromManifest = (manifest) =>
 	manifest.endpoints.map((t) => {
 		const pathname = new URL(t.url).pathname;
 		const method = String(t.method || "GET").toUpperCase();
 		const price = priceMinorFromUsd(t.priceUsd || 0);
 		const enabled = t.id !== CREDIT_INTENT_TOOL_ID;
-		const categoryRaw = t.country ? `${t.country} · ${t.name || t.id}` : t.name || t.id;
-		const category = categoryRaw.length > 128 ? categoryRaw.slice(0, 128) : categoryRaw;
+		const category = categoryFromManifestTool(t);
 		return {
 			service_id: serviceId,
 			http_method: method,
@@ -89,9 +99,9 @@ const buildJobsFromManifest = (manifest) =>
 
 /**
  * @param {import('axios').AxiosInstance} client
- * @returns {Promise<Set<string>>}
+ * @returns {Promise<Map<string, { id: string, httpMethod: string, path: string, price: string, category: string }>>}
  */
-const loadExistingKeys = async (client) => {
+const loadExistingByPath = async (client) => {
 	let res = await client.get("/api/endpoints", { params: { serviceId } });
 	if (res.status !== 200) {
 		res = await client.get("/api/endpoints");
@@ -101,14 +111,106 @@ const loadExistingKeys = async (client) => {
 	}
 	const body = res.data;
 	const list = Array.isArray(body) ? body : body.endpoints || body.data || [];
-	const keys = new Set();
+	/** @type {Map<string, { id: string, httpMethod: string, path: string, price: string, category: string }>} */
+	const byPath = new Map();
 	for (const e of list) {
 		if (e.serviceId && String(e.serviceId) !== serviceId) continue;
 		const m = e.httpMethod || e.http_method;
 		const p = e.path;
-		if (m && p) keys.add(routeKey(String(m), String(p)));
+		if (!m || !p) continue;
+		const pathStr = String(p);
+		if (byPath.has(pathStr)) {
+			console.warn(`Duplicate path on service ${serviceId}: ${pathStr} (keeping newest)`);
+		}
+		byPath.set(pathStr, {
+			id: String(e.id),
+			httpMethod: String(m).toUpperCase(),
+			path: pathStr,
+			price: String(e.price ?? ""),
+			category: String(e.category || ""),
+		});
 	}
-	return keys;
+	return byPath;
+};
+
+/**
+ * @param {import('axios').AxiosInstance} client
+ * @returns {Promise<Set<string>>}
+ */
+const loadExistingKeys = async (client) => {
+	const map = await loadExistingByPath(client);
+	return new Set([...map.values()].map((e) => routeKey(e.httpMethod, e.path)));
+};
+
+/**
+ * PATCH existing Sponge endpoints when manifest `category` or `priceUsd` (minor) differs. Match by URL path only.
+ *
+ * @param {import('axios').AxiosInstance} client
+ * @param {{ endpoints: object[] }} manifest
+ */
+const syncUpdateExisting = async (client, manifest) => {
+	const byPath = await loadExistingByPath(client);
+	let updated = 0;
+	let skipped = 0;
+	let missing = 0;
+	const errors = [];
+
+	for (const tool of manifest.endpoints) {
+		let pathname;
+		try {
+			pathname = new URL(tool.url).pathname;
+		} catch {
+			console.warn(`Skip invalid url: ${tool.id} ${tool.url}`);
+			continue;
+		}
+
+		const ex = byPath.get(pathname);
+		if (!ex) {
+			missing++;
+			continue;
+		}
+
+		const wantPrice = String(priceMinorFromUsd(tool.priceUsd || 0));
+		const wantCat = categoryFromManifestTool(tool);
+
+		if (String(ex.price) === wantPrice && (ex.category || "") === wantCat) {
+			skipped++;
+			continue;
+		}
+
+		if (dryRun) {
+			console.log(`[dry-run] PATCH ${ex.id} ${pathname} price ${ex.price}->${wantPrice} cat ok=${(ex.category || "") === wantCat}`);
+			updated++;
+			continue;
+		}
+
+		const res = await client.patch(`/api/endpoints/${ex.id}`, {
+			category: wantCat,
+			price: wantPrice,
+			priceDisplay: priceDisplayFromMinor(Number(wantPrice)),
+			currency: "USD",
+			currencyMinorUnits: 6,
+		});
+
+		if (res.status < 200 || res.status >= 300) {
+			errors.push({ id: ex.id, path: pathname, status: res.status, body: res.data });
+			console.error(`[fail] PATCH ${ex.id} ${pathname} ${res.status}`, res.data);
+		} else {
+			console.log(`[updated] ${pathname}`);
+			updated++;
+		}
+
+		if (delayMs) await sleep(delayMs);
+	}
+
+	console.log("\nUpdate-existing summary:");
+	console.log(`  manifest tools: ${manifest.endpoints.length}`);
+	console.log(`  on Sponge (service): ${byPath.size}`);
+	console.log(`  skipped (already aligned): ${skipped}`);
+	console.log(`  ${dryRun ? "dry-run patches" : "patched"}: ${updated}`);
+	console.log(`  manifest paths not on Sponge: ${missing}`);
+	console.log(`  errors: ${errors.length}`);
+	if (errors.length) process.exitCode = 1;
 };
 
 /**
@@ -126,8 +228,7 @@ const syncOne = async (client, tool, pathname, existing) => {
 
 	const priceMinor = priceMinorFromUsd(tool.priceUsd || 0);
 	const enabled = tool.id !== CREDIT_INTENT_TOOL_ID;
-	const categoryRaw = tool.country ? `${tool.country} · ${tool.name || tool.id}` : tool.name || tool.id;
-	const category = categoryRaw.length > 128 ? categoryRaw.slice(0, 128) : categoryRaw;
+	const category = categoryFromManifestTool(tool);
 
 	const body = {
 		serviceId,
@@ -176,6 +277,25 @@ const main = async () => {
 	const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"));
 	if (!manifest.endpoints || !Array.isArray(manifest.endpoints)) {
 		throw new Error("Invalid tools-manifest.json: missing endpoints array");
+	}
+
+	if (updateExisting) {
+		if (!apiKey) {
+			console.error(
+				"SPONGE_GATEWAY_API_KEY is required for --update-existing (backend/.env or ~/.spongegateway/credentials.json apiKey)."
+			);
+			process.exit(1);
+		}
+		const client = axios.create({
+			baseURL: apiBase,
+			headers: {
+				Authorization: `Bearer ${apiKey}`,
+				"Content-Type": "application/json",
+			},
+			validateStatus: () => true,
+		});
+		await syncUpdateExisting(client, manifest);
+		return;
 	}
 
 	if (!dryRun && !apiKey) {

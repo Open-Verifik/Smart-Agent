@@ -15,7 +15,18 @@ const crypto = require("crypto");
  */
 const chat = async (ctx) => {
 	try {
-		const { message, conversationId, paymentTx, paymentWallet, paymentAmount, mode, userToken, images, pendingToolCall } = ctx.request.body;
+		const {
+			message,
+			conversationId,
+			paymentTx,
+			paymentWallet,
+			paymentAmount,
+			paymentChainId,
+			mode,
+			userToken,
+			images,
+			pendingToolCall,
+		} = ctx.request.body;
 
 		if (!message && (!images || images.length === 0) && !paymentTx) {
 			ctx.status = 400;
@@ -75,7 +86,8 @@ const chat = async (ctx) => {
 			mode,
 			userToken,
 			processedImages,
-			pendingToolCall
+			pendingToolCall,
+			paymentChainId
 		);
 
 		// Now we persist

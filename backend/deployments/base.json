@@ -1,0 +1,12 @@
+{
+  "chainId": 8453,
+  "chainKey": "base",
+  "chainName": "Base",
+  "rpcUrl": "https://mainnet.base.org",
+  "contract": "VerifikPayment",
+  "address": "0x10485d0aC4382c49E0d0583315C81fe15D92899d",
+  "deployer": "0x787389C8ec43D94362648310316F4348A4dE8C83",
+  "deployTxHash": "0x131bb6cd2d20f96b82261c3a0f2968a6cd4553354a0e5690653dfd45a95c3523",
+  "deployedAt": "2026-05-06T14:20:16.200Z",
+  "envVar": "X402_BASE_CONTRACT"
+}

@@ -1,75 +1,29 @@
 {
 	"endpoints": [
 		{
-			"id": "colombia_api_identity_lookup",
-			"name": "Colombia - National ID Verification",
-			"url": "https://ai.verifik.co/v2/co/cedula",
-			"method": "GET",
-			"description": "Verify Colombian national ID (cédula) information. Get full name, document status, and basic citizen verification data.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PEP"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_special_api_police_identity_lookup",
-			"name": "Colombia - Police Records Check",
-			"url": "https://ai.verifik.co/v2/co/policia/consultar",
-			"method": "GET",
-			"description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
 			"id": "world_api_dea",
 			"name": "Global - DEA Background Check",
+			"category": "Global - DEA Background Check",
 			"url": "https://ai.verifik.co/v2/dea",
 			"method": "GET",
 			"description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. Search by full name OR document number with document type. Verify individuals against international drug enforcement records.",
 			"country": "world",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"fullName": {
 						"type": "string",
-						"description": "Parameter: fullName"
+						"description": "Full name for search (alternative to document search)"
 					},
 					"documentType": {
 						"type": "string",
-						"description": "Parameter: documentType",
+						"description": "Document type (required if not using fullName)",
 						"enum": [
 							"CC",
 							"CE",
 							"PEP",
+							"PPT",
 							"NIT",
 							"CCVE",
 							"CCEC",
@@ -96,119 +50,29 @@
 					},
 					"documentNumber": {
 						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Document number (required if not using fullName)"
 					},
 					"dateOfBirth": {
 						"type": "string",
-						"description": "Parameter: dateOfBirth"
+						"description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)"
 					},
-					"force": {
+					"expirationDate": {
 						"type": "string",
-						"description": "Parameter: force"
+						"description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)"
 					}
 				},
 				"required": []
 			}
 		},
 		{
-			"id": "colombia_api_military_situation",
-			"name": "Colombia - Military Service Records",
-			"url": "https://ai.verifik.co/v2/co/situacion-militar",
-			"method": "POST",
-			"description": "Verify military service records through Colombia's military system. Check service status, military obligations, and service records. Requires Colombian ID (CC) and document number.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_rethus",
-			"name": "Colombia - Health Records Verification",
-			"url": "https://ai.verifik.co/v2/co/cedula/rethus",
-			"method": "GET",
-			"description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_dian",
-			"name": "Colombia - Tax Information Verification",
-			"url": "https://ai.verifik.co/v2/co/company/dian",
-			"method": "GET",
-			"description": "Verify tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. Check tax status, obligations, and compliance records. Requires document type and document number.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_judicial_process_details",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/rama/proceso",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"processNumber": {
-						"type": "string",
-						"description": "Parameter: processNumber"
-					}
-				},
-				"required": ["processNumber"]
-			}
-		},
-		{
 			"id": "usa_api_vehicle",
-			"name": " - Vehicle Verification",
+			"name": "USA - Vehicle Verification",
+			"category": "USA - Vehicle Verification",
 			"url": "https://ai.verifik.co/v2/usa/vehicle",
 			"method": "GET",
-			"description": "Standard vehicle verification service for . Verifies vehicle registration and basic information.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "United States",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -273,155 +137,184 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["state", "plate"]
+				"required": [
+					"state",
+					"plate"
+				]
 			}
 		},
 		{
-			"id": "world_api_onu",
-			"name": "Global - UN Sanctions Check",
-			"url": "https://ai.verifik.co/v2/onu",
-			"method": "GET",
-			"description": "Check individuals and entities against United Nations sanctions lists. Search by full name OR document number with document type. Verify compliance with international sanctions regimes.",
-			"country": "world",
-			"priceUsd": 0.2,
+			"id": "colombia_api_simit_agreements",
+			"name": "Colombia - SIMIT Payment Agreements",
+			"category": "Colombia - SIMIT Payment Agreements",
+			"url": "https://ai.verifik.co/v2/co/simit/acuerdos",
+			"method": "POST",
+			"description": "Verify active payment agreements for transit fines registered in SIMIT.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"fullName": {
-						"type": "string",
-						"description": "Parameter: fullName"
-					},
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
 						"enum": [
 							"CC",
 							"CE",
-							"PEP",
-							"NIT",
-							"CCVE",
-							"CCEC",
-							"DNI",
-							"DNIAR",
-							"DNIHN",
-							"CIC",
-							"CIE",
-							"RUN",
-							"CURP",
-							"CUI",
-							"CCPA",
-							"CI",
-							"CPF",
-							"DUI",
-							"CCUY",
-							"CUIT",
-							"RUCEC",
-							"FME",
-							"RUC",
-							"RUT",
-							"CNPJ"
+							"PA",
+							"RC",
+							"TI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_driver",
+			"name": "Colombia - Driver License Verification (RUNT)",
+			"category": "Colombia - Driver License Verification (RUNT)",
+			"url": "https://ai.verifik.co/v2/co/runt/conductor",
+			"method": "GET",
+			"description": "Verify Colombian driver license status and validity through the RUNT system.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PPT",
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_registraduria_voting",
+			"name": "Colombia - Electoral Records Verification",
+			"category": "Colombia - Electoral Records Verification",
+			"url": "https://ai.verifik.co/v2/co/registraduria/votacion",
+			"method": "GET",
+			"description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle",
+			"name": "Colombia - Basic Vehicle Information",
+			"category": "Colombia - Basic Vehicle Information",
+			"url": "https://ai.verifik.co/v2/co/runt/vehiculo",
+			"method": "GET",
+			"description": "Retrieve general registration data and basic characteristics of a Colombian vehicle by its license plate.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"TI",
+							"CE",
+							"PA",
+							"RC"
 						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					},
-					"dateOfBirth": {
+					"plate": {
 						"type": "string",
-						"description": "Parameter: dateOfBirth"
-					},
-					"force": {
-						"type": "string",
-						"description": "Parameter: force"
+						"description": "Parameter: plate"
 					}
 				},
-				"required": []
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
 			}
 		},
 		{
-			"id": "colombia_api_affiliations",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/afiliaciones",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
+			"id": "colombia_api_simit_suspensions",
+			"name": "Colombia - SIMIT License Suspensions",
+			"category": "Colombia - SIMIT License Suspensions",
+			"url": "https://ai.verifik.co/v2/co/simit/suspensiones",
+			"method": "POST",
+			"description": "Check for driver license suspensions or cancellations in the SIMIT system.",
 			"country": "Colombia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "PEP"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"date": {
-						"type": "string",
-						"description": "Parameter: date"
-					}
-				},
-				"required": ["documentType", "documentNumber", "date"]
-			}
-		},
-		{
-			"id": "colombia_api_contraloria_certificate",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/contraloria/certificado",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "TI", "PA", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "venezuela_api_identity_lookup",
-			"name": "Venezuela - Identity Verification",
-			"url": "https://ai.verifik.co/v2/ve/cedula",
+			"id": "chile_api_vehicle",
+			"name": "Chile - Vehicle Verification",
+			"category": "Chile - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/cl/vehicle",
 			"method": "GET",
-			"description": "Search by Document Number (Cédula/CCVE) to retrieve Full Name and personal information of Venezuela citizens. Use this for CCVE lookup.",
-			"country": "Venezuela",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CCVE"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "mexico_api_vehicle",
-			"name": "Mexico - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/mx/vehiculo/placa",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Mexico. Verifies vehicle registration and basic information.",
-			"country": "Mexico",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "Chile",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -430,31 +323,262 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_complete_by_vin",
+			"name": "Colombia - Complete Vehicle Report (By VIN)",
+			"category": "Colombia - Complete Vehicle Report (By VIN)",
+			"url": "https://ai.verifik.co/v2/co/runt/vehicle-by-vin",
+			"method": "GET",
+			"description": "Get an exhaustive history and technical report of a vehicle in Colombia using its Vehicle Identification Number (VIN).",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"vin": {
+						"type": "string",
+						"description": "Parameter: vin"
+					}
+				},
+				"required": [
+					"vin"
+				]
+			}
+		},
+		{
+			"id": "brasil_api_identity_lookup",
+			"name": "Brazil - National ID Verification",
+			"category": "Brazil - National ID Verification",
+			"url": "https://ai.verifik.co/v2/br/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Brazil",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CPF"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Parameter: dateOfBirth"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
+			}
+		},
+		{
+			"id": "communication_global_email_otp",
+			"name": "Email OTP",
+			"category": "Global - Email OTP",
+			"url": "https://ai.verifik.co/v2/communication/email",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.01,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"email": {
+						"type": "string",
+						"description": "Parameter: email"
+					}
+				},
+				"required": [
+					"email"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup",
+			"name": "Colombia - National ID Verification",
+			"category": "Colombia - National ID Verification",
+			"url": "https://ai.verifik.co/v2/co/cedula",
+			"method": "GET",
+			"description": "Verify Colombian national ID (cédula) information. Get full name, document status, and basic citizen verification data.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PEP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_rethus",
+			"name": "Colombia - Health Records Verification",
+			"category": "Colombia - Health Records Verification",
+			"url": "https://ai.verifik.co/v2/co/cedula/rethus",
+			"method": "GET",
+			"description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_contraloria_certificate",
+			"name": "Colombia - Certificate of Fiscal Responsibility (Contraloría)",
+			"category": "Colombia - Certificate of Fiscal Responsibility (Contraloría)",
+			"url": "https://ai.verifik.co/v2/co/contraloria/certificado",
+			"method": "POST",
+			"description": "Certificate of fiscal responsibility from the Contraloría General de la República.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"TI",
+							"PA",
+							"PEP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "venezuela_api_identity_lookup",
+			"name": "Venezuela - National ID Verification",
+			"category": "Venezuela - National ID Verification",
+			"url": "https://ai.verifik.co/v2/ve/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Venezuela",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CCVE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_vehicle",
+			"name": "Mexico - Vehicle Verification",
+			"category": "Mexico - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/mx/vehiculo/placa",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Mexico",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
 			"id": "world_api_interpol",
 			"name": "Global - Interpol Background Check",
+			"category": "Global - Interpol Background Check",
 			"url": "https://ai.verifik.co/v2/interpol",
 			"method": "GET",
 			"description": "International background check using Interpol databases. Search by full name OR document number with document type. Verify individuals against international criminal records and wanted lists.",
 			"country": "world",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"fullName": {
 						"type": "string",
-						"description": "Parameter: fullName"
+						"description": "Full name for search (alternative to document search)"
 					},
 					"documentType": {
 						"type": "string",
-						"description": "Parameter: documentType",
+						"description": "Document type (required if not using fullName)",
 						"enum": [
 							"CC",
 							"CE",
 							"PEP",
+							"PPT",
 							"NIT",
 							"CCVE",
 							"CCEC",
@@ -481,66 +605,44 @@
 					},
 					"documentNumber": {
 						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Document number (required if not using fullName)"
 					},
 					"dateOfBirth": {
 						"type": "string",
-						"description": "Parameter: dateOfBirth"
+						"description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)"
 					},
-					"force": {
+					"expirationDate": {
 						"type": "string",
-						"description": "Parameter: force"
+						"description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)"
 					}
 				},
 				"required": []
-			}
-		},
-		{
-			"id": "colombia_api_sena",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/sena/certificados",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "TI", "CE", "PA", "RC", "PEP"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
 			}
 		},
 		{
 			"id": "world_api_ofac",
 			"name": "Global - OFAC Sanctions Check",
+			"category": "Global - OFAC Sanctions Check",
 			"url": "https://ai.verifik.co/v2/ofac",
 			"method": "GET",
 			"description": "Check individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. Search by full name OR document number with document type. Verify compliance with US economic sanctions.",
 			"country": "world",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"fullName": {
 						"type": "string",
-						"description": "Parameter: fullName"
+						"description": "Full name for search (alternative to document search)"
 					},
 					"documentType": {
 						"type": "string",
-						"description": "Parameter: documentType",
+						"description": "Document type (required if not using fullName)",
 						"enum": [
 							"CC",
 							"CE",
 							"PEP",
+							"PPT",
 							"NIT",
 							"CCVE",
 							"CCEC",
@@ -567,129 +669,15 @@
 					},
 					"documentNumber": {
 						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Document number (required if not using fullName)"
 					},
 					"dateOfBirth": {
 						"type": "string",
-						"description": "Parameter: dateOfBirth"
+						"description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)"
 					},
-					"force": {
+					"expirationDate": {
 						"type": "string",
-						"description": "Parameter: force"
-					}
-				},
-				"required": []
-			}
-		},
-		{
-			"id": "colombia_api_registraduria_certificate",
-			"name": "Colombia - Electoral Records Verification",
-			"url": "https://ai.verifik.co/v2/co/registraduria/certificado",
-			"method": "GET",
-			"description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"date": {
-						"type": "string",
-						"description": "Parameter: date"
-					}
-				},
-				"required": ["documentType", "documentNumber", "date"]
-			}
-		},
-		{
-			"id": "colombia_api_delinquent_debtors",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/deudoresmorosos",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT", "CE"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "world_api_fbi",
-			"name": "Global - FBI Background Check",
-			"url": "https://ai.verifik.co/v2/fbi",
-			"method": "GET",
-			"description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. Search by full name OR document number with document type. Verify individuals against federal criminal records.",
-			"country": "world",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"fullName": {
-						"type": "string",
-						"description": "Parameter: fullName"
-					},
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": [
-							"CC",
-							"CE",
-							"PEP",
-							"NIT",
-							"CCVE",
-							"CCEC",
-							"DNI",
-							"DNIAR",
-							"DNIHN",
-							"CIC",
-							"CIE",
-							"RUN",
-							"CURP",
-							"CUI",
-							"CCPA",
-							"CI",
-							"CPF",
-							"DUI",
-							"CCUY",
-							"CUIT",
-							"RUCEC",
-							"FME",
-							"RUC",
-							"RUT",
-							"CNPJ"
-						]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"dateOfBirth": {
-						"type": "string",
-						"description": "Parameter: dateOfBirth"
-					},
-					"force": {
-						"type": "string",
-						"description": "Parameter: force"
+						"description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)"
 					}
 				},
 				"required": []
@@ -697,79 +685,43 @@
 		},
 		{
 			"id": "mexico_identity_lookup",
-			"name": "Mexico - Data Verification Service",
+			"name": "Mexico - National ID Verification",
+			"category": "Mexico - National ID Verification",
 			"url": "https://ai.verifik.co/v2/mx/curp",
 			"method": "GET",
-			"description": "General data verification service for Mexico. Provides reliable information verification and validation.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "Mexico",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CURP"]
+						"enum": [
+							"CURP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "ecuador_api_identity_lookup",
-			"name": "Ecuador - Identity Verification",
-			"url": "https://ai.verifik.co/v2/ec/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Ecuador citizens. Verifies personal information and document authenticity.",
-			"country": "Ecuador",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_driver",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/runt/conductor",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "PPT", "NIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
 			"id": "peru_api_vehicle",
 			"name": "Peru - Vehicle Verification",
+			"category": "Peru - Vehicle Verification",
 			"url": "https://ai.verifik.co/v2/pe/vehiculo/placa",
 			"method": "GET",
-			"description": "Standard vehicle verification service for Peru. Verifies vehicle registration and basic information.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "Peru",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -778,17 +730,20 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
 			"id": "peru_api_vehicle_soat",
 			"name": "Peru - Vehicle Verification",
+			"category": "Peru - Vehicle Verification",
 			"url": "https://ai.verifik.co/v2/pe/vehiculo/soat",
 			"method": "GET",
-			"description": "Standard vehicle verification service for Peru. Verifies vehicle registration and basic information.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "Peru",
-			"priceUsd": 0.2,
+			"priceUsd": 0.6,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -797,69 +752,601 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
-			"id": "ecuador_api_vehicle",
-			"name": "Ecuador - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/ec/vehiculo/placa",
+			"id": "colombia_api_criminal_history",
+			"name": "Colombia - Legal Background Check",
+			"category": "Colombia - Legal Background Check",
+			"url": "https://ai.verifik.co/v2/co/procuraduria/antecedentes",
 			"method": "GET",
-			"description": "Standard vehicle verification service for Ecuador. Verifies vehicle registration and basic information.",
-			"country": "Ecuador",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "colombia_api_registraduria_voting",
-			"name": "Colombia - Electoral Records Verification",
-			"url": "https://ai.verifik.co/v2/co/registraduria/votacion",
-			"method": "GET",
-			"description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information.",
+			"description": "Legal background verification service for Colombia citizens. Provides information about legal proceedings and judicial records.",
 			"country": "Colombia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "world_api_europol",
-			"name": "Global - Europol Background Check",
-			"url": "https://ai.verifik.co/v2/europol",
-			"method": "GET",
-			"description": "European background check using Europol databases. Search by full name OR document number with document type. Verify individuals against European criminal records and intelligence databases.",
-			"country": "world",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"fullName": {
-						"type": "string",
-						"description": "Parameter: fullName"
-					},
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
 						"enum": [
 							"CC",
 							"CE",
+							"PEP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "costarica_api_identity_lookup",
+			"name": "Costa Rica - National ID Verification",
+			"category": "Costa Rica - National ID Verification",
+			"url": "https://ai.verifik.co/v2/cr/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Costa Rica",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CCCR"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "chile_api_business_lookup",
+			"name": "Chile - Company Lookup",
+			"category": "Chile - Company Lookup",
+			"url": "https://ai.verifik.co/v2/cl/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_vehicle_fines",
+			"name": "Ecuador - Vehicle Fines",
+			"category": "Ecuador - Vehicle Fines",
+			"url": "https://ai.verifik.co/v2/ec/vehiculo/placa/multas",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Ecuador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_simit_subpoenas_details",
+			"name": "Colombia - SIMIT Subpoena Details",
+			"category": "Colombia - SIMIT Subpoena Details",
+			"url": "https://ai.verifik.co/v2/co/simit/comparendo",
+			"method": "POST",
+			"description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"numeroComparendo": {
+						"type": "string",
+						"description": "Parameter: numeroComparendo"
+					},
+					"idOrganismoTransito": {
+						"type": "string",
+						"description": "Parameter: idOrganismoTransito"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"numeroComparendo",
+					"idOrganismoTransito"
+				]
+			}
+		},
+		{
+			"id": "brasil_api_company_lookup",
+			"name": "Brazil - Company Lookup",
+			"category": "Brazil - Company Lookup",
+			"url": "https://ai.verifik.co/v2/br/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Brazil",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CNPJ"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_dian_invoicer",
+			"name": "Colombia - DIAN Electronic Invoicer Status",
+			"category": "Colombia - DIAN Electronic Invoicer Status",
+			"url": "https://ai.verifik.co/v2/co/company/dian/invoicer",
+			"method": "GET",
+			"description": "Verify electronic invoicing (facturación electrónica) registration status with DIAN.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "api_colombia_contracts",
+			"name": "Colombia - Government Contracts Verification",
+			"category": "Colombia - Government Contracts Verification",
+			"url": "https://ai.verifik.co/v2/co/contracts",
+			"method": "GET",
+			"description": "Verify government contracts and procurement records in Colombia.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT",
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI",
 							"PEP",
+							"CCVE",
+							"CURP",
+							"DNI",
+							"CCEC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_police_rnmc",
+			"name": "Colombia - Police Records Check",
+			"category": "Colombia - Police Records Check",
+			"url": "https://ai.verifik.co/v2/co/policia/rnmc",
+			"method": "GET",
+			"description": "Police records verification service for Colombia citizens. Provides information about police interactions and records.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"TI",
+							"PA"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"date": {
+						"type": "string",
+						"description": "Parameter: date"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_dian",
+			"name": "Colombia - Tax Information Verification",
+			"category": "Colombia - Tax Information Verification",
+			"url": "https://ai.verifik.co/v2/co/company/dian",
+			"method": "GET",
+			"description": "Verify tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. Check tax status, obligations, and compliance records. Requires document type and document number.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_judicial_process_details",
+			"name": "Colombia - Judicial Process Details",
+			"category": "Colombia - Judicial Process Details",
+			"url": "https://ai.verifik.co/v2/co/rama/proceso",
+			"method": "POST",
+			"description": "Comprehensive details of a specific judicial process in Colombia using its process number.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"processNumber": {
+						"type": "string",
+						"description": "Parameter: processNumber"
+					}
+				},
+				"required": [
+					"processNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_simit_resolutions",
+			"name": "Colombia - SIMIT Resolutions",
+			"category": "Colombia - SIMIT Resolutions",
+			"url": "https://ai.verifik.co/v2/co/simit/resoluciones",
+			"method": "POST",
+			"description": "Access formal resolutions for traffic infractions that have reached the sanction stage.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_affiliations",
+			"name": "Colombia - Health & Social Security Affiliations",
+			"category": "Colombia - Health & Social Security Affiliations",
+			"url": "https://ai.verifik.co/v2/co/afiliaciones",
+			"method": "POST",
+			"description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"PEP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"date": {
+						"type": "string",
+						"description": "Parameter: date"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_registraduria_certificate",
+			"name": "Colombia - Electoral Records Verification",
+			"category": "Colombia - Electoral Records Verification",
+			"url": "https://ai.verifik.co/v2/co/registraduria/certificado",
+			"method": "GET",
+			"description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"date": {
+						"type": "string",
+						"description": "Parameter: date"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_delinquent_debtors",
+			"name": "Colombia - Delinquent Debtors (BDME)",
+			"category": "Colombia - Delinquent Debtors (BDME)",
+			"url": "https://ai.verifik.co/v2/co/deudoresmorosos",
+			"method": "POST",
+			"description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"NIT",
+							"CE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_identity_lookup",
+			"name": "Ecuador - National ID Verification",
+			"category": "Ecuador - National ID Verification",
+			"url": "https://ai.verifik.co/v2/ec/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Ecuador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_vehicle",
+			"name": "Ecuador - Vehicle Verification",
+			"category": "Ecuador - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/ec/vehiculo/placa",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Ecuador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_simit_complete",
+			"name": "Colombia - SIMIT Complete Transit History",
+			"category": "Colombia - SIMIT Complete Transit History",
+			"url": "https://ai.verifik.co/v2/co/simit/consultar",
+			"method": "GET",
+			"description": "Comprehensive transit background check including fines, agreements, and suspensions by ID.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT",
+							"CC",
+							"CE",
+							"PA",
+							"RC",
+							"TI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "world_api_europol",
+			"name": "Global - Europol Background Check",
+			"category": "Global - Europol Background Check",
+			"url": "https://ai.verifik.co/v2/europol",
+			"method": "GET",
+			"description": "European background check using Europol databases. Search by full name OR document number with document type. Verify individuals against European criminal records and intelligence databases.",
+			"country": "world",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"fullName": {
+						"type": "string",
+						"description": "Full name for search (alternative to document search)"
+					},
+					"documentType": {
+						"type": "string",
+						"description": "Document type (required if not using fullName)",
+						"enum": [
+							"CC",
+							"CE",
+							"PEP",
+							"PPT",
 							"NIT",
 							"CCVE",
 							"CCEC",
@@ -886,197 +1373,69 @@
 					},
 					"documentNumber": {
 						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Document number (required if not using fullName)"
 					},
 					"dateOfBirth": {
 						"type": "string",
-						"description": "Parameter: dateOfBirth"
+						"description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)"
 					},
-					"force": {
+					"expirationDate": {
 						"type": "string",
-						"description": "Parameter: force"
+						"description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)"
 					}
 				},
 				"required": []
 			}
 		},
 		{
-			"id": "colombia_api_criminal_history",
-			"name": "Colombia - Legal Background Check",
-			"url": "https://ai.verifik.co/v2/co/procuraduria/antecedentes",
-			"method": "GET",
-			"description": "Legal background verification service for Colombia citizens. Provides information about legal proceedings and judicial records.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PEP"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
 			"id": "colombia_api_judicial_processes",
-			"name": "Colombia - Data Verification Service",
+			"name": "Colombia - Judicial Processes",
+			"category": "Colombia - Judicial Processes",
 			"url": "https://ai.verifik.co/v2/co/rama/procesos",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
+			"method": "POST",
+			"description": "Search for judicial processes using document number across Colombian courts.",
 			"country": "Colombia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT"]
+						"enum": [
+							"CC",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/runt/vehiculo",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "TI", "CE", "PA", "RC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["documentType", "documentNumber", "plate"]
-			}
-		},
-		{
-			"id": "colombia_api_pico_placa",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/vehiculo/pico-y-placa",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "chile_api_identity_lookup",
-			"name": "Chile - Identity Verification",
-			"url": "https://ai.verifik.co/v2/cl/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Chile citizens. Verifies personal information and document authenticity.",
-			"country": "Chile",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUN"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "costarica_api_identity_lookup",
-			"name": "Costa Rica - Identity Verification",
-			"url": "https://ai.verifik.co/v2/cr/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Costa Rica citizens. Verifies personal information and document authenticity.",
-			"country": "Costa Rica",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CCCR"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "chile_api_vehicle",
-			"name": "Chile - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/cl/vehicle",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Chile. Verifies vehicle registration and basic information.",
-			"country": "Chile",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
 			"id": "panama_api_identity_lookup",
-			"name": "Panama - Identity Verification",
+			"name": "Panama - National ID Verification",
+			"category": "Panama - National ID Verification",
 			"url": "https://ai.verifik.co/v2/pa/cedula",
 			"method": "GET",
-			"description": "Standard identity verification service for Panama citizens. Verifies personal information and document authenticity.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "Panama",
-			"priceUsd": 0.2,
+			"priceUsd": 1,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CCPA"]
+						"enum": [
+							"CCPA"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1087,48 +1446,32 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
-			}
-		},
-		{
-			"id": "chile_api_business_lookup",
-			"name": "Chile - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/cl/company",
-			"method": "GET",
-			"description": "General data verification service for Chile. Provides reliable information verification and validation.",
-			"country": "Chile",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
 			"id": "spain_api_identity_lookup",
-			"name": "Spain - Identity Verification",
+			"name": "Spain - National ID Verification",
+			"category": "Spain - National ID Verification",
 			"url": "https://ai.verifik.co/v2/es/cedula",
 			"method": "GET",
-			"description": "Standard identity verification service for Spain citizens. Verifies personal information and document authenticity.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "Spain",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIE", "DNIES"]
+						"enum": [
+							"NIE",
+							"DNIES"
+						]
 					},
 					"expirationDate": {
 						"type": "string",
@@ -1139,17 +1482,76 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "expirationDate", "documentNumber"]
+				"required": [
+					"documentType",
+					"expirationDate",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "ecuador_api_vehicle_fines",
-			"name": "Ecuador - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/ec/vehiculo/placa/multas",
+			"id": "usa_api_driver_license_lookup",
+			"name": "USA - Driver License Verification",
+			"category": "USA - Driver License Verification",
+			"url": "https://ai.verifik.co/v2/usa/florida/driver-license",
 			"method": "GET",
-			"description": "Standard vehicle verification service for Ecuador. Verifies vehicle registration and basic information.",
-			"country": "Ecuador",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "United States",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "communication_global_messaging_whatsapp",
+			"name": "Global - WhatsApp Messaging",
+			"category": "Global - WhatsApp Messaging",
+			"url": "https://ai.verifik.co/v2/communication/whatsapp",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.02,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"countryCode": {
+						"type": "string",
+						"description": "Parameter: countryCode"
+					},
+					"phone": {
+						"type": "string",
+						"description": "Parameter: phone"
+					},
+					"message": {
+						"type": "string",
+						"description": "Parameter: message"
+					}
+				},
+				"required": [
+					"countryCode",
+					"phone",
+					"message"
+				]
+			}
+		},
+		{
+			"id": "brasil_api_vehicle",
+			"name": "Brazil - Vehicle Verification",
+			"category": "Brazil - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/br/vehicle",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Brazil",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -1158,24 +1560,337 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_identity_lookup",
+			"name": "Argentina - National ID Verification",
+			"category": "Argentina - National ID Verification",
+			"url": "https://ai.verifik.co/v2/ar/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"DNIAR"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_company_lookup",
+			"name": "Ecuador - Company Lookup",
+			"category": "Ecuador - Company Lookup",
+			"url": "https://ai.verifik.co/v2/ec/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Ecuador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUCEC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_military_situation",
+			"name": "Colombia - Military Service Records",
+			"category": "Colombia - Military Service Records",
+			"url": "https://ai.verifik.co/v2/co/situacion-militar",
+			"method": "POST",
+			"description": "Verify military service records through Colombia's military system. Check service status, military obligations, and service records. Requires Colombian ID (CC) and document number.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "world_api_onu",
+			"name": "Global - UN Sanctions Check",
+			"category": "Global - UN Sanctions Check",
+			"url": "https://ai.verifik.co/v2/onu",
+			"method": "GET",
+			"description": "Check individuals and entities against United Nations sanctions lists. Search by full name OR document number with document type. Verify compliance with international sanctions regimes.",
+			"country": "world",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"fullName": {
+						"type": "string",
+						"description": "Full name for search (alternative to document search)"
+					},
+					"documentType": {
+						"type": "string",
+						"description": "Document type (required if not using fullName)",
+						"enum": [
+							"CC",
+							"CE",
+							"PEP",
+							"PPT",
+							"NIT",
+							"CCVE",
+							"CCEC",
+							"DNI",
+							"DNIAR",
+							"DNIHN",
+							"CIC",
+							"CIE",
+							"RUN",
+							"CURP",
+							"CUI",
+							"CCPA",
+							"CI",
+							"CPF",
+							"DUI",
+							"CCUY",
+							"CUIT",
+							"RUCEC",
+							"FME",
+							"RUC",
+							"RUT",
+							"CNPJ"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Document number (required if not using fullName)"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)"
+					},
+					"expirationDate": {
+						"type": "string",
+						"description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)"
+					}
+				},
+				"required": []
+			}
+		},
+		{
+			"id": "colombia_api_sena",
+			"name": "Colombia - SENA Certificates",
+			"category": "Colombia - SENA Certificates",
+			"url": "https://ai.verifik.co/v2/co/sena/certificados",
+			"method": "POST",
+			"description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"TI",
+							"CE",
+							"PA",
+							"RC",
+							"PEP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "world_api_fbi",
+			"name": "Global - FBI Background Check",
+			"category": "Global - FBI Background Check",
+			"url": "https://ai.verifik.co/v2/fbi",
+			"method": "GET",
+			"description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. Search by full name OR document number with document type. Verify individuals against federal criminal records.",
+			"country": "world",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"fullName": {
+						"type": "string",
+						"description": "Full name for search (alternative to document search)"
+					},
+					"documentType": {
+						"type": "string",
+						"description": "Document type (required if not using fullName)",
+						"enum": [
+							"CC",
+							"CE",
+							"PEP",
+							"PPT",
+							"NIT",
+							"CCVE",
+							"CCEC",
+							"DNI",
+							"DNIAR",
+							"DNIHN",
+							"CIC",
+							"CIE",
+							"RUN",
+							"CURP",
+							"CUI",
+							"CCPA",
+							"CI",
+							"CPF",
+							"DUI",
+							"CCUY",
+							"CUIT",
+							"RUCEC",
+							"FME",
+							"RUC",
+							"RUT",
+							"CNPJ"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Document number (required if not using fullName)"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Date of birth (required for certain document types: CCPA, CI, CPF, DUI, CCUY)"
+					},
+					"expirationDate": {
+						"type": "string",
+						"description": "Document expiration date (required for document types CE, PPT, and PEP; dd/mm/yyyy)"
+					}
+				},
+				"required": []
+			}
+		},
+		{
+			"id": "colombia_api_pico_placa",
+			"name": "Colombia - Pico y Placa Restrictions",
+			"category": "Colombia - Pico y Placa Restrictions",
+			"url": "https://ai.verifik.co/v2/co/vehiculo/pico-y-placa",
+			"method": "GET",
+			"description": "Check current transit restrictions (Pico y Placa) for a specific vehicle across various Colombian cities.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "chile_api_identity_lookup",
+			"name": "Chile - National ID Verification",
+			"category": "Chile - National ID Verification",
+			"url": "https://ai.verifik.co/v2/cl/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUN"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
 			"id": "colombia_api_vehicle_complete_by_plate",
-			"name": "Colombia - Vehicle Verification",
+			"name": "Colombia - Complete Vehicle Report (By Plate)",
+			"category": "Colombia - Complete Vehicle Report (By Plate)",
 			"url": "https://ai.verifik.co/v2/co/runt/vehicle-by-plate",
 			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
+			"description": "Get an exhaustive history and technical report of a vehicle in Colombia using its license plate number.",
 			"country": "Colombia",
-			"priceUsd": 0.3,
+			"priceUsd": 0.4,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "NIT"]
+						"enum": [
+							"CC",
+							"CE",
+							"PA",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1186,67 +1901,219 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["documentType", "documentNumber", "plate"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_complete_by_vin",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/runt/vehicle-by-vin",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"vin": {
-						"type": "string",
-						"description": "Parameter: vin"
-					}
-				},
-				"required": ["vin"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
 			}
 		},
 		{
 			"id": "colombia_api_lawyers",
-			"name": "Colombia - Data Verification Service",
+			"name": "Colombia - Lawyers Verification",
+			"category": "Colombia - Lawyers Verification",
 			"url": "https://ai.verifik.co/v2/co/rama/abogados",
 			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
+			"description": "Verify lawyer registration and professional status with the Colombian bar.",
 			"country": "Colombia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PEP"]
+						"enum": [
+							"CC",
+							"CE",
+							"PEP"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "brasil_api_identity_lookup",
-			"name": "Brazil - Identity Verification",
-			"url": "https://ai.verifik.co/v2/br/cedula",
+			"id": "ip-lookup",
+			"name": "IP Geolocation Lookup",
+			"category": "Colombia - IP Geolocation Lookup",
+			"url": "https://ai.verifik.co/v2/ip-lookup",
 			"method": "GET",
-			"description": "Standard identity verification service for Brazil citizens. Verifies personal information and document authenticity.",
-			"country": "Brazil",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"ip": {
+						"type": "string",
+						"description": "Parameter: ip"
+					}
+				},
+				"required": [
+					"ip"
+				]
+			}
+		},
+		{
+			"id": "communication_messaging_sms",
+			"name": "SMS Messaging",
+			"category": "Global - SMS Messaging",
+			"url": "https://ai.verifik.co/v2/communication/sms",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.1,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"countryCode": {
+						"type": "string",
+						"description": "Parameter: countryCode"
+					},
+					"phone": {
+						"type": "string",
+						"description": "Parameter: phone"
+					},
+					"message": {
+						"type": "string",
+						"description": "Parameter: message"
+					}
+				},
+				"required": [
+					"countryCode",
+					"phone",
+					"message"
+				]
+			}
+		},
+		{
+			"id": "usa_api_ssn",
+			"name": "USA - SSN Verification",
+			"category": "USA - SSN Verification",
+			"url": "https://ai.verifik.co/v2/usa/ssn",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "United States",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup_extra",
+			"name": "Colombia - National ID Verification",
+			"category": "Colombia - National ID Verification",
+			"url": "https://ai.verifik.co/v2/co/cedula/extra",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CPF"]
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"date": {
+						"type": "string",
+						"description": "Parameter: date"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"date"
+				]
+			}
+		},
+		{
+			"id": "credit_intent_kyc_passwordless",
+			"name": "KYC Passwordless Credit Intent",
+			"category": "Global - KYC Passwordless Credit Intent",
+			"url": "https://ai.verifik.co/v2/credit-intents/kyc-passwordless",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.21,
+			"parameters": {
+				"type": "object",
+				"properties": {},
+				"required": []
+			}
+		},
+		{
+			"id": "colombia_pep_lookup",
+			"name": "Colombia - Politically Exposed Persons (PEP) Lookup",
+			"category": "Colombia - Politically Exposed Persons (PEP) Lookup",
+			"url": "https://ai.verifik.co/v2/co/politically-exposed-persons",
+			"method": "GET",
+			"description": "Check if a person is listed as politically exposed (PEP) for compliance purposes.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "bolivia_api_identity_lookup",
+			"name": "Bolivia - National ID Verification",
+			"category": "Bolivia - National ID Verification",
+			"url": "https://ai.verifik.co/v2/bo/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Bolivia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1257,17 +2124,22 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
-			"id": "usa_api_driver_license_lookup",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/usa/florida/driver-license",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "United States",
-			"priceUsd": 0.2,
+			"id": "chile_api_driver_license",
+			"name": "Chile - Driver License",
+			"category": "Chile - Driver License",
+			"url": "https://ai.verifik.co/v2/cl/driver-license",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Chile",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -1276,66 +2148,1129 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "credit_intent",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/credit-intents",
+			"id": "colombia_api_sisconmp",
+			"name": "Colombia - SISCONMP Transport Verification",
+			"category": "Colombia - SISCONMP Transport Verification",
+			"url": "https://ai.verifik.co/v2/co/sisconmp/trainings",
 			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 1,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"externalDatabaseRefID": {
-						"type": "string",
-						"description": "Parameter: externalDatabaseRefID"
-					},
-					"category": {
-						"type": "string",
-						"description": "Parameter: category"
-					}
-				},
-				"required": ["externalDatabaseRefID"]
-			}
-		},
-		{
-			"id": "ip-lookup",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ip-lookup",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
+			"description": "Verify transport and cargo operator registration in the SISCONMP system.",
 			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"ip": {
-						"type": "string",
-						"description": "Parameter: ip"
-					}
-				},
-				"required": ["ip"]
-			}
-		},
-		{
-			"id": "colombia_api_judicial_records",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/rama/juzgado/expedientes",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC",
+							"CE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_complete_by_plate_simplified",
+			"name": "Colombia - Simplified Vehicle Report",
+			"category": "Colombia - Simplified Vehicle Report",
+			"url": "https://ai.verifik.co/v2/co/runt/vehicle-by-plate-simplified",
+			"method": "GET",
+			"description": "A streamlined version of the vehicle background check focusing on essential legal and physical status markers.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"TI",
+							"CE",
+							"PA",
+							"RC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "canada_api_driver_license_ontario",
+			"name": "Canada - Driver License",
+			"category": "Canada - Driver License",
+			"url": "https://ai.verifik.co/v2/ca/ontario/driver-license",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Canada",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "canada_api_driver_license_quebec",
+			"name": "Canada - Driver License",
+			"category": "Canada - Driver License",
+			"url": "https://ai.verifik.co/v2/ca/quebec/driver-license",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Canada",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ocr_scan_pro",
+			"name": "OCR Document Scan Pro",
+			"category": "Global - OCR Document Scan Pro",
+			"url": "https://ai.verifik.co/v2/ocr/scan-pro",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.15,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType"
+					},
+					"country": {
+						"type": "string",
+						"description": "Parameter: country"
+					},
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					}
+				},
+				"required": [
+					"documentType",
+					"country",
+					"image"
+				]
+			}
+		},
+		{
+			"id": "ocr_scan_gpt",
+			"name": "OCR Document Scan GPT",
+			"category": "Global - OCR Document Scan GPT",
+			"url": "https://ai.verifik.co/v2/ocr/scan-gpt",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.07,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType"
+					},
+					"country": {
+						"type": "string",
+						"description": "Parameter: country"
+					},
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					}
+				},
+				"required": [
+					"documentType"
+				]
+			}
+		},
+		{
+			"id": "el_salvador_api_identity_lookup",
+			"name": "El Salvador - National ID Verification",
+			"category": "El Salvador - National ID Verification",
+			"url": "https://ai.verifik.co/v2/sv/dui",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "El Salvador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Parameter: dateOfBirth"
+					}
+				},
+				"required": [
+					"documentNumber",
+					"dateOfBirth"
+				]
+			}
+		},
+		{
+			"id": "paraguay_api_identity_lookup",
+			"name": "Paraguay - National ID Verification",
+			"category": "Paraguay - National ID Verification",
+			"url": "https://ai.verifik.co/v2/py/cic",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Paraguay",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "canada_api_driver_license_british-columbia",
+			"name": "Canada - Driver License",
+			"category": "Canada - Driver License",
+			"url": "https://ai.verifik.co/v2/ca/british-columbia/driver-license",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Canada",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Parameter: lastName"
+					}
+				},
+				"required": [
+					"documentNumber",
+					"lastName"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_ce_foreigner_id",
+			"name": "Colombia - Immigration Status Verification",
+			"category": "Colombia - Immigration Status Verification",
+			"url": "https://ai.verifik.co/v2/co/foreigner-id/ce",
+			"method": "GET",
+			"description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"expeditionDate": {
+						"type": "string",
+						"description": "Parameter: expeditionDate"
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"expeditionDate",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_pep_foreigner_id",
+			"name": "Colombia - Immigration Status Verification",
+			"category": "Colombia - Immigration Status Verification",
+			"url": "https://ai.verifik.co/v2/co/foreigner-id/pep",
+			"method": "GET",
+			"description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"expeditionDate": {
+						"type": "string",
+						"description": "Parameter: expeditionDate"
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"expeditionDate",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ocr_scan_studio",
+			"name": "OCR Document Scan Studio",
+			"category": "Global - OCR Document Scan Studio",
+			"url": "https://ai.verifik.co/v2/ocr/scan-studio",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.1,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType"
+					},
+					"country": {
+						"type": "string",
+						"description": "Parameter: country"
+					},
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					}
+				},
+				"required": [
+					"documentType"
+				]
+			}
+		},
+		{
+			"id": "canada_api_company",
+			"name": "Canada - Company Lookup",
+			"category": "Canada - Company Lookup",
+			"url": "https://ai.verifik.co/v2/ca/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Canada",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"province": {
+						"type": "string",
+						"description": "Parameter: province",
+						"enum": [
+							"AB",
+							"BC",
+							"MB",
+							"NS",
+							"ON",
+							"QC",
+							"SK"
+						]
+					},
+					"business": {
+						"type": "string",
+						"description": "Parameter: business"
+					}
+				},
+				"required": [
+					"province",
+					"business"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_search_live_face",
+			"name": "Live Face Search",
+			"category": "Global - Live Face Search",
+			"url": "https://ai.verifik.co/v2/face-recognition/search-live-face",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.5,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					},
+					"os": {
+						"type": "string",
+						"description": "Parameter: os"
+					},
+					"liveness_min_score": {
+						"type": "number",
+						"description": "Parameter: liveness_min_score"
+					},
+					"min_score": {
+						"type": "number",
+						"description": "Parameter: min_score"
+					},
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					},
+					"collection_id": {
+						"type": "string",
+						"description": "Parameter: collection_id"
+					}
+				},
+				"required": [
+					"image",
+					"os",
+					"liveness_min_score",
+					"min_score",
+					"search_mode"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_compare",
+			"name": "Face Comparison",
+			"category": "Global - Face Comparison",
+			"url": "https://ai.verifik.co/v2/face-recognition/compare",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.03,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					},
+					"gallery": {
+						"type": "array",
+						"description": "Parameter: gallery"
+					},
+					"probe": {
+						"type": "array",
+						"description": "Parameter: probe"
+					}
+				},
+				"required": [
+					"search_mode",
+					"gallery",
+					"probe"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_compare_live",
+			"name": "Live Face Comparison",
+			"category": "Global - Live Face Comparison",
+			"url": "https://ai.verifik.co/v2/face-recognition/compare-live",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.5,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					},
+					"gallery": {
+						"type": "array",
+						"description": "Parameter: gallery"
+					},
+					"probe": {
+						"type": "string",
+						"description": "Parameter: probe"
+					},
+					"os": {
+						"type": "string",
+						"description": "Parameter: os"
+					},
+					"liveness_min_score": {
+						"type": "number",
+						"description": "Parameter: liveness_min_score"
+					}
+				},
+				"required": [
+					"search_mode",
+					"gallery",
+					"probe",
+					"os",
+					"liveness_min_score"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_liveness",
+			"name": "Face Liveness Detection",
+			"category": "Global - Face Liveness Detection",
+			"url": "https://ai.verifik.co/v2/face-recognition/liveness",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.5,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					},
+					"os": {
+						"type": "string",
+						"description": "Parameter: os"
+					}
+				},
+				"required": [
+					"image",
+					"os"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_verify",
+			"name": "Face Verification",
+			"category": "Global - Face Verification",
+			"url": "https://ai.verifik.co/v2/face-recognition/verify",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.03,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"description": "Parameter: id"
+					},
+					"images": {
+						"type": "array",
+						"description": "Parameter: images"
+					},
+					"min_score": {
+						"type": "number",
+						"description": "Parameter: min_score"
+					},
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					}
+				},
+				"required": [
+					"id",
+					"images",
+					"min_score",
+					"search_mode"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_detect",
+			"name": "Face Detection",
+			"category": "Global - Face Detection",
+			"url": "https://ai.verifik.co/v2/face-recognition/detect",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.03,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					},
+					"collection_id": {
+						"type": "string",
+						"description": "Parameter: collection_id"
+					},
+					"max_results": {
+						"type": "number",
+						"description": "Parameter: max_results"
+					},
+					"min_score": {
+						"type": "number",
+						"description": "Parameter: min_score"
+					},
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					}
+				},
+				"required": [
+					"image",
+					"min_score",
+					"search_mode"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_search_crops",
+			"name": "Face Search (Crops)",
+			"category": "Global - Face Search (Crops)",
+			"url": "https://ai.verifik.co/v2/face-recognition/search/crops",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.03,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"images": {
+						"type": "array",
+						"description": "Parameter: images"
+					},
+					"collection_id": {
+						"type": "string",
+						"description": "Parameter: collection_id"
+					},
+					"max_results": {
+						"type": "number",
+						"description": "Parameter: max_results"
+					},
+					"min_score": {
+						"type": "number",
+						"description": "Parameter: min_score"
+					},
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					}
+				},
+				"required": [
+					"images",
+					"min_score",
+					"search_mode"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_search",
+			"name": "Face Search",
+			"category": "Global - Face Search",
+			"url": "https://ai.verifik.co/v2/face-recognition/search",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.03,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"images": {
+						"type": "array",
+						"description": "Parameter: images"
+					},
+					"collection_id": {
+						"type": "string",
+						"description": "Parameter: collection_id"
+					},
+					"max_results": {
+						"type": "number",
+						"description": "Parameter: max_results"
+					},
+					"min_score": {
+						"type": "number",
+						"description": "Parameter: min_score"
+					},
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					}
+				},
+				"required": [
+					"images",
+					"min_score",
+					"search_mode"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_company",
+			"name": "Mexico - Company Lookup",
+			"category": "Mexico - Company Lookup",
+			"url": "https://ai.verifik.co/v2/mx/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Mexico",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"FME"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_valores_fasecolda_by_plate",
+			"name": "Colombia - Fasecolda Vehicle Values (by Plate)",
+			"category": "Colombia - Fasecolda Vehicle Values (by Plate)",
+			"url": "https://ai.verifik.co/v2/co/fasecolda/values-by-plate",
+			"method": "POST",
+			"description": "Get vehicle commercial values from Fasecolda by license plate.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_valores_fasecolda_by_code",
+			"name": "Colombia - Fasecolda Vehicle Values (by Code)",
+			"category": "Colombia - Fasecolda Vehicle Values (by Code)",
+			"url": "https://ai.verifik.co/v2/co/fasecolda/values-by-code",
+			"method": "POST",
+			"description": "Get vehicle commercial values from Fasecolda by vehicle code.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"codeFasecolda": {
+						"type": "string",
+						"description": "Parameter: codeFasecolda"
+					}
+				},
+				"required": [
+					"codeFasecolda"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_simit_plate",
+			"name": "Colombia - SIMIT Fines by Plate",
+			"category": "Colombia - SIMIT Fines by Plate",
+			"url": "https://ai.verifik.co/v2/co/simit/consultar/placa",
+			"method": "GET",
+			"description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_vehicle",
+			"name": "Argentina - Vehicle Verification",
+			"category": "Argentina - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/ar/vehicle",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "usa_api_company",
+			"name": "USA - Company Lookup",
+			"category": "USA - Company Lookup",
+			"url": "https://ai.verifik.co/v2/usa/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "United States",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"business": {
+						"type": "string",
+						"description": "Parameter: business"
+					}
+				},
+				"required": [
+					"business"
+				]
+			}
+		},
+		{
+			"id": "usa_api_driver_license_lookup_kansas",
+			"name": "CONSULTAR LICENCIA DE KANSAS",
+			"category": "United States - CONSULTAR LICENCIA DE KANSAS",
+			"url": "https://ai.verifik.co/v2/usa/kansas/driver-license",
+			"method": "POST",
+			"description": "Licencia de kansas.",
+			"country": "United States",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Parameter: dateOfBirth"
+					},
+					"firstName": {
+						"type": "string",
+						"description": "Parameter: firstName"
+					},
+					"lastName": {
+						"type": "string",
+						"description": "Parameter: lastName"
+					}
+				},
+				"required": [
+					"documentNumber",
+					"dateOfBirth",
+					"firstName",
+					"lastName"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_sinister_fasecolda_by_plate",
+			"name": "Colombia - Fasecolda Accident History",
+			"category": "Colombia - Fasecolda Accident History",
+			"url": "https://ai.verifik.co/v2/co/fasecolda/sinister",
+			"method": "POST",
+			"description": "Check vehicle accident and claim history from Fasecolda by plate.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "brasil_api_criminal_history",
+			"name": "brasil api criminal history",
+			"category": "Brazil - brasil api criminal history",
+			"url": "https://ai.verifik.co/v2/br/background-check",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Brazil",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CPF"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Parameter: dateOfBirth"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
+			}
+		},
+		{
+			"id": "costa_rica_api_business_lookup",
+			"name": " - Company Lookup",
+			"category": "Costa Rica - Company Lookup",
+			"url": "https://ai.verifik.co/v2/cr/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Costa Rica",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NITE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_company_lookup",
+			"name": "Argentina - Company Lookup",
+			"category": "Argentina - Company Lookup",
+			"url": "https://ai.verifik.co/v2/ar/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CUIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "bolivia_api_business_lookup",
+			"name": "Bolivia - Company Lookup",
+			"category": "Bolivia - Company Lookup",
+			"url": "https://ai.verifik.co/v2/bo/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Bolivia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_accidentality_bogota",
+			"name": "Colombia - Bogota Vehicle Accidents",
+			"category": "Colombia - Bogota Vehicle Accidents",
+			"url": "https://ai.verifik.co/v2/co/bogota/vehicle/accidentality",
+			"method": "GET",
+			"description": "Look up accident records and traffic incidents registered specifically within the Bogota municipal transit database.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_tax",
+			"name": "Colombia - Vehicle Tax Status",
+			"category": "Colombia - Vehicle Tax Status",
+			"url": "https://ai.verifik.co/v2/co/bogota/vehicle/tax",
+			"method": "GET",
+			"description": "Check the payment status and history of annual vehicular taxes (Impuesto de Vehículos).",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_lawyers_certificate",
+			"name": "Colombia - Lawyers Verification",
+			"category": "Colombia - Lawyers Verification",
+			"url": "https://ai.verifik.co/v2/co/rama/certificado/vigencia",
+			"method": "GET",
+			"description": "Obtain lawyer certification and professional status verification.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"NIT",
+							"CE"
+						]
+					},
+					"quality": {
+						"type": "string",
+						"description": "Parameter: quality",
+						"enum": [
+							"ABG",
+							"JUEZPAZ",
+							"LT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"quality",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_judicial_records",
+			"name": "Colombia - Judicial Records",
+			"category": "Colombia - Judicial Records",
+			"url": "https://ai.verifik.co/v2/co/rama/juzgado/expedientes",
+			"method": "POST",
+			"description": "Access judicial background records and legal history for Colombian citizens.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
 					},
 					"city": {
 						"type": "string",
@@ -1365,128 +3300,117 @@
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "communication_messaging_sms",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/communication/sms",
+			"id": "paraguay_api_business_lookup",
+			"name": "Paraguay - Company Lookup",
+			"category": "Paraguay - Company Lookup",
+			"url": "https://ai.verifik.co/v2/py/company",
 			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.1,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"countryCode": {
-						"type": "string",
-						"description": "Parameter: countryCode"
-					},
-					"phone": {
-						"type": "string",
-						"description": "Parameter: phone"
-					},
-					"message": {
-						"type": "string",
-						"description": "Parameter: message"
-					}
-				},
-				"required": ["countryCode", "phone", "message"]
-			}
-		},
-		{
-			"id": "communication_global_messaging_whatsapp",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/communication/whatsapp",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.017,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"countryCode": {
-						"type": "string",
-						"description": "Parameter: countryCode"
-					},
-					"phone": {
-						"type": "string",
-						"description": "Parameter: phone"
-					},
-					"message": {
-						"type": "string",
-						"description": "Parameter: message"
-					}
-				},
-				"required": ["countryCode", "phone", "message"]
-			}
-		},
-		{
-			"id": "communication_global_email_otp",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/communication/email",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.0012,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"email": {
-						"type": "string",
-						"description": "Parameter: email"
-					}
-				},
-				"required": ["email"]
-			}
-		},
-		{
-			"id": "credit_intent_kyc_passwordless",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/credit-intents/kyc-passwordless",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.168,
-			"parameters": {
-				"type": "object",
-				"properties": {},
-				"required": []
-			}
-		},
-		{
-			"id": "brasil_api_company_lookup",
-			"name": "Brazil - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/br/company",
-			"method": "GET",
-			"description": "General data verification service for Brazil. Provides reliable information verification and validation.",
-			"country": "Brazil",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "Paraguay",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CNPJ"]
+						"enum": [
+							"RUC"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "brasil_api_vehicle",
-			"name": "Brazil - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/br/vehicle",
+			"id": "chile_api_validate",
+			"name": "chile api validate",
+			"category": "chile api validate",
+			"url": "https://ai.verifik.co/v2/cl/validate/documents",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUT",
+							"RUN"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"serialNumber": {
+						"type": "string",
+						"description": "Parameter: serialNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"serialNumber"
+				]
+			}
+		},
+		{
+			"id": "chile_api_taxpayer_lookup",
+			"name": "chile api taxpayer lookup",
+			"category": "chile api taxpayer lookup",
+			"url": "https://ai.verifik.co/v2/cl/taxpayer",
 			"method": "GET",
-			"description": "Standard vehicle verification service for Brazil. Verifies vehicle registration and basic information.",
-			"country": "Brazil",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "paraguay_api_vehicle",
+			"name": "Paraguay - Vehicle Verification",
+			"category": "Paraguay - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/py/vehicle",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Paraguay",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -1495,167 +3419,251 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
-			"id": "argentina_api_identity_lookup",
-			"name": "Argentina - Identity Verification",
-			"url": "https://ai.verifik.co/v2/ar/cedula",
+			"id": "costa_rica_api_vehicle",
+			"name": " - Vehicle Verification",
+			"category": "Costa Rica - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/cr/vehicle",
 			"method": "GET",
-			"description": "Standard identity verification service for Argentina citizens. Verifies personal information and document authenticity.",
-			"country": "Argentina",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "Costa Rica",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"documentType": {
+					"plate": {
 						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["DNIAR"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Parameter: plate"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"plate"
+				]
 			}
 		},
 		{
-			"id": "ecuador_api_company_lookup",
-			"name": "Ecuador - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ec/company",
+			"id": "usa_api_vehicle_lookup_by_vin",
+			"name": "USA - Vehicle Lookup by VIN",
+			"category": "USA - Vehicle Lookup by VIN",
+			"url": "https://ai.verifik.co/v2/usa/vehicle-by-vin",
 			"method": "GET",
-			"description": "General data verification service for Ecuador. Provides reliable information verification and validation.",
-			"country": "Ecuador",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUCEC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "usa_api_ssn",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/usa/ssn",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
+			"description": "Provides reliable verification and validation services.",
 			"country": "United States",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"documentNumber": {
+					"vin": {
 						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Parameter: vin"
 					}
 				},
-				"required": ["documentNumber"]
+				"required": [
+					"vin"
+				]
 			}
 		},
 		{
-			"id": "colombia_api_dian_invoicer",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/company/dian/invoicer",
+			"id": "guatemala_api_identity_lookup",
+			"name": "Guatemala - National ID Verification",
+			"category": "Guatemala - National ID Verification",
+			"url": "https://ai.verifik.co/v2/gt/cedula",
 			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "api_colombia_contracts",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/contracts",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
+			"description": "Provides reliable verification and validation services.",
+			"country": "Guatemala",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT", "CC", "CE", "PA", "RC", "TI", "PEP", "CCVE", "CURP", "DNI", "CCEC"]
+						"enum": [
+							"CUI"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "colombia_api_police_rnmc",
-			"name": "Colombia - Police Records Check",
-			"url": "https://ai.verifik.co/v2/co/policia/rnmc",
+			"id": "colombia_api_vehicle_fines_medellin",
+			"name": "Colombia - Medellin Transit Fines",
+			"category": "Colombia - Medellin Transit Fines",
+			"url": "https://ai.verifik.co/v2/co/medellin/vehicle/fines",
 			"method": "GET",
-			"description": "Police records verification service for Colombia citizens. Provides information about police interactions and records.",
+			"description": "Verify outstanding local traffic penalties and fines restricted to the city of Medellin.",
 			"country": "Colombia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_vehicle_fines_bogota",
+			"name": "Colombia - Bogota Transit Fines",
+			"category": "Colombia - Bogota Transit Fines",
+			"url": "https://ai.verifik.co/v2/co/bogota/vehicle/fines",
+			"method": "GET",
+			"description": "Verify outstanding local traffic penalties and fines restricted to the city of Bogota.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "honduras_api_identity_lookup",
+			"name": "Honduras - National ID Verification",
+			"category": "Honduras - National ID Verification",
+			"url": "https://ai.verifik.co/v2/hn/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Honduras",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "TI", "PA"]
+						"enum": [
+							"DNIHN"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
-					},
-					"date": {
-						"type": "string",
-						"description": "Parameter: date"
 					}
 				},
-				"required": ["documentType", "documentNumber", "date"]
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
 			}
 		},
 		{
-			"id": "bolivia_api_identity_lookup",
-			"name": "Bolivia - Identity Verification",
-			"url": "https://ai.verifik.co/v2/bo/cedula",
+			"id": "republica_dominicana_api_citizen_lookup",
+			"name": "Dominican Republic - National ID Verification",
+			"category": "Dominican Republic - National ID Verification",
+			"url": "https://ai.verifik.co/v2/do/cedula",
 			"method": "GET",
-			"description": "Standard identity verification service for Bolivia citizens. Verifies personal information and document authenticity.",
+			"description": "Provides reliable verification and validation services.",
+			"country": "República Dominicana",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CIE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "venezuela_foreigner_api",
+			"name": "Venezuela - Immigration Status Verification",
+			"category": "Venezuela - Immigration Status Verification",
+			"url": "https://ai.verifik.co/v2/ve/foreigner-id",
+			"method": "GET",
+			"description": "Immigration records verification service for Venezuela. Provides immigration status and foreigner registration information.",
+			"country": "Venezuela",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "bolivia_api_vehicle",
+			"name": "Bolivia - Vehicle Verification",
+			"category": "Bolivia - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/bo/vehicle",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
 			"country": "Bolivia",
-			"priceUsd": 0.2,
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "uruguay_api_identity_lookup",
+			"name": "Uruguay - National ID Verification",
+			"category": "Uruguay - National ID Verification",
+			"url": "https://ai.verifik.co/v2/uy/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Uruguay",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CI"]
+						"enum": [
+							"CCUY"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
@@ -1666,15 +3674,790 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dateOfBirth"
+				]
 			}
 		},
 		{
-			"id": "colombia_pep_lookup",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/politically-exposed-persons",
+			"id": "spain_api_company_lookup",
+			"name": "Spain - Company Lookup",
+			"category": "Spain - Company Lookup",
+			"url": "https://ai.verifik.co/v2/es/company",
 			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Spain",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIF"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "panama_api_business_lookup",
+			"name": "Panama - Company Lookup",
+			"category": "Panama - Company Lookup",
+			"url": "https://ai.verifik.co/v2/pa/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Panama",
+			"priceUsd": 1,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"dv": {
+						"type": "string",
+						"description": "Parameter: dv"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"dv"
+				]
+			}
+		},
+		{
+			"id": "peru_api_identity_ce_foreigner_id",
+			"name": "Peru - Immigration Status Verification",
+			"category": "Peru - Immigration Status Verification",
+			"url": "https://ai.verifik.co/v2/pe/foreigner-id/ce",
+			"method": "GET",
+			"description": "Immigration records verification service for Peru. Provides immigration status and foreigner registration information.",
+			"country": "Peru",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Parameter: dateOfBirth"
+					}
+				},
+				"required": [
+					"documentNumber",
+					"dateOfBirth"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_rues_full_v3",
+			"name": "Colombia - RUES Business Verification",
+			"category": "Colombia - RUES Business Verification",
+			"url": "https://ai.verifik.co/v3/co/rues-complete",
+			"method": "GET",
+			"description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing.",
+			"country": "Colombia",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT"
+						]
+					},
+					"category": {
+						"type": "string",
+						"description": "Parameter: category",
+						"enum": [
+							"RM",
+							"PROP",
+							"RUNEOL",
+							"RNT",
+							"ESAL",
+							"RESAL",
+							"JUEGOS",
+							"EXTRANJERAS"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"category",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_rues_v3",
+			"name": "Colombia - RUES Business Verification",
+			"category": "Colombia - RUES Business Verification",
+			"url": "https://ai.verifik.co/v3/co/rues",
+			"method": "GET",
+			"description": "RUES V3 business verification with comprehensive company data.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"NIT"
+						]
+					},
+					"category": {
+						"type": "string",
+						"description": "Parameter: category",
+						"enum": [
+							"RM",
+							"PROP",
+							"RUNEOL",
+							"RNT",
+							"ESAL",
+							"RESAL",
+							"JUEGOS",
+							"EXTRANJERAS"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"category",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "peru_identity_extra_lookup_v3",
+			"name": "Peru - National ID Verification",
+			"category": "Peru - National ID Verification",
+			"url": "https://ai.verifik.co/v3/pe/cedula/extra",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Peru",
+			"priceUsd": 0.6,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"DNI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "peru_identity_lookup_v3",
+			"name": "Peru - National ID Verification",
+			"category": "Peru - National ID Verification",
+			"url": "https://ai.verifik.co/v3/pe/cedula",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Peru",
+			"priceUsd": 0.5,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"DNI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_ppt_foreigner_id",
+			"name": "Colombia - Immigration Status Verification",
+			"category": "Colombia - Immigration Status Verification",
+			"url": "https://ai.verifik.co/v2/co/foreigner-id/ppt",
+			"method": "GET",
+			"description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"expeditionDate": {
+						"type": "string",
+						"description": "Parameter: expeditionDate"
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"expeditionDate",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_min_trabajo_v3",
+			"name": "Colombia - Labor Certificates Verification",
+			"category": "Colombia - Labor Certificates Verification",
+			"url": "https://ai.verifik.co/v3/co/ministerio-de-trabajo/certificados",
+			"method": "GET",
+			"description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"PEP",
+							"PA"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_sisben_api_lookup",
+			"name": "Colombia - SISBEN Score Verification",
+			"category": "Colombia - SISBEN Score Verification",
+			"url": "https://ai.verifik.co/v2/co/sisben",
+			"method": "GET",
+			"description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios) score and classification.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"CE",
+							"PEP",
+							"PPT",
+							"PA"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_detect_face",
+			"name": "Face Detection",
+			"category": "Global - Face Detection",
+			"url": "https://ai.verifik.co/v2/face-recognition/face-validation",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.01,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					}
+				},
+				"required": [
+					"image"
+				]
+			}
+		},
+		{
+			"id": "peru_api_company_lookup_v3",
+			"name": "Peru - Company Lookup",
+			"category": "Peru - Company Lookup",
+			"url": "https://ai.verifik.co/v3/pe/company",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Peru",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "document-liveness",
+			"name": "Document Liveness Detection",
+			"category": "Global - Document Liveness Detection",
+			"url": "https://ai.verifik.co/document-liveness",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 0.24,
+			"parameters": {
+				"type": "object",
+				"properties": {},
+				"required": []
+			}
+		},
+		{
+			"id": "credit_intent",
+			"name": "Credit Purchase Intent",
+			"category": "Global - Credit Purchase Intent",
+			"url": "https://ai.verifik.co/v2/credit-intents",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 1,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"externalDatabaseRefID": {
+						"type": "string",
+						"description": "Parameter: externalDatabaseRefID"
+					},
+					"category": {
+						"type": "string",
+						"description": "Parameter: category"
+					}
+				},
+				"required": [
+					"externalDatabaseRefID"
+				]
+			}
+		},
+		{
+			"id": "face_recognition_search_active_user",
+			"name": "Face Search (Active User)",
+			"category": "Global - Face Search (Active User)",
+			"url": "https://ai.verifik.co/v2/face-recognition/search-active-user",
+			"method": "POST",
+			"description": "Provides reliable verification and validation services.",
+			"country": "world",
+			"priceUsd": 1.25,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"image": {
+						"type": "string",
+						"description": "Parameter: image"
+					},
+					"os": {
+						"type": "string",
+						"description": "Parameter: os"
+					},
+					"min_score": {
+						"type": "number",
+						"description": "Parameter: min_score"
+					},
+					"search_mode": {
+						"type": "string",
+						"description": "Parameter: search_mode"
+					},
+					"collection_id": {
+						"type": "string",
+						"description": "Parameter: collection_id"
+					}
+				},
+				"required": [
+					"image",
+					"os",
+					"min_score",
+					"search_mode"
+				]
+			}
+		},
+		{
+			"id": "spain_api_vehicle_lookup",
+			"name": "Spain - Vehicle Verification",
+			"category": "Spain - Vehicle Verification",
+			"url": "https://ai.verifik.co/v2/es/vehicle",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services.",
+			"country": "Spain",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_sigep_by_name",
+			"name": "Colombia - SIGEP Public Officials Search",
+			"category": "Colombia - SIGEP Public Officials Search",
+			"url": "https://ai.verifik.co/v2/co/sigep/name",
+			"method": "POST",
+			"description": "Search Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"fullName": {
+						"type": "string",
+						"description": "Parameter: fullName"
+					}
+				},
+				"required": [
+					"fullName"
+				]
+			}
+		},
+		{
+			"id": "colombia_sigep_by_number",
+			"name": "Colombia - SIGEP Official Lookup by Document",
+			"category": "Colombia - SIGEP Official Lookup by Document",
+			"url": "https://ai.verifik.co/v2/co/sigep/number",
+			"method": "GET",
+			"description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). Get complete professional information from SIGEP records.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC",
+							"NIT"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_inpec_lookup",
+			"name": "Colombia - INPEC Penitentiary Records",
+			"category": "Colombia - INPEC Penitentiary Records",
+			"url": "https://ai.verifik.co/v2/co/inpec",
+			"method": "POST",
+			"description": "Look up penitentiary records and incarceration history.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					},
+					"firstSurname": {
+						"type": "string",
+						"description": "Parameter: firstSurname"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber",
+					"firstSurname"
+				]
+			}
+		},
+		{
+			"id": "zelf-proofs",
+			"name": "Zelf Proofs",
+			"category": "Global - Zelf Proofs",
+			"url": "https://ai.verifik.co/v2/zelf-proof/encrypt",
+			"method": "POST",
+			"description": "Zelf Proofs service for identity verification and document validation. This service provides comprehensive proof generation capabilities for various identity documents and verification processes.",
+			"country": "world",
+			"priceUsd": 0.84,
+			"parameters": {
+				"type": "object",
+				"properties": {},
+				"required": []
+			}
+		},
+		{
+			"id": "zelf-proof-liveness-active-user",
+			"name": "Zelf Proof with Liveness (Active user)",
+			"category": "Global - Zelf Proof with Liveness (Active user)",
+			"url": "https://ai.verifik.co/v2/zelf-proof/encrypt-with-liveness-active-user",
+			"method": "POST",
+			"description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification.",
+			"country": "world",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {},
+				"required": []
+			}
+		},
+		{
+			"id": "guatemala_api_identity_extra_lookup",
+			"name": "Guatemala - Identity Verification full",
+			"category": "Guatemala - Identity Verification full",
+			"url": "https://ai.verifik.co/v2/gt/cedula/extra",
+			"method": "GET",
+			"description": "Standard identity verification service for Guatemala citizens. Verifies personal information and document authenticity.",
+			"country": "Guatemala",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"CUI"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "india_api_epic_lookup",
+			"name": "CONSULTAR EPIC INDIA",
+			"category": "India - CONSULTAR EPIC INDIA",
+			"url": "https://ai.verifik.co/v2/in/epic",
+			"method": "POST",
+			"description": "Metodo para consultar datos de un ciudadano en India usando EPIC (Voter ID)",
+			"country": "India",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"EPIC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "india_api_epic_voting_lookup",
+			"name": "CONSULTAR VOTACION EPIC INDIA",
+			"category": "India - CONSULTAR VOTACION EPIC INDIA",
+			"url": "https://ai.verifik.co/v2/in/epic/votacion",
+			"method": "POST",
+			"description": "Metodo para consultar informacion de votacion de un ciudadano en India usando EPIC (Voter ID)",
+			"country": "India",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"EPIC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "co_bogota_taxi_plate",
+			"name": "Colombia - Bogotá Taxi Driver by Plate",
+			"category": "Colombia - Bogotá Taxi Driver by Plate",
+			"url": "https://ai.verifik.co/v2/co/bogota/taxi-drivers/plate",
+			"method": "POST",
+			"description": "Taxi driver and vehicle verification in Bogotá by plate number. Retrieves driver and vehicle-related data associated with the taxi plate.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Taxi plate number (e.g., WMN482)",
+						"minimum": 6,
+						"maximum": 6
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "co_bogota_taxi_driver_card",
+			"name": "Colombia - Bogotá Taxi Driver by Card",
+			"category": "Colombia - Bogotá Taxi Driver by Card",
+			"url": "https://ai.verifik.co/v2/co/bogota/taxi-drivers/card",
+			"method": "POST",
+			"description": "Taxi driver verification in Bogotá by driver card/license number. Retrieves driver-related data associated with the provided card.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"card": {
+						"type": "string",
+						"description": "Taxi driver card/license number (e.g., 2991233)",
+						"minimum": 5,
+						"maximum": 15
+					}
+				},
+				"required": [
+					"card"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup_premium",
+			"name": "Colombia - National ID Premium Verification",
+			"category": "Colombia - National ID Premium Verification",
+			"url": "https://ai.verifik.co/v2/co/cedula/premium",
+			"method": "GET",
+			"description": "Premium Colombian citizen lookup (CC only). Resolves the expedition date automatically, then returns the same enriched fields as /v2/co/cedula/extra. Higher cost reflects chained upstream processing.",
+			"country": "Colombia",
+			"priceUsd": 2,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_special_api_police_identity_lookup",
+			"name": "Colombia - Police Records Check",
+			"url": "https://ai.verifik.co/v2/co/policia/consultar",
+			"method": "GET",
+			"description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date.",
 			"country": "Colombia",
 			"priceUsd": 0.2,
 			"parameters": {
@@ -1683,15 +4466,22 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["CC"]
+						"enum": [
+							"CC",
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
-			}
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			},
+			"category": "Colombia - Police Records Check"
 		},
 		{
 			"id": "api_autodata_selection",
@@ -1705,399 +4495,8 @@
 				"type": "object",
 				"properties": {},
 				"required": []
-			}
-		},
-		{
-			"id": "colombia_api_sisconmp",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/sisconmp/trainings",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "paraguay_api_identity_lookup",
-			"name": "Paraguay - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/py/cic",
-			"method": "GET",
-			"description": "General data verification service for Paraguay. Provides reliable information verification and validation.",
-			"country": "Paraguay",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "canada_api_driver_license_ontario",
-			"name": "Canada - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ca/ontario/driver-license",
-			"method": "GET",
-			"description": "General data verification service for Canada. Provides reliable information verification and validation.",
-			"country": "Canada",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_complete_by_plate_simplified",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/runt/vehicle-by-plate-simplified",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "TI", "CE", "PA", "RC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["documentType", "documentNumber", "plate"]
-			}
-		},
-		{
-			"id": "canada_api_driver_license_quebec",
-			"name": "Canada - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ca/quebec/driver-license",
-			"method": "GET",
-			"description": "General data verification service for Canada. Provides reliable information verification and validation.",
-			"country": "Canada",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "ocr_scan_pro",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ocr/scan-pro",
-			"method": "POST",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.15,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType"
-					},
-					"country": {
-						"type": "string",
-						"description": "Parameter: country"
-					},
-					"image": {
-						"type": "string",
-						"description": "Parameter: image"
-					}
-				},
-				"required": ["documentType", "country", "image"]
-			}
-		},
-		{
-			"id": "el_salvador_api_identity_lookup",
-			"name": "El Salvador - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/sv/dui",
-			"method": "GET",
-			"description": "General data verification service for El Salvador. Provides reliable information verification and validation.",
-			"country": "El Salvador",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"dateOfBirth": {
-						"type": "string",
-						"description": "Parameter: dateOfBirth"
-					}
-				},
-				"required": ["documentNumber", "dateOfBirth"]
-			}
-		},
-		{
-			"id": "canada_api_driver_license_british-columbia",
-			"name": "Canada - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ca/british-columbia/driver-license",
-			"method": "GET",
-			"description": "General data verification service for Canada. Provides reliable information verification and validation.",
-			"country": "Canada",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"lastName": {
-						"type": "string",
-						"description": "Parameter: lastName"
-					}
-				},
-				"required": ["documentNumber", "lastName"]
-			}
-		},
-		{
-			"id": "ocr_scan_gpt",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ocr/scan-gpt",
-			"method": "POST",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.07,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType"
-					},
-					"country": {
-						"type": "string",
-						"description": "Parameter: country"
-					},
-					"image": {
-						"type": "string",
-						"description": "Parameter: image"
-					}
-				},
-				"required": ["documentType"]
-			}
-		},
-		{
-			"id": "colombia_api_identity_lookup_extra",
-			"name": "Colombia - Complete Identity Verification",
-			"url": "https://ai.verifik.co/v2/co/cedula/extra",
-			"method": "GET",
-			"description": "Comprehensive identity verification service for Colombia citizens. Provides complete personal information including full name, document details, and additional verification data.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"date": {
-						"type": "string",
-						"description": "Parameter: date"
-					}
-				},
-				"required": ["documentType", "documentNumber", "date"]
-			}
-		},
-		{
-			"id": "colombia_api_identity_pep_foreigner_id",
-			"name": "Colombia - Immigration Status Verification",
-			"url": "https://ai.verifik.co/v2/co/foreigner-id/pep",
-			"method": "GET",
-			"description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"expeditionDate": {
-						"type": "string",
-						"description": "Parameter: expeditionDate"
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["expeditionDate", "documentNumber"]
-			}
-		},
-		{
-			"id": "ocr_scan_studio",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ocr/scan-studio",
-			"method": "POST",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "world",
-			"priceUsd": 0.1,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType"
-					},
-					"country": {
-						"type": "string",
-						"description": "Parameter: country"
-					},
-					"image": {
-						"type": "string",
-						"description": "Parameter: image"
-					}
-				},
-				"required": ["documentType"]
-			}
-		},
-		{
-			"id": "canada_api_company",
-			"name": "Canada - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ca/company",
-			"method": "GET",
-			"description": "General data verification service for Canada. Provides reliable information verification and validation.",
-			"country": "Canada",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"province": {
-						"type": "string",
-						"description": "Parameter: province",
-						"enum": ["AB", "BC", "MB", "NS", "ON", "QC", "SK"]
-					},
-					"business": {
-						"type": "string",
-						"description": "Parameter: business"
-					}
-				},
-				"required": ["province", "business"]
-			}
-		},
-		{
-			"id": "mexico_api_company",
-			"name": "Mexico - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/mx/company",
-			"method": "GET",
-			"description": "General data verification service for Mexico. Provides reliable information verification and validation.",
-			"country": "Mexico",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["FME"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_valores_fasecolda_by_plate",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/fasecolda/values-by-plate",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_valores_fasecolda_by_code",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/fasecolda/values-by-code",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"codeFasecolda": {
-						"type": "string",
-						"description": "Parameter: codeFasecolda"
-					}
-				},
-				"required": ["codeFasecolda"]
-			}
-		},
-		{
-			"id": "usa_api_company",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/usa/company",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "United States",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"business": {
-						"type": "string",
-						"description": "Parameter: business"
-					}
-				},
-				"required": ["business"]
-			}
+			},
+			"category": "Colombia - Data Verification Service"
 		},
 		{
 			"id": "colombia_api_runt_owners",
@@ -2115,284 +4514,11 @@
 						"description": "Parameter: plate"
 					}
 				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "chile_api_driver_license",
-			"name": "Chile - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/cl/driver-license",
-			"method": "GET",
-			"description": "General data verification service for Chile. Provides reliable information verification and validation.",
-			"country": "Chile",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_lawyers_certificate",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/rama/certificado/vigencia",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT", "CE"]
-					},
-					"quality": {
-						"type": "string",
-						"description": "Parameter: quality",
-						"enum": ["ABG", "JUEZPAZ", "LT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "quality", "documentNumber"]
-			}
-		},
-		{
-			"id": "argentina_api_vehicle",
-			"name": "Argentina - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/ar/vehicle",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Argentina. Verifies vehicle registration and basic information.",
-			"country": "Argentina",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "argentina_api_company_lookup",
-			"name": "Argentina - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/ar/company",
-			"method": "GET",
-			"description": "General data verification service for Argentina. Provides reliable information verification and validation.",
-			"country": "Argentina",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CUIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "bolivia_api_vehicle",
-			"name": "Bolivia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/bo/vehicle",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Bolivia. Verifies vehicle registration and basic information.",
-			"country": "Bolivia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "brasil_api_criminal_history",
-			"name": "Brazil - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/br/background-check",
-			"method": "GET",
-			"description": "General data verification service for Brazil. Provides reliable information verification and validation.",
-			"country": "Brazil",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CPF"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"dateOfBirth": {
-						"type": "string",
-						"description": "Parameter: dateOfBirth"
-					}
-				},
-				"required": ["documentType", "documentNumber", "dateOfBirth"]
-			}
-		},
-		{
-			"id": "bolivia_api_business_lookup",
-			"name": "Bolivia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/bo/company",
-			"method": "GET",
-			"description": "General data verification service for Bolivia. Provides reliable information verification and validation.",
-			"country": "Bolivia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "costa_rica_api_business_lookup",
-			"name": "Costa Rica - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/cr/company",
-			"method": "GET",
-			"description": "General data verification service for Costa Rica. Provides reliable information verification and validation.",
-			"country": "Costa Rica",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NITE"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "paraguay_api_business_lookup",
-			"name": "Paraguay - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/py/company",
-			"method": "GET",
-			"description": "General data verification service for Paraguay. Provides reliable information verification and validation.",
-			"country": "Paraguay",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_sinister_fasecolda_by_plate",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/fasecolda/sinister",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_tax",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/bogota/vehicle/tax",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "NIT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["documentType", "documentNumber", "plate"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_accidentality_bogota",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/bogota/vehicle/accidentality",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
+				"required": [
+					"plate"
+				]
+			},
+			"category": "Colombia - Data Verification Service"
 		},
 		{
 			"id": "matpis_appointments",
@@ -2408,214 +4534,21 @@
 					"documentType": {
 						"type": "string",
 						"description": "Parameter: documentType",
-						"enum": ["NIT"]
+						"enum": [
+							"NIT"
+						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
 					}
 				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "chile_api_taxpayer_lookup",
-			"name": "Chile - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/cl/taxpayer",
-			"method": "GET",
-			"description": "General data verification service for Chile. Provides reliable information verification and validation.",
-			"country": "Chile",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUT"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "chile_api_validate",
-			"name": "Chile - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/cl/validate/documents",
-			"method": "GET",
-			"description": "General data verification service for Chile. Provides reliable information verification and validation.",
-			"country": "Chile",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUT", "RUN"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"serialNumber": {
-						"type": "string",
-						"description": "Parameter: serialNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber", "serialNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_simit_agreements",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/simit/acuerdos",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_simit_suspensions",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/simit/suspensiones",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_simit_subpoenas_details",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/simit/comparendo",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"numeroComparendo": {
-						"type": "string",
-						"description": "Parameter: numeroComparendo"
-					},
-					"idOrganismoTransito": {
-						"type": "string",
-						"description": "Parameter: idOrganismoTransito"
-					}
-				},
-				"required": ["documentType", "documentNumber", "numeroComparendo", "idOrganismoTransito"]
-			}
-		},
-		{
-			"id": "colombia_api_simit_resolutions",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/simit/resoluciones",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PA", "RC", "TI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_simit_complete",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/simit/consultar",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIT", "CC", "CE", "PA", "RC", "TI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_simit_plate",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/simit/consultar/placa",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			},
+			"category": "Colombia - Data Verification Service"
 		},
 		{
 			"id": "world_api_passport_entries",
@@ -2649,512 +4582,15 @@
 						"description": "Parameter: dateOfBirth"
 					}
 				},
-				"required": ["passportNumber", "passportCountry", "firstName", "lastName", "dateOfBirth"]
-			}
-		},
-		{
-			"id": "costa_rica_api_vehicle",
-			"name": "Costa Rica - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/cr/vehicle",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Costa Rica. Verifies vehicle registration and basic information.",
-			"country": "Costa Rica",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "paraguay_api_vehicle",
-			"name": "Paraguay - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/py/vehicle",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Paraguay. Verifies vehicle registration and basic information.",
-			"country": "Paraguay",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "usa_api_vehicle_lookup_by_vin",
-			"name": " - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/usa/vehicle-by-vin",
-			"method": "GET",
-			"description": "Standard vehicle verification service for . Verifies vehicle registration and basic information.",
-			"country": "United States",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"vin": {
-						"type": "string",
-						"description": "Parameter: vin"
-					}
-				},
-				"required": ["vin"]
-			}
-		},
-		{
-			"id": "colombia_api_identity_ce_foreigner_id",
-			"name": "Colombia - Immigration Status Verification",
-			"url": "https://ai.verifik.co/v2/co/foreigner-id/ce",
-			"method": "GET",
-			"description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"expeditionDate": {
-						"type": "string",
-						"description": "Parameter: expeditionDate"
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["expeditionDate", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_fines_bogota",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/bogota/vehicle/fines",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "colombia_api_vehicle_fines_medellin",
-			"name": "Colombia - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/co/medellin/vehicle/fines",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Colombia. Verifies vehicle registration and basic information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "guatemala_api_identity_lookup",
-			"name": "Guatemala - Identity Verification",
-			"url": "https://ai.verifik.co/v2/gt/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Guatemala citizens. Verifies personal information and document authenticity.",
-			"country": "Guatemala",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CUI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "honduras_api_identity_lookup",
-			"name": "Honduras - Identity Verification",
-			"url": "https://ai.verifik.co/v2/hn/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Honduras citizens. Verifies personal information and document authenticity.",
-			"country": "Honduras",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["DNIHN"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "republica_dominicana_api_citizen_lookup",
-			"name": "Dominican Republic - Identity Verification",
-			"url": "https://ai.verifik.co/v2/do/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Dominican Republic citizens. Verifies personal information and document authenticity.",
-			"country": "República Dominicana",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CIE"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "venezuela_foreigner_api",
-			"name": "Venezuela - Immigration Status Verification",
-			"url": "https://ai.verifik.co/v2/ve/foreigner-id",
-			"method": "GET",
-			"description": "Immigration records verification service for Venezuela. Provides immigration status and foreigner registration information.",
-			"country": "Venezuela",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_sisben_api_lookup",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/co/sisben",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.5,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PEP", "PPT", "PA"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "spain_api_vehicle_lookup",
-			"name": "Spain - Vehicle Verification",
-			"url": "https://ai.verifik.co/v2/es/vehicle",
-			"method": "GET",
-			"description": "Standard vehicle verification service for Spain. Verifies vehicle registration and basic information.",
-			"country": "Spain",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": ["plate"]
-			}
-		},
-		{
-			"id": "spain_api_company_lookup",
-			"name": "Spain - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/es/company",
-			"method": "GET",
-			"description": "General data verification service for Spain. Provides reliable information verification and validation.",
-			"country": "Spain",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIF"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "panama_api_business_lookup",
-			"name": "Panama - Data Verification Service",
-			"url": "https://ai.verifik.co/v2/pa/company",
-			"method": "GET",
-			"description": "General data verification service for Panama. Provides reliable information verification and validation.",
-			"country": "Panama",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"dv": {
-						"type": "string",
-						"description": "Parameter: dv"
-					}
-				},
-				"required": ["documentType", "documentNumber", "dv"]
-			}
-		},
-		{
-			"id": "peru_api_identity_ce_foreigner_id",
-			"name": "Peru - Immigration Status Verification",
-			"url": "https://ai.verifik.co/v2/pe/foreigner-id/ce",
-			"method": "GET",
-			"description": "Immigration records verification service for Peru. Provides immigration status and foreigner registration information.",
-			"country": "Peru",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"dateOfBirth": {
-						"type": "string",
-						"description": "Parameter: dateOfBirth"
-					}
-				},
-				"required": ["documentNumber", "dateOfBirth"]
-			}
-		},
-		{
-			"id": "colombia_api_rues_full_v3",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://x402-agent.verifik.co/v3/co/rues-complete",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIT"]
-					},
-					"category": {
-						"type": "string",
-						"description": "Parameter: category",
-						"enum": ["RM", "PROP", "RUNEOL", "RNT", "ESAL", "ESOL", "JUEGOS", "EXTRANJERAS"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "category", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_rues_v3",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://x402-agent.verifik.co/v3/co/rues",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["NIT"]
-					},
-					"category": {
-						"type": "string",
-						"description": "Parameter: category",
-						"enum": ["RM", "PROP", "RUNEOL", "RNT", "ESAL", "ESOL", "JUEGOS", "EXTRANJERAS"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "category", "documentNumber"]
-			}
-		},
-		{
-			"id": "peru_identity_lookup_v3",
-			"name": "Peru - Identity Verification",
-			"url": "https://x402-agent.verifik.co/v3/pe/cedula",
-			"method": "GET",
-			"description": "Standard identity verification service for Peru citizens. Verifies personal information and document authenticity.",
-			"country": "Peru",
-			"priceUsd": 0.35,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["DNI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "peru_identity_extra_lookup_v3",
-			"name": "Peru - Complete Identity Verification",
-			"url": "https://x402-agent.verifik.co/v3/pe/cedula/extra",
-			"method": "GET",
-			"description": "Comprehensive identity verification service for Peru citizens. Provides complete personal information including full name, document details, and additional verification data.",
-			"country": "Peru",
-			"priceUsd": 0.5,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["DNI"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_identity_ppt_foreigner_id",
-			"name": "Colombia - Immigration Status Verification",
-			"url": "https://ai.verifik.co/v2/co/foreigner-id/ppt",
-			"method": "GET",
-			"description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"expeditionDate": {
-						"type": "string",
-						"description": "Parameter: expeditionDate"
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["expeditionDate", "documentNumber"]
-			}
-		},
-		{
-			"id": "colombia_api_min_trabajo_v3",
-			"name": "Colombia - Labor Certificates Verification",
-			"url": "https://x402-agent.verifik.co/v3/co/ministerio-de-trabajo/certificados",
-			"method": "GET",
-			"description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["CC", "CE", "PPT", "PEP", "PA"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
-		},
-		{
-			"id": "peru_api_company_lookup_v3",
-			"name": "Peru - Data Verification Service",
-			"url": "https://x402-agent.verifik.co/v3/pe/company",
-			"method": "GET",
-			"description": "General data verification service for Peru. Provides reliable information verification and validation.",
-			"country": "Peru",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": ["RUC"]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": ["documentType", "documentNumber"]
-			}
+				"required": [
+					"passportNumber",
+					"passportCountry",
+					"firstName",
+					"lastName",
+					"dateOfBirth"
+				]
+			},
+			"category": "Global - United States - Identity Verification"
 		}
 	]
 }

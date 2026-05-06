@@ -26,8 +26,9 @@ const toolsDef = JSON.parse(fs.readFileSync(toolsPath, "utf8"));
  * @param {string} paymentWallet - Optional payment wallet address
  * @param {string} paymentAmount - Optional payment amount
  * @param {string} userToken - Optional user JWT token (for Credits mode)
+ * @param {number|string} [paymentChainId] - Optional EVM chain id the tx was sent on. Forwarded as `x-payment-chain-id` so the x402 middleware can validate against the correct chain.
  */
-const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmount, userToken) => {
+const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmount, userToken, paymentChainId) => {
     const tool = toolsDef.endpoints.find((t) => t.id === toolName);
     if (!tool) throw new Error(`Tool ${toolName} not found`);
 
@@ -69,6 +70,10 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
         headers["x-payment-amount"] = paymentAmount;
     }
 
+    if (paymentChainId !== undefined && paymentChainId !== null && paymentChainId !== "") {
+        headers["x-payment-chain-id"] = String(paymentChainId);
+    }
+
     try {
         console.log(`[Agent] Sending request to ${url} with headers Auth: ${headers.Authorization.substring(0, 20)}...`);
         const axiosConfig = {
@@ -103,19 +108,27 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
             // x402 MODE: Handle Blockchain Payment Request
             const details = typeof response.data === "object" && response.data !== null ? response.data : { message: response.data };
 
-            // Override receiver_address with the configured Payment Contract Address
-            // This ensures we pay to the VerifikPayment contract, not the EOA returned by the backend
-            if (config.x402 && config.x402.contractAddress) {
-                details.receiver_address = config.x402.contractAddress;
-                // Also ensure chainId matches
-                details.chain_id = config.x402.chainId;
+            // Trust the middleware's chain-specific values when present, but
+            // backfill from default config so legacy clients still see a
+            // contract + chain id even when the chain registry is unset.
+            if (config.x402) {
+                if (!details.receiver_address && config.x402.contractAddress) {
+                    details.receiver_address = config.x402.contractAddress;
+                }
+                if (details.chainId === undefined && config.x402.chainId !== undefined) {
+                    details.chainId = config.x402.chainId;
+                }
+                // Legacy alias used by some clients
+                if (details.chain_id === undefined && details.chainId !== undefined) {
+                    details.chain_id = details.chainId;
+                }
             }
 
             // Inject VKA Price if missing (Assume parity with USD or use provided price)
             if (!details.priceVka && details.priceUsd) {
                 details.priceVka = details.priceUsd; // 1 VKA = 1 USD (or whatever logic preferred)
             }
-            if (config.x402 && config.x402.vkaContractAddress) {
+            if (!details.vkaContract && config.x402 && config.x402.vkaContractAddress) {
                 details.vkaContract = config.x402.vkaContractAddress;
             }
 
@@ -163,6 +176,9 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
  * @param {string} paymentAmount - Amount paid
  * @param {string} mode - Chat mode: 'x402' | 'credits'
  * @param {string} userToken - User JWT token (optional)
+ * @param {Array} [images]
+ * @param {Object|null} [pendingToolCall]
+ * @param {number|string} [paymentChainId] - EVM chain id the tx was sent on (for multi-chain x402).
  */
 const chatWithAgent = async (
     userMessage,
@@ -174,6 +190,7 @@ const chatWithAgent = async (
     userToken = null,
     images = [],
     pendingToolCall = null,
+    paymentChainId = null,
 ) => {
     // 0. CHECK FOR PENDING TOOL EXECUTION (Payment Confirmation Flow)
     // If we have a paymentTx AND a pendingToolCall, we can skip the LLM entirely and execute the tool directly.
@@ -187,7 +204,15 @@ const chatWithAgent = async (
             console.log(`[Agent] Transaction verified. Executing pending tool: ${pendingToolCall.tool}`);
 
             // 2. Execute Tool directly
-            const toolResult = await executeTool(pendingToolCall.tool, pendingToolCall.args, paymentTx, paymentWallet, paymentAmount, userToken);
+            const toolResult = await executeTool(
+                pendingToolCall.tool,
+                pendingToolCall.args,
+                paymentTx,
+                paymentWallet,
+                paymentAmount,
+                userToken,
+                paymentChainId,
+            );
 
             // If it still requires payment (e.g. partial payment? unlikely but possible), handled same way
             if (toolResult.status === "payment_required") {
@@ -313,7 +338,15 @@ const chatWithAgent = async (
                     }
 
                     // Execute Tool
-                    const toolResult = await executeTool(toolCall.tool, toolCall.args, paymentTx, paymentWallet, paymentAmount, userToken);
+                    const toolResult = await executeTool(
+                        toolCall.tool,
+                        toolCall.args,
+                        paymentTx,
+                        paymentWallet,
+                        paymentAmount,
+                        userToken,
+                        paymentChainId,
+                    );
 
                     // If payment required, return special status to frontend
                     if (toolResult.status === "payment_required") {

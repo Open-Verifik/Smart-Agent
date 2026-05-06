@@ -1,123 +1,267 @@
+/**
+ * Generate `tools-manifest.json` from the canonical Verifik AppFeature dump
+ * (`verifik-backend/scripts/app-features-final.json`).
+ *
+ * Pricing rule:
+ *   priceUsd = smartCheckPrice when present (numeric), else falls back to
+ *   the legacy `price` field, else 0. The agent sits between the user and
+ *   the Verifik API, so it acts as the SmartCheck — pricing must match
+ *   what SmartCheck charges, not the raw legacy `price`.
+ *
+ * Description rule:
+ *   Pull description, country, and per-parameter description straight from
+ *   the source so the agent's prompt + 402 metadata stay aligned with the
+ *   canonical catalog.
+ *
+ * Category rule (Sponge group title, max 128 chars):
+ *   `category = cleanCategory(feature.name, feature.country)` — trim, strip
+ *   legacy `Country · ` prefixes, normalize `world` titles with a `Global - `
+ *   prefix when missing, and for other countries prepend `Country - ` only
+ *   when the label is a short fragment without ` - ` and doesn’t already
+ *   start with the country name (so `USA - …` is not prefixed with
+ *   `United States`).
+ *
+ * Orphans:
+ *   Endpoints currently in the manifest but missing from the source feed
+ *   are preserved (some Smart Agent additions live outside the AppFeature
+ *   collection, e.g. `api_autodata_selection`, `matpis_appointments`,
+ *   `world_api_passport_entries`). Set `DROP_ORPHANS=1` to remove them.
+ *
+ * Usage:
+ *   node scripts/generate-manifest.js
+ *   AGENT_BASE_URL=https://ai.verifik.co/ node scripts/generate-manifest.js
+ *   DROP_ORPHANS=1 node scripts/generate-manifest.js
+ */
+
 const fs = require("fs");
 const path = require("path");
 
-// Configuration
-const SOURCE_PATH = "/Users/miguel/verifik/verifik-backend/scripts/app-features-final.json";
+const SOURCE_PATH = process.env.APP_FEATURES_PATH || "/Users/miguel/verifik/verifik-backend/scripts/app-features-final.json";
 const OUTPUT_PATH = path.resolve(__dirname, "../src/config/tools-manifest.json");
-const AGENT_BASE_URL = "http://localhost:3060/"; // Local x402 Proxy
+/**
+ * Default to the production agent host so the manifest is sharable with
+ * Sponge and other public clients. The runtime proxy ([executeTool](../src/modules/agent.module.js))
+ * still rewrites this to the local x402 port for in-process calls.
+ */
+const AGENT_BASE_URL = process.env.AGENT_BASE_URL || "https://ai.verifik.co/";
+const DROP_ORPHANS = process.env.DROP_ORPHANS === "1" || process.env.DROP_ORPHANS === "true";
 
-console.log("Generating Tools Manifest...");
-console.log(`Source: ${SOURCE_PATH}`);
-console.log(`Target: ${OUTPUT_PATH}`);
+/** Sponge `category` max length */
+const SPONGE_CATEGORY_MAX = 128;
 
-const loadFeatures = () => {
-	try {
-		if (!fs.existsSync(SOURCE_PATH)) {
-			throw new Error(`Source file not found at ${SOURCE_PATH}`);
+/**
+ * @param {string} s
+ * @returns {string}
+ */
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Build a short Sponge-safe group label from AppFeature `name` + `country`.
+ *
+ * @param {string} rawName
+ * @param {string} [country]
+ * @returns {string}
+ */
+const cleanCategory = (rawName, country) => {
+	let name = String(rawName || "").trim();
+	const c = String(country || "").trim();
+	const countryKey = c.toLowerCase();
+
+	if (c.length) {
+		const prefixRe = new RegExp(`^${escapeRegex(c)}\\s*·\\s*`, "i");
+		name = name.replace(prefixRe, "").trim();
+	}
+
+	name = name.replace(/^[\s\-]+/g, "").replace(/[\s\-]+$/g, "").trim();
+
+	if (countryKey === "world") {
+		if (name && !/^global\b/i.test(name)) {
+			name = `Global - ${name}`;
 		}
-		const raw = fs.readFileSync(SOURCE_PATH, "utf8");
+	} else if (c.length && name.length) {
+		const lower = name.toLowerCase();
+		const cLower = c.toLowerCase();
+		const hasCountryHyphenLabel = name.includes(" - ");
+		if (!lower.startsWith(cLower) && !hasCountryHyphenLabel) {
+			name = `${c} - ${name}`;
+		}
+	}
+
+	if (name.length > SPONGE_CATEGORY_MAX) {
+		name = name.slice(0, SPONGE_CATEGORY_MAX);
+	}
+	return name;
+};
+
+const loadJson = (file) => {
+	try {
+		const raw = fs.readFileSync(file, "utf8");
 		return JSON.parse(raw);
 	} catch (e) {
-		console.error("Failed to load source JSON:", e.message);
+		console.error(`Failed to load ${file}:`, e.message);
 		process.exit(1);
 	}
 };
 
+/** @param {string} type */
 const mapType = (type) => {
 	if (!type) return "string";
-	const t = type.toLowerCase();
+	const t = String(type).toLowerCase();
 	if (t === "string") return "string";
 	if (t === "number") return "number";
+	if (t === "integer") return "integer";
 	if (t === "boolean") return "boolean";
+	if (t === "array") return "array";
+	if (t === "object") return "object";
 	return "string";
 };
 
-const generate = () => {
-	const features = loadFeatures();
-	const tools = [];
+/**
+ * Heuristic HTTP method picker. Same rules as before so the generated
+ * manifest doesn't change methods unexpectedly.
+ *
+ * @param {string} relativeUrl
+ * @param {string} name
+ */
+const inferMethod = (relativeUrl, name) => {
+	const urlLower = (relativeUrl || "").toLowerCase();
+	const nameLower = (name || "").toLowerCase();
 
-	// Filter active features
-	// Must be available, not deleted, and have a URL
-	const activeFeatures = features.filter((f) => f.isAvailable === true && f.deleted === false && f.url);
-
-	console.log(`Found ${activeFeatures.length} active features.`);
-
-	for (const f of activeFeatures) {
-		// Construct URL
-		// Endpoint in source might be "v2/co/cedula"
-		// Target: "http://localhost:3060/v2/co/cedula"
-		let relativeUrl = f.url;
-		// Ensure no double slash if url starts with /
-		if (relativeUrl.startsWith("/")) relativeUrl = relativeUrl.substring(1);
-
-		const fullUrl = AGENT_BASE_URL + relativeUrl;
-
-		// Construct Parameters Schema
-		const properties = {};
-		const required = [];
-
-		if (f.dependencies && Array.isArray(f.dependencies)) {
-			for (const dep of f.dependencies) {
-				properties[dep.field] = {
-					type: mapType(dep.type),
-					description: `Parameter: ${dep.field}`, // Default description if none
-				};
-				if (dep.enum && dep.enum.length > 0) {
-					properties[dep.field].enum = dep.enum;
-				}
-				if (dep.required) {
-					required.push(dep.field);
-				}
-			}
-		}
-
-		// Determine Method
-		let method = "POST";
-		const urlLower = relativeUrl.toLowerCase();
-		const nameLower = f.name.toLowerCase();
-
-		if (
-			urlLower.includes("cedula") ||
-			urlLower.includes("vehicle") ||
-			urlLower.includes("vehiculo") ||
-			urlLower.includes("runt") ||
-			urlLower.includes("company") ||
-			urlLower.includes("consultar") ||
-			nameLower.includes("lookup") ||
-			nameLower.includes("check") ||
-			nameLower.includes("verification")
-		) {
-			method = "GET";
-		}
-
-		if (urlLower.includes("upload") || urlLower.includes("liveness") || urlLower.includes("ocr")) {
-			method = "POST";
-		}
-
-		const tool = {
-			id: f.code || f._id, // Use code as ID if available
-			name: f.name,
-			url: fullUrl,
-			method: method, // Dynamic method
-			description: f.description || `Access ${f.name} service for ${f.country || "Global"}`,
-			country: f.country, // Context for Agent
-			priceUsd: f.price || 0, // Price in USD
-			parameters: {
-				type: "object",
-				properties: properties,
-				required: required,
-			},
-		};
-
-		tools.push(tool);
+	if (urlLower.includes("upload") || urlLower.includes("liveness") || urlLower.includes("ocr")) {
+		return "POST";
 	}
-
-	const manifest = {
-		endpoints: tools,
-	};
-
-	fs.writeFileSync(OUTPUT_PATH, JSON.stringify(manifest, null, 2));
-	console.log(`Successfully generated manifest with ${tools.length} tools.`);
+	if (
+		urlLower.includes("cedula") ||
+		urlLower.includes("vehicle") ||
+		urlLower.includes("vehiculo") ||
+		urlLower.includes("runt") ||
+		urlLower.includes("company") ||
+		urlLower.includes("consultar") ||
+		nameLower.includes("lookup") ||
+		nameLower.includes("check") ||
+		nameLower.includes("verification")
+	) {
+		return "GET";
+	}
+	return "POST";
 };
 
-generate();
+/**
+ * @param {any[]} dependencies
+ */
+const buildParameters = (dependencies) => {
+	const properties = {};
+	const required = [];
+	if (!Array.isArray(dependencies)) return { type: "object", properties, required };
+
+	for (const dep of dependencies) {
+		if (!dep || !dep.field) continue;
+		/** @type {{type: string, description: string, enum?: any[], minimum?: number, maximum?: number, default?: any}} */
+		const prop = {
+			type: mapType(dep.type),
+			description: dep.description || `Parameter: ${dep.field}`,
+		};
+
+		if (dep.enum && Array.isArray(dep.enum) && dep.enum.length > 0) {
+			prop.enum = dep.enum;
+		}
+		if (typeof dep.min === "number") prop.minimum = dep.min;
+		if (typeof dep.max === "number") prop.maximum = dep.max;
+		if (dep.default !== undefined && dep.default !== null) prop.default = dep.default;
+
+		properties[dep.field] = prop;
+		if (dep.required) required.push(dep.field);
+	}
+	return { type: "object", properties, required };
+};
+
+/**
+ * @param {any} feature
+ */
+const featureToTool = (feature) => {
+	let relativeUrl = feature.url || "";
+	if (relativeUrl.startsWith("/")) relativeUrl = relativeUrl.substring(1);
+	const fullUrl = AGENT_BASE_URL.replace(/\/$/, "/") + relativeUrl;
+
+	const rawPrice =
+		typeof feature.smartCheckPrice === "number"
+			? feature.smartCheckPrice
+			: typeof feature.price === "number"
+				? feature.price
+				: 0;
+	// Round to 6 decimals (USDC precision) so float-precision artifacts like
+	// 0.21000000000000002 — which show up in the canonical dump for some
+	// computed prices — don't leak into 402 responses or Sponge sync.
+	const priceUsd = Math.round(rawPrice * 1_000_000) / 1_000_000;
+	const category = cleanCategory(feature.name, feature.country);
+
+	return {
+		id: feature.code || feature._id,
+		name: feature.name,
+		category,
+		url: fullUrl,
+		method: inferMethod(relativeUrl, feature.name),
+		description: feature.description || `Access ${feature.name} for ${feature.country || "Global"}`,
+		country: feature.country,
+		priceUsd,
+		parameters: buildParameters(feature.dependencies),
+	};
+};
+
+const main = () => {
+	console.log("Generating Tools Manifest");
+	console.log(`  source:   ${SOURCE_PATH}`);
+	console.log(`  output:   ${OUTPUT_PATH}`);
+	console.log(`  base url: ${AGENT_BASE_URL}`);
+	console.log(`  orphans:  ${DROP_ORPHANS ? "drop" : "preserve"}`);
+
+	const features = loadJson(SOURCE_PATH);
+	const existing = fs.existsSync(OUTPUT_PATH) ? loadJson(OUTPUT_PATH) : { endpoints: [] };
+
+	// `deleted` may be `false` or simply absent on legacy rows; treat both as "not deleted".
+	const active = features.filter((f) => f && f.isAvailable === true && !f.deleted && f.url);
+	console.log(`Active features in source: ${active.length}`);
+
+	const tools = active.map(featureToTool);
+	const generatedIds = new Set(tools.map((t) => t.id));
+
+	const orphans = (existing.endpoints || []).filter((e) => e && e.id && !generatedIds.has(e.id));
+	if (orphans.length) {
+		if (DROP_ORPHANS) {
+			console.log(`Dropping ${orphans.length} orphan endpoints (set by env):`);
+			orphans.forEach((o) => console.log(`  - ${o.id}`));
+		} else {
+			console.log(`Preserving ${orphans.length} orphan endpoints (no source feature):`);
+			orphans.forEach((o) => console.log(`  - ${o.id}`));
+			for (const o of orphans) {
+				const merged = {
+					...o,
+					category: cleanCategory(o.name || o.category || String(o.id || ""), o.country),
+				};
+				tools.push(merged);
+			}
+		}
+	}
+
+	const manifest = { endpoints: tools };
+	fs.writeFileSync(OUTPUT_PATH, JSON.stringify(manifest, null, "\t") + "\n");
+	console.log(`Wrote ${tools.length} tools.`);
+
+	// Drift summary vs the previous manifest, scoped to ids present in both.
+	const prevById = new Map((existing.endpoints || []).map((e) => [e.id, e]));
+	let priceChanged = 0;
+	let descChanged = 0;
+	let categoryChanged = 0;
+	for (const t of tools) {
+		const prev = prevById.get(t.id);
+		if (!prev) continue;
+		if (Number(prev.priceUsd) !== Number(t.priceUsd)) priceChanged++;
+		if ((prev.description || "") !== (t.description || "")) descChanged++;
+		if ((prev.category || "") !== (t.category || "")) categoryChanged++;
+	}
+	console.log(
+		`Drift vs previous manifest: priceUsd changed=${priceChanged}, description changed=${descChanged}, category changed=${categoryChanged}`
+	);
+};
+
+main();

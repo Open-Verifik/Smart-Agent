@@ -16,14 +16,28 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     console.log(`[Config] GOOGLE_APPLICATION_CREDENTIALS loaded: ${process.env.GOOGLE_APPLICATION_CREDENTIALS.substring(0, 50)}...`);
 }
 
-const defaultX402Rpc =
-    process.env.X402_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc";
+const { CHAINS, DEFAULT_CHAIN_ID, ACTIVE_CHAIN_IDS, getChain } = require("./chains");
+
+const defaultChain = getChain(DEFAULT_CHAIN_ID) || CHAINS[43114];
+const defaultX402Rpc = process.env.X402_RPC_URL || defaultChain.rpcUrl;
+
+/** Origin for OpenAPI `servers` and discovery (no trailing path). Use PUBLIC_ORIGIN or AGENT_BASE_URL in production. */
+const publicOrigin = (() => {
+    const raw = process.env.PUBLIC_ORIGIN || process.env.AGENT_BASE_URL || `http://127.0.0.1:${process.env.PORT || 3060}`;
+    try {
+        return new URL(raw).origin;
+    } catch {
+        return String(raw).replace(/\/$/, "");
+    }
+})();
 
 const config = {
     env: process.env.NODE_ENV || "development",
     port: process.env.PORT || 3060,
-    /** RPC for read-only balance proxy (AVAX + ERC-20); falls back to X402_RPC_URL */
-    chainReadRpcUrl: process.env.AVALANCHE_C_CHAIN_RPC_URL || defaultX402Rpc,
+    publicOrigin,
+    /** RPC for read-only balance proxy on the default chain; falls back to X402_RPC_URL */
+    chainReadRpcUrl:
+        process.env.AVALANCHE_C_CHAIN_RPC_URL || process.env.X402_RPC_URL || defaultChain.rpcUrl,
     verifik: {
         apiUrl: process.env.VERIFIK_API_URL,
         serviceToken: process.env.VERIFIK_SERVICE_TOKEN,
@@ -33,12 +47,17 @@ const config = {
         keyFilePath: process.env.GOOGLE_APPLICATION_CREDENTIALS,
     },
     x402: {
+        /** Default chain — kept for backwards compatibility with single-chain consumers. */
         rpcUrl: defaultX402Rpc,
-        chainId: process.env.X402_CHAIN_ID || 43113,
-        networkName: process.env.X402_NETWORK_NAME || "avalanche-fuji-testnet",
+        chainId: defaultChain.chainId,
+        networkName: process.env.X402_NETWORK_NAME || defaultChain.networkName,
         walletPrivateKey: process.env.X402_WALLET_PRIVATE_KEY,
-        contractAddress: process.env.X402_CONTRACT_ADDRESS || "0x72Fdce477bBD9f322907b3b1C4a58bC4d5D64C3a",
-        vkaContractAddress: process.env.VKA_CONTRACT_ADDRESS,
+        contractAddress: process.env.X402_CONTRACT_ADDRESS || defaultChain.paymentContract,
+        vkaContractAddress: process.env.VKA_CONTRACT_ADDRESS || defaultChain.vkaTokenAddress,
+        /** Multi-chain registry — see config/chains.js */
+        chains: CHAINS,
+        activeChainIds: ACTIVE_CHAIN_IDS,
+        defaultChainId: defaultChain.chainId,
     },
     erc8004: {
         identityRegistry: process.env.ERC8004_IDENTITY_REGISTRY,

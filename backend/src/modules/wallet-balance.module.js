@@ -1,26 +1,51 @@
 const { ethers } = require("ethers");
 const config = require("../config");
+const { getChain, isChainActive } = require("../config/chains");
 
 const DEFAULT_MAINNET_VKA = "0x8fc4b00689812f449723CB473E0A7C060b10eD3f";
 
-let provider = null;
+/** @type {Map<number, ethers.JsonRpcProvider>} */
+const providerCache = new Map();
 
 /**
+ * Resolve a JSON-RPC provider for the requested chain. When `chainId` is
+ * unspecified, falls back to the legacy single-chain config so existing
+ * single-chain deployments keep working.
+ *
+ * @param {number|string} [chainId]
  * @returns {ethers.JsonRpcProvider}
  */
-const getProvider = () => {
-    if (!provider) {
-        provider = new ethers.JsonRpcProvider(config.chainReadRpcUrl);
+const getProvider = (chainId) => {
+    if (chainId !== undefined && chainId !== null && chainId !== "") {
+        const chain = getChain(chainId);
+        if (!chain || !isChainActive(chain.chainId)) {
+            const e = new Error("Chain not active");
+            e.code = "InvalidChainId";
+            throw e;
+        }
+        let p = providerCache.get(chain.chainId);
+        if (!p) {
+            p = new ethers.JsonRpcProvider(chain.rpcUrl);
+            providerCache.set(chain.chainId, p);
+        }
+        return p;
     }
-    return provider;
+    const fallbackKey = "default";
+    let p = providerCache.get(fallbackKey);
+    if (!p) {
+        p = new ethers.JsonRpcProvider(config.chainReadRpcUrl);
+        providerCache.set(fallbackKey, p);
+    }
+    return p;
 };
 
 /**
  * @param {string} walletAddress
  * @param {string} [tokenAddress]
- * @returns {Promise<{ walletAddress: string, nativeBalance: string, tokenAddress: string, tokenBalance: string }>}
+ * @param {number|string} [chainId]
+ * @returns {Promise<{ walletAddress: string, nativeBalance: string, tokenAddress: string, tokenBalance: string, chainId: number }>}
  */
-const getBalances = async (walletAddress, tokenAddress) => {
+const getBalances = async (walletAddress, tokenAddress, chainId) => {
     if (!walletAddress) {
         const e = new Error("walletAddress is required");
         e.code = "InvalidAddress";
@@ -33,7 +58,9 @@ const getBalances = async (walletAddress, tokenAddress) => {
     }
 
     const wallet = ethers.getAddress(walletAddress);
-    let token = tokenAddress || config.x402.vkaContractAddress || DEFAULT_MAINNET_VKA;
+    const chain = chainId ? getChain(chainId) : null;
+    const fallbackVka = chain?.vkaTokenAddress || config.x402.vkaContractAddress || DEFAULT_MAINNET_VKA;
+    let token = tokenAddress || fallbackVka;
     if (!ethers.isAddress(token)) {
         const e = new Error("Invalid token address");
         e.code = "InvalidAddress";
@@ -41,7 +68,7 @@ const getBalances = async (walletAddress, tokenAddress) => {
     }
     token = ethers.getAddress(token);
 
-    const p = getProvider();
+    const p = getProvider(chainId);
     const nativeWei = await p.getBalance(wallet);
     const nativeBalance = ethers.formatEther(nativeWei);
 
@@ -58,6 +85,7 @@ const getBalances = async (walletAddress, tokenAddress) => {
         nativeBalance,
         tokenAddress: token,
         tokenBalance,
+        chainId: chain ? chain.chainId : Number(config.x402.defaultChainId) || 0,
     };
 };
 
