@@ -178,8 +178,53 @@ module.exports = async (ctx, next) => {
               }
             : null;
 
+        // Build canonical x402 v1 `accepts` entries (one per accepted asset per active chain).
+        // Required fields per x402scan / @agentcash/discovery v1 schema:
+        //   scheme, network, maxAmountRequired, resource, description, payTo,
+        //   maxTimeoutSeconds, asset
+        const resource = `${config.publicOrigin}${ctx.path}`;
+        const canonicalAccepts = [];
+        for (const c of listAcceptedChains()) {
+            const target = c.paymentContract || agentAddress;
+            if (!target) continue;
+            // Native asset entry (AVAX, ETH, OKB, …)
+            canonicalAccepts.push({
+                scheme: "exact",
+                network: c.networkName,
+                maxAmountRequired: (() => {
+                    try { return ethers.parseEther(requiredNativeStr).toString(); } catch { return "0"; }
+                })(),
+                resource,
+                description: `Pay ${requiredNativeStr} ${c.nativeSymbol} (~$${requiredPriceUsd})`,
+                payTo: target,
+                maxTimeoutSeconds: 300,
+                asset: c.nativeSymbol,
+            });
+            // USDC entry
+            if (c.usdcAddress) {
+                canonicalAccepts.push({
+                    scheme: "exact",
+                    network: c.networkName,
+                    maxAmountRequired: ethers.parseUnits(
+                        requiredPriceUsd.toFixed(c.usdcDecimals || 6),
+                        c.usdcDecimals || 6
+                    ).toString(),
+                    resource,
+                    description: `Pay ${requiredPriceUsd.toFixed(2)} USDC`,
+                    payTo: target,
+                    maxTimeoutSeconds: 300,
+                    asset: c.usdcAddress,
+                    extra: { name: "USDC", decimals: c.usdcDecimals || 6 },
+                });
+            }
+        }
+
         ctx.body = {
-            error: "Payment Required",
+            // ── canonical x402 v1 fields (required by x402scan / discovery) ──
+            x402Version: 1,
+            error: "X-PAYMENT-TX header is required",
+            accepts: canonicalAccepts,
+            // ── legacy / frontend convenience fields ──
             price: `${requiredNativeStr} ${chain.nativeSymbol}`,
             priceUsd: requiredPriceUsd,
             wallet: paymentTarget || "Server Configuration Error: No Payment Target",

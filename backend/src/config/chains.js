@@ -208,6 +208,7 @@ const listAcceptedChains = () =>
         hex: c.hex,
         key: c.key,
         name: c.name,
+        networkName: c.networkName,
         nativeSymbol: c.nativeSymbol,
         isTestnet: c.isTestnet,
         paymentContract: c.paymentContract,
