@@ -26,3 +26,4 @@ fs.writeFileSync(path.join(frontendPublic, "openapi.json"), `${JSON.stringify(sp
 fs.writeFileSync(path.join(wellKnownDir, "x402"), `${JSON.stringify(wellKnown, null, 2)}\n`, "utf8");
 
 console.log(`sync-discovery: wrote frontend/public/openapi.json and .well-known/x402 (servers.url=${publicOrigin})`);
+console.log(`sync-discovery: ai.verifik.co serves discovery from the Angular build output — run "cd frontend && npm run build" so dist/browser/ picks up these files (prebuild re-runs this script).`);
