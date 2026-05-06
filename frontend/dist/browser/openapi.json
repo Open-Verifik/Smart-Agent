@@ -18,7 +18,7 @@
     }
   ],
   "paths": {
-    "/v2/dea": {
+    "/api/dea": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -130,7 +130,7 @@
         ]
       }
     },
-    "/v2/usa/vehicle": {
+    "/api/usa/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -239,7 +239,7 @@
         ]
       }
     },
-    "/v2/co/simit/acuerdos": {
+    "/api/co/simit/acuerdos": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -307,7 +307,7 @@
         }
       }
     },
-    "/v2/co/runt/conductor": {
+    "/api/co/runt/conductor": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -371,7 +371,7 @@
         ]
       }
     },
-    "/v2/co/registraduria/votacion": {
+    "/api/co/registraduria/votacion": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -419,7 +419,7 @@
         ]
       }
     },
-    "/v2/co/runt/vehiculo": {
+    "/api/co/runt/vehiculo": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -492,7 +492,7 @@
         ]
       }
     },
-    "/v2/co/simit/suspensiones": {
+    "/api/co/simit/suspensiones": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -560,7 +560,7 @@
         }
       }
     },
-    "/v2/cl/vehicle": {
+    "/api/cl/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -608,7 +608,7 @@
         ]
       }
     },
-    "/v2/co/runt/vehicle-by-vin": {
+    "/api/co/runt/vehicle-by-vin": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -656,7 +656,7 @@
         ]
       }
     },
-    "/v2/br/cedula": {
+    "/api/br/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -725,7 +725,7 @@
         ]
       }
     },
-    "/v2/communication/email": {
+    "/api/communication/email": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -781,7 +781,7 @@
         }
       }
     },
-    "/v2/co/cedula": {
+    "/api/co/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -843,7 +843,7 @@
         ]
       }
     },
-    "/v2/co/cedula/rethus": {
+    "/api/co/cedula/rethus": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -903,7 +903,7 @@
         ]
       }
     },
-    "/v2/co/contraloria/certificado": {
+    "/api/co/contraloria/certificado": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -971,7 +971,7 @@
         }
       }
     },
-    "/v2/ve/cedula": {
+    "/api/ve/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1031,7 +1031,7 @@
         ]
       }
     },
-    "/v2/mx/vehiculo/placa": {
+    "/api/mx/vehiculo/placa": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1079,7 +1079,7 @@
         ]
       }
     },
-    "/v2/interpol": {
+    "/api/interpol": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1191,7 +1191,7 @@
         ]
       }
     },
-    "/v2/ofac": {
+    "/api/ofac": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1303,7 +1303,7 @@
         ]
       }
     },
-    "/v2/mx/curp": {
+    "/api/mx/curp": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1363,7 +1363,7 @@
         ]
       }
     },
-    "/v2/pe/vehiculo/placa": {
+    "/api/pe/vehiculo/placa": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1411,7 +1411,7 @@
         ]
       }
     },
-    "/v2/pe/vehiculo/soat": {
+    "/api/pe/vehiculo/soat": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1459,7 +1459,7 @@
         ]
       }
     },
-    "/v2/co/procuraduria/antecedentes": {
+    "/api/co/procuraduria/antecedentes": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1521,7 +1521,7 @@
         ]
       }
     },
-    "/v2/cr/cedula": {
+    "/api/cr/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1581,7 +1581,7 @@
         ]
       }
     },
-    "/v2/cl/company": {
+    "/api/cl/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1641,7 +1641,7 @@
         ]
       }
     },
-    "/v2/ec/vehiculo/placa/multas": {
+    "/api/ec/vehiculo/placa/multas": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1689,7 +1689,7 @@
         ]
       }
     },
-    "/v2/co/simit/comparendo": {
+    "/api/co/simit/comparendo": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -1767,7 +1767,7 @@
         }
       }
     },
-    "/v2/br/company": {
+    "/api/br/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1827,7 +1827,7 @@
         ]
       }
     },
-    "/v2/co/company/dian/invoicer": {
+    "/api/co/company/dian/invoicer": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1887,7 +1887,7 @@
         ]
       }
     },
-    "/v2/co/contracts": {
+    "/api/co/contracts": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -1957,7 +1957,7 @@
         ]
       }
     },
-    "/v2/co/policia/rnmc": {
+    "/api/co/policia/rnmc": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2029,7 +2029,7 @@
         ]
       }
     },
-    "/v2/co/company/dian": {
+    "/api/co/company/dian": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2089,7 +2089,7 @@
         ]
       }
     },
-    "/v2/co/rama/proceso": {
+    "/api/co/rama/proceso": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -2145,7 +2145,7 @@
         }
       }
     },
-    "/v2/co/simit/resoluciones": {
+    "/api/co/simit/resoluciones": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -2213,7 +2213,7 @@
         }
       }
     },
-    "/v2/co/afiliaciones": {
+    "/api/co/afiliaciones": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -2285,7 +2285,7 @@
         }
       }
     },
-    "/v2/co/registraduria/certificado": {
+    "/api/co/registraduria/certificado": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2354,7 +2354,7 @@
         ]
       }
     },
-    "/v2/co/deudoresmorosos": {
+    "/api/co/deudoresmorosos": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -2420,7 +2420,7 @@
         }
       }
     },
-    "/v2/ec/cedula": {
+    "/api/ec/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2468,7 +2468,7 @@
         ]
       }
     },
-    "/v2/ec/vehiculo/placa": {
+    "/api/ec/vehiculo/placa": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2516,7 +2516,7 @@
         ]
       }
     },
-    "/v2/co/simit/consultar": {
+    "/api/co/simit/consultar": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2581,7 +2581,7 @@
         ]
       }
     },
-    "/v2/europol": {
+    "/api/europol": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2693,7 +2693,7 @@
         ]
       }
     },
-    "/v2/co/rama/procesos": {
+    "/api/co/rama/procesos": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -2758,7 +2758,7 @@
         }
       }
     },
-    "/v2/pa/cedula": {
+    "/api/pa/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2827,7 +2827,7 @@
         ]
       }
     },
-    "/v2/es/cedula": {
+    "/api/es/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2897,7 +2897,7 @@
         ]
       }
     },
-    "/v2/usa/florida/driver-license": {
+    "/api/usa/florida/driver-license": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -2945,7 +2945,7 @@
         ]
       }
     },
-    "/v2/communication/whatsapp": {
+    "/api/communication/whatsapp": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -3011,7 +3011,7 @@
         }
       }
     },
-    "/v2/br/vehicle": {
+    "/api/br/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3059,7 +3059,7 @@
         ]
       }
     },
-    "/v2/ar/cedula": {
+    "/api/ar/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3119,7 +3119,7 @@
         ]
       }
     },
-    "/v2/ec/company": {
+    "/api/ec/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3179,7 +3179,7 @@
         ]
       }
     },
-    "/v2/co/situacion-militar": {
+    "/api/co/situacion-militar": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -3243,7 +3243,7 @@
         }
       }
     },
-    "/v2/onu": {
+    "/api/onu": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3355,7 +3355,7 @@
         ]
       }
     },
-    "/v2/co/sena/certificados": {
+    "/api/co/sena/certificados": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -3424,7 +3424,7 @@
         }
       }
     },
-    "/v2/fbi": {
+    "/api/fbi": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3536,7 +3536,7 @@
         ]
       }
     },
-    "/v2/co/vehiculo/pico-y-placa": {
+    "/api/co/vehiculo/pico-y-placa": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3584,7 +3584,7 @@
         ]
       }
     },
-    "/v2/cl/cedula": {
+    "/api/cl/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3644,7 +3644,7 @@
         ]
       }
     },
-    "/v2/co/runt/vehicle-by-plate": {
+    "/api/co/runt/vehicle-by-plate": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3716,7 +3716,7 @@
         ]
       }
     },
-    "/v2/co/rama/abogados": {
+    "/api/co/rama/abogados": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3778,7 +3778,7 @@
         ]
       }
     },
-    "/v2/ip-lookup": {
+    "/api/ip-lookup": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3826,7 +3826,7 @@
         ]
       }
     },
-    "/v2/communication/sms": {
+    "/api/communication/sms": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -3892,7 +3892,7 @@
         }
       }
     },
-    "/v2/usa/ssn": {
+    "/api/usa/ssn": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -3940,7 +3940,7 @@
         ]
       }
     },
-    "/v2/co/cedula/extra": {
+    "/api/co/cedula/extra": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4009,7 +4009,7 @@
         ]
       }
     },
-    "/v2/credit-intents/kyc-passwordless": {
+    "/api/credit-intents/kyc-passwordless": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4058,7 +4058,7 @@
         }
       }
     },
-    "/v2/co/politically-exposed-persons": {
+    "/api/co/politically-exposed-persons": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4118,7 +4118,7 @@
         ]
       }
     },
-    "/v2/bo/cedula": {
+    "/api/bo/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4187,7 +4187,7 @@
         ]
       }
     },
-    "/v2/cl/driver-license": {
+    "/api/cl/driver-license": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4243,7 +4243,7 @@
         }
       }
     },
-    "/v2/co/sisconmp/trainings": {
+    "/api/co/sisconmp/trainings": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4304,7 +4304,7 @@
         ]
       }
     },
-    "/v2/co/runt/vehicle-by-plate-simplified": {
+    "/api/co/runt/vehicle-by-plate-simplified": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4377,7 +4377,7 @@
         ]
       }
     },
-    "/v2/ca/ontario/driver-license": {
+    "/api/ca/ontario/driver-license": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4433,7 +4433,7 @@
         }
       }
     },
-    "/v2/ca/quebec/driver-license": {
+    "/api/ca/quebec/driver-license": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4489,7 +4489,7 @@
         }
       }
     },
-    "/v2/ocr/scan-pro": {
+    "/api/ocr/scan-pro": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4555,7 +4555,7 @@
         }
       }
     },
-    "/v2/ocr/scan-gpt": {
+    "/api/ocr/scan-gpt": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4619,7 +4619,7 @@
         }
       }
     },
-    "/v2/sv/dui": {
+    "/api/sv/dui": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4676,7 +4676,7 @@
         ]
       }
     },
-    "/v2/py/cic": {
+    "/api/py/cic": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4724,7 +4724,7 @@
         ]
       }
     },
-    "/v2/ca/british-columbia/driver-license": {
+    "/api/ca/british-columbia/driver-license": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4785,7 +4785,7 @@
         }
       }
     },
-    "/v2/co/foreigner-id/ce": {
+    "/api/co/foreigner-id/ce": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4842,7 +4842,7 @@
         ]
       }
     },
-    "/v2/co/foreigner-id/pep": {
+    "/api/co/foreigner-id/pep": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -4899,7 +4899,7 @@
         ]
       }
     },
-    "/v2/ocr/scan-studio": {
+    "/api/ocr/scan-studio": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -4963,7 +4963,7 @@
         }
       }
     },
-    "/v2/ca/company": {
+    "/api/ca/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -5029,7 +5029,7 @@
         ]
       }
     },
-    "/v2/face-recognition/search-live-face": {
+    "/api/face-recognition/search-live-face": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5109,7 +5109,7 @@
         }
       }
     },
-    "/v2/face-recognition/compare": {
+    "/api/face-recognition/compare": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5175,7 +5175,7 @@
         }
       }
     },
-    "/v2/face-recognition/compare-live": {
+    "/api/face-recognition/compare-live": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5251,7 +5251,7 @@
         }
       }
     },
-    "/v2/face-recognition/liveness": {
+    "/api/face-recognition/liveness": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5312,7 +5312,7 @@
         }
       }
     },
-    "/v2/face-recognition/verify": {
+    "/api/face-recognition/verify": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -5387,7 +5387,7 @@
         ]
       }
     },
-    "/v2/face-recognition/detect": {
+    "/api/face-recognition/detect": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5461,7 +5461,7 @@
         }
       }
     },
-    "/v2/face-recognition/search/crops": {
+    "/api/face-recognition/search/crops": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5535,7 +5535,7 @@
         }
       }
     },
-    "/v2/face-recognition/search": {
+    "/api/face-recognition/search": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5609,7 +5609,7 @@
         }
       }
     },
-    "/v2/mx/company": {
+    "/api/mx/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -5669,7 +5669,7 @@
         ]
       }
     },
-    "/v2/co/fasecolda/values-by-plate": {
+    "/api/co/fasecolda/values-by-plate": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5725,7 +5725,7 @@
         }
       }
     },
-    "/v2/co/fasecolda/values-by-code": {
+    "/api/co/fasecolda/values-by-code": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5781,7 +5781,7 @@
         }
       }
     },
-    "/v2/co/simit/consultar/placa": {
+    "/api/co/simit/consultar/placa": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -5829,7 +5829,7 @@
         ]
       }
     },
-    "/v2/ar/vehicle": {
+    "/api/ar/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -5877,7 +5877,7 @@
         ]
       }
     },
-    "/v2/usa/company": {
+    "/api/usa/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -5925,7 +5925,7 @@
         ]
       }
     },
-    "/v2/usa/kansas/driver-license": {
+    "/api/usa/kansas/driver-license": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -5996,7 +5996,7 @@
         }
       }
     },
-    "/v2/co/fasecolda/sinister": {
+    "/api/co/fasecolda/sinister": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -6052,7 +6052,7 @@
         }
       }
     },
-    "/v2/br/background-check": {
+    "/api/br/background-check": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -6121,7 +6121,7 @@
         }
       }
     },
-    "/v2/cr/company": {
+    "/api/cr/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6181,7 +6181,7 @@
         ]
       }
     },
-    "/v2/ar/company": {
+    "/api/ar/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6241,7 +6241,7 @@
         ]
       }
     },
-    "/v2/bo/company": {
+    "/api/bo/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6301,7 +6301,7 @@
         ]
       }
     },
-    "/v2/co/bogota/vehicle/accidentality": {
+    "/api/co/bogota/vehicle/accidentality": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6349,7 +6349,7 @@
         ]
       }
     },
-    "/v2/co/bogota/vehicle/tax": {
+    "/api/co/bogota/vehicle/tax": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6419,7 +6419,7 @@
         ]
       }
     },
-    "/v2/co/rama/certificado/vigencia": {
+    "/api/co/rama/certificado/vigencia": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6495,7 +6495,7 @@
         ]
       }
     },
-    "/v2/co/rama/juzgado/expedientes": {
+    "/api/co/rama/juzgado/expedientes": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -6582,7 +6582,7 @@
         }
       }
     },
-    "/v2/py/company": {
+    "/api/py/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6642,7 +6642,7 @@
         ]
       }
     },
-    "/v2/cl/validate/documents": {
+    "/api/cl/validate/documents": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -6712,7 +6712,7 @@
         }
       }
     },
-    "/v2/cl/taxpayer": {
+    "/api/cl/taxpayer": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6772,7 +6772,7 @@
         ]
       }
     },
-    "/v2/py/vehicle": {
+    "/api/py/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6820,7 +6820,7 @@
         ]
       }
     },
-    "/v2/cr/vehicle": {
+    "/api/cr/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6868,7 +6868,7 @@
         ]
       }
     },
-    "/v2/usa/vehicle-by-vin": {
+    "/api/usa/vehicle-by-vin": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6916,7 +6916,7 @@
         ]
       }
     },
-    "/v2/gt/cedula": {
+    "/api/gt/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -6976,7 +6976,7 @@
         ]
       }
     },
-    "/v2/co/medellin/vehicle/fines": {
+    "/api/co/medellin/vehicle/fines": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7024,7 +7024,7 @@
         ]
       }
     },
-    "/v2/co/bogota/vehicle/fines": {
+    "/api/co/bogota/vehicle/fines": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7072,7 +7072,7 @@
         ]
       }
     },
-    "/v2/hn/cedula": {
+    "/api/hn/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7132,7 +7132,7 @@
         ]
       }
     },
-    "/v2/do/cedula": {
+    "/api/do/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7192,7 +7192,7 @@
         ]
       }
     },
-    "/v2/ve/foreigner-id": {
+    "/api/ve/foreigner-id": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7240,7 +7240,7 @@
         ]
       }
     },
-    "/v2/bo/vehicle": {
+    "/api/bo/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7288,7 +7288,7 @@
         ]
       }
     },
-    "/v2/uy/cedula": {
+    "/api/uy/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7357,7 +7357,7 @@
         ]
       }
     },
-    "/v2/es/company": {
+    "/api/es/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7417,7 +7417,7 @@
         ]
       }
     },
-    "/v2/pa/company": {
+    "/api/pa/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7486,7 +7486,7 @@
         ]
       }
     },
-    "/v2/pe/foreigner-id/ce": {
+    "/api/pe/foreigner-id/ce": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7543,7 +7543,7 @@
         ]
       }
     },
-    "/v3/co/rues-complete": {
+    "/api/v3/co/rues-complete": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7622,7 +7622,7 @@
         ]
       }
     },
-    "/v3/co/rues": {
+    "/api/v3/co/rues": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7701,7 +7701,7 @@
         ]
       }
     },
-    "/v3/pe/cedula/extra": {
+    "/api/v3/pe/cedula/extra": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7761,7 +7761,7 @@
         ]
       }
     },
-    "/v3/pe/cedula": {
+    "/api/v3/pe/cedula": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7821,7 +7821,7 @@
         ]
       }
     },
-    "/v2/co/foreigner-id/ppt": {
+    "/api/co/foreigner-id/ppt": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7878,7 +7878,7 @@
         ]
       }
     },
-    "/v3/co/ministerio-de-trabajo/certificados": {
+    "/api/v3/co/ministerio-de-trabajo/certificados": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -7942,7 +7942,7 @@
         ]
       }
     },
-    "/v2/co/sisben": {
+    "/api/co/sisben": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -8006,7 +8006,7 @@
         ]
       }
     },
-    "/v2/face-recognition/face-validation": {
+    "/api/face-recognition/face-validation": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8062,7 +8062,7 @@
         }
       }
     },
-    "/v3/pe/company": {
+    "/api/v3/pe/company": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -8122,7 +8122,7 @@
         ]
       }
     },
-    "/document-liveness": {
+    "/api/document-liveness": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8171,7 +8171,7 @@
         }
       }
     },
-    "/v2/credit-intents": {
+    "/api/credit-intents": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8231,7 +8231,7 @@
         }
       }
     },
-    "/v2/face-recognition/search-active-user": {
+    "/api/face-recognition/search-active-user": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8306,7 +8306,7 @@
         }
       }
     },
-    "/v2/es/vehicle": {
+    "/api/es/vehicle": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -8354,7 +8354,7 @@
         ]
       }
     },
-    "/v2/co/sigep/name": {
+    "/api/co/sigep/name": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8410,7 +8410,7 @@
         }
       }
     },
-    "/v2/co/sigep/number": {
+    "/api/co/sigep/number": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -8471,7 +8471,7 @@
         ]
       }
     },
-    "/v2/co/inpec": {
+    "/api/co/inpec": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8540,7 +8540,7 @@
         }
       }
     },
-    "/v2/zelf-proof/encrypt": {
+    "/api/zelf-proof/encrypt": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8589,7 +8589,7 @@
         }
       }
     },
-    "/v2/zelf-proof/encrypt-with-liveness-active-user": {
+    "/api/zelf-proof/encrypt-with-liveness-active-user": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8638,7 +8638,7 @@
         }
       }
     },
-    "/v2/gt/cedula/extra": {
+    "/api/gt/cedula/extra": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -8698,7 +8698,7 @@
         ]
       }
     },
-    "/v2/in/epic": {
+    "/api/in/epic": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8762,7 +8762,7 @@
         }
       }
     },
-    "/v2/in/epic/votacion": {
+    "/api/in/epic/votacion": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8826,7 +8826,7 @@
         }
       }
     },
-    "/v2/co/bogota/taxi-drivers/plate": {
+    "/api/co/bogota/taxi-drivers/plate": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8884,7 +8884,7 @@
         }
       }
     },
-    "/v2/co/bogota/taxi-drivers/card": {
+    "/api/co/bogota/taxi-drivers/card": {
       "post": {
         "tags": [
           "VerifikProxy"
@@ -8942,7 +8942,7 @@
         }
       }
     },
-    "/v2/co/cedula/premium": {
+    "/api/co/cedula/premium": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -8990,7 +8990,7 @@
         ]
       }
     },
-    "/v2/co/policia/consultar": {
+    "/api/co/policia/consultar": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -9051,7 +9051,7 @@
         ]
       }
     },
-    "/v2/autodata/selection": {
+    "/api/autodata/selection": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -9099,7 +9099,7 @@
         ]
       }
     },
-    "/v2/co/runt/propietarios": {
+    "/api/co/runt/propietarios": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -9147,7 +9147,7 @@
         ]
       }
     },
-    "/v2/appointments": {
+    "/api/appointments": {
       "get": {
         "tags": [
           "VerifikProxy"
@@ -9207,7 +9207,7 @@
         ]
       }
     },
-    "/v2/passport/us/entries": {
+    "/api/passport/us/entries": {
       "get": {
         "tags": [
           "VerifikProxy"
