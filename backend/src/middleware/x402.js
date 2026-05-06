@@ -296,7 +296,8 @@ module.exports = async (ctx, next) => {
             agentAddress,
         });
 
-        ctx.body = {
+        /** Coinbase / AgentCash v2 core (no legacy wallet fields). */
+        const v2Core = {
             x402Version: 2,
             error: "X-PAYMENT-TX header is required",
             resource: {
@@ -312,6 +313,18 @@ module.exports = async (ctx, next) => {
                     schema: buildBazaarExtensionsSchema(ctx.method, acceptOutputSchema),
                 },
             },
+        };
+
+        // Probers (x402scan / @agentcash/discovery) read `Payment-Required` as base64 UTF-8
+        // JSON for x402 v2. The JSON-body fallback only accepts x402Version 1, so without
+        // this header a valid v2 body is ignored and reported as "no valid x402 response".
+        ctx.set(
+            "Payment-Required",
+            Buffer.from(JSON.stringify(v2Core), "utf8").toString("base64"),
+        );
+
+        ctx.body = {
+            ...v2Core,
             // ── legacy / frontend convenience fields ──
             price: `${requiredNativeStr} ${chain.nativeSymbol}`,
             priceUsd: requiredPriceUsd,
