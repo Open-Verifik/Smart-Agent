@@ -87,6 +87,36 @@ const computeUsdcAmount = (priceUsd, chain) => {
     return { amountUnits, amountStr };
 };
 
+/**
+ * x402 v1: tools such as x402scan / @agentcash/discovery read request/response
+ * JSON Schema from `accepts[0].outputSchema` (fields `input` and `output`).
+ * OpenAPI alone does not satisfy strict validation for the 402 probe body.
+ *
+ * @param {{ parameters?: object } | null | undefined} tool Manifest endpoint or null
+ * @returns {{ input: object, output: object }}
+ */
+const buildAcceptOutputSchema = (tool) => {
+    const fallbackInput = {
+        type: "object",
+        properties: {},
+        additionalProperties: true,
+        description: "Request parameters; see /openapi.json for this path and method.",
+    };
+    const input =
+        tool &&
+            tool.parameters &&
+            typeof tool.parameters === "object" &&
+            tool.parameters.type === "object"
+            ? tool.parameters
+            : fallbackInput;
+    const output = {
+        type: "object",
+        description: "Verifik API JSON response (typically data and signature).",
+        additionalProperties: true,
+    };
+    return { input, output };
+};
+
 module.exports = async (ctx, next) => {
     if (ctx.method === "OPTIONS") return next();
 
@@ -172,10 +202,10 @@ module.exports = async (ctx, next) => {
         // Compute USDC amount for clients that prefer paying in stablecoin.
         const usdcDetails = chain.usdcAddress
             ? {
-                  usdcAddress: chain.usdcAddress,
-                  usdcDecimals: chain.usdcDecimals,
-                  priceUsdc: requiredPriceUsd.toFixed(chain.usdcDecimals || 6),
-              }
+                usdcAddress: chain.usdcAddress,
+                usdcDecimals: chain.usdcDecimals,
+                priceUsdc: requiredPriceUsd.toFixed(chain.usdcDecimals || 6),
+            }
             : null;
 
         // Build canonical x402 v1 `accepts` entries (one per accepted asset per active chain).
@@ -183,6 +213,7 @@ module.exports = async (ctx, next) => {
         //   scheme, network, maxAmountRequired, resource, description, payTo,
         //   maxTimeoutSeconds, asset
         const resource = `${config.publicOrigin}${ctx.path}`;
+        const acceptOutputSchema = buildAcceptOutputSchema(matchedTool);
         const canonicalAccepts = [];
         for (const c of listAcceptedChains()) {
             const target = c.paymentContract || agentAddress;
@@ -199,6 +230,7 @@ module.exports = async (ctx, next) => {
                 payTo: target,
                 maxTimeoutSeconds: 300,
                 asset: c.nativeSymbol,
+                outputSchema: acceptOutputSchema,
             });
             // USDC entry
             if (c.usdcAddress) {
@@ -215,6 +247,7 @@ module.exports = async (ctx, next) => {
                     maxTimeoutSeconds: 300,
                     asset: c.usdcAddress,
                     extra: { name: "USDC", decimals: c.usdcDecimals || 6 },
+                    outputSchema: acceptOutputSchema,
                 });
             }
         }
