@@ -2,13 +2,11 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
+import { ChainInfo, DEFAULT_CHAIN_ID, getChain } from 'app/shared/blockchain/chains';
 import { ethers } from 'ethers';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
 
 import { environment } from 'environments/environment';
-
-/** Avalanche C-Chain Mainnet: 43114 decimal = 0xa86a hex */
-const AVALANCHE_CHAIN_ID = '0xa86a';
 
 interface WalletBalancesResponse {
     walletAddress: string;
@@ -38,6 +36,13 @@ export class AgentWalletService {
     private readonly RPC_URL = environment.rpcUrl || 'https://api.avax.network/ext/bc/C/rpc';
     /** Smart Agent backend (proxies balance reads via server RPC) */
     private readonly smartAgentBaseUrl = environment.smartAgentUrl || '';
+
+    /**
+     * Active chain the wallet should use for the next signing operation.
+     * Defaults to Avalanche; can be overridden per-call via `setActiveChain`
+     * (e.g. when a 402 response asks the user to pay on Base or X Layer).
+     */
+    private activeChainId: number = DEFAULT_CHAIN_ID;
 
     /** The VKA token contract address on Avalanche */
     public readonly VKA_CONTRACT_ADDRESS = environment.vkaContractAddress;
@@ -243,7 +248,7 @@ export class AgentWalletService {
 
         // MetaMask external wallet
         if (walletType === 'metamask' && (window as any).ethereum) {
-            await this.switchToAvalancheMainnet();
+            await this.switchToChain();
             const provider = new ethers.BrowserProvider((window as any).ethereum);
             await provider.send('eth_requestAccounts', []);
             return await provider.getSigner(); // await needed as it returns Promise<JsonRpcSigner>
@@ -268,36 +273,96 @@ export class AgentWalletService {
     // ─────────────────────────────────────────────────────────────────────────────
 
     /**
-     * Switches MetaMask to Avalanche C-Chain mainnet.
-     * If the network is not configured, it will be added automatically.
-     * @throws Error if user rejects the network switch
+     * Sets the chain that subsequent signing operations should target.
+     * Use when a 402 response asks the user to pay on a non-default chain.
+     * @param chainId Decimal chain id present in the chain registry.
+     * @throws Error when the chain id is not in the registry.
      */
-    private async switchToAvalancheMainnet(): Promise<void> {
+    setActiveChain(chainId: number): void {
+        if (!getChain(chainId)) {
+            throw new Error(`Unsupported chain id: ${chainId}`);
+        }
+        this.activeChainId = chainId;
+    }
+
+    /** Returns the currently selected EVM chain. */
+    getActiveChain(): ChainInfo {
+        return getChain(this.activeChainId) || (getChain(DEFAULT_CHAIN_ID) as ChainInfo);
+    }
+
+    /**
+     * USDC contract address for the active chain, or null when USDC is not
+     * configured on that chain. USDC is the same asset Sponge Gateway settles
+     * with under `payment_scheme: "exact"`, so this is the recommended way to
+     * pay across chains.
+     */
+    getActiveChainUsdc(): { address: string; decimals: number } | null {
+        const chain = this.getActiveChain();
+        if (!chain.usdcAddress) return null;
+        return { address: chain.usdcAddress, decimals: chain.usdcDecimals };
+    }
+
+    /**
+     * Convenience wrapper around `payForServiceWithToken` that targets the
+     * active chain's USDC contract. The amount is the USD list price (1:1
+     * with USDC) — the underlying ERC-20 transfer reads decimals from the
+     * contract, so this works for any 6-decimal USDC implementation.
+     *
+     * @param recipientAddress Address that should receive the USDC.
+     * @param amountUsd USD amount to pay (e.g. "0.20").
+     * @returns Tx response and signer address.
+     * @throws Error when USDC is not configured for the active chain.
+     */
+    async payForServiceWithUsdc(
+        recipientAddress: string,
+        amountUsd: string,
+    ): Promise<{ tx: ethers.TransactionResponse; signerAddress: string }> {
+        const usdc = this.getActiveChainUsdc();
+        if (!usdc) {
+            const chain = this.getActiveChain();
+            throw new Error(`USDC is not configured on ${chain.name}.`);
+        }
+        return this.payForServiceWithToken(recipientAddress, usdc.address, amountUsd);
+    }
+
+    /**
+     * Switches MetaMask to the given EVM chain. If MetaMask doesn't know the
+     * chain yet (`error.code === 4902`), it is added using registry metadata.
+     * @param chainId Decimal chain id (defaults to the active chain).
+     * @throws Error when the user rejects, or the chain is not registered.
+     */
+    private async switchToChain(chainId: number = this.activeChainId): Promise<void> {
         const ethereum = (window as any).ethereum;
         if (!ethereum) return;
 
+        const chain = getChain(chainId);
+        if (!chain) throw new Error(`Unsupported chain id: ${chainId}`);
+
         try {
             const currentChainId = await ethereum.request({ method: 'eth_chainId' });
-            if (currentChainId === AVALANCHE_CHAIN_ID) return;
+            if (typeof currentChainId === 'string' && currentChainId.toLowerCase() === chain.hex.toLowerCase()) {
+                return;
+            }
 
             await ethereum.request({
                 method: 'wallet_switchEthereumChain',
-                params: [{ chainId: AVALANCHE_CHAIN_ID }],
+                params: [{ chainId: chain.hex }],
             });
         } catch (error: any) {
-            // Chain not added to MetaMask - add it
             if (error.code === 4902) {
                 await ethereum.request({
                     method: 'wallet_addEthereumChain',
                     params: [
                         {
-                            chainId: AVALANCHE_CHAIN_ID,
-                            chainName: 'Avalanche C-Chain',
-                            nativeCurrency: { name: 'Avalanche', symbol: 'AVAX', decimals: 18 },
-                            rpcUrls: [
-                                environment.rpcUrl || 'https://api.avax.network/ext/bc/C/rpc',
-                            ],
-                            blockExplorerUrls: ['https://snowtrace.io/'],
+                            chainId: chain.hex,
+                            chainName: chain.name,
+                            nativeCurrency: {
+                                name: chain.nativeName,
+                                symbol: chain.nativeSymbol,
+                                decimals: chain.nativeDecimals,
+                            },
+                            rpcUrls: chain.rpcUrls,
+                            blockExplorerUrls: [chain.blockExplorerUrl],
                         },
                     ],
                 });
@@ -307,6 +372,14 @@ export class AgentWalletService {
                 throw error;
             }
         }
+    }
+
+    /**
+     * Backwards-compatible alias used by older call-sites.
+     * Prefer `switchToChain(chainId)`.
+     */
+    private switchToAvalancheMainnet(): Promise<void> {
+        return this.switchToChain(43114);
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -540,20 +613,23 @@ export class AgentWalletService {
         const ethereum = (window as any).ethereum;
         if (!ethereum) throw new Error('MetaMask not found');
 
+        const targetChain = this.getActiveChain();
+
         try {
             // Ensure correct network before transaction
-            await this.switchToAvalancheMainnet();
+            await this.switchToChain(targetChain.chainId);
             await this._delay(100);
 
-            // Get fresh account list from MetaMask
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
             const activeAccount = accounts[0];
             if (!activeAccount) throw new Error('No active account in MetaMask');
 
-            // Verify network after account fetch
             const chainId = await ethereum.request({ method: 'eth_chainId' });
-            if (chainId !== AVALANCHE_CHAIN_ID) {
-                await this.switchToAvalancheMainnet();
+            if (
+                typeof chainId !== 'string' ||
+                chainId.toLowerCase() !== targetChain.hex.toLowerCase()
+            ) {
+                await this.switchToChain(targetChain.chainId);
                 await this._delay(200);
             }
 
@@ -589,12 +665,12 @@ export class AgentWalletService {
             if (error.code === 4001) throw new Error('Transaction was rejected by user');
             if (error.message?.includes('invalid sender')) {
                 throw new Error(
-                    'Invalid sender: Please ensure MetaMask is connected to Avalanche. Try reconnecting your wallet.'
+                    `Invalid sender: please ensure MetaMask is connected to ${targetChain.name}. Try reconnecting your wallet.`,
                 );
             }
             if (error.message?.includes('insufficient funds')) {
                 throw new Error(
-                    'Insufficient funds: Make sure you have enough VKA tokens and AVAX for gas.'
+                    `Insufficient funds on ${targetChain.name}: make sure you have enough ${targetChain.nativeSymbol} for gas (and tokens if paying with an ERC-20).`,
                 );
             }
             throw error;

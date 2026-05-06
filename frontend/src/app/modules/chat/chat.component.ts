@@ -38,6 +38,22 @@ interface PaymentRequired {
     serviceId?: string;
     priceVka?: number;
     vkaContract?: string;
+    chainId?: number;
+    chainHex?: string;
+    chainName?: string;
+    nativeSymbol?: string;
+    isTestnet?: boolean;
+    acceptedChains?: Array<{
+        chainId: number;
+        hex: string;
+        key: string;
+        name: string;
+        nativeSymbol: string;
+        isTestnet: boolean;
+        paymentContract: string | null;
+        vkaTokenAddress: string | null;
+        blockExplorerUrl: string;
+    }>;
 }
 
 interface ChatMessage {
@@ -587,7 +603,8 @@ export class ChatComponent implements OnInit {
         paymentTx: string | null = null,
         paymentAmount: string | null = null,
         images: string[] = [],
-        pendingToolCall: any = null
+        pendingToolCall: any = null,
+        paymentChainId: number | null = null
     ) {
         const isCredits = this.chatMode() === 'credits';
         const userToken = isCredits ? localStorage.getItem('accessToken') : null;
@@ -598,6 +615,7 @@ export class ChatComponent implements OnInit {
             paymentTx: isCredits ? null : paymentTx,
             paymentWallet: isCredits ? this.getUserId() : this.walletAddress(),
             paymentAmount: isCredits ? null : paymentAmount,
+            paymentChainId: isCredits ? null : paymentChainId,
             mode: this.chatMode(),
             userToken: userToken,
             images: images,
@@ -848,6 +866,15 @@ export class ChatComponent implements OnInit {
         const serviceId = details.serviceId || 'cedula-validation';
         const requestId = details.requestId || `req_${Date.now()}`;
 
+        // If the 402 response declared a chain, sign on it.
+        if (details.chainId) {
+            try {
+                this.walletService.setActiveChain(details.chainId);
+            } catch (e) {
+                console.warn('[Chat] Backend asked for unsupported chain', details.chainId, e);
+            }
+        }
+
         try {
             let txResponse;
             let paidAmount = amount;
@@ -901,7 +928,8 @@ export class ChatComponent implements OnInit {
                 tx.hash,
                 paidAmount, // Use paid amount (VKA or AVAX)
                 [],
-                pendingToolCall
+                pendingToolCall,
+                this.walletService.getActiveChain().chainId
             );
             await this.refreshBalance();
         } catch (error: any) {
