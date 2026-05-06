@@ -16,9 +16,14 @@ if (!process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     console.log(`[Config] GOOGLE_APPLICATION_CREDENTIALS loaded: ${process.env.GOOGLE_APPLICATION_CREDENTIALS.substring(0, 50)}...`);
 }
 
+const defaultX402Rpc =
+    process.env.X402_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc";
+
 const config = {
     env: process.env.NODE_ENV || "development",
     port: process.env.PORT || 3060,
+    /** RPC for read-only balance proxy (AVAX + ERC-20); falls back to X402_RPC_URL */
+    chainReadRpcUrl: process.env.AVALANCHE_C_CHAIN_RPC_URL || defaultX402Rpc,
     verifik: {
         apiUrl: process.env.VERIFIK_API_URL,
         serviceToken: process.env.VERIFIK_SERVICE_TOKEN,
@@ -28,7 +33,7 @@ const config = {
         keyFilePath: process.env.GOOGLE_APPLICATION_CREDENTIALS,
     },
     x402: {
-        rpcUrl: process.env.X402_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc",
+        rpcUrl: defaultX402Rpc,
         chainId: process.env.X402_CHAIN_ID || 43113,
         networkName: process.env.X402_NETWORK_NAME || "avalanche-fuji-testnet",
         walletPrivateKey: process.env.X402_WALLET_PRIVATE_KEY,
