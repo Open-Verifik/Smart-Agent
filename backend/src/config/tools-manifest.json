@@ -2112,22 +2112,6 @@
 			}
 		},
 		{
-			"id": "credit_intent_kyc_passwordless",
-			"name": "KYC Passwordless Credit Intent",
-			"category": "Global - KYC Passwordless Credit Intent",
-			"url": "https://ai.verifik.co/api/credit-intents/kyc-passwordless",
-			"verifikPath": "/v2/credit-intents/kyc-passwordless",
-			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
-			"country": "world",
-			"priceUsd": 0.21,
-			"parameters": {
-				"type": "object",
-				"properties": {},
-				"required": []
-			}
-		},
-		{
 			"id": "colombia_pep_lookup",
 			"name": "Colombia - Politically Exposed Persons (PEP) Lookup",
 			"category": "Colombia - Politically Exposed Persons (PEP) Lookup",
@@ -2332,39 +2316,6 @@
 				},
 				"required": [
 					"documentNumber"
-				]
-			}
-		},
-		{
-			"id": "ocr_scan_pro",
-			"name": "OCR Document Scan Pro",
-			"category": "Global - OCR Document Scan Pro",
-			"url": "https://ai.verifik.co/api/ocr/scan-pro",
-			"verifikPath": "/v2/ocr/scan-pro",
-			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
-			"country": "world",
-			"priceUsd": 0.15,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType"
-					},
-					"country": {
-						"type": "string",
-						"description": "Parameter: country"
-					},
-					"image": {
-						"type": "string",
-						"description": "Parameter: image"
-					}
-				},
-				"required": [
-					"documentType",
-					"country",
-					"image"
 				]
 			}
 		},
@@ -2603,53 +2554,6 @@
 			}
 		},
 		{
-			"id": "face_recognition_search_live_face",
-			"name": "Live Face Search",
-			"category": "Global - Live Face Search",
-			"url": "https://ai.verifik.co/api/face-recognition/search-live-face",
-			"verifikPath": "/v2/face-recognition/search-live-face",
-			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
-			"country": "world",
-			"priceUsd": 0.5,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"image": {
-						"type": "string",
-						"description": "Parameter: image"
-					},
-					"os": {
-						"type": "string",
-						"description": "Parameter: os"
-					},
-					"liveness_min_score": {
-						"type": "number",
-						"description": "Parameter: liveness_min_score"
-					},
-					"min_score": {
-						"type": "number",
-						"description": "Parameter: min_score"
-					},
-					"search_mode": {
-						"type": "string",
-						"description": "Parameter: search_mode"
-					},
-					"collection_id": {
-						"type": "string",
-						"description": "Parameter: collection_id"
-					}
-				},
-				"required": [
-					"image",
-					"os",
-					"liveness_min_score",
-					"min_score",
-					"search_mode"
-				]
-			}
-		},
-		{
 			"id": "face_recognition_compare",
 			"name": "Face Comparison",
 			"category": "Global - Face Comparison",
@@ -2754,44 +2658,6 @@
 			}
 		},
 		{
-			"id": "face_recognition_verify",
-			"name": "Face Verification",
-			"category": "Global - Face Verification",
-			"url": "https://ai.verifik.co/api/face-recognition/verify",
-			"verifikPath": "/v2/face-recognition/verify",
-			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
-			"country": "world",
-			"priceUsd": 0.03,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"id": {
-						"type": "string",
-						"description": "Parameter: id"
-					},
-					"images": {
-						"type": "array",
-						"description": "Parameter: images"
-					},
-					"min_score": {
-						"type": "number",
-						"description": "Parameter: min_score"
-					},
-					"search_mode": {
-						"type": "string",
-						"description": "Parameter: search_mode"
-					}
-				},
-				"required": [
-					"id",
-					"images",
-					"min_score",
-					"search_mode"
-				]
-			}
-		},
-		{
 			"id": "face_recognition_detect",
 			"name": "Face Detection",
 			"category": "Global - Face Detection",
@@ -2827,47 +2693,6 @@
 				},
 				"required": [
 					"image",
-					"min_score",
-					"search_mode"
-				]
-			}
-		},
-		{
-			"id": "face_recognition_search_crops",
-			"name": "Face Search (Crops)",
-			"category": "Global - Face Search (Crops)",
-			"url": "https://ai.verifik.co/api/face-recognition/search/crops",
-			"verifikPath": "/v2/face-recognition/search/crops",
-			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
-			"country": "world",
-			"priceUsd": 0.03,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"images": {
-						"type": "array",
-						"description": "Parameter: images"
-					},
-					"collection_id": {
-						"type": "string",
-						"description": "Parameter: collection_id"
-					},
-					"max_results": {
-						"type": "number",
-						"description": "Parameter: max_results"
-					},
-					"min_score": {
-						"type": "number",
-						"description": "Parameter: min_score"
-					},
-					"search_mode": {
-						"type": "string",
-						"description": "Parameter: search_mode"
-					}
-				},
-				"required": [
-					"images",
 					"min_score",
 					"search_mode"
 				]
@@ -4241,48 +4066,6 @@
 			}
 		},
 		{
-			"id": "face_recognition_search_active_user",
-			"name": "Face Search (Active User)",
-			"category": "Global - Face Search (Active User)",
-			"url": "https://ai.verifik.co/api/face-recognition/search-active-user",
-			"verifikPath": "/v2/face-recognition/search-active-user",
-			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
-			"country": "world",
-			"priceUsd": 1.25,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"image": {
-						"type": "string",
-						"description": "Parameter: image"
-					},
-					"os": {
-						"type": "string",
-						"description": "Parameter: os"
-					},
-					"min_score": {
-						"type": "number",
-						"description": "Parameter: min_score"
-					},
-					"search_mode": {
-						"type": "string",
-						"description": "Parameter: search_mode"
-					},
-					"collection_id": {
-						"type": "string",
-						"description": "Parameter: collection_id"
-					}
-				},
-				"required": [
-					"image",
-					"os",
-					"min_score",
-					"search_mode"
-				]
-			}
-		},
-		{
 			"id": "spain_api_vehicle_lookup",
 			"name": "Spain - Vehicle Verification",
 			"category": "Spain - Vehicle Verification",
@@ -4597,7 +4380,7 @@
 		{
 			"id": "colombia_special_api_police_identity_lookup",
 			"name": "Colombia - Police Records Check",
-			"url": "https://ai.verifik.co/api/co/policia/consultar",
+			"url": "https://ai.verifik.co/api/api/co/policia/consultar",
 			"method": "GET",
 			"description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date.",
 			"country": "Colombia",
@@ -4627,25 +4410,9 @@
 			"verifikPath": "/v2/co/policia/consultar"
 		},
 		{
-			"id": "api_autodata_selection",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/api/autodata/selection",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {},
-				"required": []
-			},
-			"category": "Colombia - Data Verification Service",
-			"verifikPath": "/v2/autodata/selection"
-		},
-		{
 			"id": "colombia_api_runt_owners",
 			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/api/co/runt/propietarios",
+			"url": "https://ai.verifik.co/api/api/co/runt/propietarios",
 			"method": "GET",
 			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
 			"country": "Colombia",
@@ -4666,40 +4433,9 @@
 			"verifikPath": "/v2/co/runt/propietarios"
 		},
 		{
-			"id": "matpis_appointments",
-			"name": " - Data Verification Service",
-			"url": "https://ai.verifik.co/api/appointments",
-			"method": "GET",
-			"description": "General data verification service for . Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": [
-							"NIT"
-						]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": [
-					"documentType",
-					"documentNumber"
-				]
-			},
-			"category": "Colombia - Data Verification Service",
-			"verifikPath": "/v2/appointments"
-		},
-		{
 			"id": "world_api_passport_entries",
 			"name": "United States - Identity Verification",
-			"url": "https://ai.verifik.co/api/passport/us/entries",
+			"url": "https://ai.verifik.co/api/api/passport/us/entries",
 			"method": "GET",
 			"description": "Standard identity verification service for United States citizens. Verifies personal information and document authenticity.",
 			"country": "world",

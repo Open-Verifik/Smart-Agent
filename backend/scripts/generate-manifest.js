@@ -21,11 +21,15 @@
  *   start with the country name (so `USA - …` is not prefixed with
  *   `United States`).
  *
+ * Unpublished paths:
+ *   `EXCLUDED_PUBLIC_PATHS` — not included in tools-manifest.json (discovery,
+ *   Sponge, agent catalog). Proxy may still forward if the path exists upstream.
+ *
  * Orphans:
  *   Endpoints currently in the manifest but missing from the source feed
  *   are preserved (some Smart Agent additions live outside the AppFeature
- *   collection, e.g. `api_autodata_selection`, `matpis_appointments`,
- *   `world_api_passport_entries`). Set `DROP_ORPHANS=1` to remove them.
+ *   collection). Excluded paths are never merged from orphans. Set
+ *   `DROP_ORPHANS=1` to drop all other orphans.
  *
  * Usage:
  *   node scripts/generate-manifest.js
@@ -45,6 +49,34 @@ const OUTPUT_PATH = path.resolve(__dirname, "../src/config/tools-manifest.json")
  */
 const AGENT_BASE_URL = process.env.AGENT_BASE_URL || "https://ai.verifik.co/";
 const DROP_ORPHANS = process.env.DROP_ORPHANS === "1" || process.env.DROP_ORPHANS === "true";
+
+/**
+ * Public URL pathnames (`https://ai.verifik.co` + path) to omit from the manifest.
+ */
+const EXCLUDED_PUBLIC_PATHS = new Set([
+	"/api/credit-intents/kyc-passwordless",
+	"/api/face-recognition/search-active-user",
+	"/api/face-recognition/search-live-face",
+	"/api/face-recognition/search/crops",
+	"/api/face-recognition/verify",
+	"/api/ocr/scan-pro",
+	"/api/appointments",
+	"/api/autodata/selection",
+]);
+
+/**
+ * @param {{ url?: string } | null | undefined} tool
+ * @returns {boolean}
+ */
+const isExcludedTool = (tool) => {
+	if (!tool || !tool.url) return false;
+	try {
+		const pathname = new URL(tool.url).pathname;
+		return EXCLUDED_PUBLIC_PATHS.has(pathname);
+	} catch {
+		return false;
+	}
+};
 
 /** Sponge `category` max length */
 const SPONGE_CATEGORY_MAX = 128;
@@ -244,10 +276,16 @@ const main = () => {
 	const active = features.filter((f) => f && f.isAvailable === true && !f.deleted && f.url);
 	console.log(`Active features in source: ${active.length}`);
 
-	const tools = active.map(featureToTool);
+	let tools = active.map(featureToTool).filter((t) => !isExcludedTool(t));
+	const excludedFromSource = active.length - tools.length;
+	if (excludedFromSource) {
+		console.log(`Excluded ${excludedFromSource} tools matching EXCLUDED_PUBLIC_PATHS (unpublished).`);
+	}
 	const generatedIds = new Set(tools.map((t) => t.id));
 
-	const orphans = (existing.endpoints || []).filter((e) => e && e.id && !generatedIds.has(e.id));
+	const orphans = (existing.endpoints || []).filter(
+		(e) => e && e.id && !generatedIds.has(e.id) && !isExcludedTool(e),
+	);
 	if (orphans.length) {
 		if (DROP_ORPHANS) {
 			console.log(`Dropping ${orphans.length} orphan endpoints (set by env):`);
@@ -275,6 +313,7 @@ const main = () => {
 					verifikPath,
 					category: cleanCategory(o.name || o.category || String(o.id || ""), o.country),
 				};
+				if (isExcludedTool(merged)) continue;
 				tools.push(merged);
 			}
 		}

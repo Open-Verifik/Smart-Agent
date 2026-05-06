@@ -4209,58 +4209,6 @@
         ]
       }
     },
-    "/api/credit-intents/kyc-passwordless": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "credit_intent_kyc_passwordless",
-        "summary": "KYC Passwordless Credit Intent",
-        "description": "Provides reliable verification and validation services.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.21"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {},
-                "required": []
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/co/politically-exposed-persons": {
       "get": {
         "tags": [
@@ -4706,75 +4654,6 @@
                 },
                 "required": [
                   "documentNumber"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ocr/scan-pro": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "ocr_scan_pro",
-        "summary": "OCR Document Scan Pro",
-        "description": "Provides reliable verification and validation services.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.15"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentType": {
-                    "type": "string",
-                    "description": "Parameter: documentType"
-                  },
-                  "country": {
-                    "type": "string",
-                    "description": "Parameter: country"
-                  },
-                  "image": {
-                    "type": "string",
-                    "description": "Parameter: image"
-                  }
-                },
-                "required": [
-                  "documentType",
-                  "country",
-                  "image"
                 ]
               }
             }
@@ -5280,89 +5159,6 @@
         ]
       }
     },
-    "/api/face-recognition/search-live-face": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "face_recognition_search_live_face",
-        "summary": "Live Face Search",
-        "description": "Provides reliable verification and validation services.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.5"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "image": {
-                    "type": "string",
-                    "description": "Parameter: image"
-                  },
-                  "os": {
-                    "type": "string",
-                    "description": "Parameter: os"
-                  },
-                  "liveness_min_score": {
-                    "type": "number",
-                    "description": "Parameter: liveness_min_score"
-                  },
-                  "min_score": {
-                    "type": "number",
-                    "description": "Parameter: min_score"
-                  },
-                  "search_mode": {
-                    "type": "string",
-                    "description": "Parameter: search_mode"
-                  },
-                  "collection_id": {
-                    "type": "string",
-                    "description": "Parameter: collection_id"
-                  }
-                },
-                "required": [
-                  "image",
-                  "os",
-                  "liveness_min_score",
-                  "min_score",
-                  "search_mode"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/face-recognition/compare": {
       "post": {
         "tags": [
@@ -5575,84 +5371,6 @@
         }
       }
     },
-    "/api/face-recognition/verify": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "face_recognition_verify",
-        "summary": "Face Verification",
-        "description": "Provides reliable verification and validation services.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.03"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: id"
-          },
-          {
-            "name": "images",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "array"
-            },
-            "description": "Parameter: images"
-          },
-          {
-            "name": "min_score",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number"
-            },
-            "description": "Parameter: min_score"
-          },
-          {
-            "name": "search_mode",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: search_mode"
-          }
-        ]
-      }
-    },
     "/api/face-recognition/detect": {
       "post": {
         "tags": [
@@ -5721,83 +5439,6 @@
                 },
                 "required": [
                   "image",
-                  "min_score",
-                  "search_mode"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/face-recognition/search/crops": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "face_recognition_search_crops",
-        "summary": "Face Search (Crops)",
-        "description": "Provides reliable verification and validation services.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.03"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "images": {
-                    "type": "array",
-                    "description": "Parameter: images"
-                  },
-                  "collection_id": {
-                    "type": "string",
-                    "description": "Parameter: collection_id"
-                  },
-                  "max_results": {
-                    "type": "number",
-                    "description": "Parameter: max_results"
-                  },
-                  "min_score": {
-                    "type": "number",
-                    "description": "Parameter: min_score"
-                  },
-                  "search_mode": {
-                    "type": "string",
-                    "description": "Parameter: search_mode"
-                  }
-                },
-                "required": [
-                  "images",
                   "min_score",
                   "search_mode"
                 ]
@@ -8638,84 +8279,6 @@
         }
       }
     },
-    "/api/face-recognition/search-active-user": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "face_recognition_search_active_user",
-        "summary": "Face Search (Active User)",
-        "description": "Provides reliable verification and validation services.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "1.25"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "image": {
-                    "type": "string",
-                    "description": "Parameter: image"
-                  },
-                  "os": {
-                    "type": "string",
-                    "description": "Parameter: os"
-                  },
-                  "min_score": {
-                    "type": "number",
-                    "description": "Parameter: min_score"
-                  },
-                  "search_mode": {
-                    "type": "string",
-                    "description": "Parameter: search_mode"
-                  },
-                  "collection_id": {
-                    "type": "string",
-                    "description": "Parameter: collection_id"
-                  }
-                },
-                "required": [
-                  "image",
-                  "os",
-                  "min_score",
-                  "search_mode"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/es/vehicle": {
       "get": {
         "tags": [
@@ -9436,7 +8999,7 @@
         ]
       }
     },
-    "/api/co/policia/consultar": {
+    "/api/api/co/policia/consultar": {
       "get": {
         "tags": [
           "KYC",
@@ -9500,58 +9063,7 @@
         ]
       }
     },
-    "/api/autodata/selection": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "api_autodata_selection",
-        "summary": " - Data Verification Service",
-        "description": "General data verification service for . Provides reliable information verification and validation.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.2"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "_noQueryParams",
-            "in": "query",
-            "required": false,
-            "description": "This route has no query parameters in the manifest; send requests without query keys (this entry exists for discovery tooling only).",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ]
-      }
-    },
-    "/api/co/runt/propietarios": {
+    "/api/api/co/runt/propietarios": {
       "get": {
         "tags": [
           "KYC",
@@ -9602,70 +9114,7 @@
         ]
       }
     },
-    "/api/appointments": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "matpis_appointments",
-        "summary": " - Data Verification Service",
-        "description": "General data verification service for . Provides reliable information verification and validation.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.2"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "NIT"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          }
-        ]
-      }
-    },
-    "/api/passport/us/entries": {
+    "/api/api/passport/us/entries": {
       "get": {
         "tags": [
           "KYC",
