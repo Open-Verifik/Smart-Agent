@@ -9,6 +9,20 @@ const path = require("path");
 const packageJson = require(path.resolve(__dirname, "../../package.json"));
 
 /**
+ * Tags for discovery listings (x402scan, AgentCash, etc.). OpenAPI `tags` on each
+ * operation give consumers a consistent KYC / KYB / data / LATAM signal — distinct
+ * from the old single "VerifikProxy" label.
+ */
+const DISCOVERY_OPERATION_TAGS = ["KYC", "KYB", "Data", "LATAM"];
+
+const DISCOVERY_TAG_DEFINITIONS = [
+	{ name: "KYC", description: "Identity verification, sanctions, and watchlists" },
+	{ name: "KYB", description: "Business, registry, and company lookups" },
+	{ name: "Data", description: "Government and proprietary datasets via API" },
+	{ name: "LATAM", description: "Strong coverage in Latin America and regional registries" },
+];
+
+/**
  * USD amount string aligned with runtime `priceUsd` (up to 6 decimals, no float noise).
  *
  * @param {number} priceUsd
@@ -140,7 +154,7 @@ const buildOperationFromTool = (tool) => {
 
 	/** @type {object} */
 	const op = {
-		tags: ["VerifikProxy"],
+		tags: [...DISCOVERY_OPERATION_TAGS],
 		operationId: String(tool.id || tool.code || "op"),
 		summary: tool.name || tool.id,
 		description: tool.description || undefined,
@@ -214,7 +228,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 	];
 
 	const proxyOpGet = {
-		tags: ["VerifikProxy"],
+		tags: [...DISCOVERY_OPERATION_TAGS],
 		operationId: "api_proxy_get",
 		summary: "Proxy to Verifik (GET)",
 		description:
@@ -228,7 +242,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 	};
 
 	const proxyOpPost = {
-		tags: ["VerifikProxy"],
+		tags: [...DISCOVERY_OPERATION_TAGS],
 		operationId: "api_proxy_post",
 		summary: "Proxy to Verifik (POST)",
 		description:
@@ -263,7 +277,10 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 			"x-guidance": buildXGuidance(publicOrigin),
 		},
 		servers: [{ url: publicOrigin }],
-		tags: [{ name: "VerifikProxy", description: "x402-gated Verifik API proxy paths" }],
+		tags: DISCOVERY_TAG_DEFINITIONS,
+		"x-discovery": {
+			tags: [...DISCOVERY_OPERATION_TAGS],
+		},
 		paths,
 	};
 };
