@@ -208,6 +208,158 @@ const buildParameters = (dependencies) => {
 };
 
 /**
+ * AppFeature placeholder copy. Many rows in `app-features-final.json` ship with
+ * this generic English string while their `docs.en.overview` already has rich
+ * prose; treat it as "missing" so discovery falls back to the overview-derived
+ * compact description below.
+ */
+const GENERIC_DESCRIPTION_EN = "Provides reliable verification and validation services.";
+
+/**
+ * @param {string | undefined | null} text
+ * @returns {boolean}
+ */
+const isGenericDescription = (text) => {
+	if (!text) return true;
+	const t = String(text).trim();
+	return t === "" || t === GENERIC_DESCRIPTION_EN;
+};
+
+/**
+ * Manual descriptions for codes that lack `docs.en.overview` and would otherwise
+ * fall back to a generated stub. Keep entries short (under ~400 chars) and focused
+ * on what the route does, what to send, and what comes back.
+ */
+const DESCRIPTION_OVERRIDES_BY_CODE = {
+	communication_global_email_otp:
+		"Send a one-time passcode by email for user verification flows. Provide the recipient address and message parameters; the API delivers the OTP and returns send/delivery metadata for KYC and login confirmation.",
+	communication_global_messaging_whatsapp:
+		"Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications.",
+	communication_messaging_sms:
+		"Send SMS messages via Verifik's global gateway. Provide the destination phone number and message body; supports OTPs, transactional alerts, and notification flows with delivery metadata in the response.",
+	"ip-lookup":
+		"Geolocate an IPv4 or IPv6 address. Returns country, region, city, ISP/ASN, and risk hints for fraud screening and access-control checks.",
+	ocr_scan_gpt:
+		"GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
+	face_recognition_detect_face:
+		"Detect and validate the presence of a human face in an image. Useful as a pre-step for liveness or face-compare flows; returns face bounding boxes and quality signals.",
+	"document-liveness":
+		"Check whether a captured ID image is a real document or a screen/print attack. Returns liveness scores and indicators to harden KYC document-capture flows.",
+	credit_intent:
+		"Create a Verifik credit purchase intent for x402 settlement. Returns the intent id and pricing metadata used to confirm the on-chain payment for downstream API calls.",
+};
+
+/**
+ * Marketing/boilerplate paragraphs found across `docs.en.overview` blocks. We
+ * skip these so the discovery copy ends up on the technical paragraph instead.
+ */
+const MARKETING_PATTERNS = [
+	/^Verifik'?s\s+/i,
+	/^We built this integration\b/i,
+	/^By verifying these details\b/i,
+	/^Our API connects directly with official records to validate:?\s*$/i,
+	/designed to streamline your KYC/i,
+	/significantly lower(?:s|ing)? the risk of impersonation/i,
+];
+
+/**
+ * Sentences/phrases that indicate the paragraph is an actionable, technical
+ * description (parameters, request/response shape) — preferred for discovery.
+ */
+const TECHNICAL_HINTS_RE = /(`[^`]+`|query parameter|query parameters|Send a |Pass |Provide |Returns?\b|Use it for |Use \b|Retrieve\b|Query by\b|GET request|POST request)/i;
+
+/**
+ * @param {string} paragraph
+ * @returns {boolean}
+ */
+const isMarketingParagraph = (paragraph) => MARKETING_PATTERNS.some((re) => re.test(paragraph));
+
+/**
+ * @param {string} paragraph
+ * @returns {boolean}
+ */
+const isPureBulletBlock = (paragraph) => {
+	const lines = paragraph.split("\n").map((l) => l.trim()).filter(Boolean);
+	if (!lines.length) return false;
+	return lines.every((l) => /^[-*]\s+/.test(l));
+};
+
+/**
+ * Strip Markdown emphasis, backticks, admonitions, and collapse whitespace so
+ * the discovery `description` is plain prose.
+ *
+ * @param {string} text
+ * @returns {string}
+ */
+const stripMarkdown = (text) =>
+	String(text)
+		.replace(/:::[\s\S]*?:::/g, " ")
+		.replace(/\*\*([^*]+)\*\*/g, "$1")
+		.replace(/__([^_]+)__/g, "$1")
+		.replace(/\*([^*\n]+)\*/g, "$1")
+		.replace(/`([^`]+)`/g, "$1")
+		.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+		.replace(/\s+/g, " ")
+		.trim();
+
+/**
+ * Truncate at the last sentence boundary near `max` chars (or fall back to a
+ * hard cut + ellipsis if no good break point exists).
+ *
+ * @param {string} text
+ * @param {number} max
+ * @returns {string}
+ */
+const truncateAtSentence = (text, max) => {
+	if (text.length <= max) return text;
+	const cut = text.slice(0, max);
+	const lastDot = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+	if (lastDot >= 80) return cut.slice(0, lastDot + 1).trim();
+	return `${cut.trim()}…`;
+};
+
+/**
+ * Pick a concise, technical description from a docs overview block. Skips
+ * marketing prose and standalone bullet blocks; prefers the last paragraph
+ * that mentions parameters, inputs, or response shape.
+ *
+ * @param {string | undefined | null} overview
+ * @returns {string}
+ */
+const compactOverviewForDiscovery = (overview) => {
+	if (!overview) return "";
+	const paragraphs = String(overview)
+		.split(/\n\s*\n/)
+		.map((p) => p.trim())
+		.filter(Boolean);
+	if (!paragraphs.length) return "";
+
+	const usable = paragraphs.filter((p) => !isMarketingParagraph(p) && !isPureBulletBlock(p));
+	const technical = [...usable].reverse().find((p) => TECHNICAL_HINTS_RE.test(p));
+	const chosen = technical || usable[0] || paragraphs[0];
+
+	return truncateAtSentence(stripMarkdown(chosen), 480);
+};
+
+/**
+ * Pick the best discovery `description` for a feature. Order: explicit
+ * override → real `feature.description` → compacted `docs.en.overview` →
+ * empty (caller substitutes a deterministic stub).
+ *
+ * @param {{ code?: string, description?: string, docs?: { en?: { overview?: string } } } | null | undefined} feature
+ * @returns {string}
+ */
+const discoveryDescriptionFromFeature = (feature) => {
+	if (!feature) return "";
+	const override = feature.code && DESCRIPTION_OVERRIDES_BY_CODE[feature.code];
+	if (override) return override;
+	if (!isGenericDescription(feature.description)) return String(feature.description).trim();
+	const fromOverview = compactOverviewForDiscovery(feature.docs && feature.docs.en && feature.docs.en.overview);
+	if (fromOverview) return fromOverview;
+	return "";
+};
+
+/**
  * @param {any} feature
  */
 /**
@@ -271,6 +423,9 @@ const featureToTool = (feature) => {
 	// computed prices — don't leak into 402 responses or Sponge sync.
 	const priceUsd = Math.round(rawPrice * 1_000_000) / 1_000_000;
 	const category = cleanCategory(feature.name, feature.country);
+	const description =
+		discoveryDescriptionFromFeature(feature) ||
+		`Verifik ${feature.name || feature.code} via x402 — see manifest parameters for required inputs.`;
 
 	return {
 		id: feature.code || feature._id,
@@ -279,7 +434,7 @@ const featureToTool = (feature) => {
 		url: fullUrl,
 		verifikPath,
 		method: inferMethod(relativeUrl, feature.name),
-		description: feature.description || `Access ${feature.name} for ${feature.country || "Global"}`,
+		description,
 		country: feature.country,
 		priceUsd,
 		parameters: buildParameters(feature.dependencies),

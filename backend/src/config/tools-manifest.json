@@ -72,7 +72,7 @@
 			"url": "https://ai.verifik.co/api/usa/vehicle",
 			"verifikPath": "/v2/usa/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Retrieve U.S. vehicle details by license plate and state (NHTSA-backed decode). Use plate and state as query parameters.",
 			"country": "United States",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -320,7 +320,7 @@
 			"url": "https://ai.verifik.co/api/cl/vehicle",
 			"verifikPath": "/v2/cl/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Query by license plate (plate, no spaces or dots). Typical fields include make, model, year, VIN/chassis, engine, color, vehicle type, fines summary, and owner RUT when the registry exposes them—use for fleet onboarding, collateral checks, and claims workflows.",
 			"country": "Chile",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -366,7 +366,7 @@
 			"url": "https://ai.verifik.co/api/br/cedula",
 			"verifikPath": "/v2/br/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Confirms a Brazilian natural person’s CPF against official sources. Provide CPF, date of birth in DD/MM/YYYY, and the document number with or without separators; when the data matches, the response returns normalized name parts and identifiers. Built for KYC, fraud prevention, and regulated onboarding.",
 			"country": "Brazil",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -402,7 +402,7 @@
 			"url": "https://ai.verifik.co/api/communication/email",
 			"verifikPath": "/v2/communication/email",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Send a one-time passcode by email for user verification flows. Provide the recipient address and message parameters; the API delivers the OTP and returns send/delivery metadata for KYC and login confirmation.",
 			"country": "world",
 			"priceUsd": 0.01,
 			"parameters": {
@@ -524,7 +524,7 @@
 			"url": "https://ai.verifik.co/api/ve/cedula",
 			"verifikPath": "/v2/ve/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This route returns identity data for Venezuelan nationals using the CCVE (Cédula de Identidad) document class. Send the cédula number as documentNumber; the API resolves the record and returns structured name fields for KYC, onboarding, and fraud checks. For foreign residents, use GET /v2/ve/foreigner-id (CEVE) instead.",
 			"country": "Venezuela",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -555,7 +555,7 @@
 			"url": "https://ai.verifik.co/api/mx/vehiculo/placa",
 			"verifikPath": "/v2/mx/vehiculo/placa",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The Vehicle Information service provides detailed information about a vehicle in Mexico based on its license plate number. This service specifically returns information about a vehicle's make, model, year, VIN, and other related details. Pass the plate in the plate query parameter on a GET request; responses include registration-oriented fields when a match is found.",
 			"country": "Mexico",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -708,7 +708,7 @@
 			"url": "https://ai.verifik.co/api/mx/curp",
 			"verifikPath": "/v2/mx/curp",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This endpoint verifies a Mexican national’s CURP (Clave Única de Registro de Población) against official records. Send documentType and documentNumber on a GET request; a successful response confirms the identity record and returns validated name and biographical fields when the CURP is recognized.",
 			"country": "Mexico",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -739,7 +739,7 @@
 			"url": "https://ai.verifik.co/api/pe/vehiculo/placa",
 			"verifikPath": "/v2/pe/vehiculo/placa",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The Peruvian Vehicle Information service provides detailed data about registered vehicles in Peru based on their license plate number. The response includes key details such as the vehicle's make, model, year, engine and chassis serial numbers, seating capacity, and usage type.",
 			"country": "Peru",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -762,7 +762,7 @@
 			"url": "https://ai.verifik.co/api/pe/vehiculo/soat",
 			"verifikPath": "/v2/pe/vehiculo/soat",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This service provides information on the insurance status of a vehicle in Peru. It returns details including the insurance company name, policy start and end dates, vehicle plate number, policy number, usage type, vehicle class, and policy status.",
 			"country": "Peru",
 			"priceUsd": 0.6,
 			"parameters": {
@@ -818,7 +818,7 @@
 			"url": "https://ai.verifik.co/api/cr/cedula",
 			"verifikPath": "/v2/cr/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This endpoint verifies the CCCR (Cédula de Identidad Costarricense) against official sources. Send documentType as CCCR and the documentNumber (cédula number without spaces) on a GET request; the response includes structured name fields for KYC, onboarding, and fraud checks.",
 			"country": "Costa Rica",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -849,7 +849,7 @@
 			"url": "https://ai.verifik.co/api/cl/company",
 			"verifikPath": "/v2/cl/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This service allows you to retrieve information about a company in Chile by providing its document type and number. The service response will contain the name of the company, its business category, subcategory, and activity. Additionally, this service will provide you with a list of services for which the company is authorized to work.",
 			"country": "Chile",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -880,7 +880,7 @@
 			"url": "https://ai.verifik.co/api/ec/vehiculo/placa/multas",
 			"verifikPath": "/v2/ec/vehiculo/placa/multas",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up an Ecuadorian vehicle by plate (license plate). Returns registration details and outstanding fines for compliance, fleet, and risk checks.",
 			"country": "Ecuador",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -948,7 +948,7 @@
 			"url": "https://ai.verifik.co/api/br/company",
 			"verifikPath": "/v2/br/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifies a Brazilian legal entity against official CNPJ registers. Send documentType=CNPJ and a 14-digit documentNumber with no punctuation. Typical fields include registration status, address, legal nature, and primary and secondary economic activities. Use it for KYB, vendor due diligence, and compliance programs.",
 			"country": "Brazil",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1287,7 +1287,7 @@
 			"url": "https://ai.verifik.co/api/ec/cedula",
 			"verifikPath": "/v2/ec/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify an Ecuadorian citizen using documentType CCEC and documentNumber. Returns identity fields from official records to support KYC and compliance.",
 			"country": "Ecuador",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1310,7 +1310,7 @@
 			"url": "https://ai.verifik.co/api/ec/vehiculo/placa",
 			"verifikPath": "/v2/ec/vehiculo/placa",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Query an Ecuadorian vehicle by plate (no spaces or periods). Use for verification, insurance, fleet, and compliance workflows.",
 			"country": "Ecuador",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1466,7 +1466,7 @@
 			"url": "https://ai.verifik.co/api/pa/cedula",
 			"verifikPath": "/v2/pa/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify Panamanian CCPA (Cédula de Identidad Personal) data against official civil-registry sources. Send documentType (CCPA), a normalized documentNumber, and dateOfBirth in DD/MM/YYYY; the response confirms that the identity record is consistent for KYC, customer onboarding, and fraud controls.",
 			"country": "Panama",
 			"priceUsd": 1,
 			"parameters": {
@@ -1502,7 +1502,7 @@
 			"url": "https://ai.verifik.co/api/es/cedula",
 			"verifikPath": "/v2/es/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifies a Spanish natural person’s identity against official sources using documentType (DNIES or NIE), documentNumber (no spaces), and date (expiry in DD/MM/YYYY). Use for KYC, fraud prevention, and regulated onboarding.",
 			"country": "Spain",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1539,7 +1539,7 @@
 			"url": "https://ai.verifik.co/api/usa/florida/driver-license",
 			"verifikPath": "/v2/usa/florida/driver-license",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This service allows developers to validate the status, restrictions, endorsements, and designations of Florida driver licenses. By providing a valid Florida driver license number, the service response with the license status, expiration date, restrictions, endorsements, and designations.",
 			"country": "United States",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1562,7 +1562,7 @@
 			"url": "https://ai.verifik.co/api/communication/whatsapp",
 			"verifikPath": "/v2/communication/whatsapp",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Send WhatsApp messages globally through Verifik's gateway. Provide the recipient phone number, template, and variables; useful for OTP delivery, transactional alerts, and KYC notifications.",
 			"country": "world",
 			"priceUsd": 0.02,
 			"parameters": {
@@ -1595,7 +1595,7 @@
 			"url": "https://ai.verifik.co/api/br/vehicle",
 			"verifikPath": "/v2/br/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The Verifik API returns a normalized vehicle record for that plate, including plate, brand, model, model year and year of manufacture, chassis (VIN), engine, color, body type, fuel type, transmission, doors, manufacturer or plant, FIPE codes where they apply to the vehicle, and irregularity or restriction indicators when they exist for that registration. Use it to confirm the unit in front of you matches the official line before you continue.",
 			"country": "Brazil",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1618,7 +1618,7 @@
 			"url": "https://ai.verifik.co/api/ar/cedula",
 			"verifikPath": "/v2/ar/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify an Argentine identity using documentType DNIAR and documentNumber. Returns identity fields to support KYC and compliance.",
 			"country": "Argentina",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1649,7 +1649,7 @@
 			"url": "https://ai.verifik.co/api/ec/company",
 			"verifikPath": "/v2/ec/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up an Ecuadorian company using documentType RUCEC and documentNumber (13 digits, no separators). Returns registration-oriented fields to support KYB, vendor screening, and compliance.",
 			"country": "Ecuador",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -1900,7 +1900,7 @@
 			"url": "https://ai.verifik.co/api/cl/cedula",
 			"verifikPath": "/v2/cl/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention.",
 			"country": "Chile",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2003,7 +2003,7 @@
 			"url": "https://ai.verifik.co/api/ip-lookup",
 			"verifikPath": "/v2/ip-lookup",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Geolocate an IPv4 or IPv6 address. Returns country, region, city, ISP/ASN, and risk hints for fraud screening and access-control checks.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2026,7 +2026,7 @@
 			"url": "https://ai.verifik.co/api/communication/sms",
 			"verifikPath": "/v2/communication/sms",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Send SMS messages via Verifik's global gateway. Provide the destination phone number and message body; supports OTPs, transactional alerts, and notification flows with delivery metadata in the response.",
 			"country": "world",
 			"priceUsd": 0.1,
 			"parameters": {
@@ -2059,7 +2059,7 @@
 			"url": "https://ai.verifik.co/api/usa/ssn",
 			"verifikPath": "/v2/usa/ssn",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Validate a U.S. Social Security Number (SSN). Pass the SSN as the documentNumber query parameter (formatted as on the document).",
 			"country": "United States",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2082,7 +2082,7 @@
 			"url": "https://ai.verifik.co/api/co/cedula/extra",
 			"verifikPath": "/v2/co/cedula/extra",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The same integration is available as POST with a JSON body containing the same fields. GET uses query parameters as shown below.",
 			"country": "Colombia",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -2149,7 +2149,7 @@
 			"url": "https://ai.verifik.co/api/bo/cedula",
 			"verifikPath": "/v2/bo/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify a Bolivian citizen using documentType CI, documentNumber, and dateOfBirth (DD/MM/YYYY). Returns identity fields to support KYC and compliance.",
 			"country": "Bolivia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2185,7 +2185,7 @@
 			"url": "https://ai.verifik.co/api/cl/driver-license",
 			"verifikPath": "/v2/cl/driver-license",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a Chilean driver license by its license number (query documentNumber): returned fields typically include RUT, license class, restrictions, control dates, municipality, and address, subject to registry availability—useful for fleet, workforce, and KYC checks where driving credentials matter.",
 			"country": "Chile",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2280,7 +2280,7 @@
 			"url": "https://ai.verifik.co/api/ca/ontario/driver-license",
 			"verifikPath": "/v2/ca/ontario/driver-license",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Use this service to validate and verify the authenticity of Ontario driver's licenses efficiently. Whether you need to confirm the validity of a driver's license for identification or regulatory purposes, this service provides accurate and up-to-date license information.",
 			"country": "Canada",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -2303,7 +2303,7 @@
 			"url": "https://ai.verifik.co/api/ca/quebec/driver-license",
 			"verifikPath": "/v2/ca/quebec/driver-license",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifies a Quebec driver's license against provincial records using the license document number. Typical fields include license class, status, issue-related data, and a confirmation number when returned by the source. Use it for KYC, fleet and mobility onboarding, and compliance checks.",
 			"country": "Canada",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -2326,7 +2326,7 @@
 			"url": "https://ai.verifik.co/api/ocr/scan-gpt",
 			"verifikPath": "/v2/ocr/scan-gpt",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
 			"country": "world",
 			"priceUsd": 0.07,
 			"parameters": {
@@ -2357,7 +2357,7 @@
 			"url": "https://ai.verifik.co/api/sv/dui",
 			"verifikPath": "/v2/sv/dui",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifik's Identity Verification API helps you authenticate Salvadoran citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
 			"country": "El Salvador",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2385,7 +2385,7 @@
 			"url": "https://ai.verifik.co/api/py/cic",
 			"verifikPath": "/v2/py/cic",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify a Paraguayan citizen using documentNumber (CIC). Returns identity fields to support KYC and compliance.",
 			"country": "Paraguay",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2408,7 +2408,7 @@
 			"url": "https://ai.verifik.co/api/ca/british-columbia/driver-license",
 			"verifikPath": "/v2/ca/british-columbia/driver-license",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The British Columbia Driver License Verification service offers a straightforward method to verify the authenticity and validity of a driver's license in the province of British Columbia, Canada. By utilizing this service, you can quickly validate a driver's license based on the provided document number and last name.",
 			"country": "Canada",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -2492,7 +2492,7 @@
 			"url": "https://ai.verifik.co/api/ocr/scan-studio",
 			"verifikPath": "/v2/ocr/scan-studio",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The Scan Studio offers a seamless and efficient solution for extracting critical information from scanned documents through state-of-the-art Optical Character Recognition (OCR) technology. To use this service, simply provide the document image in Base64-encoded format or a URL where the image is hosted, and let our system handle the rest.",
 			"country": "world",
 			"priceUsd": 0.1,
 			"parameters": {
@@ -2523,7 +2523,7 @@
 			"url": "https://ai.verifik.co/api/ca/company",
 			"verifikPath": "/v2/ca/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a Canadian legal entity in provincial business registries using business (company name) and province (two-letter code). Typical fields include business number, status, registry identifiers, and address. Use for KYB, vendor due diligence, and compliance.",
 			"country": "Canada",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2560,7 +2560,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/compare",
 			"verifikPath": "/v2/face-recognition/compare",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Compares a probe image against one or more gallery images and returns a similarity score. Use search_mode to balance speed and accuracy.",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -2593,7 +2593,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/compare-live",
 			"verifikPath": "/v2/face-recognition/compare-live",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Compares a live probe image against a gallery and performs liveness validation on the probe. Both comparison and liveness thresholds are configurable.",
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -2636,7 +2636,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/liveness",
 			"verifikPath": "/v2/face-recognition/liveness",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Detects whether a submitted face image comes from a live person or a spoof (photo, screen replay, printed copy). Returns a liveness score and a pass/fail outcome based on a minimum score threshold.",
 			"country": "world",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -2664,7 +2664,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/detect",
 			"verifikPath": "/v2/face-recognition/detect",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Detects and extracts faces from images. This endpoint can be used to identify and locate faces in images before performing liveness detection or face comparison.",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -2705,7 +2705,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/search",
 			"verifikPath": "/v2/face-recognition/search",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Searches one or more images against a face collection and returns potential matches ranked by similarity.",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -2746,7 +2746,7 @@
 			"url": "https://ai.verifik.co/api/mx/company",
 			"verifikPath": "/v2/mx/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "This endpoint looks up a Mexican legal entity by its FME (Folio Mercantil Electrónico) identifier. Use GET with documentType=FME and documentNumber to retrieve official registration details such as legal business name and city from government commercial registry sources.",
 			"country": "Mexico",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2846,7 +2846,7 @@
 			"url": "https://ai.verifik.co/api/ar/vehicle",
 			"verifikPath": "/v2/ar/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "The Argentine Vehicle Information service provides detailed information about vehicles registered in Argentina using their license plate number. This service returns comprehensive vehicle data including make, model, year, engine specifications, and registration details.",
 			"country": "Argentina",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2869,7 +2869,7 @@
 			"url": "https://ai.verifik.co/api/usa/company",
 			"verifikPath": "/v2/usa/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a U.S. company by full or partial business name using SEC EDGAR data. Send business in the JSON body of a POST request.",
 			"country": "United States",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2953,7 +2953,7 @@
 			"url": "https://ai.verifik.co/api/br/background-check",
 			"verifikPath": "/v2/br/background-check",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Brazil individual background screening using CPF and date of birth. A successful response includes identity-related fields and, when the data provider supplies it, a base64-encoded PDF report. Intended for employment screening, due diligence, and compliance; handle the PDF and metadata under your own legal and retention rules.",
 			"country": "Brazil",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -2989,7 +2989,7 @@
 			"url": "https://ai.verifik.co/api/cr/company",
 			"verifikPath": "/v2/cr/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Use this endpoint to confirm NITE (Número de Identificación Tributaria de Empresas) records for Costa Rican legal entities. Pass documentType NITE and the company documentNumber; the response returns registered business identifiers and related fields for KYB and onboarding.",
 			"country": "Costa Rica",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3020,7 +3020,7 @@
 			"url": "https://ai.verifik.co/api/ar/company",
 			"verifikPath": "/v2/ar/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up an Argentine company using documentType CUIT and documentNumber. Returns registration fields to support KYB, vendor screening, and compliance.",
 			"country": "Argentina",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3051,7 +3051,7 @@
 			"url": "https://ai.verifik.co/api/bo/company",
 			"verifikPath": "/v2/bo/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a Bolivian company using documentType NIT and documentNumber. Returns registration fields to support KYB, vendor screening, and compliance.",
 			"country": "Bolivia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3239,7 +3239,7 @@
 			"url": "https://ai.verifik.co/api/py/company",
 			"verifikPath": "/v2/py/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a Paraguayan company using documentType RUC and documentNumber. Returns registration fields to support KYB, vendor screening, and compliance.",
 			"country": "Paraguay",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3270,7 +3270,7 @@
 			"url": "https://ai.verifik.co/api/cl/validate/documents",
 			"verifikPath": "/v2/cl/validate/documents",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Submit RUN or RUT, document number, and printed serial to obtain a vigency-style status from civil or tax validation sources—use when the physical ID must be confirmed, not only the number.",
 			"country": "Chile",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3307,7 +3307,7 @@
 			"url": "https://ai.verifik.co/api/cl/taxpayer",
 			"verifikPath": "/v2/cl/taxpayer",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Returns name fields and identifiers aligned with tax registry usage—ideal for KYB, supplier onboarding, and invoice validation where the RUT must match registered taxpayer data.",
 			"country": "Chile",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3338,7 +3338,7 @@
 			"url": "https://ai.verifik.co/api/py/vehicle",
 			"verifikPath": "/v2/py/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a vehicle by license plate (plate). Returns registration, owner, and vehicle details for verification and compliance.",
 			"country": "Paraguay",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3361,7 +3361,7 @@
 			"url": "https://ai.verifik.co/api/cr/vehicle",
 			"verifikPath": "/v2/cr/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Send a GET request with the plate query parameter (no spaces or punctuation). A successful response includes structured vehicle data, owner fields, and history arrays when available.",
 			"country": "Costa Rica",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3384,7 +3384,7 @@
 			"url": "https://ai.verifik.co/api/usa/vehicle-by-vin",
 			"verifikPath": "/v2/usa/vehicle-by-vin",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Decode a U.S. vehicle by VIN using the vin query parameter (exactly 17 characters).",
 			"country": "United States",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3407,7 +3407,7 @@
 			"url": "https://ai.verifik.co/api/gt/cedula",
 			"verifikPath": "/v2/gt/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifik's Identity Verification API helps you authenticate Guatemalan citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
 			"country": "Guatemala",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3484,7 +3484,7 @@
 			"url": "https://ai.verifik.co/api/hn/cedula",
 			"verifikPath": "/v2/hn/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifik's Identity Verification API helps you authenticate Honduran citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
 			"country": "Honduras",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3515,7 +3515,7 @@
 			"url": "https://ai.verifik.co/api/do/cedula",
 			"verifikPath": "/v2/do/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verifik's Identity Verification API helps you authenticate Dominican citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
 			"country": "República Dominicana",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3569,7 +3569,7 @@
 			"url": "https://ai.verifik.co/api/bo/vehicle",
 			"verifikPath": "/v2/bo/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a vehicle by license plate (plate). Returns registration and vehicle details for verification and compliance.",
 			"country": "Bolivia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3592,7 +3592,7 @@
 			"url": "https://ai.verifik.co/api/uy/cedula",
 			"verifikPath": "/v2/uy/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Verify Uruguayan identification by documentType=CCUY, documentNumber, and dateOfBirth.",
 			"country": "Uruguay",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3628,7 +3628,7 @@
 			"url": "https://ai.verifik.co/api/es/company",
 			"verifikPath": "/v2/es/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a Spanish legal entity using documentNumber (company tax identifier, e.g. CIF). Returns core registration-oriented fields to support KYB, vendor screening, and compliance.",
 			"country": "Spain",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3659,7 +3659,7 @@
 			"url": "https://ai.verifik.co/api/pa/company",
 			"verifikPath": "/v2/pa/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Query Panama’s RUC (Registro Único de Contribuyente) registry. Send documentType (RUC), the company documentNumber, and the dv (verification digit). Typical uses include KYB, vendor onboarding, and compliance reviews when you need legal name, status, representatives, and key commercial fields in one HTTPS response.",
 			"country": "Panama",
 			"priceUsd": 1,
 			"parameters": {
@@ -3815,7 +3815,7 @@
 			"url": "https://ai.verifik.co/api/v3/pe/cedula/extra",
 			"verifikPath": "/v3/pe/cedula/extra",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Returns extended RENIEC DNI data for Peruvian citizens: full name, civil status, dates, photo (base64), address, ubigeo, and verification digit. Send documentType=DNI and the 8-digit documentNumber.",
 			"country": "Peru",
 			"priceUsd": 0.6,
 			"parameters": {
@@ -3846,7 +3846,7 @@
 			"url": "https://ai.verifik.co/api/v3/pe/cedula",
 			"verifikPath": "/v3/pe/cedula",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Standard Peruvian DNI (v3) identity check against RENIEC: validates that the document number matches official records and returns core identity fields (name, dates, civil status, address, etc.). Use documentType=DNI and the 8-digit documentNumber.",
 			"country": "Peru",
 			"priceUsd": 0.5,
 			"parameters": {
@@ -3975,7 +3975,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/face-validation",
 			"verifikPath": "/v2/face-recognition/face-validation",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Detect and validate the presence of a human face in an image. Useful as a pre-step for liveness or face-compare flows; returns face bounding boxes and quality signals.",
 			"country": "world",
 			"priceUsd": 0.01,
 			"parameters": {
@@ -3998,7 +3998,7 @@
 			"url": "https://ai.verifik.co/api/v3/pe/company",
 			"verifikPath": "/v3/pe/company",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Look up a Peruvian company by RUC (documentType=RUC and the business documentNumber). Returns legal name, status, address, and taxpayer condition from official registries—useful for KYB, onboarding vendors, and due diligence.",
 			"country": "Peru",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -4029,7 +4029,7 @@
 			"url": "https://ai.verifik.co/api/document-liveness",
 			"verifikPath": "/document-liveness",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Check whether a captured ID image is a real document or a screen/print attack. Returns liveness scores and indicators to harden KYC document-capture flows.",
 			"country": "world",
 			"priceUsd": 0.24,
 			"parameters": {
@@ -4045,7 +4045,7 @@
 			"url": "https://ai.verifik.co/api/credit-intents",
 			"verifikPath": "/v2/credit-intents",
 			"method": "POST",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Create a Verifik credit purchase intent for x402 settlement. Returns the intent id and pricing metadata used to confirm the on-chain payment for downstream API calls.",
 			"country": "world",
 			"priceUsd": 1,
 			"parameters": {
@@ -4072,7 +4072,7 @@
 			"url": "https://ai.verifik.co/api/es/vehicle",
 			"verifikPath": "/v2/es/vehicle",
 			"method": "GET",
-			"description": "Provides reliable verification and validation services.",
+			"description": "Returns vehicle information for a Spanish registration plate, including fields such as make, model, year, and vehicle type when a match exists.",
 			"country": "Spain",
 			"priceUsd": 0.3,
 			"parameters": {
