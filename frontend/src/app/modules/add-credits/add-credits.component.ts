@@ -76,6 +76,12 @@ export class AddCreditsComponent implements OnInit {
         Boolean(this.weekOneUsd50Promotion()?.eligible),
     );
 
+    /** Comma-separated promo tier list for the wallet strip, e.g. "$50, $100, $150, $200". */
+    weekOneUsd50PromoAmountsLabel = computed(() => {
+        const amounts = this.weekOneUsd50Promotion()?.purchaseUsdAmounts ?? [50];
+        return amounts.map((a) => `$${a}`).join(', ');
+    });
+
     /** `GET /v2/client-settings` resolved (success or failure). */
     billingCheckResolved = signal(false);
 

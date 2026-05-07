@@ -1300,11 +1300,11 @@
         "promo": {
             "weekOneUsd50": {
                 "badge": "Limited promotion",
-                "title": "Double credit value when you recharge $50 in your first week",
-                "body": "If you purchase $50 USD of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge.",
-                "accountCreatedNotice": "You must complete the $50 purchase before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
+                "title": "Double credit value when you recharge $50, $100, $150, or $200 in your first week",
+                "body": "If you purchase $50, $100, $150, or $200 USD of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge.",
+                "accountCreatedNotice": "You must complete one of the qualifying purchases ($50 / $100 / $150 / $200) before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
                 "deadline": "Complete your qualifying purchase by {{expiresAt}}",
-                "walletStrip": "Limited: pick {{amountUsd}} USD when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
+                "walletStrip": "Limited: pick {{amountUsd}} when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
                 "dialogDouble": "First-week promo: you pay {{payUsd}} for this recharge and receive {{receivedUsd}} in total credited value—including the matched bonus."
             }
         },

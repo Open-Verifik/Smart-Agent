@@ -3,7 +3,8 @@ export interface SmartAgentWeekOneUsd50Promotion {
     eligible: boolean;
     consumed: boolean;
     expiresAt: string;
-    purchaseUsdAmount: number;
+    /** All USD amounts that qualify for the first-week double-credit promo. */
+    purchaseUsdAmounts: number[];
 }
 
 export interface User {

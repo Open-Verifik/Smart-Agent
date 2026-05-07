@@ -2035,11 +2035,11 @@
     "promo": {
       "weekOneUsd50": {
         "badge": "Promotion limitée",
-        "title": "Double valeur en crédits si vous rechargez 50 $ la première semaine",
-        "body": "Si vous achetez pour 50 USD de crédits dans les sept jours suivant la création de votre compte client Verifik (critère : horodatage du profil client enregistré, pas uniquement la première connexion), nous ajoutons un même montant en crédits bonus. Pour cet achat qualifié, la valeur équivalente en crédits est le double du montant.",
-        "accountCreatedNotice": "Vous devez finaliser cet achat de 50 $ avant que ne s’écoule une semaine complète depuis l’inscription du compte client ; après ce délai, ou après utilisation une fois de l’offre, les tarifs standards s’appliquent.",
+        "title": "Double valeur en crédits si vous rechargez 50 $, 100 $, 150 $ ou 200 $ la première semaine",
+        "body": "Si vous achetez pour 50, 100, 150 ou 200 USD de crédits dans les sept jours suivant la création de votre compte client Verifik (critère : horodatage du profil client enregistré, pas uniquement la première connexion), nous ajoutons un même montant en crédits bonus. Pour cet achat qualifié, la valeur équivalente en crédits est le double du montant.",
+        "accountCreatedNotice": "Vous devez finaliser l'un des achats éligibles (50 $ / 100 $ / 150 $ / 200 $) avant que ne s'écoule une semaine complète depuis l'inscription du compte client ; après ce délai, ou après utilisation une fois de l'offre, les tarifs standards s'appliquent.",
         "deadline": "Finalisez l’achat éligible avant le {{expiresAt}}",
-        "walletStrip": "Première semaine : choisissez {{amountUsd}} lors de l’achat — nous doublons la valeur en crédits tant que l’offre est active (voir la bannière ci-dessus).",
+        "walletStrip": "Première semaine : choisissez {{amountUsd}} lors de l'achat — nous doublons la valeur en crédits tant que l'offre est active (voir la bannière ci-dessus).",
         "dialogDouble": "Offre première semaine : vous payez {{payUsd}} pour cette recharge et recevez {{receivedUsd}} de valeur totale en crédits, bonus inclus."
       }
     },

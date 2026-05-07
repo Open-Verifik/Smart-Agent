@@ -67,7 +67,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     customAmountValue: number | null = null;
 
     /** Preset amounts; minimum purchasable USD is `MIN_CREDIT_PURCHASE_USD` (custom input included). */
-    creditAmounts = [40, 50, 100, 250, 500, 1000];
+    creditAmounts = [50, 100, 150, 200, 250, 500];
 
     // KYC Requirement support
     kycRequired = false;
@@ -81,21 +81,14 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     showWeekOneDoubleCreditsHint(): boolean {
         const p = this.data?.promotion;
 
-        if (!p?.eligible) {
+        if (!p?.eligible || this.loading) {
             return false;
         }
 
-        const targetUsd = p.purchaseUsdAmount;
+        const amounts = p.purchaseUsdAmounts ?? [];
+        const active = this.isCustomAmount ? Number(this.customAmountValue) : this.selectedAmount;
 
-        if (this.loading) {
-            return false;
-        }
-
-        if (this.isCustomAmount) {
-            return Number(this.customAmountValue) === targetUsd;
-        }
-
-        return !this.isCustomAmount && this.selectedAmount === targetUsd;
+        return amounts.includes(active);
     }
 
     selectPresetAmount(amount: number): void {

@@ -2029,11 +2029,11 @@
     "promo": {
       "weekOneUsd50": {
         "badge": "Promoção limitada",
-        "title": "Valor dobrado ao recarregar US$ 50 na sua primeira semana",
+        "title": "Valor dobrado ao recarregar US$ 50, US$ 100, US$ 150 ou US$ 200 na sua primeira semana",
         "body": "Se você comprar US$ 50 em créditos em até sete dias após a criação da conta cliente Verifik (vale a hora cadastrada no perfil da conta cliente, não só o primeiro login), adicionamos bônus equivalente em créditos. Nessa compra qualificada, o valor disponível equivale ao dobro do montante.",
-        "accountCreatedNotice": "É obrigatório concluir a compra de US$ 50 antes que se complete uma semana inteira desde o cadastro da conta cliente. Depois do prazo ou após usar esta promo uma vez, aplicam-se os preços normais.",
+        "accountCreatedNotice": "É obrigatório concluir uma das compras qualificadoras (US$ 50 / US$ 100 / US$ 150 / US$ 200) antes que se complete uma semana inteira desde o cadastro da conta cliente. Depois do prazo ou após usar esta promo uma vez, aplicam-se os preços normais.",
         "deadline": "Conclua a compra elegível até {{expiresAt}}",
-        "walletStrip": "Primeira semana ativa: escolha {{amountUsd}} na compra de créditos — dobramos o valor utilizável enquanto a promo vigorar (veja faixa acima).",
+        "walletStrip": "Primeira semana: escolha {{amountUsd}} ao comprar créditos — dobramos o valor creditado enquanto esta promoção estiver ativa (ver banner acima).",
         "dialogDouble": "Promo primeira semana: você paga {{payUsd}} nesta recarga e recebe {{receivedUsd}} de valor total em créditos, bônus incluídos."
       }
     },
