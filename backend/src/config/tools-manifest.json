@@ -4380,7 +4380,7 @@
 		{
 			"id": "colombia_special_api_police_identity_lookup",
 			"name": "Colombia - Police Records Check",
-			"url": "https://ai.verifik.co/api/api/co/policia/consultar",
+			"url": "https://ai.verifik.co/api/co/policia/consultar",
 			"method": "GET",
 			"description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date.",
 			"country": "Colombia",
@@ -4412,7 +4412,7 @@
 		{
 			"id": "colombia_api_runt_owners",
 			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/api/api/co/runt/propietarios",
+			"url": "https://ai.verifik.co/api/co/runt/propietarios",
 			"method": "GET",
 			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
 			"country": "Colombia",
@@ -4435,7 +4435,7 @@
 		{
 			"id": "world_api_passport_entries",
 			"name": "United States - Identity Verification",
-			"url": "https://ai.verifik.co/api/api/passport/us/entries",
+			"url": "https://ai.verifik.co/api/passport/us/entries",
 			"method": "GET",
 			"description": "Standard identity verification service for United States citizens. Verifies personal information and document authenticity.",
 			"country": "world",

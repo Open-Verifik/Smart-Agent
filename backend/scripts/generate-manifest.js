@@ -213,17 +213,41 @@ const buildParameters = (dependencies) => {
 /**
  * Map a Verifik-relative URL to the Smart Agent public path suffix.
  *
- * v2/co/cedula      → api/co/cedula
- * v3/co/rues        → api/v3/co/rues
- * document-liveness → api/document-liveness
+ * v2/co/cedula           → api/co/cedula
+ * v2/api/co/foo          → api/co/foo (source or orphan URL must not double-prefix)
+ * api/co/foo             → api/co/foo (already public — orphan migration)
+ * v3/co/rues             → api/v3/co/rues
+ * document-liveness      → api/document-liveness
  *
  * @param {string} relativeUrl  No leading slash (e.g. "v2/co/cedula").
  * @returns {string}            Public suffix with no leading slash.
  */
 const toPublicPath = (relativeUrl) => {
-	if (relativeUrl.startsWith("v2/")) return "api/" + relativeUrl.slice(3);
-	if (relativeUrl.startsWith("v3/")) return "api/v3/" + relativeUrl.slice(3);
-	return "api/" + relativeUrl;
+	const s = String(relativeUrl || "").replace(/^\/+/, "");
+	if (!s) return "api/";
+
+	if (s.startsWith("v3/")) {
+		let rest = s.slice(3);
+		if (rest.startsWith("api/")) rest = rest.slice(4);
+		return "api/v3/" + rest;
+	}
+
+	if (s.startsWith("v2/")) {
+		let rest = s.slice(3);
+		if (rest.startsWith("api/")) {
+			let r = rest.slice(4);
+			while (r.startsWith("api/")) r = r.slice(4);
+			return "api/" + r;
+		}
+		return "api/" + rest;
+	}
+
+	if (s.startsWith("api/")) {
+		let rest = s.slice(4);
+		while (rest.startsWith("api/")) rest = rest.slice(4);
+		return "api/" + rest;
+	}
+	return "api/" + s;
 };
 
 const featureToTool = (feature) => {

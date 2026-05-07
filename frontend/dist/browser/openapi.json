@@ -8999,7 +8999,7 @@
         ]
       }
     },
-    "/api/api/co/policia/consultar": {
+    "/api/co/policia/consultar": {
       "get": {
         "tags": [
           "KYC",
@@ -9063,7 +9063,7 @@
         ]
       }
     },
-    "/api/api/co/runt/propietarios": {
+    "/api/co/runt/propietarios": {
       "get": {
         "tags": [
           "KYC",
@@ -9114,7 +9114,7 @@
         ]
       }
     },
-    "/api/api/passport/us/entries": {
+    "/api/passport/us/entries": {
       "get": {
         "tags": [
           "KYC",
