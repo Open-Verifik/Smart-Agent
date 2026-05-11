@@ -61,15 +61,32 @@ export class ReportPreviewComponent {
     signatureWidth = input<number>(100);
     signatureHeight = input<number>(50);
 
+    // Workspace logo (drag & drop overlay)
+    logoEnabled = input<boolean>(false);
+    logoX = input<number>(32);
+    logoY = input<number>(32);
+    logoWidth = input<number>(160);
+    logoHeight = input<number>(60);
+    /** When true, content is auto-pushed below the logo overlay. */
+    logoAutoFitContent = input<boolean>(false);
+
+    /** Extra top padding (canonical 96 DPI px) added to the section content area. */
+    bodyTopPadding = input<number>(0);
+
     // Output
     @Output() signaturePositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() signatureSizeChange = new EventEmitter<{ width: number; height: number }>();
+    @Output() logoPositionChange = new EventEmitter<{ x: number; y: number }>();
+    @Output() logoSizeChange = new EventEmitter<{ width: number; height: number }>();
 
     private isResizing = false;
+    private resizeTarget: 'signature' | 'logo' | null = null;
     private startX = 0;
     private startY = 0;
     private startWidth = 0;
     private startHeight = 0;
+    private pendingResize: { width: number; height: number } | null = null;
+    private resizeFrameId: number | null = null;
 
     private get _scaleFactors(): { x: number; y: number } {
         if (!this.reportPage) {
@@ -115,26 +132,90 @@ export class ReportPreviewComponent {
         return this.signatureHeight() / this._scaleFactors.y;
     }
 
+    get viewLogoX(): number {
+        return this.logoX() / this._scaleFactors.x;
+    }
+
+    get viewLogoY(): number {
+        return this.logoY() / this._scaleFactors.y;
+    }
+
+    get viewLogoWidth(): number {
+        return this.logoWidth() / this._scaleFactors.x;
+    }
+
+    get viewLogoHeight(): number {
+        return this.logoHeight() / this._scaleFactors.y;
+    }
+
+    /**
+     * Effective top padding applied to the section content area, in canonical 96 DPI px.
+     *
+     * Behaviour: explicit wins.
+     * - When `bodyTopPadding` > 0, the slider value is used directly (auto-fit is ignored).
+     * - When `bodyTopPadding` is 0 and auto-fit is on with a visible logo overlay, the
+     *   content is pushed down to clear the logo (`logoY + logoHeight + 16`).
+     * - Otherwise 0.
+     */
+    get effectiveContentPaddingTop(): number {
+        const base = this.bodyTopPadding() || 0;
+        if (base > 0) return base;
+        if (
+            this.logoEnabled() &&
+            this.logoAutoFitContent() &&
+            this.logoUrl()
+        ) {
+            return (this.logoY() || 0) + (this.logoHeight() || 0) + 16;
+        }
+        return 0;
+    }
+
+    /** Same as `effectiveContentPaddingTop` but scaled down to the on-screen preview. */
+    get viewContentPaddingTop(): number {
+        return this.effectiveContentPaddingTop / this._scaleFactors.y;
+    }
+
     onSignatureDragEnd(event: CdkDragEnd) {
         if (this.isResizing) return;
 
         const { x, y } = event.source.getFreeDragPosition();
         const scales = this._scaleFactors;
 
-        // View -> Canonical
-        this.signaturePositionChange.emit({ x: x * scales.x, y: y * scales.y });
+        // View -> Canonical, rounded to remove sub-pixel jitter
+        this.signaturePositionChange.emit({
+            x: Math.round(x * scales.x),
+            y: Math.round(y * scales.y),
+        });
     }
 
-    startResize(event: MouseEvent) {
+    onLogoDragEnd(event: CdkDragEnd) {
+        if (this.isResizing) return;
+
+        const { x, y } = event.source.getFreeDragPosition();
+        const scales = this._scaleFactors;
+
+        this.logoPositionChange.emit({
+            x: Math.round(x * scales.x),
+            y: Math.round(y * scales.y),
+        });
+    }
+
+    startResize(event: MouseEvent, target: 'signature' | 'logo' = 'signature') {
         event.stopPropagation();
         event.preventDefault();
         this.isResizing = true;
+        this.resizeTarget = target;
         this.startX = event.clientX;
         this.startY = event.clientY;
 
         // Start dimensions in DOM/Screen pixels
-        this.startWidth = this.viewSignatureWidth;
-        this.startHeight = this.viewSignatureHeight;
+        if (target === 'logo') {
+            this.startWidth = this.viewLogoWidth;
+            this.startHeight = this.viewLogoHeight;
+        } else {
+            this.startWidth = this.viewSignatureWidth;
+            this.startHeight = this.viewSignatureHeight;
+        }
 
         window.addEventListener('mousemove', this.onResize);
         window.addEventListener('mouseup', this.stopResize);
@@ -147,19 +228,49 @@ export class ReportPreviewComponent {
 
         const scales = this._scaleFactors;
 
-        // New DOM dimensions
-        const newDomWidth = Math.max(20, this.startWidth + dx);
-        const newDomHeight = Math.max(10, this.startHeight + dy);
+        // New DOM dimensions (sane minimums to avoid disappearing handles)
+        const newDomWidth = Math.max(24, this.startWidth + dx);
+        const newDomHeight = Math.max(16, this.startHeight + dy);
 
-        // Convert back to Canonical for emit
-        this.signatureSizeChange.emit({
-            width: newDomWidth * scales.x,
-            height: newDomHeight * scales.y,
-        });
+        // Convert back to Canonical for emit, rounded to remove sub-pixel jitter
+        this.pendingResize = {
+            width: Math.round(newDomWidth * scales.x),
+            height: Math.round(newDomHeight * scales.y),
+        };
+
+        if (this.resizeFrameId !== null) return;
+        this.resizeFrameId = requestAnimationFrame(this._flushResize);
+    };
+
+    private _flushResize = () => {
+        this.resizeFrameId = null;
+        const payload = this.pendingResize;
+        if (!payload) return;
+        this.pendingResize = null;
+        if (this.resizeTarget === 'logo') {
+            this.logoSizeChange.emit(payload);
+        } else {
+            this.signatureSizeChange.emit(payload);
+        }
     };
 
     private stopResize = () => {
         this.isResizing = false;
+        if (this.resizeFrameId !== null) {
+            cancelAnimationFrame(this.resizeFrameId);
+            this.resizeFrameId = null;
+        }
+        // Flush the final pending payload so the last delta is never dropped
+        if (this.pendingResize) {
+            const payload = this.pendingResize;
+            this.pendingResize = null;
+            if (this.resizeTarget === 'logo') {
+                this.logoSizeChange.emit(payload);
+            } else if (this.resizeTarget === 'signature') {
+                this.signatureSizeChange.emit(payload);
+            }
+        }
+        this.resizeTarget = null;
         window.removeEventListener('mousemove', this.onResize);
         window.removeEventListener('mouseup', this.stopResize);
     };

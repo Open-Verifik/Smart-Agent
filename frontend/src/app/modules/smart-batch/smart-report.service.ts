@@ -89,6 +89,20 @@ export interface SmartReportTemplate {
         height: number;
     };
 
+    // Workspace logo position & size (drag & drop overlay, parallel to signature)
+    logoSettings?: {
+        enabled: boolean;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        /** When true and overlay is enabled, content auto-pushes below the logo. */
+        autoFitContent?: boolean;
+    };
+
+    /** Extra top padding (canonical 96 DPI px) added to the section content area. */
+    bodyTopPadding?: number;
+
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
 
@@ -226,6 +240,21 @@ export class SmartReportService {
             messageId?: string;
             error?: string;
         }>(`${environment.apiUrl}/v2/smart-report-templates/${id}/send-sample`, options);
+    }
+
+    /**
+     * Generate the same Puppeteer sample PDF as `sendTemplateSample` but receive
+     * the file directly (no email) so the user can preview it locally.
+     */
+    downloadTemplateSample(
+        id: string,
+        body: { sampleData: SampleReportData }
+    ): Observable<Blob> {
+        return this._httpClient.post(
+            `${environment.apiUrl}/v2/smart-report-templates/${id}/download-sample`,
+            body,
+            { responseType: 'blob' }
+        );
     }
 
     // ============================================

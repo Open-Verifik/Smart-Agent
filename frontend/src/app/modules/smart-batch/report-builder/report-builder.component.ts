@@ -26,6 +26,19 @@ import {
 import { SendSampleModalComponent } from './send-sample-modal/send-sample-modal.component';
 import { SignaturePadDialogComponent } from './signature-pad-dialog/signature-pad-dialog.component';
 
+/**
+ * Minimum allowed X / Y (in canonical 96 DPI px) for absolutely-positioned
+ * overlays on the report paper (workspace logo, signature). Mirrors the
+ * backend's `OVERLAY_SAFETY_INSET` (12 px) plus the default Puppeteer page
+ * margin (40 px) so the overlay always sits inside the printable area and
+ * the preview matches the generated PDF pixel-for-pixel.
+ *
+ * If the page margins are ever made user-configurable, recompute as
+ * `pageMargin + safetyInset` from the same source.
+ */
+const OVERLAY_MIN_X = 52;
+const OVERLAY_MIN_Y = 52;
+
 @Component({
     selector: 'report-builder',
     standalone: true,
@@ -67,6 +80,7 @@ export class ReportBuilderComponent implements OnInit {
     isLoading = signal<boolean>(false);
     isSaving = signal<boolean>(false);
     isSendingSample = signal(false);
+    isDownloadingSample = signal(false);
 
     // Logo
     logoUrl = signal<string | null>(null);
@@ -152,6 +166,17 @@ export class ReportBuilderComponent implements OnInit {
             signatureY: [0],
             signatureWidth: [100],
             signatureHeight: [50],
+            // Workspace logo (drag & resize overlay)
+            // Visibility is implicit: a logo image (logoUrl) is the only switch.
+            // Default position is clamped to the safe printable-area inset so
+            // it lands neatly inside the page margins (matches the PDF output).
+            logoX: [OVERLAY_MIN_X],
+            logoY: [OVERLAY_MIN_Y],
+            logoWidth: [160],
+            logoHeight: [60],
+            logoAutoFitContent: [false],
+            // Section content top padding (canonical px)
+            bodyTopPadding: [0],
         });
     }
 
@@ -242,13 +267,24 @@ export class ReportBuilderComponent implements OnInit {
                     securityEnabled: template.security?.enabled || false,
                     // If enabled, assume password exists and mask it. If not, empty.
                     securityPassword: template.security?.enabled ? '******' : '',
-                    // Signature
+                    // Signature - clamp X/Y to the safe printable-area inset
+                    // so legacy templates render in the preview exactly where
+                    // the PDF will place them.
                     signatureEnabled: template.signature?.enabled || false,
                     signatureImage: template.signature?.image || null,
-                    signatureX: template.signature?.x || 0,
-                    signatureY: template.signature?.y || 0,
+                    signatureX: Math.max(OVERLAY_MIN_X, template.signature?.x || 0),
+                    signatureY: Math.max(OVERLAY_MIN_Y, template.signature?.y || 0),
                     signatureWidth: template.signature?.width || 100,
                     signatureHeight: template.signature?.height || 50,
+                    // Workspace logo overlay (visibility derived from logoUrl).
+                    // Same clamp as signature for WYSIWYG with the PDF.
+                    logoX: Math.max(OVERLAY_MIN_X, template.logoSettings?.x ?? OVERLAY_MIN_X),
+                    logoY: Math.max(OVERLAY_MIN_Y, template.logoSettings?.y ?? OVERLAY_MIN_Y),
+                    logoWidth: template.logoSettings?.width ?? 160,
+                    logoHeight: template.logoSettings?.height ?? 60,
+                    logoAutoFitContent: template.logoSettings?.autoFitContent ?? false,
+                    // Section content top padding
+                    bodyTopPadding: template.bodyTopPadding ?? 0,
                 });
                 this.logoUrl.set(template.logo || null);
                 this.isLoading.set(false);
@@ -440,6 +476,16 @@ export class ReportBuilderComponent implements OnInit {
                 width: formVal.signatureWidth || 100,
                 height: formVal.signatureHeight || 50,
             },
+            logoSettings: {
+                // Visibility tracks whether a logo image is present.
+                enabled: !!this.logoUrl(),
+                x: formVal.logoX ?? 32,
+                y: formVal.logoY ?? 32,
+                width: formVal.logoWidth ?? 160,
+                height: formVal.logoHeight ?? 60,
+                autoFitContent: formVal.logoAutoFitContent ?? false,
+            },
+            bodyTopPadding: formVal.bodyTopPadding ?? 0,
         };
 
         // Remove flat watermark fields from the spread
@@ -456,6 +502,11 @@ export class ReportBuilderComponent implements OnInit {
         delete (templateData as any).signatureY;
         delete (templateData as any).signatureWidth;
         delete (templateData as any).signatureHeight;
+        delete (templateData as any).logoX;
+        delete (templateData as any).logoY;
+        delete (templateData as any).logoWidth;
+        delete (templateData as any).logoHeight;
+        delete (templateData as any).logoAutoFitContent;
 
         const id = this.templateId();
 
@@ -574,6 +625,131 @@ export class ReportBuilderComponent implements OnInit {
         });
     }
 
+    /**
+     * Download a sample PDF for the current template using the same Puppeteer
+     * pipeline as the email flow, so the user can inspect output without going
+     * through their inbox. Mirrors `sendSample`'s save-if-dirty behaviour.
+     */
+    downloadSamplePdf(): void {
+        if (!this.templateId()) {
+            this._snack.open(this._transloco.translate('smartReport.saveTemplateFirst'), 'Close', {
+                duration: 3500,
+            });
+            return;
+        }
+
+        const performDownload = (): void => {
+            const id = this.templateId();
+            if (!id) return;
+
+            this.isDownloadingSample.set(true);
+            this._reportService
+                .downloadTemplateSample(id, { sampleData: this.previewData() })
+                .subscribe({
+                    next: async (blob) => {
+                        let pdfBlob = blob;
+
+                        const hasPdfMagic = await this._isPdfBlob(blob);
+                        if (!hasPdfMagic) {
+                            const recovered = await this._blobFromJsonBytes(blob);
+                            if (!recovered) {
+                                const errorMsg = await this._parseBlobError(blob);
+                                this._snack.open(
+                                    errorMsg ||
+                                        this._transloco.translate(
+                                            'smartReport.invalidPdfReceived'
+                                        ),
+                                    'Close',
+                                    { duration: 4000 }
+                                );
+                                this.isDownloadingSample.set(false);
+                                return;
+                            }
+                            pdfBlob = recovered;
+                        }
+
+                        const safeName = (this.templateForm.get('name')?.value || 'template')
+                            .toString()
+                            .replace(/[^a-z0-9-_]+/gi, '_')
+                            .slice(0, 60);
+                        const url = URL.createObjectURL(pdfBlob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `SmartReport_TemplateSample_${safeName || id}.pdf`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+
+                        this._snack.open(
+                            this._transloco.translate('smartReport.pdfDownloaded'),
+                            'Close',
+                            { duration: 2000 }
+                        );
+                        this.isDownloadingSample.set(false);
+                    },
+                    error: (err) => {
+                        console.error('Download sample failed:', err);
+                        this._snack.open(
+                            this._transloco.translate('smartReport.failedToDownloadPdf'),
+                            'Close',
+                            { duration: 4000 }
+                        );
+                        this.isDownloadingSample.set(false);
+                    },
+                });
+        };
+
+        if (this.templateForm.dirty) {
+            this.save(() => performDownload());
+        } else {
+            performDownload();
+        }
+    }
+
+    /** True when the first 4 bytes of the blob are the PDF magic header (%PDF). */
+    private async _isPdfBlob(blob: Blob): Promise<boolean> {
+        const slice = blob.slice(0, 5);
+        const buf = await slice.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+        return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46;
+    }
+
+    /**
+     * Some backends serialize a Buffer as a JSON object of `{0:37,1:80,...}`.
+     * Reconstruct a real PDF Blob when that happens; return null if the bytes
+     * don't actually start with the PDF magic header.
+     */
+    private async _blobFromJsonBytes(blob: Blob): Promise<Blob | null> {
+        try {
+            const text = await blob.text();
+            const parsed = JSON.parse(text) as Record<string, number>;
+            const keys = Object.keys(parsed).filter((k) => /^\d+$/.test(k));
+            if (keys.length === 0) return null;
+            keys.sort((a, b) => Number(a) - Number(b));
+            const bytes = new Uint8Array(keys.length);
+            keys.forEach((k, i) => (bytes[i] = parsed[k] & 0xff));
+            if (bytes[0] !== 0x25 || bytes[1] !== 0x50 || bytes[2] !== 0x44 || bytes[3] !== 0x46) {
+                return null;
+            }
+            return new Blob([bytes], { type: 'application/pdf' });
+        } catch {
+            return null;
+        }
+    }
+
+    private async _parseBlobError(blob: Blob): Promise<string> {
+        try {
+            const text = await blob.text();
+            const parsed = JSON.parse(text) as Record<string, unknown>;
+            if (typeof parsed.error === 'string') return parsed.error;
+            if (typeof parsed.message === 'string') return parsed.message;
+            return text.slice(0, 80);
+        } catch {
+            return blob.type === 'application/json' || blob.type === 'text/plain'
+                ? 'Server returned an error'
+                : 'Invalid PDF content';
+        }
+    }
+
     // ============================================
     // NAVIGATION
     // ============================================
@@ -603,6 +779,24 @@ export class ReportBuilderComponent implements OnInit {
 
     /** Flattened data paths for the helper panel (only leaf paths for fields) */
     helperDataPaths = computed(() => buildHelperDataPaths(this.previewData()));
+
+    /**
+     * Effective content top padding shown next to the slider readout.
+     *
+     * Mirrors the "explicit wins" logic in ReportPreviewComponent:
+     * - When `bodyTopPadding` > 0, the slider value is used directly.
+     * - When 0 and auto-fit is on with a logo, the auto-fit offset is used.
+     * - Otherwise 0.
+     */
+    getEffectiveContentPaddingTop(): number {
+        const v = this.templateForm.value;
+        const base = Number(v.bodyTopPadding) || 0;
+        if (base > 0) return base;
+        if (this.logoUrl() && v.logoAutoFitContent) {
+            return (Number(v.logoY) || 0) + (Number(v.logoHeight) || 0) + 16;
+        }
+        return 0;
+    }
 
     copyPathToClipboard(path: string): void {
         navigator.clipboard.writeText(path).then(
@@ -637,12 +831,32 @@ export class ReportBuilderComponent implements OnInit {
         const reader = new FileReader();
         reader.onload = () => {
             this.logoUrl.set(reader.result as string);
+            this.templateForm.markAsDirty();
         };
         reader.readAsDataURL(file);
     }
 
     removeLogo(): void {
         this.logoUrl.set(null);
+        this.templateForm.markAsDirty();
+    }
+
+    onLogoPositionChange(pos: { x: number; y: number }): void {
+        // Clamp to the safe printable-area inset so the preview never lets
+        // the user place the logo where the PDF would have to nudge it.
+        this.templateForm.patchValue({
+            logoX: Math.max(OVERLAY_MIN_X, Math.round(pos.x)),
+            logoY: Math.max(OVERLAY_MIN_Y, Math.round(pos.y)),
+        });
+        this.templateForm.markAsDirty();
+    }
+
+    onLogoSizeChange(size: { width: number; height: number }): void {
+        this.templateForm.patchValue({
+            logoWidth: Math.round(size.width),
+            logoHeight: Math.round(size.height),
+        });
+        this.templateForm.markAsDirty();
     }
 
     // ============================================
@@ -650,9 +864,11 @@ export class ReportBuilderComponent implements OnInit {
     // ============================================
 
     onSignaturePositionChange(pos: { x: number; y: number }): void {
+        // Clamp to the same safe printable-area inset used for the logo so
+        // the preview matches the generated PDF exactly.
         this.templateForm.patchValue({
-            signatureX: Math.round(pos.x),
-            signatureY: Math.round(pos.y),
+            signatureX: Math.max(OVERLAY_MIN_X, Math.round(pos.x)),
+            signatureY: Math.max(OVERLAY_MIN_Y, Math.round(pos.y)),
         });
         this.templateForm.markAsDirty();
     }

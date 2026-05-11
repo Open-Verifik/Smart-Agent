@@ -1046,6 +1046,8 @@
     "designReportLayout": "ドラッグ＆ドロップでレポートレイアウトをデザイン",
     "sendSample": "サンプルを送信",
     "sendingSample": "サンプルを送信中...",
+    "downloadSample": "サンプルをダウンロード",
+    "downloadingSample": "PDFを生成中...",
     "saveTemplateFirst": "サンプル送信を有効にするには、まずテンプレートを保存してください",
     "saveTemplate": "テンプレートを保存",
     "saving": "保存中...",

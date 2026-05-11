@@ -1046,6 +1046,8 @@
     "designReportLayout": "드래그 앤 드롭으로 보고서 레이아웃 디자인",
     "sendSample": "샘플 보내기",
     "sendingSample": "샘플 보내는 중...",
+    "downloadSample": "샘플 다운로드",
+    "downloadingSample": "PDF 생성 중...",
     "saveTemplateFirst": "샘플 전송을 사용하려면 먼저 템플릿을 저장하세요",
     "saveTemplate": "템플릿 저장",
     "saving": "저장 중...",

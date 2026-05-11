@@ -1046,6 +1046,8 @@
     "designReportLayout": "通过拖放设计报告布局",
     "sendSample": "发送样本",
     "sendingSample": "正在发送样本...",
+    "downloadSample": "下载样本",
+    "downloadingSample": "正在生成 PDF...",
     "saveTemplateFirst": "请先保存模板以启用样本发送",
     "saveTemplate": "保存模板",
     "saving": "保存中...",

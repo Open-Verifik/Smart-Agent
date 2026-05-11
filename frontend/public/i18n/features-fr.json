@@ -1046,6 +1046,8 @@
     "designReportLayout": "Concevez la disposition de votre rapport par glisser-déposer",
     "sendSample": "Envoyer un échantillon",
     "sendingSample": "Envoi de l'échantillon...",
+    "downloadSample": "Télécharger un échantillon",
+    "downloadingSample": "Génération du PDF...",
     "saveTemplateFirst": "Enregistrez le modèle d'abord pour activer l'envoi d'échantillon",
     "saveTemplate": "Enregistrer le modèle",
     "saving": "Enregistrement...",

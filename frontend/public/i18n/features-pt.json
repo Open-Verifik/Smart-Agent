@@ -1046,6 +1046,8 @@
     "designReportLayout": "Projete o layout do seu relatório com arrastar e soltar",
     "sendSample": "Enviar Amostra",
     "sendingSample": "Enviando amostra...",
+    "downloadSample": "Baixar Amostra",
+    "downloadingSample": "Gerando PDF...",
     "saveTemplateFirst": "Salve o modelo primeiro para habilitar o envio de amostra",
     "saveTemplate": "Salvar Modelo",
     "saving": "Salvando...",
