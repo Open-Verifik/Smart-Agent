@@ -1,323 +1,499 @@
-<div
-    #reportPage
-    class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative"
-    [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
-    [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
-    style="border: 1px solid #e5e7eb"
->
-    <!-- Watermark overlay -->
-    @if (watermarkEnabled()) {
-        @if (watermarkPattern() === 'single') {
-            <!-- Single centered watermark -->
-            <div
-                class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
-            >
-                @if (watermarkType() === 'text') {
-                    <span
-                        class="text-gray-500 font-bold select-none whitespace-nowrap"
-                        [style.opacity]="watermarkOpacity()"
-                        style="font-size: 72px; transform: rotate(-35deg); letter-spacing: 8px"
-                        >{{ watermarkText() }}</span
+<!--
+    Paginated preview: render N paper cards (one per A4 page) so the live
+    preview matches the actual PDF output. Page 1 owns the logo + signature
+    overlays and the optional content top spacer; every page renders the
+    legend at the bottom (mirrors Puppeteer's footerTemplate).
+-->
+<div class="flex flex-col items-center gap-4">
+    @for (
+        pageSections of pages();
+        track $index;
+        let pageIndex = $index, isFirst = $first, count = $count
+    ) {
+        <div
+            #reportPage
+            class="bg-white rounded-lg shadow-lg mx-auto overflow-hidden flex flex-col relative w-full"
+            [style.max-width]="orientation() === 'landscape' ? '297mm' : '210mm'"
+            [style.min-height]="orientation() === 'landscape' ? '210mm' : '297mm'"
+            style="border: 1px solid #e5e7eb"
+        >
+            <!-- Watermark overlay (every page, matches PDF behaviour) -->
+            @if (watermarkEnabled()) {
+                @if (watermarkPattern() === 'single') {
+                    <div
+                        class="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden"
                     >
-                } @else if (watermarkType() === 'logo' && logoUrl()) {
-                    <img
-                        [src]="logoUrl()"
-                        alt="Watermark"
-                        class="select-none max-w-[60%] max-h-[40%] object-contain"
-                        [style.opacity]="watermarkOpacity()"
-                        style="transform: rotate(-15deg)"
-                    />
-                }
-            </div>
-        } @else {
-            <!-- Repeated tiled watermark -->
-            <div
-                class="absolute inset-0 pointer-events-none z-10 overflow-hidden"
-                style="
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-                    grid-template-rows: repeat(5, 1fr);
-                    gap: 0;
-                "
-            >
-                @for (i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; track i) {
-                    <div class="flex items-center justify-center">
                         @if (watermarkType() === 'text') {
                             <span
                                 class="text-gray-500 font-bold select-none whitespace-nowrap"
                                 [style.opacity]="watermarkOpacity()"
                                 style="
-                                    font-size: 18px;
+                                    font-size: 72px;
                                     transform: rotate(-35deg);
-                                    letter-spacing: 3px;
+                                    letter-spacing: 8px;
                                 "
                                 >{{ watermarkText() }}</span
                             >
                         } @else if (watermarkType() === 'logo' && logoUrl()) {
                             <img
                                 [src]="logoUrl()"
-                                alt=""
-                                class="select-none w-16 h-16 object-contain"
+                                alt="Watermark"
+                                class="select-none max-w-[60%] max-h-[40%] object-contain"
                                 [style.opacity]="watermarkOpacity()"
                                 style="transform: rotate(-15deg)"
                             />
                         }
                     </div>
-                }
-            </div>
-        }
-    }
-
-    <!-- Signature Overlay -->
-    @if (signatureEnabled() && signatureImage()) {
-        <div class="absolute inset-0 pointer-events-none z-20">
-            <div
-                class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
-                [style.width.px]="viewSignatureWidth"
-                [style.height.px]="viewSignatureHeight"
-                cdkDrag
-                [cdkDragFreeDragPosition]="{ x: viewSignatureX, y: viewSignatureY }"
-                (cdkDragEnded)="onSignatureDragEnd($event)"
-            >
-                <img
-                    [src]="signatureImage()"
-                    class="w-full h-full object-contain pointer-events-none select-none"
-                    draggable="false"
-                />
-
-                <!-- Resize Handle (always visible, large hit target) -->
-                <div
-                    class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                    (mousedown)="startResize($event, 'signature')"
-                >
-                    <mat-icon
-                        class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                        style="pointer-events: none"
-                        >open_in_full</mat-icon
-                    >
-                </div>
-            </div>
-        </div>
-    }
-
-    <!-- Workspace Logo Overlay (drag & resize, mirrors signature) -->
-    @if (logoEnabled() && logoUrl()) {
-        <div class="absolute inset-0 pointer-events-none z-20">
-            <div
-                class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
-                [style.width.px]="viewLogoWidth"
-                [style.height.px]="viewLogoHeight"
-                cdkDrag
-                [cdkDragFreeDragPosition]="{ x: viewLogoX, y: viewLogoY }"
-                (cdkDragEnded)="onLogoDragEnd($event)"
-            >
-                <img
-                    [src]="logoUrl()"
-                    alt="Logo"
-                    class="w-full h-full object-contain pointer-events-none select-none"
-                    draggable="false"
-                />
-
-                <!-- Resize Handle (always visible, large hit target) -->
-                <div
-                    class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
-                    (mousedown)="startResize($event, 'logo')"
-                >
-                    <mat-icon
-                        class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
-                        style="pointer-events: none"
-                        >open_in_full</mat-icon
-                    >
-                </div>
-            </div>
-        </div>
-    }
-    <!-- Top page number -->
-    @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
-        <div
-            class="px-8 sm:px-10 lg:px-12 pt-4 text-[10px] text-gray-400"
-            [style.text-align]="
-                pageNumberPosition() === 'top-left'
-                    ? 'left'
-                    : pageNumberPosition() === 'top-right'
-                      ? 'right'
-                      : 'center'
-            "
-        >
-            Page 1 of 1
-        </div>
-    }
-
-    <div class="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col min-h-0">
-        <!-- Content top spacer (clears room for the logo overlay) -->
-        @if (viewContentPaddingTop > 0) {
-            <div [style.height.px]="viewContentPaddingTop"></div>
-        }
-
-        @if (template().sections?.length === 0) {
-            <div class="flex flex-col items-center justify-center h-64 text-gray-300">
-                <mat-icon class="!text-5xl !w-14 !h-14 mb-3">description</mat-icon>
-                <p class="text-sm">{{ 'smartReport.noSectionsToPreview' | transloco }}</p>
-            </div>
-        }
-
-        @for (section of template().sections; track section.id) {
-            <div
-                class="transition-all duration-200"
-                [class.cursor-pointer]="clickable()"
-                [class.ring-2]="clickable() && selectedSectionId() === section.id"
-                [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
-                [class.rounded-md]="clickable() && selectedSectionId() === section.id"
-                (click)="clickable() && sectionClick() ? sectionClick()!(section) : null"
-            >
-                @if (section.type === 'header') {
-                    <div class="mb-4" [style.text-align]="section.style?.textAlign || 'left'">
-                        <h2
-                            [style.font-size.px]="section.style?.fontSize || 22"
-                            [style.font-weight]="section.style?.fontWeight || 'bold'"
-                            [style.color]="section.style?.color || primaryColor()"
-                            class="leading-tight"
-                        >
-                            {{
-                                section.staticContent ||
-                                    section.label ||
-                                    ('smartReport.untitled' | transloco)
-                            }}
-                        </h2>
-                    </div>
-                }
-
-                @if (section.type === 'text') {
-                    <div class="mb-3">
-                        <p
-                            [style.font-size.px]="section.style?.fontSize || 12"
-                            [style.font-weight]="section.style?.fontWeight || 'normal'"
-                            [style.text-align]="section.style?.textAlign || 'left'"
-                            [style.color]="section.style?.color || '#374151'"
-                            class="leading-relaxed whitespace-pre-wrap"
-                        >
-                            {{ section.staticContent || ('smartReport.textContent' | transloco) }}
-                        </p>
-                    </div>
-                }
-
-                @if (section.type === 'field') {
+                } @else {
                     <div
-                        class="flex gap-3 py-2.5 border-b border-gray-100"
-                        [style.text-align]="section.style?.textAlign || 'left'"
+                        class="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+                        style="
+                            display: grid;
+                            grid-template-columns: repeat(3, 1fr);
+                            grid-template-rows: repeat(5, 1fr);
+                            gap: 0;
+                        "
                     >
-                        <span
-                            class="text-gray-500 min-w-[140px] shrink-0"
-                            [style.font-size.px]="section.style?.fontSize || 12"
-                            >{{ section.label || ('smartReport.field' | transloco) }}</span
-                        >
-                        <span
-                            class="text-gray-900 font-medium"
-                            [style.font-size.px]="section.style?.fontSize || 12"
-                            [style.color]="section.style?.color || '#111827'"
-                            >{{ resolveDataPath(section.dataPath) || '—' }}</span
-                        >
-                    </div>
-                }
-
-                @if (section.type === 'table') {
-                    <div class="mb-4">
-                        @if (section.label) {
-                            <h4
-                                class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
-                                [style.color]="primaryColor()"
-                            >
-                                {{ section.label }}
-                            </h4>
-                        }
-                        <table class="w-full text-sm">
-                            <tbody>
-                                @for (row of resolveTableData(section.dataPath); track row.key) {
-                                    <tr class="border-b border-gray-100">
-                                        <td class="py-2 pr-4 text-gray-500 w-1/3">{{ row.key }}</td>
-                                        <td class="py-2 text-gray-900 font-medium">
-                                            {{ row.value }}
-                                        </td>
-                                    </tr>
+                        @for (i of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]; track i) {
+                            <div class="flex items-center justify-center">
+                                @if (watermarkType() === 'text') {
+                                    <span
+                                        class="text-gray-500 font-bold select-none whitespace-nowrap"
+                                        [style.opacity]="watermarkOpacity()"
+                                        style="
+                                            font-size: 18px;
+                                            transform: rotate(-35deg);
+                                            letter-spacing: 3px;
+                                        "
+                                        >{{ watermarkText() }}</span
+                                    >
+                                } @else if (watermarkType() === 'logo' && logoUrl()) {
+                                    <img
+                                        [src]="logoUrl()"
+                                        alt=""
+                                        class="select-none w-16 h-16 object-contain"
+                                        [style.opacity]="watermarkOpacity()"
+                                        style="transform: rotate(-15deg)"
+                                    />
                                 }
-                                @if (resolveTableData(section.dataPath).length === 0) {
-                                    <tr>
-                                        <td
-                                            colspan="2"
-                                            class="py-4 text-center text-gray-300 text-xs"
-                                        >
-                                            {{
-                                                'smartReport.noDataAtPath'
-                                                    | transloco: { path: section.dataPath }
-                                            }}
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-
-                @if (section.type === 'image') {
-                    <div class="mb-4" [style.text-align]="section.style?.textAlign || 'center'">
-                        @if (section.staticContent) {
-                            <img
-                                [src]="section.staticContent"
-                                [alt]="section.label || ('smartReport.image' | transloco)"
-                                class="max-h-32 inline-block rounded"
-                                style="max-width: 100%"
-                            />
-                        } @else {
-                            <div
-                                class="inline-flex items-center justify-center w-48 h-24 bg-gray-100 rounded-lg text-gray-300"
-                            >
-                                <mat-icon class="!text-3xl">image</mat-icon>
                             </div>
                         }
                     </div>
                 }
+            }
 
-                @if (section.type === 'divider') {
-                    <hr
-                        class="my-4"
-                        [style.border-color]="section.style?.color || '#E5E7EB'"
-                        style="border-width: 1px"
-                    />
-                }
-
-                @if (section.type === 'spacer') {
-                    <div [style.height.px]="section.style?.padding || 16"></div>
-                }
-            </div>
-        }
-        @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
-            <div class="mt-auto shrink-0 pb-6">
-                @if (legend()) {
-                    <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
-                        <p
-                            class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
-                            [textContent]="legend()"
-                        ></p>
-                    </div>
-                }
-                @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
+            <!--
+                Logo + Signature overlays: page 1 only, mirroring the PDF
+                where they're absolutely positioned inside the .report-page
+                row (so they only appear on the first physical page).
+            -->
+            @if (isFirst && signatureEnabled() && signatureImage()) {
+                <div class="absolute inset-0 pointer-events-none z-20">
                     <div
-                        class="text-[10px] text-gray-400"
-                        [class.border-t]="!legend()"
-                        [class.border-gray-200]="!legend()"
-                        [class.pt-3]="!legend()"
-                        [style.text-align]="
-                            pageNumberPosition() === 'bottom-left'
-                                ? 'left'
-                                : pageNumberPosition() === 'bottom-right'
-                                  ? 'right'
-                                  : 'center'
-                        "
+                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        [style.width.px]="viewSignatureWidth"
+                        [style.height.px]="viewSignatureHeight"
+                        cdkDrag
+                        [cdkDragFreeDragPosition]="{ x: viewSignatureX, y: viewSignatureY }"
+                        (cdkDragEnded)="onSignatureDragEnd($event)"
                     >
-                        Page 1 of 1
+                        <img
+                            [src]="signatureImage()"
+                            class="w-full h-full object-contain pointer-events-none select-none"
+                            draggable="false"
+                        />
+                        <div
+                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
+                            (mousedown)="startResize($event, 'signature')"
+                        >
+                            <mat-icon
+                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
+                                style="pointer-events: none"
+                                >open_in_full</mat-icon
+                            >
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (isFirst && logoEnabled() && logoUrl()) {
+                <div class="absolute inset-0 pointer-events-none z-20">
+                    <div
+                        class="absolute cursor-move border-2 border-dashed border-indigo-300/60 hover:border-indigo-500 transition-colors pointer-events-auto group"
+                        [style.width.px]="viewLogoWidth"
+                        [style.height.px]="viewLogoHeight"
+                        cdkDrag
+                        [cdkDragFreeDragPosition]="{ x: viewLogoX, y: viewLogoY }"
+                        (cdkDragEnded)="onLogoDragEnd($event)"
+                    >
+                        <img
+                            [src]="logoUrl()"
+                            alt="Logo"
+                            class="w-full h-full object-contain pointer-events-none select-none"
+                            draggable="false"
+                        />
+                        <div
+                            class="absolute bottom-[-10px] right-[-10px] w-7 h-7 bg-white border border-indigo-300 cursor-nwse-resize hover:border-indigo-500 hover:bg-indigo-50 rounded-full shadow-md flex items-center justify-center z-30"
+                            (mousedown)="startResize($event, 'logo')"
+                        >
+                            <mat-icon
+                                class="!text-[16px] !w-4 !h-4 text-indigo-500 rotate-90"
+                                style="pointer-events: none"
+                                >open_in_full</mat-icon
+                            >
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Top page number (every page when configured) -->
+            @if (showPageNumbers() && pageNumberPosition().startsWith('top')) {
+                <div
+                    class="px-8 sm:px-10 lg:px-12 pt-4 text-[10px] text-gray-400"
+                    [style.text-align]="
+                        pageNumberPosition() === 'top-left'
+                            ? 'left'
+                            : pageNumberPosition() === 'top-right'
+                              ? 'right'
+                              : 'center'
+                    "
+                >
+                    Page {{ pageIndex + 1 }} of {{ count }}
+                </div>
+            }
+
+            <div class="p-8 sm:p-10 lg:p-12 flex-1 flex flex-col min-h-0">
+                <!-- Logo top spacer (page 1 only) -->
+                @if (isFirst && viewContentPaddingTop > 0) {
+                    <div [style.height.px]="viewContentPaddingTop"></div>
+                }
+
+                <!-- Empty state (only when no sections at all) -->
+                @if (isFirst && (template().sections?.length ?? 0) === 0) {
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-300">
+                        <mat-icon class="!text-5xl !w-14 !h-14 mb-3">description</mat-icon>
+                        <p class="text-sm">{{ 'smartReport.noSectionsToPreview' | transloco }}</p>
+                    </div>
+                }
+
+                @for (section of pageSections; track section.id) {
+                    <div
+                        class="transition-all duration-200"
+                        [class.cursor-pointer]="clickable()"
+                        [class.ring-2]="clickable() && selectedSectionId() === section.id"
+                        [class.ring-indigo-400]="clickable() && selectedSectionId() === section.id"
+                        [class.rounded-md]="clickable() && selectedSectionId() === section.id"
+                        (click)="clickable() && sectionClick() ? sectionClick()!(section) : null"
+                    >
+                        @if (section.type === 'header') {
+                            <div
+                                class="mb-4"
+                                [style.text-align]="section.style?.textAlign || 'left'"
+                            >
+                                <h2
+                                    [style.font-size.px]="section.style?.fontSize || 22"
+                                    [style.font-weight]="section.style?.fontWeight || 'bold'"
+                                    [style.color]="section.style?.color || primaryColor()"
+                                    class="leading-tight"
+                                >
+                                    {{
+                                        section.staticContent ||
+                                            section.label ||
+                                            ('smartReport.untitled' | transloco)
+                                    }}
+                                </h2>
+                            </div>
+                        }
+
+                        @if (section.type === 'text') {
+                            <div class="mb-3">
+                                <p
+                                    [style.font-size.px]="section.style?.fontSize || 12"
+                                    [style.font-weight]="section.style?.fontWeight || 'normal'"
+                                    [style.text-align]="section.style?.textAlign || 'left'"
+                                    [style.color]="section.style?.color || '#374151'"
+                                    class="leading-relaxed whitespace-pre-wrap"
+                                >
+                                    {{
+                                        section.staticContent ||
+                                            ('smartReport.textContent' | transloco)
+                                    }}
+                                </p>
+                            </div>
+                        }
+
+                        @if (section.type === 'field') {
+                            <div
+                                class="flex gap-3 py-2.5 border-b border-gray-100"
+                                [style.text-align]="section.style?.textAlign || 'left'"
+                            >
+                                <span
+                                    class="text-gray-500 min-w-[140px] shrink-0"
+                                    [style.font-size.px]="section.style?.fontSize || 12"
+                                    >{{ section.label || ('smartReport.field' | transloco) }}</span
+                                >
+                                <span
+                                    class="text-gray-900 font-medium"
+                                    [style.font-size.px]="section.style?.fontSize || 12"
+                                    [style.color]="section.style?.color || '#111827'"
+                                    >{{ resolveDataPath(section.dataPath) || '—' }}</span
+                                >
+                            </div>
+                        }
+
+                        @if (section.type === 'table') {
+                            <div class="mb-4">
+                                @if (section.label) {
+                                    <h4
+                                        class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
+                                        [style.color]="primaryColor()"
+                                    >
+                                        {{ section.label }}
+                                    </h4>
+                                }
+                                <table class="w-full text-sm">
+                                    <tbody>
+                                        @for (
+                                            row of resolveTableData(section.dataPath);
+                                            track row.key
+                                        ) {
+                                            <tr class="border-b border-gray-100">
+                                                <td class="py-2 pr-4 text-gray-500 w-1/3">
+                                                    {{ row.key }}
+                                                </td>
+                                                <td class="py-2 text-gray-900 font-medium">
+                                                    {{ row.value }}
+                                                </td>
+                                            </tr>
+                                        }
+                                        @if (resolveTableData(section.dataPath).length === 0) {
+                                            <tr>
+                                                <td
+                                                    colspan="2"
+                                                    class="py-4 text-center text-gray-300 text-xs"
+                                                >
+                                                    {{
+                                                        'smartReport.noDataAtPath'
+                                                            | transloco: { path: section.dataPath }
+                                                    }}
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
+                        @if (section.type === 'image') {
+                            <div
+                                class="mb-4"
+                                [style.text-align]="section.style?.textAlign || 'center'"
+                            >
+                                @if (section.staticContent) {
+                                    <img
+                                        [src]="section.staticContent"
+                                        [alt]="section.label || ('smartReport.image' | transloco)"
+                                        class="max-h-32 inline-block rounded"
+                                        style="max-width: 100%"
+                                    />
+                                } @else {
+                                    <div
+                                        class="inline-flex items-center justify-center w-48 h-24 bg-gray-100 rounded-lg text-gray-300"
+                                    >
+                                        <mat-icon class="!text-3xl">image</mat-icon>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        @if (section.type === 'divider') {
+                            <hr
+                                class="my-4"
+                                [style.border-color]="section.style?.color || '#E5E7EB'"
+                                style="border-width: 1px"
+                            />
+                        }
+
+                        @if (section.type === 'spacer') {
+                            <div [style.height.px]="section.style?.padding || 16"></div>
+                        }
+                    </div>
+                }
+
+                <!-- Footer (every page, mirrors Puppeteer footerTemplate) -->
+                @if (legend() || (showPageNumbers() && pageNumberPosition().startsWith('bottom'))) {
+                    <div class="mt-auto shrink-0 pb-6">
+                        @if (legend()) {
+                            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
+                                <p
+                                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
+                                    [textContent]="legend()"
+                                ></p>
+                            </div>
+                        }
+                        @if (showPageNumbers() && pageNumberPosition().startsWith('bottom')) {
+                            <div
+                                class="text-[10px] text-gray-400"
+                                [class.border-t]="!legend()"
+                                [class.border-gray-200]="!legend()"
+                                [class.pt-3]="!legend()"
+                                [style.text-align]="
+                                    pageNumberPosition() === 'bottom-left'
+                                        ? 'left'
+                                        : pageNumberPosition() === 'bottom-right'
+                                          ? 'right'
+                                          : 'center'
+                                "
+                            >
+                                Page {{ pageIndex + 1 }} of {{ count }}
+                            </div>
+                        }
                     </div>
                 }
             </div>
-        }
-    </div>
+        </div>
+    }
+</div>
+
+<!--
+    Off-screen measurement container.
+    Renders every section once at A4 width with the same horizontal padding
+    used in the visible cards so we can measure each section's natural
+    height and bin-pack them into pages. Hidden but still laid out so
+    getBoundingClientRect returns real values.
+-->
+<div
+    aria-hidden="true"
+    class="px-8 sm:px-10 lg:px-12"
+    style="
+        position: absolute;
+        left: -100000px;
+        top: 0;
+        visibility: hidden;
+        pointer-events: none;
+    "
+    [style.width]="orientation() === 'landscape' ? '297mm' : '210mm'"
+>
+    @for (section of template().sections || []; track section.id) {
+        <div #measureSection [attr.data-section-id]="section.id">
+            @if (section.type === 'header') {
+                <div class="mb-4" [style.text-align]="section.style?.textAlign || 'left'">
+                    <h2
+                        [style.font-size.px]="section.style?.fontSize || 22"
+                        [style.font-weight]="section.style?.fontWeight || 'bold'"
+                        [style.color]="section.style?.color || primaryColor()"
+                        class="leading-tight"
+                    >
+                        {{
+                            section.staticContent ||
+                                section.label ||
+                                ('smartReport.untitled' | transloco)
+                        }}
+                    </h2>
+                </div>
+            }
+            @if (section.type === 'text') {
+                <div class="mb-3">
+                    <p
+                        [style.font-size.px]="section.style?.fontSize || 12"
+                        [style.font-weight]="section.style?.fontWeight || 'normal'"
+                        [style.text-align]="section.style?.textAlign || 'left'"
+                        [style.color]="section.style?.color || '#374151'"
+                        class="leading-relaxed whitespace-pre-wrap"
+                    >
+                        {{ section.staticContent || ('smartReport.textContent' | transloco) }}
+                    </p>
+                </div>
+            }
+            @if (section.type === 'field') {
+                <div
+                    class="flex gap-3 py-2.5 border-b border-gray-100"
+                    [style.text-align]="section.style?.textAlign || 'left'"
+                >
+                    <span
+                        class="text-gray-500 min-w-[140px] shrink-0"
+                        [style.font-size.px]="section.style?.fontSize || 12"
+                        >{{ section.label || ('smartReport.field' | transloco) }}</span
+                    >
+                    <span
+                        class="text-gray-900 font-medium"
+                        [style.font-size.px]="section.style?.fontSize || 12"
+                        [style.color]="section.style?.color || '#111827'"
+                        >{{ resolveDataPath(section.dataPath) || '—' }}</span
+                    >
+                </div>
+            }
+            @if (section.type === 'table') {
+                <div class="mb-4">
+                    @if (section.label) {
+                        <h4
+                            class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2"
+                            [style.color]="primaryColor()"
+                        >
+                            {{ section.label }}
+                        </h4>
+                    }
+                    <table class="w-full text-sm">
+                        <tbody>
+                            @for (row of resolveTableData(section.dataPath); track row.key) {
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-2 pr-4 text-gray-500 w-1/3">{{ row.key }}</td>
+                                    <td class="py-2 text-gray-900 font-medium">{{ row.value }}</td>
+                                </tr>
+                            }
+                            @if (resolveTableData(section.dataPath).length === 0) {
+                                <tr>
+                                    <td colspan="2" class="py-4 text-center text-gray-300 text-xs">
+                                        {{
+                                            'smartReport.noDataAtPath'
+                                                | transloco: { path: section.dataPath }
+                                        }}
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            @if (section.type === 'image') {
+                <div class="mb-4" [style.text-align]="section.style?.textAlign || 'center'">
+                    @if (section.staticContent) {
+                        <img
+                            [src]="section.staticContent"
+                            [alt]="section.label || ('smartReport.image' | transloco)"
+                            class="max-h-32 inline-block rounded"
+                            style="max-width: 100%"
+                        />
+                    } @else {
+                        <div
+                            class="inline-flex items-center justify-center w-48 h-24 bg-gray-100 rounded-lg text-gray-300"
+                        >
+                            <mat-icon class="!text-3xl">image</mat-icon>
+                        </div>
+                    }
+                </div>
+            }
+            @if (section.type === 'divider') {
+                <hr
+                    class="my-4"
+                    [style.border-color]="section.style?.color || '#E5E7EB'"
+                    style="border-width: 1px"
+                />
+            }
+            @if (section.type === 'spacer') {
+                <div [style.height.px]="section.style?.padding || 16"></div>
+            }
+        </div>
+    }
+
+    @if (legend()) {
+        <div #measureLegend class="pb-6">
+            <div class="w-full min-w-0 border-t border-gray-200 pt-3 mb-2">
+                <p
+                    class="text-[10px] text-gray-400 leading-relaxed whitespace-pre-wrap text-left m-0 w-full min-w-0"
+                    [textContent]="legend()"
+                ></p>
+            </div>
+        </div>
+    }
 </div>

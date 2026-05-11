@@ -1,13 +1,29 @@
 import { CdkDragEnd, DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Output, ViewChild, input } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    EventEmitter,
+    Output,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+    effect,
+    input,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 import { ReportSection, SmartReportTemplate } from '../smart-report.service';
 
+const MM_TO_PX = 3.7795275591;
+
 /**
- * Shared report preview component - renders a template with data.
- * Same rendering as the report builder's live preview.
+ * Shared report preview component - renders a template with data, paginating
+ * sections into multiple A4-sized "paper" cards so the live preview matches
+ * the actual PDF page breaks (true WYSIWYG with the Puppeteer output).
  */
 @Component({
     selector: 'report-preview',
@@ -15,8 +31,16 @@ import { ReportSection, SmartReportTemplate } from '../smart-report.service';
     imports: [CommonModule, MatIconModule, TranslocoModule, DragDropModule],
     templateUrl: './report-preview.component.html',
 })
-export class ReportPreviewComponent {
-    @ViewChild('reportPage') reportPage!: ElementRef<HTMLDivElement>;
+export class ReportPreviewComponent implements AfterViewInit {
+    /** All paper cards in the rendered preview. The first card is used as the
+     *  reference for canonical-to-screen scaling and overlay anchoring. */
+    @ViewChildren('reportPage') private _reportPages!: QueryList<ElementRef<HTMLDivElement>>;
+    /** Off-screen container that always renders every section so we can
+     *  measure their natural heights independently of the visible (and
+     *  paginated) rendering. */
+    @ViewChildren('measureSection') private _measureSections!: QueryList<ElementRef<HTMLElement>>;
+    /** Off-screen legend block used to compute the bottom reservation. */
+    @ViewChild('measureLegend') private _measureLegend?: ElementRef<HTMLElement>;
 
     /** Template containing sections to render */
     template = input.required<SmartReportTemplate>();
@@ -79,6 +103,10 @@ export class ReportPreviewComponent {
     @Output() logoPositionChange = new EventEmitter<{ x: number; y: number }>();
     @Output() logoSizeChange = new EventEmitter<{ width: number; height: number }>();
 
+    /** Sections grouped into pages after measurement. Always has at least one
+     *  page entry (which may be empty when there are no sections). */
+    pages = signal<ReportSection[][]>([[]]);
+
     private isResizing = false;
     private resizeTarget: 'signature' | 'logo' | null = null;
     private startX = 0;
@@ -88,13 +116,190 @@ export class ReportPreviewComponent {
     private pendingResize: { width: number; height: number } | null = null;
     private resizeFrameId: number | null = null;
 
-    private get _scaleFactors(): { x: number; y: number } {
-        if (!this.reportPage) {
-            console.warn('[ReportPreview] reportPage missing');
-            return { x: 1, y: 1 };
+    private _measureScheduled = false;
+    private _measureFrameId: number | null = null;
+
+    constructor() {
+        // Single effect that tracks every input that influences pagination.
+        // Reading the signals here registers the dependency; the actual work
+        // is deferred to a rAF tick so the DOM has updated to reflect the new
+        // template/section state before we measure.
+        effect(() => {
+            // Track inputs that should trigger a remeasure
+            this.template().sections;
+            this.legend();
+            this.orientation();
+            this.bodyTopPadding();
+            this.logoEnabled();
+            this.logoY();
+            this.logoHeight();
+            this.logoAutoFitContent();
+            this.showPageNumbers();
+            this.pageNumberPosition();
+
+            // Seed pages with everything in one bucket so the visible
+            // rendering has something to show before measurement completes.
+            // We only re-seed when the section identity actually changes to
+            // avoid clobbering a freshly-computed pagination on minor edits.
+            untracked(() => this._seedPagesIfNeeded());
+
+            this._scheduleMeasurement();
+        });
+    }
+
+    ngAfterViewInit(): void {
+        // Re-measure whenever the off-screen section list re-renders so we
+        // pick up height changes from edits (text length, table rows, ...)
+        this._measureSections.changes.subscribe(() => this._scheduleMeasurement());
+        this._scheduleMeasurement();
+    }
+
+    /** First paper card; used as the canonical scale + drag/resize anchor. */
+    get reportPage(): ElementRef<HTMLDivElement> | undefined {
+        return this._reportPages?.first;
+    }
+
+    /**
+     * Keep `pages` in sync with the latest section references. The builder's
+     * `updateSection` replaces a section with a fresh `{ ...s, ...updates }`
+     * object that keeps the same id, so an id-only equality check would
+     * silently swallow inline edits (label, dataPath, style, ...). We instead:
+     *
+     * - Reseed `pages` to a single bucket when the *set* of section ids
+     *   changes (added / removed / reordered). Measurement re-paginates.
+     * - Otherwise refresh section references in-place so the visible cards
+     *   pick up the new content while preserving the existing page layout.
+     */
+    private _seedPagesIfNeeded(): void {
+        const sections = this.template().sections || [];
+        const current = this.pages();
+        const flatCurrent = current.flat();
+        const sameSet =
+            flatCurrent.length === sections.length &&
+            flatCurrent.every((s, i) => s?.id === sections[i]?.id);
+
+        if (!sameSet) {
+            this.pages.set(sections.length > 0 ? [sections.slice()] : [[]]);
+            return;
         }
 
-        const rect = this.reportPage.nativeElement.getBoundingClientRect();
+        const byId = new Map(sections.map((s) => [s.id, s]));
+        let referencesChanged = false;
+        const refreshed = current.map((page) =>
+            page.map((s) => {
+                const fresh = byId.get(s.id);
+                if (fresh && fresh !== s) referencesChanged = true;
+                return fresh ?? s;
+            })
+        );
+
+        if (referencesChanged) this.pages.set(refreshed);
+    }
+
+    private _scheduleMeasurement(): void {
+        if (this._measureScheduled) return;
+        this._measureScheduled = true;
+        if (this._measureFrameId !== null) cancelAnimationFrame(this._measureFrameId);
+        this._measureFrameId = requestAnimationFrame(() => {
+            this._measureScheduled = false;
+            this._measureFrameId = null;
+            this._performMeasurement();
+        });
+    }
+
+    private _performMeasurement(): void {
+        const sections = this.template().sections || [];
+        if (sections.length === 0) {
+            this._setPagesIfDifferent([[]]);
+            return;
+        }
+
+        const els = this._measureSections?.toArray() || [];
+        if (els.length !== sections.length) {
+            // Off-screen list hasn't caught up yet; try again next frame.
+            this._scheduleMeasurement();
+            return;
+        }
+
+        // If the legend is configured but its measure node hasn't mounted
+        // yet, defer one frame so we don't bin-pack with a 0px footer
+        // reservation and then have to redo the work right after.
+        if (this.legend() && !this._measureLegend?.nativeElement) {
+            this._scheduleMeasurement();
+            return;
+        }
+
+        const heights = new Map<string, number>();
+        for (const ref of els) {
+            const el = ref.nativeElement;
+            const id = el.dataset['sectionId'];
+            if (!id) continue;
+            heights.set(id, el.getBoundingClientRect().height);
+        }
+
+        const pageHeightDom = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
+        // Mirrors the visible card's `p-8 sm:p-10 lg:p-12` (top + bottom).
+        const innerPaddingTopBottom = 96; // 48px top + 48px bottom at lg breakpoint
+        const legendHeight = this._getLegendHeight();
+        const firstPageExtraTop = this.viewContentPaddingTop;
+
+        const baseAvailable = Math.max(0, pageHeightDom - innerPaddingTopBottom - legendHeight);
+        const firstPageAvailable = Math.max(0, baseAvailable - firstPageExtraTop);
+
+        const newPages: ReportSection[][] = [[]];
+        let acc = 0;
+        let isFirstPage = true;
+
+        for (const section of sections) {
+            const h = heights.get(section.id) || 0;
+            const available = isFirstPage ? firstPageAvailable : baseAvailable;
+            const currentBucket = newPages[newPages.length - 1];
+
+            // Start a fresh page when the next section overflows AND the
+            // current page already has at least one section. Sections that
+            // are larger than a full page just stay on their own page and
+            // overflow visually (mirrors how Chromium handles them in print).
+            if (currentBucket.length > 0 && acc + h > available) {
+                newPages.push([]);
+                acc = 0;
+                isFirstPage = false;
+            }
+
+            newPages[newPages.length - 1].push(section);
+            acc += h;
+        }
+
+        this._setPagesIfDifferent(newPages);
+    }
+
+    private _setPagesIfDifferent(newPages: ReportSection[][]): void {
+        const current = this.pages();
+        // Compare by reference too: same ids with stale object refs (because
+        // the builder replaced a section with a spread copy) still need a
+        // re-render so the visible cards pick up the latest content.
+        const same =
+            newPages.length === current.length &&
+            newPages.every(
+                (p, i) =>
+                    p.length === current[i]?.length &&
+                    p.every((s, j) => s.id === current[i][j].id && s === current[i][j])
+            );
+        if (same) return;
+        this.pages.set(newPages);
+    }
+
+    private _getLegendHeight(): number {
+        if (!this.legend()) return 0;
+        const el = this._measureLegend?.nativeElement;
+        if (!el) return 0;
+        return el.getBoundingClientRect().height;
+    }
+
+    private get _scaleFactors(): { x: number; y: number } {
+        const ref = this.reportPage;
+        if (!ref) return { x: 1, y: 1 };
+
+        const rect = ref.nativeElement.getBoundingClientRect();
         const currentWidth = rect.width;
         const currentHeight = rect.height;
 
@@ -102,16 +307,13 @@ export class ReportPreviewComponent {
             return { x: 1, y: 1 };
         }
 
-        // 96 DPI constant
-        const MM_TO_PX = 3.7795275591;
         const canonicalWidth = (this.orientation() === 'landscape' ? 297 : 210) * MM_TO_PX;
         const canonicalHeight = (this.orientation() === 'landscape' ? 210 : 297) * MM_TO_PX;
 
-        const factors = {
+        return {
             x: canonicalWidth / currentWidth,
             y: canonicalHeight / currentHeight,
         };
-        return factors;
     }
 
     // Transforming Input (Canonical) -> View (Screen)
