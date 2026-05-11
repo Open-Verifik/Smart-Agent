@@ -1,19 +1,32 @@
-<!-- Dialog Backdrop -->
-<div class="dialog-backdrop" *ngIf="isOpen">
-  <div class="dialog-container">
-    <div class="dialog-content">
-      <div class="content-section">
-        <div class="icon-wrapper">
-          <mat-icon>credit_card</mat-icon>
+<div
+    *ngIf="isOpen"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm"
+>
+    <div
+        class="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-6 shadow-xl dark:border-gray-800 dark:bg-gray-900"
+    >
+        <div class="flex flex-col items-center text-center">
+            <div
+                class="flex h-12 w-12 items-center justify-center rounded-2xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+            >
+                <mat-icon>credit_card</mat-icon>
+            </div>
+            <h2
+                class="mt-4 text-lg font-semibold text-stone-950 dark:text-white"
+            >
+                {{ 'subscriptionPlans.billingRequired.title' | transloco }}
+            </h2>
+            <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                {{ 'subscriptionPlans.billingRequired.message' | transloco }}
+            </p>
+
+            <button
+                type="button"
+                class="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                (click)="onGoToBilling()"
+            >
+                {{ 'subscriptionPlans.billingRequired.cta' | transloco }}
+            </button>
         </div>
-        <h2 class="title">{{ 'subscriptionPlans.billingRequired.title' | transloco }}</h2>
-        <p class="message">{{ 'subscriptionPlans.billingRequired.message' | transloco }}</p>
-        <div class="actions">
-          <button class="btn btn-confirm" (click)="onGoToBilling()">
-            {{ 'subscriptionPlans.billingRequired.cta' | transloco }}
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
 </div>

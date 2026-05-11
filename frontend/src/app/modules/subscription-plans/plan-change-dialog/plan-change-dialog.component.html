@@ -1,171 +1,289 @@
-<!-- Dialog Backdrop -->
-<div class="dialog-backdrop" *ngIf="isOpen" (click)="onBackdropClick($event)">
-  <div class="dialog-container">
-    <!-- Close Button -->
-    <button class="close-btn" (click)="onCancel()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M6 18L18 6M6 6l12 12"/>
-      </svg>
-    </button>
+<div
+    *ngIf="isOpen"
+    class="dialog-backdrop fixed inset-0 z-50 flex items-center justify-center bg-stone-950/60 p-4 backdrop-blur-sm"
+    (click)="onBackdropClick($event)"
+>
+    <div
+        class="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-xl dark:border-gray-800 dark:bg-gray-900"
+    >
+        <button
+            type="button"
+            class="absolute top-4 right-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-lg text-stone-500 transition hover:bg-stone-100 dark:text-stone-400 dark:hover:bg-gray-800"
+            (click)="onCancel()"
+        >
+            <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+        </button>
 
-    <div class="dialog-content">
-      <!-- Left Side - Plan Details -->
-      <div class="plan-details">
-        <div class="plan-header">
-          <h2>{{ formattedPlan?.name }}</h2>
-          <span class="interval-badge" *ngIf="formattedPlan?.interval">
-            {{ formattedPlan?.interval === 'year' ? ('subscriptionPlans.yearly' | transloco) : ('subscriptionPlans.monthly' | transloco) }}
-          </span>
-        </div>
-
-        <p class="plan-subtitle">{{ reviewPlanTranslocoKey | transloco }}</p>
-
-        <!-- Yearly Savings Banner -->
-        <div class="savings-banner" *ngIf="formattedPlan?.interval === 'year'">
-          <svg viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clip-rule="evenodd"/>
-          </svg>
-          <span>{{ 'subscriptionPlans.dialog.twoMonthsFree' | transloco }}</span>
-        </div>
-
-        <!-- Benefits Section -->
-        <div class="benefits-section">
-          <h3>{{ 'subscriptionPlans.dialog.whatsIncluded' | transloco }}</h3>
-
-          <div class="benefits-list" *ngIf="hasMeaningfulBenefits">
-            <ng-container *ngFor="let benefit of formattedPlan?.benefits">
-              <div class="benefit-item" *ngIf="benefit.key !== 'OCR'">
-                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-                <span class="benefit-key">{{ 'pricing.' + benefit.key | transloco }}</span>
-                <span class="benefit-value" *ngIf="benefit.value">{{ benefit.value }}</span>
-              </div>
-            </ng-container>
-          </div>
-
-          <div class="benefits-fallback" *ngIf="!hasMeaningfulBenefits">
-            <div class="benefits-fallback-card">
-              <p class="benefits-fallback-intro">{{ 'subscriptionPlans.dialog.includedFallback' | transloco }}</p>
-              <div class="benefits-fallback-rows">
-                <div class="benefits-fallback-row">
-                  <svg class="benefits-fallback-check" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                  <span>{{ 'subscriptionPlans.dialog.includedFallbackBullet1' | transloco }}</span>
+        <div class="grid grid-cols-1 md:grid-cols-[1.05fr_1fr]">
+            <!-- LEFT: Plan Details -->
+            <div
+                class="border-b border-stone-200 p-6 md:border-b-0 md:border-r dark:border-gray-800"
+            >
+                <div class="flex items-center gap-3">
+                    <h2
+                        class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white"
+                    >
+                        {{ formattedPlan?.name }}
+                    </h2>
+                    <span
+                        *ngIf="formattedPlan?.interval"
+                        class="inline-flex rounded-full border border-stone-200 bg-stone-100 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wider text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
+                    >
+                        {{
+                            formattedPlan?.interval === 'year'
+                                ? ('subscriptionPlans.yearly' | transloco)
+                                : ('subscriptionPlans.monthly' | transloco)
+                        }}
+                    </span>
                 </div>
-                <div class="benefits-fallback-row">
-                  <svg class="benefits-fallback-check" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                  <span>{{ 'subscriptionPlans.dialog.includedFallbackBullet2' | transloco }}</span>
+
+                <p class="mt-2 text-sm text-stone-500 dark:text-stone-400">
+                    {{ reviewPlanTranslocoKey | transloco }}
+                </p>
+
+                <div
+                    *ngIf="formattedPlan?.interval === 'year'"
+                    class="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300"
+                >
+                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">savings</mat-icon>
+                    <span>{{ 'subscriptionPlans.dialog.twoMonthsFree' | transloco }}</span>
                 </div>
-              </div>
-              <button
-                type="button"
-                class="btn-compare-plans-link"
-                *ngIf="hasBetterDiscountOptions"
-                (click)="onCompareDiscountedPlans()"
-              >
-                <span>{{ 'subscriptionPlans.dialog.compareDiscountedPlansShort' | transloco }}</span>
-                <svg class="btn-compare-plans-chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                </svg>
-              </button>
+
+                <div class="mt-6">
+                    <h3
+                        class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
+                    >
+                        {{ 'subscriptionPlans.dialog.whatsIncluded' | transloco }}
+                    </h3>
+
+                    <div class="mt-3 space-y-2" *ngIf="hasMeaningfulBenefits">
+                        <ng-container *ngFor="let benefit of formattedPlan?.benefits">
+                            <div
+                                *ngIf="benefit.key !== 'OCR'"
+                                class="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-200"
+                            >
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-base text-emerald-600 dark:text-emerald-400"
+                                    >check_circle</mat-icon
+                                >
+                                <span>{{ 'pricing.' + benefit.key | transloco }}</span>
+                                <span
+                                    *ngIf="benefit.value"
+                                    class="ml-auto text-xs font-medium text-stone-500 dark:text-stone-400"
+                                    >{{ benefit.value }}</span
+                                >
+                            </div>
+                        </ng-container>
+                    </div>
+
+                    <div *ngIf="!hasMeaningfulBenefits" class="mt-3">
+                        <p class="text-sm leading-6 text-stone-500 dark:text-stone-400">
+                            {{ 'subscriptionPlans.dialog.includedFallback' | transloco }}
+                        </p>
+                        <div class="mt-3 space-y-2">
+                            <div
+                                class="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-200"
+                            >
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-base text-emerald-600 dark:text-emerald-400"
+                                    >check_circle</mat-icon
+                                >
+                                <span>{{
+                                    'subscriptionPlans.dialog.includedFallbackBullet1' | transloco
+                                }}</span>
+                            </div>
+                            <div
+                                class="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-200"
+                            >
+                                <mat-icon
+                                    class="!h-4 !w-4 !text-base text-emerald-600 dark:text-emerald-400"
+                                    >check_circle</mat-icon
+                                >
+                                <span>{{
+                                    'subscriptionPlans.dialog.includedFallbackBullet2' | transloco
+                                }}</span>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            *ngIf="hasBetterDiscountOptions"
+                            class="mt-4 inline-flex items-center gap-2 text-sm font-medium text-stone-950 underline-offset-4 hover:underline dark:text-white"
+                            (click)="onCompareDiscountedPlans()"
+                        >
+                            <span>{{
+                                'subscriptionPlans.dialog.compareDiscountedPlansShort' | transloco
+                            }}</span>
+                            <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                        </button>
+                    </div>
+                </div>
             </div>
-          </div>
+
+            <!-- RIGHT: Order Summary -->
+            <div class="bg-stone-50/60 p-6 dark:bg-gray-950/40">
+                <h3
+                    class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
+                >
+                    {{ 'subscriptionPlans.dialog.orderSummary' | transloco }}
+                </h3>
+
+                <div class="mt-4">
+                    <ng-container
+                        *ngIf="!formattedPlan?.showUsageEstimateSummary; else dialogUsageHero"
+                    >
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-sm text-stone-700 dark:text-stone-200">
+                                {{ formattedPlan?.name }}
+                                {{ 'subscriptionPlans.dialog.planLabel' | transloco }}
+                            </span>
+                            <span
+                                class="text-2xl font-bold tracking-tight text-stone-950 dark:text-white"
+                                >${{ formattedPlan?.amountByMonth | number: '1.0-0' }}<span
+                                    class="ml-0.5 text-xs font-medium text-stone-500 dark:text-stone-400"
+                                    >/{{
+                                        'subscriptionPlans.interval.month' | transloco
+                                    }}</span
+                                ></span
+                            >
+                        </div>
+                        <p
+                            *ngIf="formattedPlan?.interval === 'year'"
+                            class="mt-2 text-xs text-stone-500 dark:text-stone-400"
+                        >
+                            {{ 'subscriptionPlans.dialog.monthlyEquivalent' | transloco }}: ${{
+                                formattedPlan?.amountByMonth | number: '1.2-2'
+                            }}/{{ 'subscriptionPlans.interval.month' | transloco }}
+                        </p>
+                    </ng-container>
+                    <ng-template #dialogUsageHero>
+                        <span
+                            class="block text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
+                        >
+                            {{ 'subscriptionPlans.requestSlider.estimatedTotal' | transloco }}
+                        </span>
+                        <div class="mt-2 flex items-baseline gap-1">
+                            <span
+                                class="text-lg font-semibold text-stone-700 dark:text-stone-200"
+                                >$</span
+                            >
+                            <span
+                                class="text-4xl font-bold tracking-tight text-stone-950 dark:text-white"
+                                >{{ formattedPlan?.estimatedTotal | number: '1.0-0' }}</span
+                            >
+                            <span class="text-sm text-stone-500 dark:text-stone-400"
+                                >/{{
+                                    'subscriptionPlans.interval.month' | transloco
+                                }}</span
+                            >
+                        </div>
+                        <p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+                            ~{{ formatNumber(formattedPlan?.requestsPerMonth) }}
+                            {{
+                                'subscriptionPlans.requestSlider.requests' | transloco
+                            }}
+                        </p>
+                        <p
+                            *ngIf="formattedPlan?.interval === 'year'"
+                            class="mt-2 text-xs italic text-stone-500 dark:text-stone-400"
+                        >
+                            {{ 'subscriptionPlans.billedAnnually' | transloco }}
+                        </p>
+                    </ng-template>
+                </div>
+
+                <p
+                    *ngIf="formattedPlan?.showUsageEstimateSummary"
+                    class="mt-3 text-xs text-stone-500 dark:text-stone-400"
+                >
+                    {{ 'subscriptionPlans.dialog.usageNote' | transloco }}
+                </p>
+
+                <!-- Dates -->
+                <div
+                    class="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900/60"
+                >
+                    <div>
+                        <span
+                            class="block text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
+                        >
+                            {{ 'subscriptionPlans.dialog.starts' | transloco }}
+                        </span>
+                        <span
+                            class="mt-1 block text-xs font-medium text-stone-900 dark:text-white"
+                        >
+                            {{ formattedPlan?.startDate | date: 'mediumDate' }}
+                        </span>
+                    </div>
+                    <div>
+                        <span
+                            class="block text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
+                        >
+                            {{ 'subscriptionPlans.dialog.renews' | transloco }}
+                        </span>
+                        <span
+                            class="mt-1 block text-xs font-medium text-stone-900 dark:text-white"
+                        >
+                            {{ formattedPlan?.endDate | date: 'mediumDate' }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Plan change indicator -->
+                <div
+                    *ngIf="currentPlan"
+                    class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-stone-200 bg-white p-3 text-xs dark:border-gray-800 dark:bg-gray-900/60"
+                >
+                    <div class="flex flex-col">
+                        <span
+                            class="text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
+                            >{{ 'subscriptionPlans.dialog.from' | transloco }}</span
+                        >
+                        <span
+                            class="mt-0.5 text-sm font-medium text-stone-900 dark:text-white"
+                            >{{ currentPlan?.name || '' }}</span
+                        >
+                    </div>
+                    <mat-icon class="!h-4 !w-4 !text-base text-stone-400">arrow_forward</mat-icon>
+                    <div class="flex flex-col text-right">
+                        <span
+                            class="text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
+                            >{{ 'subscriptionPlans.dialog.to' | transloco }}</span
+                        >
+                        <span
+                            class="mt-0.5 text-sm font-medium text-stone-900 dark:text-white"
+                            >{{ formattedPlan?.name }}</span
+                        >
+                    </div>
+                </div>
+
+                <p class="mt-4 text-xs text-stone-500 dark:text-stone-400">
+                    {{ 'subscriptionPlans.dialog.cancelNote' | transloco }}
+                </p>
+
+                <div class="mt-5 flex gap-2">
+                    <button
+                        type="button"
+                        class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                        (click)="onCancel()"
+                    >
+                        {{ 'subscriptionPlans.dialog.cancel' | transloco }}
+                    </button>
+                    <button
+                        type="button"
+                        class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                        (click)="onConfirm()"
+                    >
+                        {{ confirmActionTranslocoKey | transloco }}
+                    </button>
+                </div>
+
+                <div
+                    class="mt-4 flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400"
+                >
+                    <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">lock</mat-icon>
+                    <span>{{ 'subscriptionPlans.dialog.secureTransaction' | transloco }}</span>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <!-- Right Side - Order Summary -->
-      <div class="order-summary">
-        <h3>{{ 'subscriptionPlans.dialog.orderSummary' | transloco }}</h3>
-
-        <!-- Price section -->
-        <div class="price-section">
-          <!-- Base plan row -->
-          <div class="price-row">
-            <span>{{ formattedPlan?.name }} {{ 'subscriptionPlans.dialog.planLabel' | transloco }}</span>
-            <span class="price">${{ formattedPlan?.amountByMonth | number:'1.0-0' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
-          </div>
-
-          <!-- Request add-on row (only when usage slider was set) -->
-          <div class="price-row addon-row" *ngIf="formattedPlan?.hasUsageAddon">
-            <span>~{{ formatNumber(formattedPlan?.requestsPerMonth) }} {{ 'subscriptionPlans.requestSlider.requests' | transloco }}</span>
-            <span class="price addon-price">+${{ formattedPlan?.requestAddOn | number:'1.0-0' }}</span>
-          </div>
-
-          <!-- Divider + estimated total -->
-          <div class="price-divider" *ngIf="formattedPlan?.hasUsageAddon"></div>
-          <div class="price-row total-row" *ngIf="formattedPlan?.hasUsageAddon">
-            <span class="total-label-text">{{ 'subscriptionPlans.dialog.estimatedTotal' | transloco }}</span>
-            <span class="price total-price">${{ formattedPlan?.estimatedTotal | number:'1.0-0' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
-          </div>
-
-          <!-- Annual billing note -->
-          <div class="price-row subtotal" *ngIf="formattedPlan?.interval === 'year' && !formattedPlan?.hasUsageAddon">
-            <span>{{ 'subscriptionPlans.dialog.monthlyEquivalent' | transloco }}</span>
-            <span>${{ formattedPlan?.amountByMonth | number:'1.2-2' }}/{{ 'subscriptionPlans.interval.month' | transloco }}</span>
-          </div>
-        </div>
-
-        <!-- Usage note -->
-        <p class="usage-note" *ngIf="formattedPlan?.hasUsageAddon">
-          {{ 'subscriptionPlans.dialog.usageNote' | transloco }}
-        </p>
-
-        <!-- Dates -->
-        <div class="dates-section">
-          <div class="date-row">
-            <span class="date-label">{{ 'subscriptionPlans.dialog.starts' | transloco }}</span>
-            <span class="date-value">{{ formattedPlan?.startDate | date:'mediumDate' }}</span>
-          </div>
-          <div class="date-row">
-            <span class="date-label">{{ 'subscriptionPlans.dialog.renews' | transloco }}</span>
-            <span class="date-value">{{ formattedPlan?.endDate | date:'mediumDate' }}</span>
-          </div>
-        </div>
-
-        <!-- Plan Change Indicator -->
-        <div class="plan-change-indicator" *ngIf="currentPlan">
-          <div class="plan-from">
-            <span class="plan-label">{{ 'subscriptionPlans.dialog.from' | transloco }}</span>
-            <span class="plan-name">{{ currentPlan?.name || '' }}</span>
-          </div>
-          <div class="arrow">
-            <svg viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
-          </div>
-          <div class="plan-to">
-            <span class="plan-label">{{ 'subscriptionPlans.dialog.to' | transloco }}</span>
-            <span class="plan-name">{{ formattedPlan?.name }}</span>
-          </div>
-        </div>
-
-        <!-- Note -->
-        <p class="note">
-          {{ 'subscriptionPlans.dialog.cancelNote' | transloco }}
-        </p>
-
-        <!-- Actions -->
-        <div class="actions">
-          <button class="btn btn-cancel" (click)="onCancel()">
-            {{ 'subscriptionPlans.dialog.cancel' | transloco }}
-          </button>
-          <button class="btn btn-confirm" (click)="onConfirm()">
-            {{ confirmActionTranslocoKey | transloco }}
-          </button>
-        </div>
-
-        <!-- Security Note -->
-        <div class="security-note">
-          <svg viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-          </svg>
-          <span>{{ 'subscriptionPlans.dialog.secureTransaction' | transloco }}</span>
-        </div>
-      </div>
     </div>
-  </div>
 </div>

@@ -8,8 +8,9 @@ import {
     ViewEncapsulation,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
@@ -37,9 +38,11 @@ const APP_FEATURES_CACHE_KEY = 'smartAgent_appFeatures';
         CommonModule,
         FormsModule,
         TranslocoModule,
+        RouterModule,
+        MatIconModule,
+        MatSnackBarModule,
         PlanChangeDialogComponent,
         BillingRequiredDialogComponent,
-        MatSnackBarModule,
     ],
     templateUrl: './subscription-plans.component.html',
     styleUrls: ['./subscription-plans.component.scss'],
@@ -66,6 +69,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     requestsPerMonth = 2000;
     requestsPerYear = 24000;
     readonly BASE_REQUEST_PRICE = 0.3;
+    /** Higher-tier dominates lower when gap exceeds this USD buffer (paired with dominanceMarginFraction). */
+    readonly PLAN_VISIBILITY_DOMINANCE_MARGIN_MIN_USD = 100;
+    readonly PLAN_VISIBILITY_DOMINANCE_MARGIN_FRACTION = 0.18;
     readonly MONTHLY_SLIDER_MAX = 20000;
     readonly MONTHLY_SLIDER_STEP = 1;
     readonly YEARLY_SLIDER_MAX = 500000;
@@ -165,7 +171,7 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     // Actions
     upgradePlan(plan: SubscriptionPlan): void {
         // Open plan change dialog
-        this.selectedPlanRequests = this.requestsPerMonth;
+        this.selectedPlanRequests = this.getStripeCheckoutQuantityFromEstimator(plan);
         this.selectedPlanForChange = plan;
         this.showPlanChangeDialog = true;
     }
@@ -577,6 +583,26 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         return Math.floor(baseMonthly / pricePerReq);
     }
 
+    /**
+     * Maps estimator volume to Stripe checkout `requestsPerMonth` (line_items quantity).
+     * When slider is at 0, uses prepaid volume aligned with the sticker base (~monthly_amount / discounted $/request), never zero.
+     */
+    getStripeCheckoutQuantityFromEstimator(plan: SubscriptionPlan): number {
+        if (this.requestsPerMonth > 0) {
+            return Math.round(this.requestsPerMonth);
+        }
+
+        const included = this.getIncludedRequests(plan);
+        if (Number.isFinite(included) && included >= 1) {
+            return Math.round(included);
+        }
+
+        const lim = plan.limit;
+        const fromLimit =
+            typeof lim === 'number' && Number.isFinite(lim) ? Math.round(lim) : 1;
+        return Math.max(1, fromLimit);
+    }
+
     getExtraRequests(plan: SubscriptionPlan): number {
         return Math.max(0, this.requestsPerMonth - this.getIncludedRequests(plan));
     }
@@ -601,11 +627,11 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     getBestValuePlanId(): string {
-        const paidPlans = this.plans.filter((p) => p._id);
-        if (!paidPlans.length) return '';
+        const candidatesPool = this.competitivePlans;
+        if (!candidatesPool.length) return '';
 
         if (this.requestsPerMonth > 0) {
-            let candidates = paidPlans.filter((p) => p.discount?.discount);
+            let candidates = candidatesPool.filter((p) => p.discount?.discount);
             if (candidates.length) {
                 if (this.requestsPerMonth >= 400) {
                     candidates = candidates.filter((p) => !this._isStarterPlan(p));
@@ -620,30 +646,60 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
             }
         }
 
-        return paidPlans.reduce((best, plan) =>
+        return candidatesPool.reduce((best, plan) =>
             this.getTotalMonthlyCost(plan) < this.getTotalMonthlyCost(best) ? plan : best
         )._id;
     }
 
-    isPlanVisibleForRequestVolume(plan: SubscriptionPlan): boolean {
+    /**
+     * Whether a plan is competitive at the user's current request volume.
+     * Current subscription always counts as competitive; otherwise the plan must beat the dominance check
+     * (no other tier is significantly cheaper at the same R) and not be a starter SKU at high volume.
+     */
+    isPlanCompetitive(plan: SubscriptionPlan): boolean {
         const isCurrent = plan.code === this.currentSubscription?.subscriptionPlan?.code;
         if (isCurrent) return true;
-        if (this.requestsPerMonth < 2000) return true;
+        if (!plan._id) return false;
+
         if (this._isStarterPlan(plan) && this.requestsPerMonth >= 2000) return false;
-        if (this._isBasicPlan(plan) && this.requestsPerMonth >= 3000) return false;
-        return true;
+        return !this._isDominatedCompetitivelyByAnyPlan(plan);
+    }
+
+    private _dominanceMarginUsd(dominatorsTotal: number): number {
+        return Math.max(
+            this.PLAN_VISIBILITY_DOMINANCE_MARGIN_MIN_USD,
+            dominatorsTotal * this.PLAN_VISIBILITY_DOMINANCE_MARGIN_FRACTION
+        );
+    }
+
+    private _isDominatedCompetitivelyByAnyPlan(plan: SubscriptionPlan): boolean {
+        const paidPlans = this.plans.filter((p) => p._id);
+        if (!paidPlans.length) return false;
+
+        const planTotal = this.getEstimatedTotal(plan);
+
+        for (const rival of paidPlans) {
+            if (rival._id === plan._id) continue;
+
+            const rivalTotal = this.getEstimatedTotal(rival);
+            if (planTotal > rivalTotal + this._dominanceMarginUsd(rivalTotal)) return true;
+        }
+
+        return false;
     }
 
     private _isStarterPlan(plan: SubscriptionPlan): boolean {
         return /starter/i.test(plan.name) || (plan.amount ?? 0) <= 49;
     }
 
-    private _isBasicPlan(plan: SubscriptionPlan): boolean {
-        return /basic/i.test(plan.name) || ((plan.amount ?? 0) >= 99 && (plan.amount ?? 0) <= 149);
+    /** All paid plans, regardless of competitiveness. Cards render dominated tiers as blurred (handled in template). */
+    get visiblePlans(): SubscriptionPlan[] {
+        return this.plans.filter((p) => p._id);
     }
 
-    get visiblePlans(): SubscriptionPlan[] {
-        return this.plans.filter((p) => this.isPlanVisibleForRequestVolume(p));
+    /** Subset of visiblePlans that beat the dominance check at the current R. */
+    get competitivePlans(): SubscriptionPlan[] {
+        return this.visiblePlans.filter((p) => this.isPlanCompetitive(p));
     }
 
     /** Plans shown in API breakdown table (Smart plans only) */

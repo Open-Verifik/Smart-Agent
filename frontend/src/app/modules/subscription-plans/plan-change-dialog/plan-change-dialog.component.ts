@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
     formatBenefitRowsFromChanges,
@@ -12,7 +13,7 @@ export type SubscriptionDialogContext = 'first' | 'upgrade' | 'downgrade' | 'pla
 @Component({
     selector: 'plan-change-dialog',
     standalone: true,
-    imports: [CommonModule, TranslocoModule],
+    imports: [CommonModule, TranslocoModule, MatIconModule],
     templateUrl: './plan-change-dialog.component.html',
     styleUrls: ['./plan-change-dialog.component.scss'],
 })
@@ -134,6 +135,7 @@ export class PlanChangeDialogComponent implements OnInit {
             requestAddOn,
             estimatedTotal: baseMonthly + requestAddOn,
             hasUsageAddon: this.requestsPerMonth > 0 && requestAddOn > 0,
+            showUsageEstimateSummary: this.requestsPerMonth > 0,
             benefits: formatBenefitRowsFromChanges(this.newPlan.changesInPrices || []),
         };
     }
