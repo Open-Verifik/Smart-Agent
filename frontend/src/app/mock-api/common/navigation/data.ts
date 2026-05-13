@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { FuseNavigationItem } from '@fuse/components/navigation';
+import { cloneDeep } from 'lodash-es';
 
 export const defaultNavigation: FuseNavigationItem[] = [
     {
@@ -157,25 +158,9 @@ export const defaultNavigation: FuseNavigationItem[] = [
     // },
 ];
 
-export const compactNavigation: FuseNavigationItem[] = [
-    {
-        id: 'chat',
-        title: 'nav.chat',
-        tooltip: 'nav.chat',
-        type: 'aside',
-        icon: 'heroicons_outline:chat-bubble-left-right',
-        children: [],
-    },
-];
-
-export const futuristicNavigation: FuseNavigationItem[] = [
-    {
-        id: 'chat',
-        title: 'nav.chat',
-        type: 'group',
-        children: [],
-    },
-];
+/** Same structure as default so the Futuristic layout shows the full app tree (mock API also syncs children on fetch). */
+export const futuristicNavigation: FuseNavigationItem[] =
+    cloneDeep(defaultNavigation);
 
 export const horizontalNavigation: FuseNavigationItem[] = [
     {

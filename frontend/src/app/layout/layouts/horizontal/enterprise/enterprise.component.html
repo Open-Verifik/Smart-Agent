@@ -15,8 +15,13 @@
             <!-- Logo -->
             <div class="flex h-20 items-center px-8 pt-6">
                 <img
-                    class="w-24"
-                    src="https://verifik.co/wp-content/uploads/2024/05/logo_verifik_brand.svg"
+                    class="w-24 dark:hidden"
+                    src="/images/logo/logo_verifik_brand.svg"
+                    alt="Logo image"
+                />
+                <img
+                    class="hidden w-24 dark:flex"
+                    src="/images/logo/logo_verifik_brand_on_dark.svg"
                     alt="Logo image"
                 />
             </div>
@@ -41,8 +46,13 @@
                 @if (!isScreenSmall) {
                     <div class="flex items-center">
                         <img
-                            class="w-24"
-                            src="https://verifik.co/wp-content/uploads/2024/05/logo_verifik_brand.svg"
+                            class="w-24 dark:hidden"
+                            src="/images/logo/logo_verifik_brand.svg"
+                            alt="Logo image"
+                        />
+                        <img
+                            class="hidden w-24 dark:flex"
+                            src="/images/logo/logo_verifik_brand_on_dark.svg"
                             alt="Logo image"
                         />
                     </div>
@@ -75,9 +85,7 @@
                         (click)="quickChat.toggle()"
                     >
                         <mat-icon
-                            [svgIcon]="
-                                'heroicons_outline:chat-bubble-left-right'
-                            "
+                            [svgIcon]="'heroicons_outline:lifebuoy'"
                         ></mat-icon>
                     </button>
                     <user></user>

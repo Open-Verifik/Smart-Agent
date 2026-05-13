@@ -5,14 +5,15 @@
             (dragover)="onDragOver($event)"
             (dragleave)="onDragLeave($event)"
             (drop)="onDrop($event)"
-            class="flex min-h-[120px] flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed bg-stone-50 p-6 text-center transition-all dark:bg-gray-900/40"
-            [ngClass]="
+            class="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed bg-stone-50 text-center transition-all dark:bg-gray-900/40"
+            [ngClass]="[
+                compact ? 'min-h-[72px] gap-2 p-3' : 'min-h-[120px] gap-3 p-6',
                 isDragOver
                     ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
-                    : (!disabled && !isUploading
-                        ? 'border-stone-300 dark:border-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30'
-                        : 'border-stone-300 dark:border-gray-700 cursor-not-allowed' + (disabled ? ' opacity-60' : ''))
-            "
+                    : !disabled && !isUploading
+                      ? 'border-stone-300 dark:border-gray-700 cursor-pointer hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30'
+                      : 'border-stone-300 dark:border-gray-700 cursor-not-allowed' + (disabled ? ' opacity-60' : ''),
+            ]"
         >
             @if (isUploading) {
                 <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>

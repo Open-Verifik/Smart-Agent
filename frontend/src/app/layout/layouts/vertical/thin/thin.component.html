@@ -12,9 +12,13 @@
 >
     <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
-        <!-- Logo -->
+        <!-- Brand (Verifik; not Fuse theme stock logo) -->
         <div class="flex h-20 items-center justify-center">
-            <img class="w-8" src="images/logo/logo.svg" alt="Logo image" />
+            <img
+                class="w-8"
+                src="https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg"
+                alt="Verifik"
+            />
         </div>
     </ng-container>
 </fuse-vertical-navigation>
@@ -48,7 +52,7 @@
                 (click)="quickChat.toggle()"
             >
                 <mat-icon
-                    [svgIcon]="'heroicons_outline:chat-bubble-left-right'"
+                    [svgIcon]="'heroicons_outline:lifebuoy'"
                 ></mat-icon>
             </button>
             <user></user>

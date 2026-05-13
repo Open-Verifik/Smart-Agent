@@ -1,5 +1,6 @@
 // Fill the centered-layout content column between header/footer (stretch with flex chain).
-:host {
+// Use app-settings — :host is invalid in global CSS (ViewEncapsulation.None).
+app-settings {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -16,7 +17,7 @@
 
   background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
 
-  :host-context(.dark) & {
+  .dark & {
     background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
   }
 }
@@ -26,7 +27,7 @@ mat-sidenav {
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #1f2937;
     border-right-color: #374151;
   }
@@ -59,7 +60,7 @@ mat-sidenav {
   &:hover:not(.disabled) {
     background: #f3f4f6;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #374151;
     }
   }
@@ -67,7 +68,7 @@ mat-sidenav {
   &.active {
     background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
 
-    :host-context(.dark) & {
+    .dark & {
       background: linear-gradient(135deg, #312e81 0%, #3730a3 100%);
     }
 
@@ -92,7 +93,7 @@ mat-sidenav {
   height: 20px;
   color: #6b7280;
 
-  :host-context(.dark) & {
+  .dark & {
     color: #9ca3af;
   }
 }
@@ -102,7 +103,7 @@ mat-sidenav {
   font-size: 14px;
   color: #374151;
 
-  :host-context(.dark) & {
+  .dark & {
     color: #d1d5db;
   }
 }
@@ -116,7 +117,7 @@ mat-sidenav {
   color: #6b7280;
   text-transform: uppercase;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #374151;
     color: #9ca3af;
   }
@@ -131,7 +132,7 @@ mat-sidenav {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
   transition: box-shadow 0.2s ease;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #1f2937;
     border-color: #374151;
   }
@@ -154,7 +155,7 @@ mat-sidenav {
   background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
   border-bottom: 1px solid #e5e7eb;
 
-  :host-context(.dark) & {
+  .dark & {
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     border-bottom-color: #374151;
   }
@@ -172,6 +173,11 @@ mat-sidenav {
   &.blue {
     background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+
+    .dark .card-header & {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      box-shadow: 0 2px 12px rgba(79, 70, 229, 0.35);
+    }
   }
 
   mat-icon {
@@ -199,6 +205,15 @@ mat-sidenav {
     border-radius: 50%;
     background: #10b981;
     animation: pulse 2s infinite;
+  }
+
+  .dark & {
+    color: #6ee7b7;
+    background: rgba(16, 185, 129, 0.14);
+  }
+
+  .dark & .status-dot {
+    background: #34d399;
   }
 }
 
@@ -229,6 +244,7 @@ mat-sidenav {
 .token-display {
   flex: 1;
   background: #1e1e2e;
+  border: 1px solid transparent;
   border-radius: 12px;
   padding: 16px 20px;
   cursor: pointer;
@@ -239,6 +255,18 @@ mat-sidenav {
     background: #2d2d3f;
     transform: translateY(-1px);
   }
+
+  .dark & {
+    background: #0f172a;
+    border-color: #334155;
+    transform: none;
+
+    &:hover {
+      background: #1e293b;
+      border-color: #475569;
+      transform: none;
+    }
+  }
 }
 
 .token-text {
@@ -247,6 +275,10 @@ mat-sidenav {
   color: #a5b4fc;
   word-break: break-all;
   line-height: 1.6;
+
+  .dark & {
+    color: #cbd5e1;
+  }
 }
 
 .token-actions {
@@ -263,6 +295,14 @@ mat-sidenav {
     background: rgba(99, 102, 241, 0.1);
     transform: scale(1.05);
   }
+
+  .dark & {
+    color: #a5b4fc !important;
+  }
+
+  .dark &:hover {
+    background: rgba(129, 140, 248, 0.12);
+  }
 }
 
 .usage-hint {
@@ -276,7 +316,7 @@ mat-sidenav {
   border-radius: 10px;
   border: 1px dashed #e5e7eb;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #374151;
     border-color: #4b5563;
     color: #9ca3af;
@@ -287,6 +327,10 @@ mat-sidenav {
     width: 16px;
     height: 16px;
     color: #9ca3af;
+  }
+
+  .dark & .inline-icon {
+    color: #94a3b8;
   }
 }
 
@@ -299,7 +343,7 @@ mat-sidenav {
   transition: all 0.2s ease;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
 
-  :host-context(.dark) & {
+  .dark & {
     background: #1f2937;
     border-color: #374151;
   }
@@ -309,8 +353,18 @@ mat-sidenav {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   }
 
+  .dark &:hover {
+    border-color: #4b5563;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  }
+
   &.danger:hover {
     border-color: #fecaca;
+  }
+
+  .dark &.danger:hover {
+    border-color: rgba(248, 113, 113, 0.4);
+    box-shadow: 0 8px 32px rgba(220, 38, 38, 0.12);
   }
 }
 
@@ -332,11 +386,21 @@ mat-sidenav {
   &.renew {
     background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
     color: #2563eb;
+
+    .dark .action-card & {
+      background: rgba(99, 102, 241, 0.16);
+      color: #c7d2fe;
+    }
   }
 
   &.revoke {
     background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
     color: #dc2626;
+
+    .dark .action-card.danger & {
+      background: rgba(239, 68, 68, 0.14);
+      color: #fca5a5;
+    }
   }
 
   mat-icon {
@@ -352,7 +416,7 @@ mat-sidenav {
   color: #111827;
   margin: 0;
 
-  :host-context(.dark) & {
+  .dark & {
     color: #f3f4f6;
   }
 }
@@ -362,6 +426,10 @@ mat-sidenav {
   color: #6b7280;
   line-height: 1.6;
   margin-bottom: 20px;
+
+  .dark & {
+    color: #9ca3af;
+  }
 }
 
 .action-footer {
@@ -393,7 +461,35 @@ mat-sidenav {
     &:hover {
       background: #fef2f2;
     }
+
+    .dark & {
+      border-color: rgba(248, 113, 113, 0.45);
+      color: #fca5a5;
+    }
+
+    .dark &:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
   }
+}
+
+/* API key — outlined buttons in dark mode (Material theme can look off-warm) */
+.dark .action-card .action-button.mat-mdc-outlined-button:not(.mat-warn):not(.mat-mdc-button-disabled) {
+  color: #a5b4fc !important;
+  border-color: rgba(129, 140, 248, 0.55) !important;
+}
+
+.dark .action-card .action-button.mat-mdc-outlined-button:not(.mat-warn):not(.mat-mdc-button-disabled):hover {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+.dark .action-card.danger .action-button.mat-mdc-outlined-button:not(.mat-mdc-button-disabled) {
+  color: #fca5a5 !important;
+  border-color: rgba(248, 113, 113, 0.5) !important;
+}
+
+.dark .action-card.danger .action-button.mat-mdc-outlined-button:not(.mat-mdc-button-disabled):hover {
+  background: rgba(239, 68, 68, 0.12) !important;
 }
 
 // Expand Panel
@@ -403,12 +499,16 @@ mat-sidenav {
   border-top: 1px solid #e5e7eb;
   animation: expandIn 0.3s ease-out;
 
-  :host-context(.dark) & {
+  .dark & {
     border-top-color: #374151;
   }
 
   &.danger {
     border-top-color: #fecaca;
+  }
+
+  .dark &.danger {
+    border-top-color: rgba(248, 113, 113, 0.28);
   }
 }
 
@@ -436,7 +536,7 @@ mat-sidenav {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 
-  :host-context(.dark) & {
+  .dark & {
     color: #d1d5db;
   }
 }
@@ -462,7 +562,7 @@ mat-sidenav {
   font-weight: 600;
   color: #374151;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #1f2937;
     border-color: #374151;
     color: #d1d5db;
@@ -480,7 +580,7 @@ mat-sidenav {
     border-color: #6366f1;
     background: #f5f3ff;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #312e81;
     }
   }
@@ -490,7 +590,7 @@ mat-sidenav {
     background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
     color: #6366f1;
 
-    :host-context(.dark) & {
+    .dark & {
       background: linear-gradient(135deg, #312e81 0%, #3730a3 100%);
       color: #a5b4fc;
     }
@@ -555,6 +655,23 @@ mat-sidenav {
   }
 }
 
+.dark .warning-box {
+  background: linear-gradient(135deg, rgba(120, 53, 15, 0.35) 0%, rgba(69, 26, 3, 0.45) 100%);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+.dark .warning-box .warning-icon {
+  color: #fbbf24;
+}
+
+.dark .warning-box .warning-title {
+  color: #fde68a;
+}
+
+.dark .warning-box .warning-text {
+  color: #fcd34d;
+}
+
 // New Token Alert
 .new-token-alert {
   background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
@@ -562,6 +679,17 @@ mat-sidenav {
   border-radius: 16px;
   padding: 20px;
   animation: slideDown 0.3s ease-out;
+
+  h3 {
+    font-weight: 600;
+    color: #065f46;
+    margin: 0;
+  }
+
+  p {
+    color: #047857;
+    margin: 0;
+  }
 
   .alert-icon-success {
     width: 40px;
@@ -573,6 +701,32 @@ mat-sidenav {
     justify-content: center;
     color: #10b981;
   }
+}
+
+.dark .new-token-alert {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(4, 47, 46, 0.55) 100%);
+  border-color: #059669;
+}
+
+.dark .new-token-alert .alert-icon-success {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+}
+
+.dark .new-token-alert h3 {
+  color: #6ee7b7;
+}
+
+.dark .new-token-alert p {
+  color: #a7f3d0;
+}
+
+.new-token-alert-dismiss {
+  color: #059669 !important;
+}
+
+.dark .new-token-alert-dismiss {
+  color: #6ee7b7 !important;
 }
 
 @keyframes slideDown {
@@ -593,9 +747,9 @@ mat-sidenav {
   border-radius: 16px;
   padding: 20px 24px;
 
-  :host-context(.dark) & {
-    background: linear-gradient(135deg, #0c4a6e 0%, #075985 100%);
-    border-color: #0369a1;
+  .dark & {
+    background: linear-gradient(135deg, #1e293b 0%, #1f2937 100%);
+    border-color: #334155;
   }
 
   .docs-icon {
@@ -607,6 +761,11 @@ mat-sidenav {
     align-items: center;
     justify-content: center;
     color: white;
+
+    .dark .docs-card & {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      box-shadow: 0 2px 12px rgba(79, 70, 229, 0.25);
+    }
   }
 
   .docs-button {
@@ -615,9 +774,9 @@ mat-sidenav {
     color: #0369a1;
     font-weight: 500;
 
-    :host-context(.dark) & {
-      border-color: #38bdf8;
-      color: #7dd3fc;
+    .dark & {
+      border-color: rgba(129, 140, 248, 0.55);
+      color: #c7d2fe;
     }
 
     mat-icon {
@@ -629,6 +788,10 @@ mat-sidenav {
 
     &:hover {
       background: rgba(14, 165, 233, 0.1);
+    }
+
+    .dark &:hover {
+      background: rgba(99, 102, 241, 0.12);
     }
   }
 }
@@ -651,7 +814,7 @@ mat-sidenav {
     align-items: center;
     justify-content: center;
 
-    :host-context(.dark) & {
+    .dark & {
       background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
     }
 
@@ -711,7 +874,7 @@ mat-sidenav {
     border-color: #3b82f6;
     background: #eff6ff;
 
-    :host-context(.dark) & {
+    .dark & {
       border-color: #60a5fa;
       background: rgba(59, 130, 246, 0.1);
     }
@@ -722,7 +885,7 @@ mat-sidenav {
     background: #dbeafe;
     transform: scale(1.02);
 
-    :host-context(.dark) & {
+    .dark & {
       border-color: #60a5fa;
       background: rgba(59, 130, 246, 0.2);
     }
@@ -774,7 +937,7 @@ select:focus {
   background: #f3f4f6;
   border-radius: 12px;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #374151;
   }
 }
@@ -804,7 +967,7 @@ select:focus {
   &:hover:not(.active) {
     background: rgba(255, 255, 255, 0.5);
 
-    :host-context(.dark) & {
+    .dark & {
       background: rgba(75, 85, 99, 0.5);
     }
   }
@@ -814,7 +977,7 @@ select:focus {
     color: #6366f1;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
-    :host-context(.dark) & {
+    .dark & {
       background: #1f2937;
       color: #a5b4fc;
     }
@@ -836,7 +999,7 @@ select:focus {
     font-weight: 600;
     color: #374151;
 
-    :host-context(.dark) & {
+    .dark & {
       color: #d1d5db;
     }
   }
@@ -859,7 +1022,7 @@ select:focus {
   transition: all 0.2s ease;
   width: 100%;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #1f2937;
     border-color: #374151;
     color: #f3f4f6;
@@ -871,7 +1034,7 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     background: #ffffff;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #111827;
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
     }
@@ -940,7 +1103,7 @@ select:focus {
   max-width: 400px; // But don't exceed a reasonable maximum
   box-sizing: border-box;
 
-  :host-context(.dark) & {
+  .dark & {
     background: #1f2937;
     border-color: #374151;
   }
@@ -954,7 +1117,7 @@ select:focus {
     background: #f3f4f6;
     border-radius: 4px;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #374151;
     }
   }
@@ -963,7 +1126,7 @@ select:focus {
     background: #d1d5db;
     border-radius: 4px;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #6b7280;
     }
 
@@ -995,7 +1158,7 @@ select:focus {
   &:hover {
     background: #f3f4f6;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #374151;
     }
   }
@@ -1028,7 +1191,7 @@ select:focus {
     text-overflow: ellipsis; // Show ellipsis only if still too long
     white-space: nowrap; // Keep text on one line
 
-    :host-context(.dark) & {
+    .dark & {
       color: #d1d5db;
     }
   }
@@ -1086,7 +1249,7 @@ select:focus {
     cursor: not-allowed !important;
     transform: none !important;
 
-    :host-context(.dark) & {
+    .dark & {
       background: #374151 !important;
       color: #6b7280 !important;
     }
@@ -1153,7 +1316,7 @@ select:focus {
   border: 1px solid rgba(239, 68, 68, 0.15);
   padding: 24px;
 
-  :host-context(.dark) & {
+  .dark & {
     background: rgba(239, 68, 68, 0.1);
     border-color: rgba(239, 68, 68, 0.2);
   }
@@ -1191,7 +1354,7 @@ select:focus {
 .content-card .divide-y > div:hover {
   background: rgba(99, 102, 241, 0.02);
 
-  :host-context(.dark) & {
+  .dark & {
     background: rgba(99, 102, 241, 0.05);
   }
 }

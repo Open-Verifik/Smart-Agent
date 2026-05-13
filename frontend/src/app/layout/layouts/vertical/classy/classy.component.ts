@@ -26,6 +26,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'classy-layout',
     templateUrl: './classy.component.html',
+    styleUrls: ['./classy.component.scss'],
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,

@@ -3,7 +3,7 @@
 
 <!-- Navigation -->
 <fuse-vertical-navigation
-    class="dark bg-gray-900 print:hidden"
+    class="classy-layout-nav bg-card border-r border-gray-200/80 shadow-none dark:border-white/10 dark:bg-gray-900 print:hidden"
     [mode]="isScreenSmall ? 'over' : 'side'"
     [name]="'mainNavigation'"
     [navigation]="navigation.default"
@@ -11,45 +11,61 @@
 >
     <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
-        <div class="flex w-full items-center p-4 pl-6">
-            <!-- Logo -->
-            <div class="flex items-center justify-center">
-                <img class="w-8" src="images/logo/logo.svg" />
-            </div>
-            <!-- Components -->
-            <div class="ml-auto flex items-center">
-                <!-- OCULTADO: notifications - Para futuras búsquedas busca: shortcuts messages notifications header -->
-                <!-- <notifications></notifications> -->
-                <user [showAvatar]="false"></user>
-            </div>
-        </div>
-        <!-- User -->
-        <div class="flex w-full flex-col items-center p-4">
-            <div class="relative h-24 w-24">
-                @if (user.avatar) {
-                    <img
-                        class="h-full w-full rounded-full"
-                        [src]="user.avatar"
-                        alt="User avatar"
-                    />
-                }
-                @if (!user.avatar) {
-                    <mat-icon
-                        class="icon-size-24"
-                        [svgIcon]="'heroicons_solid:user-circle'"
-                    ></mat-icon>
-                }
-            </div>
-            <div class="mt-6 flex w-full flex-col items-center justify-center">
+        <div
+            class="classy-layout-nav__header border-b border-gray-200/90 dark:border-white/10"
+        >
+            <!-- Stacked bands: logo never shrinks vs wallet row (fixes collapsed wordmark bug) -->
+            <div class="flex w-full flex-col gap-4 px-4 pb-4 pl-6 pt-5">
                 <div
-                    class="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center font-medium leading-normal"
+                    class="classy-layout-nav__brand flex w-full shrink-0 justify-start"
                 >
-                    {{ user.name }}
+                    <img
+                        class="h-10 w-auto max-w-full shrink-0 object-contain object-left dark:hidden"
+                        src="/images/logo/logo_verifik_brand.svg"
+                        alt="Verifik"
+                    />
+                    <img
+                        class="hidden h-10 w-auto max-w-full shrink-0 object-contain object-left dark:flex"
+                        src="/images/logo/logo_verifik_brand_on_dark.svg"
+                        alt="Verifik"
+                    />
                 </div>
                 <div
-                    class="text-secondary mt-0.5 w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-md font-medium leading-normal"
+                    class="flex w-full min-w-0 items-center justify-center px-0.5"
                 >
-                    {{ user.email }}
+                    <!-- OCULTADO: notifications - Para futuras búsquedas busca: shortcuts messages notifications header -->
+                    <!-- <notifications></notifications> -->
+                    <user [showAvatar]="false"></user>
+                </div>
+            </div>
+            <!-- User -->
+            <div class="flex w-full flex-col items-center px-4 pb-2">
+                <div class="relative h-24 w-24">
+                    @if (user.avatar) {
+                        <img
+                            class="h-full w-full rounded-full ring-1 ring-gray-200 dark:ring-white/10"
+                            [src]="user.avatar"
+                            alt="User avatar"
+                        />
+                    }
+                    @if (!user.avatar) {
+                        <mat-icon
+                            class="icon-size-24 text-hint"
+                            [svgIcon]="'heroicons_solid:user-circle'"
+                        ></mat-icon>
+                    }
+                </div>
+                <div class="mt-6 flex w-full flex-col items-center justify-center">
+                    <div
+                        class="text-default w-full overflow-hidden text-ellipsis whitespace-nowrap text-center font-medium leading-normal"
+                    >
+                        {{ user.name }}
+                    </div>
+                    <div
+                        class="text-secondary mt-0.5 w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-md font-medium leading-normal"
+                    >
+                        {{ user.email }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -57,12 +73,9 @@
     <!-- Navigation footer hook -->
     <ng-container fuseVerticalNavigationContentFooter>
         <div
-            class="mb-4 mt-2 flex h-16 flex-0 items-center justify-center pl-2 pr-6 opacity-12"
+            class="text-secondary mb-4 mt-2 flex h-12 flex-0 items-center justify-center px-4 text-center text-xs font-medium"
         >
-            <img
-                class="max-w-36"
-                src="https://verifik.co/wp-content/uploads/2024/05/logo_verifik_brand.svg"
-            />
+            <span>Verifik &copy; {{ currentYear }}</span>
         </div>
     </ng-container>
 </fuse-vertical-navigation>
@@ -91,7 +104,7 @@
                 (click)="quickChat.toggle()"
             >
                 <mat-icon
-                    [svgIcon]="'heroicons_outline:chat-bubble-left-right'"
+                    [svgIcon]="'heroicons_outline:lifebuoy'"
                 ></mat-icon>
             </button>
         </div>

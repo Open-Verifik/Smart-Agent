@@ -13,6 +13,7 @@ const generatePalette = require(
  */
 const customPalettes = {
     brand: generatePalette('#2196F3'),
+    coral: generatePalette('#FF6F4F'),
 };
 
 /**
@@ -22,8 +23,8 @@ const themes = {
     // Default theme is required for theming system to work correctly!
     default: {
         primary: {
-            ...colors.indigo,
-            DEFAULT: colors.indigo[600],
+            ...customPalettes.coral,
+            DEFAULT: customPalettes.coral[500],
         },
         accent: {
             ...colors.slate,

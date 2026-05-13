@@ -10,7 +10,7 @@
       'fuse-vertical-navigation-item-disabled': item.disabled,
       'fuse-vertical-navigation-item-active-forced': item.active,
     }"
-    [matTooltip]="item.tooltip || ''"
+    [matTooltip]="(item.tooltip || item.title) | transloco"
   >
     <!-- Icon -->
     @if (item.icon) {

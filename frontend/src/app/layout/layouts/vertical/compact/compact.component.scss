@@ -1,0 +1,47 @@
+/**
+ * Compact rail + aside flyout — light surfaces (Privy-like), coral active accent on light scheme.
+ */
+body.light compact-layout {
+    fuse-vertical-navigation.compact-layout-nav {
+        .fuse-vertical-navigation-wrapper,
+        .fuse-vertical-navigation-aside-wrapper {
+            @apply bg-card;
+        }
+
+        .fuse-vertical-navigation-aside-wrapper {
+            @apply border-l border-gray-200/90;
+            box-shadow: none;
+        }
+
+        fuse-vertical-navigation-aside-item,
+        fuse-vertical-navigation-basic-item {
+            > .fuse-vertical-navigation-item-wrapper .fuse-vertical-navigation-item {
+                &:not(.fuse-vertical-navigation-item-disabled) {
+                    &.fuse-vertical-navigation-item-active,
+                    &.fuse-vertical-navigation-item-active-forced {
+                        @apply rounded-md bg-gray-100 #{!important};
+                        box-shadow: inset 2px 0 0 0 var(--fuse-primary);
+
+                        .fuse-vertical-navigation-item-icon {
+                            color: var(--fuse-primary);
+                            opacity: 1;
+                        }
+
+                        .fuse-vertical-navigation-item-title {
+                            @apply text-gray-900 #{!important};
+                            opacity: 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+body.dark compact-layout {
+    fuse-vertical-navigation.compact-layout-nav {
+        .fuse-vertical-navigation-aside-wrapper {
+            @apply border-white/10;
+        }
+    }
+}

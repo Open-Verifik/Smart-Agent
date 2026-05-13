@@ -1,0 +1,92 @@
+/**
+ * Futuristic sidebar — respects body.light / body.dark (no forced Tailwind `.dark` on the nav host).
+ * Active / hover cues align with classy layout (Fuse primary accent).
+ */
+
+@mixin futuristic-nav-active-light {
+    &:not(.fuse-vertical-navigation-item-disabled) {
+        &.fuse-vertical-navigation-item-active,
+        &.fuse-vertical-navigation-item-active-forced {
+            @apply rounded-lg bg-gray-100 #{!important};
+            box-shadow: inset 3px 0 0 0 var(--fuse-primary);
+
+            .fuse-vertical-navigation-item-icon {
+                color: var(--fuse-primary);
+                opacity: 1;
+            }
+
+            .fuse-vertical-navigation-item-title {
+                @apply text-gray-900 #{!important};
+                opacity: 1;
+            }
+
+            .fuse-vertical-navigation-item-subtitle {
+                @apply text-gray-500 #{!important};
+            }
+        }
+
+        &:not(.fuse-vertical-navigation-item-active-forced):not(.fuse-vertical-navigation-item-active):not(
+                .fuse-vertical-navigation-item-disabled
+            ):hover {
+            @apply bg-gray-50 #{!important};
+        }
+    }
+}
+
+@mixin futuristic-nav-active-dark {
+    &:not(.fuse-vertical-navigation-item-disabled) {
+        &.fuse-vertical-navigation-item-active,
+        &.fuse-vertical-navigation-item-active-forced {
+            @apply rounded-lg bg-white/10 #{!important};
+            box-shadow: inset 3px 0 0 0 var(--fuse-primary);
+
+            .fuse-vertical-navigation-item-icon {
+                color: var(--fuse-primary);
+                opacity: 1;
+            }
+
+            .fuse-vertical-navigation-item-title {
+                color: rgba(var(--fuse-text-default-rgb), 1) !important;
+                opacity: 1;
+            }
+
+            .fuse-vertical-navigation-item-subtitle {
+                color: rgba(var(--fuse-text-secondary-rgb), 1) !important;
+            }
+        }
+
+        &:not(.fuse-vertical-navigation-item-active-forced):not(.fuse-vertical-navigation-item-active):not(
+                .fuse-vertical-navigation-item-disabled
+            ):hover {
+            @apply bg-white/5 #{!important};
+        }
+    }
+}
+
+body.light futuristic-layout {
+    fuse-vertical-navigation.futuristic-layout-nav .fuse-vertical-navigation-wrapper {
+        @apply bg-card;
+    }
+
+    futuristic-layout fuse-vertical-navigation-aside-item,
+    futuristic-layout fuse-vertical-navigation-basic-item,
+    futuristic-layout fuse-vertical-navigation-collapsable-item {
+        > .fuse-vertical-navigation-item-wrapper .fuse-vertical-navigation-item {
+            @include futuristic-nav-active-light;
+        }
+    }
+}
+
+body.dark futuristic-layout {
+    fuse-vertical-navigation.futuristic-layout-nav .fuse-vertical-navigation-wrapper {
+        @apply bg-card;
+    }
+
+    futuristic-layout fuse-vertical-navigation-aside-item,
+    futuristic-layout fuse-vertical-navigation-basic-item,
+    futuristic-layout fuse-vertical-navigation-collapsable-item {
+        > .fuse-vertical-navigation-item-wrapper .fuse-vertical-navigation-item {
+            @include futuristic-nav-active-dark;
+        }
+    }
+}

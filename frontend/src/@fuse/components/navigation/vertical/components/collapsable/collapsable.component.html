@@ -6,7 +6,7 @@
   <div
     class="fuse-vertical-navigation-item"
     [ngClass]="{ 'fuse-vertical-navigation-item-disabled': item.disabled }"
-    [matTooltip]="item.tooltip || ''"
+    [matTooltip]="(item.tooltip || item.title) | transloco"
     (click)="toggleCollapsable()"
   >
     <!-- Icon -->

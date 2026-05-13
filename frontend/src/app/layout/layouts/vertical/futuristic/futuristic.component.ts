@@ -26,6 +26,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'futuristic-layout',
     templateUrl: './futuristic.component.html',
+    styleUrls: ['./futuristic.component.scss'],
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,

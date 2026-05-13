@@ -17,7 +17,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                     {{ 'settings.profile.photo' | transloco }}
                 </h3>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ 'settings.profile.photo_desc' | transloco }}
                 </p>
             </div>
@@ -26,7 +26,7 @@
                 <!-- Preview Circle -->
                 <div class="shrink-0">
                     <div
-                        class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
+                        class="w-32 h-32 rounded-full bg-gray-50 dark:bg-gray-900 border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center overflow-hidden"
                     >
                         <img
                             *ngIf="avatar"
@@ -54,13 +54,13 @@
                     />
                     <label
                         for="avatarInput"
-                        class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mb-3"
+                        class="dropzone flex flex-col items-center justify-center w-full h-32 bg-gray-50 dark:bg-gray-900 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-3"
                         (drop)="onFileDropped($event)"
                         (dragover)="onDragOver($event)"
                     >
                         <div class="flex flex-col items-center justify-center pt-5 pb-6">
                             <mat-icon
-                                class="text-gray-400 mb-2"
+                                class="text-gray-400 dark:text-gray-500 mb-2"
                                 style="
                                     width: 32px;
                                     height: 32px;
@@ -69,7 +69,7 @@
                                 >cloud_upload</mat-icon
                             >
                             <p class="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                                <span class="font-semibold text-blue-600">{{
+                                <span class="font-semibold text-blue-600 dark:text-blue-400">{{
                                     'settings.profile.drag_drop' | transloco
                                 }}</span>
                                 {{ 'settings.profile.or_click' | transloco }}
@@ -95,7 +95,7 @@
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
                     {{ 'settings.profile.personal_info' | transloco }}
                 </h3>
-                <p class="text-sm text-gray-500">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
                     {{ 'settings.profile.privacy_info' | transloco }}
                 </p>
             </div>
@@ -109,7 +109,7 @@
                     <input
                         type="text"
                         formControlName="name"
-                        class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
                     />
                 </div>
 
@@ -121,7 +121,7 @@
                     <input
                         type="email"
                         formControlName="email"
-                        class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
                     />
                 </div>
 
@@ -133,7 +133,7 @@
                     <div class="relative">
                         <select
                             formControlName="countryCode"
-                            class="h-11 pl-4 pr-10 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white"
+                            class="h-11 pl-4 pr-10 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full appearance-none text-gray-900 dark:text-white transition-all"
                         >
                             <option
                                 *ngFor="let country of countryCodes"
@@ -144,7 +144,7 @@
                             </option>
                         </select>
                         <mat-icon
-                            class="absolute right-3 top-3 pointer-events-none text-gray-400"
+                            class="absolute right-3 top-3 pointer-events-none text-gray-400 dark:text-gray-500"
                             style="width: 20px; height: 20px; font-size: 20px"
                             >expand_more</mat-icon
                         >
@@ -159,7 +159,7 @@
                     <input
                         type="text"
                         formControlName="phone"
-                        class="h-11 px-4 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 cursor-not-allowed w-full focus:outline-none"
+                        class="h-11 px-4 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-500 dark:text-gray-500 cursor-not-allowed w-full focus:outline-none"
                     />
                 </div>
 
@@ -171,7 +171,7 @@
                     <input
                         type="text"
                         formControlName="company"
-                        class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
                     />
                 </div>
 
@@ -183,7 +183,7 @@
                     <input
                         type="text"
                         formControlName="address"
-                        class="h-11 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white"
+                        class="h-11 px-4 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-full text-gray-900 dark:text-white transition-all"
                     />
                 </div>
             </div>

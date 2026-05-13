@@ -1,0 +1,105 @@
+<h2 mat-dialog-title>{{ 'supportTickets.quickChat.newTicket.heading' | transloco }}</h2>
+
+<mat-dialog-content class="flex max-h-[min(560px,calc(100vh-10rem))] flex-col gap-3 overflow-y-auto pt-2" [formGroup]="form">
+    <mat-form-field class="w-full" appearance="outline">
+        <mat-label>{{ 'supportTickets.quickChat.newTicket.fieldTitle' | transloco }}</mat-label>
+        <input matInput formControlName="title" />
+        @if (form.controls.title.hasError('required')) {
+            <mat-error>{{ 'supportTickets.quickChat.newTicket.titleRequired' | transloco }}</mat-error>
+        }
+    </mat-form-field>
+
+    <mat-form-field class="w-full" appearance="outline">
+        <mat-label>{{ 'supportTickets.quickChat.newTicket.category' | transloco }}</mat-label>
+        <mat-select formControlName="category">
+            @for (c of categoryOptions; track c.value) {
+                <mat-option [value]="c.value">{{ c.labelKey | transloco }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
+    @if (isSmartCheck()) {
+        <mat-form-field class="w-full" appearance="outline">
+            <mat-label>{{ 'supportTickets.quickChat.newTicket.ticketSubject' | transloco }}</mat-label>
+            <input matInput formControlName="subject" />
+            @if (form.controls.subject.hasError('required')) {
+                <mat-error>{{ 'supportTickets.quickChat.newTicket.ticketSubjectRequired' | transloco }}</mat-error>
+            }
+        </mat-form-field>
+
+        <app-support-ticket-api-picker formControlName="api" />
+        @if (form.controls.api.touched && form.controls.api.hasError('required')) {
+            <div class="text-warn -mt-1 text-xs">{{ 'supportTickets.quickChat.newTicket.apiRequired' | transloco }}</div>
+        }
+    }
+
+    <mat-form-field class="w-full" appearance="outline">
+        <mat-label>{{ 'supportTickets.quickChat.newTicket.message' | transloco }}</mat-label>
+        <textarea matInput rows="6" formControlName="message"></textarea>
+        @if (form.controls.message.hasError('required')) {
+            <mat-error>{{ 'supportTickets.quickChat.newTicket.messageRequired' | transloco }}</mat-error>
+        }
+    </mat-form-field>
+
+    <div class="flex flex-col gap-2">
+        <div class="text-default flex flex-wrap items-center gap-2 text-sm font-medium">
+            <span>{{ 'supportTickets.quickChat.newTicket.attachmentsLabel' | transloco }}</span>
+            @if (uploadedAttachments().length > 0) {
+                <span class="text-secondary font-normal">{{
+                    'supportTickets.quickChat.newTicket.attachmentsCount' | transloco: { count: uploadedAttachments().length }
+                }}</span>
+            }
+        </div>
+        <p class="text-secondary m-0 text-xs">{{ 'supportTickets.quickChat.newTicket.attachmentsHint' | transloco }}</p>
+        @if (uploadedAttachments().length >= maxAttachments) {
+            <p class="text-hint m-0 text-xs">{{ 'supportTickets.quickChat.newTicket.attachmentsMaxReached' | transloco }}</p>
+        }
+        <file-drop-zone
+            accept=".pdf,.jpg,.jpeg,.png"
+            [expirationDays]="1"
+            source="support-ticket"
+            [disabled]="attachmentDropZoneDisabled()"
+            (attachmentUploaded)="onAttachmentUploaded($event)"
+            (uploadingChange)="onAttachmentUploadingChange($event)"
+        ></file-drop-zone>
+        @if (uploadedAttachments().length > 0) {
+            <ul class="border-divider m-0 flex list-none flex-col gap-1 rounded-xl border p-2">
+                @for (a of uploadedAttachments(); track a._id) {
+                    <li class="flex min-w-0 items-center gap-2 text-sm">
+                        <mat-icon class="text-secondary icon-size-4 shrink-0" [svgIcon]="'heroicons_outline:paper-clip'"></mat-icon>
+                        <span class="text-default min-w-0 flex-1 truncate" [title]="a.name">{{ truncateFileLabel(a.name) }}</span>
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="shrink-0"
+                            [attr.aria-label]="'supportTickets.quickChat.newTicket.removeAttachmentAria' | transloco: { name: a.name }"
+                            [disabled]="saving() || attachmentUploadBusy()"
+                            (click)="removeAttachment(a._id)"
+                        >
+                            <mat-icon [svgIcon]="'heroicons_outline:trash'"></mat-icon>
+                        </button>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="gap-2">
+    <button mat-button type="button" (click)="cancel()" [disabled]="saving()">
+        {{ 'supportTickets.quickChat.newTicket.cancel' | transloco }}
+    </button>
+    <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="submit()"
+        [disabled]="form.invalid || saving() || attachmentUploadBusy()"
+    >
+        @if (saving()) {
+            <mat-spinner diameter="20" class="inline-block"></mat-spinner>
+        } @else {
+            {{ 'supportTickets.quickChat.newTicket.submit' | transloco }}
+        }
+    </button>
+</mat-dialog-actions>

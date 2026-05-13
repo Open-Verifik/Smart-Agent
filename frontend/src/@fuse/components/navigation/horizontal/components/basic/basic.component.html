@@ -18,7 +18,7 @@
       [queryParamsHandling]="item.queryParamsHandling ?? null"
       [routerLinkActive]="'fuse-horizontal-navigation-item-active'"
       [routerLinkActiveOptions]="isActiveMatchOptions"
-      [matTooltip]="item.tooltip || ''"
+      [matTooltip]="(item.tooltip || item.title) | transloco"
     >
       <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
     </div>
@@ -30,7 +30,7 @@
       class="fuse-horizontal-navigation-item"
       [href]="item.link"
       [target]="item.target || '_self'"
-      [matTooltip]="item.tooltip || ''"
+      [matTooltip]="(item.tooltip || item.title) | transloco"
     >
       <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
     </a>
@@ -43,7 +43,7 @@
       [ngClass]="{
         'fuse-horizontal-navigation-item-active-forced': item.active,
       }"
-      [matTooltip]="item.tooltip || ''"
+      [matTooltip]="(item.tooltip || item.title) | transloco"
       (click)="item.function(item)"
     >
       <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
@@ -64,7 +64,7 @@
       [queryParamsHandling]="item.queryParamsHandling ?? null"
       [routerLinkActive]="'fuse-horizontal-navigation-item-active'"
       [routerLinkActiveOptions]="isActiveMatchOptions"
-      [matTooltip]="item.tooltip || ''"
+      [matTooltip]="(item.tooltip || item.title) | transloco"
       (click)="item.function(item)"
     >
       <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
@@ -77,7 +77,7 @@
       class="fuse-horizontal-navigation-item"
       [href]="item.link"
       [target]="item.target || '_self'"
-      [matTooltip]="item.tooltip || ''"
+      [matTooltip]="(item.tooltip || item.title) | transloco"
       (click)="item.function(item)"
       mat-menu-item
     >
@@ -92,7 +92,7 @@
       [ngClass]="{
         'fuse-horizontal-navigation-item-active-forced': item.active,
       }"
-      [matTooltip]="item.tooltip || ''"
+      [matTooltip]="(item.tooltip || item.title) | transloco"
     >
       <ng-container *ngTemplateOutlet="itemTemplate"></ng-container>
     </div>

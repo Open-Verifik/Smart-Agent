@@ -3,7 +3,7 @@
 
 <!-- Navigation -->
 <fuse-vertical-navigation
-    class="dark bg-gray-900 print:hidden"
+    class="compact-layout-nav bg-card border-r border-gray-200/80 shadow-none dark:border-white/10 dark:bg-gray-900 print:hidden"
     [appearance]="'compact'"
     [mode]="isScreenSmall ? 'over' : 'side'"
     [name]="'mainNavigation'"
@@ -12,9 +12,13 @@
 >
     <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
-        <!-- Logo -->
+        <!-- Brand (Verifik; not Fuse theme stock logo) -->
         <div class="mb-4 mt-3 flex h-20 items-center justify-center">
-            <img class="w-10" src="images/logo/logo.svg" alt="Logo image" />
+            <img
+                class="w-10"
+                src="https://verifik.co/wp-content/uploads/2024/05/icon_blue-brand.svg"
+                alt="Verifik"
+            />
         </div>
     </ng-container>
 </fuse-vertical-navigation>
@@ -44,7 +48,7 @@
                 (click)="quickChat.toggle()"
             >
                 <mat-icon
-                    [svgIcon]="'heroicons_outline:chat-bubble-left-right'"
+                    [svgIcon]="'heroicons_outline:lifebuoy'"
                 ></mat-icon>
             </button>
             <user></user>

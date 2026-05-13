@@ -2828,5 +2828,95 @@
         "continue_to_platform": "Continue"
       }
     }
+  },
+  "supportTickets": {
+    "quickChat": {
+      "headerTitle": "Support tickets",
+      "guest": {
+        "title": "Sign in to contact support",
+        "body": "Open a support ticket and chat with our team using your Verifik account.",
+        "signIn": "Sign in"
+      },
+      "workspaceOnly": {
+        "title": "Verifik account required",
+        "body": "Support tickets need a Verifik workspace session (email or phone). Wallet-only sign-in cannot open tickets—please sign in with your Verifik account.",
+        "signIn": "Sign in with Verifik"
+      },
+      "listHeading": "Tickets",
+      "emptyList": "No tickets yet.",
+      "newTicketCta": "New ticket",
+      "newTicketAria": "Create new support ticket",
+      "ticketPrefix": "#{{num}} —",
+      "noSelection": "Select a support ticket or create a new one.",
+      "fromSupport": "Support",
+      "fromYou": "You",
+      "replyPlaceholder": "Write a reply…",
+      "sendAria": "Send reply",
+      "backAria": "Back to ticket list",
+      "showTicketList": "Tickets",
+      "showTicketListAria": "Show ticket list",
+      "metaCategory": "Category",
+      "metaSubject": "Subject",
+      "metaApi": "API",
+      "attachmentDownloadAria": "Download {{name}}",
+      "fullscreenEnterAria": "Expand support tickets panel",
+      "fullscreenExitAria": "Exit full screen",
+      "closeAria": "Close support tickets",
+      "status": {
+        "pending": "Pending",
+        "progress": "In progress",
+        "resolved": "Resolved",
+        "cancelled": "Cancelled",
+        "closed": "Closed"
+      },
+      "categories": {
+        "billing": "Billing",
+        "integration": "Integration",
+        "smartCheck": "SmartCheck",
+        "smartScan": "SmartScan",
+        "smartEnroll": "SmartEnroll",
+        "smartAccess": "SmartAccess",
+        "other": "Other"
+      },
+      "newTicket": {
+        "heading": "New support ticket",
+        "fieldTitle": "Title",
+        "titleRequired": "Title is required",
+        "ticketSubject": "Subject",
+        "ticketSubjectRequired": "Subject is required",
+        "apiRequired": "Choose the API related to your issue.",
+        "category": "Category",
+        "message": "Message",
+        "messageRequired": "Message is required",
+        "cancel": "Cancel",
+        "submit": "Create ticket",
+        "attachmentsLabel": "Attachments",
+        "attachmentsHint": "Optional. PDF or images (.pdf, .jpg, .jpeg, .png). Up to 10 files; up to 10 MB each.",
+        "attachmentsCount": "{{count}} file(s) attached",
+        "attachmentsMaxReached": "You've reached the 10-file limit. Remove one to add another.",
+        "removeAttachmentAria": "Remove {{name}}"
+      },
+      "createDialog": {
+        "apiTypes": {
+          "identity": "Identity",
+          "vehicle": "Vehicle",
+          "business": "Business",
+          "background": "Background"
+        },
+        "api": {
+          "label": "API",
+          "selectHeading": "Select an API",
+          "selectHint": "Browse and search endpoints",
+          "searchPlaceholder": "Search by name or endpoint",
+          "clearSearch": "Clear search",
+          "apisFound": "{{count}} APIs found"
+        }
+      },
+      "errors": {
+        "loadList": "Could not load tickets. Try again.",
+        "loadDetail": "Could not load this ticket.",
+        "sendReply": "Could not send your reply. Try again."
+      }
+    }
   }
 }

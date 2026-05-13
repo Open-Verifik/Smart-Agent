@@ -90,4 +90,29 @@ export class AttachmentService {
             .delete(`${this.apiUrl}/v2/attachments/${id}`, { headers: this.authHeaders })
             .pipe(catchError((err) => throwError(() => err)));
     }
+
+    /**
+     * Download via CDN URL (public). Falls back to opening in a new tab if fetch fails.
+     */
+    async downloadAttachmentFromUrl(attachment: Attachment): Promise<void> {
+        if (!attachment?.url) {
+            throw new Error('Attachment URL is missing');
+        }
+        try {
+            const response = await fetch(attachment.url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            const blob = await response.blob();
+            const objectUrl = URL.createObjectURL(blob);
+            const anchor = document.createElement('a');
+            anchor.href = objectUrl;
+            anchor.download = attachment.name?.trim() || 'attachment';
+            anchor.rel = 'noopener noreferrer';
+            anchor.click();
+            URL.revokeObjectURL(objectUrl);
+        } catch {
+            window.open(attachment.url, '_blank', 'noopener,noreferrer');
+        }
+    }
 }

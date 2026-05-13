@@ -34,11 +34,16 @@ export class FileDropZoneComponent {
     @Input() expirationDays = 0;
     @Input() source: AttachmentSource = 'project';
     @Input() disabled = false;
+    /** Smaller padding and min-height for inline composers (e.g. support ticket replies). */
+    @Input() compact = false;
 
     @Output() attachmentUploaded = new EventEmitter<{ attachment: Attachment }>();
     @Output() fileError = new EventEmitter<{ file: File; error: string }>();
     @Output() uploadError = new EventEmitter<{ error: string }>();
     @Output() fileRemoved = new EventEmitter<void>();
+
+    /** Emits `true` when an upload begins and `false` when it ends (success or error). */
+    @Output() uploadingChange = new EventEmitter<boolean>();
 
     private _attachments = inject(AttachmentService);
     private _cdr = inject(ChangeDetectorRef);
@@ -136,6 +141,7 @@ export class FileDropZoneComponent {
         }
 
         this.isUploading = true;
+        this.uploadingChange.emit(true);
         this._cdr.markForCheck();
 
         this._attachments
@@ -143,11 +149,13 @@ export class FileDropZoneComponent {
             .subscribe({
                 next: (response) => {
                     this.isUploading = false;
+                    this.uploadingChange.emit(false);
                     this.attachmentUploaded.emit({ attachment: response.data });
                     this._cdr.markForCheck();
                 },
                 error: (err) => {
                     this.isUploading = false;
+                    this.uploadingChange.emit(false);
                     const error = err?.error?.message || this._transloco.translate('smartEnrollProjects.setup.ui.images.uploadFailed');
                     this.errorMessage = error;
                     this.uploadError.emit({ error });

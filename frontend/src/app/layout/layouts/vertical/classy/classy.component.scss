@@ -1,0 +1,46 @@
+/**
+ * Classy layout — light sidebar aligned with app theme (Privy-style: clean surface, coral active accent).
+ * Scoped to this layout only via .classy-layout-nav.
+ */
+body.light classy-layout {
+    fuse-vertical-navigation.classy-layout-nav {
+        .fuse-vertical-navigation-wrapper {
+            @apply bg-card;
+        }
+
+        /* Nav items: clearer active + coral left bar (theme primary) */
+        fuse-vertical-navigation-aside-item,
+        fuse-vertical-navigation-basic-item,
+        fuse-vertical-navigation-collapsable-item {
+            > .fuse-vertical-navigation-item-wrapper .fuse-vertical-navigation-item {
+                &:not(.fuse-vertical-navigation-item-disabled) {
+                    &.fuse-vertical-navigation-item-active,
+                    &.fuse-vertical-navigation-item-active-forced {
+                        @apply rounded-lg bg-gray-100 #{!important};
+                        box-shadow: inset 3px 0 0 0 var(--fuse-primary);
+
+                        .fuse-vertical-navigation-item-icon {
+                            color: var(--fuse-primary);
+                            opacity: 1;
+                        }
+
+                        .fuse-vertical-navigation-item-title {
+                            @apply text-gray-900 #{!important};
+                            opacity: 1;
+                        }
+
+                        .fuse-vertical-navigation-item-subtitle {
+                            @apply text-gray-500 #{!important};
+                        }
+                    }
+                }
+
+                &:not(.fuse-vertical-navigation-item-active-forced):not(
+                        .fuse-vertical-navigation-item-active
+                    ):not(.fuse-vertical-navigation-item-disabled):hover {
+                    @apply bg-gray-50 #{!important};
+                }
+            }
+        }
+    }
+}

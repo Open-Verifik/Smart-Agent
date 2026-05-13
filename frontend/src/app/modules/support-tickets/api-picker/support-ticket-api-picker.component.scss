@@ -1,0 +1,83 @@
+@keyframes apiDropdownEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.api-dropdown-enter {
+    animation: apiDropdownEnter 0.2s ease-out;
+}
+
+/* Type accent — row icon shell + active chip tint */
+.shell.badge-type-identity {
+    @apply bg-emerald-500/15 text-emerald-700 ring-emerald-500/30 dark:text-emerald-300;
+}
+
+.shell.badge-type-vehicle {
+    @apply bg-sky-500/15 text-sky-700 ring-sky-500/30 dark:text-sky-300;
+}
+
+.shell.badge-type-business {
+    @apply bg-violet-500/15 text-violet-700 ring-violet-500/30 dark:text-violet-300;
+}
+
+.shell.badge-type-background {
+    @apply bg-amber-500/15 text-amber-800 ring-amber-500/35 dark:text-amber-200;
+}
+
+.filter-chip-chip.filter-chip-active.badge-type-identity {
+    @apply border-emerald-500/60 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200;
+}
+
+.filter-chip-chip.filter-chip-active.badge-type-vehicle {
+    @apply border-sky-500/60 bg-sky-500/10 text-sky-800 dark:text-sky-200;
+}
+
+.filter-chip-chip.filter-chip-active.badge-type-business {
+    @apply border-violet-500/60 bg-violet-500/10 text-violet-800 dark:text-violet-200;
+}
+
+.filter-chip-chip.filter-chip-active.badge-type-background {
+    @apply border-amber-500/60 bg-amber-500/15 text-amber-900 dark:text-amber-100;
+}
+
+.filter-chip-chip:not(.filter-chip-active) {
+    @apply border border-gray-300 text-secondary bg-transparent dark:border-gray-600;
+}
+
+/* Category chips: center icons with label (mat-icon defaults to 24px box in inline flow) */
+.api-picker-root .filter-chip-chip .chip-type-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.api-picker-root .badge-pill {
+    @apply bg-emerald-500/20 text-emerald-800 ring-1 ring-inset ring-emerald-500/25 dark:text-emerald-200;
+}
+
+.api-picker-root .badge-pill-muted {
+    @apply bg-gray-50 text-secondary ring-1 ring-inset ring-gray-300 dark:bg-gray-800 dark:ring-gray-600;
+}
+
+/* Selected list row — translucent primary tint; avoids light bg-primary-50 in dark dialogs */
+.api-picker-root button.api-list-row-selected {
+    background-color: color-mix(in srgb, var(--fuse-primary-500) 14%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fuse-primary-500) 28%, transparent);
+}
+
+:host-context(.dark) .api-picker-root button.api-list-row-selected,
+.dark .api-picker-root button.api-list-row-selected {
+    background-color: color-mix(in srgb, var(--fuse-primary-500) 22%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fuse-primary-400, var(--fuse-primary-500)) 45%, transparent);
+}
+
+.api-picker-root button.api-list-row-selected .badge-pill-muted {
+    @apply dark:bg-gray-900/90 dark:ring-gray-700;
+}

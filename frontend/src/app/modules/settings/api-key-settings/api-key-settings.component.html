@@ -15,14 +15,14 @@
             <mat-icon>check_circle</mat-icon>
         </div>
         <div class="flex-1">
-            <h3 class="font-semibold text-green-800">
+            <h3 class="font-semibold">
                 {{ 'settings.api_key.new_token_generated' | transloco }}
             </h3>
-            <p class="text-green-700 text-sm mt-1">
+            <p class="text-sm mt-1">
                 {{ 'settings.api_key.copy_token_warning' | transloco }}
             </p>
         </div>
-        <button mat-icon-button (click)="dismissNewTokenAlert()" class="text-green-600">
+        <button mat-icon-button (click)="dismissNewTokenAlert()" class="new-token-alert-dismiss">
             <mat-icon>close</mat-icon>
         </button>
     </div>
@@ -39,7 +39,7 @@
                 <h2 class="font-semibold text-gray-900 dark:text-white">
                     {{ 'settings.api_key.current_token' | transloco }}
                 </h2>
-                <p class="text-gray-500 text-xs">
+                <p class="text-gray-500 text-xs dark:text-gray-400">
                     {{ 'settings.api_key.bearer_token_info' | transloco }}
                 </p>
             </div>
@@ -232,7 +232,7 @@
             <h3 class="font-medium text-gray-900 dark:text-white">
                 {{ 'settings.api_key.need_help' | transloco }}
             </h3>
-            <p class="text-gray-500 text-sm">
+            <p class="text-gray-500 text-sm dark:text-gray-400">
                 {{ 'settings.api_key.docs_description' | transloco }}
             </p>
         </div>

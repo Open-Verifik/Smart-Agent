@@ -1,11 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, OnInit, signal } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { FuseConfigService } from '@fuse/services/config/config.service';
+import type { FuseConfig } from '@fuse/services/config/config.types';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
@@ -15,6 +18,22 @@ import type { SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types
 import { UserService } from '../../core/user/user.service';
 import { DashboardData, HomeService } from './home.service';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
+
+interface ChartTheme {
+    tooltipTheme: 'light' | 'dark';
+    chartForeColor: string;
+    axisLabelColor: string;
+    gridBorderColor: string;
+    chartBg: string;
+    areaColors: string[];
+    areaFills: string[];
+    lineMuted: string[];
+    radarPolygon: string;
+    radarConnector: string;
+    markerStroke: string;
+    distributionColor: string;
+    dataLabelColor: string;
+}
 
 interface ShortcutItem {
     id: string;
@@ -53,6 +72,10 @@ export class HomeComponent implements OnInit {
     private _transloco = inject(TranslocoService);
     private _router = inject(Router);
     private _userService = inject(UserService);
+    private _document = inject(DOCUMENT);
+    private _fuseConfig = inject(FuseConfigService);
+
+    private _schemeAutoListenerCleanup: (() => void) | null = null;
 
     isAuthenticated = signal(false);
     loading = this._homeService.loading;
@@ -110,6 +133,19 @@ export class HomeComponent implements OnInit {
             }
             this._buildCharts(data);
         });
+
+        inject(DestroyRef).onDestroy(() => this._detachSchemeAutoListener());
+
+        this._fuseConfig.config$
+            .pipe(takeUntilDestroyed())
+            .subscribe((config: FuseConfig) => {
+                if (config.scheme === 'auto') {
+                    this._attachSchemeAutoListener();
+                } else {
+                    this._detachSchemeAutoListener();
+                }
+                this._scheduleRebuildCharts();
+            });
     }
 
     ngOnInit(): void {
@@ -189,23 +225,108 @@ export class HomeComponent implements OnInit {
         this.chartUsageLine = null;
     }
 
-    private _buildCharts(data: DashboardData): void {
-        this.chartWeeklyExpenses = data.weeklyExpenses ? this._buildExpenseSparkline(data.weeklyExpenses, '#22D3EE') : null;
-        this.chartMonthlyExpenses = data.monthlyExpenses ? this._buildExpenseSparkline(data.monthlyExpenses, '#4ADE80') : null;
-        this.chartYearlyExpenses = data.yearlyExpenses ? this._buildExpenseSparkline(data.yearlyExpenses, '#FB7185') : null;
-        this.chartLastMonth = data.lastMonthRequests ? this._buildLastMonthArea(data.lastMonthRequests) : null;
-        this.chartDistribution = data.distribution ? this._buildDistributionRadar(data.distribution) : null;
-        this.chartUsageLine = data.topCodes ? this._buildUsageLine(data.topCodes) : null;
+    private _chartTheme(): ChartTheme {
+        const isDark = Boolean(this._document.body?.classList.contains('dark'));
+
+        if (!isDark) {
+            return {
+                tooltipTheme: 'dark',
+                chartForeColor: 'inherit',
+                axisLabelColor: 'rgb(148, 163, 184)',
+                gridBorderColor: 'rgba(148, 163, 184, 0.2)',
+                chartBg: 'transparent',
+                areaColors: ['#64748B', '#94A3B8'],
+                areaFills: ['#64748B', '#94A3B8'],
+                lineMuted: ['#64748B', '#94A3B8'],
+                radarPolygon: 'rgba(148, 163, 184, 0.3)',
+                radarConnector: 'rgba(148, 163, 184, 0.3)',
+                markerStroke: '#818CF8',
+                distributionColor: '#818CF8',
+                dataLabelColor: '#475569',
+            };
+        }
+
+        return {
+            tooltipTheme: 'dark',
+            chartForeColor: '#f1f5f9',
+            axisLabelColor: '#94a3b8',
+            gridBorderColor: 'rgba(148, 163, 184, 0.14)',
+            chartBg: 'transparent',
+            areaColors: ['#94a3b8', '#cbd5e1'],
+            areaFills: ['#94a3b8', '#cbd5e1'],
+            lineMuted: ['#94a3b8', '#cbd5e1'],
+            radarPolygon: 'rgba(148, 163, 184, 0.22)',
+            radarConnector: 'rgba(148, 163, 184, 0.22)',
+            markerStroke: '#a5b4fc',
+            distributionColor: '#a5b4fc',
+            dataLabelColor: '#e2e8f0',
+        };
     }
 
-    private _buildExpenseSparkline(seriesData: { labels: string[]; series: any[] }, color: string): ApexOptions {
+    private _attachSchemeAutoListener(): void {
+        this._detachSchemeAutoListener();
+        const win = this._document.defaultView;
+        if (!win || typeof win.matchMedia !== 'function') return;
+
+        const mql = win.matchMedia('(prefers-color-scheme: dark)');
+        const onChange = (): void => this._scheduleRebuildCharts();
+
+        mql.addEventListener('change', onChange);
+        this._schemeAutoListenerCleanup = (): void =>
+            mql.removeEventListener('change', onChange);
+    }
+
+    private _detachSchemeAutoListener(): void {
+        this._schemeAutoListenerCleanup?.();
+        this._schemeAutoListenerCleanup = null;
+    }
+
+    /** Defer so `body.light` / `body.dark` matches Fuse layout after config changes. */
+    private _scheduleRebuildCharts(): void {
+        const win = this._document.defaultView;
+        if (!win) return;
+        win.setTimeout(() => this._rebuildChartsIfLoaded(), 0);
+    }
+
+    private _rebuildChartsIfLoaded(): void {
+        const data = this.dashboardData();
+        if (!data) {
+            this._resetCharts();
+            return;
+        }
+        this._buildCharts(data);
+    }
+
+    private _buildCharts(data: DashboardData): void {
+        const theme = this._chartTheme();
+
+        this.chartWeeklyExpenses = data.weeklyExpenses
+            ? this._buildExpenseSparkline(data.weeklyExpenses, '#22D3EE', theme)
+            : null;
+        this.chartMonthlyExpenses = data.monthlyExpenses
+            ? this._buildExpenseSparkline(data.monthlyExpenses, '#4ADE80', theme)
+            : null;
+        this.chartYearlyExpenses = data.yearlyExpenses
+            ? this._buildExpenseSparkline(data.yearlyExpenses, '#FB7185', theme)
+            : null;
+        this.chartLastMonth = data.lastMonthRequests ? this._buildLastMonthArea(data.lastMonthRequests, theme) : null;
+        this.chartDistribution = data.distribution ? this._buildDistributionRadar(data.distribution, theme) : null;
+        this.chartUsageLine = data.topCodes ? this._buildUsageLine(data.topCodes, theme) : null;
+    }
+
+    private _buildExpenseSparkline(
+        seriesData: { labels: string[]; series: any[] },
+        color: string,
+        theme: ChartTheme,
+    ): ApexOptions {
         const data = (seriesData.series ?? []).map((num: number) => Math.abs(Number(num) || 0));
 
         return {
             chart: {
                 animations: { enabled: false },
                 fontFamily: 'inherit',
-                foreColor: 'inherit',
+                foreColor: theme.chartForeColor,
+                background: theme.chartBg,
                 height: '100%',
                 type: 'line',
                 sparkline: { enabled: true },
@@ -213,7 +334,7 @@ export class HomeComponent implements OnInit {
             colors: [color],
             series: [{ name: 'Credits', data }],
             stroke: { curve: 'smooth' },
-            tooltip: { theme: 'dark' },
+            tooltip: { theme: theme.tooltipTheme },
             xaxis: {
                 type: 'category',
                 categories: seriesData.labels ?? [],
@@ -226,22 +347,26 @@ export class HomeComponent implements OnInit {
         };
     }
 
-    private _buildLastMonthArea(seriesData: { labels: string[]; series: any[] }): ApexOptions {
+    private _buildLastMonthArea(
+        seriesData: { labels: string[]; series: any[] },
+        theme: ChartTheme,
+    ): ApexOptions {
         return {
             chart: {
                 animations: { enabled: false },
                 fontFamily: 'inherit',
-                foreColor: 'inherit',
+                foreColor: theme.chartForeColor,
+                background: theme.chartBg,
                 height: '100%',
                 type: 'area',
                 toolbar: { show: false },
                 zoom: { enabled: false },
             },
-            colors: ['#64748B', '#94A3B8'],
+            colors: theme.areaColors,
             dataLabels: { enabled: false },
             fill: {
-                colors: ['#64748B', '#94A3B8'],
-                opacity: 0.5,
+                colors: theme.areaFills,
+                opacity: 0.45,
             },
             grid: {
                 show: false,
@@ -252,7 +377,7 @@ export class HomeComponent implements OnInit {
             stroke: { curve: 'smooth', width: 2 },
             tooltip: {
                 followCursor: true,
-                theme: 'dark',
+                theme: theme.tooltipTheme,
                 x: { format: 'MMM dd, yyyy' },
             },
             xaxis: {
@@ -260,7 +385,7 @@ export class HomeComponent implements OnInit {
                 labels: {
                     offsetY: -20,
                     rotate: 0,
-                    style: { colors: 'rgb(148, 163, 184)' },
+                    style: { colors: theme.axisLabelColor },
                 },
                 tickAmount: 3,
                 tooltip: { enabled: false },
@@ -269,7 +394,7 @@ export class HomeComponent implements OnInit {
             },
             yaxis: {
                 labels: {
-                    style: { colors: 'rgb(148, 163, 184)' },
+                    style: { colors: theme.axisLabelColor },
                 },
                 max: (max: number): number => max + 5,
                 min: (min: number): number => min - 5,
@@ -279,7 +404,10 @@ export class HomeComponent implements OnInit {
         };
     }
 
-    private _buildDistributionRadar(distribution: { categories: string[]; series: { name: string; data: number[] }[] }): ApexOptions {
+    private _buildDistributionRadar(
+        distribution: { categories: string[]; series: { name: string; data: number[] }[] },
+        theme: ChartTheme,
+    ): ApexOptions {
         const counts = distribution.series?.[1]?.data ?? [];
         const total = counts.reduce((acc, val) => acc + (Number(val) || 0), 0);
         const percentages = counts.map((value) => Number(((Number(value) || 0) * 100 / (total || 1)).toFixed(2)));
@@ -287,42 +415,51 @@ export class HomeComponent implements OnInit {
         return {
             chart: {
                 fontFamily: 'inherit',
-                foreColor: 'inherit',
+                foreColor: theme.chartForeColor,
+                background: theme.chartBg,
                 height: '100%',
                 type: 'radar',
                 sparkline: { enabled: true },
             },
-            colors: ['#818CF8'],
+            colors: [theme.distributionColor],
             dataLabels: {
                 enabled: true,
                 formatter: (val: number): string => `${val}%`,
                 textAnchor: 'start',
-                style: { fontSize: '13px', fontWeight: 500 },
+                style: {
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    colors: [theme.dataLabelColor],
+                },
                 background: { borderWidth: 0, padding: 4 },
                 offsetY: -15,
             },
             markers: {
-                strokeColors: '#818CF8',
+                strokeColors: theme.markerStroke,
                 strokeWidth: 4,
             },
             plotOptions: {
                 radar: {
                     polygons: {
-                        strokeColors: 'rgba(148, 163, 184, 0.3)',
-                        connectorColors: 'rgba(148, 163, 184, 0.3)',
+                        strokeColors: theme.radarPolygon,
+                        connectorColors: theme.radarConnector,
                     },
                 },
             },
             series: [{ name: 'Distribution', data: percentages }],
             stroke: { width: 2 },
             tooltip: {
-                theme: 'dark',
+                theme: theme.tooltipTheme,
                 y: { formatter: (val: number): string => `${val}%` },
             },
             xaxis: {
                 labels: {
                     show: true,
-                    style: { fontSize: '12px', fontWeight: '500' },
+                    style: {
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        colors: theme.axisLabelColor,
+                    },
                 },
                 type: 'category',
                 categories: distribution.categories ?? [],
@@ -334,25 +471,30 @@ export class HomeComponent implements OnInit {
         };
     }
 
-    private _buildUsageLine(topCodes: { labels: string[]; series: { date: string; count: number }[][] }): ApexOptions {
+    private _buildUsageLine(
+        topCodes: { labels: string[]; series: { date: string; count: number }[][] },
+        theme: ChartTheme,
+    ): ApexOptions {
         const aggregated = (topCodes.series ?? []).map((bucket) => bucket.reduce((acc, curr) => acc + (Number(curr?.count) || 0), 0));
 
         return {
             chart: {
                 fontFamily: 'inherit',
-                foreColor: 'inherit',
+                foreColor: theme.chartForeColor,
+                background: theme.chartBg,
                 height: '100%',
                 type: 'line',
                 toolbar: { show: false },
                 zoom: { enabled: false },
             },
-            colors: ['#64748B', '#94A3B8'],
+            colors: theme.lineMuted,
             dataLabels: {
                 enabled: true,
                 enabledOnSeries: [0],
                 background: { borderWidth: 0 },
+                style: { colors: [theme.dataLabelColor] },
             },
-            grid: { borderColor: 'rgba(148, 163, 184, 0.2)' },
+            grid: { borderColor: theme.gridBorderColor },
             labels: topCodes.labels ?? [],
             legend: { show: false },
             plotOptions: { bar: { columnWidth: '50%' } },
@@ -367,17 +509,17 @@ export class HomeComponent implements OnInit {
                 hover: { filter: { type: 'darken', value: 0.75 } as any },
             },
             stroke: { width: [3, 0] },
-            tooltip: { followCursor: true, theme: 'dark' },
+            tooltip: { followCursor: true, theme: theme.tooltipTheme },
             xaxis: {
                 axisBorder: { show: false },
-                axisTicks: { color: 'rgba(148, 163, 184, 0.2)' },
-                labels: { style: { colors: 'rgb(148, 163, 184)' } },
+                axisTicks: { color: theme.gridBorderColor },
+                labels: { style: { colors: theme.axisLabelColor } },
                 tooltip: { enabled: false },
             },
             yaxis: {
                 labels: {
                     offsetX: -16,
-                    style: { colors: 'rgb(148, 163, 184)' },
+                    style: { colors: theme.axisLabelColor },
                 },
             },
         };

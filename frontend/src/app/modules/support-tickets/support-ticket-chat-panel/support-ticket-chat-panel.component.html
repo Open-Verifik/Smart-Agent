@@ -1,0 +1,519 @@
+<div class="flex h-full min-h-0 flex-auto flex-col bg-card">
+    @if (!hasSession()) {
+        <div class="flex flex-auto flex-col items-center justify-center gap-4 p-6 text-center">
+            <mat-icon
+                class="icon-size-14 text-hint"
+                [svgIcon]="'heroicons_outline:lifebuoy'"
+            ></mat-icon>
+            <div class="text-lg font-medium">
+                {{ 'supportTickets.quickChat.guest.title' | transloco }}
+            </div>
+            <p class="text-secondary max-w-sm text-sm">
+                {{ 'supportTickets.quickChat.guest.body' | transloco }}
+            </p>
+            <button mat-flat-button color="primary" type="button" (click)="openSignIn()">
+                {{ 'supportTickets.quickChat.guest.signIn' | transloco }}
+            </button>
+        </div>
+    } @else if (!canUseApi()) {
+        <div class="flex flex-auto flex-col items-center justify-center gap-4 p-6 text-center">
+            <mat-icon
+                class="icon-size-14 text-hint"
+                [svgIcon]="'heroicons_outline:lock-closed'"
+            ></mat-icon>
+            <div class="text-lg font-medium">
+                {{ 'supportTickets.quickChat.workspaceOnly.title' | transloco }}
+            </div>
+            <p class="text-secondary max-w-sm text-sm">
+                {{ 'supportTickets.quickChat.workspaceOnly.body' | transloco }}
+            </p>
+            <button mat-flat-button color="primary" type="button" (click)="openSignIn()">
+                {{ 'supportTickets.quickChat.workspaceOnly.signIn' | transloco }}
+            </button>
+        </div>
+    } @else {
+        <div class="flex min-h-0 flex-auto flex-col overflow-hidden">
+            <!-- Ticket list (full width when visible) -->
+            <div
+                class="border-divider flex min-h-0 min-w-0 w-full flex-1 flex-col"
+                [class.hidden]="!showListPane()"
+            >
+                <div
+                    class="border-divider flex flex-0 items-center justify-between gap-2 border-b px-3 py-3"
+                >
+                    <span
+                        class="text-secondary truncate text-xs font-semibold uppercase tracking-wide"
+                        >{{ 'supportTickets.quickChat.listHeading' | transloco }}</span
+                    >
+                    <button
+                        mat-icon-button
+                        type="button"
+                        [attr.aria-label]="'supportTickets.quickChat.newTicketAria' | transloco"
+                        (click)="openNewTicket()"
+                    >
+                        <mat-icon [svgIcon]="'heroicons_outline:plus'"></mat-icon>
+                    </button>
+                </div>
+
+                @if (loadingList()) {
+                    <div class="flex flex-auto items-center justify-center p-4">
+                        <mat-spinner diameter="32"></mat-spinner>
+                    </div>
+                } @else if (listError()) {
+                    <div class="text-secondary p-4 text-center text-sm">
+                        {{ listError()! | transloco }}
+                    </div>
+                } @else if (!tickets().length) {
+                    <div
+                        class="text-secondary flex flex-auto flex-col items-center justify-center gap-2 p-4 text-center text-sm"
+                    >
+                        <span>{{ 'supportTickets.quickChat.emptyList' | transloco }}</span>
+                        <button
+                            mat-stroked-button
+                            color="primary"
+                            type="button"
+                            (click)="openNewTicket()"
+                        >
+                            {{ 'supportTickets.quickChat.newTicketCta' | transloco }}
+                        </button>
+                    </div>
+                } @else {
+                    <div
+                        class="flex min-h-0 flex-auto flex-col gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain p-3"
+                        fuseScrollbar
+                        [fuseScrollbarOptions]="{
+                            wheelPropagation: false,
+                            suppressScrollX: true,
+                        }"
+                    >
+                        @for (t of tickets(); track trackByTicketId($index, t)) {
+                            <button
+                                type="button"
+                                class="group flex w-full min-w-0 gap-3 rounded-xl border px-3 py-3 text-left shadow-sm transition-[box-shadow,border-color,background-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 dark:focus-visible:ring-primary/40"
+                                [ngClass]="
+                                    selectedTicket()?._id === t._id
+                                        ? 'border-primary/35 bg-primary/[0.06] ring-2 ring-primary/35 dark:border-primary/40 dark:bg-primary/[0.08] dark:ring-primary/30'
+                                        : 'border-stone-200/90 bg-white/95 hover:border-stone-300/95 hover:shadow-md dark:border-stone-700/85 dark:bg-stone-900/55 dark:hover:border-stone-600/90'
+                                "
+                                (click)="selectTicket(t)"
+                            >
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-stone-100 dark:bg-stone-800/90"
+                                >
+                                    <mat-icon
+                                        class="text-hint icon-size-5"
+                                        [svgIcon]="'heroicons_outline:ticket'"
+                                    ></mat-icon>
+                                </div>
+                                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                                    <div class="flex w-full min-w-0 items-start gap-2">
+                                        <span
+                                            class="text-default min-w-0 flex-1 truncate text-sm font-semibold leading-snug"
+                                        >
+                                            {{
+                                                'supportTickets.quickChat.ticketPrefix'
+                                                    | transloco: { num: t.number }
+                                            }}
+                                            {{ t.title }}
+                                        </span>
+                                        <span
+                                            class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide"
+                                            [ngClass]="statusBadgeClass(t.status)"
+                                        >
+                                            {{
+                                                'supportTickets.quickChat.status.' + t.status | transloco
+                                            }}
+                                        </span>
+                                    </div>
+                                    <div
+                                        class="text-secondary flex min-w-0 items-center gap-x-1.5 text-xs leading-relaxed"
+                                    >
+                                        <span class="min-w-0 shrink truncate">{{
+                                            categoryLabelKey(t.category) | transloco
+                                        }}</span>
+                                        <span class="text-hint shrink-0" aria-hidden="true">·</span>
+                                        <time
+                                            class="shrink-0 tabular-nums"
+                                            [attr.datetime]="t.updatedAt"
+                                            >{{ t.updatedAt | date: 'short' }}</time
+                                        >
+                                    </div>
+                                    @if (listRowSubject(t); as subj) {
+                                        <p
+                                            class="text-secondary line-clamp-2 text-xs leading-relaxed"
+                                        >
+                                            {{ subj }}
+                                        </p>
+                                    }
+                                    @if (apiDisplayLabelForTicket(t); as apiLabel) {
+                                        <p class="text-hint truncate text-[11px] leading-relaxed">
+                                            {{ apiLabel }}
+                                        </p>
+                                    }
+                                </div>
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <!-- Detail (full width when visible; master-detail — never shown beside list) -->
+            <div
+                class="flex min-h-0 min-w-0 w-full flex-1 flex-col bg-stone-50 dark:bg-stone-950/30"
+                [class.hidden]="!showDetailPane()"
+            >
+                @if (loadingDetail() && !selectedTicket()) {
+                    <div class="flex flex-auto items-center justify-center p-8">
+                        <mat-spinner diameter="36"></mat-spinner>
+                    </div>
+                } @else if (detailError() && !selectedTicket()) {
+                    <div
+                        class="border-divider flex flex-0 items-center border-b border-stone-200/90 bg-white px-2 py-2 dark:border-stone-800 dark:bg-stone-950/40"
+                    >
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="shrink-0"
+                            [attr.aria-label]="'supportTickets.quickChat.backAria' | transloco"
+                            (click)="clearSelection()"
+                        >
+                            <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                        </button>
+                    </div>
+                    <div
+                        class="text-secondary flex flex-auto flex-col items-center justify-center p-6 text-center text-sm"
+                    >
+                        {{ detailError()! | transloco }}
+                    </div>
+                }
+
+                @if (selectedTicket()) {
+                    @if (detailError()) {
+                        <div
+                            class="text-secondary border-b border-stone-200/90 bg-amber-50/80 px-3 py-2 text-center text-xs dark:border-stone-800 dark:bg-amber-950/20"
+                        >
+                            {{ detailError()! | transloco }}
+                        </div>
+                    }
+
+                    <div
+                        class="border-divider flex flex-0 flex-col gap-2 border-b border-stone-200/90 bg-white px-3 py-3 dark:border-stone-800 dark:bg-stone-950/40 sm:px-4"
+                    >
+                        <div class="flex items-start gap-2">
+                            <button
+                                mat-icon-button
+                                type="button"
+                                class="shrink-0"
+                                [attr.aria-label]="'supportTickets.quickChat.backAria' | transloco"
+                                (click)="clearSelection()"
+                            >
+                                <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                            </button>
+                            <div class="min-w-0 flex-auto">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <div class="truncate text-sm font-semibold text-default">
+                                        {{
+                                            'supportTickets.quickChat.ticketPrefix'
+                                                | transloco: { num: selectedTicket()!.number }
+                                        }}
+                                        {{ selectedTicket()!.title }}
+                                    </div>
+                                    <span
+                                        class="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase leading-none tracking-wide"
+                                        [ngClass]="statusBadgeClass(selectedTicket()!.status)"
+                                    >
+                                        {{
+                                            'supportTickets.quickChat.status.' +
+                                                selectedTicket()!.status | transloco
+                                        }}
+                                    </span>
+                                </div>
+                                <div
+                                    class="text-secondary mt-1 flex flex-col gap-1 border-t border-stone-200/80 pt-2 text-xs dark:border-stone-700/70"
+                                >
+                                    <div>
+                                        <span
+                                            class="font-medium text-stone-600 dark:text-stone-400"
+                                            >{{
+                                                'supportTickets.quickChat.metaCategory' | transloco
+                                            }}</span
+                                        >
+                                        {{ ' ' }}
+                                        <span>{{
+                                            categoryLabelKey(selectedTicket()!.category) | transloco
+                                        }}</span>
+                                    </div>
+                                    @if (selectedTicket()!.subject?.trim()) {
+                                        <div>
+                                            <span
+                                                class="font-medium text-stone-600 dark:text-stone-400"
+                                                >{{
+                                                    'supportTickets.quickChat.metaSubject'
+                                                        | transloco
+                                                }}</span
+                                            >
+                                            {{ ' ' }}
+                                            <span class="text-default">{{
+                                                selectedTicket()!.subject
+                                            }}</span>
+                                        </div>
+                                    }
+                                    @if (selectedTicket()!.api?.trim()) {
+                                        <div>
+                                            <span
+                                                class="font-medium text-stone-600 dark:text-stone-400"
+                                                >{{
+                                                    'supportTickets.quickChat.metaApi' | transloco
+                                                }}</span
+                                            >
+                                            {{ ' ' }}
+                                            <span class="text-default">{{
+                                                ticketApiDisplayLabel()
+                                            }}</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative flex min-h-0 flex-auto flex-col">
+                        @if (loadingDetail()) {
+                            <div
+                                class="bg-card/80 absolute inset-0 z-10 flex items-center justify-center backdrop-blur-[1px]"
+                            >
+                                <mat-spinner diameter="36"></mat-spinner>
+                            </div>
+                        }
+                        <div
+                            class="flex min-h-0 flex-auto flex-col-reverse overflow-x-hidden overflow-y-auto overscroll-y-contain p-4"
+                            fuseScrollbar
+                            [fuseScrollbarOptions]="{
+                                wheelPropagation: false,
+                                suppressScrollX: true,
+                            }"
+                        >
+                            <div class="flex flex-auto shrink flex-col gap-0.5">
+                                @for (
+                                    thread of sortedThreadsList();
+                                    track trackByThreadId($index, thread);
+                                    let i = $index
+                                ) {
+                                    @let prev = i > 0 ? sortedThreadsList()[i - 1] : null;
+                                    <div
+                                        class="flex flex-col"
+                                        [ngClass]="{
+                                            'items-end': !isSupportMessage(thread),
+                                            'items-start': isSupportMessage(thread),
+                                            'mt-3':
+                                                prev &&
+                                                isSupportMessage(thread) !== isSupportMessage(prev),
+                                        }"
+                                    >
+                                        <div
+                                            class="max-w-[min(92%,40rem)] rounded-xl px-3 py-2 shadow-sm"
+                                            [ngClass]="{
+                                                'border border-stone-200 bg-stone-100 text-stone-900 dark:border-stone-600 dark:bg-stone-800/95 dark:text-stone-50':
+                                                    !isSupportMessage(thread),
+                                                'border border-stone-200 bg-white text-stone-900 dark:border-stone-600 dark:bg-stone-900/70 dark:text-stone-50':
+                                                    isSupportMessage(thread),
+                                            }"
+                                        >
+                                            <div
+                                                class="text-xs font-medium text-stone-600 dark:text-stone-400"
+                                            >
+                                                {{
+                                                    isSupportMessage(thread)
+                                                        ? ('supportTickets.quickChat.fromSupport'
+                                                          | transloco)
+                                                        : ('supportTickets.quickChat.fromYou'
+                                                          | transloco)
+                                                }}
+                                            </div>
+                                            <div
+                                                class="min-w-4 pt-1 text-sm leading-relaxed [&_a]:underline"
+                                                [innerHTML]="safeMessageHtml(thread.message)"
+                                            ></div>
+                                            @if (populatedThreadAttachments(thread).length) {
+                                                <div
+                                                    class="mt-2 flex flex-col gap-1 border-t border-stone-200/90 pt-2 dark:border-stone-600/80"
+                                                >
+                                                    @for (
+                                                        att of populatedThreadAttachments(thread);
+                                                        track att._id
+                                                    ) {
+                                                        <button
+                                                            type="button"
+                                                            class="inline-flex max-w-full items-center gap-2 rounded-lg border border-stone-200 bg-stone-50/80 px-2 py-1.5 text-left text-xs font-medium text-stone-800 transition hover:bg-stone-100 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-100 dark:hover:bg-stone-800"
+                                                            [attr.aria-label]="
+                                                                'supportTickets.quickChat.attachmentDownloadAria'
+                                                                    | transloco
+                                                                        : {
+                                                                              name:
+                                                                                  att.name ||
+                                                                                  'file',
+                                                                          }
+                                                            "
+                                                            (click)="openThreadAttachment(att)"
+                                                        >
+                                                            <mat-icon
+                                                                class="icon-size-4 shrink-0 text-stone-500 dark:text-stone-400"
+                                                                [svgIcon]="
+                                                                    'heroicons_outline:paper-clip'
+                                                                "
+                                                            ></mat-icon>
+                                                            <span class="min-w-0 flex-1 truncate">{{
+                                                                att.name || 'Attachment'
+                                                            }}</span>
+                                                            @if (att.size != null) {
+                                                                <span
+                                                                    class="shrink-0 text-[10px] text-stone-500 dark:text-stone-400"
+                                                                    >{{
+                                                                        formatBytes(att.size)
+                                                                    }}</span
+                                                                >
+                                                            }
+                                                        </button>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                        <div
+                                            class="text-secondary mt-0.5 text-xs"
+                                            [ngClass]="{
+                                                'mr-1': !isSupportMessage(thread),
+                                                'ml-1': isSupportMessage(thread),
+                                            }"
+                                        >
+                                            {{ thread.createdAt | date: 'short' }}
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div
+                        class="border-divider flex flex-0 flex-col gap-2 border-t border-stone-200/90 bg-white p-3 dark:border-stone-800 dark:bg-stone-950/40"
+                    >
+                        <div class="flex flex-col gap-2">
+                            <div
+                                class="text-default flex flex-wrap items-center gap-2 text-xs font-medium"
+                            >
+                                <span>{{
+                                    'supportTickets.quickChat.newTicket.attachmentsLabel'
+                                        | transloco
+                                }}</span>
+                                @if (replyUploadedAttachments().length > 0) {
+                                    <span class="text-secondary font-normal">{{
+                                        'supportTickets.quickChat.newTicket.attachmentsCount'
+                                            | transloco
+                                                : { count: replyUploadedAttachments().length }
+                                    }}</span>
+                                }
+                            </div>
+                            <p class="text-secondary m-0 text-[11px] leading-snug">
+                                {{
+                                    'supportTickets.quickChat.newTicket.attachmentsHint' | transloco
+                                }}
+                            </p>
+                            @if (replyUploadedAttachments().length >= replyMaxAttachments) {
+                                <p class="text-hint m-0 text-[11px]">
+                                    {{
+                                        'supportTickets.quickChat.newTicket.attachmentsMaxReached'
+                                            | transloco
+                                    }}
+                                </p>
+                            }
+                            <file-drop-zone
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                [compact]="true"
+                                [expirationDays]="1"
+                                source="support-ticket"
+                                [disabled]="replyAttachmentDropZoneDisabled()"
+                                (attachmentUploaded)="onReplyAttachmentUploaded($event)"
+                                (uploadingChange)="onReplyAttachmentUploadingChange($event)"
+                            ></file-drop-zone>
+                            @if (replyUploadedAttachments().length > 0) {
+                                <ul
+                                    class="border-divider m-0 flex list-none flex-col gap-1 rounded-xl border p-2"
+                                >
+                                    @for (a of replyUploadedAttachments(); track a._id) {
+                                        <li class="flex min-w-0 items-center gap-2 text-xs">
+                                            <mat-icon
+                                                class="text-secondary icon-size-4 shrink-0"
+                                                [svgIcon]="'heroicons_outline:paper-clip'"
+                                            ></mat-icon>
+                                            <span
+                                                class="text-default min-w-0 flex-1 truncate"
+                                                [title]="a.name"
+                                                >{{ truncateFileLabel(a.name) }}</span
+                                            >
+                                            <button
+                                                mat-icon-button
+                                                type="button"
+                                                class="shrink-0"
+                                                [attr.aria-label]="
+                                                    'supportTickets.quickChat.newTicket.removeAttachmentAria'
+                                                        | transloco: { name: a.name }
+                                                "
+                                                [disabled]="
+                                                    sendingReply() || replyAttachmentUploadBusy()
+                                                "
+                                                (click)="removeReplyAttachment(a._id)"
+                                            >
+                                                <mat-icon
+                                                    [svgIcon]="'heroicons_outline:trash'"
+                                                ></mat-icon>
+                                            </button>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                        <div class="flex flex-0 items-end gap-2">
+                            <mat-form-field
+                                class="fuse-mat-dense fuse-mat-rounded fuse-mat-bold w-full"
+                                [subscriptSizing]="'dynamic'"
+                            >
+                                <textarea
+                                    matInput
+                                    cdkTextareaAutosize
+                                    [cdkAutosizeMinRows]="1"
+                                    [cdkAutosizeMaxRows]="6"
+                                    [placeholder]="
+                                        'supportTickets.quickChat.replyPlaceholder' | transloco
+                                    "
+                                    [ngModel]="replyDraft()"
+                                    (ngModelChange)="replyDraft.set($event)"
+                                    (keydown.control.enter)="sendReply()"
+                                    (keydown.meta.enter)="sendReply()"
+                                ></textarea>
+                            </mat-form-field>
+                            <button
+                                mat-icon-button
+                                type="button"
+                                class="mb-0.5 text-stone-700 dark:text-stone-200"
+                                [disabled]="
+                                    !replyDraft().trim() ||
+                                    sendingReply() ||
+                                    replyAttachmentUploadBusy()
+                                "
+                                [attr.aria-label]="'supportTickets.quickChat.sendAria' | transloco"
+                                (click)="sendReply()"
+                            >
+                                @if (sendingReply()) {
+                                    <mat-spinner diameter="22"></mat-spinner>
+                                } @else {
+                                    <mat-icon
+                                        [svgIcon]="'heroicons_outline:paper-airplane'"
+                                    ></mat-icon>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
