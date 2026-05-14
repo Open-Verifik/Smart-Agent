@@ -37,8 +37,27 @@
                     </button>
                 </div>
             } @else if (projects().length === 0) {
-                <div class="empty-card">
-                    <p class="empty-title">{{ t('smartEnrollProjects.empty') }}</p>
+                <div class="empty-hero-card">
+                    <div class="empty-hero-icon" [class.empty-hero-icon--muted]="isWorkspaceStaff()">
+                        <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                    </div>
+                    @if (isWorkspaceStaff()) {
+                        <h2 class="empty-hero-title">{{ t('smartEnrollProjects.emptyStaffTitle') }}</h2>
+                        <p class="empty-hero-text">{{ t('smartEnrollProjects.emptyStaffSubtitle') }}</p>
+                    } @else {
+                        <h2 class="empty-hero-title">{{ t('smartEnrollProjects.emptyHeroTitle') }}</h2>
+                        <p class="empty-hero-text">{{ t('smartEnrollProjects.emptyHeroSubtitle') }}</p>
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="button"
+                            class="empty-hero-cta"
+                            (click)="createProject()"
+                        >
+                            <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                            {{ t('smartEnrollProjects.createProject') }}
+                        </button>
+                    }
                 </div>
             } @else {
                 <div class="grid">

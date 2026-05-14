@@ -1,0 +1,18 @@
+<h2 mat-dialog-title class="billing-dialog-title">
+    {{ 'smartaccess.plans.billing_required_title' | transloco }}
+</h2>
+
+<mat-dialog-content class="billing-dialog-body">
+    <p class="billing-dialog-copy">
+        {{ 'smartaccess.plans.billing_required_message' | transloco }}
+    </p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="billing-dialog-actions">
+    <button mat-button type="button" class="billing-dialog-cancel" [mat-dialog-close]="false">
+        {{ 'smartaccess.plans.billing_required_cancel' | transloco }}
+    </button>
+    <button mat-flat-button color="primary" type="button" class="billing-dialog-primary" (click)="goToBillingDetails()">
+        {{ 'smartaccess.plans.billing_required_go_settings' | transloco }}
+    </button>
+</mat-dialog-actions>

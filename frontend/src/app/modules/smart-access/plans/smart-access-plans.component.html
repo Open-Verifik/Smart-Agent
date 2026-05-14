@@ -1,0 +1,794 @@
+<ng-container *transloco="let t">
+    <!-- ============================================ -->
+    <!-- CURRENT PLAN VIEW                            -->
+    <!-- ============================================ -->
+    <div class="plans-container w-full flex justify-center" *ngIf="currentView === 'current' && currentSubscription.length">
+        <div class="w-full max-w-4xl px-4 sm:px-8 py-8">
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_access') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('settings.plans') }}</span>
+            </div>
+            <div class="current-plan-header flex items-center gap-4 mb-8">
+                <div class="header-icon">
+                    <mat-icon>fingerprint</mat-icon>
+                </div>
+                <div class="flex flex-col gap-1 min-w-0">
+                    <h1 class="current-plan-title">{{ t('settings.plans') }}</h1>
+                    <p class="current-plan-subtitle">{{ t('smartenroll.plans.manage_subscription') }}</p>
+                </div>
+            </div>
+
+            <ng-container *ngFor="let subscription of currentSubscription; let i = index">
+                <div
+                    class="plan-card mb-6 animate-fadeIn"
+                    [class.payment-failed]="subscription.paymentFailedAt"
+                    [style.animation-delay]="i * 0.1 + 's'"
+                >
+                    <div class="card-header">
+                        <div class="flex items-center gap-3">
+                            <div class="card-icon" [ngClass]="getPlanColorClass(subscription.codeShow)">
+                                <mat-icon>fingerprint</mat-icon>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">
+                                    <ng-container *ngIf="i === 0">{{ t('smartaccess.plans.your_plan') }}</ng-container>
+                                    <ng-container *ngIf="i > 0">{{ t('smartaccess.plans.your_next_plan') }}</ng-container>
+                                </p>
+                                <h2 class="text-lg font-semibold text-gray-900">Smart Access {{ subscription.nameShow }}</h2>
+                            </div>
+                        </div>
+                        <div
+                            class="status-badge"
+                            [ngClass]="{
+                                error: subscription.paymentFailedAt,
+                                warning: subscription.cancelAt,
+                                success: !subscription.paymentFailedAt && !subscription.cancelAt
+                            }"
+                        >
+                            <span class="status-dot"></span>
+                            <ng-container *ngIf="subscription.paymentFailedAt">{{ t('subscriptions.payment_failed') }}</ng-container>
+                            <ng-container *ngIf="subscription.cancelAt && !subscription.paymentFailedAt">{{
+                                t('smartaccess.plans.cancelled')
+                            }}</ng-container>
+                            <ng-container *ngIf="!subscription.paymentFailedAt && !subscription.cancelAt">{{
+                                t('smartenroll.plans.active')
+                            }}</ng-container>
+                        </div>
+                    </div>
+
+                    <div class="payment-alert" *ngIf="subscription?.paymentFailedAt">
+                        <mat-icon>error_outline</mat-icon>
+                        <span>{{ t('subscriptions.payment_failed_description') }}</span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="price-section">
+                            <p class="price-label">{{ t('smartaccess.plans.value_plan') }}</p>
+                            <p class="price-amount">
+                                <span class="price-currency">$</span>{{
+                                    subscription.plan ? returnInteger(subscription.plan.amount * subscription.biometricsLimit) : 0
+                                }}
+                                <span class="price-currency">USD</span>
+                            </p>
+                            <p class="price-period" *ngIf="i === 0 && !subscription.cancelAt">
+                                {{ t('smartaccess.plans.next_payment') }}: {{ subscription.endDate | date: 'longDate' }}
+                            </p>
+                            <p class="price-period" *ngIf="i > 0 && !subscription.cancelAt">
+                                {{ t('smartaccess.plans.starts_in') }}: {{ subscription.startDate | date: 'longDate' }}
+                            </p>
+                            <p class="price-period text-amber-600" *ngIf="subscription.cancelAt">
+                                {{ t('smartaccess.plans.canceled_plan') }} {{ subscription.cancelAt | date: 'longDate' }}
+                            </p>
+                        </div>
+
+                        <div
+                            class="payment-method-card"
+                            *ngIf="subscription.cardBrand && subscription.lastFour && !isLinkPayment(subscription.cardBrand)"
+                        >
+                            <div class="payment-card-info">
+                                <div class="payment-card-brand">
+                                    <img [src]="creditCardLogo(subscription.cardBrand)" alt="card" class="card-logo" />
+                                </div>
+                                <div class="payment-card-details">
+                                    <span class="card-number">
+                                        {{ capitalizeFirstLetter(subscription.cardBrand) }}
+                                        {{ t('smartaccess.plans.ended') }} {{ subscription.lastFour }}
+                                    </span>
+                                    <span class="card-expiry">
+                                        {{ t('smartaccess.plans.expires') }} {{ subscription.cardExpMonth }}/{{ subscription.cardExpYear }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-method-card" *ngIf="subscription.cardBrand && isLinkPayment(subscription.cardBrand)">
+                            <div class="payment-card-info">
+                                <div class="payment-card-brand">
+                                    <mat-icon>link</mat-icon>
+                                </div>
+                                <div class="payment-card-details">
+                                    <span class="card-number">Stripe Link</span>
+                                    <span class="card-expiry">{{ t('smartaccess.plans.digital_wallet') }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="payment-method-card empty" *ngIf="!subscription.cardBrand || !subscription.lastFour">
+                            <mat-icon>credit_card_off</mat-icon>
+                            <span>{{ t('smartaccess.plans.no_payment') }}</span>
+                        </div>
+
+                        <div class="features-grid">
+                            <div class="feature-card">
+                                <div class="feature-icon email">
+                                    <mat-icon>email</mat-icon>
+                                </div>
+                                <div class="feature-content">
+                                    <span class="feature-label">{{ t('smartaccess.plans.email') }}</span>
+                                    <span class="feature-value">{{ subscription.emailsLimit }}</span>
+                                </div>
+                                <mat-icon class="feature-status" [class.active]="subscription.emailsLimit > 0">
+                                    {{ subscription.emailsLimit > 0 ? 'check_circle' : 'add_circle_outline' }}
+                                </mat-icon>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon whitelabel">
+                                    <mat-icon>palette</mat-icon>
+                                </div>
+                                <div class="feature-content">
+                                    <span class="feature-label">{{ t('smartaccess.plans.whiteLabel') }}</span>
+                                    <span class="feature-value">{{ t('smartaccess.plans.enabled') }}</span>
+                                </div>
+                                <mat-icon class="feature-status active">check_circle</mat-icon>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon biometrics">
+                                    <mat-icon>fingerprint</mat-icon>
+                                </div>
+                                <div class="feature-content">
+                                    <span class="feature-label">{{ t('smartaccess.plans.liveness') }}</span>
+                                    <span class="feature-value">{{
+                                        subscription.biometricsLimit > 0
+                                            ? subscription.biometricsLimit
+                                            : t('smartaccess.plans.extra_cost')
+                                    }}</span>
+                                </div>
+                                <mat-icon class="feature-status" [class.active]="subscription.biometricsLimit > 0">
+                                    {{ subscription.biometricsLimit > 0 ? 'check_circle' : 'add_circle_outline' }}
+                                </mat-icon>
+                            </div>
+
+                            <div class="feature-card">
+                                <div class="feature-icon api">
+                                    <mat-icon>code</mat-icon>
+                                </div>
+                                <div class="feature-content">
+                                    <span class="feature-label">{{ t('smartaccess.plans.api_assistance') }}</span>
+                                    <span class="feature-value">{{ t('smartaccess.plans.disabled') }}</span>
+                                </div>
+                                <mat-icon class="feature-status">add_circle_outline</mat-icon>
+                            </div>
+                        </div>
+
+                        <div class="optional-section">
+                            <h3 class="optional-title">{{ t('smartaccess.plans.extra_cost') }}</h3>
+                            <p class="optional-subtitle">{{ t('smartaccess.plans.using_functionality') }}</p>
+                            <div class="optional-grid">
+                                <div class="optional-card">
+                                    <div class="optional-icon sms">
+                                        <mat-icon>sms</mat-icon>
+                                    </div>
+                                    <div class="optional-content">
+                                        <span class="optional-label">{{ t('smartaccess.plans.sms_optional') }}</span>
+                                        <span class="optional-value">{{ t('smartaccess.plans.extra_cost') }}</span>
+                                    </div>
+                                    <a [href]="getSmsWhatsappPricesUrl()" target="_blank" class="optional-link">
+                                        {{ t('smartaccess.plans.using_functionality_link') }}
+                                        <mat-icon>open_in_new</mat-icon>
+                                    </a>
+                                </div>
+                                <div class="optional-card">
+                                    <div class="optional-icon whatsapp">
+                                        <mat-icon>chat</mat-icon>
+                                    </div>
+                                    <div class="optional-content">
+                                        <span class="optional-label">{{ t('smartaccess.plans.whatsapp_optional') }}</span>
+                                        <span class="optional-value">{{ t('smartaccess.plans.extra_cost') }}</span>
+                                    </div>
+                                    <a [href]="getSmsWhatsappPricesUrl()" target="_blank" class="optional-link">
+                                        {{ t('smartaccess.plans.using_functionality_link') }}
+                                        <mat-icon>open_in_new</mat-icon>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <button
+                                (click)="cancelSubscription()"
+                                class="action-button primary"
+                                [class.error]="subscription?.paymentFailedAt"
+                                mat-flat-button
+                            >
+                                {{ t('smartaccess.plans.manage_plan') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Upgrade CTA Section -->
+            <div class="upgrade-section animate-fadeIn">
+                <div class="upgrade-header">
+                    <div class="upgrade-header-content">
+                        <div class="upgrade-badge">
+                            <mat-icon>auto_awesome</mat-icon>
+                            <span>{{ t('smartenroll.plans.upgrade_available') }}</span>
+                        </div>
+                        <h2 class="upgrade-headline">{{ t('smartaccess.plans.better_plan') }}</h2>
+                        <p class="upgrade-subheadline">{{ t('smartaccess.plans.better_plan_text') }}</p>
+                    </div>
+                    <div class="upgrade-illustration">
+                        <div class="floating-icon icon-1"><mat-icon>verified</mat-icon></div>
+                        <div class="floating-icon icon-2"><mat-icon>speed</mat-icon></div>
+                        <div class="floating-icon icon-3"><mat-icon>security</mat-icon></div>
+                    </div>
+                </div>
+
+                <div class="upgrade-benefits">
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><mat-icon>trending_up</mat-icon></div>
+                        <div class="benefit-text">
+                            <span class="benefit-title">{{ t('smartenroll.plans.higher_limits') }}</span>
+                            <span class="benefit-desc">{{ t('smartenroll.plans.higher_limits_desc') }}</span>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><mat-icon>support_agent</mat-icon></div>
+                        <div class="benefit-text">
+                            <span class="benefit-title">{{ t('smartenroll.plans.priority_support') }}</span>
+                            <span class="benefit-desc">{{ t('smartenroll.plans.priority_support_desc') }}</span>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon"><mat-icon>tune</mat-icon></div>
+                        <div class="benefit-text">
+                            <span class="benefit-title">{{ t('smartenroll.plans.advanced_features') }}</span>
+                            <span class="benefit-desc">{{ t('smartenroll.plans.advanced_features_desc') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upgrade-cta">
+                    <button (click)="changeCurrentView()" class="upgrade-button" mat-flat-button>
+                        <span>{{ t('smartaccess.plans.explore_plan') }}</span>
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                    <span class="upgrade-hint">{{ t('smartenroll.plans.no_commitment') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CHANGE VIEW (year vs month picker)           -->
+    <!-- ============================================ -->
+    <div class="plans-container w-full flex justify-center" *ngIf="currentView === 'change'">
+        <div class="w-full max-w-4xl px-4 sm:px-8 py-8">
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_access') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('settings.plans') }}</span>
+            </div>
+            <div class="flex items-center gap-4 mb-8">
+                <button *ngIf="currentSubscription?.length" (click)="goBack('current')" class="back-button" mat-icon-button>
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div class="header-icon">
+                    <mat-icon>tune</mat-icon>
+                </div>
+                <div class="flex flex-col gap-1 min-w-0">
+                    <h1 class="current-plan-title">{{ t('smartaccess.plans.title_1') }}</h1>
+                    <p class="current-plan-subtitle">{{ t('smartaccess.plans.define') }}</p>
+                </div>
+            </div>
+
+            <div class="plan-type-grid">
+                <div (click)="changeIntervalPlan('year')" class="plan-type-card" [class.selected]="typePlan === 'year'">
+                    <div class="plan-type-header">
+                        <div class="plan-type-icon users"><mat-icon>group</mat-icon></div>
+                        <div class="plan-type-check" *ngIf="typePlan === 'year'"><mat-icon>check_circle</mat-icon></div>
+                    </div>
+                    <h3 class="plan-type-title">{{ t('smartaccess.plans.active_user') }}</h3>
+                    <div class="plan-type-image">
+                        <img src="https://cdn.verifik.co/assets/users2.svg" alt="" />
+                    </div>
+                    <p class="plan-type-description">{{ t('smartaccess.plans.active_users_explained') }}</p>
+                </div>
+
+                <div (click)="changeIntervalPlan('month')" class="plan-type-card" [class.selected]="typePlan === 'month'">
+                    <div class="plan-type-header">
+                        <div class="plan-type-icon session"><mat-icon>timer</mat-icon></div>
+                        <div class="plan-type-check" *ngIf="typePlan === 'month'"><mat-icon>check_circle</mat-icon></div>
+                    </div>
+                    <h3 class="plan-type-title">{{ t('smartaccess.plans.per_session') }}</h3>
+                    <div class="plan-type-image">
+                        <img src="https://cdn.verifik.co/assets/perSession2.svg" alt="" />
+                    </div>
+                    <p class="plan-type-description">{{ t('smartaccess.plans.per_sessions_explained') }}</p>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-8">
+                <button (click)="updatePlan()" class="continue-btn" mat-flat-button>
+                    {{ t('smartaccess.plans.continue') }}
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SELECT VIEW (tier grid + free trial)         -->
+    <!-- ============================================ -->
+    <div class="plans-container w-full flex justify-center" *ngIf="currentView === 'select'">
+        <div class="w-full max-w-6xl px-4 sm:px-8 py-8">
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_access') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('settings.plans') }}</span>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+                <button (click)="goBack('change')" class="back-button" mat-icon-button>
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div class="header-icon">
+                    <mat-icon>receipt_long</mat-icon>
+                </div>
+                <div class="flex flex-col gap-1 min-w-0">
+                    <h1 class="current-plan-title">{{ t('smartaccess.plans.title_1') }}</h1>
+                    <p class="current-plan-subtitle">{{ t('smartaccess.plans.subtitle_1') }}</p>
+                </div>
+            </div>
+
+            <div class="toggle-container mb-6">
+                <div class="toggle-group">
+                    <button class="toggle-button" [class.active]="typePlan === 'year'" (click)="changeIntervalPlan('year')">
+                        <mat-icon>group</mat-icon>
+                        {{ t('smartaccess.plans.active_user') }}
+                    </button>
+                    <button class="toggle-button" [class.active]="typePlan === 'month'" (click)="changeIntervalPlan('month')">
+                        <mat-icon>timer</mat-icon>
+                        {{ t('smartaccess.plans.per_session') }}
+                    </button>
+                </div>
+            </div>
+
+            <div class="info-banner mb-8">
+                <mat-icon>info</mat-icon>
+                <span>
+                    <strong>{{ t('smartaccess.plans.remember') }}</strong>
+                    <ng-container *ngIf="typePlan === 'year'">
+                        {{ t('smartaccess.plans.explain_3') }}{{ t('smartaccess.plans.explain_4') }}
+                    </ng-container>
+                    <ng-container *ngIf="typePlan === 'month'">
+                        {{ t('smartaccess.plans.explain_1') }}{{ t('smartaccess.plans.explain_2') }}
+                    </ng-container>
+                </span>
+            </div>
+
+            <div class="select-plans-grid">
+                <ng-container *ngFor="let plan of plans">
+                    <div
+                        class="select-plan-card"
+                        *ngIf="plan && plan.codeShow !== 'Free'"
+                        [ngClass]="getPlanColorClass(plan.codeShow)"
+                    >
+                        <div class="select-plan-badge" [ngClass]="getPlanColorClass(plan.codeShow)">
+                            <mat-icon>{{
+                                plan.codeShow === 'Enterprise'
+                                    ? 'business'
+                                    : plan.codeShow === 'business'
+                                    ? 'workspace_premium'
+                                    : 'star'
+                            }}</mat-icon>
+                            {{ capitalizeFirstLetter(plan.codeShow) }}
+                        </div>
+
+                        <ng-container *ngIf="plan.codeShow === 'Enterprise'">
+                            <div class="select-plan-price">
+                                <span class="price-label">{{ t('smartaccess.plans.personalized') }}</span>
+                                <span class="price-contact">{{ t('smartaccess.plans.contact_sales') }}</span>
+                                <span class="price-sessions">{{ t('smartaccess.plans.more_sessions') }}</span>
+                            </div>
+
+                            <div class="select-plan-features">
+                                <div class="feature-row">
+                                    <mat-icon class="feature-check">check_circle</mat-icon>
+                                    <span>{{ t('smartaccess.plans.whiteLabel') }}: {{ t('smartaccess.plans.enabled') }}</span>
+                                </div>
+                                <div class="feature-row">
+                                    <mat-icon class="feature-check">check_circle</mat-icon>
+                                    <span>{{ t('smartaccess.plans.api_assistance') }}: {{ t('smartaccess.plans.enabled') }}</span>
+                                </div>
+                                <div class="feature-row">
+                                    <mat-icon class="feature-check">check_circle</mat-icon>
+                                    <span>{{ t('smartaccess.plans.analytics') }} (BI)</span>
+                                </div>
+                            </div>
+
+                            <button class="select-plan-button enterprise" (click)="openWhatsapp()" mat-flat-button>
+                                {{ t('smartaccess.plans.contact_sales') }}
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                        </ng-container>
+
+                        <ng-container *ngIf="plan.codeShow !== 'Enterprise'">
+                            <div class="select-plan-price">
+                                <span class="price-label">{{ t('smartaccess.plans.starting') }}</span>
+                                <div class="price-amount">
+                                    <span class="currency">$</span>
+                                    <span class="value">{{ plan.amount * plan.biometricsLimit | number: '1.0-0' }}</span>
+                                    <span class="period">/{{ plan.interval }}</span>
+                                </div>
+                                <span class="price-sessions">
+                                    {{ plan.biometricsLimit }} - {{ plan.maxAmount }}
+                                    <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.sessions') }}</ng-container>
+                                    <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.users') }}</ng-container>
+                                </span>
+                            </div>
+
+                            <div class="select-plan-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">
+                                        {{ t('smartaccess.plans.cost_per') }}
+                                        <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.session') }}</ng-container>
+                                        <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.user') }}</ng-container>
+                                    </span>
+                                    <span class="detail-value">${{ plan.amount }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">{{ t('smartaccess.plans.analytics') }} (BI)</span>
+                                    <span class="detail-value">30 {{ t('smartaccess.plans.days') }}</span>
+                                </div>
+                            </div>
+
+                            <div class="select-plan-features">
+                                <div class="feature-category">
+                                    <span class="category-title">{{ t('smartaccess.plans.standard') }}</span>
+                                    <div class="feature-row">
+                                        <mat-icon class="feature-check">check_circle</mat-icon>
+                                        <span>{{ t('smartaccess.plans.liveness') }}</span>
+                                    </div>
+                                    <div class="feature-row">
+                                        <mat-icon class="feature-check">check_circle</mat-icon>
+                                        <span>{{ t('smartaccess.plans.email') }} {{ plan.emailsLimit }}</span>
+                                    </div>
+                                </div>
+                                <div class="feature-category">
+                                    <span class="category-title">{{ t('smartaccess.plans.extra') }}</span>
+                                    <div class="feature-row">
+                                        <mat-icon class="feature-add">add_circle_outline</mat-icon>
+                                        <span>{{ t('smartaccess.plans.sms') }}</span>
+                                    </div>
+                                    <div class="feature-row">
+                                        <mat-icon class="feature-add">add_circle_outline</mat-icon>
+                                        <span>{{ t('smartaccess.plans.whatsapp') }}</span>
+                                    </div>
+                                </div>
+                                <div class="feature-row">
+                                    <mat-icon class="feature-check">check_circle</mat-icon>
+                                    <span>{{ t('smartaccess.plans.whiteLabel') }}: {{ t('smartaccess.plans.enabled') }}</span>
+                                </div>
+                            </div>
+
+                            <button
+                                *ngIf="!matchesCurrentSubscription(plan)"
+                                class="select-plan-button"
+                                [ngClass]="getPlanColorClass(plan.codeShow)"
+                                (click)="changeView('lastCheck', plan)"
+                                mat-flat-button
+                            >
+                                {{ t('smartaccess.plans.activate') }}
+                                <mat-icon>arrow_forward</mat-icon>
+                            </button>
+                            <div *ngIf="matchesCurrentSubscription(plan)" class="current-plan-indicator">
+                                <mat-icon>check_circle</mat-icon>
+                                {{ t('smartaccess.plans.your_plan') }}
+                            </div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+            </div>
+
+            <div class="free-trial-section">
+                <div class="free-trial-header">
+                    <mat-icon>help_outline</mat-icon>
+                    <h3>{{ t('smartaccess.plans.not_sure') }}</h3>
+                </div>
+                <p class="free-trial-text">
+                    {{ t('smartaccess.plans.free_solution') }}
+                    <strong>{{ t('smartaccess.plans.free_solution2') }}</strong>
+                    {{ t('smartaccess.plans.free_solution3') }}
+                    <strong>{{ t('smartaccess.plans.free_solution4') }}</strong>
+                    {{ t('smartaccess.plans.free_solution5') }}
+                    <strong>{{ t('smartaccess.plans.free_solution6') }}</strong>
+                </p>
+
+                <ng-container *ngFor="let plan of plans">
+                    <div class="free-plan-card" *ngIf="plan.codeShow === 'Free'">
+                        <div class="free-plan-header">
+                            <div class="free-plan-badge">
+                                <mat-icon>redeem</mat-icon>
+                                {{ capitalizeFirstLetter(plan.codeShow) }}
+                            </div>
+                            <div class="free-plan-offer">
+                                <span class="offer-title">{{ t('smartaccess.plans.try_free') }}</span>
+                                <span class="offer-text">{{ t('smartaccess.plans.offer') }}</span>
+                            </div>
+                        </div>
+
+                        <div class="free-plan-features">
+                            <div class="feature-column">
+                                <span class="feature-label">{{ t('smartaccess.plans.included') }}</span>
+                                <span class="feature-value">{{ t('smartaccess.plans.email_logins') }}</span>
+                            </div>
+                            <div class="feature-divider"></div>
+                            <div class="feature-column">
+                                <span class="feature-label">{{ t('smartaccess.plans.extra_cost') }}</span>
+                                <span class="feature-value">{{ t('smartaccess.plans.all_services') }}</span>
+                            </div>
+                            <div class="feature-divider"></div>
+                            <div class="feature-column">
+                                <span class="feature-label">{{ t('smartaccess.plans.whiteLabel') }}</span>
+                                <span class="feature-value">{{ t('smartaccess.plans.enabled') }}</span>
+                            </div>
+                            <div class="feature-divider"></div>
+                            <div class="feature-column">
+                                <span class="feature-label">{{ t('smartaccess.plans.analytics') }} (BI)</span>
+                                <span class="feature-value">30 {{ t('smartaccess.plans.days') }}</span>
+                            </div>
+                        </div>
+
+                        <button
+                            *ngIf="!matchesCurrentSubscription(plan)"
+                            class="free-plan-button"
+                            (click)="changeView('lastCheck', plan)"
+                            mat-stroked-button
+                        >
+                            {{ t('smartaccess.plans.activate') }}
+                            <mat-icon>arrow_forward</mat-icon>
+                        </button>
+                        <div *ngIf="matchesCurrentSubscription(plan)" class="current-plan-indicator">
+                            <mat-icon>check_circle</mat-icon>
+                            {{ t('smartaccess.plans.your_plan') }}
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LAST CHECK VIEW (slider + summary + activate)-->
+    <!-- ============================================ -->
+    <div class="plans-container w-full flex justify-center" *ngIf="currentView === 'lastCheck' && currentChangePlan2">
+        <div class="w-full max-w-4xl px-4 sm:px-8 py-8">
+            <div class="crumb">
+                <a routerLink="/chat" class="crumb-link">Verifik</a>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('nav.smart_access') }}</span>
+                <span class="crumb-sep">/</span>
+                <span class="crumb-here">{{ t('settings.plans') }}</span>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+                <button (click)="goBack('select')" class="back-button" mat-icon-button>
+                    <mat-icon>arrow_back</mat-icon>
+                </button>
+                <div class="header-icon">
+                    <mat-icon>shopping_cart</mat-icon>
+                </div>
+                <div class="flex flex-col gap-1 min-w-0">
+                    <h1 class="current-plan-title">{{ t('smartaccess.plans.title_1') }}</h1>
+                    <p class="current-plan-subtitle">{{ t('smartaccess.plans.subtitle_1') }}</p>
+                </div>
+            </div>
+
+            <div class="landing-slider-section animate-fadeIn" *ngIf="showSlide">
+                <h2 class="landing-slider-title">
+                    <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.users_logins') }}</ng-container>
+                    <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.sessions_logins') }}</ng-container>
+                </h2>
+                <p class="landing-slider-subtitle">{{ t('smartaccess.plans.subtitle_1') }}</p>
+
+                <div class="landing-slider-track">
+                    <span class="track-label">{{ currentChangePlan2.biometricsLimit }}</span>
+                    <div class="track-slider">
+                        <mat-slider
+                            class="brand-slider"
+                            [min]="currentChangePlan2.biometricsLimit"
+                            [max]="currentChangePlan2.maxAmount"
+                            step="100"
+                            discrete
+                        >
+                            <input matSliderThumb [(ngModel)]="sliderAmount" />
+                        </mat-slider>
+                    </div>
+                    <span class="track-label">+{{ currentChangePlan2.maxAmount | number }}</span>
+                </div>
+
+                <div class="landing-slider-pill">
+                    <strong>{{ sliderAmount || currentChangePlan2.biometricsLimit | number }}</strong>
+                    <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.users') }}</ng-container>
+                    <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.sessions') }}</ng-container>
+                </div>
+            </div>
+
+            <div class="checkout-card animate-fadeIn" [ngClass]="'checkout-' + getPlanColorClass(currentChangePlan2.codeShow)">
+                <div class="checkout-header" [ngClass]="'header-' + getPlanColorClass(currentChangePlan2.codeShow)">
+                    <div class="checkout-plan-info">
+                        <div class="checkout-badge" [ngClass]="getPlanColorClass(currentChangePlan2.codeShow)">
+                            <mat-icon>{{ currentChangePlan2.codeShow === 'Free' ? 'card_giftcard' : 'star' }}</mat-icon>
+                            <ng-container *ngIf="currentChangePlan2.name !== 'PYG'">{{ currentChangePlan2.name }}</ng-container>
+                            <ng-container *ngIf="currentChangePlan2.name === 'PYG'">Free</ng-container>
+                        </div>
+                        <span class="checkout-plan-type">
+                            <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.active_user') }}</ng-container>
+                            <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.per_session') }}</ng-container>
+                        </span>
+                    </div>
+                    <div class="checkout-price">
+                        <span class="price-from">{{ t('smartaccess.plans.from') }}</span>
+                        <span class="price-currency">$</span>
+                        <span class="price-value">{{ computeAmount(currentChangePlan2) | number: '1.0-0' }}</span>
+                        <span class="price-period">/{{ currentChangePlan2.interval }}</span>
+                    </div>
+                </div>
+
+                <div class="checkout-stats">
+                    <div class="stat-item">
+                        <mat-icon>people</mat-icon>
+                        <span class="stat-value">{{ sliderAmount || currentChangePlan2.biometricsLimit | number }}</span>
+                        <span class="stat-label">
+                            <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.users') }}</ng-container>
+                            <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.sessions') }}</ng-container>
+                        </span>
+                    </div>
+                    <div class="stat-item">
+                        <mat-icon>payments</mat-icon>
+                        <span class="stat-value">${{ currentChangePlan2.amount }}</span>
+                        <span class="stat-label">
+                            {{ t('smartaccess.plans.cost_per') }}
+                            <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.user') }}</ng-container>
+                            <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.session') }}</ng-container>
+                        </span>
+                    </div>
+                    <div class="stat-item">
+                        <mat-icon>analytics</mat-icon>
+                        <span class="stat-value">30</span>
+                        <span class="stat-label">{{ t('smartaccess.plans.analytics') }} (BI) {{ t('smartaccess.plans.days') }}</span>
+                    </div>
+                </div>
+
+                <div class="checkout-main">
+                    <div class="checkout-features">
+                        <div class="features-column">
+                            <h4 class="features-title included-title">
+                                <mat-icon>check_circle</mat-icon>
+                                {{ t('smartaccess.plans.included') }}
+                            </h4>
+                            <ul class="features-list included">
+                                <li>
+                                    <span>{{ t('smartaccess.plans.liveness') }}</span>
+                                    <span class="feature-count">{{ sliderAmount || currentChangePlan2.biometricsLimit | number }}</span>
+                                </li>
+                                <li>
+                                    <span>{{ t('smartaccess.plans.email') }}</span>
+                                    <span class="feature-count">{{ currentChangePlan2.emailsLimit | number }}</span>
+                                </li>
+                                <li>
+                                    <span>{{ t('smartaccess.plans.whiteLabel') }}</span>
+                                    <mat-icon class="feature-check">check</mat-icon>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="features-column">
+                            <h4 class="features-title extra-title">
+                                <mat-icon>add_circle_outline</mat-icon>
+                                {{ t('smartaccess.plans.extra_cost') }}
+                            </h4>
+                            <ul class="features-list extra">
+                                <li>
+                                    <span>{{ t('smartaccess.plans.feature_4') }}</span>
+                                    <span class="feature-price">${{ currentChangePlan2.meteredAmount }} USD</span>
+                                </li>
+                                <li>
+                                    <span>{{ t('smartaccess.plans.sms') }}</span>
+                                    <span class="feature-col-value" aria-hidden="true">&nbsp;</span>
+                                </li>
+                                <li>
+                                    <span>{{ t('smartaccess.plans.whatsapp') }}</span>
+                                    <span class="feature-col-value" aria-hidden="true">&nbsp;</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="extra-bio-notice">
+                        <div class="extra-bio-header" (click)="showExtraBioInfo = !showExtraBioInfo">
+                            <div class="extra-bio-left">
+                                <mat-icon class="info-icon">info</mat-icon>
+                                <span>{{ t('smartaccess.plans.extra_bio_title') }}</span>
+                            </div>
+                            <mat-icon class="expand-icon" [class.expanded]="showExtraBioInfo">expand_more</mat-icon>
+                        </div>
+                        <div class="extra-bio-body" *ngIf="showExtraBioInfo">
+                            <p>{{ t('smartaccess.plans.extra_bio_explanation') }}</p>
+                            <div class="extra-bio-costs">
+                            <div class="bio-cost-item">
+                                <span>{{ t('smartaccess.plans.feature_1') }}</span>
+                                <strong>
+                                    ${{ currentChangePlan2.meteredAmount }} USD /
+                                    <ng-container *ngIf="typePlan === 'year'">{{ t('smartaccess.plans.extra_active_user') }}</ng-container>
+                                    <ng-container *ngIf="typePlan === 'month'">{{ t('smartaccess.plans.extra_session') }}</ng-container>
+                                </strong>
+                            </div>
+                            <div class="bio-cost-item">
+                                <span>{{ t('smartaccess.plans.feature_2') }}</span>
+                                <strong>
+                                    <ng-container *ngIf="currentChangePlan2.codeShow === 'Free'">$10 USD / 5,000</ng-container>
+                                    <ng-container *ngIf="currentChangePlan2.codeShow !== 'Free'">$2 USD / 1,000</ng-container>
+                                    {{ t('smartaccess.plans.email') }}s
+                                </strong>
+                            </div>
+                            <div class="bio-cost-item">
+                                <span>{{ t('smartaccess.plans.feature_3') }}</span>
+                                <a class="extras-link" [href]="getSmsWhatsappPricesUrl()" target="_blank">
+                                    {{ t('smartaccess.plans.feature_3_description_2') }}
+                                    <mat-icon>open_in_new</mat-icon>
+                                </a>
+                            </div>
+                        </div>
+                        </div>
+                        </div>
+
+                    <div class="checkout-action">
+                        <button
+                            *ngIf="!matchesCurrentSubscription(currentChangePlan2)"
+                            class="activate-btn"
+                            [ngClass]="'plan-' + getPlanColorClass(currentChangePlan2.codeShow)"
+                            (click)="activatePlan(currentChangePlan2)"
+                            [disabled]="subscribingToPlan"
+                            mat-flat-button
+                        >
+                            <mat-spinner *ngIf="subscribingToPlan" diameter="20" class="mr-2"></mat-spinner>
+                            {{ t('smartaccess.plans.activate') }}
+                            <mat-icon *ngIf="!subscribingToPlan">arrow_forward</mat-icon>
+                        </button>
+                        <div *ngIf="matchesCurrentSubscription(currentChangePlan2)" class="current-plan-indicator">
+                            <mat-icon>check_circle</mat-icon>
+                            {{ t('smartaccess.plans.your_plan') }}
+                        </div>
+                    </div>
+
+                    <div class="checkout-terms">
+                        <mat-icon>verified</mat-icon>
+                        <span>
+                            {{ t('smartaccess.plans.terms_1') }}
+                            <a [href]="getTermsAndConditionsUrl()" target="_blank">{{ t('smartaccess.plans.terms_2') }}</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-container>

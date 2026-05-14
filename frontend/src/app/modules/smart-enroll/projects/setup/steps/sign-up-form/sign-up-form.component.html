@@ -13,7 +13,11 @@
                         {{ t('smartEnrollProjects.setup.signupForm.target.subtitle') }}
                     </p>
                 </header>
-                <mat-button-toggle-group formControlName="target" class="!rounded-xl">
+                <mat-button-toggle-group
+                    formControlName="target"
+                    class="!rounded-xl"
+                    [hideSingleSelectionIndicator]="true"
+                >
                     <mat-button-toggle value="personal">
                         {{ t('smartEnrollProjects.setup.signupForm.target.personal') }}
                     </mat-button-toggle>

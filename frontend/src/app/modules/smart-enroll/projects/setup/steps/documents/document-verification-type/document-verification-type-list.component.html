@@ -73,7 +73,15 @@
                                     </div>
                                     <mat-slide-toggle
                                         formControlName="active"
-                                        (change)="onActiveToggleChange(configCtrl, $event.checked)"
+                                        (change)="
+                                            onActiveToggleChange(
+                                                asGroup(group),
+                                                configCtrl,
+                                                countryValue,
+                                                category,
+                                                $event.checked
+                                            )
+                                        "
                                     ></mat-slide-toggle>
                                 </div>
 

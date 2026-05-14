@@ -12,7 +12,11 @@
                     {{ t('smartEnrollProjects.setup.representatives.subtitle') }}
                 </p>
             </header>
-            <mat-button-toggle-group formControlName="legalRepresentative" class="!rounded-xl">
+            <mat-button-toggle-group
+                formControlName="legalRepresentative"
+                class="!rounded-xl"
+                [hideSingleSelectionIndicator]="true"
+            >
                 <mat-button-toggle value="skip">{{ t('smartEnrollProjects.setup.documents.skip') }}</mat-button-toggle>
                 <mat-button-toggle value="optional">{{ t('smartEnrollProjects.setup.documents.optional') }}</mat-button-toggle>
                 <mat-button-toggle value="mandatory">{{ t('smartEnrollProjects.setup.documents.required') }}</mat-button-toggle>

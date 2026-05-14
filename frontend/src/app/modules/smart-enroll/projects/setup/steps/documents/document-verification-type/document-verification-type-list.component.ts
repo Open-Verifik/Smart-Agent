@@ -109,6 +109,8 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         this._factory.addDocumentTypesWithDefaults(this.documentTypes, this.target);
         const last = this.documentTypes.at(this.documentTypes.length - 1) as FormGroup;
         this._watchCountry(last);
+        this._factory.updateValidatorsForActiveState(this.documentTypes);
+        this.documentTypes?.updateValueAndValidity();
         this._cdr.markForCheck();
     }
 
@@ -203,17 +205,69 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         return arr.controls.filter((c) => !!c.get('promptTemplate')?.value).length;
     }
 
-    onActiveToggleChange(configCtrl: AbstractControl, checked: boolean): void {
-        if (checked) return;
-        const arr = configCtrl?.get('documentTemplates') as FormArray | null;
-        if (!arr) return;
-        for (let i = arr.length - 1; i >= 0; i--) {
-            if (arr.at(i).get('promptTemplate')?.value) arr.removeAt(i);
+    /**
+     * When a category toggle turns on: pre-select **all** templates for that bucket so UX is opt-out.
+     * When it turns off: clear selections (prior behavior).
+     */
+    onActiveToggleChange(
+        documentGroup: FormGroup,
+        configCtrl: AbstractControl,
+        countryValue: string,
+        category: string,
+        checked: boolean
+    ): void {
+        if (!checked) {
+            const arr = configCtrl?.get('documentTemplates') as FormArray | null;
+            if (!arr) return;
+            for (let i = arr.length - 1; i >= 0; i--) {
+                if (arr.at(i).get('promptTemplate')?.value) arr.removeAt(i);
+            }
+            arr.markAsDirty();
+            arr.updateValueAndValidity();
+            configCtrl?.updateValueAndValidity();
+            documentGroup?.updateValueAndValidity();
+            this.documentTypes?.updateValueAndValidity();
+            this._cdr.markForCheck();
+            return;
         }
-        arr.markAsDirty();
-        arr.updateValueAndValidity();
+
+        const templates = this.templatesFor(countryValue, category);
+        this._selectAllTemplates(configCtrl, templates);
+        documentGroup?.updateValueAndValidity();
         configCtrl?.updateValueAndValidity();
+        this.documentTypes?.updateValueAndValidity();
         this._cdr.markForCheck();
+    }
+
+    private _selectAllTemplates(configCtrl: AbstractControl, templates: PromptTemplateLite[]): void {
+        if (!templates.length) return;
+        for (const pt of templates) {
+            if (!pt?._id) continue;
+            if (this.isTemplateSelected(configCtrl, pt._id)) continue;
+            this.toggleTemplate(configCtrl, pt, true);
+        }
+    }
+
+    /**
+     * If templates load after `active` was already true (e.g. latency), backfill selections.
+     */
+    private _selectAllTemplatesForActiveEmptyCategories(country: string): void {
+        if (!this.documentTypes?.length) return;
+        for (const ctrl of this.documentTypes.controls) {
+            const dg = ctrl as FormGroup;
+            if (dg.get('country')?.value !== country) continue;
+            const configs = dg.get('configurations') as FormArray | undefined;
+            if (!configs) continue;
+            for (let i = 0; i < configs.length; i++) {
+                const configCtrl = configs.at(i);
+                if (!configCtrl.get('active')?.value) continue;
+                const category = configCtrl.get('documentCategory')?.value as string;
+                const templates = this.templatesFor(country, category);
+                if (!templates.length) continue;
+                if (this.selectedCount(configCtrl) > 0) continue;
+                this._selectAllTemplates(configCtrl, templates);
+            }
+        }
     }
 
     openPreview(pt: PromptTemplateLite): void {
@@ -277,6 +331,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
                     this._templatesByCountry[country] = buckets;
                     this._fetchedCountries.add(country);
                     this._loadingCountries.delete(country);
+                    this._selectAllTemplatesForActiveEmptyCategories(country);
                     this._cdr.markForCheck();
                 },
                 error: () => {

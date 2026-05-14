@@ -10,6 +10,13 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 import { WebhooksService } from '../webhooks.service';
 
+/** Passed to `MatDialogRef.close` after create/update/delete. */
+export interface WebhookDialogCloseResult {
+    deleted?: true;
+    refreshList?: boolean;
+    savedWebhook?: Record<string, unknown> | null;
+}
+
 @Component({
     selector: 'new-webhook-dialog',
     standalone: true,
@@ -71,7 +78,11 @@ export class NewWebhookDialogComponent implements OnInit {
             next: (response) => {
                 this._splash.hide();
                 this._toast(this._transloco.translate('webhooks.messages.saved'), false);
-                this._dialogRef.close(response.data);
+                const payload: WebhookDialogCloseResult = {
+                    refreshList: true,
+                    savedWebhook: response?.data ?? null,
+                };
+                this._dialogRef.close(payload);
             },
             error: () => {
                 this._splash.hide();
@@ -102,7 +113,11 @@ export class NewWebhookDialogComponent implements OnInit {
         this._service.update(id, body).subscribe({
             next: (response) => {
                 this._splash.hide();
-                this._dialogRef.close(response.data);
+                const payload: WebhookDialogCloseResult = {
+                    refreshList: true,
+                    savedWebhook: response?.data ?? null,
+                };
+                this._dialogRef.close(payload);
             },
             error: () => {
                 this._splash.hide();

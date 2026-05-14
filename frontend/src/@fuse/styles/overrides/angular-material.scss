@@ -234,11 +234,40 @@
     }
 }
 
+/* Secondary actions: neutral label + subtle hover (Privy-style ghost vs solid primary) */
+.mat-mdc-button:not(.mat-mdc-icon-button):not(.mat-primary):not(.mat-accent):not(.mat-warn):not(
+        [disabled='true']
+    ) {
+    @apply text-default #{'!important'};
+
+    .mdc-button__label,
+    .mat-icon {
+        @apply text-default #{'!important'};
+    }
+
+    &:hover {
+        @apply bg-hover #{'!important'};
+    }
+}
+
 /* Adjust the border color of outlined buttons */
 .mat-mdc-outlined-button {
     /* Not disabled */
     &:not([disabled='true']) {
-        @apply border-gray-300 dark:border-gray-500 #{'!important'};
+        &.mat-primary,
+        &.mat-accent,
+        &.mat-warn {
+            @apply border-gray-300 dark:border-gray-500 #{'!important'};
+        }
+
+        &:not(.mat-primary):not(.mat-accent):not(.mat-warn) {
+            @apply border-gray-200 text-default dark:border-gray-600 #{'!important'};
+
+            .mdc-button__label,
+            .mat-icon {
+                @apply text-default #{'!important'};
+            }
+        }
     }
 
     /* Disabled */
@@ -268,23 +297,57 @@
     }
 
     .mat-button-toggle {
+        /*
+         * The inner <button> uses width:100% — when the toggle host shrink-wraps (flex group),
+         * percent width collapses so the clickable box matches only the narrow label strip.
+         * Flex here makes the trigger fill the full pill-shaped host.
+         */
+        display: flex !important;
         border-radius: 9999px;
         overflow: hidden;
         border: none !important;
         font-weight: 500;
+
+        .mat-button-toggle-button {
+            flex: 1 1 auto !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: auto !important;
+            min-height: 40px !important;
+
+            &::before,
+            &::after {
+                pointer-events: none !important;
+            }
+        }
+
+        /* Let presses register on <button>; text layer does not carve a separate hit target. */
+        .mat-button-toggle-label-content {
+            pointer-events: none !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 0 20px;
+            line-height: 40px !important;
+            @apply text-secondary;
+        }
 
         &.mat-button-toggle-checked {
             .mat-button-toggle-label-content {
                 @apply text-default #{'!important'};
             }
         }
-
-        .mat-button-toggle-label-content {
-            padding: 0 20px;
-            line-height: 40px !important;
-            @apply text-secondary;
-        }
     }
+}
+
+/*
+ * Ripple/focus layers are DOM siblings *after* the inner <button>. If they receive pointer hits,
+ * clicks on pill labels miss `_onButtonClick`. Applies to grouped and standalone toggles.
+ */
+.mat-button-toggle > .mat-button-toggle-focus-overlay,
+.mat-button-toggle > .mat-button-toggle-ripple.mat-ripple {
+    pointer-events: none !important;
 }
 
 /* -------------------------------------------------------------------------- */

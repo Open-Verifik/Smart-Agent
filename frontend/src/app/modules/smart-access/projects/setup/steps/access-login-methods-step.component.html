@@ -1,0 +1,74 @@
+<ng-container *transloco="let t">
+    @if (loginSettings(); as ls) {
+        <div class="step-card">
+            <h2 class="step-title">{{ t('smartAccessProjects.setup.login_methods.title') }}</h2>
+            <p class="step-sub">{{ t('smartAccessProjects.setup.login_methods.subtitle') }}</p>
+
+            <div class="toggle-grid">
+                <div class="row">
+                    <mat-slide-toggle formControlName="email" [formGroup]="ls" [disabled]="loading || saving">
+                        {{ t('smartAccessProjects.setup.login_methods.email') }}
+                    </mat-slide-toggle>
+                </div>
+                @if (ls.get('email')?.value) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+                        <mat-label>{{ t('smartAccessProjects.setup.login_methods.email_gateway') }}</mat-label>
+                        <mat-select formControlName="emailGateway">
+                            <mat-option value="mailgun">{{ t('smartAccessProjects.setup.login_methods.mailgun') }}</mat-option>
+                            <mat-option value="none">{{ t('smartAccessProjects.setup.login_methods.none') }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                }
+
+                <div class="row">
+                    <mat-slide-toggle formControlName="phone" [formGroup]="ls" [disabled]="loading || saving">
+                        {{ t('smartAccessProjects.setup.login_methods.phone') }}
+                    </mat-slide-toggle>
+                </div>
+                @if (ls.get('phone')?.value) {
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full">
+                        <mat-label>{{ t('smartAccessProjects.setup.login_methods.phone_gateway') }}</mat-label>
+                        <mat-select formControlName="phoneGateway">
+                            <mat-option value="sms">SMS</mat-option>
+                            <mat-option value="whatsapp">WhatsApp</mat-option>
+                            <mat-option value="both">SMS &amp; WhatsApp</mat-option>
+                            <mat-option value="none">{{ t('smartAccessProjects.setup.login_methods.none') }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                }
+
+                <div class="row">
+                    <mat-slide-toggle formControlName="faceLiveness" [formGroup]="ls" [disabled]="loading || saving">
+                        {{ t('smartAccessProjects.setup.login_methods.face_liveness') }}
+                    </mat-slide-toggle>
+                </div>
+                @if (ls.get('faceLiveness')?.value) {
+                    <div class="row">
+                        <mat-slide-toggle
+                            formControlName="showFaceLivenessRecommendation"
+                            [formGroup]="ls"
+                            [disabled]="loading || saving"
+                        >
+                            {{ t('smartAccessProjects.setup.login_methods.face_recommend') }}
+                        </mat-slide-toggle>
+                    </div>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="half">
+                        <mat-label>{{ t('smartAccessProjects.setup.login_methods.search_mode') }}</mat-label>
+                        <mat-select formControlName="searchMode">
+                            <mat-option value="FAST">FAST</mat-option>
+                            <mat-option value="ACCURATE">ACCURATE</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="half">
+                        <mat-label>{{ t('smartAccessProjects.setup.login_methods.liveness_min') }}</mat-label>
+                        <input matInput type="number" step="0.01" formControlName="livenessMinScore" />
+                    </mat-form-field>
+                    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="half">
+                        <mat-label>{{ t('smartAccessProjects.setup.login_methods.search_min') }}</mat-label>
+                        <input matInput type="number" step="0.01" formControlName="searchMinScore" />
+                    </mat-form-field>
+                }
+            </div>
+        </div>
+    }
+</ng-container>

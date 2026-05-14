@@ -124,18 +124,121 @@
     border-radius: 12px;
 }
 
-.empty-card {
-    border: 1px dashed rgb(209 213 219);
-    border-radius: 16px;
-    padding: 3rem 1.5rem;
+/* Empty-state “create first project” (legacy tool-suite parity) */
+.empty-hero-card {
+    max-width: 36rem;
+    margin: 0 auto;
     text-align: center;
-    background: #fff;
+    padding: 2.75rem 1.75rem 2.25rem;
+    border-radius: 18px;
+    border: 1px solid rgb(229 231 235);
+    background: linear-gradient(180deg, #fff 0%, rgb(248 250 252) 100%);
+    box-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
 }
 
-.empty-title {
+.empty-hero-icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 1.25rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(239 246 255);
+    border: 1px solid rgb(219 234 254);
+    color: rgb(37 99 235);
+
+    &--muted {
+        background: rgb(243 244 246);
+        border-color: rgb(229 231 235);
+        color: rgb(107 114 128);
+    }
+
+    mat-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        font-size: 2.25rem;
+    }
+}
+
+.empty-hero-title {
     margin: 0;
+    font-size: 1.35rem;
     font-weight: 650;
-    color: rgb(55 65 81);
+    letter-spacing: -0.02em;
+    color: rgb(17 24 39);
+    line-height: 1.3;
+}
+
+.empty-hero-text {
+    margin: 0.65rem auto 0;
+    max-width: 26rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: rgb(107 114 128);
+}
+
+.empty-hero-cta {
+    margin-top: 1.5rem;
+    min-width: 12rem;
+    border-radius: 12px !important;
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 600 !important;
+
+    mat-icon {
+        margin-right: 0.35rem;
+        vertical-align: middle;
+        width: 1.15rem;
+        height: 1.15rem;
+        font-size: 1.15rem;
+    }
+}
+
+:host-context(.dark) {
+    .page {
+        background: #0f0f1f;
+    }
+
+    .title {
+        color: #f8fafc;
+    }
+
+    .subtitle,
+    .crumb,
+    .crumb-sep {
+        color: rgb(148 163 184);
+    }
+
+    .crumb-link,
+    .crumb-here {
+        color: rgb(226 232 240);
+    }
+
+    .empty-hero-card {
+        border-color: rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, #11122a 0%, #161828 100%);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .empty-hero-icon {
+        background: rgba(43, 58, 240, 0.15);
+        border-color: rgba(79, 90, 246, 0.28);
+        color: rgb(129 140 248);
+
+        &--muted {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: rgb(148 163 184);
+        }
+    }
+
+    .empty-hero-title {
+        color: #f8fafc;
+    }
+
+    .empty-hero-text {
+        color: rgb(148 163 184);
+    }
 }
 
 .grid {

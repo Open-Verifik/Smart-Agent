@@ -12,6 +12,10 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import {
+    extractClientSettingsPayload,
+    invoiceBillingDetailsComplete,
+} from 'app/modules/settings/utils/invoice-billing-complete';
 import { SubscriptionService } from 'app/modules/subscription-plans/subscription.service';
 import { SmartEnrollPlansService } from './smart-enroll-plans.service';
 import { SmartEnrollBillingRequiredDialogComponent } from './smart-enroll-billing-required-dialog.component';
@@ -125,8 +129,14 @@ export class SmartEnrollPlansComponent implements OnInit {
     };
 
     constructor() {
+        const raw =
+            localStorage.getItem('verifik_account') || localStorage.getItem('user');
+        if (!raw || raw === 'undefined' || raw === 'null') {
+            this.client = null;
+            return;
+        }
         try {
-            this.client = JSON.parse(localStorage.getItem('user') || 'null');
+            this.client = JSON.parse(raw);
         } catch {
             this.client = null;
         }
@@ -182,35 +192,10 @@ export class SmartEnrollPlansComponent implements OnInit {
         return 'current';
     }
 
-    /**
-     * Billing UI saves `invoiceSettings.type` (business | person), not `invoiceType`.
-     * Accept legacy `invoiceType` or the same shape as the billing-details save payload.
-     */
+    /** Same gate as Subscription plans; respects what billing-details saves (`invoiceSettings` shape). */
     private _isInvoiceSettingsComplete(billingData: unknown): boolean {
-        const inv = (billingData as ClientSettingsBillingPayload | null)?.invoiceSettings;
-        if (!inv) return false;
-
-        const t = (inv.invoiceType || '').trim();
-        if (t) return true;
-
-        const payerKind = inv.type;
-        if (payerKind !== 'business' && payerKind !== 'person') return false;
-
-        const a = inv.address;
-        const hasAddress = Boolean(
-            (a?.address || '').trim() &&
-                (a?.city || '').trim() &&
-                (a?.province || '').trim() &&
-                (a?.country || '').trim() &&
-                (a?.postalCode || '').trim()
-        );
-        if (!hasAddress) return false;
-
-        if (payerKind === 'business') {
-            return Boolean((inv.business?.business_name || '').trim() && (inv.business?.business_email || '').trim());
-        }
-
-        return Boolean((inv.person?.person_name || '').trim() && (inv.person?.person_email || '').trim());
+        const doc = billingData as ClientSettingsBillingPayload | null;
+        return invoiceBillingDetailsComplete(doc?.invoiceSettings);
     }
 
     /**
@@ -234,12 +219,8 @@ export class SmartEnrollPlansComponent implements OnInit {
         return params;
     }
 
-    private _billingDataFromClientSettingsResponse(response: any): unknown {
-        const raw = response?.data;
-        if (raw == null) return null;
-        if (Array.isArray(raw)) return raw[0] ?? null;
-        if (raw.docs && Array.isArray(raw.docs)) return raw.docs[0] ?? null;
-        return raw;
+    private _billingDataFromClientSettingsResponse(response: unknown): Record<string, unknown> | null {
+        return extractClientSettingsPayload(response);
     }
 
     private _prefetchClientInvoiceSettings(): void {

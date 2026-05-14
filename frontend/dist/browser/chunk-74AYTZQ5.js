@@ -1,0 +1,1 @@
+var e=n=>{let r=n?.data;if(r==null)return null;if(Array.isArray(r))return r[0]??null;if(typeof r=="object"&&r!==null&&"docs"in r){let t=r.docs;if(Array.isArray(t))return t[0]??null}return r},s=n=>{let r=n;return!!(r?.type&&(r.person||r.business)&&r.address)};export{e as a,s as b};

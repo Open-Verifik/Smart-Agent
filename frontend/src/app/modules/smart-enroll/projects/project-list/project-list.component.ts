@@ -75,6 +75,16 @@ export class ProjectListComponent implements OnInit {
         this._router.navigate(['/smart-enroll/plans']);
     }
 
+    /** Staff users cannot create workspace projects — list is scoped to assignments only. */
+    isWorkspaceStaff(): boolean {
+        return !!this._projectsService.parseStoredUser()?.staff;
+    }
+
+    /** Opens the Smart Enroll setup wizard (`/projects/new/setup/0`). */
+    createProject(): void {
+        this._router.navigate(['/smart-enroll/projects', 'new', 'setup', '0']);
+    }
+
     openProject(project: EnrollProject, event?: Event): void {
         event?.stopPropagation();
         this._router.navigate(['/smart-enroll/projects', project._id]);

@@ -242,7 +242,7 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (response) => {
-                    const settings = response.data;
+                    const settings = response?.data ?? null;
                     this.billingData = settings;
                     this.billingLoaded = true;
 

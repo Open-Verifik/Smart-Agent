@@ -1,0 +1,76 @@
+.smart-access-billing-required-dialog-pane {
+    .mat-mdc-dialog-container {
+        border-radius: 16px;
+        padding-bottom: 0;
+    }
+
+    .mat-mdc-dialog-surface {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    /** Light */
+    --billing-dialog-bg: #ffffff;
+    --billing-dialog-border: rgba(15, 15, 45, 0.08);
+    --billing-dialog-title-color: #0f0f2d;
+    --billing-dialog-body-color: #4b5563;
+    --billing-dialog-cancel-color: #475569;
+
+    .mat-mdc-dialog-container {
+        background: var(--billing-dialog-bg);
+        border: 1px solid var(--billing-dialog-border);
+        box-shadow: 0 20px 50px rgba(15, 15, 45, 0.12), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+    }
+
+    .billing-dialog-title {
+        padding: 1.35rem 1.5rem 0.65rem !important;
+        margin: 0 !important;
+        font-size: 1.125rem !important;
+        font-weight: 650 !important;
+        line-height: 1.35;
+        letter-spacing: -0.02em;
+        color: var(--billing-dialog-title-color) !important;
+    }
+
+    .billing-dialog-body {
+        padding: 0 1.5rem !important;
+    }
+
+    .billing-dialog-copy {
+        margin: 0;
+        padding: 0 0 1.25rem !important;
+        font-size: 0.9375rem;
+        line-height: 1.55;
+        color: var(--billing-dialog-body-color);
+    }
+
+    .billing-dialog-actions {
+        padding: 0 1rem 1rem !important;
+        gap: 0.5rem;
+    }
+
+    .billing-dialog-cancel {
+        color: var(--billing-dialog-cancel-color) !important;
+    }
+
+    .billing-dialog-primary.mat-mdc-raised-button.mat-primary,
+    .billing-dialog-primary.mat-mdc-button-base.mat-flat-button.mat-primary {
+        border-radius: 999px !important;
+    }
+}
+
+/**
+ * Fuse applies scheme as `body.dark` / `body.light`; CDK overlays are rendered under `<body>`
+ * but outside the routed app subtree, so this selector still reaches dialog panes.
+ */
+body.dark .smart-access-billing-required-dialog-pane {
+    --billing-dialog-bg: #17182c;
+    --billing-dialog-border: rgba(255, 255, 255, 0.11);
+    --billing-dialog-title-color: #f1f5f9 !important;
+    --billing-dialog-body-color: rgba(226, 232, 240, 0.9);
+    --billing-dialog-cancel-color: #cbd5e1 !important;
+
+    .mat-mdc-dialog-container {
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+}

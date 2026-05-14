@@ -69,6 +69,11 @@ export const appRoutes: Route[] = [
                     ),
             },
             {
+                path: 'smart-access',
+                loadChildren: () =>
+                    import('app/modules/smart-access/smart-access.routes').then((m) => m.default),
+            },
+            {
                 path: 'smart-enroll',
                 loadChildren: () =>
                     import('./modules/smart-enroll/smart-enroll.routes').then((m) => m.default),

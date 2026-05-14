@@ -20,7 +20,7 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
 import { Subject, takeUntil } from 'rxjs';
 import { LinkProjectDialogComponent } from './dialogs/link-project-dialog.component';
-import { NewWebhookDialogComponent } from './dialogs/new-webhook-dialog.component';
+import { NewWebhookDialogComponent, WebhookDialogCloseResult } from './dialogs/new-webhook-dialog.component';
 import { WebhookEventsComponent } from './webhook-events.component';
 import { WebhookStatsBarsComponent } from './webhook-stats-bars.component';
 import { WebhooksService } from './webhooks.service';
@@ -152,6 +152,32 @@ export class WebhookDetailComponent implements OnInit, OnDestroy {
         }, wait);
     }
 
+    /** Handles `MatDialogRef` payloads from legacy plain documents and new `{ savedWebhook }` wraps. */
+    private _mergeWebhookEditDialogResult(result: unknown): void {
+        if (!result || typeof result !== 'object') return;
+
+        const partial = result as Partial<WebhookDialogCloseResult> & Record<string, unknown>;
+
+        if (partial.deleted === true) {
+            void this._router.navigate(['/smart-monitor/webhooks']);
+            return;
+        }
+
+        if ('savedWebhook' in partial) {
+            const doc = partial.savedWebhook;
+            if (doc && typeof doc === 'object') {
+                this.webhookData = { ...this.webhookData, ...doc };
+                this._cdr.markForCheck();
+            }
+            return;
+        }
+
+        if ('_id' in partial) {
+            this.webhookData = { ...this.webhookData, ...partial };
+            this._cdr.markForCheck();
+        }
+    }
+
     edit(): void {
         this._dialog
             .open(NewWebhookDialogComponent, {
@@ -161,15 +187,8 @@ export class WebhookDetailComponent implements OnInit, OnDestroy {
                 panelClass: 'webhook-dialog-panel',
             })
             .afterClosed()
-            .subscribe((result) => {
-                if (result?.deleted) {
-                    this._router.navigate(['/smart-monitor/webhooks']);
-                    return;
-                }
-                if (result) {
-                    this.webhookData = { ...this.webhookData, ...result };
-                    this._cdr.markForCheck();
-                }
+            .subscribe((result: unknown) => {
+                this._mergeWebhookEditDialogResult(result);
             });
     }
 

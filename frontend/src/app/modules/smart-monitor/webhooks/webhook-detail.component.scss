@@ -389,3 +389,162 @@
     letter-spacing: -0.02em;
     color: rgb(17 24 39);
 }
+
+:host-context(.dark) {
+    .page {
+        background: rgb(15 23 42);
+    }
+
+    .icon-btn {
+        border-color: rgb(71 85 105);
+        background: rgb(30 41 59);
+        color: rgb(148 163 184);
+    }
+
+    .icon-btn:hover {
+        background: rgb(51 65 85);
+        color: rgb(248 250 252);
+    }
+
+    .hero-card {
+        border-color: rgb(51 65 85);
+        background: rgb(30 41 59);
+    }
+
+    .hero-name {
+        color: rgb(248 250 252);
+    }
+
+    .hero-sub {
+        color: rgb(148 163 184);
+    }
+
+    .toggle-wrap {
+        border-color: rgb(71 85 105);
+        background: rgb(15 23 42);
+    }
+
+    .status-pill {
+        color: rgb(226 232 240);
+    }
+
+    .status-pill.on {
+        color: rgb(187 247 208);
+    }
+
+    .status-pill.off {
+        color: rgb(203 213 225);
+    }
+
+    .status-pill .dot {
+        background: rgb(100 116 139);
+    }
+
+    .btn-outline {
+        border-color: rgb(71 85 105);
+        background: rgb(30 41 59);
+        color: rgb(226 232 240);
+    }
+
+    .btn-outline:hover {
+        background: rgb(51 65 85);
+    }
+
+    .hero-url {
+        border-color: rgb(51 65 85);
+        background: rgb(15 23 42);
+    }
+
+    .url-ic {
+        color: rgb(100 116 139);
+    }
+
+    .url-text {
+        color: rgb(226 232 240);
+    }
+
+    .hero-desc {
+        color: rgb(148 163 184);
+    }
+
+    .hero-divider {
+        background: rgb(51 65 85);
+    }
+
+    .flows-title {
+        color: rgb(248 250 252);
+    }
+
+    .flows-ic {
+        color: rgb(147 197 253);
+    }
+
+    .native-select {
+        border-color: rgb(71 85 105);
+        background: rgb(15 23 42);
+        color: rgb(226 232 240);
+        color-scheme: dark;
+    }
+
+    .pf-item {
+        border-bottom-color: rgb(51 65 85);
+    }
+
+    .pf-name {
+        color: rgb(248 250 252);
+    }
+
+    .pf-type {
+        color: rgb(148 163 184);
+    }
+
+    .pf-count {
+        color: rgb(147 197 253);
+    }
+
+    .pf-count-label {
+        color: rgb(100 116 139);
+    }
+
+    .unlink {
+        background: rgba(248 113 113 / 0.14);
+        color: rgb(252 165 165);
+    }
+
+    .unlink:hover {
+        background: rgba(248 113 113 / 0.24);
+    }
+
+    .panel-empty {
+        background: rgba(234 179 8 / 0.12);
+        border-color: rgba(250 204 21 / 0.38);
+        color: rgb(253 224 71);
+    }
+
+    .btn-link-flow {
+        border-color: rgba(96 165 250 / 0.45);
+        background: rgba(37 99 235 / 0.18);
+        color: rgb(147 197 253);
+    }
+
+    .btn-link-flow:hover {
+        background: rgba(37 99 235 / 0.28);
+    }
+
+    .panel {
+        border-color: rgb(51 65 85);
+        background: rgb(30 41 59);
+    }
+
+    .panel-title {
+        color: rgb(248 250 252);
+    }
+
+    .panel-ic {
+        color: rgb(147 197 253);
+    }
+
+    .section-heading {
+        color: rgb(248 250 252);
+    }
+}

@@ -29,7 +29,7 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
         if (!component.form?.dirty) return true;
         if (component.saving()) return false;
 
-        const currentStepIndex = +currentRoute?.params?.['step'];
+        const currentStepIndex = this._resolveCurrentStepIndex(currentRoute, component.stepIndex);
         const nextStepIndex = nextState ? this._getStepFromState(nextState) : null;
         const navigatingAway = nextStepIndex === null || isNaN(nextStepIndex);
         const navigatingBack = nextStepIndex !== null && nextStepIndex < currentStepIndex;
@@ -64,8 +64,10 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
         nextStepIndex: number | null
     ): Observable<boolean> {
         return new Observable<boolean>((observer) => {
+            let emitted = false;
             component.saveProject().subscribe({
                 next: (response) => {
+                    emitted = true;
                     this._ngZone.run(() => {
                         component.saving.set(false);
 
@@ -94,6 +96,7 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                     });
                 },
                 error: (error) => {
+                    emitted = true;
                     const msg = error?.error?.message || error?.message || 'smartEnrollProjects.setup.api_error';
                     this._snack.open(msg, 'Close', { duration: 3000 });
                     this._ngZone.run(() => {
@@ -102,8 +105,23 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                         observer.complete();
                     });
                 },
+                complete: () => {
+                    if (emitted) return;
+                    this._ngZone.run(() => {
+                        component.saving.set(false);
+                        observer.next(false);
+                        observer.complete();
+                    });
+                },
             });
         });
+    }
+
+    private _resolveCurrentStepIndex(route: ActivatedRouteSnapshot, fallbackStepIndex: number): number {
+        const stepParam = route.paramMap.get('step');
+        const parsedStep = stepParam === null ? Number.NaN : Number(stepParam);
+        if (Number.isFinite(parsedStep)) return parsedStep;
+        return Number.isFinite(fallbackStepIndex) ? fallbackStepIndex : 0;
     }
 
     private _getStepFromState(state: RouterStateSnapshot): number | null {

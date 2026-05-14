@@ -2312,3 +2312,595 @@ $brand-gray-light: #f3f4f6;
     animation: fadeIn 0.4s ease-out forwards;
     opacity: 0;
 }
+
+// ============================================
+// Dark mode (Fuse adds .dark on a parent)
+// ============================================
+
+$dark-surface: #11122a;
+$dark-surface-soft: rgba(255, 255, 255, 0.04);
+$dark-border: rgba(255, 255, 255, 0.08);
+$dark-divider: rgba(255, 255, 255, 0.06);
+$dark-text-primary: #f8fafc;
+$dark-text-secondary: #cbd5f5;
+$dark-text-muted: #94a3b8;
+
+:host-context(.dark) {
+    .plans-container {
+        background: linear-gradient(180deg, #0b0b18 0%, #0f0f1f 100%);
+    }
+
+    .current-plan-title,
+    .current-plan-header .current-plan-title {
+        color: $dark-text-primary;
+    }
+
+    .current-plan-subtitle,
+    .current-plan-header .current-plan-subtitle {
+        color: $dark-text-muted;
+    }
+
+    .text-gray-900 {
+        color: $dark-text-primary !important;
+    }
+
+    .text-gray-500 {
+        color: $dark-text-muted !important;
+    }
+
+    .text-gray-400 {
+        color: rgba(148, 163, 184, 0.75) !important;
+    }
+
+    // ----- Cards & elevated surfaces -----
+    .plan-card,
+    .select-plan-card,
+    .checkout-card,
+    .volume-change-summary {
+        background: $dark-surface;
+        border-color: $dark-border;
+        box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.4),
+            0 12px 32px rgba(0, 0, 0, 0.35);
+
+        &:hover {
+            border-color: rgba(43, 58, 240, 0.35);
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.45),
+                0 16px 40px rgba(0, 0, 0, 0.45);
+        }
+    }
+
+    .plan-card.payment-failed {
+        border-color: rgba(248, 113, 113, 0.45);
+    }
+
+    .select-plan-card {
+        &.featured {
+            border-color: $brand-blue;
+            box-shadow:
+                0 1px 2px rgba(0, 0, 0, 0.4),
+                0 12px 28px rgba(43, 58, 240, 0.25);
+
+            &:hover {
+                border-color: $brand-blue-light;
+            }
+        }
+
+        &--current {
+            border-color: #34d399;
+            box-shadow: 0 8px 28px rgba(52, 211, 153, 0.2);
+
+            &.featured {
+                border-color: #34d399;
+                box-shadow: 0 8px 28px rgba(52, 211, 153, 0.22);
+            }
+        }
+    }
+
+    .free-plan-card {
+        border-color: $dark-border;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+
+        &:hover {
+            border-color: rgba(148, 163, 184, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .plan-badge.free {
+            background: rgba(148, 163, 184, 0.16);
+            color: #cbd5e1;
+        }
+
+        .plan-price {
+            color: $dark-text-primary;
+        }
+
+        .plan-period,
+        .plan-range {
+            color: $dark-text-muted;
+        }
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border-bottom-color: $dark-border;
+
+        h2 {
+            color: $dark-text-primary !important;
+        }
+    }
+
+    .price-section,
+    .payment-method,
+    .optional-section,
+    .selected-stats {
+        background: $dark-surface-soft;
+    }
+
+    .price-section {
+        .price-label,
+        .price-period,
+        .price-amount .price-currency {
+            color: $dark-text-muted;
+        }
+
+        .price-amount {
+            color: $dark-text-primary;
+        }
+    }
+
+    .payment-method {
+        background: rgba(255, 255, 255, 0.04);
+
+        .payment-icon.link {
+            color: $dark-text-secondary;
+        }
+
+        .payment-text {
+            color: $dark-text-secondary;
+        }
+
+        .payment-expiry {
+            color: $dark-text-muted;
+        }
+    }
+
+    .feature-card {
+        background: $dark-surface-soft;
+        border-color: $dark-border;
+
+        &:hover {
+            border-color: rgba(43, 58, 240, 0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+    }
+
+    .feature-content .feature-label {
+        color: $dark-text-muted;
+    }
+
+    .feature-content .feature-value {
+        color: $dark-text-primary;
+    }
+
+    .feature-icon.whitelabel {
+        color: $dark-text-secondary;
+    }
+
+    .feature-status {
+        color: rgba(255, 255, 255, 0.18);
+
+        &.active {
+            color: $brand-blue-light;
+        }
+    }
+
+    .optional-section {
+        background: rgba(255, 255, 255, 0.04);
+
+        .optional-title {
+            color: $dark-text-primary;
+        }
+
+        .optional-subtitle {
+            color: $dark-text-muted;
+        }
+    }
+
+    .optional-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: $dark-border;
+
+        .optional-label {
+            color: $dark-text-secondary;
+        }
+
+        .optional-value {
+            color: $dark-text-muted;
+        }
+
+        .optional-link {
+            color: $brand-blue-light;
+
+            &:hover {
+                color: white;
+            }
+        }
+    }
+
+    .status-badge {
+        &.success {
+            background: rgba(43, 58, 240, 0.18);
+            color: $brand-blue-light;
+        }
+
+        &.warning {
+            background: rgba(245, 158, 11, 0.18);
+            color: #fbbf24;
+        }
+
+        &.error {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+        }
+    }
+
+    .payment-alert {
+        background: linear-gradient(135deg, rgba(127, 29, 29, 0.35) 0%, rgba(127, 29, 29, 0.25) 100%);
+        border-bottom-color: rgba(248, 113, 113, 0.35);
+        color: #fca5a5;
+
+        mat-icon {
+            color: #f87171;
+        }
+    }
+
+    // ----- Change plan grid text -----
+    .plan-pricing {
+        .plan-price {
+            color: $dark-text-primary;
+
+            &.custom {
+                color: $dark-text-primary;
+            }
+        }
+
+        .plan-period {
+            color: $dark-text-muted;
+        }
+    }
+
+    .plan-range,
+    .free-plan-desc {
+        color: $dark-text-muted;
+
+        ::ng-deep .font-semibold,
+        ::ng-deep b {
+            color: $brand-blue-light;
+        }
+
+        ::ng-deep .text-verifik-vivid-blue {
+            color: $brand-blue-light !important;
+        }
+    }
+
+    .plan-features {
+        border-top-color: $dark-divider;
+        border-bottom-color: $dark-divider;
+    }
+
+    .plan-stat {
+        .stat-label {
+            color: $dark-text-muted;
+        }
+
+        .stat-value {
+            color: $dark-text-primary;
+        }
+    }
+
+    .plan-includes {
+        .includes-title {
+            color: $dark-text-primary;
+        }
+
+        .includes-list li {
+            color: $dark-text-secondary;
+
+            mat-icon {
+                color: $brand-blue-light;
+            }
+        }
+    }
+
+    .plan-badge {
+        &.free {
+            background: rgba(148, 163, 184, 0.16);
+            color: #cbd5e1;
+        }
+
+        &.plus {
+            background: rgba(79, 90, 246, 0.22);
+            color: $brand-blue-light;
+        }
+
+        &.business {
+            background: rgba(79, 90, 246, 0.22);
+            color: white;
+        }
+
+        &.enterprise {
+            background: linear-gradient(135deg, #1f2937 0%, #0b0b18 100%);
+            color: white;
+        }
+    }
+
+    .select-button.free {
+        border-color: rgba(148, 163, 184, 0.45);
+        color: $dark-text-secondary;
+
+        &:hover {
+            background: rgba(148, 163, 184, 0.12);
+        }
+    }
+
+    // ----- Landing slider + volume summary -----
+    .landing-slider-section {
+        background: rgba(43, 58, 240, 0.08);
+        border-color: rgba(79, 90, 246, 0.18);
+    }
+
+    .landing-slider-title {
+        color: $dark-text-primary;
+    }
+
+    .landing-slider-subtitle,
+    .landing-slider-track .track-label {
+        color: $dark-text-muted;
+    }
+
+    .landing-slider-pill {
+        background: linear-gradient(135deg, $brand-blue 0%, #3730a3 100%);
+        color: white;
+        box-shadow: 0 4px 16px rgba(43, 58, 240, 0.45);
+    }
+
+    .volume-change-summary__head-icon {
+        background: rgba(79, 90, 246, 0.15);
+        border-color: rgba(99, 102, 241, 0.3);
+
+        mat-icon {
+            color: $brand-blue-light;
+        }
+    }
+
+    .volume-change-summary__eyebrow,
+    .volume-change-summary__panel-label,
+    .volume-change-summary__panel-unit,
+    .volume-change-summary__hint {
+        color: $dark-text-muted;
+    }
+
+    .volume-change-summary__title {
+        color: $dark-text-primary;
+    }
+
+    .volume-change-summary__panel {
+        border-color: $dark-border;
+
+        &--from {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        &--to {
+            background: rgba(43, 58, 240, 0.08);
+            border-color: rgba(67, 56, 202, 0.25);
+
+            &.volume-change-summary__panel--highlight {
+                border-color: rgba(43, 58, 240, 0.45);
+                box-shadow: 0 0 0 2px rgba(43, 58, 240, 0.15);
+                background: rgba(43, 58, 240, 0.12);
+            }
+        }
+
+        &-value {
+            color: $dark-text-primary;
+        }
+    }
+
+    .volume-change-summary__mid-icon {
+        background: $dark-surface;
+        border-color: $dark-border;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+
+        mat-icon {
+            color: $brand-blue-light;
+        }
+    }
+
+    .volume-change-summary__hint {
+        border-top-color: $dark-divider;
+    }
+
+    // ----- Checkout card body -----
+    .checkout-card {
+        border-color: rgba(79, 90, 246, 0.18);
+    }
+
+    .checkout-stats {
+        background: rgba(43, 58, 240, 0.08);
+        border-bottom-color: rgba(79, 90, 246, 0.18);
+
+        .stat-item {
+            mat-icon {
+                color: $brand-blue-light;
+            }
+
+            .stat-value {
+                color: $dark-text-primary;
+            }
+
+            .stat-label {
+                color: $dark-text-muted;
+            }
+        }
+
+        .stat-divider {
+            background: rgba(255, 255, 255, 0.12);
+        }
+    }
+
+    .checkout-features {
+        border-bottom-color: rgba(79, 90, 246, 0.18);
+
+        .features-column .features-title {
+            &.included-title,
+            &.included-title mat-icon {
+                color: $brand-blue-light;
+            }
+
+            &.extra-title,
+            &.extra-title mat-icon {
+                color: $dark-text-primary;
+            }
+        }
+
+        .features-column .features-list li {
+            color: $dark-text-secondary;
+            border-bottom-color: $dark-divider;
+
+            .feature-count {
+                color: $brand-blue-light;
+            }
+
+            .feature-check {
+                color: #34d399;
+            }
+
+            .feature-price {
+                color: $dark-text-secondary;
+            }
+
+            .extras-link {
+                color: $brand-blue-light;
+            }
+        }
+    }
+
+    .extra-bio-notice {
+        border-color: rgba(79, 90, 246, 0.2);
+    }
+
+    .extra-bio-header {
+        background: rgba(43, 58, 240, 0.12);
+
+        &:hover {
+            background: rgba(43, 58, 240, 0.18);
+        }
+
+        .extra-bio-left {
+            span {
+                color: $dark-text-primary;
+            }
+
+            .info-icon {
+                color: $brand-blue-light;
+            }
+        }
+
+        .expand-icon {
+            color: $dark-text-muted;
+        }
+    }
+
+    .extra-bio-body {
+        background: rgba(255, 255, 255, 0.02);
+
+        p {
+            color: $dark-text-muted;
+        }
+
+        .extra-bio-costs .bio-cost-item {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(79, 90, 246, 0.15);
+
+            span {
+                color: $dark-text-secondary;
+            }
+
+            strong {
+                color: $dark-text-primary;
+                font-weight: 600;
+            }
+        }
+    }
+
+    .checkout-terms {
+        color: $dark-text-muted;
+
+        a {
+            color: $brand-blue-light;
+        }
+    }
+
+    // ----- Range input (volume slider) -----
+    .range-slider {
+        $dark-track: rgba(255, 255, 255, 0.14);
+
+        .range-slider__value {
+            color: $dark-text-muted;
+        }
+
+        .range-slider__input {
+            &::-webkit-slider-runnable-track {
+                background-color: $dark-track;
+            }
+
+            &::-webkit-slider-thumb {
+                border-color: $dark-surface !important;
+                box-shadow: 0 0 0 4px $dark-surface, 0 2px 10px rgba(43, 58, 240, 0.45);
+            }
+
+            &::-moz-range-track {
+                background-color: $dark-track;
+            }
+
+            &::-moz-range-thumb {
+                border-color: $dark-surface !important;
+                box-shadow: 0 0 0 4px $dark-surface, 0 2px 10px rgba(43, 58, 240, 0.45);
+            }
+        }
+    }
+
+    // ----- Misc (selected-plan / features-table if shown) -----
+    .selected-plan-card,
+    .features-table .table-row {
+        background: transparent;
+        border-color: $dark-border;
+    }
+
+    .features-table .table-row span:first-child {
+        color: $dark-text-secondary;
+    }
+
+    .plan-description h3 {
+        color: $dark-text-primary;
+    }
+
+    .plan-description p {
+        color: $dark-text-muted;
+    }
+
+    .slider-section .slider-title {
+        color: $dark-text-primary;
+    }
+
+    .upgrade-hint {
+        color: $dark-text-muted;
+    }
+
+    .back-button:hover {
+        background: rgba(43, 58, 240, 0.15);
+    }
+}

@@ -15,6 +15,10 @@ export const environment = {
     get appUrl(): string {
         return isStaging() ? 'https://x402.on-forge.com' : 'https://prod.verifik.co';
     },
+    /** SPA origin (matches dev `environment.thisUrl`); used for redirects / dev sample data. */
+    get thisUrl(): string {
+        return isStaging() ? 'https://x402.on-forge.com' : 'https://ai.verifik.co';
+    },
     get projectId(): string {
         return isStaging() ? '6266193db77ccc8111730c90' : '6332941ccde4f719d9c00f9e';
     },

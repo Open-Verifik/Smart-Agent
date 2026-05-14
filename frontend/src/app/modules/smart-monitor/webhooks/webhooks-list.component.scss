@@ -337,3 +337,127 @@
     max-width: 280px;
     line-height: 1.45;
 }
+
+:host-context(.dark) {
+    .page {
+        background: rgb(15 23 42);
+    }
+
+    .hero-icon {
+        background: rgba(37, 99, 235, 0.22);
+        border-color: rgba(96, 165, 250, 0.45);
+        color: rgb(147 197 253);
+    }
+
+    .title {
+        color: rgb(248 250 252);
+    }
+
+    .subtitle {
+        color: rgb(148 163 184);
+    }
+
+    .card {
+        border-color: rgb(51 65 85);
+        background: rgb(30 41 59);
+    }
+
+    .card:hover {
+        border-color: rgb(71 85 105);
+    }
+
+    .card-dashed {
+        background: rgb(24 34 53);
+        border-color: rgb(71 85 105);
+    }
+
+    .card-dashed:hover {
+        border-color: rgb(96 165 250);
+        background: rgba(37, 99, 235, 0.14);
+    }
+
+    .card-title {
+        color: rgb(248 250 252);
+    }
+
+    .pill-dot {
+        background: rgb(100 116 139);
+    }
+
+    .pill-on {
+        background: rgba(34 197 94 / 0.18);
+        color: rgb(187 247 208);
+    }
+
+    .pill-on .pill-dot {
+        background: rgb(74 222 128);
+    }
+
+    .pill-off {
+        background: rgba(148 163 184 / 0.14);
+        color: rgb(203 213 225);
+    }
+
+    .pill-off .pill-dot {
+        background: rgb(148 163 184);
+    }
+
+    .chart-box {
+        border-color: rgb(51 65 85);
+        background: rgb(15 23 42);
+    }
+
+    .field-label {
+        color: rgb(148 163 184);
+    }
+
+    .fld-ic {
+        color: rgb(100 116 139);
+    }
+
+    .url {
+        color: rgb(226 232 240);
+        background: rgb(15 23 42);
+        border-color: rgb(51 65 85);
+    }
+
+    .chip {
+        background: rgba(37 99 235 / 0.2);
+        color: rgb(191 219 254);
+        border-color: rgba(96 165 250 / 0.45);
+    }
+
+    .chip-warn {
+        background: rgba(234 179 8 / 0.15);
+        color: rgb(253 224 71);
+        border-color: rgba(250 204 21 / 0.4);
+    }
+
+    .btn-ghost {
+        border-color: rgb(71 85 105);
+        background: rgb(30 41 59);
+        color: rgb(147 197 253);
+    }
+
+    .btn-ghost:hover {
+        background: rgba(148 163 184 / 0.12);
+    }
+
+    .add-icon {
+        background: rgba(37 99 235 / 0.22);
+        border-color: rgba(96 165 250 / 0.45);
+        color: rgb(147 197 253);
+    }
+
+    .add-title {
+        color: rgb(248 250 252);
+    }
+
+    .add-line {
+        color: rgb(226 232 240);
+    }
+
+    .add-hint {
+        color: rgb(148 163 184);
+    }
+}

@@ -1,1 +1,0 @@
-import"./chunk-MG3ERZGY.js";var a=[{path:"",redirectTo:"smart-scan",pathMatch:"full"},{path:"smart-scan",loadChildren:()=>import("./chunk-GZHW4BAX.js").then(t=>t.default)},{path:"plans",loadComponent:()=>import("./chunk-NB6B5MBJ.js").then(t=>t.SmartEnrollPlansComponent)},{path:"projects",loadChildren:()=>import("./chunk-ABKHM2ZU.js").then(t=>t.default)}];export{a as default};

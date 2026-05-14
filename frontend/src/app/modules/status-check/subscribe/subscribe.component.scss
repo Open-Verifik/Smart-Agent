@@ -3,12 +3,17 @@ status-check-subscribe {
     flex-direction: column;
     width: 100%;
     min-height: 0;
+    flex: 1 1 auto;
     max-height: inherit;
     overflow: hidden;
     background: white;
 
+    /**
+     * In dark mode let `mat-mdc-dialog-surface` (Fuse slate-800) paint the modal.
+     * A host fill + opaque footer (`dark:bg-gray-900` = slate-900 here) caused a darker action bar.
+     */
     .dark & {
-        background: #111827; // bg-gray-900
+        background: transparent;
     }
 
     .status-check-subscribe__dialog {

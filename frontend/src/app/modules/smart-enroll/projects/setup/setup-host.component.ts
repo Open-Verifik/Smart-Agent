@@ -38,6 +38,7 @@ import {
     STRICT_URL_PATTERN,
 } from 'app/shared/validators/validation-patterns';
 import { DEFAULT_PHONE_COUNTRY_CODE } from 'app/core/constants/phone-country-codes.constant';
+import { CountryService } from 'app/core/services/country.service';
 
 import { SetupBreadcrumbsComponent } from './breadcrumbs/breadcrumbs.component';
 import { SmartEnrollPreviewComponent } from './preview/smart-enroll-preview.component';
@@ -51,6 +52,7 @@ import { SetupRepresentativesComponent } from './steps/representatives/represent
 import { SetupSignUpFormComponent } from './steps/sign-up-form/sign-up-form.component';
 import { SetupStepStubComponent } from './steps/setup-step-stub.component';
 import { SetupUserInterfaceComponent } from './steps/user-interface/user-interface.component';
+import { patchSmartEnrollSetupDevSample } from './smart-enroll-setup-dev-sample.util';
 import { isProject, type Project, type SmartEnrollProjectFlow } from './setup.types';
 
 /** v3 smartEnrollKYCUpdateFields — signUpForm.* keys only (personal onboarding). */
@@ -131,6 +133,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
     private _confirm = inject(FuseConfirmationService);
+    private _countryService = inject(CountryService);
 
     private _unsub$ = new Subject<void>();
     private _DEBUG = false;
@@ -144,6 +147,9 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     project: Project = {} as Project;
     projectId = '';
     stepIndex = 0;
+
+    /** Sample fill for `/new/setup`; never shown when `production` is true. */
+    readonly devQuickFillEnabled = !environment.production;
 
     constructor() {
         const id = this._route.snapshot.params['projectId'] || 'new';
@@ -605,13 +611,21 @@ export class SetupHostComponent implements OnInit, OnDestroy {
     private _toggleBusinessControls(businessVerificationStep: boolean | undefined): void {
         const businessFormGroup = this.form.get('projectFlow.business');
         if (!businessFormGroup) return;
-        this._toggleDocumentGroupControls(businessFormGroup as FormGroup, !businessVerificationStep);
+        const shouldDisable = !businessVerificationStep;
+        this._toggleDocumentGroupControls(businessFormGroup as FormGroup, shouldDisable);
+        if (!shouldDisable) {
+            this._refreshDocumentTypesValidatorsAfterGroupEnable(businessFormGroup);
+        }
     }
 
     private _toggleDocumentControls(documentStep: string | undefined): void {
         const documentsFormGroup = this.form.get('projectFlow.documents');
         if (!documentsFormGroup) return;
-        this._toggleDocumentGroupControls(documentsFormGroup as FormGroup, documentStep === 'skip');
+        const shouldSkip = documentStep === 'skip';
+        this._toggleDocumentGroupControls(documentsFormGroup as FormGroup, shouldSkip);
+        if (!shouldSkip) {
+            this._refreshDocumentTypesValidatorsAfterGroupEnable(documentsFormGroup);
+        }
     }
 
     private _toggleLivenessControls(livenessStep: string | undefined): void {
@@ -729,6 +743,22 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             representativesGroup.enable();
             representativesGroup.updateValueAndValidity();
         }
+
+        if (value !== 'skip') {
+            this._refreshDocumentTypesValidatorsAfterGroupEnable(representativesGroup.get('documents'));
+        }
+    }
+
+    /**
+     * After `documentTypes` is re-enabled from a skipped/disabled branch, inactive categories keep
+     * template validators attached at creation time unless we strip them explicitly.
+     */
+    private _refreshDocumentTypesValidatorsAfterGroupEnable(container: AbstractControl | undefined | null): void {
+        if (!container) return;
+        const group = container as FormGroup;
+        const documentTypesCtrl = group.get('documentTypes') as FormArray | null;
+        if (!documentTypesCtrl?.length) return;
+        this._factory.updateValidatorsForActiveState(documentTypesCtrl);
     }
 
     private _toggleLivenessGroupControls(livenessGroup: FormGroup, shouldDisable: boolean): void {
@@ -780,6 +810,21 @@ export class SetupHostComponent implements OnInit, OnDestroy {
         if (documentsArray) this._factory.updateValidatorsForActiveState(documentsArray);
         if (businessArray) this._factory.updateValidatorsForActiveState(businessArray);
         if (representativesArray) this._factory.updateValidatorsForActiveState(representativesArray);
+    }
+
+    private _markControlTreeState(control: AbstractControl, state: 'dirty' | 'touched'): void {
+        if (state === 'dirty') {
+            control.markAsDirty({ onlySelf: true });
+        } else {
+            control.markAsTouched({ onlySelf: true });
+        }
+        if (control instanceof FormGroup) {
+            Object.values(control.controls).forEach((c) => this._markControlTreeState(c, state));
+            return;
+        }
+        if (control instanceof FormArray) {
+            control.controls.forEach((c) => this._markControlTreeState(c, state));
+        }
     }
 
     private _updateFormValidationKeys(target: string): void {
@@ -895,6 +940,36 @@ export class SetupHostComponent implements OnInit, OnDestroy {
 
     returnToProjects(): void {
         this._router.navigate(['/smart-enroll/projects']);
+    }
+
+    /**
+     * Applies {@link patchSmartEnrollSetupDevSample} and re-syncs validators (documents/liveness skipped).
+     */
+    fillDevSampleWizard(): void {
+        if (!this.devQuickFillEnabled || this.projectId !== 'new' || !this.form) return;
+        if (this.loading() || this.saving()) return;
+
+        const allowedCountryPool = this._countryService.ipCountries.map((c) => c.country).filter((c) => c !== 'All');
+        patchSmartEnrollSetupDevSample(this.form, { redirectOrigin: environment.thisUrl, allowedCountryPool });
+
+        const biz = this.form.get('projectFlow.steps.businessVerification')?.value as boolean | undefined;
+        const documentStep = this.form.get('projectFlow.steps.document')?.value as string | undefined;
+        const livenessStep = this.form.get('projectFlow.steps.liveness')?.value as string | undefined;
+        const legalRep = this.form.get('projectFlow.steps.legalRepresentative')?.value as string | undefined;
+        const intSource = this.form.get('projectFlow.integrations.source')?.value as string | undefined;
+
+        this._updateFormValidationKeys(String(this.form.get('target')?.value || 'personal'));
+        this._toggleBusinessControls(biz);
+        this._toggleDocumentControls(documentStep);
+        this._toggleLivenessControls(livenessStep);
+        this._toggleLegalRepresentativeControls(legalRep);
+        this._toggleIntegrationsControls(intSource);
+
+        this._markControlTreeState(this.form, 'dirty');
+        this._markControlTreeState(this.form, 'touched');
+        this._triggerFormValidation();
+        this._snack.open(this._t('smartEnrollProjects.setup.dev_quick_fill_applied'), this._t('close'), { duration: 3500 });
+        this._cdr.markForCheck();
     }
 
     updateProjectId(newProjectId: string): void {

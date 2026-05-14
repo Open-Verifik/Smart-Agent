@@ -13,7 +13,8 @@ const generatePalette = require(
  */
 const customPalettes = {
     brand: generatePalette('#2196F3'),
-    coral: generatePalette('#FF6F4F'),
+    /** Product UI primary (aligned with Smart Enroll defaults) */
+    productPrimary: generatePalette('#2563eb'),
 };
 
 /**
@@ -23,8 +24,8 @@ const themes = {
     // Default theme is required for theming system to work correctly!
     default: {
         primary: {
-            ...customPalettes.coral,
-            DEFAULT: customPalettes.coral[500],
+            ...customPalettes.productPrimary,
+            DEFAULT: customPalettes.productPrimary[500],
         },
         accent: {
             ...colors.slate,

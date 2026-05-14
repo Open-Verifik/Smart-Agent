@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { FuseSplashScreenService } from '@fuse/services/splash-screen';
-import { NewWebhookDialogComponent } from './dialogs/new-webhook-dialog.component';
+import { NewWebhookDialogComponent, WebhookDialogCloseResult } from './dialogs/new-webhook-dialog.component';
 import { WebhookStatsBarsComponent } from './webhook-stats-bars.component';
 import { WebhooksService } from './webhooks.service';
 
@@ -73,8 +73,10 @@ export class WebhooksListComponent implements OnInit {
                 panelClass: 'webhook-dialog-panel',
             })
             .afterClosed()
-            .subscribe((result) => {
-                if (result) this._load();
+            .subscribe((result: WebhookDialogCloseResult | undefined) => {
+                if (result?.refreshList === true || result?.deleted === true) {
+                    this._load();
+                }
             });
     }
 
