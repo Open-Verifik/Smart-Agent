@@ -6,7 +6,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { AuthService } from 'app/core/auth/auth.service';
+import { AuthApiService } from 'app/core/services/auth-api.service';
+import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
+import { firstValueFrom, take } from 'rxjs';
 
 /**
  * Bridge Component
@@ -16,11 +19,13 @@ import { UserService } from 'app/core/user/user.service';
  * then redirects the user to the main app.
  *
  * Usage:
- * - Development: http://localhost:4201/bridge?token=eyJ...
- * - Production: https://x402-agent.verifik.co/bridge?token=eyJ...
+ * - Final JWT SSO: http://localhost:4201/bridge?token=eyJ...
+ * - Access.app handoff (matches client-panel sign-in): /bridge?type=login&token=...
  *
  * Optional query params:
- * - token: The JWT access token (required)
+ * - token: Exchange token or final JWT access token (required)
+ * - type: When set (e.g. login, onboarding), exchanges via POST v2/auth/project-login;
+ *        omit type for legacy final-JWT SSO. Special case: admin-login uses sign-in-with-token.
  * - redirect: Path to redirect after auth (default: /chat)
  * - user: Base64 encoded user data (optional)
  */
@@ -189,20 +194,22 @@ export class BridgeComponent implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _authService = inject(AuthService);
+    private _authApiService = inject(AuthApiService);
     private _userService = inject(UserService);
+    private _sessionService = inject(SessionService);
 
     status = signal<'loading' | 'success' | 'error' | 'no_token'>('loading');
     errorMessage = signal<string>('');
     countdown = signal<number>(3);
 
     ngOnInit() {
-        this.processToken();
+        void this.runBridge();
     }
 
-    private processToken() {
+    private async runBridge() {
         const token = this._route.snapshot.queryParamMap.get('token');
         const redirect = this._route.snapshot.queryParamMap.get('redirect') || '/chat';
-        const userData = this._route.snapshot.queryParamMap.get('user');
+        const projectTypeRaw = this._route.snapshot.queryParamMap.get('type');
 
         if (!token) {
             this.status.set('no_token');
@@ -210,50 +217,120 @@ export class BridgeComponent implements OnInit {
         }
 
         try {
-            // Validate token format (basic JWT check)
-            if (!this.isValidJWT(token)) {
-                throw new Error('Invalid token format');
+            if (projectTypeRaw === null || projectTypeRaw.trim() === '') {
+                await this.processFinalJwtAndRedirect(token, redirect);
+                return;
             }
 
-            // If a different token is already present, clear the previous session
-            const currentToken = localStorage.getItem('accessToken');
-            if (currentToken && currentToken !== token) {
-                console.log('[Bridge] New token detected, switching user context');
-                this._authService.signOut(true); // Clear memory and storage
-            }
-
-            // Store the new token
-            localStorage.setItem('accessToken', token);
-            this._authService.accessToken = token;
-
-            // Store user data if provided (base64 encoded JSON)
-            if (userData) {
-                try {
-                    const decodedUser = JSON.parse(atob(userData));
-                    localStorage.setItem('verifik_account', JSON.stringify(decodedUser));
-                    // Update the user service so the UI updates immediately
-                    this._userService.user = decodedUser;
-                } catch (e) {
-                    console.warn('[Bridge] Could not parse user data:', e);
-                }
-            }
-
-            // Success!
-            this.status.set('success');
-
-            // Countdown and redirect (shortened for better UX)
-            const interval = setInterval(() => {
-                this.countdown.update((v) => v - 1);
-                if (this.countdown() <= 0) {
-                    clearInterval(interval);
-                    // Use navigateByUrl to ensure a fresh layout load if needed
-                    this._router.navigateByUrl(redirect);
-                }
-            }, 800);
+            await this.processAccessAppHandoff(token, redirect, projectTypeRaw);
         } catch (error: any) {
             this.status.set('error');
             this.errorMessage.set(error.message || 'An unexpected error occurred');
         }
+    }
+
+    /**
+     * Access.app → client-panel-compatible exchange, then hydrate session like AppComponent.
+     */
+    private async processAccessAppHandoff(
+        exchangeToken: string,
+        redirect: string,
+        projectTypeRaw: string
+    ): Promise<void> {
+        console.log('[Bridge] Access-app handoff, exchanging token');
+        await firstValueFrom(this._authService.signOut(true).pipe(take(1)));
+
+        if (projectTypeRaw === 'admin-login') {
+            localStorage.setItem('accessToken', exchangeToken);
+            this._authService.accessToken = exchangeToken;
+            await firstValueFrom(this._authService.signInUsingToken().pipe(take(1)));
+        } else {
+            const loginResponse = await firstValueFrom(
+                this._authService.simulateProjectLogin(exchangeToken, projectTypeRaw).pipe(take(1))
+            );
+            const newAccess =
+                loginResponse?.data?.accessToken ?? loginResponse?.accessToken ?? null;
+            if (!newAccess || typeof newAccess !== 'string') {
+                throw new Error('Exchange failed: no access token returned');
+            }
+            localStorage.setItem('accessToken', newAccess);
+            this._authService.accessToken = newAccess;
+        }
+
+        await this.hydrateUserFromApi();
+        await this.applyOptionalBase64UserOverlay();
+
+        this.startSuccessCountdownAndRedirect(redirect);
+    }
+
+    private async hydrateUserFromApi(): Promise<void> {
+        try {
+            const res = await firstValueFrom(this._authApiService.getSession().pipe(take(1)));
+            const userData = res.data?.user || res.user || res;
+            if (userData) {
+                localStorage.setItem('verifik_account', JSON.stringify(userData));
+                this._userService.user = userData;
+                this._sessionService.resetReloadTracking();
+            }
+        } catch (e) {
+            console.warn('[Bridge] Session hydrate skipped or failed:', e);
+        }
+    }
+
+    /** Legacy SSO: incoming token is already the client JWT */
+    private async processFinalJwtAndRedirect(token: string, redirect: string): Promise<void> {
+        if (!this.isValidJWT(token)) {
+            throw new Error('Invalid token format');
+        }
+
+        const currentToken = localStorage.getItem('accessToken');
+        if (currentToken && currentToken !== token) {
+            console.log('[Bridge] New token detected, switching user context');
+            await firstValueFrom(this._authService.signOut(true).pipe(take(1)));
+        }
+
+        localStorage.setItem('accessToken', token);
+        this._authService.accessToken = token;
+
+        const userDataParam = this._route.snapshot.queryParamMap.get('user');
+        if (userDataParam) {
+            await this.embedUserFromBase64(userDataParam);
+        }
+
+        this.startSuccessCountdownAndRedirect(redirect);
+    }
+
+    private async applyOptionalBase64UserOverlay(): Promise<void> {
+        const userData = this._route.snapshot.queryParamMap.get('user');
+        if (!userData) {
+            return;
+        }
+        await this.embedUserFromBase64(userData);
+    }
+
+    private async embedUserFromBase64(userData: string): Promise<void> {
+        try {
+            const decodedUser = JSON.parse(atob(userData));
+            localStorage.setItem('verifik_account', JSON.stringify(decodedUser));
+            this._userService.user = decodedUser;
+        } catch (e) {
+            console.warn('[Bridge] Could not parse user data:', e);
+        }
+    }
+
+    private startSuccessCountdownAndRedirect(redirect: string): void {
+        this.status.set('success');
+        this.startRedirectOnlyCountdown(redirect);
+    }
+
+    private startRedirectOnlyCountdown(redirect: string): void {
+        const interval = setInterval(() => {
+            this.countdown.update((v) => v - 1);
+            if (this.countdown() <= 0) {
+                clearInterval(interval);
+                void this._router.navigateByUrl(redirect);
+            }
+        }, 800);
     }
 
     private isValidJWT(token: string): boolean {

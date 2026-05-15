@@ -10,7 +10,15 @@ export class AuthService {
     private _authenticated: boolean = false;
     private _httpClient = inject(HttpClient);
     private _userService = inject(UserService);
-    private baseUrl = environment.baseUrl;
+
+    /**
+     * Joins API origin with path so `http://localhost:3006` + `v2/...` does not produce `3006v2`.
+     */
+    private resolveUrl(path: string): string {
+        const base = `${environment.baseUrl ?? ''}`.replace(/\/+$/, '');
+        const segment = path.replace(/^\/+/, '');
+        return `${base}/${segment}`;
+    }
 
     set accessToken(token: string) {
         localStorage.setItem('accessToken', token);
@@ -21,17 +29,17 @@ export class AuthService {
     }
 
     forgotPassword(email: string): Observable<any> {
-        return this._httpClient.post(this.baseUrl + 'api/auth/forgot-password', email);
+        return this._httpClient.post(this.resolveUrl('api/auth/forgot-password'), email);
     }
 
     resetPassword(password: string): Observable<any> {
-        return this._httpClient.post(this.baseUrl + 'api/auth/reset-password', password);
+        return this._httpClient.post(this.resolveUrl('api/auth/reset-password'), password);
     }
 
     signIn(credentials: { email: string; password: string }): Observable<any> {
         if (this._authenticated) return throwError(() => new Error('User is already logged in.'));
 
-        return this._httpClient.post(this.baseUrl + 'api/auth/sign-in', credentials).pipe(
+        return this._httpClient.post(this.resolveUrl('api/auth/sign-in'), credentials).pipe(
             switchMap((response: any) => {
                 this._authenticated = true;
                 this._userService.user = response.user;
@@ -46,14 +54,14 @@ export class AuthService {
         if (this._authenticated) return throwError(() => new Error('User is already logged in.'));
 
         return this._httpClient
-            .post(this.baseUrl + 'v2/auth/super/request-otp', credentials)
+            .post(this.resolveUrl('v2/auth/super/request-otp'), credentials)
             .pipe(switchMap((response: any) => of(response)));
     }
 
     confirmOTP(credentials: { phone: string; otp: string }): Observable<any> {
         if (this._authenticated) return throwError(() => new Error('User is already logged in.'));
 
-        return this._httpClient.post(this.baseUrl + 'v2/auth/super/verify-otp', credentials).pipe(
+        return this._httpClient.post(this.resolveUrl('v2/auth/super/verify-otp'), credentials).pipe(
             switchMap((response: any) => {
                 if (!response.data) {
                     return;
@@ -79,7 +87,7 @@ export class AuthService {
     signInUsingToken(): Observable<any> {
         // Sign in using the token
         return this._httpClient
-            .post(this.baseUrl + 'api/auth/sign-in-with-token', {
+            .post(this.resolveUrl('api/auth/sign-in-with-token'), {
                 accessToken: this.accessToken,
             })
             .pipe(
@@ -186,7 +194,7 @@ export class AuthService {
         password: string;
         company: string;
     }): Observable<any> {
-        return this._httpClient.post(this.baseUrl + 'api/auth/sign-up', user);
+        return this._httpClient.post(this.resolveUrl('api/auth/sign-up'), user);
     }
 
     /**
@@ -195,7 +203,7 @@ export class AuthService {
      * @param credentials
      */
     unlockSession(credentials: { email: string; password: string }): Observable<any> {
-        return this._httpClient.post(this.baseUrl + 'api/auth/unlock-session', credentials);
+        return this._httpClient.post(this.resolveUrl('api/auth/unlock-session'), credentials);
     }
 
     /**
@@ -239,10 +247,8 @@ export class AuthService {
             Authorization: `Bearer ${appRegistrationToken}`,
         };
 
-        return this._httpClient.post(
-            this.baseUrl + 'v2/auth/project-login',
-            { projectType },
-            { headers }
-        );
+        return this._httpClient.post(this.resolveUrl('v2/auth/project-login'), { projectType }, {
+            headers,
+        });
     }
 }

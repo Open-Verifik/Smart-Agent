@@ -43,6 +43,13 @@ export class AppComponent implements OnInit {
      * @private
      */
     private _captureTokenFromUrl(): void {
+        const path = window.location.pathname || '';
+
+        // Bridge route owns exchange + final JWT flow (see BridgeComponent).
+        if (path.includes('/bridge')) {
+            return;
+        }
+
         const urlParams = new URL(window.location.href).searchParams;
         const tokenFromUrl = urlParams.get('token');
         const userFromUrl = urlParams.get('user');
@@ -80,6 +87,13 @@ export class AppComponent implements OnInit {
      * @private
      */
     private _restoreSession(): void {
+        const path = window.location.pathname || '';
+
+        // Avoid racing bridge handoff against a previous session snapshot.
+        if (path.includes('/bridge')) {
+            return;
+        }
+
         const token = localStorage.getItem('accessToken');
 
         if (!token) {
