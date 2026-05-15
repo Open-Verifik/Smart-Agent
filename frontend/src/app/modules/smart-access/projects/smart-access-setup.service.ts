@@ -77,6 +77,7 @@ export class SmartAccessSetupService {
                 phoneGateway: 'none',
                 searchMode: 'FAST',
                 showFaceLivenessRecommendation: false,
+                allowPasskeys: false,
             },
             integrations: {
                 redirectUrl: '',

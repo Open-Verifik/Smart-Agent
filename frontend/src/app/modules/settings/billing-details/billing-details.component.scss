@@ -1,0 +1,147 @@
+/* Billing details — Privy-aligned form layout. Most of the styling lives in the template
+   via Tailwind; this file owns the reusable input/label/type-card classes. */
+
+.billing-details {
+    max-width: 56rem;
+
+    mat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* Field group: label + input + helper, vertical stack with 6px gap. */
+.billing-details__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
+.billing-details__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgb(68 64 60); /* stone-700 */
+}
+
+.dark .billing-details__label {
+    color: rgb(214 211 209); /* stone-300 */
+}
+
+.billing-details__required {
+    color: rgb(220 38 38);
+    font-weight: 600;
+}
+
+.billing-details__input {
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    border-radius: 0.625rem;
+    border: 1px solid rgb(231 229 228); /* stone-200 */
+    background: rgb(255 255 255);
+    color: rgb(12 10 9); /* stone-950 */
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+    &::placeholder {
+        color: rgb(168 162 158); /* stone-400 */
+    }
+
+    &:hover:not(:focus) {
+        border-color: rgb(214 211 209); /* stone-300 */
+    }
+
+    &:focus {
+        border-color: rgb(12 10 9); /* stone-950 */
+        box-shadow: 0 0 0 3px rgb(231 229 228 / 0.7); /* stone-200/70 ring */
+    }
+
+    &:disabled {
+        background: rgb(250 250 249); /* stone-50 */
+        color: rgb(120 113 108); /* stone-500 */
+        cursor: not-allowed;
+    }
+}
+
+.dark .billing-details__input {
+    border-color: rgb(55 65 81); /* gray-700 */
+    background: rgb(3 7 18); /* gray-950 */
+    color: rgb(255 255 255);
+
+    &::placeholder {
+        color: rgb(107 114 128); /* gray-500 */
+    }
+
+    &:hover:not(:focus) {
+        border-color: rgb(75 85 99); /* gray-600 */
+    }
+
+    &:focus {
+        border-color: rgb(255 255 255);
+        box-shadow: 0 0 0 3px rgb(31 41 55 / 0.8); /* gray-800/80 ring */
+    }
+}
+
+/* Payer-type selection card (Person / Business). */
+.billing-details__type-card {
+    display: block;
+    padding: 1rem;
+    border-radius: 1rem;
+    border: 1px solid rgb(231 229 228); /* stone-200 */
+    background: rgb(255 255 255);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        border-color: rgb(214 211 209); /* stone-300 */
+        background: rgb(250 250 249); /* stone-50 */
+    }
+
+    &--active {
+        border-color: rgb(12 10 9); /* stone-950 */
+        background: rgb(250 250 249); /* stone-50 */
+        box-shadow: 0 0 0 1px rgb(12 10 9);
+    }
+}
+
+.dark .billing-details__type-card {
+    border-color: rgb(55 65 81); /* gray-700 */
+    background: rgb(17 24 39 / 0.4); /* gray-900/40 */
+
+    &:hover {
+        border-color: rgb(75 85 99);
+        background: rgb(31 41 55 / 0.7); /* gray-800/70 */
+    }
+
+    &.billing-details__type-card--active {
+        border-color: rgb(255 255 255);
+        background: rgb(31 41 55 / 0.6);
+        box-shadow: 0 0 0 1px rgb(255 255 255);
+    }
+}
+
+/* Save button spinner — invert for light vs dark. */
+.billing-details__spinner.mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: #ffffff;
+}
+
+.dark .billing-details__spinner.mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: rgb(17 24 39);
+}
+
+/* Snackbar accents */
+.billing-details__snack--success .mdc-snackbar__surface {
+    background-color: rgb(5 150 105);
+}
+
+.billing-details__snack--error .mdc-snackbar__surface {
+    background-color: rgb(220 38 38);
+}

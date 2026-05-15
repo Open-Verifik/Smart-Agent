@@ -8,7 +8,7 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +22,7 @@ import {
     PERSON_NAME_PATTERN,
     STRICT_URL_PATTERN,
 } from 'app/shared/validators/validation-patterns';
+import { CountryService } from 'app/core/services/country.service';
 import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { environment } from 'environments/environment';
@@ -34,6 +35,8 @@ import { SetupBasicSetupComponent } from '../../../smart-enroll/projects/setup/s
 import { SetupUserInterfaceComponent } from '../../../smart-enroll/projects/setup/steps/user-interface/user-interface.component';
 import { AccessWhitelistStepComponent } from './steps/access-whitelist-step.component';
 import { AccessLoginMethodsStepComponent } from './steps/access-login-methods-step.component';
+import { AccessSignInPreviewComponent } from './preview/access-sign-in-preview.component';
+import { patchSmartAccessSetupDevSample } from './smart-access-setup-dev-sample.util';
 
 /** Step-local form control paths validated before save/navigate. */
 const BASIC_KEYS = [
@@ -56,12 +59,28 @@ const LOGIN_SETTINGS_PREFIX = 'projectFlow.loginSettings';
 const LOGIN_SETTINGS_KEYS = [
     `${LOGIN_SETTINGS_PREFIX}.email`,
     `${LOGIN_SETTINGS_PREFIX}.phone`,
+    `${LOGIN_SETTINGS_PREFIX}.phoneGateway`,
     `${LOGIN_SETTINGS_PREFIX}.faceLiveness`,
     `${LOGIN_SETTINGS_PREFIX}.showFaceLivenessRecommendation`,
+    `${LOGIN_SETTINGS_PREFIX}.allowPasskeys`,
     `${LOGIN_SETTINGS_PREFIX}.searchMode`,
     `${LOGIN_SETTINGS_PREFIX}.livenessMinScore`,
     `${LOGIN_SETTINGS_PREFIX}.searchMinScore`,
 ];
+
+/** At least one auth method enabled; phone requires a real gateway. */
+const loginSettingsGroupValidator: ValidatorFn = (control) => {
+    const g = control as FormGroup;
+    if (!g?.controls) return null;
+    const email = !!g.get('email')?.value;
+    const phone = !!g.get('phone')?.value;
+    const faceLiveness = !!g.get('faceLiveness')?.value;
+    const phoneGateway = `${g.get('phoneGateway')?.value ?? ''}`;
+    const errors: Record<string, boolean> = {};
+    if (!email && !phone && !faceLiveness) errors['atLeastOneMethod'] = true;
+    if (phone && !['whatsapp', 'sms', 'both'].includes(phoneGateway)) errors['phoneGatewayRequired'] = true;
+    return Object.keys(errors).length ? errors : null;
+};
 
 const CONNECT_KEYS = [
     'projectFlow.integrations.redirectUrl',
@@ -106,6 +125,7 @@ const optionalStrictUrlValidator: ValidatorFn = (control) => {
         AccessLoginMethodsStepComponent,
         AccessWhitelistStepComponent,
         SetupUserInterfaceComponent,
+        AccessSignInPreviewComponent,
     ],
     templateUrl: './smart-access-setup-host.component.html',
     styleUrls: ['./smart-access-setup-host.component.scss'],
@@ -120,6 +140,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     private _confirm = inject(FuseConfirmationService);
     private _transloco = inject(TranslocoService);
     private _snack = inject(MatSnackBar);
+    private _countryService = inject(CountryService);
 
     private _unsub$ = new Subject<void>();
 
@@ -139,6 +160,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         'smartAccessProjects.setup.steps.connect',
         'smartAccessProjects.setup.steps.customize',
     ]);
+
+    /** Sample fill for `/new/setup`; never shown when `production` is true. */
+    readonly devQuickFillEnabled = !environment.production;
 
     loading = signal(true);
     saving = signal(false);
@@ -189,7 +213,11 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     isFormValidForStep = (idx: number): boolean => {
         if (!this.form) return false;
         if (idx === 0) return BASIC_KEYS.every((k) => !this.form.get(k)?.invalid);
-        if (idx === 1) return LOGIN_SETTINGS_KEYS.every((k) => !this.form.get(k)?.invalid);
+        if (idx === 1) {
+            const fieldsOk = LOGIN_SETTINGS_KEYS.every((k) => !this.form.get(k)?.invalid);
+            const group = this.form.get(LOGIN_SETTINGS_PREFIX);
+            return fieldsOk && !group?.errors;
+        }
         if (idx === 2) return this._connectStepValid();
         if (idx === 3) return BRANDING_KEYS.every((k) => !this.form.get(k)?.invalid);
         return false;
@@ -238,6 +266,16 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         this._router.navigate(['/smart-access/projects']);
     }
 
+    /** Live branding object fed to the side preview. */
+    brandingValue(): AccessProjectLike['branding'] {
+        return this.form?.get('branding')?.value as AccessProjectLike['branding'];
+    }
+
+    /** Whether to mount the live sign-in preview aside for the current step. */
+    showPreviewForStep(): boolean {
+        return this.stepIndex === 1 || this.stepIndex === 3;
+    }
+
     previewProject(): void {
         const baseRaw =
             environment.production && environment.kycBaseUrl
@@ -266,6 +304,27 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             return;
         }
         void this._router.navigate(['/smart-access/projects', this.projectId]);
+    }
+
+    /**
+     * Applies {@link patchSmartAccessSetupDevSample} and re-syncs security validators.
+     */
+    fillDevSampleWizard(): void {
+        if (!this.devQuickFillEnabled || this.projectId !== 'new' || !this.form) return;
+        if (this.loading() || this.saving()) return;
+
+        const allowedCountryPool = this._countryService.ipCountries.map((c) => c.country).filter((c) => c !== 'All');
+        patchSmartAccessSetupDevSample(this.form, { redirectOrigin: environment.thisUrl, allowedCountryPool });
+
+        const secSource = this.form.get('projectFlow.security')?.get('source')?.value ?? null;
+        this._adjustSecurityValidators(secSource as string | null);
+
+        this._markControlTreeState(this.form, 'dirty');
+        this._markControlTreeState(this.form, 'touched');
+        this._triggerFormValidation();
+
+        this._snack.open(this._t('smartAccessProjects.setup.dev_quick_fill_applied'), this._t('close'), { duration: 3500 });
+        this._cdr.markForCheck();
     }
 
     private _connectStepValid(): boolean {
@@ -361,23 +420,29 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                 status: [(flow.status as string) || 'draft'],
                 type: ['login'],
                 version: [(flow.version as number) || 3],
-                loginSettings: this._fb.group({
-                    email: [!!flow.loginSettings?.email],
-                    emailGateway: [flow.loginSettings?.emailGateway ?? 'mailgun'],
-                    faceLiveness: [!!flow.loginSettings?.faceLiveness],
-                    phone: [!!flow.loginSettings?.phone],
-                    phoneGateway: [flow.loginSettings?.phoneGateway ?? 'none'],
-                    livenessMinScore: [
-                        flow.loginSettings?.livenessMinScore ?? 0.65,
-                        [Validators.min(0.52), Validators.max(0.89)],
-                    ],
-                    searchMinScore: [
-                        flow.loginSettings?.searchMinScore ?? 0.85,
-                        [Validators.min(0.71), Validators.max(0.95)],
-                    ],
-                    searchMode: [flow.loginSettings?.searchMode || 'FAST'],
-                    showFaceLivenessRecommendation: [!!flow.loginSettings?.showFaceLivenessRecommendation],
-                }),
+                loginSettings: this._fb.group(
+                    {
+                        email: [!!flow.loginSettings?.email],
+                        emailGateway: [
+                            flow.loginSettings?.email ? (flow.loginSettings?.emailGateway ?? 'mailgun') : 'none',
+                        ],
+                        faceLiveness: [!!flow.loginSettings?.faceLiveness],
+                        phone: [!!flow.loginSettings?.phone],
+                        phoneGateway: [flow.loginSettings?.phoneGateway ?? 'none'],
+                        livenessMinScore: [
+                            flow.loginSettings?.livenessMinScore ?? 0.65,
+                            [Validators.min(0.52), Validators.max(0.89)],
+                        ],
+                        searchMinScore: [
+                            flow.loginSettings?.searchMinScore ?? 0.85,
+                            [Validators.min(0.71), Validators.max(0.95)],
+                        ],
+                        searchMode: [flow.loginSettings?.searchMode || 'FAST'],
+                        showFaceLivenessRecommendation: [!!flow.loginSettings?.showFaceLivenessRecommendation],
+                        allowPasskeys: [!!flow.loginSettings?.allowPasskeys],
+                    },
+                    { validators: loginSettingsGroupValidator }
+                ),
                 integrations: this._fb.group({
                     redirectUrl: [
                         flow.integrations?.redirectUrl || '',
@@ -404,6 +469,12 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             ?.valueChanges.pipe(takeUntil(this._unsub$))
             .subscribe((src: string | null) => this._adjustSecurityValidators(src ?? null));
         this._adjustSecurityValidators(sec?.get('source')?.value ?? null);
+
+        const login = this.form.get(LOGIN_SETTINGS_PREFIX) as FormGroup | null;
+        login?.valueChanges.pipe(takeUntil(this._unsub$)).subscribe(() => {
+            login.updateValueAndValidity({ onlySelf: true, emitEvent: false });
+            this._cdr.markForCheck();
+        });
     }
 
     private _adjustSecurityValidators(source: string | null): void {
@@ -423,6 +494,25 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
 
         url?.updateValueAndValidity({ emitEvent: false });
         tester?.updateValueAndValidity({ emitEvent: false });
+    }
+
+    private _markControlTreeState(control: AbstractControl, state: 'dirty' | 'touched'): void {
+        if (state === 'dirty') {
+            control.markAsDirty({ onlySelf: true });
+        } else {
+            control.markAsTouched({ onlySelf: true });
+        }
+        if (control instanceof FormGroup) {
+            Object.values(control.controls).forEach((c) => this._markControlTreeState(c, state));
+            return;
+        }
+        if (control instanceof FormArray) {
+            control.controls.forEach((c) => this._markControlTreeState(c, state));
+        }
+    }
+
+    private _triggerFormValidation(): void {
+        this.form.updateValueAndValidity({ emitEvent: false });
     }
 
     private _buildPayload(): Partial<AccessProjectLike> & { projectFlow?: Record<string, unknown>; projectFlowType: 'login' } {

@@ -1,27 +1,14 @@
-.step-card {
-    @apply rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900;
+.gateway-tile {
+    @apply flex items-center justify-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-2 text-sm font-medium text-stone-700 transition;
+    @apply hover:border-stone-400 hover:bg-stone-50;
+    @apply dark:border-gray-700 dark:bg-gray-900/40 dark:text-stone-200 dark:hover:bg-gray-800/60;
 }
 
-.step-title {
-    @apply text-lg font-semibold text-stone-900 dark:text-white;
+.gateway-tile:disabled {
+    @apply cursor-not-allowed opacity-60;
 }
 
-.step-sub {
-    @apply mt-1 text-sm text-stone-600 dark:text-stone-400;
-}
-
-.toggle-grid {
-    @apply mt-6 flex flex-col gap-4;
-}
-
-.row {
-    @apply flex items-center gap-2;
-}
-
-.full {
-    @apply w-full max-w-xl;
-}
-
-.half {
-    @apply mr-4 inline-block max-w-[12rem];
+.gateway-tile-active {
+    @apply border-indigo-500/80 bg-indigo-50 text-indigo-900;
+    @apply dark:border-indigo-500/70 dark:bg-indigo-950/40 dark:text-indigo-100;
 }

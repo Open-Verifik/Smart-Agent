@@ -10,6 +10,7 @@ export type SmartAccessLoginSettings = {
     searchMode?: string;
     searchMinScore?: number;
     showFaceLivenessRecommendation?: boolean;
+    allowPasskeys?: boolean;
 };
 
 export type SmartAccessSecurity = {

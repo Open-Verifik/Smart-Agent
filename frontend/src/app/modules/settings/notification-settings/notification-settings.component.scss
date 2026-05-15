@@ -1,0 +1,35 @@
+/* Notification settings — Privy-aligned layout. Heavy lifting is done with Tailwind in the template;
+   this file only carries tweaks that Tailwind utilities can't reach. */
+
+.notification-settings {
+    max-width: 56rem;
+
+    mat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mat-mdc-slide-toggle {
+        flex-shrink: 0;
+    }
+}
+
+/* Save button spinner — invert color in light vs dark mode so it stays visible
+   against the stone-950 / white pill. */
+.notification-settings__spinner.mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: #ffffff;
+}
+
+.dark .notification-settings__spinner.mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: rgb(17 24 39);
+}
+
+/* Snackbar accents */
+.notification-settings__snack--success .mdc-snackbar__surface {
+    background-color: rgb(5 150 105);
+}
+
+.notification-settings__snack--error .mdc-snackbar__surface {
+    background-color: rgb(220 38 38);
+}

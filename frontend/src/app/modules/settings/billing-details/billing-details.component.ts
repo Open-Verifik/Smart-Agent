@@ -23,7 +23,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -52,9 +53,12 @@ interface DocumentTypeOption {
         MatInputModule,
         MatAutocompleteModule,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
     templateUrl: './billing-details.component.html',
+    styleUrl: './billing-details.component.scss',
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -67,6 +71,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
     billingData: ClientSettings = null;
     billingLoaded = false;
     isSavingBilling = false;
+
+    /** JSON snapshot of the last successfully loaded/saved state — basis for dirty tracking. */
+    private _initialSnapshot = '';
 
     filteredDocumentTypes: Observable<DocumentTypeOption[]>;
     filteredBusinessCountryCodes: Observable<CountryCodeOption[]>;
@@ -138,6 +145,7 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.loadBillingData();
         this._setupBillingFilters();
+        this._setupDirtyTracking();
     }
 
     ngOnDestroy(): void {
@@ -145,11 +153,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         this._unsubscribeAll.complete();
     }
 
-    // Billing Form Initialization
     private _initBillingForms(): void {
         this.payerForm = this._formBuilder.group({
             type: ['person'],
-            // Business fields
             business_name: [''],
             business_documentType: [''],
             business_documentNumber: [''],
@@ -158,7 +164,6 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
             business_phone: [''],
             business_email: [''],
             business_legalRepresentative: [''],
-            // Person fields
             person_name: [''],
             person_documentType: [''],
             person_documentNumber: [''],
@@ -179,61 +184,26 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
 
     private _initDocumentTypes(): void {
         this.personDocumentTypes = [
-            {
-                value: 'CC',
-                label: 'settings.billing.document_types.CC',
-            },
-            {
-                value: 'CE',
-                label: 'settings.billing.document_types.CE',
-            },
-            {
-                value: 'TI',
-                label: 'settings.billing.document_types.TI',
-            },
-            {
-                value: 'NIT',
-                label: 'settings.billing.document_types.NIT',
-            },
-            {
-                value: 'PPT',
-                label: 'settings.billing.document_types.PPT',
-            },
-            {
-                value: 'DNI',
-                label: 'settings.billing.document_types.DNI',
-            },
-            {
-                value: 'RUC',
-                label: 'settings.billing.document_types.RUC',
-            },
-            {
-                value: 'CURP',
-                label: 'settings.billing.document_types.CURP',
-            },
-            {
-                value: 'RUT',
-                label: 'settings.billing.document_types.RUT',
-            },
+            { value: 'CC', label: 'settings.billing.document_types.CC' },
+            { value: 'CE', label: 'settings.billing.document_types.CE' },
+            { value: 'TI', label: 'settings.billing.document_types.TI' },
+            { value: 'NIT', label: 'settings.billing.document_types.NIT' },
+            { value: 'PPT', label: 'settings.billing.document_types.PPT' },
+            { value: 'DNI', label: 'settings.billing.document_types.DNI' },
+            { value: 'RUC', label: 'settings.billing.document_types.RUC' },
+            { value: 'CURP', label: 'settings.billing.document_types.CURP' },
+            { value: 'RUT', label: 'settings.billing.document_types.RUT' },
         ];
 
         this.businessDocumentTypes = [
             {
-                value: 'NO_TAX',
-                label: 'settings.billing.document_types.NO_TAX',
-            },
-            {
                 value: 'INTERNATIONAL_TAX',
                 label: 'settings.billing.document_types.INTERNATIONAL_TAX',
             },
-            {
-                value: 'NIT',
-                label: 'settings.billing.document_types.NIT',
-            },
+            { value: 'NIT', label: 'settings.billing.document_types.NIT' },
         ];
     }
 
-    // Data Loading
     loadBillingData(): void {
         if (!this.user?._id || this.billingLoaded) return;
 
@@ -249,12 +219,8 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                     if (settings?.invoiceSettings) {
                         const invoice = settings.invoiceSettings;
 
-                        // Set type
-                        this.payerForm.patchValue({
-                            type: invoice.type || 'person',
-                        });
+                        this.payerForm.patchValue({ type: invoice.type || 'person' });
 
-                        // Set business fields if available
                         if (invoice.business) {
                             this.payerForm.patchValue({
                                 business_name: invoice.business.business_name,
@@ -270,7 +236,6 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                             });
                         }
 
-                        // Set person fields if available
                         if (invoice.person) {
                             this.payerForm.patchValue({
                                 person_name: invoice.person.person_name,
@@ -284,7 +249,6 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                             });
                         }
 
-                        // Set address fields
                         if (invoice.address) {
                             this.addressForm.patchValue({
                                 address: invoice.address.address,
@@ -295,10 +259,13 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                             });
                         }
                     }
+
+                    this._captureSnapshot();
                     this._cdr.markForCheck();
                 },
                 error: () => {
                     this.billingLoaded = true;
+                    this._captureSnapshot();
                     this._cdr.markForCheck();
                 },
             });
@@ -310,7 +277,6 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         return found || code;
     }
 
-    // Saving
     saveBillingConfig(): void {
         if (this.payerForm.invalid || this.addressForm.invalid || !this.user?._id) {
             return;
@@ -323,7 +289,6 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         const addressValue = this.addressForm.value;
         const type = payerValue.type;
 
-        // Prepare billing object based on interface
         const billingData: any = {
             client: this.user._id,
             invoiceSettings: {
@@ -339,7 +304,7 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                                   typeof payerValue.business_countryCode === 'object'
                                       ? payerValue.business_countryCode.code
                                       : payerValue.business_countryCode,
-                              business_country: 'Colombia', // Default or from form? Assuming default for now or extracted from code
+                              business_country: 'Colombia',
                               business_phone: payerValue.business_phone,
                               business_email: payerValue.business_email,
                               business_legalRepresentative: payerValue.business_legalRepresentative,
@@ -369,10 +334,14 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (response) => {
                     this.billingData = response.data;
+                    this._captureSnapshot();
                     const message = this._translocoService.translate(
                         'settings.billing.save_success'
                     );
-                    this._snackBar.open(message, null, { duration: 3000 });
+                    this._snackBar.open(message, null, {
+                        duration: 3000,
+                        panelClass: ['billing-details__snack--success'],
+                    });
                     this.isSavingBilling = false;
                     this._cdr.markForCheck();
 
@@ -385,14 +354,32 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                     const message =
                         error?.error?.message ||
                         this._translocoService.translate('settings.billing.save_error');
-                    this._snackBar.open(message, null, { duration: 3000 });
+                    this._snackBar.open(message, null, {
+                        duration: 3000,
+                        panelClass: ['billing-details__snack--error'],
+                    });
                     this.isSavingBilling = false;
                     this._cdr.markForCheck();
                 },
             });
     }
 
-    // Helpers
+    /**
+     * Reverts both forms back to the last persisted snapshot.
+     */
+    discardChanges(): void {
+        if (!this._initialSnapshot) return;
+
+        try {
+            const snap = JSON.parse(this._initialSnapshot);
+            this.payerForm.reset(snap.payer);
+            this.addressForm.reset(snap.address);
+            this._cdr.markForCheck();
+        } catch {
+            // Fallback: nothing to revert to.
+        }
+    }
+
     isABusiness(): boolean {
         return this.payerForm.get('type').value === 'business';
     }
@@ -401,7 +388,34 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         return this.payerForm.get('type').value === 'person';
     }
 
-    // Filters and Display Fns
+    /** True when the current form state differs from the last persisted snapshot. */
+    get isDirty(): boolean {
+        if (!this._initialSnapshot) return false;
+        return this._currentSnapshotString() !== this._initialSnapshot;
+    }
+
+    /** Used to drive the "Complete / Incomplete" status pill. */
+    get isComplete(): boolean {
+        if (!this.billingLoaded) return false;
+        if (this.addressForm.invalid) return false;
+        const value = this.payerForm.value;
+        const type = value.type;
+        if (type === 'business') {
+            return !!(
+                value.business_name &&
+                value.business_documentType &&
+                value.business_documentNumber &&
+                value.business_email
+            );
+        }
+        return !!(
+            value.person_name &&
+            value.person_documentType &&
+            value.person_documentNumber &&
+            value.person_email
+        );
+    }
+
     private _setupBillingFilters(): void {
         this.filteredDocumentTypes = this.payerForm.valueChanges.pipe(
             startWith(''),
@@ -440,6 +454,19 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
             );
     }
 
+    /**
+     * Triggers change detection on every form mutation so the dirty/complete pills
+     * and Save button state stay in sync without explicit subscriptions everywhere.
+     */
+    private _setupDirtyTracking(): void {
+        this.payerForm.valueChanges
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(() => this._cdr.markForCheck());
+        this.addressForm.valueChanges
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(() => this._cdr.markForCheck());
+    }
+
     private _filterCountryCodes(value: string | CountryCodeOption): CountryCodeOption[] {
         if (!value || (typeof value === 'string' && value.trim().length === 0)) {
             return this.billingCountryCodes;
@@ -473,7 +500,6 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         const controlName = type === 'business' ? 'business_countryCode' : 'person_countryCode';
         const control = this.payerForm.get(controlName);
         if (control.value && typeof control.value === 'string') {
-            // If the value is a string (user typed but didn't select), try to find a match or clear
             const match = this.billingCountryCodes.find(
                 (c) =>
                     c.name.toLowerCase() === control.value.toLowerCase() ||
@@ -487,7 +513,19 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    onCountryCodeSelected(event: MatAutocompleteSelectedEvent, type: 'business' | 'person'): void {
-        // Handle selection if extra logic needed
+    onCountryCodeSelected(_event: MatAutocompleteSelectedEvent, _type: 'business' | 'person'): void {
+        // No-op for now; selection state lives in the form control.
+    }
+
+    /** Stable JSON representation of both forms used for dirty-comparison. */
+    private _currentSnapshotString(): string {
+        return JSON.stringify({
+            payer: this.payerForm.getRawValue(),
+            address: this.addressForm.getRawValue(),
+        });
+    }
+
+    private _captureSnapshot(): void {
+        this._initialSnapshot = this._currentSnapshotString();
     }
 }

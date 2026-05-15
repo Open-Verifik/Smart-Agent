@@ -1,0 +1,343 @@
+<ng-container *transloco="let t">
+    <div class="usage-history flex flex-col gap-6">
+        <!-- Hero -->
+        <header class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div class="flex items-start gap-3">
+                <div
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                >
+                    <mat-icon>insights</mat-icon>
+                </div>
+                <div class="min-w-0">
+                    <h1
+                        class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white"
+                    >
+                        {{ t('settings.usageHistory.title') }}
+                    </h1>
+                    <p
+                        class="mt-1.5 max-w-2xl text-sm leading-6 text-stone-500 dark:text-stone-400"
+                    >
+                        {{ t('settings.usageHistory.subtitle') }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+                <mat-button-toggle-group
+                    [value]="view()"
+                    (change)="onViewChange($event.value)"
+                    [disabled]="disableActions"
+                    [attr.aria-label]="t('settings.usageHistory.view_toggle')"
+                    class="usage-history__toggle"
+                >
+                    <mat-button-toggle
+                        value="simplified"
+                        [matTooltip]="t('settings.usageHistory.simplified_view')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">list</mat-icon>
+                        <span class="hidden sm:ml-1 sm:inline-block">{{
+                            t('settings.usageHistory.simplified_view')
+                        }}</span>
+                    </mat-button-toggle>
+                    <mat-button-toggle
+                        value="detailed"
+                        [matTooltip]="t('settings.usageHistory.detailed_view')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">manage_search</mat-icon>
+                        <span class="hidden sm:ml-1 sm:inline-block">{{
+                            t('settings.usageHistory.detailed_view')
+                        }}</span>
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+
+                <button
+                    type="button"
+                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                    (click)="download()"
+                    [disabled]="disableActions"
+                >
+                    <mat-spinner
+                        *ngIf="exporting()"
+                        diameter="16"
+                        class="usage-history__spinner"
+                    ></mat-spinner>
+                    <mat-icon *ngIf="!exporting()" class="!h-4 !w-4 !text-base">download</mat-icon>
+                    <span>{{ t('settings.usageHistory.download') }}</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Filters card -->
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-5"
+        >
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-[2fr_2fr_auto] md:items-end">
+                <!-- Search -->
+                <div class="usage-history__field">
+                    <label class="usage-history__label" for="usage-history-search">
+                        {{ t('settings.usageHistory.search') }}
+                    </label>
+                    <div class="relative">
+                        <mat-icon
+                            class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 !h-4 !w-4 !text-base text-stone-400"
+                            >search</mat-icon
+                        >
+                        <input
+                            id="usage-history-search"
+                            type="search"
+                            class="usage-history__input pl-9 pr-9"
+                            [placeholder]="t(searchByPlaceholderKey)"
+                            [ngModel]="searchInput"
+                            (ngModelChange)="onSearchChange($event)"
+                            [disabled]="disableActions"
+                        />
+                        <button
+                            *ngIf="searchInput"
+                            type="button"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+                            (click)="onSearchChange('')"
+                            [attr.aria-label]="t('settings.usageHistory.clear_search')"
+                        >
+                            <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date range -->
+                <div class="usage-history__field">
+                    <label class="usage-history__label">
+                        {{ t('settings.usageHistory.enter_date_range') }}
+                    </label>
+                    <mat-form-field
+                        appearance="outline"
+                        subscriptSizing="dynamic"
+                        class="usage-history__date-range"
+                    >
+                        <mat-date-range-input [rangePicker]="picker" [disabled]="disableActions">
+                            <input
+                                matStartDate
+                                [formControl]="rangeStart"
+                                (dateChange)="onRangeChange()"
+                                [placeholder]="t('settings.usageHistory.start_date')"
+                            />
+                            <input
+                                matEndDate
+                                [formControl]="rangeEnd"
+                                (dateChange)="onRangeChange()"
+                                [placeholder]="t('settings.usageHistory.end_date')"
+                            />
+                        </mat-date-range-input>
+                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-date-range-picker #picker></mat-date-range-picker>
+                    </mat-form-field>
+                </div>
+
+                <!-- Clear filters -->
+                <button
+                    type="button"
+                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                    (click)="clearFilters()"
+                    [disabled]="!isFiltersDirty || disableActions"
+                    [matTooltip]="t('settings.usageHistory.clear_filters')"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">filter_list_off</mat-icon>
+                    <span class="hidden sm:inline">{{
+                        t('settings.usageHistory.clear_filters')
+                    }}</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Table card -->
+        <section
+            class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+        >
+            <!-- Summary strip -->
+            <div
+                class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/80 px-5 py-4 dark:border-gray-800 md:px-6"
+            >
+                <div
+                    class="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">receipt_long</mat-icon>
+                    <span>{{ t('settings.usageHistory.summary') }}</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <span class="text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('settings.usageHistory.total') }}
+                    </span>
+                    <span
+                        class="text-lg font-semibold tracking-tight text-stone-950 dark:text-white"
+                    >
+                        {{ formatCurrency(filteredTotal) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table
+                    mat-table
+                    [dataSource]="filteredRows"
+                    matSort
+                    (matSortChange)="onSort($event)"
+                    [matSortActive]="sortActive()"
+                    [matSortDirection]="sortDirection()"
+                    class="usage-history__table w-full"
+                >
+                    <!-- Created At -->
+                    <ng-container matColumnDef="createdAt">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            mat-sort-header
+                            class="usage-history__th"
+                        >
+                            {{ t('settings.usageHistory.created_at') }}
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="usage-history__td">
+                            {{ formatDate(element.createdAt) }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Product -->
+                    <ng-container matColumnDef="product">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            mat-sort-header
+                            class="usage-history__th"
+                        >
+                            {{ t('settings.usageHistory.product') }}
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="usage-history__td">
+                            {{ element.product }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Category -->
+                    <ng-container matColumnDef="category">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            mat-sort-header
+                            class="usage-history__th"
+                        >
+                            {{ t('settings.usageHistory.category') }}
+                        </th>
+                        <td mat-cell *matCellDef="let element" class="usage-history__td">
+                            <span
+                                *ngIf="element.category"
+                                class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-800 dark:text-stone-200"
+                            >
+                                {{ element.category }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <!-- Quantity -->
+                    <ng-container matColumnDef="quantity">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            mat-sort-header
+                            class="usage-history__th usage-history__th--right"
+                        >
+                            {{ t('settings.usageHistory.quantity') }}
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="usage-history__td usage-history__td--right font-medium"
+                        >
+                            {{ element.quantity | number }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Cost -->
+                    <ng-container matColumnDef="cost">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            mat-sort-header
+                            class="usage-history__th usage-history__th--right"
+                        >
+                            {{ t('settings.usageHistory.unit_price') }}
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="usage-history__td usage-history__td--right tabular-nums"
+                        >
+                            {{ formatCurrency(element.cost) }}
+                        </td>
+                    </ng-container>
+
+                    <!-- Total -->
+                    <ng-container matColumnDef="total">
+                        <th
+                            mat-header-cell
+                            *matHeaderCellDef
+                            mat-sort-header
+                            class="usage-history__th usage-history__th--right"
+                        >
+                            {{ t('settings.usageHistory.total') }}
+                        </th>
+                        <td
+                            mat-cell
+                            *matCellDef="let element"
+                            class="usage-history__td usage-history__td--right tabular-nums font-semibold text-stone-950 dark:text-white"
+                        >
+                            {{ formatCurrency(element.total) }}
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                    <tr
+                        mat-row
+                        *matRowDef="let row; columns: displayedColumns"
+                        class="usage-history__row"
+                    ></tr>
+
+                    <!-- No Data Row -->
+                    <tr class="mat-row" *matNoDataRow>
+                        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+                            <div
+                                *ngIf="!loading()"
+                                class="flex flex-col items-center justify-center gap-3 px-5 py-14 text-center"
+                            >
+                                <div
+                                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300"
+                                >
+                                    <mat-icon>search_off</mat-icon>
+                                </div>
+                                <p class="text-sm font-medium text-stone-950 dark:text-white">
+                                    {{ t('settings.usageHistory.no_records') }}
+                                </p>
+                                <p class="max-w-sm text-xs text-stone-500 dark:text-stone-400">
+                                    {{ t('settings.usageHistory.no_records_hint') }}
+                                </p>
+                            </div>
+                            <div
+                                *ngIf="loading()"
+                                class="flex items-center justify-center px-5 py-14"
+                            >
+                                <mat-spinner diameter="32"></mat-spinner>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <mat-paginator
+                *ngIf="view() === 'detailed'"
+                [length]="total()"
+                [pageIndex]="pageIndex"
+                [pageSize]="pageSize"
+                [pageSizeOptions]="pageSizeOptions"
+                [disabled]="disableActions"
+                (page)="onPage($event)"
+                class="border-t border-stone-200/80 dark:border-gray-800"
+            ></mat-paginator>
+        </section>
+    </div>
+</ng-container>

@@ -95,12 +95,22 @@
                     (userChange)="onUserChanged($event)"
                 ></app-profile-settings>
 
+                <app-notification-settings
+                    *ngIf="selectedPanel === 'notifications'"
+                    [user]="user"
+                ></app-notification-settings>
+
                 <app-billing-details
                     *ngIf="selectedPanel === 'billing_details'"
                     [user]="user"
                 ></app-billing-details>
 
                 <app-payment-history *ngIf="selectedPanel === 'payment_history'"></app-payment-history>
+
+                <app-usage-history
+                    *ngIf="selectedPanel === 'usage_history'"
+                    [user]="user"
+                ></app-usage-history>
 
                 <app-workspace-settings
                     *ngIf="selectedPanel === 'general'"

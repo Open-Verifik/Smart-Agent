@@ -109,6 +109,21 @@ export interface StaffResponse {
     data: StaffMember;
 }
 
+export interface NotificationSettings {
+    _id?: string;
+    active?: boolean;
+    paymentUpdates?: boolean;
+    lowBalance?: boolean;
+    newEndpoints?: boolean;
+    creditsExpiring?: boolean;
+    webhookErrors?: boolean;
+    client?: string;
+}
+
+export interface NotificationSettingsResponse {
+    data: NotificationSettings | null;
+}
+
 /**
  * Settings Service
  * Handles API key management operations including token renewal and revocation
@@ -648,6 +663,71 @@ export class SettingsService {
         return this._httpWrapper.sendRequest('get', url, params).pipe(
             catchError((error) => {
                 console.error('[SettingsService] Get SmartEnroll plan failed:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
+     * Dashboard email notification preferences for the current client.
+     *
+     * API: GET /v2/notification-settings?where_client={clientId}&findOne=1
+     */
+    getNotificationSettings(clientId: string): Observable<NotificationSettingsResponse> {
+        if (!this.accessToken) {
+            return throwError(() => new Error('No access token available'));
+        }
+
+        const url = `${this.apiUrl}/v2/notification-settings`;
+        const params = {
+            where_client: clientId,
+            findOne: '1',
+        };
+
+        return this._httpWrapper.sendRequest('get', url, params).pipe(
+            catchError((error) => {
+                console.error('[SettingsService] Get notification settings failed:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
+     * API: POST /v2/notification-settings
+     */
+    createNotificationSettings(
+        payload: Partial<NotificationSettings>
+    ): Observable<NotificationSettingsResponse> {
+        if (!this.accessToken) {
+            return throwError(() => new Error('No access token available'));
+        }
+
+        const url = `${this.apiUrl}/v2/notification-settings`;
+
+        return this._httpWrapper.sendRequest('post', url, payload).pipe(
+            catchError((error) => {
+                console.error('[SettingsService] Create notification settings failed:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
+    /**
+     * API: PUT /v2/notification-settings/{id}
+     */
+    updateNotificationSettings(
+        id: string,
+        payload: Partial<NotificationSettings>
+    ): Observable<NotificationSettingsResponse> {
+        if (!this.accessToken) {
+            return throwError(() => new Error('No access token available'));
+        }
+
+        const url = `${this.apiUrl}/v2/notification-settings/${id}`;
+
+        return this._httpWrapper.sendRequest('put', url, payload).pipe(
+            catchError((error) => {
+                console.error('[SettingsService] Update notification settings failed:', error);
                 return throwError(() => error);
             })
         );

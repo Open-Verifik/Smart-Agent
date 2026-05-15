@@ -68,43 +68,72 @@
         </header>
 
         <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
-            <div class="mx-auto w-full max-w-5xl space-y-6">
+            <div class="mx-auto w-full max-w-7xl">
                 @if (loading()) {
                     <div class="flex justify-center py-16">
                         <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
                     </div>
                 } @else if (form) {
-                    @switch (stepIndex) {
-                        @case (0) {
-                            <setup-basic-setup [form]="form" [loading]="loading()" [saving]="saving()"></setup-basic-setup>
-                        }
-                        @case (1) {
-                            <access-login-methods-step [form]="form" [loading]="loading()" [saving]="saving()"></access-login-methods-step>
-                        }
-                        @case (2) {
-                            <access-whitelist-step
-                                [form]="form"
-                                [projectId]="projectId"
-                                [projectFlowId]="loginFlowShellId"
-                                [loading]="loading()"
-                                [saving]="saving()"
-                            ></access-whitelist-step>
-                        }
-                        @case (3) {
-                            <setup-user-interface [form]="form" [loading]="loading()" [saving]="saving()"></setup-user-interface>
-                        }
-                    }
+                    <div class="grid grid-cols-1 gap-6" [class.xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)]]="showPreviewForStep()">
+                        <div class="flex flex-col gap-6">
+                            @switch (stepIndex) {
+                                @case (0) {
+                                    @if (devQuickFillEnabled && projectId === 'new') {
+                                        <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-amber-200/80 bg-amber-50/90 px-4 py-3 text-sm dark:border-amber-900/50 dark:bg-amber-950/40">
+                                            <span class="text-amber-900 dark:text-amber-100/95">
+                                                {{ t('smartAccessProjects.setup.dev_quick_fill_hint') }}
+                                            </span>
+                                            <button
+                                                mat-stroked-button
+                                                type="button"
+                                                class="shrink-0 rounded-xl border-amber-400/70 text-amber-950 dark:border-amber-700 dark:text-amber-50"
+                                                [disabled]="!canNavigate"
+                                                (click)="fillDevSampleWizard()"
+                                            >
+                                                {{ t('smartAccessProjects.setup.dev_quick_fill') }}
+                                            </button>
+                                        </div>
+                                    }
+                                    <setup-basic-setup [form]="form" [loading]="loading()" [saving]="saving()"></setup-basic-setup>
+                                }
+                                @case (1) {
+                                    <access-login-methods-step [form]="form" [loading]="loading()" [saving]="saving()"></access-login-methods-step>
+                                }
+                                @case (2) {
+                                    <access-whitelist-step
+                                        [form]="form"
+                                        [projectId]="projectId"
+                                        [projectFlowId]="loginFlowShellId"
+                                        [loading]="loading()"
+                                        [saving]="saving()"
+                                    ></access-whitelist-step>
+                                }
+                                @case (3) {
+                                    <setup-user-interface [form]="form" [loading]="loading()" [saving]="saving()"></setup-user-interface>
+                                }
+                            }
 
-                    <div class="flex flex-wrap justify-center gap-3 pt-2">
-                        <button mat-button type="button" (click)="previousStep()" [disabled]="loading()">{{ t('smartAccessProjects.setup.back') }}</button>
-                        @if (stepIndex < stepsLength - 1) {
-                            <button mat-flat-button color="primary" type="button" (click)="nextStep()" [disabled]="loading()">
-                                {{ t('smartAccessProjects.setup.continue') }}
-                            </button>
-                        } @else {
-                            <button mat-flat-button color="primary" type="button" (click)="nextStep()" [disabled]="loading()">
-                                {{ t('smartAccessProjects.setup.finish') }}
-                            </button>
+                            <div class="flex flex-wrap justify-center gap-3 pt-2">
+                                <button mat-button type="button" (click)="previousStep()" [disabled]="loading()">{{ t('smartAccessProjects.setup.back') }}</button>
+                                @if (stepIndex < stepsLength - 1) {
+                                    <button mat-flat-button color="primary" type="button" (click)="nextStep()" [disabled]="loading()">
+                                        {{ t('smartAccessProjects.setup.continue') }}
+                                    </button>
+                                } @else {
+                                    <button mat-flat-button color="primary" type="button" (click)="nextStep()" [disabled]="loading()">
+                                        {{ t('smartAccessProjects.setup.finish') }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        @if (showPreviewForStep()) {
+                            <aside class="xl:sticky xl:top-6 xl:self-start xl:max-h-[calc(100vh-3rem)]">
+                                <access-sign-in-preview
+                                    [branding]="brandingValue()"
+                                    [form]="form"
+                                ></access-sign-in-preview>
+                            </aside>
                         }
                     </div>
                 }

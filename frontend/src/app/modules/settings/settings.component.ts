@@ -22,6 +22,8 @@ import { BillingDetailsComponent } from './billing-details/billing-details.compo
 import { PaymentHistoryComponent } from './payment-history/payment-history.component';
 import { ProfileSettingsComponent } from './profile-settings/profile-settings.component';
 import { StaffListComponent } from './staff-list';
+import { NotificationSettingsComponent } from './notification-settings/notification-settings.component';
+import { UsageHistoryComponent } from './usage-history/usage-history.component';
 import { WorkspaceSettingsComponent } from './workspace-settings/workspace-settings.component';
 
 interface SettingsPanel {
@@ -58,6 +60,8 @@ interface SettingsSection {
         ApiKeySettingsComponent,
         ProfileSettingsComponent,
         WorkspaceSettingsComponent,
+        NotificationSettingsComponent,
+        UsageHistoryComponent,
     ],
     templateUrl: './settings.component.html',
     styleUrl: './settings.component.scss',
@@ -91,6 +95,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     description: 'settings.panels.security_desc',
                     badge: 'settings.coming_soon',
                     disabled: true,
+                },
+                {
+                    id: 'notifications',
+                    icon: 'heroicons_outline:bell',
+                    title: 'settings.panels.notifications',
+                    description: 'settings.panels.notifications_desc',
                 },
             ],
         },
@@ -128,6 +138,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
                     title: 'settings.panels.payment_history',
                     description: 'settings.panels.payment_history_desc',
                 },
+                {
+                    id: 'usage_history',
+                    icon: 'heroicons_outline:chart-bar',
+                    title: 'settings.panels.usage_history',
+                    description: 'settings.panels.usage_history_desc',
+                },
             ],
         },
         {
@@ -147,20 +163,24 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private _panelToSlug: { [key: string]: string } = {
         profile: 'profile',
         security: 'security',
+        notifications: 'notifications',
         general: 'general',
         team: 'team',
         billing_details: 'billing-details',
         payment_history: 'payment-history',
+        usage_history: 'usage-history',
         api_key: 'api-key',
     };
 
     private _slugToPanel: { [key: string]: string } = {
         profile: 'profile',
         security: 'security',
+        notifications: 'notifications',
         general: 'general',
         team: 'team',
         'billing-details': 'billing_details',
         'payment-history': 'payment_history',
+        'usage-history': 'usage_history',
         'api-key': 'api_key',
     };
 

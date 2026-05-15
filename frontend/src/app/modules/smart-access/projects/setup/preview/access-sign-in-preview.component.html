@@ -1,0 +1,335 @@
+<ng-container *transloco="let t">
+    <!-- Shared toolbar + canvas (inline card vs modal panel) -->
+    <ng-template #previewShell>
+        <!-- Header toolbar -->
+        <div class="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 p-4 md:p-5">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-stone-100 text-stone-700 dark:bg-gray-800 dark:text-stone-200">
+                    <mat-icon class="!h-5 !w-5">visibility</mat-icon>
+                </div>
+                <div class="flex flex-col">
+                    <p id="access-preview-title" class="m-0 text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ t('smartAccessProjects.preview.title') }}
+                    </p>
+                    <p class="m-0 text-xs text-stone-500 dark:text-stone-400">
+                        {{ t('smartAccessProjects.preview.subtitle') }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'desktop'"
+                    [class.text-stone-900]="deviceType === 'desktop'"
+                    [class.dark:bg-gray-800]="deviceType === 'desktop'"
+                    [class.dark:text-white]="deviceType === 'desktop'"
+                    [class.text-stone-500]="deviceType !== 'desktop'"
+                    (click)="setDeviceType('desktop')"
+                >
+                    {{ t('smartAccessProjects.preview.desktop') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'tablet'"
+                    [class.text-stone-900]="deviceType === 'tablet'"
+                    [class.dark:bg-gray-800]="deviceType === 'tablet'"
+                    [class.dark:text-white]="deviceType === 'tablet'"
+                    [class.text-stone-500]="deviceType !== 'tablet'"
+                    (click)="setDeviceType('tablet')"
+                >
+                    {{ t('smartAccessProjects.preview.tablet') }}
+                </button>
+                <button
+                    type="button"
+                    class="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
+                    [class.bg-stone-100]="deviceType === 'mobile'"
+                    [class.text-stone-900]="deviceType === 'mobile'"
+                    [class.dark:bg-gray-800]="deviceType === 'mobile'"
+                    [class.dark:text-white]="deviceType === 'mobile'"
+                    [class.text-stone-500]="deviceType !== 'mobile'"
+                    (click)="setDeviceType('mobile')"
+                >
+                    {{ t('smartAccessProjects.preview.mobile') }}
+                </button>
+                <button
+                    type="button"
+                    class="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 transition-colors hover:bg-stone-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+                    (click)="toggleFullscreen()"
+                    [attr.aria-label]="t('smartAccessProjects.preview.fullscreen')"
+                >
+                    <mat-icon class="!h-4 !w-4 text-stone-700 dark:text-stone-200">
+                        {{ isFullscreen ? 'close' : 'open_in_full' }}
+                    </mat-icon>
+                </button>
+            </div>
+        </div>
+
+        <!-- Preview canvas -->
+        <div
+            class="relative flex min-h-0 flex-1 flex-col items-stretch overflow-auto border-t border-stone-200 dark:border-gray-700"
+            [style.background-color]="effectiveBranding.backgroundColor"
+        >
+            @if (deviceType === 'desktop') {
+                <!-- Desktop: two-column layout (form left, banner right) -->
+                <div class="flex min-h-0 flex-1 flex-row overflow-auto">
+                    <!-- Left: sign-in form -->
+                    <div class="flex flex-1 flex-col items-center justify-center px-6 py-10">
+                        <ng-container *ngTemplateOutlet="formTpl"></ng-container>
+                    </div>
+                    <!-- Right: banner panel -->
+                    <div
+                        class="flex flex-1 items-center justify-center overflow-hidden"
+                        [style.background-color]="effectiveBranding.imageBackgroundColor || '#e2e8f0'"
+                    >
+                        @if (effectiveBranding.image) {
+                            <img [src]="effectiveBranding.image" class="h-full w-full object-cover" alt="" />
+                        } @else {
+                            <div class="flex flex-col items-center gap-3 opacity-30">
+                                <mat-icon class="!h-16 !w-16">image</mat-icon>
+                                <span class="text-sm">Banner image</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            } @else {
+                <!-- Tablet / Mobile: centered single column -->
+                <div [class]="'flex min-h-0 flex-1 flex-col items-center justify-center px-6 py-10 ' + contentDeviceClasses()">
+                    <ng-container *ngTemplateOutlet="formTpl"></ng-container>
+                </div>
+            }
+
+            <!-- Shared form template -->
+            <ng-template #formTpl>
+                <div class="mx-auto w-full max-w-md space-y-6">
+                    <!-- Logo -->
+                    <div class="mb-2 flex justify-center">
+                        @if (effectiveBranding.logo) {
+                            <img class="h-12 w-12 object-contain" [src]="effectiveBranding.logo" alt="Logo" />
+                        } @else {
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-400">
+                                <span class="text-xs font-semibold">LOGO</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Title -->
+                    <div class="mb-3 space-y-0 text-center">
+                        <div
+                            class="text-4xl font-semibold leading-tight"
+                            [style.color]="effectiveBranding.titleColor || '#0f172a'"
+                        >
+                            {{ t('smartAccessProjects.signIn.title_1') }}<br />
+                            {{ t('smartAccessProjects.signIn.title_2') }}
+                        </div>
+                    </div>
+
+                    <!-- Don't have an account? -->
+                    <div class="mb-6 flex items-center justify-center gap-1 text-sm">
+                        <span [style.color]="effectiveBranding.textColor || '#64748b'">
+                            {{ t('smartAccessProjects.signIn.no_account') }}
+                        </span>
+                        <span
+                            class="cursor-default font-medium underline"
+                            [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                        >
+                            {{ t('smartAccessProjects.signIn.register_here') }}
+                        </span>
+                    </div>
+
+                    @if (!hasAnyMethod) {
+                        <!-- Empty state -->
+                        <div class="w-full rounded-2xl border border-dashed border-stone-300 bg-stone-50 px-4 py-6 text-center">
+                            <div class="text-sm font-medium text-stone-500">
+                                {{ t('smartAccessProjects.signIn.no_methods') }}
+                            </div>
+                        </div>
+                    } @else {
+                        <!-- Tab switcher (email + phone both on) -->
+                        @if (emailEnabled && phoneEnabled) {
+                            <div class="mb-2 flex gap-2 rounded-xl bg-gray-100 p-1">
+                                <div
+                                    class="flex-1 cursor-default rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200"
+                                    [style.color]="activeTab === 'email' ? (effectiveBranding.buttonColor || '#6366f1') : '#64748b'"
+                                    [style.background-color]="activeTab === 'email' ? '#ffffff' : 'transparent'"
+                                    [style.box-shadow]="activeTab === 'email' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'"
+                                >
+                                    {{ t('smartAccessProjects.signIn.email_label') }}
+                                </div>
+                                <div
+                                    class="flex-1 cursor-default rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-all duration-200"
+                                    [style.color]="activeTab === 'phone' ? (effectiveBranding.buttonColor || '#6366f1') : '#64748b'"
+                                    [style.background-color]="activeTab === 'phone' ? '#ffffff' : 'transparent'"
+                                    [style.box-shadow]="activeTab === 'phone' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'"
+                                >
+                                    {{ t('smartAccessProjects.signIn.phone_label') }}
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Input + buttons for email/phone -->
+                        @if (emailEnabled || phoneEnabled) {
+                            <div class="space-y-4">
+                                <!-- Email input -->
+                                @if (activeTab === 'email' && emailEnabled) {
+                                    <div class="relative">
+                                        <label class="mb-1 block text-sm font-medium text-slate-500">
+                                            {{ t('smartAccessProjects.signIn.email_label') }}<span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="flex h-14 w-full items-center rounded-lg border-2 border-slate-300 bg-white px-4 text-sm text-slate-400">
+                                            {{ 'example@email.com' }}
+                                        </div>
+                                    </div>
+
+                                    <!-- Send email button -->
+                                    <button
+                                        type="button"
+                                        class="h-12 w-full rounded-xl text-base font-medium shadow-sm transition-all duration-200"
+                                        [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                        [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                    >
+                                        {{ t('smartAccessProjects.signIn.send_email') }}
+                                    </button>
+                                }
+
+                                <!-- Phone input -->
+                                @if (activeTab === 'phone' && phoneEnabled) {
+                                    <div class="relative">
+                                        <label class="mb-1 block text-sm font-medium text-slate-500">
+                                            {{ t('smartAccessProjects.signIn.phone_label') }}<span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="flex gap-2">
+                                            <div
+                                                class="flex h-14 w-24 shrink-0 items-center justify-between rounded-lg border-2 border-slate-300 bg-white px-3 text-sm text-slate-600"
+                                            >
+                                                <span>+57</span>
+                                                <svg class="h-3 w-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                                </svg>
+                                            </div>
+                                            <div class="flex h-14 flex-1 items-center rounded-lg border-2 border-slate-300 bg-white px-4 text-sm text-slate-400">
+                                                {{ t('smartAccessProjects.signIn.phone_label') }}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Phone action buttons -->
+                                    @if (phoneChannelLabel === 'both') {
+                                        <div class="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                class="h-12 rounded-xl text-base font-medium shadow-sm"
+                                                [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                                [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                            >
+                                                {{ t('smartAccessProjects.signIn.sms') }}
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="h-12 rounded-xl text-base font-medium shadow-sm"
+                                                [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                                [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                            >
+                                                {{ t('smartAccessProjects.signIn.whatsapp') }}
+                                            </button>
+                                        </div>
+                                    } @else {
+                                        <button
+                                            type="button"
+                                            class="h-12 w-full rounded-xl text-base font-medium shadow-sm"
+                                            [style.background-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                            [style.color]="effectiveBranding.buttonTextColor || '#ffffff'"
+                                        >
+                                            @if (phoneChannelLabel === 'whatsapp') {
+                                                {{ t('smartAccessProjects.signIn.whatsapp') }}
+                                            } @else {
+                                                {{ t('smartAccessProjects.signIn.sms') }}
+                                            }
+                                        </button>
+                                    }
+                                }
+                            </div>
+                        }
+
+                        <!-- Divider + secondary methods -->
+                        @if ((faceLivenessEnabled || passkeysEnabled) && (emailEnabled || phoneEnabled)) {
+                            <div class="my-2 flex items-center gap-4">
+                                <div class="flex-1 border-t border-gray-200"></div>
+                                <span class="px-2 text-sm font-medium text-slate-400">
+                                    {{ t('smartAccessProjects.signIn.or_continue') }}
+                                </span>
+                                <div class="flex-1 border-t border-gray-200"></div>
+                            </div>
+                        }
+
+                        <!-- Face verification button -->
+                        @if (faceLivenessEnabled) {
+                            <button
+                                type="button"
+                                class="h-12 w-full rounded-xl border-2 bg-transparent text-base font-medium"
+                                [style.border-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                            >
+                                {{ t('smartAccessProjects.signIn.use_biometrics') }}
+                            </button>
+                        }
+
+                        <!-- Passkey button -->
+                        @if (passkeysEnabled) {
+                            <button
+                                type="button"
+                                class="h-12 w-full rounded-xl border-2 bg-transparent text-base font-medium"
+                                [style.border-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                            >
+                                {{ t('smartAccessProjects.signIn.use_passkey') }}
+                            </button>
+                        }
+
+                        <!-- Only face / passkey (no email or phone) -->
+                        @if (!emailEnabled && !phoneEnabled && faceLivenessEnabled) {
+                            <button
+                                type="button"
+                                class="h-12 w-full rounded-xl border-2 bg-transparent text-base font-medium"
+                                [style.border-color]="effectiveBranding.buttonColor || '#6366f1'"
+                                [style.color]="effectiveBranding.buttonColor || '#6366f1'"
+                            >
+                                {{ t('smartAccessProjects.signIn.use_biometrics') }}
+                            </button>
+                        }
+                    }
+                </div>
+            </ng-template>
+        </div>
+    </ng-template>
+
+    @if (isFullscreen) {
+        <!-- Modal: backdrop + centered panel (max 90% viewport) -->
+        <div
+            class="fixed inset-0 z-[100000] flex items-center justify-center p-4 md:p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="access-preview-title"
+            (click)="toggleFullscreen()"
+        >
+            <div
+                class="pointer-events-none absolute inset-0 bg-slate-950/55 backdrop-blur-[2px] dark:bg-black/70"
+                aria-hidden="true"
+            ></div>
+            <div
+                class="relative z-10 flex max-h-[90vh] max-w-[90vw] w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+                (click)="$event.stopPropagation()"
+            >
+                <ng-container *ngTemplateOutlet="previewShell"></ng-container>
+            </div>
+        </div>
+    } @else {
+        <div
+            class="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+        >
+            <ng-container *ngTemplateOutlet="previewShell"></ng-container>
+        </div>
+    }
+</ng-container>
