@@ -29,6 +29,7 @@ import { DateTime } from 'luxon';
 import { Subject } from 'rxjs';
 import * as XLSX from 'xlsx';
 import {
+    AppFeatureUsageMeta,
     CreditUsageItem,
     GroupedUsageResponse,
     UsageHistoryService,
@@ -37,7 +38,17 @@ import {
 
 type ViewMode = 'simplified' | 'detailed';
 
+/** Preset date windows for Usage history filters (Luxon `'week'` follows active locale). */
+type UsageQuickRangeId =
+    | 'today'
+    | 'yesterday'
+    | 'this_week'
+    | 'last_week'
+    | 'this_month'
+    | 'last_month';
+
 interface SimplifiedRow {
+    code: string;
     product: string;
     quantity: number;
     cost: number;
@@ -45,6 +56,7 @@ interface SimplifiedRow {
 }
 
 interface DetailedRow {
+    code: string;
     createdAt: string;
     product: string;
     category: string;
@@ -118,6 +130,22 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     /** Sum across all services for the active filter window (returned with page 1, detailed only). */
     allServicesCost = signal(0);
 
+    /** AppFeature metadata keyed by credit `code` (from GET /v2/credits when `where_category=usage`). */
+    appFeatures = signal<Record<string, AppFeatureUsageMeta>>({});
+
+    /** Selected quick date preset, if current range matches a preset exactly. */
+    activeQuickRangeId = signal<UsageQuickRangeId | null>(null);
+
+    /** Presets shown as chip-style buttons (order preserved). */
+    readonly quickRangeIds: UsageQuickRangeId[] = [
+        'today',
+        'yesterday',
+        'this_week',
+        'last_week',
+        'this_month',
+        'last_month',
+    ];
+
     get displayedColumns(): string[] {
         return this.view() === 'simplified'
             ? ['product', 'quantity', 'cost', 'total']
@@ -161,6 +189,7 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this._setDefaultDateRange();
+        this._syncQuickRangeSelectionFromRange();
         this._fetch();
     }
 
@@ -179,13 +208,32 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         this.sortDirection.set('desc');
         this.simplifiedRows.set([]);
         this.detailedRows.set([]);
+        this.allServicesCost.set(0);
+        this.appFeatures.set({});
         this._fetch();
+    }
+
+    onQuickRangeSelect(id: UsageQuickRangeId): void {
+        if (this.disableActions) return;
+        const { start, end } = this._boundsForQuickRange(id);
+        this.rangeStart.setValue(start);
+        this.rangeEnd.setValue(end);
+        this.activeQuickRangeId.set(id);
+        this.pageIndex = 0;
+        this._fetch();
+        this._cdr.markForCheck();
+    }
+
+    isQuickRangeActive(id: UsageQuickRangeId): boolean {
+        return this.activeQuickRangeId() === id;
     }
 
     onRangeChange(): void {
         if (!this.rangeStart.value || !this.rangeEnd.value) return;
+        this._syncQuickRangeSelectionFromRange();
         this.pageIndex = 0;
         this._fetch();
+        this._cdr.markForCheck();
     }
 
     onSearchChange(value: string): void {
@@ -219,8 +267,10 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     clearFilters(): void {
         this.searchInput = '';
         this._setDefaultDateRange();
+        this.activeQuickRangeId.set(null);
         this.pageIndex = 0;
         this._fetch();
+        this._cdr.markForCheck();
     }
 
     async download(): Promise<void> {
@@ -236,9 +286,12 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
             let formatted: Record<string, string | number>[] = [];
 
             if (this.view() === 'simplified') {
+                const endpointKey = this._t('settings.usageHistory.endpoint');
                 const rows = this._filteredSimplifiedSorted();
+                const meta = this.appFeatures();
                 formatted = rows.map((r) => ({
                     [this._t('settings.usageHistory.product')]: r.product,
+                    [endpointKey]: this._endpointPathFromMeta(r.code, meta) ?? '',
                     [this._t('settings.usageHistory.quantity')]: r.quantity,
                     [this._t('settings.usageHistory.unit_price')]: this._fmtCurrency(r.cost),
                     [this._t('settings.usageHistory.total')]: this._fmtCurrency(r.total),
@@ -247,18 +300,27 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
                     [this._t('settings.usageHistory.product')]: this._t(
                         'settings.usageHistory.allRecords'
                     ),
+                    [endpointKey]: '',
                     [this._t('settings.usageHistory.quantity')]: this.filteredTotalQuantity,
                     [this._t('settings.usageHistory.unit_price')]: '',
                     [this._t('settings.usageHistory.total')]: this._fmtCurrency(this.filteredTotal),
                 });
             } else {
-                const exportData = await this._fetchDetailedForExport(start, end);
-                formatted = exportData.map((row) => ({
+                const endpointKey = this._t('settings.usageHistory.endpoint');
+                const { items, appFeatures: exportMeta } = await this._fetchDetailedForExport(
+                    start,
+                    end
+                );
+                formatted = items.map((row) => ({
                     [this._t('settings.usageHistory.created_at')]: row.createdAt
                         ? DateTime.fromISO(row.createdAt).toFormat('h:mma MMM dd, yyyy')
                         : '',
                     [this._t('settings.usageHistory.category')]: this._translateGroup(row.group),
-                    [this._t('settings.usageHistory.product')]: this._translateProduct(row.code),
+                    [this._t('settings.usageHistory.product')]: this._labelFromAppFeatureMeta(
+                        row.code,
+                        exportMeta
+                    ),
+                    [endpointKey]: this._endpointPathFromMeta(row.code, exportMeta) ?? '',
                     [this._t('settings.usageHistory.unit_price')]: this._fmtCurrency(
                         Math.abs(row.amount || 0)
                     ),
@@ -269,6 +331,7 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
                     ),
                     [this._t('settings.usageHistory.category')]: '',
                     [this._t('settings.usageHistory.product')]: '',
+                    [endpointKey]: '',
                     [this._t('settings.usageHistory.unit_price')]: this._fmtCurrency(
                         this.filteredTotal
                     ),
@@ -292,7 +355,7 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
      * never display blank cells.
      */
     translateProductCode(code?: string): string {
-        return this._translateProduct(code);
+        return this._labelFromAppFeatureMeta(code, this.appFeatures());
     }
 
     /**
@@ -305,6 +368,13 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     formatDate(value?: string): string {
         if (!value) return '';
         return DateTime.fromISO(value).toFormat('LLL dd, yyyy h:mma');
+    }
+
+    /**
+     * API path for Product column (e.g. `/v2/...`), no host — from AppFeature.url.
+     */
+    featureEndpointPath(code?: string): string | null {
+        return this._endpointPathFromMeta(code, this.appFeatures());
     }
 
     private _fetch(): void {
@@ -327,13 +397,16 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
             };
             this._service.listGrouped(params).subscribe({
                 next: (res) => {
-                    const rows = this._buildSimplifiedRows(res?.data ?? {});
+                    const meta = res?.appFeatures ?? {};
+                    this.appFeatures.set(meta);
+                    const rows = this._buildSimplifiedRows(res?.data ?? {}, meta);
                     this.simplifiedRows.set(rows);
                     this.loading.set(false);
                     this._cdr.markForCheck();
                 },
                 error: () => {
                     this.simplifiedRows.set([]);
+                    this.appFeatures.set({});
                     this.loading.set(false);
                     this._cdr.markForCheck();
                 },
@@ -357,11 +430,14 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
 
         this._service.listDetailed(params).subscribe({
             next: (res) => {
+                const meta = res?.appFeatures ?? {};
+                this.appFeatures.set(meta);
                 const items = res?.data ?? [];
                 this.detailedRows.set(
                     items.map((it) => ({
+                        code: it.code ?? '',
                         createdAt: it.createdAt ?? '',
-                        product: this._translateProduct(it.code),
+                        product: this._labelFromAppFeatureMeta(it.code, meta),
                         category: this._translateGroup(it.group),
                         cost: (it.amount || 0) * -1,
                     }))
@@ -376,6 +452,8 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
             error: () => {
                 this.detailedRows.set([]);
                 this.total.set(0);
+                this.allServicesCost.set(0);
+                this.appFeatures.set({});
                 this.loading.set(false);
                 this._cdr.markForCheck();
             },
@@ -385,7 +463,10 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     private async _fetchDetailedForExport(
         start: DateTime,
         end: DateTime
-    ): Promise<CreditUsageItem[]> {
+    ): Promise<{
+        items: CreditUsageItem[];
+        appFeatures: Record<string, AppFeatureUsageMeta>;
+    }> {
         const params: UsageListParams = {
             where_category: 'usage',
             where_status: 'approved',
@@ -397,27 +478,37 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         };
         if (this.searchInput) params.likeCode = this.searchInput.toLowerCase();
         try {
-            const res = await new Promise<{ data?: CreditUsageItem[] }>((resolve, reject) => {
+            const res = await new Promise<{
+                data?: CreditUsageItem[];
+                appFeatures?: Record<string, AppFeatureUsageMeta>;
+            }>((resolve, reject) => {
                 this._service.listDetailed(params).subscribe({
                     next: (r) => resolve(r),
                     error: (err) => reject(err),
                 });
             });
-            return res?.data ?? [];
+            return {
+                items: res?.data ?? [],
+                appFeatures: res?.appFeatures ?? {},
+            };
         } catch {
-            return [];
+            return { items: [], appFeatures: {} };
         }
     }
 
     /** Builds simplified rows from grouped buckets, skipping the legacy `allRecords` aggregate. */
-    private _buildSimplifiedRows(data: GroupedUsageResponse): SimplifiedRow[] {
+    private _buildSimplifiedRows(
+        data: GroupedUsageResponse,
+        meta: Record<string, AppFeatureUsageMeta>
+    ): SimplifiedRow[] {
         const rows: SimplifiedRow[] = [];
         for (const key of Object.keys(data || {})) {
             const productKey = key.split(':')[0];
             if (productKey === 'allRecords') continue;
             const bucket = data[key];
             rows.push({
-                product: this._translateProduct(productKey),
+                code: productKey,
+                product: this._labelFromAppFeatureMeta(productKey, meta),
                 quantity: bucket.indexes?.length ?? 0,
                 cost: Math.abs(bucket.amount || 0),
                 total: Math.abs(bucket.total || 0),
@@ -430,7 +521,15 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     private _filteredSimplifiedSorted(): SimplifiedRow[] {
         const term = this.searchInput.toLowerCase().trim();
         let rows = this.simplifiedRows();
-        if (term) rows = rows.filter((r) => r.product.toLowerCase().includes(term));
+        const meta = this.appFeatures();
+        if (term) {
+            rows = rows.filter((r) => {
+                const name = r.product.toLowerCase();
+                const code = (r.code || '').toLowerCase();
+                const ep = (this._endpointPathFromMeta(r.code, meta) || '').toLowerCase();
+                return name.includes(term) || code.includes(term) || ep.includes(term);
+            });
+        }
 
         const active = this.sortActive();
         const dir = this.sortDirection();
@@ -459,6 +558,61 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Calendar bounds for a quick-range chip. Uses local zone; `'week'` follows Luxon/locale rules.
+     */
+    private _boundsForQuickRange(id: UsageQuickRangeId): { start: DateTime; end: DateTime } {
+        const now = DateTime.now();
+        switch (id) {
+            case 'today':
+                return { start: now.startOf('day'), end: now.endOf('day') };
+            case 'yesterday': {
+                const d = now.minus({ days: 1 });
+                return { start: d.startOf('day'), end: d.endOf('day') };
+            }
+            case 'this_week':
+                return { start: now.startOf('week'), end: now.endOf('week') };
+            case 'last_week':
+                return {
+                    start: now.startOf('week').minus({ weeks: 1 }),
+                    end: now.endOf('week').minus({ weeks: 1 }),
+                };
+            case 'this_month':
+                return { start: now.startOf('month'), end: now.endOf('month') };
+            case 'last_month': {
+                const ref = now.minus({ months: 1 });
+                return { start: ref.startOf('month'), end: ref.endOf('month') };
+            }
+        }
+    }
+
+    /** Sets `activeQuickRangeId` when the current range matches a chip preset (by calendar day). */
+    private _syncQuickRangeSelectionFromRange(): void {
+        const start = this.rangeStart.value;
+        const end = this.rangeEnd.value;
+        if (!start?.isValid || !end?.isValid) {
+            this.activeQuickRangeId.set(null);
+            return;
+        }
+        const startIso = start.startOf('day').toISODate();
+        const endIso = end.startOf('day').toISODate();
+        if (!startIso || !endIso) {
+            this.activeQuickRangeId.set(null);
+            return;
+        }
+
+        for (const id of this.quickRangeIds) {
+            const b = this._boundsForQuickRange(id);
+            const bStart = b.start.startOf('day').toISODate();
+            const bEnd = b.end.startOf('day').toISODate();
+            if (bStart === startIso && bEnd === endIso) {
+                this.activeQuickRangeId.set(id);
+                return;
+            }
+        }
+        this.activeQuickRangeId.set(null);
+    }
+
+    /**
      * Mirrors the legacy 12-month fallback. If the stored user has a monthly
      * subscription plan we use its window; otherwise we fall back to the last
      * 12 calendar months ending at the end of the current month.
@@ -473,6 +627,44 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         const now = DateTime.now();
         this.rangeStart.setValue(now.startOf('month').minus({ months: 12 }));
         this.rangeEnd.setValue(now.endOf('month'));
+    }
+
+    private _labelFromAppFeatureMeta(
+        code: string | undefined,
+        metaMap: Record<string, AppFeatureUsageMeta>
+    ): string {
+        if (!code) return '';
+        const meta = metaMap[code];
+        if (meta?.name) {
+            const lang = this._transloco.getActiveLang?.() || 'en';
+            const fromDb = lang === 'es' ? meta.nameES || meta.name : meta.name;
+            if (fromDb) return fromDb;
+        }
+        return this._translateProduct(code);
+    }
+
+    private _endpointPathFromMeta(
+        code: string | undefined,
+        metaMap: Record<string, AppFeatureUsageMeta>
+    ): string | null {
+        if (!code) return null;
+        const raw = metaMap[code]?.url;
+        if (!raw || typeof raw !== 'string') return null;
+        const t = raw.trim();
+        if (!t) return null;
+
+        if (/^https?:\/\//i.test(t)) {
+            try {
+                const pathname = new URL(t).pathname;
+                return pathname && pathname !== '/' ? pathname : null;
+            } catch {
+                return null;
+            }
+        }
+
+        const seg = t.replace(/^\/+/, '');
+        if (!seg) return null;
+        return `/${seg}`;
     }
 
     private _translateProduct(code?: string): string {

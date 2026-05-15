@@ -1,7 +1,7 @@
 <ng-container *transloco="let t">
     <div class="usage-history flex flex-col gap-6">
         <!-- Hero -->
-        <header class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div class="flex items-start gap-3">
                 <div
                     class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
@@ -22,7 +22,7 @@
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex shrink-0 flex-nowrap items-center gap-2">
                 <mat-button-toggle-group
                     [value]="view()"
                     (change)="onViewChange($event.value)"
@@ -69,49 +69,82 @@
 
         <!-- Filters card -->
         <section
-            class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-5"
+            class="usage-history__filters rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-5"
         >
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-[2fr_2fr_auto] md:items-end">
-                <!-- Search -->
-                <div class="usage-history__field">
-                    <label class="usage-history__label" for="usage-history-search">
-                        {{ t('settings.usageHistory.search') }}
-                    </label>
-                    <div class="relative">
-                        <mat-icon
-                            class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 !h-4 !w-4 !text-base text-stone-400"
-                            >search</mat-icon
-                        >
-                        <input
-                            id="usage-history-search"
-                            type="search"
-                            class="usage-history__input pl-9 pr-9"
-                            [placeholder]="t(searchByPlaceholderKey)"
-                            [ngModel]="searchInput"
-                            (ngModelChange)="onSearchChange($event)"
-                            [disabled]="disableActions"
-                        />
-                        <button
-                            *ngIf="searchInput"
-                            type="button"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-gray-800 dark:hover:text-stone-200"
-                            (click)="onSearchChange('')"
-                            [attr.aria-label]="t('settings.usageHistory.clear_search')"
-                        >
-                            <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
-                        </button>
+            <div class="flex flex-col gap-5">
+                <!-- Row: search + reset -->
+                <div
+                    class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4"
+                >
+                    <div class="usage-history__field min-w-0 flex-1">
+                        <label class="usage-history__label" for="usage-history-search">
+                            {{ t('settings.usageHistory.search') }}
+                        </label>
+                        <div class="relative">
+                            <mat-icon
+                                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 !h-4 !w-4 !text-base text-stone-400"
+                                >search</mat-icon
+                            >
+                            <input
+                                id="usage-history-search"
+                                type="search"
+                                class="usage-history__input pl-9 pr-9"
+                                [placeholder]="t(searchByPlaceholderKey)"
+                                [ngModel]="searchInput"
+                                (ngModelChange)="onSearchChange($event)"
+                                [disabled]="disableActions"
+                            />
+                            <button
+                                *ngIf="searchInput"
+                                type="button"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+                                (click)="onSearchChange('')"
+                                [attr.aria-label]="t('settings.usageHistory.clear_search')"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                            </button>
+                        </div>
                     </div>
+                    <button
+                        type="button"
+                        class="usage-history__reset inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
+                        (click)="clearFilters()"
+                        [disabled]="!isFiltersDirty || disableActions"
+                        [matTooltip]="t('settings.usageHistory.clear_filters')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">filter_list_off</mat-icon>
+                        <span class="whitespace-nowrap">{{
+                            t('settings.usageHistory.clear_filters')
+                        }}</span>
+                    </button>
                 </div>
 
-                <!-- Date range -->
-                <div class="usage-history__field">
-                    <label class="usage-history__label">
+                <!-- Date: presets + picker in one panel -->
+                <div class="usage-history__date-panel">
+                    <label class="usage-history__label usage-history__date-panel-title">
                         {{ t('settings.usageHistory.enter_date_range') }}
                     </label>
+                    <div
+                        class="usage-history__quick-range"
+                        role="group"
+                        [attr.aria-label]="t('settings.usageHistory.quick_range_group')"
+                    >
+                        <button
+                            *ngFor="let qr of quickRangeIds"
+                            type="button"
+                            class="usage-history__quick-chip"
+                            [class.usage-history__quick-chip--active]="isQuickRangeActive(qr)"
+                            [attr.aria-pressed]="isQuickRangeActive(qr)"
+                            [disabled]="disableActions"
+                            (click)="onQuickRangeSelect(qr)"
+                        >
+                            {{ t('settings.usageHistory.quickRange.' + qr) }}
+                        </button>
+                    </div>
                     <mat-form-field
                         appearance="outline"
                         subscriptSizing="dynamic"
-                        class="usage-history__date-range"
+                        class="usage-history__date-range usage-history__date-range--in-panel"
                     >
                         <mat-date-range-input [rangePicker]="picker" [disabled]="disableActions">
                             <input
@@ -131,20 +164,6 @@
                         <mat-date-range-picker #picker></mat-date-range-picker>
                     </mat-form-field>
                 </div>
-
-                <!-- Clear filters -->
-                <button
-                    type="button"
-                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800"
-                    (click)="clearFilters()"
-                    [disabled]="!isFiltersDirty || disableActions"
-                    [matTooltip]="t('settings.usageHistory.clear_filters')"
-                >
-                    <mat-icon class="!h-4 !w-4 !text-base">filter_list_off</mat-icon>
-                    <span class="hidden sm:inline">{{
-                        t('settings.usageHistory.clear_filters')
-                    }}</span>
-                </button>
             </div>
         </section>
 
@@ -160,7 +179,11 @@
                     class="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500"
                 >
                     <mat-icon class="!h-4 !w-4 !text-base">receipt_long</mat-icon>
-                    <span>{{ t('settings.usageHistory.summary') }}</span>
+                    <span>{{
+                        view() === 'simplified'
+                            ? t('settings.usageHistory.summary')
+                            : t('settings.usageHistory.detailed_strip')
+                    }}</span>
                 </div>
                 <div class="flex items-baseline gap-2">
                     <span class="text-xs text-stone-500 dark:text-stone-400">
@@ -210,7 +233,17 @@
                             {{ t('settings.usageHistory.product') }}
                         </th>
                         <td mat-cell *matCellDef="let element" class="usage-history__td">
-                            {{ element.product }}
+                            <div class="flex min-w-0 flex-col gap-0.5">
+                                <span
+                                    class="font-medium text-stone-950 dark:text-white"
+                                    >{{ element.product }}</span
+                                >
+                                <span
+                                    *ngIf="featureEndpointPath(element.code) as path"
+                                    class="break-all text-xs text-stone-500 dark:text-stone-400"
+                                    >{{ path }}</span
+                                >
+                            </div>
                         </td>
                     </ng-container>
 

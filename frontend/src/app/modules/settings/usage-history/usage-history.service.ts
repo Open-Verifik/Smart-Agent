@@ -3,6 +3,12 @@ import { Injectable } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
 
+export interface AppFeatureUsageMeta {
+    name: string;
+    nameES?: string | null;
+    url?: string | null;
+}
+
 /** Detailed-view line item returned by GET /v2/credits without `groupThem`. */
 export interface CreditUsageItem {
     _id: string;
@@ -33,6 +39,7 @@ export interface UsageListResponse<T> {
     page?: number;
     pages?: number;
     allServicesCost?: number;
+    appFeatures?: Record<string, AppFeatureUsageMeta>;
 }
 
 export interface UsageListParams {
