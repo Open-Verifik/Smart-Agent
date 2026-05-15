@@ -5,6 +5,7 @@ import {
     Component,
     OnDestroy,
     OnInit,
+    ViewChild,
     inject,
     signal,
 } from '@angular/core';
@@ -26,11 +27,12 @@ import { CountryService } from 'app/core/services/country.service';
 import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { environment } from 'environments/environment';
-import { Observable, Subject, catchError, finalize, of, takeUntil, throwError } from 'rxjs';
+import { Observable, Subject, catchError, finalize, of, switchMap, takeUntil, throwError } from 'rxjs';
 
 import type { SmartAccessSecurity } from '../smart-access-projects.types';
 import type { AccessProjectLike } from '../smart-access-setup.service';
 import { SmartAccessSetupService } from '../smart-access-setup.service';
+import { SmartAccessProjectsService } from '../smart-access-projects.service';
 import { SetupBasicSetupComponent } from '../../../smart-enroll/projects/setup/steps/basic-setup/basic-setup.component';
 import { SetupUserInterfaceComponent } from '../../../smart-enroll/projects/setup/steps/user-interface/user-interface.component';
 import { AccessWhitelistStepComponent } from './steps/access-whitelist-step.component';
@@ -109,6 +111,8 @@ const optionalStrictUrlValidator: ValidatorFn = (control) => {
     return STRICT_URL_PATTERN.test(raw) ? null : { strictUrl: true };
 };
 
+const DEFAULT_SMART_ACCESS_REDIRECT = 'https://app.verifik.co/smart-access-preview';
+
 @Component({
     selector: 'smart-access-setup-host',
     standalone: true,
@@ -136,6 +140,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     private _router = inject(Router);
     private _fb = inject(FormBuilder);
     private _setup = inject(SmartAccessSetupService);
+    private _projects = inject(SmartAccessProjectsService);
     private _cdr = inject(ChangeDetectorRef);
     private _confirm = inject(FuseConfirmationService);
     private _transloco = inject(TranslocoService);
@@ -143,6 +148,10 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     private _countryService = inject(CountryService);
 
     private _unsub$ = new Subject<void>();
+
+    /** Reference to the whitelist step when it is rendered (step 2 only). */
+    @ViewChild(AccessWhitelistStepComponent)
+    private _whitelistStep?: AccessWhitelistStepComponent;
 
     /** Login flow `_id` for shell row (from form or hydrated project). */
     get loginFlowShellId(): string {
@@ -242,11 +251,54 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         this.saving.set(true);
 
         const body = this._buildPayload();
-        const call = this.project?._id
+        const v3Call = this.project?._id
             ? this._setup.updateProject(this.project._id, body as any)
             : this._setup.createProject(body as any);
 
-        return call.pipe(finalize(() => this.saving.set(false)), catchError((err) => throwError(() => err)));
+        // On step 2 (Connect DB), if there is a pending CSV whitelist batch we
+        // chain a v2 `updateProjectFlow` call to persist bulk whitelist rows,
+        // matching legacy `_handleWhiteListChanges`.
+        if (this.stepIndex === 2) {
+            const pending = this._whitelistStep?.pendingCsvPayload ?? null;
+            const flowId = this.loginFlowShellId;
+            const pf = (this.form.getRawValue() as Record<string, unknown>)['projectFlow'] as Record<string, unknown>;
+            const security = pf['security'] as Record<string, unknown>;
+            const integrations = pf['integrations'] as Record<string, unknown>;
+
+            if (pending && pending.whiteList.length > 0 && flowId) {
+                return v3Call.pipe(
+                    switchMap((v3Res) => {
+                        const v2Payload: Record<string, unknown> = {
+                            security: {
+                                strategy: 'whitelist',
+                                source: 'CSV',
+                                ...security,
+                            },
+                            webhook: integrations['webhook'] ?? null,
+                            redirectUrl: integrations['redirectUrl'] ?? '',
+                            whiteList: pending.whiteList,
+                            replaceList: pending.replaceList,
+                        };
+                        return this._projects.updateProjectFlow(flowId, v2Payload).pipe(
+                            switchMap(() => of(v3Res))
+                        );
+                    }),
+                    finalize(() => {
+                        this.saving.set(false);
+                        if (this._whitelistStep) {
+                            this._whitelistStep.pendingCsvPayload = null;
+                            this._whitelistStep['_loadWhitelist']();
+                        }
+                    }),
+                    catchError((err) => throwError(() => err))
+                ) as Observable<{ data: AccessProjectLike }>;
+            }
+        }
+
+        return v3Call.pipe(
+            finalize(() => this.saving.set(false)),
+            catchError((err) => throwError(() => err))
+        );
     }
 
     assignProjectAfterCreate(id: string, hydrated?: AccessProjectLike | null): void {
@@ -330,11 +382,19 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
     private _connectStepValid(): boolean {
         const controlsOk = CONNECT_KEYS.every((k) => !this.form.get(k)?.invalid);
         const source = this.form.get('projectFlow.security.source')?.value as string | null;
+
         if (source === 'API') {
             const url = this.form.get('projectFlow.security.apiUrl')?.value?.trim?.() ?? '';
             const tester = this.form.get('projectFlow.security.apiTestValue')?.value?.trim?.() ?? '';
             return controlsOk && url.length > 0 && tester.length > 0;
         }
+
+        if (source === 'CSV') {
+            const hasExistingRows = (this._whitelistStep?.whitelistTotal ?? 0) > 0;
+            const hasPendingRows = (this._whitelistStep?.pendingCsvPayload?.whiteList?.length ?? 0) > 0;
+            return controlsOk && (hasExistingRows || hasPendingRows);
+        }
+
         return controlsOk;
     }
 
@@ -366,6 +426,10 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         const flow = this._loginFlow(p) ?? this._setup.defaultLoginFlow();
 
         const defaultBranding = this._setup.defaultBranding;
+
+        // Default Smart Access redirect URL when not yet set.
+        const existingRedirect = (flow.integrations?.redirectUrl as string | undefined) || '';
+        const redirectUrl = existingRedirect || DEFAULT_SMART_ACCESS_REDIRECT;
 
         this.form = this._fb.group({
             allowedCountries: [p?.allowedCountries || [], Validators.required],
@@ -444,10 +508,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                     { validators: loginSettingsGroupValidator }
                 ),
                 integrations: this._fb.group({
-                    redirectUrl: [
-                        flow.integrations?.redirectUrl || '',
-                        [optionalStrictUrlValidator],
-                    ],
+                    redirectUrl: [redirectUrl, [optionalStrictUrlValidator]],
                     webhook: [(flow.integrations?.webhook as string | null) ?? null],
                 }),
                 security: this._fb.group({
@@ -488,6 +549,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             url?.setValidators([Validators.required, Validators.pattern(STRICT_URL_PATTERN)]);
             tester?.setValidators([Validators.required]);
         } else {
+            // CSV or null — API fields not required
             url?.setValidators([Validators.pattern(STRICT_URL_PATTERN)]);
             tester?.clearValidators();
         }

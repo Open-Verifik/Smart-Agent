@@ -17,7 +17,7 @@ export type SmartAccessSecurity = {
     apiTestType?: string;
     apiTestValue?: string;
     apiUrl?: string;
-    source?: string | null;
+    source?: 'API' | 'CSV' | 'NONE' | 'SMART_ENROLL' | null;
     strategy?: string;
 };
 

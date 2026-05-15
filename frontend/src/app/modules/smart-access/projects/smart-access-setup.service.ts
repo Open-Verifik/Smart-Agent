@@ -133,15 +133,22 @@ export class SmartAccessSetupService {
             .pipe(catchError((e) => throwError(() => e)));
     }
 
+    /** List webhooks, defaulting to active-only (mirrors legacy `_ObserveWebhook`). */
     listWebhooks(query: Record<string, string | string[] | number | boolean | undefined> = {}): Observable<{ data: { _id: string; name?: string }[] }> {
         return this._http.get<{ data: { _id: string; name?: string }[] }>(`${environment.apiUrl}/v2/webhooks`, {
-            params: this._params(query),
+            params: this._params({ where_isActive: true, ...query }),
             headers: this.authHeaders,
         });
     }
 
-    testApi(apiUrl: string, apiTestType: string, apiTestValue: string): Observable<unknown> {
-        return this._http.post(apiUrl, { [apiTestType]: apiTestValue }).pipe(catchError((e) => throwError(() => e)));
+    /**
+     * Test an identity / whitelist API URL by issuing GET with the test field as a
+     * query param — matching legacy `ProjectService.identityUrlTester` (GET + params).
+     */
+    testIdentityUrl(opts: { identityUrl: string; testType: string; testValue: string }): Observable<unknown> {
+        return this._http
+            .get(opts.identityUrl, { params: { [opts.testType]: opts.testValue } })
+            .pipe(catchError((e) => throwError(() => e)));
     }
 
     /** Shared wizard state mirrors enroll SetupService subset. */

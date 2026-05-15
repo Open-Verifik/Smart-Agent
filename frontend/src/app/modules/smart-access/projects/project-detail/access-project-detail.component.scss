@@ -1,0 +1,16 @@
+:host {
+    display: block;
+}
+
+.preview-container {
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    access-sign-in-preview {
+        flex: 1;
+        min-height: 0;
+        display: block;
+    }
+}

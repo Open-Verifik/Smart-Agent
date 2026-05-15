@@ -1,0 +1,420 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+
+        <!-- ── Sticky header ── -->
+        <header class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8">
+            <div class="mx-auto max-w-5xl">
+                <!-- Breadcrumb -->
+                <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                    <a routerLink="/chat" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">Verifik</a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a routerLink="/smart-access/projects" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                        {{ t('smartAccessProjects.title') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">
+                        {{ project()?.name || project()?._id || t('smartAccessProjects.detail.untitled') }}
+                    </span>
+                </div>
+
+                <!-- Title row -->
+                <div class="mt-5 flex flex-wrap items-start justify-between gap-4">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            routerLink="/smart-access/projects"
+                            class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                            [attr.aria-label]="t('smartAccessProjects.backToList')"
+                        >
+                            <mat-icon>arrow_back</mat-icon>
+                        </button>
+                        <div class="min-w-0">
+                            <h1 class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl">
+                                {{ project()?.name || project()?._id }}
+                            </h1>
+                            @if (project()?._id) {
+                                <p class="mt-1 font-mono text-xs text-stone-500 dark:text-stone-400">{{ project()!._id }}</p>
+                            }
+                        </div>
+                    </div>
+                    @if (project() && !loading()) {
+                        <div class="flex flex-wrap gap-2">
+                            <button mat-stroked-button type="button" class="shrink-0 rounded-xl" (click)="openRecords()">
+                                {{ t('smartAccessProjects.viewRecords') }}
+                            </button>
+                            <button mat-flat-button color="primary" type="button" class="shrink-0 rounded-xl" (click)="openSetup(0)">
+                                <mat-icon class="!h-4 !w-4 mr-1">tune</mat-icon>
+                                {{ t('smartAccessProjects.detail.openSetup') }}
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </header>
+
+        <!-- ── Main content ── -->
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto w-full max-w-5xl">
+
+                @if (loading()) {
+                    <div class="flex justify-center py-20">
+                        <mat-spinner diameter="40"></mat-spinner>
+                    </div>
+                } @else if (errorKey()) {
+                    <div class="rounded-2xl border border-red-200/90 bg-red-50/90 p-4 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+                        {{ errorKey()! | transloco }}
+                    </div>
+                } @else if (project()) {
+                    @let brand = brandingPreview();
+                    @let login = loginPreview();
+                    @let security = securityPreview();
+                    @let integrations = integrationsPreview();
+
+                    <div class="flex flex-col gap-6">
+
+                        <!-- ════════════════════════════════════════
+                             1. Brand hero
+                        ════════════════════════════════════════ -->
+                        <section
+                            class="overflow-hidden rounded-3xl border border-stone-200/90 dark:border-gray-700"
+                            [style.background-color]="brand.backgroundColor"
+                        >
+                            <div class="flex flex-wrap items-start justify-between gap-6 p-6 md:p-8">
+                                <div class="flex items-start gap-4">
+                                    <!-- Logo tile -->
+                                    <div
+                                        class="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-black/5 shrink-0"
+                                        [style.background-color]="brand.imageBackgroundColor"
+                                    >
+                                        @if (brand.logo) {
+                                            <img [src]="brand.logo" alt="" class="h-full w-full object-contain" />
+                                        } @else {
+                                            <mat-icon class="!h-7 !w-7" [style.color]="brand.titleColor">lock_open</mat-icon>
+                                        }
+                                    </div>
+
+                                    <!-- Title + meta -->
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-semibold uppercase tracking-widest mb-1" [style.color]="brand.textColor">
+                                            {{ t('smartAccessProjects.detail.overline') }}
+                                        </p>
+                                        <p class="text-2xl font-semibold leading-tight" [style.color]="brand.titleColor">
+                                            {{ project()!.name || t('smartAccessProjects.detail.untitled') }}
+                                        </p>
+                                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                                            <!-- Status chip -->
+                                            <span
+                                                class="rounded-full px-3 py-1 text-xs font-semibold"
+                                                [ngClass]="loginActive()
+                                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
+                                                    : 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-200'"
+                                            >
+                                                {{ flow()?.status || 'draft' }}
+                                            </span>
+                                            <!-- Edit branding pill -->
+                                            <button
+                                                type="button"
+                                                class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold shadow-sm"
+                                                [style.background-color]="brand.buttonColor"
+                                                [style.color]="brand.buttonTextColor"
+                                                (click)="openSetup(3)"
+                                            >
+                                                <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">palette</mat-icon>
+                                                {{ t('smartAccessProjects.detail.editBrand') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Color swatches -->
+                                <div class="flex items-center gap-1">
+                                    @for (sw of swatchEntries(); track sw.labelKey) {
+                                        <span
+                                            class="h-6 w-6 rounded-full border border-black/10"
+                                            [style.background-color]="sw.value"
+                                            [attr.title]="t(sw.labelKey) + ' · ' + sw.value"
+                                        ></span>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Banner image strip -->
+                            @if (brand.image) {
+                                <div class="h-24 w-full overflow-hidden" [style.background-color]="brand.imageBackgroundColor">
+                                    <img [src]="brand.image" alt="" class="h-full w-full object-cover object-center" />
+                                </div>
+                            }
+                        </section>
+
+                        <!-- ════════════════════════════════════════
+                             2. Live sign-in URL
+                        ════════════════════════════════════════ -->
+                        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40">
+                            <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.detail.liveUrl') }}
+                                    </h2>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.detail.liveUrlSubtitle') }}
+                                    </p>
+                                </div>
+                            </header>
+
+                            <div class="flex min-w-0 items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                <code class="min-w-0 flex-1 break-all text-xs text-stone-800 dark:text-stone-200">{{ liveUrl() }}</code>
+                                <button
+                                    mat-icon-button
+                                    type="button"
+                                    (click)="copyValue(liveUrl())"
+                                    [attr.aria-label]="t('smartAccessProjects.detail.copy')"
+                                >
+                                    <mat-icon class="icon-size-5" svgIcon="mat_outline:content_copy"></mat-icon>
+                                </button>
+                            </div>
+
+                            <div class="mt-4 flex flex-wrap gap-2">
+                                <button mat-stroked-button type="button" class="rounded-xl" (click)="openLive()">
+                                    <mat-icon class="!h-4 !w-4 mr-1">open_in_new</mat-icon>
+                                    {{ t('smartAccessProjects.list.menuLiveSignIn') }}
+                                </button>
+                            </div>
+                        </section>
+
+                        <!-- ════════════════════════════════════════
+                             3. Login channels
+                        ════════════════════════════════════════ -->
+                        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40">
+                            <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.detail.channelsTitle') }}
+                                    </h2>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.detail.channelsSubtitle') }}
+                                    </p>
+                                </div>
+                                <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(1)">
+                                    <mat-icon class="!h-4 !w-4">edit</mat-icon>
+                                    {{ t('smartAccessProjects.detail.editSection') }}
+                                </button>
+                            </header>
+
+                            <!-- Method chips -->
+                            <div class="flex flex-wrap gap-2">
+                                @if (login.email) {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">mail</mat-icon>
+                                        {{ t('smartAccessProjects.detail.email_' + login.emailGateway) }}
+                                    </span>
+                                }
+                                @if (login.phone) {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">phone</mat-icon>
+                                        {{ t('smartAccessProjects.detail.phone_' + login.phoneGateway) }}
+                                    </span>
+                                }
+                                @if (login.faceLiveness) {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-3 py-1 text-xs font-medium text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">fingerprint</mat-icon>
+                                        {{ t('smartAccessProjects.detail.biometrics') }}
+                                    </span>
+                                }
+                                @if (login.allowPasskeys) {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">security</mat-icon>
+                                        {{ t('smartAccessProjects.detail.passkeys') }}
+                                    </span>
+                                }
+                                @if (!login.email && !login.phone && !login.faceLiveness && !login.allowPasskeys) {
+                                    <span class="text-sm text-stone-400 dark:text-stone-500">
+                                        {{ t('smartAccessProjects.detail.noMethods') }}
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Biometrics scores -->
+                            @if (login.faceLiveness) {
+                                <div class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <!-- Liveness score -->
+                                    <div class="rounded-xl bg-stone-50 px-3 py-3 dark:bg-gray-900/40">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                                {{ t('smartAccessProjects.detail.livenessScore') }}
+                                            </span>
+                                            <span class="text-sm font-bold text-stone-800 dark:text-stone-100">
+                                                {{ login.livenessMinScorePct }}%
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-gray-700">
+                                            <div
+                                                class="h-full rounded-full transition-all"
+                                                [ngClass]="scoreBarClass(login.livenessMinScorePct)"
+                                                [style.width.%]="login.livenessMinScorePct"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                    <!-- Search score -->
+                                    <div class="rounded-xl bg-stone-50 px-3 py-3 dark:bg-gray-900/40">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                                {{ t('smartAccessProjects.detail.searchScore') }}
+                                            </span>
+                                            <span class="text-sm font-bold text-stone-800 dark:text-stone-100">
+                                                {{ login.searchMinScorePct }}%
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-gray-700">
+                                            <div
+                                                class="h-full rounded-full transition-all"
+                                                [ngClass]="scoreBarClass(login.searchMinScorePct)"
+                                                [style.width.%]="login.searchMinScorePct"
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </section>
+
+                        <!-- ════════════════════════════════════════
+                             4. Connect database (whitelist mode)
+                        ════════════════════════════════════════ -->
+                        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40">
+                            <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.detail.securityTitle') }}
+                                    </h2>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.detail.securitySubtitle') }}
+                                    </p>
+                                </div>
+                                <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(2)">
+                                    <mat-icon class="!h-4 !w-4">edit</mat-icon>
+                                    {{ t('smartAccessProjects.detail.editSection') }}
+                                </button>
+                            </header>
+
+                            <div class="flex flex-wrap gap-2">
+                                <!-- Source mode badge -->
+                                @if (security.source === 'API') {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 dark:border-teal-900 dark:bg-teal-950/40 dark:text-teal-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">api</mat-icon>
+                                        {{ t('smartAccessProjects.detail.source_API') }}
+                                    </span>
+                                } @else if (security.source === 'CSV') {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">upload_file</mat-icon>
+                                        {{ t('smartAccessProjects.detail.source_CSV') }}
+                                    </span>
+                                } @else if (security.source === 'SMART_ENROLL') {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-200">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">how_to_reg</mat-icon>
+                                        {{ t('smartAccessProjects.detail.source_SMART_ENROLL') }}
+                                    </span>
+                                } @else {
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-500 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-400">
+                                        <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">remove_circle_outline</mat-icon>
+                                        {{ t('smartAccessProjects.detail.source_NONE') }}
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- API URL detail (only when source = API) -->
+                            @if (security.source === 'API' && security.apiUrl) {
+                                <div class="mt-4 flex min-w-0 items-center gap-2 rounded-xl bg-stone-100 px-3 py-2 dark:bg-gray-800">
+                                    <code class="min-w-0 flex-1 break-all text-xs text-stone-700 dark:text-stone-300">{{ security.apiUrl }}</code>
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        (click)="copyValue(security.apiUrl || '')"
+                                        [attr.aria-label]="t('smartAccessProjects.detail.copy')"
+                                    >
+                                        <mat-icon class="icon-size-5" svgIcon="mat_outline:content_copy"></mat-icon>
+                                    </button>
+                                </div>
+                            }
+
+                            <!-- Smart Enroll info -->
+                            @if (security.source === 'SMART_ENROLL') {
+                                <p class="mt-3 text-xs text-stone-500 dark:text-stone-400">
+                                    {{ t('smartAccessProjects.detail.source_SMART_ENROLL_hint') }}
+                                </p>
+                            }
+                        </section>
+
+                        <!-- ════════════════════════════════════════
+                             5. Post-login (integrations)
+                        ════════════════════════════════════════ -->
+                        <section class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-700 dark:bg-gray-900/40">
+                            <header class="mb-4 flex flex-wrap items-start justify-between gap-3">
+                                <div>
+                                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.detail.integrationsTitle') }}
+                                    </h2>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.detail.integrationsSubtitle') }}
+                                    </p>
+                                </div>
+                                <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(2)">
+                                    <mat-icon class="!h-4 !w-4">edit</mat-icon>
+                                    {{ t('smartAccessProjects.detail.editSection') }}
+                                </button>
+                            </header>
+
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                <div class="flex flex-col gap-1 rounded-xl bg-stone-50 px-3 py-2 dark:bg-gray-900/40">
+                                    <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.setup.whitelist.redirect_url') }}
+                                    </span>
+                                    @if (integrations.redirectUrl) {
+                                        <a
+                                            [href]="integrations.redirectUrl"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="truncate text-sm text-primary-600 hover:underline"
+                                        >{{ integrations.redirectUrl }}</a>
+                                    } @else {
+                                        <span class="text-sm text-stone-500">{{ t('smartAccessProjects.detail.noValue') }}</span>
+                                    }
+                                </div>
+                                <div class="flex flex-col gap-1 rounded-xl bg-stone-50 px-3 py-2 dark:bg-gray-900/40">
+                                    <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.setup.whitelist.webhook') }}
+                                    </span>
+                                    <span class="text-sm text-stone-800 dark:text-stone-100">
+                                        {{ emptyOr(integrations.webhook) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- ════════════════════════════════════════
+                             6. Sign-in preview
+                        ════════════════════════════════════════ -->
+                        @if (previewForm(); as form) {
+                            <section class="rounded-2xl border border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/40 overflow-hidden">
+                                <div class="px-6 pt-6 pb-4">
+                                    <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
+                                        {{ t('smartAccessProjects.detail.previewTitle') }}
+                                    </h2>
+                                    <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
+                                        {{ t('smartAccessProjects.detail.previewSubtitle') }}
+                                    </p>
+                                </div>
+                                <div class="preview-container">
+                                    <access-sign-in-preview
+                                        [form]="form"
+                                        [branding]="brandingPreview()"
+                                    ></access-sign-in-preview>
+                                </div>
+                            </section>
+                        }
+
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>
