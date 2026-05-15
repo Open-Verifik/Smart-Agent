@@ -26,7 +26,7 @@ import { firstValueFrom, take } from 'rxjs';
  * - token: Exchange token or final JWT access token (required)
  * - type: When set (e.g. login, onboarding), exchanges via POST v2/auth/project-login;
  *        omit type for legacy final-JWT SSO. Special case: admin-login uses sign-in-with-token.
- * - redirect: Path to redirect after auth (default: /chat)
+ * - redirect: Path to redirect after auth (default: /home)
  * - user: Base64 encoded user data (optional)
  */
 @Component({
@@ -208,7 +208,7 @@ export class BridgeComponent implements OnInit {
 
     private async runBridge() {
         const token = this._route.snapshot.queryParamMap.get('token');
-        const redirect = this._route.snapshot.queryParamMap.get('redirect') || '/chat';
+        const redirect = this._route.snapshot.queryParamMap.get('redirect') || '/home';
         const projectTypeRaw = this._route.snapshot.queryParamMap.get('type');
 
         if (!token) {
@@ -357,6 +357,6 @@ export class BridgeComponent implements OnInit {
     }
 
     continueWithoutAuth() {
-        this._router.navigate(['/chat']);
+        this._router.navigate(['/home']);
     }
 }
