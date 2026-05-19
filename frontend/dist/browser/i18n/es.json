@@ -2570,7 +2570,14 @@
                 "contactSupport": "Si tienes preguntas, contacta a soporte.",
                 "stripeNotConfigured": "No se pudo completar el pago. La verificación de tarjeta no está disponible. Inténtalo de nuevo o contacta a soporte.",
                 "payment3dsFailed": "Falló la verificación de la tarjeta. Inténtalo de nuevo o usa otra tarjeta.",
-                "paymentFailedImmediate": "El pago fue rechazado. Prueba con otra tarjeta o contacta a soporte."
+                "paymentFailedImmediate": "El pago fue rechazado. Prueba con otra tarjeta o contacta a soporte.",
+                "duplicate_credit_purchase_quick": "Acabamos de agregar créditos por este monto. Espera un momento o elige otro total.",
+                "duplicate_credit_purchase_same_day": "Ya agregaste créditos por este monto hoy. Elige otro monto o inténtalo mañana.",
+                "credit_purchase_invalid_amount": "Ese monto está fuera del rango permitido. Ajústalo e inténtalo de nuevo.",
+                "kycVerificationStartFailed": "No pudimos abrir la verificación KYC. Inténtalo de nuevo o contacta a soporte.",
+                "selectPaymentMethod": "Elige una tarjeta guardada para continuar.",
+                "amountOutOfRange": "Ingresa un monto entre {{minUsd}} y {{maxUsd}}.",
+                "paymentPendingVerification": "Tu pago está pendiente. Los créditos aparecerán cuando tu banco confirme el cargo."
             },
             "kyc": {
                 "title": "KYC Requerido",
@@ -2638,6 +2645,9 @@
         "customDesc": "Adaptado a tus necesidades",
         "billedAnnually": "facturado anualmente",
         "currentPlan": "Plan actual",
+        "notOptimalForVolume": "No es óptimo para tu volumen",
+        "notOptimalHint": "Otro nivel se adapta mejor a tu uso.",
+        "notOptimalCta": "No es la mejor opción",
         "addCredits": "Agregar créditos",
         "contactSales": "Contactar ventas",
         "selectPlan": "Seleccionar plan",
@@ -3325,6 +3335,96 @@
                 "face_registered": "Rostro registrado",
                 "id_registered": "Identidad registrada",
                 "continue_to_platform": "Continuar"
+            }
+        }
+    },
+    "supportTickets": {
+        "quickChat": {
+            "headerTitle": "Tickets de soporte",
+            "guest": {
+                "title": "Inicia sesión para contactar a soporte",
+                "body": "Abre un ticket de soporte y chatea con nuestro equipo usando tu cuenta de Verifik.",
+                "signIn": "Iniciar sesión"
+            },
+            "workspaceOnly": {
+                "title": "Se requiere cuenta de Verifik",
+                "body": "Los tickets de soporte requieren una sesión de workspace de Verifik (correo o teléfono). El inicio de sesión solo con wallet no puede abrir tickets; inicia sesión con tu cuenta de Verifik.",
+                "signIn": "Iniciar sesión con Verifik"
+            },
+            "listHeading": "Tickets",
+            "emptyList": "Aún no hay tickets.",
+            "newTicketCta": "Nuevo ticket",
+            "newTicketAria": "Crear nuevo ticket de soporte",
+            "ticketPrefix": "#{{num}} —",
+            "noSelection": "Selecciona un ticket de soporte o crea uno nuevo.",
+            "fromSupport": "Soporte",
+            "fromYou": "Tú",
+            "replyPlaceholder": "Escribe una respuesta…",
+            "sendAria": "Enviar respuesta",
+            "backAria": "Volver a la lista de tickets",
+            "showTicketList": "Tickets",
+            "showTicketListAria": "Mostrar lista de tickets",
+            "metaCategory": "Categoría",
+            "metaSubject": "Asunto",
+            "metaApi": "API",
+            "attachmentDownloadAria": "Descargar {{name}}",
+            "fullscreenEnterAria": "Expandir panel de tickets de soporte",
+            "fullscreenExitAria": "Salir de pantalla completa",
+            "closeAria": "Cerrar tickets de soporte",
+            "status": {
+                "pending": "Pendiente",
+                "progress": "En progreso",
+                "resolved": "Resuelto",
+                "cancelled": "Cancelado",
+                "closed": "Cerrado"
+            },
+            "categories": {
+                "billing": "Facturación",
+                "integration": "Integración",
+                "smartCheck": "SmartCheck",
+                "smartScan": "SmartScan",
+                "smartEnroll": "SmartEnroll",
+                "smartAccess": "SmartAccess",
+                "other": "Otro"
+            },
+            "newTicket": {
+                "heading": "Nuevo ticket de soporte",
+                "fieldTitle": "Título",
+                "titleRequired": "El título es obligatorio",
+                "ticketSubject": "Asunto",
+                "ticketSubjectRequired": "El asunto es obligatorio",
+                "apiRequired": "Elige la API relacionada con tu problema.",
+                "category": "Categoría",
+                "message": "Mensaje",
+                "messageRequired": "El mensaje es obligatorio",
+                "cancel": "Cancelar",
+                "submit": "Crear ticket",
+                "attachmentsLabel": "Adjuntos",
+                "attachmentsHint": "Opcional. PDF o imágenes (.pdf, .jpg, .jpeg, .png). Hasta 10 archivos; hasta 10 MB cada uno.",
+                "attachmentsCount": "{{count}} archivo(s) adjunto(s)",
+                "attachmentsMaxReached": "Alcanzaste el límite de 10 archivos. Elimina uno para agregar otro.",
+                "removeAttachmentAria": "Eliminar {{name}}"
+            },
+            "createDialog": {
+                "apiTypes": {
+                    "identity": "Identidad",
+                    "vehicle": "Vehículo",
+                    "business": "Empresa",
+                    "background": "Antecedentes"
+                },
+                "api": {
+                    "label": "API",
+                    "selectHeading": "Seleccionar una API",
+                    "selectHint": "Explora y busca endpoints",
+                    "searchPlaceholder": "Buscar por nombre o endpoint",
+                    "clearSearch": "Borrar búsqueda",
+                    "apisFound": "{{count}} APIs encontradas"
+                }
+            },
+            "errors": {
+                "loadList": "No se pudieron cargar los tickets. Inténtalo de nuevo.",
+                "loadDetail": "No se pudo cargar este ticket.",
+                "sendReply": "No se pudo enviar tu respuesta. Inténtalo de nuevo."
             }
         }
     }

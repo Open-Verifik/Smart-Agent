@@ -99,7 +99,8 @@
       "webhooks": "Webhooks",
       "smartReduce": "Smart Reduce",
       "subscriptionPlans": "サブスクリプションプラン",
-      "addCredits": "クレジットを追加"
+      "addCredits": "クレジットを追加",
+      "smartAccess": "Smart Access"
     },
     "sandbox": {
       "bannerTitle": "サンドボックスモードです",
@@ -1257,7 +1258,10 @@
           "uploadedSuccessfully": "{{name}} を保存しました。",
           "uploadFailed": "ファイルをアップロードできませんでした。"
         }
-      }
+      },
+      "dev_quick_fill": "サンプルデータを入力",
+      "dev_quick_fill_hint": "ローカルのみ：有効なフィールドを事前入力してウィザードを高速化。",
+      "dev_quick_fill_applied": "サンプルデータを適用しました。"
     }
   },
   "smartAccessProjects": {
@@ -1699,7 +1703,11 @@
       "billing_details": "請求情報",
       "billing_details_desc": "請求情報を管理",
       "payment_history": "お支払い履歴",
-      "payment_history_desc": "領収書・請求書・取引履歴を確認"
+      "payment_history_desc": "領収書・請求書・取引履歴を確認",
+      "notifications": "通知",
+      "notifications_desc": "メールとパネルの通知設定",
+      "usage_history": "利用履歴",
+      "usage_history_desc": "API 消費とクレジット支出を追跡"
     },
     "profile": {
       "title": "プロフィール設定",
@@ -1853,7 +1861,18 @@
         "RUT": "納税者番号 (RUT)",
         "NO_TAX": "納税者番号なし",
         "INTERNATIONAL_TAX": "国際納税者番号"
-      }
+      },
+      "subtitle_v2": "請求先と請求書の送付先を入力してください。課税購入とサブスクリプションプランに必要です。",
+      "person_desc": "個人の身分証明書で個人への請求。",
+      "business_desc": "NIT または税 ID で法人への請求。",
+      "discard": "破棄",
+      "loading": "請求情報を読み込み中…",
+      "saved": "すべての変更を保存しました",
+      "status_complete": "設定完了",
+      "status_incomplete": "設定未完了",
+      "type_desc": "請求書の形式に使用します。保存前に変更できます。",
+      "type_title": "請求先は誰ですか？",
+      "unsaved": "未保存の変更があります"
     },
     "general": {
       "title": "一般設定",
@@ -1926,7 +1945,98 @@
       "no_plan_error": "アクティブなサブスクリプションプランなしではチームメンバーを追加できません。",
       "view_plans": "SmartCheckのプランを表示"
     },
-    "plans": " Plans"
+    "plans": " Plans",
+    "notifications": {
+      "title": "通知",
+      "subtitle": "メールで通知する内容を選択します。一括で一時停止するか、カテゴリごとに調整できます。",
+      "sign_in_hint": "ログインして通知設定を管理してください。",
+      "loading": "設定を読み込み中…",
+      "status_active": "{{count}}/{{total}} 件が有効",
+      "status_none": "有効なカテゴリはありません",
+      "status_paused": "すべての通知を一時停止中",
+      "general_title": "一般",
+      "general_desc": "すべての通知メールを一度にオフにするか、オンにしたまま下のカテゴリを調整します。",
+      "specific_title": "通知カテゴリ",
+      "specific_desc": "Verifik から受信するメールを選択します。カテゴリを再度オンにすると通知が自動的に再開されます。",
+      "stop_all_title": "すべての通知を一時停止",
+      "stop_all_desc": "Verifik からの通知メールをすべて停止します。カテゴリ設定は保持され、オフにすると再開されます。",
+      "toggle_on_label": "オン",
+      "toggle_off_label": "オフ",
+      "tooltip_paused": "通知は一時停止中です。このカテゴリをオンにすると自動的に再開されます。",
+      "enable_all": "すべて有効",
+      "unsaved": "未保存の変更があります",
+      "saved": "すべての変更を保存しました",
+      "discard": "破棄",
+      "payment_title": "支払いの更新",
+      "payment_desc": "支払いの成功、失敗、対応が必要な場合に通知を受け取ります。",
+      "credits_title": "クレジットの有効期限",
+      "credits_desc": "未使用クレジットの期限前にリマインダーを受け取ります。",
+      "balance_title": "残高不足",
+      "balance_desc": "残高が少ないときに通知し、利用中断前にチャージできます。",
+      "new_endpoints_title": "新しいエンドポイント",
+      "new_endpoints_desc": "利用可能な新しい API エンドポイントをいち早くお知らせします。",
+      "webhook_title": "Webhook エラー",
+      "webhook_desc": "サーバーへの Webhook 配信が失敗したときに通知します。",
+      "save": "変更を保存",
+      "saving": "保存中…",
+      "save_success": "通知設定を保存しました。",
+      "save_error": "設定を保存できませんでした。もう一度お試しください。"
+    },
+    "usageHistory": {
+      "title": "利用履歴",
+      "subtitle": "API の消費とクレジット支出を追跡します。表示コストには税金および一部のサポート料金は含まれません。",
+      "view_toggle": "表示を切り替え",
+      "simplified_view": "概要",
+      "detailed_view": "詳細",
+      "search": "検索",
+      "clear_search": "検索をクリア",
+      "clear_filters": "フィルターをリセット",
+      "search_by_simplified": "製品で検索",
+      "search_by_detailed": "API コードで検索",
+      "enter_date_range": "日付範囲",
+      "start_date": "開始日",
+      "end_date": "終了日",
+      "download": "ダウンロード",
+      "endpoint": "API エンドポイント",
+      "quick_range_group": "クイック日付フィルター",
+      "quickRange": {
+        "today": "今日",
+        "yesterday": "昨日",
+        "this_week": "今週",
+        "last_week": "先週",
+        "this_month": "今月",
+        "last_month": "先月"
+      },
+      "created_at": "日付",
+      "product": "製品",
+      "category": "カテゴリ",
+      "quantity": "数量",
+      "unit_price": "単価",
+      "total": "合計",
+      "summary": "概要",
+      "detailed_strip": "明細行",
+      "allRecords": "すべての記録",
+      "no_records": "この期間に利用はありません",
+      "no_records_hint": "日付範囲を広げるか、検索をクリアしてより多くの activity を表示してください。",
+      "group": {
+        "apiRequest": "API リクエスト",
+        "apiRequestParent": "API リクエスト",
+        "biometrics": "生体認証",
+        "communication": "通信",
+        "credits": "クレジット",
+        "faceRecognition": "顔認識",
+        "OCR": "OCR",
+        "postPaid": "後払い",
+        "smartAccess": "SmartAccess",
+        "smartCheck": "SmartCheck",
+        "SmartEnroll": "SmartEnroll",
+        "smartEnroll": "SmartEnroll",
+        "special_case": "特別ケース"
+      },
+      "products": {
+        "allRecords": "すべての記録"
+      }
+    }
   },
   "userMenu": {
     "welcome": "ようこそ：",
@@ -2287,7 +2397,8 @@
         "processing": "処理中...",
         "confirmed": "確認済み",
         "initiated": "トランザクションがチェーンで開始されました。"
-      }
+      },
+      "parameters": "パラメータ"
     },
     "feedback": {
       "prompt": "役に立ちましたか？",
@@ -2320,6 +2431,12 @@
     "securedBy": "Verifikによって保護",
     "mode": {
       "credits": "クレジット"
+    },
+    "deleteModal": {
+      "title": "チャットを削除",
+      "message": "この会話を削除してもよろしいですか？この操作は元に戻せません。",
+      "confirm": "削除",
+      "cancel": "キャンセル"
     }
   },
   "history": {
@@ -2447,7 +2564,14 @@
         "contactSupport": "ご質問がある場合は、サポートにお問い合わせください。",
         "stripeNotConfigured": "お支払いを完了できませんでした。カード認証が利用できません。再度お試しいただくか、サポートにお問い合わせください。",
         "payment3dsFailed": "カード認証に失敗しました。再度お試しいただくか、別のカードをご利用ください。",
-        "paymentFailedImmediate": "お支払いが拒否されました。別のカードをお試しいただくか、サポートにお問い合わせください。"
+        "paymentFailedImmediate": "お支払いが拒否されました。別のカードをお試しいただくか、サポートにお問い合わせください。",
+        "duplicate_credit_purchase_quick": "この金額のクレジットを追加したばかりです。しばらくお待ちいただくか、別の金額をお選びください。",
+        "duplicate_credit_purchase_same_day": "本日は既にこの金額でクレジットを追加しています。別の金額を選ぶか、明日再度お試しください。",
+        "credit_purchase_invalid_amount": "その金額は許可された範囲外です。金額を調整して再度お試しください。",
+        "kycVerificationStartFailed": "KYC認証を開けませんでした。再度お試しいただくか、サポートにお問い合わせください。",
+        "selectPaymentMethod": "続行するには保存済みのカードを選択してください。",
+        "amountOutOfRange": "{{minUsd}} から {{maxUsd}} の間の金額を入力してください。",
+        "paymentPendingVerification": "お支払いは保留中です。銀行が請求を確認した後、クレジットが反映されます。"
       },
       "kyc": {
         "title": "KYC必須",
@@ -2515,6 +2639,9 @@
     "customDesc": "お客様のニーズに合わせて",
     "billedAnnually": "年間一括払い",
     "currentPlan": "現在のプラン",
+    "notOptimalForVolume": "ご利用量には最適ではありません",
+    "notOptimalHint": "別のプランの方がご利用に合っています。",
+    "notOptimalCta": "最適ではありません",
     "addCredits": "クレジット追加",
     "contactSales": "営業に連絡",
     "selectPlan": "プランを選択",
@@ -2910,7 +3037,13 @@
       "using_functionality": "Additional cost",
       "using_functionality_link": "Pricing Details",
       "sms_optional": "SMS (Optional)",
-      "whatsapp_optional": "WhatsApp (Optional)"
+      "whatsapp_optional": "WhatsApp (Optional)",
+      "activation_checkout_failed": "チェックアウトを開始または確認できませんでした。もう一度お試しください。",
+      "activation_success": "Smart Access サブスクリプションが有効になりました。",
+      "billing_required_title": "請求情報が必要です",
+      "billing_required_message": "Smart Access プランに登録する前に、設定で請求・請求書情報を完了してください。",
+      "billing_required_go_settings": "請求情報へ",
+      "billing_required_cancel": "キャンセル"
     }
   },
   "api_key_management": {
@@ -3196,6 +3329,96 @@
         "face_registered": "Face registered",
         "id_registered": "Identity registered",
         "continue_to_platform": "Continue"
+      }
+    }
+  },
+  "supportTickets": {
+    "quickChat": {
+      "headerTitle": "サポートチケット",
+      "guest": {
+        "title": "サポートに連絡するにはログインしてください",
+        "body": "Verifikアカウントでサポートチケットを開き、チームとチャットできます。",
+        "signIn": "ログイン"
+      },
+      "workspaceOnly": {
+        "title": "Verifikアカウントが必要です",
+        "body": "サポートチケットにはVerifikワークスペースのセッション（メールまたは電話）が必要です。ウォレットのみのログインではチケットを開けません。Verifikアカウントでログインしてください。",
+        "signIn": "Verifikでログイン"
+      },
+      "listHeading": "チケット",
+      "emptyList": "チケットはまだありません。",
+      "newTicketCta": "新規チケット",
+      "newTicketAria": "新しいサポートチケットを作成",
+      "ticketPrefix": "#{{num}} —",
+      "noSelection": "サポートチケットを選択するか、新規作成してください。",
+      "fromSupport": "サポート",
+      "fromYou": "あなた",
+      "replyPlaceholder": "返信を入力…",
+      "sendAria": "返信を送信",
+      "backAria": "チケット一覧に戻る",
+      "showTicketList": "チケット",
+      "showTicketListAria": "チケット一覧を表示",
+      "metaCategory": "カテゴリ",
+      "metaSubject": "件名",
+      "metaApi": "API",
+      "attachmentDownloadAria": "{{name}} をダウンロード",
+      "fullscreenEnterAria": "サポートチケットパネルを展開",
+      "fullscreenExitAria": "全画面表示を終了",
+      "closeAria": "サポートチケットを閉じる",
+      "status": {
+        "pending": "保留中",
+        "progress": "対応中",
+        "resolved": "解決済み",
+        "cancelled": "キャンセル",
+        "closed": "クローズ"
+      },
+      "categories": {
+        "billing": "請求",
+        "integration": "連携",
+        "smartCheck": "SmartCheck",
+        "smartScan": "SmartScan",
+        "smartEnroll": "SmartEnroll",
+        "smartAccess": "SmartAccess",
+        "other": "その他"
+      },
+      "newTicket": {
+        "heading": "新規サポートチケット",
+        "fieldTitle": "タイトル",
+        "titleRequired": "タイトルは必須です",
+        "ticketSubject": "件名",
+        "ticketSubjectRequired": "件名は必須です",
+        "apiRequired": "問題に関連するAPIを選択してください。",
+        "category": "カテゴリ",
+        "message": "メッセージ",
+        "messageRequired": "メッセージは必須です",
+        "cancel": "キャンセル",
+        "submit": "チケットを作成",
+        "attachmentsLabel": "添付ファイル",
+        "attachmentsHint": "任意。PDFまたは画像（.pdf、.jpg、.jpeg、.png）。最大10ファイル、各10MBまで。",
+        "attachmentsCount": "{{count}} 件のファイルを添付",
+        "attachmentsMaxReached": "10ファイルの上限に達しました。追加するには1つ削除してください。",
+        "removeAttachmentAria": "{{name}} を削除"
+      },
+      "createDialog": {
+        "apiTypes": {
+          "identity": "本人確認",
+          "vehicle": "車両",
+          "business": "法人",
+          "background": "バックグラウンド"
+        },
+        "api": {
+          "label": "API",
+          "selectHeading": "APIを選択",
+          "selectHint": "エンドポイントを閲覧・検索",
+          "searchPlaceholder": "名前またはエンドポイントで検索",
+          "clearSearch": "検索をクリア",
+          "apisFound": "{{count}} 件のAPIが見つかりました"
+        }
+      },
+      "errors": {
+        "loadList": "チケットを読み込めませんでした。もう一度お試しください。",
+        "loadDetail": "このチケットを読み込めませんでした。",
+        "sendReply": "返信を送信できませんでした。もう一度お試しください。"
       }
     }
   }

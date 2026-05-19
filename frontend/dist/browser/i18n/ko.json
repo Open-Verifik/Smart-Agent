@@ -99,7 +99,8 @@
       "webhooks": "Webhooks",
       "smartReduce": "Smart Reduce",
       "subscriptionPlans": "구독 플랜",
-      "addCredits": "크레딧 추가"
+      "addCredits": "크레딧 추가",
+      "smartAccess": "Smart Access"
     },
     "sandbox": {
       "bannerTitle": "샌드박스 모드입니다",
@@ -1257,7 +1258,10 @@
           "uploadedSuccessfully": "{{name}}을 저장했습니다.",
           "uploadFailed": "파일을 업로드할 수 없습니다."
         }
-      }
+      },
+      "dev_quick_fill": "샘플 데이터 채우기",
+      "dev_quick_fill_hint": "로컬 전용: 유효한 필드를 미리 채워 마법사를 더 빠르게 진행합니다.",
+      "dev_quick_fill_applied": "샘플 데이터가 적용되었습니다."
     }
   },
   "smartAccessProjects": {
@@ -1699,7 +1703,11 @@
       "billing_details": "청구 정보",
       "billing_details_desc": "청구 정보 관리",
       "payment_history": "결제 내역",
-      "payment_history_desc": "영수증·청구서 및 거래 기록 확인"
+      "payment_history_desc": "영수증·청구서 및 거래 기록 확인",
+      "notifications": "알림",
+      "notifications_desc": "이메일 및 패널 알림 설정",
+      "usage_history": "사용 내역",
+      "usage_history_desc": "시간에 따른 API 소비 및 크레딧 지출 추적"
     },
     "profile": {
       "title": "프로필 설정",
@@ -1853,7 +1861,18 @@
         "RUT": "납세자 번호 (RUT)",
         "NO_TAX": "납세자 번호 없음",
         "INTERNATIONAL_TAX": "국제 납세자 번호"
-      }
+      },
+      "subtitle_v2": "청구 대상과 송장 수신 주소를 알려주세요. 과세 구매 및 구독 플랜에 필요합니다.",
+      "person_desc": "개인 신분증으로 개인에게 청구합니다.",
+      "business_desc": "NIT 또는 세금 ID로 기업에 청구합니다.",
+      "discard": "취소",
+      "loading": "청구 정보를 불러오는 중…",
+      "saved": "모든 변경 사항이 저장되었습니다",
+      "status_complete": "설정 완료",
+      "status_incomplete": "설정 미완료",
+      "type_desc": "청구서 형식에 사용됩니다. 저장 전에 변경할 수 있습니다.",
+      "type_title": "누구에게 청구하시겠습니까?",
+      "unsaved": "저장되지 않은 변경 사항이 있습니다"
     },
     "general": {
       "title": "일반 설정",
@@ -1926,7 +1945,98 @@
       "no_plan_error": "활성 구독 플랜 없이는 팀 멤버를 추가할 수 없습니다.",
       "view_plans": "SmartCheck 요금제 보기"
     },
-    "plans": " Plans"
+    "plans": " Plans",
+    "notifications": {
+      "title": "알림",
+      "subtitle": "이메일로 받을 알림을 선택하세요. 한 번에 일시 중지하거나 카테고리별로 조정할 수 있습니다.",
+      "sign_in_hint": "로그인하여 알림 설정을 관리하세요.",
+      "loading": "설정을 불러오는 중…",
+      "status_active": "{{count}}/{{total}}개 활성",
+      "status_none": "활성화된 카테고리 없음",
+      "status_paused": "모든 알림 일시 중지됨",
+      "general_title": "일반",
+      "general_desc": "모든 알림 이메일을 한 번에 끄거나 켠 상태에서 아래 카테고리를 조정하세요.",
+      "specific_title": "알림 카테고리",
+      "specific_desc": "Verifik이 보내는 이메일을 선택하세요. 카테고리를 다시 켜면 알림이 자동으로 재개됩니다.",
+      "stop_all_title": "모든 알림 일시 중지",
+      "stop_all_desc": "Verifik의 모든 알림 이메일 수신을 중지합니다. 카테고리 설정은 유지되며 끄면 재개됩니다.",
+      "toggle_on_label": "켜짐",
+      "toggle_off_label": "꺼짐",
+      "tooltip_paused": "알림이 일시 중지되었습니다. 이 카테고리를 다시 켜면 자동으로 재개됩니다.",
+      "enable_all": "모두 활성화",
+      "unsaved": "저장되지 않은 변경 사항이 있습니다",
+      "saved": "모든 변경 사항이 저장되었습니다",
+      "discard": "취소",
+      "payment_title": "결제 업데이트",
+      "payment_desc": "결제 성공, 실패 또는 조치가 필요할 때 알림을 받습니다.",
+      "credits_title": "만료 예정 크레딧",
+      "credits_desc": "사용하지 않은 크레딧이 만료되기 전에 알려드립니다.",
+      "balance_title": "잔액 부족",
+      "balance_desc": "잔액이 낮을 때 알려 사용 중단 전에 충전할 수 있습니다.",
+      "new_endpoints_title": "새 엔드포인트",
+      "new_endpoints_desc": "새 API 엔드포인트 출시 시 가장 먼저 알려드립니다.",
+      "webhook_title": "Webhook 오류",
+      "webhook_desc": "서버로의 webhook 전달이 실패하면 알려드립니다.",
+      "save": "변경 사항 저장",
+      "saving": "저장 중…",
+      "save_success": "알림 설정이 저장되었습니다.",
+      "save_error": "설정을 저장할 수 없습니다. 다시 시도하세요."
+    },
+    "usageHistory": {
+      "title": "사용 내역",
+      "subtitle": "API 소비 및 크레딧 지출을 추적합니다. 표시된 비용에는 세금 및 일부 지원 수수료가 포함되지 않습니다.",
+      "view_toggle": "보기 전환",
+      "simplified_view": "요약",
+      "detailed_view": "상세",
+      "search": "검색",
+      "clear_search": "검색 지우기",
+      "clear_filters": "필터 초기화",
+      "search_by_simplified": "제품으로 검색",
+      "search_by_detailed": "API 코드로 검색",
+      "enter_date_range": "날짜 범위",
+      "start_date": "시작일",
+      "end_date": "종료일",
+      "download": "다운로드",
+      "endpoint": "API 엔드포인트",
+      "quick_range_group": "빠른 날짜 필터",
+      "quickRange": {
+        "today": "오늘",
+        "yesterday": "어제",
+        "this_week": "이번 주",
+        "last_week": "지난주",
+        "this_month": "이번 달",
+        "last_month": "지난달"
+      },
+      "created_at": "날짜",
+      "product": "제품",
+      "category": "카테고리",
+      "quantity": "수량",
+      "unit_price": "단가",
+      "total": "합계",
+      "summary": "요약",
+      "detailed_strip": "상세 항목",
+      "allRecords": "모든 기록",
+      "no_records": "이 기간에 사용 내역이 없습니다",
+      "no_records_hint": "날짜 범위를 넓히거나 검색을 지워 더 많은 활동을 보세요.",
+      "group": {
+        "apiRequest": "API 요청",
+        "apiRequestParent": "API 요청",
+        "biometrics": "생체 인식",
+        "communication": "커뮤니케이션",
+        "credits": "크레딧",
+        "faceRecognition": "얼굴 인식",
+        "OCR": "OCR",
+        "postPaid": "후불",
+        "smartAccess": "SmartAccess",
+        "smartCheck": "SmartCheck",
+        "SmartEnroll": "SmartEnroll",
+        "smartEnroll": "SmartEnroll",
+        "special_case": "특별 케이스"
+      },
+      "products": {
+        "allRecords": "모든 기록"
+      }
+    }
   },
   "userMenu": {
     "welcome": "환영합니다:",
@@ -2287,7 +2397,8 @@
         "processing": "처리 중...",
         "confirmed": "확인됨",
         "initiated": "트랜잭션이 체인에서 시작되었습니다."
-      }
+      },
+      "parameters": "매개변수"
     },
     "feedback": {
       "prompt": "도움이 되었나요?",
@@ -2320,6 +2431,12 @@
     "securedBy": "Verifik에 의해 보호됨",
     "mode": {
       "credits": "크레딧"
+    },
+    "deleteModal": {
+      "title": "채팅 삭제",
+      "message": "이 대화를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+      "confirm": "삭제",
+      "cancel": "취소"
     }
   },
   "history": {
@@ -2447,7 +2564,14 @@
         "contactSupport": "질문이 있으시면 지원팀에 문의하세요.",
         "stripeNotConfigured": "결제를 완료할 수 없습니다. 카드 인증을 사용할 수 없습니다. 다시 시도하거나 지원팀에 문의하세요.",
         "payment3dsFailed": "카드 인증에 실패했습니다. 다시 시도하거나 다른 카드를 사용하세요.",
-        "paymentFailedImmediate": "결제가 거절되었습니다. 다른 카드를 사용하거나 지원팀에 문의하세요."
+        "paymentFailedImmediate": "결제가 거절되었습니다. 다른 카드를 사용하거나 지원팀에 문의하세요.",
+        "duplicate_credit_purchase_quick": "방금 이 금액으로 크레딧을 추가했습니다. 잠시 기다리거나 다른 금액을 선택하세요.",
+        "duplicate_credit_purchase_same_day": "오늘 이미 이 금액으로 크레딧을 추가했습니다. 다른 금액을 선택하거나 내일 다시 시도하세요.",
+        "credit_purchase_invalid_amount": "해당 금액은 허용 범위를 벗어났습니다. 금액을 조정한 후 다시 시도하세요.",
+        "kycVerificationStartFailed": "KYC 인증을 열 수 없습니다. 다시 시도하거나 지원팀에 문의하세요.",
+        "selectPaymentMethod": "계속하려면 저장된 카드를 선택하세요.",
+        "amountOutOfRange": "{{minUsd}}에서 {{maxUsd}} 사이의 금액을 입력하세요.",
+        "paymentPendingVerification": "결제가 대기 중입니다. 은행이 청구를 확인한 후 크레딧이 표시됩니다."
       },
       "kyc": {
         "title": "KYC 필수",
@@ -2515,6 +2639,9 @@
     "customDesc": "필요에 맞게 조정",
     "billedAnnually": "연간 청구",
     "currentPlan": "현재 플랜",
+    "notOptimalForVolume": "사용량에 최적이 아닙니다",
+    "notOptimalHint": "다른 요금제가 사용 패턴에 더 적합합니다.",
+    "notOptimalCta": "가장 적합하지 않음",
     "addCredits": "크레딧 추가",
     "contactSales": "영업팀 문의",
     "selectPlan": "플랜 선택",
@@ -2910,7 +3037,13 @@
       "using_functionality": "Additional cost",
       "using_functionality_link": "Pricing Details",
       "sms_optional": "SMS (Optional)",
-      "whatsapp_optional": "WhatsApp (Optional)"
+      "whatsapp_optional": "WhatsApp (Optional)",
+      "activation_checkout_failed": "결제를 시작하거나 확인할 수 없습니다. 다시 시도하세요.",
+      "activation_success": "Smart Access 구독이 활성화되었습니다.",
+      "billing_required_title": "청구 정보 필요",
+      "billing_required_message": "Smart Access 플랜을 구독하기 전에 설정에서 청구 및 송장 정보를 완료하세요.",
+      "billing_required_go_settings": "청구 정보로 이동",
+      "billing_required_cancel": "취소"
     }
   },
   "api_key_management": {
@@ -3196,6 +3329,96 @@
         "face_registered": "Face registered",
         "id_registered": "Identity registered",
         "continue_to_platform": "Continue"
+      }
+    }
+  },
+  "supportTickets": {
+    "quickChat": {
+      "headerTitle": "지원 티켓",
+      "guest": {
+        "title": "지원팀에 문의하려면 로그인하세요",
+        "body": "Verifik 계정으로 지원 티켓을 열고 팀과 채팅하세요.",
+        "signIn": "로그인"
+      },
+      "workspaceOnly": {
+        "title": "Verifik 계정 필요",
+        "body": "지원 티켓은 Verifik 워크스페이스 세션(이메일 또는 전화)이 필요합니다. 지갑만으로는 티켓을 열 수 없습니다. Verifik 계정으로 로그인하세요.",
+        "signIn": "Verifik로 로그인"
+      },
+      "listHeading": "티켓",
+      "emptyList": "아직 티켓이 없습니다.",
+      "newTicketCta": "새 티켓",
+      "newTicketAria": "새 지원 티켓 만들기",
+      "ticketPrefix": "#{{num}} —",
+      "noSelection": "지원 티켓을 선택하거나 새로 만드세요.",
+      "fromSupport": "지원",
+      "fromYou": "나",
+      "replyPlaceholder": "답장 입력…",
+      "sendAria": "답장 보내기",
+      "backAria": "티켓 목록으로 돌아가기",
+      "showTicketList": "티켓",
+      "showTicketListAria": "티켓 목록 표시",
+      "metaCategory": "카테고리",
+      "metaSubject": "제목",
+      "metaApi": "API",
+      "attachmentDownloadAria": "{{name}} 다운로드",
+      "fullscreenEnterAria": "지원 티켓 패널 확장",
+      "fullscreenExitAria": "전체 화면 종료",
+      "closeAria": "지원 티켓 닫기",
+      "status": {
+        "pending": "대기 중",
+        "progress": "진행 중",
+        "resolved": "해결됨",
+        "cancelled": "취소됨",
+        "closed": "종료됨"
+      },
+      "categories": {
+        "billing": "결제",
+        "integration": "연동",
+        "smartCheck": "SmartCheck",
+        "smartScan": "SmartScan",
+        "smartEnroll": "SmartEnroll",
+        "smartAccess": "SmartAccess",
+        "other": "기타"
+      },
+      "newTicket": {
+        "heading": "새 지원 티켓",
+        "fieldTitle": "제목",
+        "titleRequired": "제목은 필수입니다",
+        "ticketSubject": "주제",
+        "ticketSubjectRequired": "주제는 필수입니다",
+        "apiRequired": "문제와 관련된 API를 선택하세요.",
+        "category": "카테고리",
+        "message": "메시지",
+        "messageRequired": "메시지는 필수입니다",
+        "cancel": "취소",
+        "submit": "티켓 만들기",
+        "attachmentsLabel": "첨부 파일",
+        "attachmentsHint": "선택 사항. PDF 또는 이미지(.pdf, .jpg, .jpeg, .png). 최대 10개 파일, 각 10MB까지.",
+        "attachmentsCount": "{{count}}개 파일 첨부됨",
+        "attachmentsMaxReached": "10개 파일 제한에 도달했습니다. 추가하려면 하나를 제거하세요.",
+        "removeAttachmentAria": "{{name}} 제거"
+      },
+      "createDialog": {
+        "apiTypes": {
+          "identity": "신원",
+          "vehicle": "차량",
+          "business": "기업",
+          "background": "배경 조사"
+        },
+        "api": {
+          "label": "API",
+          "selectHeading": "API 선택",
+          "selectHint": "엔드포인트 탐색 및 검색",
+          "searchPlaceholder": "이름 또는 엔드포인트로 검색",
+          "clearSearch": "검색 지우기",
+          "apisFound": "{{count}}개 API 찾음"
+        }
+      },
+      "errors": {
+        "loadList": "티켓을 불러올 수 없습니다. 다시 시도하세요.",
+        "loadDetail": "이 티켓을 불러올 수 없습니다.",
+        "sendReply": "답장을 보낼 수 없습니다. 다시 시도하세요."
       }
     }
   }
