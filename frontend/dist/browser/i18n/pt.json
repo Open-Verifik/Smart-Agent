@@ -99,7 +99,8 @@
       "webhooks": "Webhooks",
       "smartReduce": "Smart Reduce",
       "subscriptionPlans": "Planos de assinatura",
-      "addCredits": "Adicionar créditos"
+      "addCredits": "Adicionar créditos",
+      "smartAccess": "Smart Access"
     },
     "tutorial": {
       "title": "Primeiros passos",
@@ -1210,7 +1211,10 @@
           "uploadedSuccessfully": "{{name}} salvo.",
           "uploadFailed": "Não foi possível enviar o arquivo."
         }
-      }
+      },
+      "dev_quick_fill": "Preencher dados de exemplo",
+      "dev_quick_fill_hint": "Somente local: pré-carrega campos válidos para avançar mais rápido no assistente.",
+      "dev_quick_fill_applied": "Dados de exemplo aplicados."
     }
   },
   "smartAccessProjects": {
@@ -1652,7 +1656,11 @@
       "api_key": "Chave API",
       "api_key_desc": "Gerencie seus tokens de acesso à API",
       "webhooks": "Webhooks",
-      "webhooks_desc": "Configure endpoints de webhook"
+      "webhooks_desc": "Configure endpoints de webhook",
+      "notifications": "Notificações",
+      "notifications_desc": "Preferências de e-mail e notificações do painel",
+      "usage_history": "Histórico de uso",
+      "usage_history_desc": "Acompanhe o consumo de APIs e créditos ao longo do tempo"
     },
     "profile": {
       "title": "Configurações de Perfil",
@@ -1877,9 +1885,111 @@
         "RUT": "RUT",
         "NO_TAX": "Sem ID Fiscal",
         "INTERNATIONAL_TAX": "ID Fiscal Internacional"
-      }
+      },
+      "subtitle_v2": "Informe a quem faturar e para onde enviar as faturas. Obrigatório para compras tributadas e planos de assinatura.",
+      "person_desc": "Faturar para uma pessoa física com documento de identidade.",
+      "business_desc": "Faturar para uma empresa usando NIT ou ID fiscal.",
+      "discard": "Descartar",
+      "loading": "Carregando seus dados de faturamento…",
+      "saved": "Todas as alterações salvas",
+      "status_complete": "Configuração completa",
+      "status_incomplete": "Configuração incompleta",
+      "type_desc": "Usamos isso para formatar as faturas corretamente. Você pode alterar antes de salvar.",
+      "type_title": "Para quem será a fatura?",
+      "unsaved": "Você tem alterações não salvas"
     },
-    "plans": " Planos"
+    "plans": " Planos",
+    "notifications": {
+      "title": "Notificações",
+      "subtitle": "Escolha sobre o que enviamos e-mails. Pause tudo com um clique ou ajuste cada categoria.",
+      "sign_in_hint": "Entre para gerenciar suas preferências de notificação.",
+      "loading": "Carregando suas preferências…",
+      "status_active": "{{count}} de {{total}} ativas",
+      "status_none": "Nenhuma categoria ativa",
+      "status_paused": "Todas as notificações pausadas",
+      "general_title": "Geral",
+      "general_desc": "Desative todos os e-mails de notificação de uma vez ou mantenha ativos e ajuste as categorias abaixo.",
+      "specific_title": "Categorias de notificação",
+      "specific_desc": "Escolha quais e-mails a Verifik envia. Reativar uma categoria retoma as notificações automaticamente.",
+      "stop_all_title": "Pausar todas as notificações",
+      "stop_all_desc": "Pare de receber todos os e-mails de notificação da Verifik. Suas preferências de categoria são mantidas e retomam ao desativar isto.",
+      "toggle_on_label": "Ativo",
+      "toggle_off_label": "Inativo",
+      "tooltip_paused": "Notificações pausadas. Reativar esta categoria retomará as notificações automaticamente.",
+      "enable_all": "Ativar tudo",
+      "unsaved": "Você tem alterações não salvas",
+      "saved": "Todas as alterações salvas",
+      "discard": "Descartar",
+      "payment_title": "Atualizações de pagamento",
+      "payment_desc": "Seja notificado quando um pagamento for bem-sucedido, falhar ou precisar de atenção.",
+      "credits_title": "Créditos expirando",
+      "credits_desc": "Lembretes antes de créditos não usados expirarem do seu saldo.",
+      "balance_title": "Saldo baixo",
+      "balance_desc": "Alertas quando seu saldo estiver baixo para recarregar antes da interrupção.",
+      "new_endpoints_title": "Novos endpoints",
+      "new_endpoints_desc": "Saiba primeiro quando lançarmos novos endpoints de API.",
+      "webhook_title": "Erros de webhook",
+      "webhook_desc": "Alertas quando a entrega de webhook ao seu servidor falhar.",
+      "save": "Salvar alterações",
+      "saving": "Salvando…",
+      "save_success": "Preferências de notificação salvas.",
+      "save_error": "Não foi possível salvar as preferências. Tente novamente."
+    },
+    "usageHistory": {
+      "title": "Histórico de uso",
+      "subtitle": "Acompanhe o consumo de APIs e o gasto de créditos. Os custos não incluem impostos e certas taxas de suporte.",
+      "view_toggle": "Alternar visualização",
+      "simplified_view": "Resumo",
+      "detailed_view": "Detalhado",
+      "search": "Pesquisar",
+      "clear_search": "Limpar pesquisa",
+      "clear_filters": "Redefinir filtros",
+      "search_by_simplified": "Pesquisar por produto",
+      "search_by_detailed": "Pesquisar por código da API",
+      "enter_date_range": "Intervalo de datas",
+      "start_date": "Data inicial",
+      "end_date": "Data final",
+      "download": "Baixar",
+      "endpoint": "Endpoint da API",
+      "quick_range_group": "Filtros rápidos de data",
+      "quickRange": {
+        "today": "Hoje",
+        "yesterday": "Ontem",
+        "this_week": "Esta semana",
+        "last_week": "Semana passada",
+        "this_month": "Este mês",
+        "last_month": "Mês passado"
+      },
+      "created_at": "Data",
+      "product": "Produto",
+      "category": "Categoria",
+      "quantity": "Quantidade",
+      "unit_price": "Preço unitário",
+      "total": "Total",
+      "summary": "Resumo",
+      "detailed_strip": "Itens detalhados",
+      "allRecords": "Todos os registros",
+      "no_records": "Sem uso neste período",
+      "no_records_hint": "Tente um intervalo maior ou limpe a pesquisa para ver mais atividade.",
+      "group": {
+        "apiRequest": "Requisição API",
+        "apiRequestParent": "Requisição API",
+        "biometrics": "Biometria",
+        "communication": "Comunicação",
+        "credits": "Créditos",
+        "faceRecognition": "Reconhecimento facial",
+        "OCR": "OCR",
+        "postPaid": "Pós-pago",
+        "smartAccess": "SmartAccess",
+        "smartCheck": "SmartCheck",
+        "SmartEnroll": "SmartEnroll",
+        "smartEnroll": "SmartEnroll",
+        "special_case": "Caso especial"
+      },
+      "products": {
+        "allRecords": "Todos os registros"
+      }
+    }
   },
   "userMenu": {
     "welcome": "Bem-vindo:",
@@ -2274,6 +2384,12 @@
     "securedBy": "Protegido por Verifik",
     "mode": {
       "credits": "CRÉDITOS"
+    },
+    "deleteModal": {
+      "title": "Excluir chat",
+      "message": "Tem certeza de que deseja excluir esta conversa? Esta ação não pode ser desfeita.",
+      "confirm": "Excluir",
+      "cancel": "Cancelar"
     }
   },
   "history": {
@@ -2401,7 +2517,14 @@
         "contactSupport": "Se tiver dúvidas, entre em contato com o suporte.",
         "stripeNotConfigured": "Não foi possível concluir o pagamento. A verificação do cartão não está disponível. Tente novamente ou entre em contato com o suporte.",
         "payment3dsFailed": "A verificação do cartão falhou. Tente novamente ou use outro cartão.",
-        "paymentFailedImmediate": "O pagamento foi recusado. Tente outro cartão ou entre em contato com o suporte."
+        "paymentFailedImmediate": "O pagamento foi recusado. Tente outro cartão ou entre em contato com o suporte.",
+        "duplicate_credit_purchase_quick": "Acabamos de adicionar créditos para este valor. Aguarde um momento ou escolha outro total.",
+        "duplicate_credit_purchase_same_day": "Você já adicionou créditos para este valor hoje. Escolha outro valor ou tente novamente amanhã.",
+        "credit_purchase_invalid_amount": "Esse valor está fora da faixa permitida. Ajuste o número e tente novamente.",
+        "kycVerificationStartFailed": "Não foi possível abrir a verificação KYC. Tente novamente ou entre em contato com o suporte.",
+        "selectPaymentMethod": "Escolha um cartão salvo para continuar.",
+        "amountOutOfRange": "Digite um valor entre {{minUsd}} e {{maxUsd}}.",
+        "paymentPendingVerification": "Seu pagamento está pendente. Os créditos aparecerão após seu banco confirmar a cobrança."
       },
       "kyc": {
         "title": "KYC Necessário",
@@ -2469,6 +2592,9 @@
     "customDesc": "Adaptado às suas necessidades",
     "billedAnnually": "cobrado anualmente",
     "currentPlan": "Plano atual",
+    "notOptimalForVolume": "Não é ideal para o seu volume",
+    "notOptimalHint": "Outro plano combina melhor com o seu uso.",
+    "notOptimalCta": "Não é a melhor opção",
     "addCredits": "Adicionar créditos",
     "contactSales": "Contatar vendas",
     "selectPlan": "Selecionar plano",
@@ -2864,7 +2990,13 @@
       "using_functionality": "Custo adicional",
       "using_functionality_link": "Detalhes de Preços",
       "sms_optional": "SMS (Opcional)",
-      "whatsapp_optional": "WhatsApp (Opcional)"
+      "whatsapp_optional": "WhatsApp (Opcional)",
+      "activation_checkout_failed": "Não foi possível iniciar ou confirmar o checkout. Tente novamente.",
+      "activation_success": "Sua assinatura Smart Access está ativa.",
+      "billing_required_title": "Dados de faturamento necessários",
+      "billing_required_message": "Complete seus dados de faturamento e fatura em Configurações antes de assinar um plano Smart Access.",
+      "billing_required_go_settings": "Ir para faturamento",
+      "billing_required_cancel": "Cancelar"
     }
   },
   "api_key_management": {
@@ -3150,6 +3282,96 @@
         "face_registered": "Rosto registrado",
         "id_registered": "Identidade registrada",
         "continue_to_platform": "Continuar"
+      }
+    }
+  },
+  "supportTickets": {
+    "quickChat": {
+      "headerTitle": "Tickets de suporte",
+      "guest": {
+        "title": "Entre para contatar o suporte",
+        "body": "Abra um ticket de suporte e converse com nossa equipe usando sua conta Verifik.",
+        "signIn": "Entrar"
+      },
+      "workspaceOnly": {
+        "title": "Conta Verifik necessária",
+        "body": "Os tickets de suporte exigem uma sessão de workspace Verifik (e-mail ou telefone). Login apenas com wallet não pode abrir tickets — entre com sua conta Verifik.",
+        "signIn": "Entrar com Verifik"
+      },
+      "listHeading": "Tickets",
+      "emptyList": "Nenhum ticket ainda.",
+      "newTicketCta": "Novo ticket",
+      "newTicketAria": "Criar novo ticket de suporte",
+      "ticketPrefix": "#{{num}} —",
+      "noSelection": "Selecione um ticket de suporte ou crie um novo.",
+      "fromSupport": "Suporte",
+      "fromYou": "Você",
+      "replyPlaceholder": "Escreva uma resposta…",
+      "sendAria": "Enviar resposta",
+      "backAria": "Voltar à lista de tickets",
+      "showTicketList": "Tickets",
+      "showTicketListAria": "Mostrar lista de tickets",
+      "metaCategory": "Categoria",
+      "metaSubject": "Assunto",
+      "metaApi": "API",
+      "attachmentDownloadAria": "Baixar {{name}}",
+      "fullscreenEnterAria": "Expandir painel de tickets de suporte",
+      "fullscreenExitAria": "Sair da tela cheia",
+      "closeAria": "Fechar tickets de suporte",
+      "status": {
+        "pending": "Pendente",
+        "progress": "Em andamento",
+        "resolved": "Resolvido",
+        "cancelled": "Cancelado",
+        "closed": "Fechado"
+      },
+      "categories": {
+        "billing": "Faturamento",
+        "integration": "Integração",
+        "smartCheck": "SmartCheck",
+        "smartScan": "SmartScan",
+        "smartEnroll": "SmartEnroll",
+        "smartAccess": "SmartAccess",
+        "other": "Outro"
+      },
+      "newTicket": {
+        "heading": "Novo ticket de suporte",
+        "fieldTitle": "Título",
+        "titleRequired": "O título é obrigatório",
+        "ticketSubject": "Assunto",
+        "ticketSubjectRequired": "O assunto é obrigatório",
+        "apiRequired": "Escolha a API relacionada ao seu problema.",
+        "category": "Categoria",
+        "message": "Mensagem",
+        "messageRequired": "A mensagem é obrigatória",
+        "cancel": "Cancelar",
+        "submit": "Criar ticket",
+        "attachmentsLabel": "Anexos",
+        "attachmentsHint": "Opcional. PDF ou imagens (.pdf, .jpg, .jpeg, .png). Até 10 arquivos; até 10 MB cada.",
+        "attachmentsCount": "{{count}} arquivo(s) anexado(s)",
+        "attachmentsMaxReached": "Você atingiu o limite de 10 arquivos. Remova um para adicionar outro.",
+        "removeAttachmentAria": "Remover {{name}}"
+      },
+      "createDialog": {
+        "apiTypes": {
+          "identity": "Identidade",
+          "vehicle": "Veículo",
+          "business": "Empresa",
+          "background": "Antecedentes"
+        },
+        "api": {
+          "label": "API",
+          "selectHeading": "Selecionar uma API",
+          "selectHint": "Navegue e pesquise endpoints",
+          "searchPlaceholder": "Pesquisar por nome ou endpoint",
+          "clearSearch": "Limpar pesquisa",
+          "apisFound": "{{count}} APIs encontradas"
+        }
+      },
+      "errors": {
+        "loadList": "Não foi possível carregar os tickets. Tente novamente.",
+        "loadDetail": "Não foi possível carregar este ticket.",
+        "sendReply": "Não foi possível enviar sua resposta. Tente novamente."
       }
     }
   }

@@ -99,7 +99,8 @@
       "webhooks": "Webhooks",
       "smartReduce": "Smart Reduce",
       "subscriptionPlans": "订阅计划",
-      "addCredits": "添加积分"
+      "addCredits": "添加积分",
+      "smartAccess": "Smart Access"
     },
     "tutorial": {
       "title": "入门指南",
@@ -1210,7 +1211,10 @@
           "uploadedSuccessfully": "已保存 {{name}}。",
           "uploadFailed": "无法上传文件。"
         }
-      }
+      },
+      "dev_quick_fill": "填充示例数据",
+      "dev_quick_fill_hint": "仅本地：预填有效字段以更快完成向导。",
+      "dev_quick_fill_applied": "已应用示例数据。"
     }
   },
   "smartAccessProjects": {
@@ -1652,7 +1656,11 @@
       "billing_details": "账单信息",
       "billing_details_desc": "管理您的账单信息",
       "payment_history": "支付记录",
-      "payment_history_desc": "查看收据、发票与交易明细"
+      "payment_history_desc": "查看收据、发票与交易明细",
+      "notifications": "通知",
+      "notifications_desc": "电子邮件与面板通知偏好",
+      "usage_history": "使用记录",
+      "usage_history_desc": "跟踪 API 消耗与积分支出"
     },
     "profile": {
       "title": "个人资料设置",
@@ -1806,7 +1814,18 @@
         "RUT": "税号 (RUT)",
         "NO_TAX": "无税号",
         "INTERNATIONAL_TAX": "国际税号"
-      }
+      },
+      "subtitle_v2": "告诉我们向谁开票以及发票寄送地址。应税购买和订阅计划需要填写。",
+      "person_desc": "向个人开具发票，使用个人身份证件。",
+      "business_desc": "使用 NIT 或税务 ID 向企业开具发票。",
+      "discard": "放弃",
+      "loading": "正在加载账单信息…",
+      "saved": "所有更改已保存",
+      "status_complete": "设置完成",
+      "status_incomplete": "设置未完成",
+      "type_desc": "用于正确格式化发票。保存前可更改。",
+      "type_title": "开票对象是谁？",
+      "unsaved": "您有未保存的更改"
     },
     "general": {
       "title": "常规设置",
@@ -1879,7 +1898,98 @@
       "no_plan_error": "没有有效的订阅计划无法添加团队成员。",
       "view_plans": "查看 SmartCheck 方案"
     },
-    "plans": " Plans"
+    "plans": " Plans",
+    "notifications": {
+      "title": "通知",
+      "subtitle": "选择我们通过电子邮件通知您的内容。一键暂停全部，或单独调整各类别。",
+      "sign_in_hint": "登录后管理您的通知偏好。",
+      "loading": "正在加载您的偏好…",
+      "status_active": "{{count}}/{{total}} 项已启用",
+      "status_none": "未启用任何类别",
+      "status_paused": "所有通知已暂停",
+      "general_title": "常规",
+      "general_desc": "一键关闭所有通知邮件，或保持开启并在下方调整类别。",
+      "specific_title": "通知类别",
+      "specific_desc": "选择 Verifik 发送到您收件箱的邮件。重新开启某类别将自动恢复通知。",
+      "stop_all_title": "暂停所有通知",
+      "stop_all_desc": "停止接收 Verifik 的所有通知邮件。您的类别偏好将保留，关闭此选项后恢复。",
+      "toggle_on_label": "开",
+      "toggle_off_label": "关",
+      "tooltip_paused": "通知已暂停。重新开启此类别将自动恢复通知。",
+      "enable_all": "全部启用",
+      "unsaved": "您有未保存的更改",
+      "saved": "所有更改已保存",
+      "discard": "放弃",
+      "payment_title": "付款更新",
+      "payment_desc": "当付款成功、失败或需要您处理时收到通知。",
+      "credits_title": "积分即将过期",
+      "credits_desc": "在未使用积分过期前提醒您。",
+      "balance_title": "余额不足",
+      "balance_desc": "余额较低时提醒您充值，避免使用中断。",
+      "new_endpoints_title": "新端点",
+      "new_endpoints_desc": "新 API 端点上线时第一时间获知。",
+      "webhook_title": "Webhook 错误",
+      "webhook_desc": "向您的服务器交付 Webhook 失败时提醒您，便于快速修复。",
+      "save": "保存更改",
+      "saving": "保存中…",
+      "save_success": "通知偏好已保存。",
+      "save_error": "无法保存偏好。请重试。"
+    },
+    "usageHistory": {
+      "title": "使用记录",
+      "subtitle": "跟踪 API 消耗与积分支出。显示的费用不含税及某些支持费用。",
+      "view_toggle": "切换视图",
+      "simplified_view": "摘要",
+      "detailed_view": "详细",
+      "search": "搜索",
+      "clear_search": "清除搜索",
+      "clear_filters": "重置筛选",
+      "search_by_simplified": "按产品搜索",
+      "search_by_detailed": "按 API 代码搜索",
+      "enter_date_range": "日期范围",
+      "start_date": "开始日期",
+      "end_date": "结束日期",
+      "download": "下载",
+      "endpoint": "API 端点",
+      "quick_range_group": "快捷日期筛选",
+      "quickRange": {
+        "today": "今天",
+        "yesterday": "昨天",
+        "this_week": "本周",
+        "last_week": "上周",
+        "this_month": "本月",
+        "last_month": "上月"
+      },
+      "created_at": "日期",
+      "product": "产品",
+      "category": "类别",
+      "quantity": "数量",
+      "unit_price": "单价",
+      "total": "合计",
+      "summary": "摘要",
+      "detailed_strip": "明细行",
+      "allRecords": "全部记录",
+      "no_records": "此范围内无使用记录",
+      "no_records_hint": "尝试扩大日期范围或清除搜索以查看更多活动。",
+      "group": {
+        "apiRequest": "API 请求",
+        "apiRequestParent": "API 请求",
+        "biometrics": "生物识别",
+        "communication": "通信",
+        "credits": "积分",
+        "faceRecognition": "人脸识别",
+        "OCR": "OCR",
+        "postPaid": "后付费",
+        "smartAccess": "SmartAccess",
+        "smartCheck": "SmartCheck",
+        "SmartEnroll": "SmartEnroll",
+        "smartEnroll": "SmartEnroll",
+        "special_case": "特殊情况"
+      },
+      "products": {
+        "allRecords": "全部记录"
+      }
+    }
   },
   "userMenu": {
     "welcome": "欢迎：",
@@ -2240,7 +2350,8 @@
         "processing": "处理中...",
         "confirmed": "已确认",
         "initiated": "交易已在链上启动。"
-      }
+      },
+      "parameters": "参数"
     },
     "feedback": {
       "prompt": "这有用吗？",
@@ -2273,6 +2384,12 @@
     "securedBy": "由Verifik保护",
     "mode": {
       "credits": "积分"
+    },
+    "deleteModal": {
+      "title": "删除对话",
+      "message": "确定要删除此对话吗？此操作无法撤销。",
+      "confirm": "删除",
+      "cancel": "取消"
     }
   },
   "history": {
@@ -2400,7 +2517,14 @@
         "contactSupport": "如有疑问，请联系支持。",
         "stripeNotConfigured": "无法完成付款。卡片验证不可用。请重试或联系客服。",
         "payment3dsFailed": "卡片验证失败。请重试或使用其他卡片。",
-        "paymentFailedImmediate": "付款被拒绝。请尝试其他卡片或联系客服。"
+        "paymentFailedImmediate": "付款被拒绝。请尝试其他卡片或联系客服。",
+        "duplicate_credit_purchase_quick": "我们刚为该金额添加了积分。请稍候或选择其他金额。",
+        "duplicate_credit_purchase_same_day": "您今天已为该金额添加过积分。请选择其他金额，或明天再试。",
+        "credit_purchase_invalid_amount": "该金额超出允许范围。请调整后重试。",
+        "kycVerificationStartFailed": "无法打开 KYC 验证。请重试或联系客服。",
+        "selectPaymentMethod": "请选择已保存的银行卡以继续。",
+        "amountOutOfRange": "请输入 {{minUsd}} 至 {{maxUsd}} 之间的金额。",
+        "paymentPendingVerification": "您的付款待处理。银行确认扣款后积分将到账。"
       },
       "kyc": {
         "title": "需要KYC",
@@ -2468,6 +2592,9 @@
     "customDesc": "根据您的需求定制",
     "billedAnnually": "按年计费",
     "currentPlan": "当前计划",
+    "notOptimalForVolume": "按您的用量并非最优",
+    "notOptimalHint": "其他套餐更适合您的使用情况。",
+    "notOptimalCta": "并非最佳选择",
     "addCredits": "添加积分",
     "contactSales": "联系销售",
     "selectPlan": "选择计划",
@@ -2863,7 +2990,13 @@
       "using_functionality": "Additional cost",
       "using_functionality_link": "Pricing Details",
       "sms_optional": "SMS (Optional)",
-      "whatsapp_optional": "WhatsApp (Optional)"
+      "whatsapp_optional": "WhatsApp (Optional)",
+      "activation_checkout_failed": "无法开始或确认结账。请重试。",
+      "activation_success": "您的 Smart Access 订阅已激活。",
+      "billing_required_title": "需要账单信息",
+      "billing_required_message": "订阅 Smart Access 计划前，请在设置中完成账单与发票信息。",
+      "billing_required_go_settings": "前往账单信息",
+      "billing_required_cancel": "取消"
     }
   },
   "api_key_management": {
@@ -3149,6 +3282,96 @@
         "face_registered": "Face registered",
         "id_registered": "Identity registered",
         "continue_to_platform": "Continue"
+      }
+    }
+  },
+  "supportTickets": {
+    "quickChat": {
+      "headerTitle": "支持工单",
+      "guest": {
+        "title": "登录以联系支持",
+        "body": "使用您的 Verifik 账户打开支持工单并与我们的团队聊天。",
+        "signIn": "登录"
+      },
+      "workspaceOnly": {
+        "title": "需要 Verifik 账户",
+        "body": "支持工单需要 Verifik 工作区会话（邮箱或手机）。仅钱包登录无法创建工单，请使用 Verifik 账户登录。",
+        "signIn": "使用 Verifik 登录"
+      },
+      "listHeading": "工单",
+      "emptyList": "暂无工单。",
+      "newTicketCta": "新建工单",
+      "newTicketAria": "创建新的支持工单",
+      "ticketPrefix": "#{{num}} —",
+      "noSelection": "选择支持工单或创建新工单。",
+      "fromSupport": "支持",
+      "fromYou": "您",
+      "replyPlaceholder": "输入回复…",
+      "sendAria": "发送回复",
+      "backAria": "返回工单列表",
+      "showTicketList": "工单",
+      "showTicketListAria": "显示工单列表",
+      "metaCategory": "类别",
+      "metaSubject": "主题",
+      "metaApi": "API",
+      "attachmentDownloadAria": "下载 {{name}}",
+      "fullscreenEnterAria": "展开支持工单面板",
+      "fullscreenExitAria": "退出全屏",
+      "closeAria": "关闭支持工单",
+      "status": {
+        "pending": "待处理",
+        "progress": "处理中",
+        "resolved": "已解决",
+        "cancelled": "已取消",
+        "closed": "已关闭"
+      },
+      "categories": {
+        "billing": "账单",
+        "integration": "集成",
+        "smartCheck": "SmartCheck",
+        "smartScan": "SmartScan",
+        "smartEnroll": "SmartEnroll",
+        "smartAccess": "SmartAccess",
+        "other": "其他"
+      },
+      "newTicket": {
+        "heading": "新建支持工单",
+        "fieldTitle": "标题",
+        "titleRequired": "标题为必填项",
+        "ticketSubject": "主题",
+        "ticketSubjectRequired": "主题为必填项",
+        "apiRequired": "请选择与问题相关的 API。",
+        "category": "类别",
+        "message": "消息",
+        "messageRequired": "消息为必填项",
+        "cancel": "取消",
+        "submit": "创建工单",
+        "attachmentsLabel": "附件",
+        "attachmentsHint": "可选。PDF 或图片（.pdf、.jpg、.jpeg、.png）。最多 10 个文件，每个最多 10 MB。",
+        "attachmentsCount": "已附加 {{count}} 个文件",
+        "attachmentsMaxReached": "已达到 10 个文件上限。请删除一个后再添加。",
+        "removeAttachmentAria": "移除 {{name}}"
+      },
+      "createDialog": {
+        "apiTypes": {
+          "identity": "身份",
+          "vehicle": "车辆",
+          "business": "企业",
+          "background": "背景调查"
+        },
+        "api": {
+          "label": "API",
+          "selectHeading": "选择 API",
+          "selectHint": "浏览并搜索端点",
+          "searchPlaceholder": "按名称或端点搜索",
+          "clearSearch": "清除搜索",
+          "apisFound": "找到 {{count}} 个 API"
+        }
+      },
+      "errors": {
+        "loadList": "无法加载工单，请重试。",
+        "loadDetail": "无法加载此工单。",
+        "sendReply": "无法发送回复，请重试。"
       }
     }
   }

@@ -1020,6 +1020,8 @@
         "downloadAsCsv": "Descargar CSV",
         "downloadAsExcel": "Descargar Excel",
         "exportData": "Exportar Datos",
+        "detailedExportHint": "Cada campo se convierte en su propia columna: las exportaciones pueden ser muy anchas. Usa filtros en Excel o Sheets para navegar muchas columnas.",
+        "copyJson": "Copiar JSON",
         "csvDownloaded": "CSV descargado",
         "excelDownloaded": "Excel descargado",
         "step": "Paso",
