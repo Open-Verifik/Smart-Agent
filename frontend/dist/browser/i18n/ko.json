@@ -101,6 +101,33 @@
       "subscriptionPlans": "구독 플랜",
       "addCredits": "크레딧 추가"
     },
+    "sandbox": {
+      "bannerTitle": "샌드박스 모드입니다",
+      "bannerBody": "실제 검증은 비활성화되어 있으며 결과는 시뮬레이션됩니다.",
+      "readMore": "자세히 보기",
+      "modeLabel": "환경 모드",
+      "toggleSandbox": "샌드박스",
+      "toggleProduction": "프로덕션",
+      "toggleAria": "샌드박스 또는 프로덕션 검증 모드 전환",
+      "modalTitle": "샌드박스 모드",
+      "modalIntro": "샌드박스 모드는 실제 검증을 실행하기 전에 안전하게 연동할 수 있게 도와줍니다.",
+      "modalBullet1": "API 응답이 프로덕션 소스 조회 대신 시뮬레이션되거나 익명화될 수 있습니다.",
+      "modalBullet2": "계정에 따라 크레딧·과금 동작은 프로덕션과 다를 수 있습니다.",
+      "modalBullet3": "실제 검증 트래픽이 준비되었을 때만 샌드박스를 끄세요.",
+      "modalFooter": "프로덕션으로 전환하려면 실제 검증에 대한 충전 또는 과금 가능 자격이 있어야 합니다. 안내에 따라 회사 인증을 완료하고, 이 페이지의 샌드박스/프로덕션 토글을 사용하세요.",
+      "modalClose": "확인",
+      "errors": {
+        "updateFailed": "샌드박스 모드를 업데이트할 수 없습니다. 다시 시도하세요."
+      }
+    },
+    "companyVerification": {
+      "title": "회사를 인증하면 14일 무료 체험을 이용할 수 있습니다.",
+      "body": "회사 인증을 완료하면 구매가 가능하고 준비가 되었을 때 샌드박스에서 나갈 수 있습니다.",
+      "cta": "회사 인증",
+      "errors": {
+        "startFailed": "인증을 열 수 없습니다. 다시 시도하거나 크레딧 추가를 이용하세요."
+      }
+    },
     "tutorial": {
       "title": "시작하기",
       "description": "Smart Agent가 처음이신가요? 할 수 있는 것을 배우는 빠른 투어를 이용하세요.",
@@ -123,6 +150,26 @@
       "step4Desc": "문서 추출용 Smart Scan, API 상태 모니터링용 상태 확인, 서비스 알림용 사고, 이미지 최적화용 Smart Reduce.",
       "step5Title": "크레딧 및 결제",
       "step5Desc": "구독을 관리하고 크레딧을 추가하세요. 고정 구독 없이 검증당 결제."
+    }
+  },
+  "accountEnv": {
+    "verifyStrip": {
+      "text": "회사를 인증하면 14일 무료 체험이 가능하고 프로덕션 모드로 전환할 수 있습니다.",
+      "cta": "회사 인증"
+    },
+    "sandboxStrip": {
+      "text": "현재 샌드박스 모드입니다. 실제 검증은 비활성화되어 있으며 결과는 시뮬레이션됩니다.",
+      "readMore": "자세히 보기"
+    },
+    "toggle": {
+      "sandboxLabel": "샌드박스",
+      "productionLabel": "프로덕션",
+      "tooltipDisabled": "프로덕션 모드를 사용하려면 회사 인증을 완료하세요",
+      "aria": "샌드박스와 프로덕션 모드 전환"
+    },
+    "errors": {
+      "updateFailed": "환경 모드를 업데이트할 수 없습니다. 다시 시도하세요.",
+      "verifyFailed": "인증을 열 수 없습니다. 다시 시도하거나 크레딧 추가를 이용하세요."
     }
   },
   "network": {

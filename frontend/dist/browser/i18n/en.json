@@ -102,6 +102,33 @@
             "subscriptionPlans": "Subscription Plans",
             "addCredits": "Add Credits"
         },
+        "sandbox": {
+            "bannerTitle": "You're in Sandbox mode",
+            "bannerBody": "Real verification checks are disabled and results are simulated.",
+            "readMore": "Read more",
+            "modeLabel": "Environment mode",
+            "toggleSandbox": "Sandbox",
+            "toggleProduction": "Production",
+            "toggleAria": "Toggle Sandbox or Production verification mode",
+            "modalTitle": "Sandbox mode",
+            "modalIntro": "Sandbox mode helps you integrate safely before running live checks.",
+            "modalBullet1": "API responses may be simulated or anonymized instead of querying production sources.",
+            "modalBullet2": "Credits and billing behavior may differ from production depending on your account.",
+            "modalBullet3": "Turn off Sandbox only when you are ready for real verification traffic.",
+            "modalFooter": "To switch to Production mode, your account must be eligible to recharge or bill for live checks. Complete company verification if prompted. Once eligible, use the Sandbox / Production toggle on this page.",
+            "modalClose": "Got it",
+            "errors": {
+                "updateFailed": "Could not update sandbox mode. Try again."
+            }
+        },
+        "companyVerification": {
+            "title": "Verify your company to access the 14-day free trial.",
+            "body": "Complete company verification to unlock purchases and switch out of Sandbox when you're ready.",
+            "cta": "Verify company",
+            "errors": {
+                "startFailed": "Could not open verification. Try again or use Add credits."
+            }
+        },
         "tutorial": {
             "title": "Getting started",
             "description": "New to Smart Agent? Take a quick tour to learn what you can do.",
@@ -124,6 +151,26 @@
             "step4Desc": "Smart Scan for document extraction, Status Check for API health monitoring, Incidents for service alerts, and Smart Reduce for image optimization.",
             "step5Title": "Credits and billing",
             "step5Desc": "Manage your subscription and add credits. Pay-per-verification with no fixed subscription required."
+        }
+    },
+    "accountEnv": {
+        "verifyStrip": {
+            "text": "Verify your company to access the 14-day free trial and switch to Production.",
+            "cta": "Verify company"
+        },
+        "sandboxStrip": {
+            "text": "You're in Sandbox mode. Real verification checks are disabled and results are simulated.",
+            "readMore": "Read more"
+        },
+        "toggle": {
+            "sandboxLabel": "Sandbox",
+            "productionLabel": "Production",
+            "tooltipDisabled": "Verify your company to enable Production mode",
+            "aria": "Toggle between Sandbox and Production mode"
+        },
+        "errors": {
+            "updateFailed": "Could not update environment mode. Try again.",
+            "verifyFailed": "Could not open verification. Try again or use Add credits."
         }
     },
     "network": {
@@ -2101,6 +2148,12 @@
             },
             "body": {
                 "jsonBody": "JSON Body"
+            },
+            "sandboxProfiles": {
+                "title": "Sandbox test profiles",
+                "description": "In Sandbox mode, these test values return predictable responses. Pick a profile to fill request parameters automatically.",
+                "selectLabel": "Test profile",
+                "profileMeta": "{{gender}} · {{birthDate}}"
             },
             "about": {
                 "overview": "Overview",

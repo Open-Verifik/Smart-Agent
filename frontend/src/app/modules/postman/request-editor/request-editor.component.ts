@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoService } from '@jsverse/transloco';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { UserService } from 'app/core/user/user.service';
 import { AgentWalletService } from '../../chat/services/agent-wallet.service';
 import {
@@ -29,6 +30,20 @@ import {
     PostmanValidationIssue,
 } from '../postman-request-validation';
 import { buildPostmanEffectiveUrl } from '../postman-url.util';
+import {
+    applyPostmanSandboxParamDefaults,
+    getPostmanSandboxConfig,
+    getPostmanSandboxDefaultDocumentType,
+    getPostmanSandboxI18nKey,
+    getPostmanSandboxProfilePickerValue,
+    getPostmanSandboxProfiles,
+    getPostmanSandboxShowProfileMeta,
+    isPostmanSandboxEndpoint,
+} from '../sandbox';
+import {
+    formatPostmanSandboxProfileLabel,
+    getPostmanSandboxProfileKey,
+} from '../sandbox/sandbox-error-profiles';
 import { distinctUntilChanged, map, skip } from 'rxjs';
 import { AboutEndpointComponent } from './about-endpoint.component';
 
@@ -184,6 +199,112 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                     <!-- Params -->
                     <mat-tab [label]="'postman.requestEditor.tabs.params' | transloco">
                         <div class="p-4 overflow-y-auto h-full space-y-4 select-text">
+                            @if (showPostmanSandboxProfilePicker()) {
+                                <div
+                                    class="select-text rounded-2xl border border-slate-200/90 bg-white px-4 py-4 shadow-sm dark:border-slate-700/80 dark:bg-slate-900/40"
+                                >
+                                    <div class="flex items-start gap-3">
+                                        <div
+                                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/15 bg-gradient-to-br from-indigo-500/[0.08] to-violet-500/[0.04] text-indigo-600 dark:border-indigo-400/20 dark:from-indigo-400/10 dark:to-violet-400/5 dark:text-indigo-400"
+                                        >
+                                            <mat-icon class="icon-size-5">dataset</mat-icon>
+                                        </div>
+                                        <div class="min-w-0 flex-1 space-y-3">
+                                            <div class="space-y-1">
+                                                <div
+                                                    class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400"
+                                                >
+                                                    Sandbox
+                                                </div>
+                                                <div
+                                                    class="text-sm font-semibold text-slate-800 dark:text-slate-100"
+                                                >
+                                                    {{
+                                                        postmanSandboxI18nKey('title') | transloco
+                                                    }}
+                                                </div>
+                                                <p
+                                                    class="text-xs leading-relaxed text-slate-500 dark:text-slate-400"
+                                                >
+                                                    {{
+                                                        postmanSandboxI18nKey('description') | transloco
+                                                    }}
+                                                </p>
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label
+                                                    class="block text-xs font-medium text-slate-600 dark:text-slate-400"
+                                                    for="postman-sandbox-profile"
+                                                >
+                                                    {{
+                                                        postmanSandboxI18nKey('selectLabel') | transloco
+                                                    }}
+                                                </label>
+                                                <select
+                                                    id="postman-sandbox-profile"
+                                                    class="postman-param-value-select w-full min-w-0 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700 outline-none transition-all focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20"
+                                                    [ngModel]="sandboxProfilePickerValue()"
+                                                    (ngModelChange)="onSandboxProfileSelect($event)"
+                                                >
+                                                    <option value="" disabled hidden>
+                                                        {{
+                                                            postmanSandboxI18nKey('selectLabel') | transloco
+                                                        }}
+                                                    </option>
+                                                    @for (
+                                                        profile of postmanSandboxProfiles();
+                                                        track trackSandboxProfileKey(profile)
+                                                    ) {
+                                                        <option [value]="trackSandboxProfileKey(profile)">
+                                                            {{ formatSandboxProfileLabel(profile) }}
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            @if (selectedSandboxProfile(); as profile) {
+                                                <div
+                                                    class="flex flex-wrap items-center gap-x-2 gap-y-0.5 rounded-lg border px-3 py-2 text-xs"
+                                                    [ngClass]="
+                                                        profile.responseType === 'error'
+                                                            ? 'border-rose-200 bg-rose-50/80 dark:border-rose-900/50 dark:bg-rose-950/30'
+                                                            : 'border-slate-100 bg-slate-50/80 dark:border-slate-700/60 dark:bg-slate-800/50'
+                                                    "
+                                                >
+                                                    @if (profile.responseType === 'error' && profile.expectedStatus) {
+                                                        <span
+                                                            class="rounded-md bg-rose-100 px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-rose-700 dark:bg-rose-900/50 dark:text-rose-300"
+                                                        >
+                                                            HTTP {{ profile.expectedStatus }}
+                                                        </span>
+                                                    }
+                                                    <span
+                                                        class="font-mono font-medium tabular-nums text-slate-700 dark:text-slate-200"
+                                                    >
+                                                        {{ profile.documentNumber }}
+                                                    </span>
+                                                    <span class="text-slate-300 dark:text-slate-600">·</span>
+                                                    @if (showPostmanSandboxProfileMeta() && profile.responseType !== 'error') {
+                                                        <span class="text-slate-500 dark:text-slate-400">
+                                                            {{
+                                                                postmanSandboxI18nKey('profileMeta')
+                                                                    | transloco: {
+                                                                          gender: profile.gender,
+                                                                          birthDate: profile.birthDate,
+                                                                      }
+                                                            }}
+                                                        </span>
+                                                    } @else {
+                                                        <span class="text-slate-500 dark:text-slate-400">{{
+                                                            profile.fullName
+                                                        }}</span>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
                             @if (showDependencyGuidanceBanner()) {
                                 <div
                                     class="select-text rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 shadow-sm dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-100"
@@ -853,6 +974,7 @@ export class RequestEditorComponent {
     private _walletService = inject(AgentWalletService);
     private _subscriptionService = inject(SubscriptionService);
     private _userService = inject(UserService);
+    private _accountEnv = inject(AccountEnvironmentService);
     translocoService = inject(TranslocoService);
 
     endpoint = this._postmanService.selectedEndpoint;
@@ -881,6 +1003,136 @@ export class RequestEditorComponent {
     onRequestInputsChanged(): void {
         this._validationInputsTick.update((n) => n + 1);
     }
+
+    readonly showPostmanSandboxProfilePicker = computed(() => {
+        const ep = this.endpoint();
+        if (!isPostmanSandboxEndpoint(ep?.code)) {
+            return false;
+        }
+        return this._accountEnv.showSandboxStrip();
+    });
+
+    readonly postmanSandboxProfiles = computed(() =>
+        getPostmanSandboxProfiles(this.endpoint()?.code)
+    );
+
+    readonly sandboxProfilePickerValue = computed(() => {
+        this._validationInputsTick();
+        const ep = this.endpoint();
+        return getPostmanSandboxProfilePickerValue(ep?.code, ep?.params);
+    });
+
+    readonly selectedSandboxProfile = computed(() => {
+        const value = this.sandboxProfilePickerValue();
+        if (!value) {
+            return null;
+        }
+        return (
+            getPostmanSandboxProfiles(this.endpoint()?.code).find(
+                (p) => getPostmanSandboxProfileKey(p) === value
+            ) ?? null
+        );
+    });
+
+    readonly showPostmanSandboxProfileMeta = computed(() =>
+        getPostmanSandboxShowProfileMeta(this.endpoint()?.code)
+    );
+
+    postmanSandboxI18nKey(
+        field: 'title' | 'description' | 'selectLabel' | 'profileMeta'
+    ): string {
+        const suffix = getPostmanSandboxI18nKey(this.endpoint()?.code);
+        return `postman.requestEditor.${suffix}.${field}`;
+    }
+
+    onSandboxProfileSelect(profileKey: string): void {
+        if (!profileKey) {
+            return;
+        }
+
+        this._postmanService.selectedEndpoint.update((ep) => {
+            if (!ep?.params?.length) {
+                return ep;
+            }
+
+            const profile = getPostmanSandboxProfiles(ep.code).find(
+                (p) => getPostmanSandboxProfileKey(p) === profileKey
+            );
+            if (!profile) {
+                return ep;
+            }
+
+            const defaultDocumentType = getPostmanSandboxDefaultDocumentType(ep.code);
+            const params = ep.params.map((param) => {
+                if (profile.paramOverrides && param.key in profile.paramOverrides) {
+                    return { ...param, value: profile.paramOverrides[param.key] ?? '' };
+                }
+
+                if (param.key === 'documentNumber') {
+                    return { ...param, value: profile.documentNumber };
+                }
+                if (param.key === 'processNumber') {
+                    return {
+                        ...param,
+                        value: profile.processNumber ?? profile.documentNumber,
+                    };
+                }
+                if (param.key === 'plate') {
+                    return {
+                        ...param,
+                        value: profile.plate ?? profile.documentNumber,
+                    };
+                }
+                if (param.key === 'vin') {
+                    return {
+                        ...param,
+                        value: profile.vin ?? profile.documentNumber,
+                    };
+                }
+                if (param.key === 'documentType' && defaultDocumentType) {
+                    return { ...param, value: defaultDocumentType };
+                }
+                if (param.key === 'expeditionDate' && profile.expeditionDate) {
+                    return { ...param, value: profile.expeditionDate };
+                }
+                if (param.key === 'city') {
+                    const config = getPostmanSandboxConfig(ep.code);
+                    if (config?.defaultCity) {
+                        return { ...param, value: config.defaultCity };
+                    }
+                }
+                if (param.key === 'quality') {
+                    const config = getPostmanSandboxConfig(ep.code);
+                    if (config?.defaultQuality) {
+                        return { ...param, value: config.defaultQuality };
+                    }
+                }
+                if (param.key === 'dateOfBirth') {
+                    const config = getPostmanSandboxConfig(ep.code);
+                    if (profile.birthDate) {
+                        return { ...param, value: profile.birthDate };
+                    }
+                    if (config?.defaultDateOfBirth) {
+                        return { ...param, value: config.defaultDateOfBirth };
+                    }
+                }
+                if (param.key === 'expirationDate') {
+                    const config = getPostmanSandboxConfig(ep.code);
+                    if (config?.defaultExpirationDate) {
+                        return { ...param, value: config.defaultExpirationDate };
+                    }
+                }
+                return param;
+            });
+
+            return { ...ep, params };
+        });
+        this.onRequestInputsChanged();
+    }
+
+    formatSandboxProfileLabel = formatPostmanSandboxProfileLabel;
+
+    trackSandboxProfileKey = getPostmanSandboxProfileKey;
 
     readonly showDependencyGuidanceBanner = computed(() =>
         endpointShowsGroupedRequestGuidance(this.endpoint())

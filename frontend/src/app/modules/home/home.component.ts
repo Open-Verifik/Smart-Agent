@@ -66,6 +66,7 @@ interface PodiumEntry {
     styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
+    private readonly _destroyRef = inject(DestroyRef);
     private _homeService = inject(HomeService);
     private _sessionService = inject(SessionService);
     private _matDialog = inject(MatDialog);
@@ -135,7 +136,7 @@ export class HomeComponent implements OnInit {
             this._buildCharts(data);
         });
 
-        inject(DestroyRef).onDestroy(() => this._detachSchemeAutoListener());
+        this._destroyRef.onDestroy(() => this._detachSchemeAutoListener());
 
         this._fuseConfig.config$
             .pipe(takeUntilDestroyed())

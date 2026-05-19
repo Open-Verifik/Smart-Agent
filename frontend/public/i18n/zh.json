@@ -101,6 +101,33 @@
       "subscriptionPlans": "订阅计划",
       "addCredits": "添加积分"
     },
+    "sandbox": {
+      "bannerTitle": "当前为沙盒模式",
+      "bannerBody": "真实核验已停用，结果为模拟数据。",
+      "readMore": "了解更多",
+      "modeLabel": "环境模式",
+      "toggleSandbox": "沙盒",
+      "toggleProduction": "正式环境",
+      "toggleAria": "在沙盒模式与正式核验模式之间切换",
+      "modalTitle": "沙盒模式",
+      "modalIntro": "沙盒模式可在运行正式核验前安全完成集成。",
+      "modalBullet1": "API 响应可能为模拟或脱敏数据，而非查询生产数据源。",
+      "modalBullet2": "积分与计费行为可能因账户而异，与生产环境不完全相同。",
+      "modalBullet3": "仅在准备好真实核验流量时再关闭沙盒。",
+      "modalFooter": "要切换到正式环境，账户需具备充值或线上核验计费资格。按提示完成企业认证。具备资格后，请使用本页的沙盒／正式环境开关。",
+      "modalClose": "知道了",
+      "errors": {
+        "updateFailed": "无法更新沙盒模式，请重试。"
+      }
+    },
+    "companyVerification": {
+      "title": "完成企业验证即可享受14天免费试用。",
+      "body": "完成企业认证后即可购买，并在准备好时退出沙盒。",
+      "cta": "验证企业",
+      "errors": {
+        "startFailed": "无法打开验证流程，请重试或使用添加积分。"
+      }
+    },
     "tutorial": {
       "title": "入门指南",
       "description": "刚接触 Smart Agent？快速浏览了解您可以做什么。",
@@ -123,6 +150,26 @@
       "step4Desc": "Smart Scan 用于文档提取，状态检查用于 API 健康监控，事件用于服务警报，Smart Reduce 用于图像优化。",
       "step5Title": "积分和计费",
       "step5Desc": "管理您的订阅并添加积分。按验证付费，无需固定订阅。"
+    }
+  },
+  "accountEnv": {
+    "verifyStrip": {
+      "text": "完成企业验证即可使用14天免费试用并切换到正式环境。",
+      "cta": "验证企业"
+    },
+    "sandboxStrip": {
+      "text": "当前为沙盒模式。真实核验已停用，结果为模拟数据。",
+      "readMore": "了解更多"
+    },
+    "toggle": {
+      "sandboxLabel": "沙盒",
+      "productionLabel": "正式环境",
+      "tooltipDisabled": "请先完成企业验证以启用正式环境",
+      "aria": "在沙盒模式与正式环境之间切换"
+    },
+    "errors": {
+      "updateFailed": "无法更新环境模式，请稍后重试。",
+      "verifyFailed": "无法打开验证流程，请重试或使用「添加积分」。"
     }
   },
   "network": {

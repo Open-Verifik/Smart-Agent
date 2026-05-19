@@ -101,6 +101,33 @@
       "subscriptionPlans": "Plans d'abonnement",
       "addCredits": "Ajouter des crédits"
     },
+    "sandbox": {
+      "bannerTitle": "Vous êtes en mode Sandbox",
+      "bannerBody": "Les vérifications réelles sont désactivées et les résultats sont simulés.",
+      "readMore": "En savoir plus",
+      "modeLabel": "Mode d'environnement",
+      "toggleSandbox": "Sandbox",
+      "toggleProduction": "Production",
+      "toggleAria": "Basculer entre le mode Sandbox et le mode Production",
+      "modalTitle": "Mode Sandbox",
+      "modalIntro": "Le mode Sandbox vous aide à intégrer en toute sécurité avant d'exécuter des vérifications réelles.",
+      "modalBullet1": "Les réponses API peuvent être simulées ou anonymisées au lieu d'interroger les sources de production.",
+      "modalBullet2": "Le comportement des crédits et de la facturation peut différer de la production selon votre compte.",
+      "modalBullet3": "Désactivez le Sandbox uniquement lorsque vous êtes prêt pour du trafic de vérification réel.",
+      "modalFooter": "Pour passer en Production, votre compte doit être éligible à la recharge ou à la facturation des vérifications réelles. Terminez la vérification d'entreprise si vous y êtes invité. Ensuite utilisez le basculement Sandbox / Production sur cette page.",
+      "modalClose": "Compris",
+      "errors": {
+        "updateFailed": "Impossible de mettre à jour le mode Sandbox. Réessayez."
+      }
+    },
+    "companyVerification": {
+      "title": "Vérifiez votre entreprise pour accéder à l'essai gratuit de 14 jours.",
+      "body": "Terminez la vérification pour débloquer les achats et quitter le Sandbox lorsque vous êtes prêt.",
+      "cta": "Vérifier l'entreprise",
+      "errors": {
+        "startFailed": "Impossible d'ouvrir la vérification. Réessayez ou utilisez Ajouter des crédits."
+      }
+    },
     "tutorial": {
       "title": "Premiers pas",
       "description": "Nouveau sur Smart Agent ? Faites une visite rapide pour découvrir ce que vous pouvez faire.",
@@ -123,6 +150,26 @@
       "step4Desc": "Smart Scan pour l'extraction de documents, Status Check pour la surveillance de la santé des APIs, Incidents pour les alertes de service et Smart Reduce pour l'optimisation d'images.",
       "step5Title": "Crédits et facturation",
       "step5Desc": "Gérez votre abonnement et ajoutez des crédits. Paiement par vérification sans abonnement fixe requis."
+    }
+  },
+  "accountEnv": {
+    "verifyStrip": {
+      "text": "Vérifiez votre entreprise pour accéder à l'essai gratuit de 14 jours et passer en Production.",
+      "cta": "Vérifier l'entreprise"
+    },
+    "sandboxStrip": {
+      "text": "Vous êtes en mode Sandbox. Les vérifications réelles sont désactivées et les résultats sont simulés.",
+      "readMore": "En savoir plus"
+    },
+    "toggle": {
+      "sandboxLabel": "Sandbox",
+      "productionLabel": "Production",
+      "tooltipDisabled": "Vérifiez votre entreprise pour activer le mode Production",
+      "aria": "Basculer entre Sandbox et Production"
+    },
+    "errors": {
+      "updateFailed": "Impossible de mettre à jour le mode d'environnement. Réessayez.",
+      "verifyFailed": "Impossible d'ouvrir la vérification. Réessayez ou utilisez Ajouter des crédits."
     }
   },
   "network": {

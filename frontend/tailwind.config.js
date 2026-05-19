@@ -15,6 +15,8 @@ const customPalettes = {
     brand: generatePalette('#2196F3'),
     /** Product UI primary (aligned with Smart Enroll defaults) */
     productPrimary: generatePalette('#2563eb'),
+    /** Verifik logo / marketing indigo-blue (smart-enroll, docs) */
+    verifikBrand: generatePalette('#2b3af0'),
 };
 
 /**
@@ -101,6 +103,7 @@ const config = {
             },
             colors: {
                 gray: colors.slate,
+                verifikBrand: customPalettes.verifikBrand,
             },
             flex: {
                 0: '0 0 auto',

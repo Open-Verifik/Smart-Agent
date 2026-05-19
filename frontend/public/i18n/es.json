@@ -102,6 +102,33 @@
             "subscriptionPlans": "Planes de suscripción",
             "addCredits": "Agregar créditos"
         },
+        "sandbox": {
+            "bannerTitle": "Estás en modo Sandbox",
+            "bannerBody": "Las verificaciones reales están desactivadas y los resultados son simulados.",
+            "readMore": "Leer más",
+            "modeLabel": "Modo de entorno",
+            "toggleSandbox": "Sandbox",
+            "toggleProduction": "Producción",
+            "toggleAria": "Alternar modo de verificación Sandbox o Producción",
+            "modalTitle": "Modo Sandbox",
+            "modalIntro": "El modo Sandbox te ayuda a integrar con seguridad antes de ejecutar verificaciones en vivo.",
+            "modalBullet1": "Las respuestas de la API pueden estar simuladas o anonimizadas en lugar de consultar fuentes de producción.",
+            "modalBullet2": "Los créditos y la facturación pueden comportarse distinto al entorno productivo según tu cuenta.",
+            "modalBullet3": "Desactiva Sandbox solo cuando estés listo para tráfico de verificación real.",
+            "modalFooter": "Para cambiar a Producción, tu cuenta debe poder recargar o facturar verificaciones en vivo. Completa la verificación de empresa si se solicita. Cuando seas elegible, usa el interruptor Sandbox / Producción en esta página.",
+            "modalClose": "Entendido",
+            "errors": {
+                "updateFailed": "No se pudo actualizar el modo sandbox. Intenta de nuevo."
+            }
+        },
+        "companyVerification": {
+            "title": "Verifica tu empresa para acceder a la prueba gratuita de 14 días.",
+            "body": "Completa la verificación de empresa para desbloquear compras y salir del Sandbox cuando estés listo.",
+            "cta": "Verificar empresa",
+            "errors": {
+                "startFailed": "No se pudo abrir la verificación. Intenta de nuevo o usa Agregar créditos."
+            }
+        },
         "tutorial": {
             "title": "Primeros pasos",
             "description": "¿Nuevo en Smart Agent? Haz un recorrido rápido para aprender qué puedes hacer.",
@@ -124,6 +151,26 @@
             "step4Desc": "Smart Scan para extracción de documentos, Status Check para monitoreo de salud de APIs, Incidents para alertas de servicio y Smart Reduce para optimización de imágenes.",
             "step5Title": "Créditos y facturación",
             "step5Desc": "Administra tu suscripción y agrega créditos. Pago por verificación sin suscripción fija requerida."
+        }
+    },
+    "accountEnv": {
+        "verifyStrip": {
+            "text": "Verifica tu empresa para acceder a la prueba gratuita de 14 días y cambiar a Producción.",
+            "cta": "Verificar empresa"
+        },
+        "sandboxStrip": {
+            "text": "Estás en modo Sandbox. Las verificaciones reales están desactivadas y los resultados son simulados.",
+            "readMore": "Leer más"
+        },
+        "toggle": {
+            "sandboxLabel": "Sandbox",
+            "productionLabel": "Producción",
+            "tooltipDisabled": "Verifica tu empresa para activar el modo Producción",
+            "aria": "Alternar entre modo Sandbox y Producción"
+        },
+        "errors": {
+            "updateFailed": "No se pudo actualizar el modo de entorno. Intenta de nuevo.",
+            "verifyFailed": "No se pudo abrir la verificación. Intenta de nuevo o usa Agregar créditos."
         }
     },
     "network": {
@@ -2101,6 +2148,12 @@
             },
             "body": {
                 "jsonBody": "Cuerpo JSON"
+            },
+            "sandboxProfiles": {
+                "title": "Perfiles de prueba en Sandbox",
+                "description": "En modo Sandbox, estos valores de prueba devuelven respuestas predecibles. Elige un perfil para completar los parámetros automáticamente.",
+                "selectLabel": "Perfil de prueba",
+                "profileMeta": "{{gender}} · {{birthDate}}"
             },
             "about": {
                 "overview": "Descripción",

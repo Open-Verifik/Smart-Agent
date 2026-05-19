@@ -82,6 +82,9 @@
 
 <!-- Wrapper -->
 <div class="flex w-full min-w-0 flex-auto flex-col">
+    <!-- Verification strip (above header, only when canRecharge is false) -->
+    <account-verification-strip></account-verification-strip>
+
     <!-- Header -->
     <div
         class="bg-card relative z-49 flex h-16 w-full flex-0 items-center px-4 shadow md:px-6 dark:border-b dark:bg-transparent dark:shadow-none print:hidden"
@@ -92,9 +95,11 @@
         </button>
         <!-- Components -->
         <div class="ml-auto flex items-center space-x-0.5 pl-2 sm:space-x-2">
+            <!-- Production / Sandbox toggle -->
+            <production-mode-toggle></production-mode-toggle>
             <languages></languages>
-            <fuse-fullscreen class="hidden md:block"></fuse-fullscreen>
-            <search [appearance]="'bar'"></search>
+            <!-- <fuse-fullscreen class="hidden md:block"></fuse-fullscreen> -->
+            <!-- <search [appearance]="'bar'"></search> -->
             <!-- OCULTADO: shortcuts messages notifications - Para futuras búsquedas busca: shortcuts messages notifications header -->
             <!-- <shortcuts></shortcuts> -->
             <!-- <messages></messages> -->
@@ -109,6 +114,9 @@
             </button>
         </div>
     </div>
+
+    <!-- Sandbox notice strip (below header, only when sandboxMode is true) -->
+    <sandbox-notice-strip></sandbox-notice-strip>
 
     <!-- Content -->
     <div class="flex flex-auto flex-col">

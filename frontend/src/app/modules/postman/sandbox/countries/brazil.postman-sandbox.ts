@@ -1,0 +1,82 @@
+/**
+ * Brazil Postman sandbox profiles.
+ * Middleware requires CPF documentNumber length 11 and dateOfBirth — uses 11-digit padded IDs.
+ */
+import { PostmanSandboxEndpointConfig, PostmanSandboxProfile } from '../postman-sandbox.types';
+import {
+    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+} from '../sandbox-error-profiles';
+
+export const BRAZIL_IDENTITY_ENDPOINT_CODE = 'brasil_api_identity_lookup';
+
+const BRAZIL_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
+
+const BRAZIL_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    { documentNumber: '00010000001', fullName: 'MARIA ELENA LOPEZ GARCIA — valid' },
+    { documentNumber: '00010000002', fullName: 'JOSE ANTONIO PEREZ RODRIGUEZ — valid' },
+    { documentNumber: '00010000003', fullName: 'CARLA ISABEL MARTINEZ FERNANDEZ — valid' },
+    { documentNumber: '00010000004', fullName: 'LUIS ALBERTO GONZALEZ HERRERA — valid' },
+    { documentNumber: '00010000005', fullName: 'ANA SOFIA RAMIREZ TORRES — valid' },
+    { documentNumber: '00010000006', fullName: 'DIEGO ALEJANDRO SILVA MENDOZA — valid' },
+    { documentNumber: '00010000007', fullName: 'VALENTINA ANDREA CASTRO VARGAS — valid' },
+    { documentNumber: '00010000008', fullName: 'RICARDO JOSE MORALES SUAREZ — valid' },
+    { documentNumber: '00010000009', fullName: 'PATRICIA CAROLINA DIAZ REYES — valid' },
+    { documentNumber: '00010000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — valid' },
+];
+
+const BRAZIL_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    profileKey: '409-invalid-documentType',
+    documentNumber: '90040902',
+    fullName: '409 — Invalid documentType',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: {
+        documentType: 'INVALID',
+        documentNumber: '00010000001',
+        dateOfBirth: BRAZIL_DEFAULT_DATE_OF_BIRTH,
+    },
+};
+
+const BRAZIL_CONFLICT_MISSING_DATE_OF_BIRTH: PostmanSandboxProfile = {
+    profileKey: '409-missing-dateOfBirth',
+    documentNumber: '90040908',
+    fullName: '409 — Missing dateOfBirth',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: { dateOfBirth: '', documentNumber: '00010000001' },
+};
+
+const BRAZIL_CONFLICT_INVALID_DATE_OF_BIRTH: PostmanSandboxProfile = {
+    profileKey: '409-invalid-dateOfBirth',
+    documentNumber: '90040909',
+    fullName: '409 — Invalid dateOfBirth format',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: { dateOfBirth: 'not-a-date', documentNumber: '00010000001' },
+};
+
+const BRAZIL_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    documentNumber: '00090040401',
+    fullName: '404 — Record not found',
+    responseType: 'error',
+    expectedStatus: 404,
+};
+
+export const BRAZIL_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
+    [BRAZIL_IDENTITY_ENDPOINT_CODE]: {
+        profiles: [
+            ...BRAZIL_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            BRAZIL_CONFLICT_INVALID_DOCUMENT_TYPE,
+            BRAZIL_CONFLICT_MISSING_DATE_OF_BIRTH,
+            BRAZIL_CONFLICT_INVALID_DATE_OF_BIRTH,
+            BRAZIL_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: '00010000001',
+        defaultDateOfBirth: BRAZIL_DEFAULT_DATE_OF_BIRTH,
+        documentTypeByCode: {
+            [BRAZIL_IDENTITY_ENDPOINT_CODE]: 'CPF',
+        },
+        showProfileMeta: false,
+    },
+};

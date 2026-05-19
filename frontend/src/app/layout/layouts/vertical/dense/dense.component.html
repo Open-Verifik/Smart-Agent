@@ -31,10 +31,7 @@
     >
         <div class="flex items-center space-x-2 pr-2">
             <!-- Navigation toggle button -->
-            <button
-                mat-icon-button
-                (click)="toggleNavigation('mainNavigation')"
-            >
+            <button mat-icon-button (click)="toggleNavigation('mainNavigation')">
                 <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
             </button>
             <!-- Navigation appearance toggle button -->
@@ -43,28 +40,20 @@
                 mat-icon-button
                 (click)="toggleNavigationAppearance()"
             >
-                <mat-icon
-                    [svgIcon]="'heroicons_outline:arrows-right-left'"
-                ></mat-icon>
+                <mat-icon [svgIcon]="'heroicons_outline:arrows-right-left'"></mat-icon>
             </button>
         </div>
         <!-- Components -->
         <div class="ml-auto flex items-center space-x-0.5 pl-2 sm:space-x-2">
             <languages></languages>
-            <fuse-fullscreen class="hidden md:block"></fuse-fullscreen>
-            <search [appearance]="'bar'"></search>
+            <!-- <fuse-fullscreen class="hidden md:block"></fuse-fullscreen> -->
+            <!-- <search [appearance]="'bar'"></search> -->
             <!-- OCULTADO: shortcuts messages notifications - Para futuras búsquedas busca: shortcuts messages notifications header -->
             <!-- <shortcuts></shortcuts> -->
             <!-- <messages></messages> -->
             <!-- <notifications></notifications> -->
-            <button
-                class="lg:hidden"
-                mat-icon-button
-                (click)="quickChat.toggle()"
-            >
-                <mat-icon
-                    [svgIcon]="'heroicons_outline:lifebuoy'"
-                ></mat-icon>
+            <button class="lg:hidden" mat-icon-button (click)="quickChat.toggle()">
+                <mat-icon [svgIcon]="'heroicons_outline:lifebuoy'"></mat-icon>
             </button>
             <user></user>
         </div>
@@ -83,9 +72,7 @@
     <div
         class="bg-card relative z-49 flex h-14 w-full flex-0 items-center justify-start border-t px-4 dark:bg-transparent md:px-6 print:hidden"
     >
-        <span class="text-secondary font-medium"
-            >Verifik &copy; {{ currentYear }}</span
-        >
+        <span class="text-secondary font-medium">Verifik &copy; {{ currentYear }}</span>
     </div>
 </div>
 

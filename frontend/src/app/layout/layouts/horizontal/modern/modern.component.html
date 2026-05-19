@@ -64,30 +64,21 @@
         }
         <!-- Navigation toggle button -->
         @if (isScreenSmall) {
-            <button
-                mat-icon-button
-                (click)="toggleNavigation('mainNavigation')"
-            >
+            <button mat-icon-button (click)="toggleNavigation('mainNavigation')">
                 <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
             </button>
         }
         <!-- Components -->
         <div class="ml-auto flex items-center space-x-0.5 pl-2 sm:space-x-2">
             <languages></languages>
-            <fuse-fullscreen class="hidden md:block"></fuse-fullscreen>
-            <search [appearance]="'bar'"></search>
+            <!-- <fuse-fullscreen class="hidden md:block"></fuse-fullscreen> -->
+            <!-- <search [appearance]="'bar'"></search> -->
             <!-- OCULTADO: shortcuts messages notifications - Para futuras búsquedas busca: shortcuts messages notifications header -->
             <!-- <shortcuts></shortcuts> -->
             <!-- <messages></messages> -->
             <!-- <notifications></notifications> -->
-            <button
-                class="lg:hidden"
-                mat-icon-button
-                (click)="quickChat.toggle()"
-            >
-                <mat-icon
-                    [svgIcon]="'heroicons_outline:lifebuoy'"
-                ></mat-icon>
+            <button class="lg:hidden" mat-icon-button (click)="quickChat.toggle()">
+                <mat-icon [svgIcon]="'heroicons_outline:lifebuoy'"></mat-icon>
             </button>
             <user></user>
         </div>
@@ -106,9 +97,7 @@
     <div
         class="bg-card relative z-49 flex h-14 w-full flex-0 items-center border-t px-4 sm:h-20 md:px-6 dark:bg-transparent print:hidden"
     >
-        <span class="text-secondary font-medium"
-            >Verifik &copy; {{ currentYear }}</span
-        >
+        <span class="text-secondary font-medium">Verifik &copy; {{ currentYear }}</span>
     </div>
 </div>
 

@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { SessionService } from 'app/core/services/session.service';
@@ -18,6 +19,7 @@ import {
     getPostmanRequestValidationIssues,
     getPostmanXorGroupMetadata,
 } from './postman-request-validation';
+import { applyPostmanSandboxParamDefaults } from './sandbox';
 import {
     buildPostmanEffectiveUrl,
     getPostmanPathParamKeysForEndpoint,
@@ -34,6 +36,7 @@ export class PostmanService {
     private _userService = inject(UserService);
     private _authService = inject(AuthService);
     private _agentWalletService = inject(AgentWalletService);
+    private _accountEnv = inject(AccountEnvironmentService);
 
     endpoints = signal<ApiEndpoint[]>(API_ENDPOINTS);
 
@@ -598,6 +601,10 @@ export class PostmanService {
                     }
                 }
             });
+        }
+
+        if (this._accountEnv.showSandboxStrip()) {
+            applyPostmanSandboxParamDefaults(endpointCopy);
         }
 
         this.selectedEndpoint.set(endpointCopy);

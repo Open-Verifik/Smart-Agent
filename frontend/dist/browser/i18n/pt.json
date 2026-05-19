@@ -101,6 +101,33 @@
       "subscriptionPlans": "Planos de assinatura",
       "addCredits": "Adicionar créditos"
     },
+    "sandbox": {
+      "bannerTitle": "Está no modo Sandbox",
+      "bannerBody": "As verificações reais estão desativadas e os resultados são simulados.",
+      "readMore": "Saiba mais",
+      "modeLabel": "Modo de ambiente",
+      "toggleSandbox": "Sandbox",
+      "toggleProduction": "Produção",
+      "toggleAria": "Alternar entre modo Sandbox ou de verificação em Produção",
+      "modalTitle": "Modo Sandbox",
+      "modalIntro": "O modo Sandbox ajuda-o a integrar com segurança antes de executar verificações em produção.",
+      "modalBullet1": "As respostas da API podem ser simuladas ou anonimizadas em vez de consultar fontes de produção.",
+      "modalBullet2": "O comportamento dos créditos e da faturação pode diferir do ambiente de produção consoante a sua conta.",
+      "modalBullet3": "Desative o Sandbox apenas quando estiver preparado para tráfego real de verificação.",
+      "modalFooter": "Para mudar para Produção, a conta tem de poder recarregar ou faturar verificações reais. Complete a verificação da empresa quando solicitado. Depois utilize o selector Sandbox / Produção nesta página.",
+      "modalClose": "Percebi",
+      "errors": {
+        "updateFailed": "Não foi possível atualizar o modo Sandbox. Tente novamente."
+      }
+    },
+    "companyVerification": {
+      "title": "Verifique a sua empresa para aceder ao teste gratuito de 14 dias.",
+      "body": "Complete a verificação da empresa para desbloquear compras e sair do Sandbox quando estiver pronto.",
+      "cta": "Verificar empresa",
+      "errors": {
+        "startFailed": "Não foi possível abrir a verificação. Tente novamente ou use Adicionar créditos."
+      }
+    },
     "tutorial": {
       "title": "Primeiros passos",
       "description": "Novo no Smart Agent? Faça um tour rápido para aprender o que você pode fazer.",
@@ -123,6 +150,26 @@
       "step4Desc": "Smart Scan para extração de documentos, Verificação de Status para monitoramento de saúde da API, Incidentes para alertas de serviço e Smart Reduce para otimização de imagens.",
       "step5Title": "Créditos e faturamento",
       "step5Desc": "Gerencie sua assinatura e adicione créditos. Pagamento por verificação sem assinatura fixa necessária."
+    }
+  },
+  "accountEnv": {
+    "verifyStrip": {
+      "text": "Verifique a sua empresa para aceder ao teste gratuito de 14 dias e mudar para Produção.",
+      "cta": "Verificar empresa"
+    },
+    "sandboxStrip": {
+      "text": "Está no modo Sandbox. As verificações reais estão desativadas e os resultados são simulados.",
+      "readMore": "Saiba mais"
+    },
+    "toggle": {
+      "sandboxLabel": "Sandbox",
+      "productionLabel": "Produção",
+      "tooltipDisabled": "Verifique a sua empresa para ativar o modo Produção",
+      "aria": "Alternar entre modo Sandbox e Produção"
+    },
+    "errors": {
+      "updateFailed": "Não foi possível atualizar o modo de ambiente. Tente novamente.",
+      "verifyFailed": "Não foi possível abrir a verificação. Tente novamente ou use Adicionar créditos."
     }
   },
   "network": {

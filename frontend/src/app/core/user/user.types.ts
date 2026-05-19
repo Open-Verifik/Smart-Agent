@@ -7,13 +7,23 @@ export interface SmartAgentWeekOneUsd50Promotion {
     purchaseUsdAmounts: number[];
 }
 
+export interface ClientSettingsSnapshot {
+    _id?: string;
+    sandboxMode?: boolean;
+}
+
 export interface User {
-    id: string;
-    name: string;
-    email: string;
+    id?: string;
+    _id?: string;
+    name?: string;
+    email?: string;
     avatar?: string;
     role?: string;
     credits?: number;
     language?: string;
     promotion?: SmartAgentWeekOneUsd50Promotion;
+    /** Present on session user from Client Settings (see backend authentication.module). */
+    settings?: ClientSettingsSnapshot;
+    /** When false, recharge / verification gating may apply (see Client model). */
+    canRecharge?: boolean;
 }
