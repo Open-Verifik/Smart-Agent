@@ -1,0 +1,590 @@
+{
+  "zh": {
+    "settings": {
+      "panels": {
+        "notifications": "通知",
+        "notifications_desc": "电子邮件与面板通知偏好",
+        "usage_history": "使用记录",
+        "usage_history_desc": "跟踪 API 消耗与积分支出"
+      },
+      "notifications": {
+        "title": "通知",
+        "subtitle": "选择我们通过电子邮件通知您的内容。一键暂停全部，或单独调整各类别。",
+        "sign_in_hint": "登录后管理您的通知偏好。",
+        "loading": "正在加载您的偏好…",
+        "status_active": "{{count}}/{{total}} 项已启用",
+        "status_none": "未启用任何类别",
+        "status_paused": "所有通知已暂停",
+        "general_title": "常规",
+        "general_desc": "一键关闭所有通知邮件，或保持开启并在下方调整类别。",
+        "specific_title": "通知类别",
+        "specific_desc": "选择 Verifik 发送到您收件箱的邮件。重新开启某类别将自动恢复通知。",
+        "stop_all_title": "暂停所有通知",
+        "stop_all_desc": "停止接收 Verifik 的所有通知邮件。您的类别偏好将保留，关闭此选项后恢复。",
+        "toggle_on_label": "开",
+        "toggle_off_label": "关",
+        "tooltip_paused": "通知已暂停。重新开启此类别将自动恢复通知。",
+        "enable_all": "全部启用",
+        "unsaved": "您有未保存的更改",
+        "saved": "所有更改已保存",
+        "discard": "放弃",
+        "payment_title": "付款更新",
+        "payment_desc": "当付款成功、失败或需要您处理时收到通知。",
+        "credits_title": "积分即将过期",
+        "credits_desc": "在未使用积分过期前提醒您。",
+        "balance_title": "余额不足",
+        "balance_desc": "余额较低时提醒您充值，避免使用中断。",
+        "new_endpoints_title": "新端点",
+        "new_endpoints_desc": "新 API 端点上线时第一时间获知。",
+        "webhook_title": "Webhook 错误",
+        "webhook_desc": "向您的服务器交付 Webhook 失败时提醒您，便于快速修复。",
+        "save": "保存更改",
+        "saving": "保存中…",
+        "save_success": "通知偏好已保存。",
+        "save_error": "无法保存偏好。请重试。"
+      },
+      "usageHistory": {
+        "title": "使用记录",
+        "subtitle": "跟踪 API 消耗与积分支出。显示的费用不含税及某些支持费用。",
+        "view_toggle": "切换视图",
+        "simplified_view": "摘要",
+        "detailed_view": "详细",
+        "search": "搜索",
+        "clear_search": "清除搜索",
+        "clear_filters": "重置筛选",
+        "search_by_simplified": "按产品搜索",
+        "search_by_detailed": "按 API 代码搜索",
+        "enter_date_range": "日期范围",
+        "start_date": "开始日期",
+        "end_date": "结束日期",
+        "download": "下载",
+        "endpoint": "API 端点",
+        "quick_range_group": "快捷日期筛选",
+        "quickRange": {
+          "today": "今天",
+          "yesterday": "昨天",
+          "this_week": "本周",
+          "last_week": "上周",
+          "this_month": "本月",
+          "last_month": "上月"
+        },
+        "created_at": "日期",
+        "product": "产品",
+        "category": "类别",
+        "quantity": "数量",
+        "unit_price": "单价",
+        "total": "合计",
+        "summary": "摘要",
+        "detailed_strip": "明细行",
+        "allRecords": "全部记录",
+        "no_records": "此范围内无使用记录",
+        "no_records_hint": "尝试扩大日期范围或清除搜索以查看更多活动。",
+        "group": {
+          "apiRequest": "API 请求",
+          "apiRequestParent": "API 请求",
+          "biometrics": "生物识别",
+          "communication": "通信",
+          "credits": "积分",
+          "faceRecognition": "人脸识别",
+          "OCR": "OCR",
+          "postPaid": "后付费",
+          "smartAccess": "SmartAccess",
+          "smartCheck": "SmartCheck",
+          "SmartEnroll": "SmartEnroll",
+          "smartEnroll": "SmartEnroll",
+          "special_case": "特殊情况"
+        },
+        "products": {
+          "allRecords": "全部记录"
+        }
+      },
+      "billing": {
+        "subtitle_v2": "告诉我们向谁开票以及发票寄送地址。应税购买和订阅计划需要填写。",
+        "person_desc": "向个人开具发票，使用个人身份证件。",
+        "business_desc": "使用 NIT 或税务 ID 向企业开具发票。",
+        "discard": "放弃",
+        "loading": "正在加载账单信息…",
+        "saved": "所有更改已保存",
+        "status_complete": "设置完成",
+        "status_incomplete": "设置未完成",
+        "type_desc": "用于正确格式化发票。保存前可更改。",
+        "type_title": "开票对象是谁？",
+        "unsaved": "您有未保存的更改"
+      }
+    },
+    "smartaccess": {
+      "plans": {
+        "activation_checkout_failed": "无法开始或确认结账。请重试。",
+        "activation_success": "您的 Smart Access 订阅已激活。",
+        "billing_required_title": "需要账单信息",
+        "billing_required_message": "订阅 Smart Access 计划前，请在设置中完成账单与发票信息。",
+        "billing_required_go_settings": "前往账单信息",
+        "billing_required_cancel": "取消"
+      }
+    },
+    "chat": {
+      "deleteModal": {
+        "title": "删除对话",
+        "message": "确定要删除此对话吗？此操作无法撤销。",
+        "confirm": "删除",
+        "cancel": "取消"
+      },
+      "payment": {
+        "parameters": "参数"
+      }
+    },
+    "home": {
+      "shortcuts": {
+        "smartAccess": "Smart Access"
+      }
+    },
+    "smartEnrollProjects": {
+      "setup": {
+        "dev_quick_fill": "填充示例数据",
+        "dev_quick_fill_hint": "仅本地：预填有效字段以更快完成向导。",
+        "dev_quick_fill_applied": "已应用示例数据。"
+      }
+    }
+  },
+  "ja": {
+    "settings": {
+      "panels": {
+        "notifications": "通知",
+        "notifications_desc": "メールとパネルの通知設定",
+        "usage_history": "利用履歴",
+        "usage_history_desc": "API 消費とクレジット支出を追跡"
+      },
+      "notifications": {
+        "title": "通知",
+        "subtitle": "メールで通知する内容を選択します。一括で一時停止するか、カテゴリごとに調整できます。",
+        "sign_in_hint": "ログインして通知設定を管理してください。",
+        "loading": "設定を読み込み中…",
+        "status_active": "{{count}}/{{total}} 件が有効",
+        "status_none": "有効なカテゴリはありません",
+        "status_paused": "すべての通知を一時停止中",
+        "general_title": "一般",
+        "general_desc": "すべての通知メールを一度にオフにするか、オンにしたまま下のカテゴリを調整します。",
+        "specific_title": "通知カテゴリ",
+        "specific_desc": "Verifik から受信するメールを選択します。カテゴリを再度オンにすると通知が自動的に再開されます。",
+        "stop_all_title": "すべての通知を一時停止",
+        "stop_all_desc": "Verifik からの通知メールをすべて停止します。カテゴリ設定は保持され、オフにすると再開されます。",
+        "toggle_on_label": "オン",
+        "toggle_off_label": "オフ",
+        "tooltip_paused": "通知は一時停止中です。このカテゴリをオンにすると自動的に再開されます。",
+        "enable_all": "すべて有効",
+        "unsaved": "未保存の変更があります",
+        "saved": "すべての変更を保存しました",
+        "discard": "破棄",
+        "payment_title": "支払いの更新",
+        "payment_desc": "支払いの成功、失敗、対応が必要な場合に通知を受け取ります。",
+        "credits_title": "クレジットの有効期限",
+        "credits_desc": "未使用クレジットの期限前にリマインダーを受け取ります。",
+        "balance_title": "残高不足",
+        "balance_desc": "残高が少ないときに通知し、利用中断前にチャージできます。",
+        "new_endpoints_title": "新しいエンドポイント",
+        "new_endpoints_desc": "利用可能な新しい API エンドポイントをいち早くお知らせします。",
+        "webhook_title": "Webhook エラー",
+        "webhook_desc": "サーバーへの Webhook 配信が失敗したときに通知します。",
+        "save": "変更を保存",
+        "saving": "保存中…",
+        "save_success": "通知設定を保存しました。",
+        "save_error": "設定を保存できませんでした。もう一度お試しください。"
+      },
+      "usageHistory": {
+        "title": "利用履歴",
+        "subtitle": "API の消費とクレジット支出を追跡します。表示コストには税金および一部のサポート料金は含まれません。",
+        "view_toggle": "表示を切り替え",
+        "simplified_view": "概要",
+        "detailed_view": "詳細",
+        "search": "検索",
+        "clear_search": "検索をクリア",
+        "clear_filters": "フィルターをリセット",
+        "search_by_simplified": "製品で検索",
+        "search_by_detailed": "API コードで検索",
+        "enter_date_range": "日付範囲",
+        "start_date": "開始日",
+        "end_date": "終了日",
+        "download": "ダウンロード",
+        "endpoint": "API エンドポイント",
+        "quick_range_group": "クイック日付フィルター",
+        "quickRange": {
+          "today": "今日",
+          "yesterday": "昨日",
+          "this_week": "今週",
+          "last_week": "先週",
+          "this_month": "今月",
+          "last_month": "先月"
+        },
+        "created_at": "日付",
+        "product": "製品",
+        "category": "カテゴリ",
+        "quantity": "数量",
+        "unit_price": "単価",
+        "total": "合計",
+        "summary": "概要",
+        "detailed_strip": "明細行",
+        "allRecords": "すべての記録",
+        "no_records": "この期間に利用はありません",
+        "no_records_hint": "日付範囲を広げるか、検索をクリアしてより多くのアクティビティを表示してください。",
+        "group": {
+          "apiRequest": "API リクエスト",
+          "apiRequestParent": "API リクエスト",
+          "biometrics": "生体認証",
+          "communication": "通信",
+          "credits": "クレジット",
+          "faceRecognition": "顔認識",
+          "OCR": "OCR",
+          "postPaid": "後払い",
+          "smartAccess": "SmartAccess",
+          "smartCheck": "SmartCheck",
+          "SmartEnroll": "SmartEnroll",
+          "smartEnroll": "SmartEnroll",
+          "special_case": "特別ケース"
+        },
+        "products": {
+          "allRecords": "すべての記録"
+        }
+      },
+      "billing": {
+        "subtitle_v2": "請求先と請求書の送付先を入力してください。課税購入とサブスクリプションプランに必要です。",
+        "person_desc": "個人の身分証明書で個人への請求。",
+        "business_desc": "NIT または税 ID で法人への請求。",
+        "discard": "破棄",
+        "loading": "請求情報を読み込み中…",
+        "saved": "すべての変更を保存しました",
+        "status_complete": "設定完了",
+        "status_incomplete": "設定未完了",
+        "type_desc": "請求書の形式に使用します。保存前に変更できます。",
+        "type_title": "請求先は誰ですか？",
+        "unsaved": "未保存の変更があります"
+      }
+    },
+    "smartaccess": {
+      "plans": {
+        "activation_checkout_failed": "チェックアウトを開始または確認できませんでした。もう一度お試しください。",
+        "activation_success": "Smart Access サブスクリプションが有効になりました。",
+        "billing_required_title": "請求情報が必要です",
+        "billing_required_message": "Smart Access プランに登録する前に、設定で請求・請求書情報を完了してください。",
+        "billing_required_go_settings": "請求情報へ",
+        "billing_required_cancel": "キャンセル"
+      }
+    },
+    "chat": {
+      "deleteModal": {
+        "title": "チャットを削除",
+        "message": "この会話を削除してもよろしいですか？この操作は元に戻せません。",
+        "confirm": "削除",
+        "cancel": "キャンセル"
+      },
+      "payment": {
+        "parameters": "パラメータ"
+      }
+    },
+    "home": {
+      "shortcuts": {
+        "smartAccess": "Smart Access"
+      }
+    },
+    "smartEnrollProjects": {
+      "setup": {
+        "dev_quick_fill": "サンプルデータを入力",
+        "dev_quick_fill_hint": "ローカルのみ：有効なフィールドを事前入力してウィザードを高速化。",
+        "dev_quick_fill_applied": "サンプルデータを適用しました。"
+      }
+    }
+  },
+  "pt": {
+    "settings": {
+      "panels": {
+        "notifications": "Notificações",
+        "notifications_desc": "Preferências de e-mail e notificações do painel",
+        "usage_history": "Histórico de uso",
+        "usage_history_desc": "Acompanhe o consumo de APIs e créditos ao longo do tempo"
+      },
+      "notifications": {
+        "title": "Notificações",
+        "subtitle": "Escolha sobre o que enviamos e-mails. Pause tudo com um clique ou ajuste cada categoria.",
+        "sign_in_hint": "Entre para gerenciar suas preferências de notificação.",
+        "loading": "Carregando suas preferências…",
+        "status_active": "{{count}} de {{total}} ativas",
+        "status_none": "Nenhuma categoria ativa",
+        "status_paused": "Todas as notificações pausadas",
+        "general_title": "Geral",
+        "general_desc": "Desative todos os e-mails de notificação de uma vez ou mantenha ativos e ajuste as categorias abaixo.",
+        "specific_title": "Categorias de notificação",
+        "specific_desc": "Escolha quais e-mails a Verifik envia. Reativar uma categoria retoma as notificações automaticamente.",
+        "stop_all_title": "Pausar todas as notificações",
+        "stop_all_desc": "Pare de receber todos os e-mails de notificação da Verifik. Suas preferências de categoria são mantidas e retomam ao desativar isto.",
+        "toggle_on_label": "Ativo",
+        "toggle_off_label": "Inativo",
+        "tooltip_paused": "Notificações pausadas. Reativar esta categoria retomará as notificações automaticamente.",
+        "enable_all": "Ativar tudo",
+        "unsaved": "Você tem alterações não salvas",
+        "saved": "Todas as alterações salvas",
+        "discard": "Descartar",
+        "payment_title": "Atualizações de pagamento",
+        "payment_desc": "Seja notificado quando um pagamento for bem-sucedido, falhar ou precisar de atenção.",
+        "credits_title": "Créditos expirando",
+        "credits_desc": "Lembretes antes de créditos não usados expirarem do seu saldo.",
+        "balance_title": "Saldo baixo",
+        "balance_desc": "Alertas quando seu saldo estiver baixo para recarregar antes da interrupção.",
+        "new_endpoints_title": "Novos endpoints",
+        "new_endpoints_desc": "Saiba primeiro quando lançarmos novos endpoints de API.",
+        "webhook_title": "Erros de webhook",
+        "webhook_desc": "Alertas quando a entrega de webhook ao seu servidor falhar.",
+        "save": "Salvar alterações",
+        "saving": "Salvando…",
+        "save_success": "Preferências de notificação salvas.",
+        "save_error": "Não foi possível salvar as preferências. Tente novamente."
+      },
+      "usageHistory": {
+        "title": "Histórico de uso",
+        "subtitle": "Acompanhe o consumo de APIs e o gasto de créditos. Os custos não incluem impostos e certas taxas de suporte.",
+        "view_toggle": "Alternar visualização",
+        "simplified_view": "Resumo",
+        "detailed_view": "Detalhado",
+        "search": "Pesquisar",
+        "clear_search": "Limpar pesquisa",
+        "clear_filters": "Redefinir filtros",
+        "search_by_simplified": "Pesquisar por produto",
+        "search_by_detailed": "Pesquisar por código da API",
+        "enter_date_range": "Intervalo de datas",
+        "start_date": "Data inicial",
+        "end_date": "Data final",
+        "download": "Baixar",
+        "endpoint": "Endpoint da API",
+        "quick_range_group": "Filtros rápidos de data",
+        "quickRange": {
+          "today": "Hoje",
+          "yesterday": "Ontem",
+          "this_week": "Esta semana",
+          "last_week": "Semana passada",
+          "this_month": "Este mês",
+          "last_month": "Mês passado"
+        },
+        "created_at": "Data",
+        "product": "Produto",
+        "category": "Categoria",
+        "quantity": "Quantidade",
+        "unit_price": "Preço unitário",
+        "total": "Total",
+        "summary": "Resumo",
+        "detailed_strip": "Itens detalhados",
+        "allRecords": "Todos os registros",
+        "no_records": "Sem uso neste período",
+        "no_records_hint": "Tente um intervalo maior ou limpe a pesquisa para ver mais atividade.",
+        "group": {
+          "apiRequest": "Requisição API",
+          "apiRequestParent": "Requisição API",
+          "biometrics": "Biometria",
+          "communication": "Comunicação",
+          "credits": "Créditos",
+          "faceRecognition": "Reconhecimento facial",
+          "OCR": "OCR",
+          "postPaid": "Pós-pago",
+          "smartAccess": "SmartAccess",
+          "smartCheck": "SmartCheck",
+          "SmartEnroll": "SmartEnroll",
+          "smartEnroll": "SmartEnroll",
+          "special_case": "Caso especial"
+        },
+        "products": {
+          "allRecords": "Todos os registros"
+        }
+      },
+      "billing": {
+        "subtitle_v2": "Informe a quem faturar e para onde enviar as faturas. Obrigatório para compras tributadas e planos de assinatura.",
+        "person_desc": "Faturar para uma pessoa física com documento de identidade.",
+        "business_desc": "Faturar para uma empresa usando NIT ou ID fiscal.",
+        "discard": "Descartar",
+        "loading": "Carregando seus dados de faturamento…",
+        "saved": "Todas as alterações salvas",
+        "status_complete": "Configuração completa",
+        "status_incomplete": "Configuração incompleta",
+        "type_desc": "Usamos isso para formatar as faturas corretamente. Você pode alterar antes de salvar.",
+        "type_title": "Para quem será a fatura?",
+        "unsaved": "Você tem alterações não salvas"
+      }
+    },
+    "smartaccess": {
+      "plans": {
+        "activation_checkout_failed": "Não foi possível iniciar ou confirmar o checkout. Tente novamente.",
+        "activation_success": "Sua assinatura Smart Access está ativa.",
+        "billing_required_title": "Dados de faturamento necessários",
+        "billing_required_message": "Complete seus dados de faturamento e fatura em Configurações antes de assinar um plano Smart Access.",
+        "billing_required_go_settings": "Ir para faturamento",
+        "billing_required_cancel": "Cancelar"
+      }
+    },
+    "chat": {
+      "deleteModal": {
+        "title": "Excluir chat",
+        "message": "Tem certeza de que deseja excluir esta conversa? Esta ação não pode ser desfeita.",
+        "confirm": "Excluir",
+        "cancel": "Cancelar"
+      },
+      "payment": {
+        "parameters": "Parâmetros"
+      }
+    },
+    "home": {
+      "shortcuts": {
+        "smartAccess": "Smart Access"
+      }
+    },
+    "smartEnrollProjects": {
+      "setup": {
+        "dev_quick_fill": "Preencher dados de exemplo",
+        "dev_quick_fill_hint": "Somente local: pré-carrega campos válidos para avançar mais rápido no assistente.",
+        "dev_quick_fill_applied": "Dados de exemplo aplicados."
+      }
+    }
+  },
+  "ko": {
+    "settings": {
+      "panels": {
+        "notifications": "알림",
+        "notifications_desc": "이메일 및 패널 알림 설정",
+        "usage_history": "사용 내역",
+        "usage_history_desc": "시간에 따른 API 소비 및 크레딧 지출 추적"
+      },
+      "notifications": {
+        "title": "알림",
+        "subtitle": "이메일로 받을 알림을 선택하세요. 한 번에 일시 중지하거나 카테고리별로 조정할 수 있습니다.",
+        "sign_in_hint": "로그인하여 알림 설정을 관리하세요.",
+        "loading": "설정을 불러오는 중…",
+        "status_active": "{{count}}/{{total}}개 활성",
+        "status_none": "활성화된 카테고리 없음",
+        "status_paused": "모든 알림 일시 중지됨",
+        "general_title": "일반",
+        "general_desc": "모든 알림 이메일을 한 번에 끄거나 켠 상태에서 아래 카테고리를 조정하세요.",
+        "specific_title": "알림 카테고리",
+        "specific_desc": "Verifik이 보내는 이메일을 선택하세요. 카테고리를 다시 켜면 알림이 자동으로 재개됩니다.",
+        "stop_all_title": "모든 알림 일시 중지",
+        "stop_all_desc": "Verifik의 모든 알림 이메일 수신을 중지합니다. 카테고리 설정은 유지되며 끄면 재개됩니다.",
+        "toggle_on_label": "켜짐",
+        "toggle_off_label": "꺼짐",
+        "tooltip_paused": "알림이 일시 중지되었습니다. 이 카테고리를 다시 켜면 자동으로 재개됩니다.",
+        "enable_all": "모두 활성화",
+        "unsaved": "저장되지 않은 변경 사항이 있습니다",
+        "saved": "모든 변경 사항이 저장되었습니다",
+        "discard": "취소",
+        "payment_title": "결제 업데이트",
+        "payment_desc": "결제 성공, 실패 또는 조치가 필요할 때 알림을 받습니다.",
+        "credits_title": "만료 예정 크레딧",
+        "credits_desc": "사용하지 않은 크레딧이 만료되기 전에 알려드립니다.",
+        "balance_title": "잔액 부족",
+        "balance_desc": "잔액이 낮을 때 알려 사용 중단 전에 충전할 수 있습니다.",
+        "new_endpoints_title": "새 엔드포인트",
+        "new_endpoints_desc": "새 API 엔드포인트 출시 시 가장 먼저 알려드립니다.",
+        "webhook_title": "Webhook 오류",
+        "webhook_desc": "서버로의 webhook 전달이 실패하면 알려드립니다.",
+        "save": "변경 사항 저장",
+        "saving": "저장 중…",
+        "save_success": "알림 설정이 저장되었습니다.",
+        "save_error": "설정을 저장할 수 없습니다. 다시 시도하세요."
+      },
+      "usageHistory": {
+        "title": "사용 내역",
+        "subtitle": "API 소비 및 크레딧 지출을 추적합니다. 표시된 비용에는 세금 및 일부 지원 수수료가 포함되지 않습니다.",
+        "view_toggle": "보기 전환",
+        "simplified_view": "요약",
+        "detailed_view": "상세",
+        "search": "검색",
+        "clear_search": "검색 지우기",
+        "clear_filters": "필터 초기화",
+        "search_by_simplified": "제품으로 검색",
+        "search_by_detailed": "API 코드로 검색",
+        "enter_date_range": "날짜 범위",
+        "start_date": "시작일",
+        "end_date": "종료일",
+        "download": "다운로드",
+        "endpoint": "API 엔드포인트",
+        "quick_range_group": "빠른 날짜 필터",
+        "quickRange": {
+          "today": "오늘",
+          "yesterday": "어제",
+          "this_week": "이번 주",
+          "last_week": "지난주",
+          "this_month": "이번 달",
+          "last_month": "지난달"
+        },
+        "created_at": "날짜",
+        "product": "제품",
+        "category": "카테고리",
+        "quantity": "수량",
+        "unit_price": "단가",
+        "total": "합계",
+        "summary": "요약",
+        "detailed_strip": "상세 항목",
+        "allRecords": "모든 기록",
+        "no_records": "이 기간에 사용 내역이 없습니다",
+        "no_records_hint": "날짜 범위를 넓히거나 검색을 지워 더 많은 활동을 보세요.",
+        "group": {
+          "apiRequest": "API 요청",
+          "apiRequestParent": "API 요청",
+          "biometrics": "생체 인식",
+          "communication": "커뮤니케이션",
+          "credits": "크레딧",
+          "faceRecognition": "얼굴 인식",
+          "OCR": "OCR",
+          "postPaid": "후불",
+          "smartAccess": "SmartAccess",
+          "smartCheck": "SmartCheck",
+          "SmartEnroll": "SmartEnroll",
+          "smartEnroll": "SmartEnroll",
+          "special_case": "특별 케이스"
+        },
+        "products": {
+          "allRecords": "모든 기록"
+        }
+      },
+      "billing": {
+        "subtitle_v2": "청구 대상과 송장 수신 주소를 알려주세요. 과세 구매 및 구독 플랜에 필요합니다.",
+        "person_desc": "개인 신분증으로 개인에게 청구합니다.",
+        "business_desc": "NIT 또는 세금 ID로 기업에 청구합니다.",
+        "discard": "취소",
+        "loading": "청구 정보를 불러오는 중…",
+        "saved": "모든 변경 사항이 저장되었습니다",
+        "status_complete": "설정 완료",
+        "status_incomplete": "설정 미완료",
+        "type_desc": "청구서 형식에 사용됩니다. 저장 전에 변경할 수 있습니다.",
+        "type_title": "누구에게 청구하시겠습니까?",
+        "unsaved": "저장되지 않은 변경 사항이 있습니다"
+      }
+    },
+    "smartaccess": {
+      "plans": {
+        "activation_checkout_failed": "결제를 시작하거나 확인할 수 없습니다. 다시 시도하세요.",
+        "activation_success": "Smart Access 구독이 활성화되었습니다.",
+        "billing_required_title": "청구 정보 필요",
+        "billing_required_message": "Smart Access 플랜을 구독하기 전에 설정에서 청구 및 송장 정보를 완료하세요.",
+        "billing_required_go_settings": "청구 정보로 이동",
+        "billing_required_cancel": "취소"
+      }
+    },
+    "chat": {
+      "deleteModal": {
+        "title": "채팅 삭제",
+        "message": "이 대화를 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+        "confirm": "삭제",
+        "cancel": "취소"
+      },
+      "payment": {
+        "parameters": "매개변수"
+      }
+    },
+    "home": {
+      "shortcuts": {
+        "smartAccess": "Smart Access"
+      }
+    },
+    "smartEnrollProjects": {
+      "setup": {
+        "dev_quick_fill": "샘플 데이터 채우기",
+        "dev_quick_fill_hint": "로컬 전용: 유효한 필드를 미리 채워 마법사를 더 빠르게 진행합니다.",
+        "dev_quick_fill_applied": "샘플 데이터가 적용되었습니다."
+      }
+    }
+  }
+}
