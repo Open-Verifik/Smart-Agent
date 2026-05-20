@@ -16,6 +16,9 @@ import { LanguagesComponent } from 'app/layout/common/languages/languages.compon
 // import { NotificationsComponent } from 'app/layout/common/notifications/notifications.component';
 import { QuickChatComponent } from 'app/layout/common/quick-chat/quick-chat.component';
 // import { ShortcutsComponent } from 'app/layout/common/shortcuts/shortcuts.component';
+import { AccountVerificationStripComponent } from 'app/layout/common/account-strips/account-verification-strip.component';
+import { SandboxNoticeStripComponent } from 'app/layout/common/account-strips/sandbox-notice-strip.component';
+import { ProductionModeToggleComponent } from 'app/layout/common/account-strips/production-mode-toggle.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -37,6 +40,9 @@ import { Subject, takeUntil } from 'rxjs';
         RouterOutlet,
         QuickChatComponent,
         FuseVerticalNavigationComponent,
+        AccountVerificationStripComponent,
+        SandboxNoticeStripComponent,
+        ProductionModeToggleComponent,
     ],
 })
 export class CompactLayoutComponent implements OnInit, OnDestroy {
