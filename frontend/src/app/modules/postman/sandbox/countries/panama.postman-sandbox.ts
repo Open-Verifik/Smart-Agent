@@ -11,6 +11,10 @@ import {
 } from '../sandbox-error-profiles';
 
 export const PANAMA_IDENTITY_ENDPOINT_CODE = 'panama_api_identity_lookup';
+export const PANAMA_BUSINESS_ENDPOINT_CODE = 'panama_api_business_lookup';
+
+const PANAMA_COMPANY_DEMO_RUC = '155703400-2-2021';
+const PANAMA_COMPANY_DEMO_DV = '39';
 
 const PANAMA_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
 const PANAMA_ERROR_CEDULA_404 = '9-0040-401';
@@ -79,6 +83,55 @@ const PANAMA_CONFLICT_INVALID_DATE_OF_BIRTH: PostmanSandboxProfile = {
     paramOverrides: { dateOfBirth: 'not-a-date', documentNumber: '8-1000-0001' },
 };
 
+const PANAMA_COMPANY_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    {
+        documentNumber: PANAMA_COMPANY_DEMO_RUC,
+        fullName: 'MATA ENTERPRISES, S.A. — demo RUC',
+        paramOverrides: {
+            documentType: 'RUC',
+            documentNumber: PANAMA_COMPANY_DEMO_RUC,
+            dv: PANAMA_COMPANY_DEMO_DV,
+        },
+    },
+    ...Array.from({ length: 10 }, (_, index) => {
+        const embedId = 10000001 + index;
+        const ruc = `${embedId}-2-2021`;
+        const dv = String(embedId % 100).padStart(2, '0');
+
+        return {
+            documentNumber: ruc,
+            fullName: `VERIFIK SANDBOX PANAMA ${String(index + 1).padStart(2, '0')} — RUC`,
+            paramOverrides: {
+                documentType: 'RUC',
+                documentNumber: ruc,
+                dv,
+            },
+        };
+    }),
+];
+
+const PANAMA_COMPANY_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    profileKey: '404-panama-company',
+    documentNumber: '90040401-2-2021',
+    fullName: '404 — Record not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        documentType: 'RUC',
+        documentNumber: '90040401-2-2021',
+        dv: '01',
+    },
+};
+
+const PANAMA_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: {
+        documentType: 'INVALID',
+        documentNumber: PANAMA_COMPANY_DEMO_RUC,
+        dv: PANAMA_COMPANY_DEMO_DV,
+    },
+};
+
 export const PANAMA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [PANAMA_IDENTITY_ENDPOINT_CODE]: {
         profiles: [
@@ -94,6 +147,20 @@ export const PANAMA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDateOfBirth: PANAMA_DEFAULT_DATE_OF_BIRTH,
         documentTypeByCode: {
             [PANAMA_IDENTITY_ENDPOINT_CODE]: 'CCPA',
+        },
+        showProfileMeta: false,
+    },
+    [PANAMA_BUSINESS_ENDPOINT_CODE]: {
+        profiles: [
+            ...PANAMA_COMPANY_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            PANAMA_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE,
+            PANAMA_COMPANY_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: PANAMA_COMPANY_DEMO_RUC,
+        defaultDv: PANAMA_COMPANY_DEMO_DV,
+        documentTypeByCode: {
+            [PANAMA_BUSINESS_ENDPOINT_CODE]: 'RUC',
         },
         showProfileMeta: false,
     },

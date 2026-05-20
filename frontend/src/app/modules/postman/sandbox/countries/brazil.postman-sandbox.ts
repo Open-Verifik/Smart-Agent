@@ -5,9 +5,53 @@
 import { PostmanSandboxEndpointConfig, PostmanSandboxProfile } from '../postman-sandbox.types';
 import {
     SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+    SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
 } from '../sandbox-error-profiles';
 
+import {
+    appendVehiclePlateSandboxProfiles,
+    SANDBOX_DEFAULT_PLATE,
+} from '../vehicle-plate-profiles';
+
 export const BRAZIL_IDENTITY_ENDPOINT_CODE = 'brasil_api_identity_lookup';
+export const BRAZIL_VEHICLE_ENDPOINT_CODE = 'brasil_api_vehicle';
+export const BRAZIL_COMPANY_ENDPOINT_CODE = 'brasil_api_company_lookup';
+export const BRAZIL_CRIMINAL_HISTORY_ENDPOINT_CODE = 'brasil_api_criminal_history';
+
+const BRAZIL_CRIMINAL_DEMO_CPF = '01234567801';
+const BRAZIL_CRIMINAL_DEMO_DATE_OF_BIRTH = '17/02/2002';
+
+const BRAZIL_COMPANY_DEFAULT_CNPJ = '09159197000180';
+
+const BRAZIL_COMPANY_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    {
+        documentNumber: BRAZIL_COMPANY_DEFAULT_CNPJ,
+        fullName: 'EMPRESA EXEMPLO LTDA — ATIVA',
+        paramOverrides: {
+            documentType: 'CNPJ',
+            documentNumber: BRAZIL_COMPANY_DEFAULT_CNPJ,
+        },
+    },
+];
+
+const BRAZIL_COMPANY_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    documentNumber: '90040401000180',
+    fullName: '404 — Record not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        documentType: 'CNPJ',
+        documentNumber: '90040401000180',
+    },
+};
+
+const BRAZIL_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: {
+        documentType: 'INVALID',
+        documentNumber: BRAZIL_COMPANY_DEFAULT_CNPJ,
+    },
+};
 
 const BRAZIL_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
 
@@ -62,6 +106,38 @@ const BRAZIL_ERROR_PROFILE_404: PostmanSandboxProfile = {
     expectedStatus: 404,
 };
 
+const BRAZIL_CRIMINAL_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    {
+        documentNumber: BRAZIL_CRIMINAL_DEMO_CPF,
+        fullName: 'João Silva — criminal certificate demo',
+        paramOverrides: {
+            documentType: 'CPF',
+            documentNumber: BRAZIL_CRIMINAL_DEMO_CPF,
+            dateOfBirth: BRAZIL_CRIMINAL_DEMO_DATE_OF_BIRTH,
+        },
+    },
+    ...BRAZIL_SANDBOX_PROFILES.map((profile) => ({
+        ...profile,
+        paramOverrides: {
+            documentType: 'CPF',
+            documentNumber: profile.documentNumber,
+            dateOfBirth: BRAZIL_DEFAULT_DATE_OF_BIRTH,
+        },
+    })),
+];
+
+const BRAZIL_CRIMINAL_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    documentNumber: '90040401001',
+    fullName: '404 — Record not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        documentType: 'CPF',
+        documentNumber: '90040401001',
+        dateOfBirth: BRAZIL_DEFAULT_DATE_OF_BIRTH,
+    },
+};
+
 export const BRAZIL_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [BRAZIL_IDENTITY_ENDPOINT_CODE]: {
         profiles: [
@@ -76,6 +152,41 @@ export const BRAZIL_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         defaultDateOfBirth: BRAZIL_DEFAULT_DATE_OF_BIRTH,
         documentTypeByCode: {
             [BRAZIL_IDENTITY_ENDPOINT_CODE]: 'CPF',
+        },
+        showProfileMeta: false,
+    },
+    [BRAZIL_VEHICLE_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [BRAZIL_COMPANY_ENDPOINT_CODE]: {
+        profiles: [
+            ...BRAZIL_COMPANY_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            BRAZIL_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE,
+            BRAZIL_COMPANY_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: BRAZIL_COMPANY_DEFAULT_CNPJ,
+        documentTypeByCode: {
+            [BRAZIL_COMPANY_ENDPOINT_CODE]: 'CNPJ',
+        },
+        showProfileMeta: false,
+    },
+    [BRAZIL_CRIMINAL_HISTORY_ENDPOINT_CODE]: {
+        profiles: [
+            ...BRAZIL_CRIMINAL_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            BRAZIL_CONFLICT_INVALID_DOCUMENT_TYPE,
+            BRAZIL_CONFLICT_MISSING_DATE_OF_BIRTH,
+            BRAZIL_CONFLICT_INVALID_DATE_OF_BIRTH,
+            BRAZIL_CRIMINAL_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: BRAZIL_CRIMINAL_DEMO_CPF,
+        defaultDateOfBirth: BRAZIL_CRIMINAL_DEMO_DATE_OF_BIRTH,
+        documentTypeByCode: {
+            [BRAZIL_CRIMINAL_HISTORY_ENDPOINT_CODE]: 'CPF',
         },
         showProfileMeta: false,
     },

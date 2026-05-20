@@ -16,6 +16,7 @@ import {
 
 export const BOLIVIA_IDENTITY_ENDPOINT_CODE = 'bolivia_api_identity_lookup';
 export const BOLIVIA_VEHICLE_ENDPOINT_CODE = 'bolivia_api_vehicle';
+export const BOLIVIA_BUSINESS_ENDPOINT_CODE = 'bolivia_api_business_lookup';
 
 const BOLIVIA_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
 
@@ -31,6 +32,25 @@ const BOLIVIA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000009', fullName: 'PATRICIA CAROLINA DIAZ REYES — valid' },
     { documentNumber: '10000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — valid' },
 ];
+
+const BOLIVIA_BUSINESS_SANDBOX_PROFILES: PostmanSandboxProfile[] = BOLIVIA_SANDBOX_PROFILES.map(
+    (profile) => ({
+        ...profile,
+        fullName: `${profile.fullName?.replace(' — valid', '')} — ACTIVO`,
+        paramOverrides: {
+            documentType: 'NIT',
+            documentNumber: profile.documentNumber,
+        },
+    })
+);
+
+const BOLIVIA_BUSINESS_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: {
+        documentType: 'INVALID',
+        documentNumber: '10000001',
+    },
+};
 
 const BOLIVIA_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
@@ -80,6 +100,19 @@ export const BOLIVIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpo
         profiles: appendVehiclePlateSandboxProfiles(),
         defaultPlate: SANDBOX_DEFAULT_PLATE,
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [BOLIVIA_BUSINESS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(BOLIVIA_BUSINESS_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                BOLIVIA_BUSINESS_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [BOLIVIA_BUSINESS_ENDPOINT_CODE]: 'NIT',
+        },
         showProfileMeta: false,
     },
 };

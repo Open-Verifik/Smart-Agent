@@ -5,6 +5,7 @@
  */
 import { PostmanSandboxEndpointConfig, PostmanSandboxProfile } from '../postman-sandbox.types';
 import {
+    appendSandboxResponseProfiles,
     SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
 } from '../sandbox-error-profiles';
 import {
@@ -14,6 +15,7 @@ import {
 
 export const COSTA_RICA_IDENTITY_ENDPOINT_CODE = 'costarica_api_identity_lookup';
 export const COSTA_RICA_VEHICLE_ENDPOINT_CODE = 'costa_rica_api_vehicle';
+export const COSTA_RICA_BUSINESS_ENDPOINT_CODE = 'costa_rica_api_business_lookup';
 
 const COSTA_RICA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '010000001', fullName: 'MARIA ELENA LOPEZ GARCIA — valid' },
@@ -62,6 +64,19 @@ export const COSTA_RICA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEn
         profiles: appendVehiclePlateSandboxProfiles(),
         defaultPlate: SANDBOX_DEFAULT_PLATE,
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [COSTA_RICA_BUSINESS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COSTA_RICA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COSTA_RICA_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '010000001',
+        documentTypeByCode: {
+            [COSTA_RICA_BUSINESS_ENDPOINT_CODE]: 'NITE',
+        },
         showProfileMeta: false,
     },
 };

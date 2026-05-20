@@ -60,6 +60,46 @@ export const COLOMBIA_RUNT_VEHICLE_SOAT_ENDPOINT_CODE = 'colombia_api_vehicle_so
 export const COLOMBIA_RUNT_VEHICLE_COMPLETE_ENDPOINT_CODE = 'colombia_api_vehicle_complete';
 export const COLOMBIA_RUNT_OWNERS_ENDPOINT_CODE = 'colombia_api_runt_owners';
 export const COLOMBIA_SIMIT_PLATE_ENDPOINT_CODE = 'colombia_api_simit_plate';
+export const COLOMBIA_PICO_PLACA_ENDPOINT_CODE = 'colombia_api_pico_placa';
+export const COLOMBIA_BOGOTA_FINES_ENDPOINT_CODE = 'colombia_api_vehicle_fines_bogota';
+export const COLOMBIA_BOGOTA_ACCIDENTALITY_ENDPOINT_CODE = 'colombia_api_vehicle_accidentality_bogota';
+export const COLOMBIA_BOGOTA_VEHICLE_TAX_ENDPOINT_CODE = 'colombia_api_vehicle_tax';
+export const COLOMBIA_BOGOTA_TAXI_PLATE_ENDPOINT_CODE = 'co_bogota_taxi_plate';
+export const COLOMBIA_SIMIT_AGREEMENTS_ENDPOINT_CODE = 'colombia_api_simit_agreements';
+export const COLOMBIA_SIMIT_COMPLETE_ENDPOINT_CODE = 'colombia_api_simit_complete';
+export const COLOMBIA_SIMIT_RESOLUTIONS_ENDPOINT_CODE = 'colombia_api_simit_resolutions';
+export const COLOMBIA_SIMIT_SUSPENSIONS_ENDPOINT_CODE = 'colombia_api_simit_suspensions';
+export const COLOMBIA_FASECOLDA_SINISTER_ENDPOINT_CODE = 'colombia_api_vehicle_sinister_fasecolda_by_plate';
+export const COLOMBIA_FASECOLDA_VALUES_PLATE_ENDPOINT_CODE = 'colombia_api_vehicle_valores_fasecolda_by_plate';
+export const COLOMBIA_SISBEN_ENDPOINT_CODE = 'colombia_sisben_api_lookup';
+export const COLOMBIA_DELINQUENT_DEBTORS_ENDPOINT_CODE = 'colombia_api_delinquent_debtors';
+export const COLOMBIA_AFFILIATIONS_ENDPOINT_CODE = 'colombia_api_affiliations';
+export const COLOMBIA_CRIMINAL_HISTORY_ENDPOINT_CODE = 'colombia_api_criminal_history';
+export const COLOMBIA_DIAN_ENDPOINT_CODE = 'colombia_api_dian';
+export const COLOMBIA_POLICE_RNMC_ENDPOINT_CODE = 'colombia_api_police_rnmc';
+export const COLOMBIA_CONTRALORIA_CERTIFICATE_ENDPOINT_CODE = 'colombia_api_contraloria_certificate';
+export const COLOMBIA_DIAN_INVOICER_ENDPOINT_CODE = 'colombia_api_dian_invoicer';
+export const COLOMBIA_RUES_V3_ENDPOINT_CODE = 'colombia_api_rues_v3';
+export const COLOMBIA_REGISTRADURIA_CERTIFICATE_ENDPOINT_CODE = 'colombia_api_registraduria_certificate';
+export const COLOMBIA_REGISTRADURIA_VOTING_ENDPOINT_CODE = 'colombia_api_registraduria_voting';
+export const COLOMBIA_SENA_ENDPOINT_CODE = 'colombia_api_sena';
+export const COLOMBIA_SIMIT_COMPARENDO_DETAILS_ENDPOINT_CODE = 'colombia_api_simit_subpoenas_details';
+export const COLOMBIA_MEDELLIN_FINES_ENDPOINT_CODE = 'colombia_api_vehicle_fines_medellin';
+export const COLOMBIA_BOGOTA_TAXI_CARD_ENDPOINT_CODE = 'co_bogota_taxi_driver_card';
+export const COLOMBIA_INPEC_ENDPOINT_CODE = 'colombia_inpec_lookup';
+export const COLOMBIA_CONTRACTS_ENDPOINT_CODE = 'api_colombia_contracts';
+export const COLOMBIA_SISCONMP_ENDPOINT_CODE = 'colombia_api_sisconmp';
+export const COLOMBIA_FASECOLDA_VALUES_CODE_ENDPOINT_CODE = 'colombia_api_vehicle_valores_fasecolda_by_code';
+export const COLOMBIA_SIGEP_BY_NAME_ENDPOINT_CODE = 'colombia_sigep_by_name';
+export const COLOMBIA_SIGEP_BY_NUMBER_ENDPOINT_CODE = 'colombia_sigep_by_number';
+export const COLOMBIA_CEDULA_EXTRA_ENDPOINT_CODE = 'colombia_api_identity_lookup_extra';
+export const COLOMBIA_CEDULA_PREMIUM_ENDPOINT_CODE = 'colombia_api_identity_lookup_premium';
+export const COLOMBIA_RUES_FULL_V3_ENDPOINT_CODE = 'colombia_api_rues_full_v3';
+
+const COLOMBIA_AFFILIATIONS_DEFAULT_DATE = '15/03/1990';
+const COLOMBIA_CEDULA_EXTRA_DEFAULT_DATE = '15/03/2020';
+const COLOMBIA_POLICE_RNMC_DEFAULT_DATE = '22/07/2005';
+const COLOMBIA_REGISTRADURIA_CERTIFICATE_DEFAULT_DATE = '15/03/2018';
 
 const COLOMBIA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000001', fullName: 'MARIA ELENA LOPEZ GARCIA' },
@@ -73,6 +113,104 @@ const COLOMBIA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000009', fullName: 'PATRICIA CAROLINA DIAZ REYES' },
     { documentNumber: '10000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO' },
 ];
+
+const COLOMBIA_INPEC_FIRST_SURNAMES = [
+    'LOPEZ',
+    'PEREZ',
+    'MARTINEZ',
+    'GONZALEZ',
+    'RAMIREZ',
+    'SILVA',
+    'CASTRO',
+    'MORALES',
+    'DIAZ',
+    'ROJAS',
+];
+
+const COLOMBIA_INPEC_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile, index) => ({
+        ...profile,
+        fullName: `${profile.fullName} — ${index % 2 === 0 ? 'con registro' : 'sin registro'}`,
+        paramOverrides: {
+            documentType: 'CC',
+            documentNumber: profile.documentNumber,
+            firstSurname: COLOMBIA_INPEC_FIRST_SURNAMES[index],
+        },
+    })
+);
+
+const COLOMBIA_DIAN_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile) => ({
+        ...profile,
+        fullName: `${profile.fullName} — REGISTRO ACTIVO`,
+        paramOverrides: {
+            documentType: 'NIT',
+            documentNumber: profile.documentNumber,
+        },
+    })
+);
+
+const COLOMBIA_FASECOLDA_CODE_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile) => ({
+        documentNumber: profile.documentNumber,
+        fullName: `${profile.fullName} — FASECOLDA code`,
+        paramOverrides: {
+            codeFasecolda: profile.documentNumber,
+        },
+    })
+);
+
+const COLOMBIA_SIGEP_BY_NAME_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile) => ({
+        documentNumber: profile.documentNumber,
+        fullName: `${profile.fullName} — SIGEP`,
+        paramOverrides: {
+            fullName: profile.fullName,
+        },
+    })
+);
+
+const COLOMBIA_SIGEP_BY_NAME_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    profileKey: '404-sigep-name',
+    documentNumber: '90040401',
+    fullName: '404 — SIGEP name not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        fullName: 'NOT FOUND 90040401',
+    },
+};
+
+const COLOMBIA_DIAN_NIT_PREFIX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile, index) => ({
+        documentNumber: `9010000${String(index + 1).padStart(2, '0')}`,
+        fullName: `${profile.fullName} — REGISTRO ACTIVO (901 prefix)`,
+        paramOverrides: {
+            documentType: 'NIT',
+            documentNumber: `9010000${String(index + 1).padStart(2, '0')}`,
+        },
+    })
+);
+
+const COLOMBIA_DIAN_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: {
+        documentType: 'INVALID',
+        documentNumber: '10000001',
+    },
+};
+
+const COLOMBIA_RUES_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_DIAN_SANDBOX_PROFILES.map(
+    (profile) => ({
+        ...profile,
+        fullName: `${profile.fullName?.replace(' — REGISTRO ACTIVO', '')} — RUES RM`,
+        paramOverrides: {
+            documentType: 'NIT',
+            documentNumber: profile.documentNumber,
+            category: 'RM',
+        },
+    })
+);
 
 const COLOMBIA_RUNT_VEHICLE_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
     (profile, index) => ({
@@ -507,6 +645,411 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         profiles: appendSimitPlateSandboxProfiles(),
         defaultPlate: SANDBOX_DEFAULT_SIMIT_PLATE,
         defaultDocumentNumber: SANDBOX_DEFAULT_SIMIT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_PICO_PLACA_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_BOGOTA_FINES_ENDPOINT_CODE]: {
+        profiles: appendSimitPlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_SIMIT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_SIMIT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_BOGOTA_ACCIDENTALITY_ENDPOINT_CODE]: {
+        profiles: appendSimitPlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_SIMIT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_SIMIT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_BOGOTA_VEHICLE_TAX_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_RUNT_VEHICLE_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COLOMBIA_RUNT_CONFLICT_INVALID_DOCUMENT_TYPE,
+                SANDBOX_CONFLICT_MISSING_PLATE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        documentTypeByCode: {
+            [COLOMBIA_BOGOTA_VEHICLE_TAX_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_BOGOTA_TAXI_PLATE_ENDPOINT_CODE]: {
+        profiles: appendSimitPlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_SIMIT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_SIMIT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIMIT_AGREEMENTS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SIMIT_AGREEMENTS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIMIT_COMPLETE_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SIMIT_COMPLETE_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIMIT_RESOLUTIONS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SIMIT_RESOLUTIONS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIMIT_SUSPENSIONS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SIMIT_SUSPENSIONS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_FASECOLDA_SINISTER_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_FASECOLDA_VALUES_PLATE_ENDPOINT_CODE]: {
+        profiles: appendSimitPlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_SIMIT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_SIMIT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SISBEN_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SISBEN_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_DELINQUENT_DEBTORS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_DELINQUENT_DEBTORS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_AFFILIATIONS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultDate: COLOMBIA_AFFILIATIONS_DEFAULT_DATE,
+        documentTypeByCode: {
+            [COLOMBIA_AFFILIATIONS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CRIMINAL_HISTORY_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_CRIMINAL_HISTORY_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_DIAN_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(
+            [...COLOMBIA_DIAN_SANDBOX_PROFILES, ...COLOMBIA_DIAN_NIT_PREFIX_PROFILES.slice(0, 3)],
+            {
+                conflictProfiles: [
+                    SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                    COLOMBIA_DIAN_CONFLICT_INVALID_DOCUMENT_TYPE,
+                ],
+            }
+        ),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_DIAN_ENDPOINT_CODE]: 'NIT',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_POLICE_RNMC_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultDate: COLOMBIA_POLICE_RNMC_DEFAULT_DATE,
+        documentTypeByCode: {
+            [COLOMBIA_POLICE_RNMC_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CONTRALORIA_CERTIFICATE_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_CONTRALORIA_CERTIFICATE_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_DIAN_INVOICER_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_DIAN_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COLOMBIA_DIAN_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_DIAN_INVOICER_ENDPOINT_CODE]: 'NIT',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_RUES_V3_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_RUES_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COLOMBIA_DIAN_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultCategory: 'RM',
+        documentTypeByCode: {
+            [COLOMBIA_RUES_V3_ENDPOINT_CODE]: 'NIT',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_REGISTRADURIA_CERTIFICATE_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultDate: COLOMBIA_REGISTRADURIA_CERTIFICATE_DEFAULT_DATE,
+        documentTypeByCode: {
+            [COLOMBIA_REGISTRADURIA_CERTIFICATE_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_INPEC_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_INPEC_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultFirstSurname: 'LOPEZ',
+        documentTypeByCode: {
+            [COLOMBIA_INPEC_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CONTRACTS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_CONTRACTS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SISCONMP_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SISCONMP_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_FASECOLDA_VALUES_CODE_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_FASECOLDA_CODE_SANDBOX_PROFILES, {
+            conflictProfiles: [],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultCodeFasecolda: '10000001',
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIGEP_BY_NAME_ENDPOINT_CODE]: {
+        profiles: [
+            ...COLOMBIA_SIGEP_BY_NAME_SANDBOX_PROFILES,
+            COLOMBIA_SIGEP_BY_NAME_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: '10000001',
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIGEP_BY_NUMBER_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SIGEP_BY_NUMBER_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CEDULA_EXTRA_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultDate: COLOMBIA_CEDULA_EXTRA_DEFAULT_DATE,
+        documentTypeByCode: {
+            [COLOMBIA_CEDULA_EXTRA_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CEDULA_PREMIUM_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_CEDULA_PREMIUM_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_RUES_FULL_V3_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_RUES_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COLOMBIA_DIAN_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultCategory: 'RM',
+        documentTypeByCode: {
+            [COLOMBIA_RUES_FULL_V3_ENDPOINT_CODE]: 'NIT',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_REGISTRADURIA_VOTING_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
+        }),
+        defaultDocumentNumber: '10000001',
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SENA_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SENA_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_SIMIT_COMPARENDO_DETAILS_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_SIMIT_COMPARENDO_DETAILS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_MEDELLIN_FINES_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_BOGOTA_TAXI_CARD_ENDPOINT_CODE]: {
+        profiles: [
+            ...COLOMBIA_SANDBOX_PROFILES.map((profile) => ({
+                ...profile,
+                fullName: profile.fullName.replace(' — valid', ' — taxi card'),
+            })),
+            {
+                documentNumber: '90040401',
+                fullName: '404 — Taxi card not found',
+                responseType: 'error' as const,
+                expectedStatus: 404,
+            },
+        ],
+        defaultDocumentNumber: '10000001',
         showProfileMeta: false,
     },
 };

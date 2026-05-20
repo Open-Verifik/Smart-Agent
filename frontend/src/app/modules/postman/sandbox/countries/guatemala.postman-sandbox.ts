@@ -11,6 +11,7 @@ import {
 } from '../sandbox-error-profiles';
 
 export const GUATEMALA_IDENTITY_ENDPOINT_CODE = 'guatemala_api_identity_lookup';
+export const GUATEMALA_IDENTITY_EXTRA_ENDPOINT_CODE = 'guatemala_api_identity_extra_lookup';
 
 const GUATEMALA_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
 
@@ -68,6 +69,19 @@ export const GUATEMALA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
         defaultDateOfBirth: GUATEMALA_DEFAULT_DATE_OF_BIRTH,
         documentTypeByCode: {
             [GUATEMALA_IDENTITY_ENDPOINT_CODE]: 'CUI',
+        },
+        showProfileMeta: false,
+    },
+    [GUATEMALA_IDENTITY_EXTRA_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(GUATEMALA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                GUATEMALA_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [GUATEMALA_IDENTITY_EXTRA_ENDPOINT_CODE]: 'CUI',
         },
         showProfileMeta: false,
     },

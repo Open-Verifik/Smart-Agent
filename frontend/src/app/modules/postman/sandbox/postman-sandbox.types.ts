@@ -27,6 +27,8 @@ export interface PostmanSandboxEndpointConfig {
     defaultProcessNumber?: string;
     /** Default plate when endpoint uses plate query/path param only. */
     defaultPlate?: string;
+    /** Default US state code when endpoint requires state (e.g. FL). */
+    defaultState?: string;
     /** Default VIN when endpoint uses vin query/path param only. */
     defaultVin?: string;
     /** Per endpoint code, default documentType when that param exists on the endpoint. */
@@ -39,6 +41,24 @@ export interface PostmanSandboxEndpointConfig {
     defaultQuality?: string;
     /** Default dateOfBirth when endpoint requires it (e.g. Guatemala CUI). DD/MM/YYYY. */
     defaultDateOfBirth?: string;
+    /** Default date when endpoint requires it (e.g. affiliations). DD/MM/YYYY. */
+    defaultDate?: string;
+    /** Default category when endpoint requires it (e.g. RUES v3). */
+    defaultCategory?: string;
+    /** Default firstSurname when endpoint requires it (e.g. INPEC). */
+    defaultFirstSurname?: string;
+    /** Default codeFasecolda when endpoint uses code-only query (8 digits). */
+    defaultCodeFasecolda?: string;
+    /** Default business name when endpoint uses business query (e.g. Canada company). */
+    defaultBusiness?: string;
+    /** Default province code when endpoint requires province (e.g. ON). */
+    defaultProvince?: string;
+    /** Default dv when endpoint requires dv (e.g. Panama RUC). */
+    defaultDv?: string;
+    /** Default serialNumber when endpoint requires it (e.g. Chile validate). */
+    defaultSerialNumber?: string;
+    /** Default lastName when endpoint requires it (e.g. BC driver license). */
+    defaultLastName?: string;
     /** Default expirationDate when endpoint requires it (e.g. Spain DNIES). DD/MM/YYYY. */
     defaultExpirationDate?: string;
     /** Transloco key suffix under postman.requestEditor (default: sandboxProfiles). */

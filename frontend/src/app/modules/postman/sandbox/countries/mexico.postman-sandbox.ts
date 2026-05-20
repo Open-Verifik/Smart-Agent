@@ -6,8 +6,51 @@ import { PostmanSandboxEndpointConfig, PostmanSandboxProfile } from '../postman-
 import {
     SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
 } from '../sandbox-error-profiles';
+import {
+    appendVehiclePlateSandboxProfiles,
+    SANDBOX_DEFAULT_PLATE,
+} from '../vehicle-plate-profiles';
 
 export const MEXICO_IDENTITY_ENDPOINT_CODE = 'mexico_identity_lookup';
+export const MEXICO_COMPANY_ENDPOINT_CODE = 'mexico_api_company';
+export const MEXICO_VEHICLE_ENDPOINT_CODE = 'mexico_api_vehicle';
+
+const MEXICO_COMPANY_DEMO_FME = 'N-2021007300';
+
+const MEXICO_COMPANY_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    {
+        documentNumber: MEXICO_COMPANY_DEMO_FME,
+        fullName: 'INNOVACION, DISEÑO Y CONSTRUCCION — OTUMBA',
+        paramOverrides: {
+            documentType: 'FME',
+            documentNumber: MEXICO_COMPANY_DEMO_FME,
+        },
+    },
+    ...Array.from({ length: 10 }, (_, index) => {
+        const embedId = 10000001 + index;
+        const fme = `N-${embedId}`;
+
+        return {
+            documentNumber: fme,
+            fullName: `VERIFIK SANDBOX MEXICO ${String(index + 1).padStart(2, '0')} — FME`,
+            paramOverrides: {
+                documentType: 'FME',
+                documentNumber: fme,
+            },
+        };
+    }),
+];
+
+const MEXICO_COMPANY_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    documentNumber: 'N-90040401',
+    fullName: '404 — Record not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        documentType: 'FME',
+        documentNumber: 'N-90040401',
+    },
+};
 
 const MEXICO_ERROR_CURP = 'LOPE900404HDFNTF01';
 
@@ -52,6 +95,25 @@ export const MEXICO_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         documentTypeByCode: {
             [MEXICO_IDENTITY_ENDPOINT_CODE]: 'CURP',
         },
+        showProfileMeta: false,
+    },
+    [MEXICO_COMPANY_ENDPOINT_CODE]: {
+        profiles: [
+            ...MEXICO_COMPANY_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            MEXICO_CONFLICT_INVALID_DOCUMENT_TYPE,
+            MEXICO_COMPANY_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: MEXICO_COMPANY_DEMO_FME,
+        documentTypeByCode: {
+            [MEXICO_COMPANY_ENDPOINT_CODE]: 'FME',
+        },
+        showProfileMeta: false,
+    },
+    [MEXICO_VEHICLE_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
         showProfileMeta: false,
     },
 };

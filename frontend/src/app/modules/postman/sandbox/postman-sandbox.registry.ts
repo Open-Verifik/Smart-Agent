@@ -1,3 +1,9 @@
+import { DOMINICAN_REPUBLIC_POSTMAN_SANDBOX_BY_CODE } from './countries/dominicanrepublic.postman-sandbox';
+import { CANADA_POSTMAN_SANDBOX_BY_CODE } from './countries/canada.postman-sandbox';
+import { INDIA_POSTMAN_SANDBOX_BY_CODE } from './countries/india.postman-sandbox';
+import { USA_POSTMAN_SANDBOX_BY_CODE } from './countries/usa.postman-sandbox';
+import { UTILITIES_POSTMAN_SANDBOX_BY_CODE } from './countries/utilities.postman-sandbox';
+import { WORLD_POSTMAN_SANDBOX_BY_CODE } from './countries/world.postman-sandbox';
 import { BOLIVIA_POSTMAN_SANDBOX_BY_CODE } from './countries/bolivia.postman-sandbox';
 import { ARGENTINA_POSTMAN_SANDBOX_BY_CODE } from './countries/argentina.postman-sandbox';
 import { CHILE_POSTMAN_SANDBOX_BY_CODE } from './countries/chile.postman-sandbox';
@@ -35,4 +41,10 @@ export const POSTMAN_SANDBOX_BY_ENDPOINT_CODE: Record<string, PostmanSandboxEndp
     ...URUGUAY_POSTMAN_SANDBOX_BY_CODE,
     ...PERU_POSTMAN_SANDBOX_BY_CODE,
     ...SPAIN_POSTMAN_SANDBOX_BY_CODE,
+    ...CANADA_POSTMAN_SANDBOX_BY_CODE,
+    ...DOMINICAN_REPUBLIC_POSTMAN_SANDBOX_BY_CODE,
+    ...USA_POSTMAN_SANDBOX_BY_CODE,
+    ...INDIA_POSTMAN_SANDBOX_BY_CODE,
+    ...WORLD_POSTMAN_SANDBOX_BY_CODE,
+    ...UTILITIES_POSTMAN_SANDBOX_BY_CODE,
 };

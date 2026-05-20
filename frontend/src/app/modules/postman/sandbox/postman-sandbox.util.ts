@@ -84,6 +84,42 @@ export const applyPostmanSandboxParamDefaults = (
     const processNumberParam = endpoint.params.find((p) => p.key === 'processNumber');
     const plateParam = endpoint.params.find((p) => p.key === 'plate');
     const vinParam = endpoint.params.find((p) => p.key === 'vin');
+    const codeFasecoldaParam = endpoint.params.find((p) => p.key === 'codeFasecolda');
+    const businessParam = endpoint.params.find((p) => p.key === 'business');
+    const fullNameParam = endpoint.params.find((p) => p.key === 'fullName');
+
+    if (businessParam && !docNumberParam && !processNumberParam && !plateParam && !vinParam) {
+        if (businessParam.value?.trim()) {
+            return;
+        }
+
+        businessParam.value = config.defaultBusiness ?? config.defaultDocumentNumber;
+        applySandboxParamValue(endpoint.params, 'province', config.defaultProvince);
+        return;
+    }
+
+    if (fullNameParam && !docNumberParam && !processNumberParam && !plateParam && !vinParam) {
+        if (fullNameParam.value?.trim()) {
+            return;
+        }
+
+        const resolvedKey = documentNumber ?? config.defaultDocumentNumber;
+        const profile =
+            config.profiles.find((p) => p.documentNumber === resolvedKey) ?? config.profiles[0];
+        fullNameParam.value = profile?.paramOverrides?.fullName ?? profile?.fullName ?? '';
+        return;
+    }
+
+    if (codeFasecoldaParam && !docNumberParam && !processNumberParam && !plateParam && !vinParam) {
+        if (codeFasecoldaParam.value?.trim()) {
+            return;
+        }
+
+        const resolvedCode =
+            documentNumber ?? config.defaultCodeFasecolda ?? config.defaultDocumentNumber;
+        codeFasecoldaParam.value = resolvedCode;
+        return;
+    }
 
     if (vinParam && !docNumberParam && !processNumberParam && !plateParam) {
         if (vinParam.value?.trim()) {
@@ -102,6 +138,7 @@ export const applyPostmanSandboxParamDefaults = (
 
         const resolvedPlate = documentNumber ?? config.defaultPlate ?? config.defaultDocumentNumber;
         plateParam.value = resolvedPlate;
+        applySandboxParamValue(endpoint.params, 'state', config.defaultState);
         return;
     }
 
@@ -137,6 +174,21 @@ export const applyPostmanSandboxParamDefaults = (
     applySandboxParamValue(endpoint.params, 'city', config.defaultCity);
     applySandboxParamValue(endpoint.params, 'quality', config.defaultQuality);
     applySandboxParamValue(endpoint.params, 'dateOfBirth', config.defaultDateOfBirth);
+    applySandboxParamValue(endpoint.params, 'date', config.defaultDate);
+    applySandboxParamValue(endpoint.params, 'category', config.defaultCategory);
+    applySandboxParamValue(endpoint.params, 'firstSurname', config.defaultFirstSurname);
+    applySandboxParamValue(endpoint.params, 'serialNumber', config.defaultSerialNumber);
+    applySandboxParamValue(
+        endpoint.params,
+        'lastName',
+        profile?.paramOverrides?.lastName ?? config.defaultLastName
+    );
+    applySandboxParamValue(
+        endpoint.params,
+        'firstName',
+        profile?.paramOverrides?.firstName
+    );
+    applySandboxParamValue(endpoint.params, 'dv', profile?.paramOverrides?.dv ?? config.defaultDv);
     applySandboxParamValue(endpoint.params, 'expirationDate', config.defaultExpirationDate);
     applySandboxParamValue(
         endpoint.params,

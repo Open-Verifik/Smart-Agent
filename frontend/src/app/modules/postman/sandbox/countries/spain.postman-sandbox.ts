@@ -10,7 +10,14 @@ import {
     SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
 } from '../sandbox-error-profiles';
 
+import {
+    appendVehiclePlateSandboxProfiles,
+    SANDBOX_DEFAULT_PLATE,
+} from '../vehicle-plate-profiles';
+
 export const SPAIN_IDENTITY_ENDPOINT_CODE = 'spain_api_identity_lookup';
+export const SPAIN_COMPANY_ENDPOINT_CODE = 'spain_api_company_lookup';
+export const SPAIN_VEHICLE_ENDPOINT_CODE = 'spain_api_vehicle_lookup';
 
 const SPAIN_DEFAULT_EXPIRATION_DATE = '17/07/2026';
 
@@ -54,6 +61,38 @@ const SPAIN_CONFLICT_INVALID_EXPIRATION_DATE: PostmanSandboxProfile = {
     paramOverrides: { expirationDate: 'not-a-date', documentNumber: '10000001' },
 };
 
+const SPAIN_COMPANY_SANDBOX_PROFILES: PostmanSandboxProfile[] = Array.from({ length: 10 }, (_, index) => {
+    const nif = `B${String(10000001 + index).padStart(8, '0')}`;
+
+    return {
+        documentNumber: nif,
+        fullName: `VERIFIK SANDBOX ESPANA ${String(index + 1).padStart(2, '0')} — NIF`,
+        paramOverrides: {
+            documentType: 'NIF',
+            documentNumber: nif,
+        },
+    };
+});
+
+const SPAIN_COMPANY_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    documentNumber: 'B90040401',
+    fullName: '404 — Record not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    paramOverrides: {
+        documentType: 'NIF',
+        documentNumber: 'B90040401',
+    },
+};
+
+const SPAIN_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: {
+        documentType: 'INVALID',
+        documentNumber: 'B10000001',
+    },
+};
+
 export const SPAIN_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [SPAIN_IDENTITY_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(SPAIN_SANDBOX_PROFILES, {
@@ -69,6 +108,25 @@ export const SPAIN_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
         documentTypeByCode: {
             [SPAIN_IDENTITY_ENDPOINT_CODE]: 'DNIES',
         },
+        showProfileMeta: false,
+    },
+    [SPAIN_COMPANY_ENDPOINT_CODE]: {
+        profiles: [
+            ...SPAIN_COMPANY_SANDBOX_PROFILES,
+            SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+            SPAIN_COMPANY_CONFLICT_INVALID_DOCUMENT_TYPE,
+            SPAIN_COMPANY_ERROR_PROFILE_404,
+        ],
+        defaultDocumentNumber: 'B10000001',
+        documentTypeByCode: {
+            [SPAIN_COMPANY_ENDPOINT_CODE]: 'NIF',
+        },
+        showProfileMeta: false,
+    },
+    [SPAIN_VEHICLE_ENDPOINT_CODE]: {
+        profiles: appendVehiclePlateSandboxProfiles(),
+        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        defaultPlate: SANDBOX_DEFAULT_PLATE,
         showProfileMeta: false,
     },
 };
