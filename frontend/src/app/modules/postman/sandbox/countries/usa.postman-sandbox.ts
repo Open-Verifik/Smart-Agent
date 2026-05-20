@@ -14,6 +14,7 @@ import {
     SANDBOX_DEFAULT_VIN,
     SANDBOX_ERROR_PROFILE_PLATE_404,
     SANDBOX_VEHICLE_PLATE_PROFILES,
+    SANDBOX_VEHICLE_VIN_PROFILES,
 } from '../vehicle-plate-profiles';
 
 export const USA_COMPANY_ENDPOINT_CODE = 'usa_api_company';
@@ -198,7 +199,7 @@ export const USA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointC
         showProfileMeta: false,
     },
     [USA_VEHICLE_BY_VIN_ENDPOINT_CODE]: {
-        profiles: appendVehicleVinSandboxProfiles(),
+        profiles: appendVehicleVinSandboxProfiles(SANDBOX_VEHICLE_VIN_PROFILES),
         defaultDocumentNumber: SANDBOX_DEFAULT_VIN,
         defaultVin: SANDBOX_DEFAULT_VIN,
         showProfileMeta: false,
