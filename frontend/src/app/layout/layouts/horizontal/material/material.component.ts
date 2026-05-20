@@ -18,6 +18,9 @@ import { LanguagesComponent } from 'app/layout/common/languages/languages.compon
 // import { NotificationsComponent } from 'app/layout/common/notifications/notifications.component';
 import { SearchComponent } from 'app/layout/common/search/search.component';
 // import { ShortcutsComponent } from 'app/layout/common/shortcuts/shortcuts.component';
+import { AccountVerificationStripComponent } from 'app/layout/common/account-strips/account-verification-strip.component';
+import { SandboxNoticeStripComponent } from 'app/layout/common/account-strips/sandbox-notice-strip.component';
+import { ProductionModeToggleComponent } from 'app/layout/common/account-strips/production-mode-toggle.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -40,6 +43,9 @@ import { Subject, takeUntil } from 'rxjs';
         UserComponent,
         FuseHorizontalNavigationComponent,
         RouterOutlet,
+        AccountVerificationStripComponent,
+        SandboxNoticeStripComponent,
+        ProductionModeToggleComponent,
     ],
 })
 export class MaterialLayoutComponent implements OnInit, OnDestroy {
