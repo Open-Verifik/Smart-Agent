@@ -32,7 +32,7 @@ export class AccountEnvironmentService {
     );
 
     readonly showSandboxStrip = computed(
-        () => this.isAuthenticated() && this.accountSnapshot()?.settings?.sandboxMode === true,
+        () => this.isAuthenticated() && this._isSandboxModeActive(),
     );
 
     /**
@@ -40,7 +40,7 @@ export class AccountEnvironmentService {
      * The slide-toggle `checked` represents "Production on", not "Sandbox on".
      */
     readonly productionModeOn = computed(
-        () => this.isAuthenticated() && this.accountSnapshot()?.settings?.sandboxMode === false,
+        () => this.isAuthenticated() && !this._isSandboxModeActive(),
     );
 
     /** Toggle is enabled only when canRecharge is explicitly true and settings._id exists. */
@@ -52,20 +52,20 @@ export class AccountEnvironmentService {
     );
 
     constructor() {
-        this.isAuthenticated.set(this._sessionService.hasValidAuthentication());
+        this._refreshAuthState();
+        this._hydrateFromStorage();
 
-        if (this.isAuthenticated()) {
-            this._hydrateFromStorage();
-
-            this._userService.user$.pipe(takeUntilDestroyed()).subscribe((user) => {
+        this._userService.user$.pipe(takeUntilDestroyed()).subscribe((user) => {
+            if (user) {
                 this.accountSnapshot.set(user);
-            });
-        }
+            }
+            this._refreshAuthState();
+        });
     }
 
-    /** Call once after session restore to populate from API. */
+    /** Refresh session user (settings.sandboxMode, canRecharge, etc.) from API. */
     syncUser(): void {
-        if (!this.isAuthenticated()) {
+        if (!this._sessionService.hasValidAuthentication()) {
             return;
         }
         this._userService
@@ -74,8 +74,18 @@ export class AccountEnvironmentService {
             .subscribe((user) => {
                 if (user) {
                     this.accountSnapshot.set(user);
+                    this._userService.user = user;
                 }
+                this._refreshAuthState();
             });
+    }
+
+    /** Called after AppComponent session restore so sandbox UI hydrates immediately. */
+    onSessionSynced(user: User | null): void {
+        if (user) {
+            this.accountSnapshot.set(user);
+        }
+        this._refreshAuthState();
     }
 
     /**
@@ -161,6 +171,28 @@ export class AccountEnvironmentService {
                     window.open(`${environment.kycBaseUrl}${path}`, '_blank', 'noopener,noreferrer');
                 }
             });
+    }
+
+    private _refreshAuthState(): void {
+        this.isAuthenticated.set(this._sessionService.hasValidAuthentication());
+    }
+
+    private _isSandboxModeActive(): boolean {
+        if (this.accountSnapshot()?.settings?.sandboxMode === true) {
+            return true;
+        }
+
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+            return false;
+        }
+
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1])) as { mode?: string };
+            return payload.mode === 'sandbox';
+        } catch {
+            return false;
+        }
     }
 
     private _hydrateFromStorage(): void {
