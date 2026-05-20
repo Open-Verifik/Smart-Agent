@@ -155,7 +155,7 @@
     },
     "accountEnv": {
         "verifyStrip": {
-            "text": "Verify your company to access the 14-day free trial and switch to Production.",
+            "text": "Verify your account to access the initial free credits and switch to Production.",
             "cta": "Verify company"
         },
         "sandboxStrip": {

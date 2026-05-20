@@ -154,7 +154,7 @@
   },
   "accountEnv": {
     "verifyStrip": {
-      "text": "Vérifiez votre entreprise pour accéder à l'essai gratuit de 14 jours et passer en Production.",
+      "text": "Vérifiez votre compte pour accéder aux crédits gratuits initiaux et passer en Production.",
       "cta": "Vérifier l'entreprise"
     },
     "sandboxStrip": {
