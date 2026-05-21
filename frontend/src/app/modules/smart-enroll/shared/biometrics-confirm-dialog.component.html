@@ -1,0 +1,64 @@
+<div
+    class="flex w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+    *transloco="let t"
+>
+    <header class="flex items-start justify-between gap-4 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:px-6">
+        <div class="flex min-w-0 items-start gap-3">
+            <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400"
+            >
+                <mat-icon>{{ data.icon || 'delete_forever' }}</mat-icon>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                    {{ data.title }}
+                </h2>
+                @if (data.subtitle) {
+                    <p class="mt-1 truncate text-sm leading-6 text-stone-500 dark:text-stone-400">
+                        {{ data.subtitle }}
+                    </p>
+                }
+            </div>
+        </div>
+        <button
+            type="button"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+            (click)="onCancel()"
+        >
+            <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+        </button>
+    </header>
+
+    <mat-dialog-content class="!m-0 !flex !flex-col !gap-4 !overflow-y-auto px-5 py-6 dark:text-stone-100 md:px-6">
+        <div class="rounded-xl border border-red-200/80 bg-red-50/60 px-4 py-4 dark:border-red-900/40 dark:bg-red-950/20">
+            <p class="m-0 text-sm leading-6 text-stone-700 dark:text-stone-300">
+                {{ data.message }}
+            </p>
+            @if (data.warning) {
+                <p class="mb-0 mt-2 text-xs leading-5 text-stone-500 dark:text-stone-400">
+                    {{ data.warning }}
+                </p>
+            }
+        </div>
+    </mat-dialog-content>
+
+    <div class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
+        <button
+            mat-stroked-button
+            type="button"
+            class="!min-h-11 w-full !rounded-xl !border-stone-200 !font-medium sm:w-auto dark:!border-gray-700"
+            (click)="onCancel()"
+        >
+            {{ data.cancelLabel || t('cancel') }}
+        </button>
+        <button
+            mat-flat-button
+            color="warn"
+            type="button"
+            class="!min-h-11 w-full !rounded-xl px-5 sm:w-auto"
+            (click)="onConfirm()"
+        >
+            {{ data.confirmLabel || t('confirm') }}
+        </button>
+    </div>
+</div>

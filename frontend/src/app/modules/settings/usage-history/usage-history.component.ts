@@ -17,14 +17,12 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { debounce } from 'lodash-es';
 import { DateTime } from 'luxon';
 import { Subject } from 'rxjs';
 import * as XLSX from 'xlsx';
@@ -35,6 +33,10 @@ import {
     UsageHistoryService,
     UsageListParams,
 } from './usage-history.service';
+import {
+    UsageProductFilterComponent,
+    UsageProductOption,
+} from './usage-product-filter.component';
 
 type ViewMode = 'simplified' | 'detailed';
 
@@ -75,13 +77,13 @@ interface DetailedRow {
         MatDatepickerModule,
         MatFormFieldModule,
         MatIconModule,
-        MatInputModule,
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatSortModule,
         MatTableModule,
         MatTooltipModule,
         TranslocoModule,
+        UsageProductFilterComponent,
     ],
     templateUrl: './usage-history.component.html',
     styleUrl: './usage-history.component.scss',
@@ -99,9 +101,6 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     private readonly _cdr = inject(ChangeDetectorRef);
     private readonly _destroy$ = new Subject<void>();
 
-    /** Debounced fetch used while typing in the search box (detailed view only). */
-    private _debouncedFetch = debounce(() => this._fetch(), 350);
-
     view = signal<ViewMode>('simplified');
     loading = signal(false);
     exporting = signal(false);
@@ -110,8 +109,11 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     rangeStart = new FormControl<DateTime | null>(null);
     rangeEnd = new FormControl<DateTime | null>(null);
 
-    /** Search text. Simplified = client-side filter, detailed = ?like_code server query. */
-    searchInput = '';
+    /** Selected product codes for multi-select filter (empty = all products). */
+    selectedProductCodes: string[] = [];
+
+    /** Products with usage in the active date range (dropdown options). */
+    productOptions = signal<UsageProductOption[]>([]);
 
     /** Simplified rows (grouped buckets). */
     simplifiedRows = signal<SimplifiedRow[]>([]);
@@ -173,18 +175,12 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         return this.allServicesCost();
     }
 
-    get searchByPlaceholderKey(): string {
-        return this.view() === 'simplified'
-            ? 'settings.usageHistory.search_by_simplified'
-            : 'settings.usageHistory.search_by_detailed';
-    }
-
     get disableActions(): boolean {
         return this.loading() || this.exporting();
     }
 
     get isFiltersDirty(): boolean {
-        return !!this.searchInput || !!this.rangeStart.value || !!this.rangeEnd.value;
+        return this.selectedProductCodes.length > 0;
     }
 
     ngOnInit(): void {
@@ -194,7 +190,6 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this._debouncedFetch.cancel();
         this._destroy$.next();
         this._destroy$.complete();
     }
@@ -202,7 +197,6 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     onViewChange(view: ViewMode): void {
         if (view === this.view()) return;
         this.view.set(view);
-        this.searchInput = '';
         this.pageIndex = 0;
         this.sortActive.set(view === 'simplified' ? 'total' : 'createdAt');
         this.sortDirection.set('desc');
@@ -236,11 +230,11 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         this._cdr.markForCheck();
     }
 
-    onSearchChange(value: string): void {
-        this.searchInput = (value || '').trim();
+    onProductFilterChange(codes: string[]): void {
+        this.selectedProductCodes = codes;
         if (this.view() === 'detailed') {
             this.pageIndex = 0;
-            this._debouncedFetch();
+            this._fetchDetailed();
         } else {
             this._cdr.markForCheck();
         }
@@ -250,7 +244,7 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         if (this.view() !== 'detailed') return;
         this.pageIndex = ev.pageIndex;
         this.pageSize = ev.pageSize;
-        this._fetch();
+        this._fetchDetailed();
     }
 
     onSort(sort: Sort): void {
@@ -258,14 +252,14 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         this.sortDirection.set(sort.direction || 'desc');
         if (this.view() === 'detailed') {
             this.pageIndex = 0;
-            this._fetch();
+            this._fetchDetailed();
         } else {
             this._cdr.markForCheck();
         }
     }
 
     clearFilters(): void {
-        this.searchInput = '';
+        this.selectedProductCodes = [];
         this._setDefaultDateRange();
         this.activeQuickRangeId.set(null);
         this.pageIndex = 0;
@@ -378,6 +372,11 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     }
 
     private _fetch(): void {
+        this._loadProductCatalog();
+    }
+
+    /** Grouped fetch for product catalog (+ summary rows in simplified view). */
+    private _loadProductCatalog(): void {
         const start = this.rangeStart.value;
         const end = this.rangeEnd.value;
         if (!start?.isValid || !end?.isValid) return;
@@ -385,36 +384,57 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         this.loading.set(true);
         this._cdr.markForCheck();
 
-        if (this.view() === 'simplified') {
-            const params: UsageListParams = {
-                where_category: 'usage',
-                where_status: 'approved',
-                whereGTE_createdAt: start.toFormat('yyyy-LL-dd'),
-                whereLTE_createdAt: end.toFormat('yyyy-LL-dd'),
-                columns: '_id amount code status memo reason',
-                sort: '-createdAt',
-                groupThem: 1,
-            };
-            this._service.listGrouped(params).subscribe({
-                next: (res) => {
-                    const meta = res?.appFeatures ?? {};
-                    this.appFeatures.set(meta);
-                    const rows = this._buildSimplifiedRows(res?.data ?? {}, meta);
-                    this.simplifiedRows.set(rows);
+        const params: UsageListParams = {
+            where_category: 'usage',
+            where_status: 'approved',
+            whereGTE_createdAt: start.toFormat('yyyy-LL-dd'),
+            whereLTE_createdAt: end.toFormat('yyyy-LL-dd'),
+            columns: '_id amount code status memo reason',
+            sort: '-createdAt',
+            groupThem: 1,
+        };
+
+        this._service.listGrouped(params).subscribe({
+            next: (res) => {
+                const meta = res?.appFeatures ?? {};
+                this.appFeatures.set(meta);
+                const grouped = res?.data ?? {};
+                this.productOptions.set(this._buildProductOptions(grouped, meta));
+                this._pruneSelectedProductCodes();
+                if (this.view() === 'simplified') {
+                    this.simplifiedRows.set(this._buildSimplifiedRows(grouped, meta));
                     this.loading.set(false);
                     this._cdr.markForCheck();
-                },
-                error: () => {
-                    this.simplifiedRows.set([]);
-                    this.appFeatures.set({});
-                    this.loading.set(false);
-                    this._cdr.markForCheck();
-                },
-            });
-            return;
+                    return;
+                }
+                this._fetchDetailed(false);
+            },
+            error: () => {
+                this.productOptions.set([]);
+                this.simplifiedRows.set([]);
+                this.appFeatures.set({});
+                if (this.view() === 'detailed') {
+                    this.detailedRows.set([]);
+                    this.total.set(0);
+                    this.allServicesCost.set(0);
+                }
+                this.loading.set(false);
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    /** Paginated line items for detailed view (requires catalog load first for labels). */
+    private _fetchDetailed(setLoading = true): void {
+        const start = this.rangeStart.value;
+        const end = this.rangeEnd.value;
+        if (!start?.isValid || !end?.isValid) return;
+
+        if (setLoading) {
+            this.loading.set(true);
+            this._cdr.markForCheck();
         }
 
-        // Detailed
         const params: UsageListParams = {
             where_category: 'usage',
             where_status: 'approved',
@@ -426,11 +446,16 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
             page: this.pageIndex + 1,
             withAllServicesCost: 'true',
         };
-        if (this.searchInput) params.likeCode = this.searchInput.toLowerCase();
+        if (this.selectedProductCodes.length) {
+            params.inCode = [...this.selectedProductCodes];
+        }
 
         this._service.listDetailed(params).subscribe({
             next: (res) => {
-                const meta = res?.appFeatures ?? {};
+                const meta = {
+                    ...this.appFeatures(),
+                    ...(res?.appFeatures ?? {}),
+                };
                 this.appFeatures.set(meta);
                 const items = res?.data ?? [];
                 this.detailedRows.set(
@@ -453,7 +478,6 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
                 this.detailedRows.set([]);
                 this.total.set(0);
                 this.allServicesCost.set(0);
-                this.appFeatures.set({});
                 this.loading.set(false);
                 this._cdr.markForCheck();
             },
@@ -476,7 +500,9 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
             sort: '-createdAt',
             lean: true,
         };
-        if (this.searchInput) params.likeCode = this.searchInput.toLowerCase();
+        if (this.selectedProductCodes.length) {
+            params.inCode = [...this.selectedProductCodes];
+        }
         try {
             const res = await new Promise<{
                 data?: CreditUsageItem[];
@@ -517,18 +543,12 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
         return rows;
     }
 
-    /** Applies the search filter + active sort to simplified rows for the table. */
+    /** Applies product filter + active sort to simplified rows for the table. */
     private _filteredSimplifiedSorted(): SimplifiedRow[] {
-        const term = this.searchInput.toLowerCase().trim();
         let rows = this.simplifiedRows();
-        const meta = this.appFeatures();
-        if (term) {
-            rows = rows.filter((r) => {
-                const name = r.product.toLowerCase();
-                const code = (r.code || '').toLowerCase();
-                const ep = (this._endpointPathFromMeta(r.code, meta) || '').toLowerCase();
-                return name.includes(term) || code.includes(term) || ep.includes(term);
-            });
+        if (this.selectedProductCodes.length) {
+            const selected = new Set(this.selectedProductCodes);
+            rows = rows.filter((r) => selected.has(r.code));
         }
 
         const active = this.sortActive();
@@ -542,6 +562,36 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
             }
             return dir === 'asc' ? av - bv : bv - av;
         });
+    }
+
+    /** Distinct products from grouped usage buckets, sorted by label. */
+    private _buildProductOptions(
+        data: GroupedUsageResponse,
+        meta: Record<string, AppFeatureUsageMeta>
+    ): UsageProductOption[] {
+        const codes = new Set<string>();
+        for (const key of Object.keys(data || {})) {
+            const productKey = key.split(':')[0];
+            if (productKey && productKey !== 'allRecords') codes.add(productKey);
+        }
+
+        return [...codes]
+            .map((code) => ({
+                code,
+                label: this._labelFromAppFeatureMeta(code, meta),
+                endpoint: this._endpointPathFromMeta(code, meta),
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label));
+    }
+
+    /** Drops selected codes that are no longer in the catalog after a date-range change. */
+    private _pruneSelectedProductCodes(): void {
+        if (!this.selectedProductCodes.length) return;
+        const available = new Set(this.productOptions().map((o) => o.code));
+        const pruned = this.selectedProductCodes.filter((c) => available.has(c));
+        if (pruned.length !== this.selectedProductCodes.length) {
+            this.selectedProductCodes = pruned;
+        }
     }
 
     private _serverSortString(): string {

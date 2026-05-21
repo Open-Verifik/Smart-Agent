@@ -1,0 +1,1 @@
+import{sd as o}from"./chunk-YLWBUMDM.js";var i=a=>{let r=new o;for(let[e,n]of Object.entries(a))if(!(n==null||n==="")){if(Array.isArray(n)){n.forEach(t=>{t!=null&&`${t}`!=""&&(r=r.append(e,String(t)))});continue}r=r.set(e,String(n))}return r};export{i as a};

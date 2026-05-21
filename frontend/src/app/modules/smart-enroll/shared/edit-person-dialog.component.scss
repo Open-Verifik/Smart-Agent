@@ -1,0 +1,57 @@
+.edit-person-dialog-panel.cdk-overlay-pane {
+    max-width: min(640px, 94vw);
+}
+
+.edit-person-dialog-panel {
+    .mat-mdc-dialog-container {
+        padding: 0 !important;
+        overflow: hidden;
+        border-radius: 1rem;
+    }
+
+    .mat-mdc-dialog-surface {
+        border-radius: 1rem !important;
+        overflow: hidden;
+        background: transparent !important;
+        box-shadow:
+            0 4px 6px -1px rgb(15 23 42 / 0.08),
+            0 2px 4px -2px rgb(15 23 42 / 0.08);
+    }
+}
+
+.edit-person-dialog__date-field {
+    mat-datepicker-toggle {
+        position: absolute;
+        right: 0.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .mat-mdc-icon-button {
+            width: 2.25rem;
+            height: 2.25rem;
+            padding: 0;
+        }
+    }
+}
+
+.edit-person-dialog__checkbox {
+    .mdc-checkbox {
+        padding: 0;
+    }
+}
+
+.edit-person-dialog__method-toggle {
+    border-radius: 0.75rem;
+    overflow: hidden;
+
+    .mat-button-toggle {
+        flex: 1;
+    }
+
+    .mat-button-toggle-label-content {
+        padding: 0 0.75rem;
+        line-height: 2.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+}

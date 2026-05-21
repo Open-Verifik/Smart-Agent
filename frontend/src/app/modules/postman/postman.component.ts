@@ -132,7 +132,7 @@ function resolveCountryNameFromIso(
     ],
     template: `
         <div
-            class="flex h-screen w-full overflow-hidden bg-[#f8fafc] dark:bg-[#0f172a] select-none text-slate-900 dark:text-slate-100 font-sans"
+            class="flex h-full min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
         >
             <!-- Sidebar -->
             <div
@@ -323,6 +323,18 @@ function resolveCountryNameFromIso(
             </div>
         </div>
     `,
+    styles: [
+        `
+            :host {
+                display: flex;
+                flex: 1 1 auto;
+                width: 100%;
+                min-width: 0;
+                min-height: 0;
+                height: 100%;
+            }
+        `,
+    ],
 })
 export class PostmanComponent {
     private _postmanService = inject(PostmanService);
@@ -346,7 +358,7 @@ export class PostmanComponent {
     selectedCountry = this._postmanService.selectedCountry;
 
     countries = computed(() => {
-        const endpoints = this._postmanService.endpoints();
+        const endpoints = this._postmanService.visibleEndpoints();
         const counts: Record<string, number> = {};
 
         endpoints.forEach((ep) => {
@@ -411,7 +423,7 @@ export class PostmanComponent {
             () => {
                 const params = this._queryParamMap();
                 const codeParam = params?.get('code');
-                const endpoints = this._postmanService.endpoints();
+                const endpoints = this._postmanService.visibleEndpoints();
                 if (endpoints.length > 0 && codeParam) {
                     const found = endpoints.find((ep) => ep.code === codeParam);
                     // Skip re-selecting if the endpoint is already active. Re-selecting
@@ -430,7 +442,7 @@ export class PostmanComponent {
             () => {
                 const params = this._queryParamMap();
                 const isoParam = params?.get('country');
-                const endpoints = this._postmanService.endpoints();
+                const endpoints = this._postmanService.visibleEndpoints();
                 if (endpoints.length === 0) return;
 
                 if (!isoParam) {

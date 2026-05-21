@@ -1,7 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
+import { toHttpParams } from '../../smart-enroll/biometrics/http-params.util';
 
 export interface AppFeatureUsageMeta {
     name: string;
@@ -54,8 +55,10 @@ export interface UsageListParams {
     sort?: string;
     columns?: string;
     lean?: boolean;
-    /** Legacy partial-match filter on the credit `code` field. */
-    likeCode?: string;
+    /** Exact match on credit `code` (single value). */
+    whereCode?: string;
+    /** Exact match filter on credit `code` (supports multiple values via `in_code`). */
+    inCode?: string[];
 }
 
 /**
@@ -96,21 +99,20 @@ export class UsageHistoryService {
         );
     }
 
-    /**
-     * Bridges the legacy `?like_code` Mongo prefix-style param while keeping
-     * Angular `HttpParams` happy with normal string keys.
-     */
-    private _toHttpParams(params: UsageListParams): HttpParams {
-        let out = new HttpParams();
-        const { likeCode, ...rest } = params;
-        for (const [k, v] of Object.entries(rest)) {
-            if (v === undefined || v === null || v === '') continue;
-            out = out.set(k, String(v));
+    private _toHttpParams(params: UsageListParams): ReturnType<typeof toHttpParams> {
+        const { inCode, whereCode, ...rest } = params;
+        const query: Record<string, unknown> = { ...rest };
+
+        if (whereCode) {
+            query.where_code = whereCode;
+        } else if (inCode?.length === 1) {
+            // Single `in_code` query values arrive as a string server-side; use exact match instead.
+            query.where_code = inCode[0];
+        } else if (inCode && inCode.length > 1) {
+            query.in_code = inCode;
         }
-        if (likeCode) {
-            out = out.set('?like_code', likeCode);
-        }
-        return out;
+
+        return toHttpParams(query);
     }
 
     private _authHeaders(extra: Record<string, string> = {}): Record<string, string> {

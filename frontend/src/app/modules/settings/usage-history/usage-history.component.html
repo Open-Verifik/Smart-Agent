@@ -77,33 +77,16 @@
                     class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4"
                 >
                     <div class="usage-history__field min-w-0 flex-1">
-                        <label class="usage-history__label" for="usage-history-search">
-                            {{ t('settings.usageHistory.search') }}
+                        <label class="usage-history__label" for="usage-history-product-filter">
+                            {{ t('settings.usageHistory.filter_products') }}
                         </label>
-                        <div class="relative">
-                            <mat-icon
-                                class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 !h-4 !w-4 !text-base text-stone-400"
-                                >search</mat-icon
-                            >
-                            <input
-                                id="usage-history-search"
-                                type="search"
-                                class="usage-history__input pl-9 pr-9"
-                                [placeholder]="t(searchByPlaceholderKey)"
-                                [ngModel]="searchInput"
-                                (ngModelChange)="onSearchChange($event)"
-                                [disabled]="disableActions"
-                            />
-                            <button
-                                *ngIf="searchInput"
-                                type="button"
-                                class="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-md text-stone-400 transition hover:bg-stone-100 hover:text-stone-700 dark:hover:bg-gray-800 dark:hover:text-stone-200"
-                                (click)="onSearchChange('')"
-                                [attr.aria-label]="t('settings.usageHistory.clear_search')"
-                            >
-                                <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
-                            </button>
-                        </div>
+                        <app-usage-product-filter
+                            id="usage-history-product-filter"
+                            [options]="productOptions()"
+                            [selectedCodes]="selectedProductCodes"
+                            (selectedCodesChange)="onProductFilterChange($event)"
+                            [disabled]="disableActions"
+                        />
                     </div>
                     <button
                         type="button"

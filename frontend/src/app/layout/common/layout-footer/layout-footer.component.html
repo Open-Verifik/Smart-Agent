@@ -1,0 +1,43 @@
+<div
+    class="text-secondary flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium"
+    [class.text-xs]="compact()"
+    [class.justify-center]="compact()"
+>
+    <span>Verifik &copy; {{ currentYear }}</span>
+    @if (!compact()) {
+        <nav class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <a
+                class="hover:text-primary transition-colors"
+                [href]="urls().docsHome"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {{ 'appFooter.apiDocumentation' | transloco }}
+            </a>
+            <a
+                class="hover:text-primary transition-colors"
+                [href]="urls().privacyPolicy"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {{ 'appFooter.privacyPolicy' | transloco }}
+            </a>
+            <a
+                class="hover:text-primary transition-colors"
+                [href]="urls().termsAndConditions"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {{ 'appFooter.termsAndConditions' | transloco }}
+            </a>
+            <a
+                class="hover:text-primary transition-colors"
+                [href]="urls().serviceLevelAgreement"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {{ 'appFooter.serviceLevelAgreement' | transloco }}
+            </a>
+        </nav>
+    }
+</div>

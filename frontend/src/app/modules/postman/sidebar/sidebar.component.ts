@@ -492,7 +492,7 @@ export class SidebarComponent {
   }
 
   filteredEndpoints = computed(() => {
-    const endpoints = this.postman.endpoints();
+    const endpoints = this.postman.visibleEndpoints();
     const query = this.searchQuery().toLowerCase();
     const country = this.selectedCountry();
     const folderById = new Map(this.postman.layoutFolders().map((f) => [f._id, f]));
@@ -560,7 +560,7 @@ export class SidebarComponent {
   });
 
   categories = computed(() => {
-    const endpoints = this.postman.endpoints();
+    const endpoints = this.postman.visibleEndpoints();
     const query = this.searchQuery().toLowerCase();
     const country = this.selectedCountry();
     const folderById = new Map(this.postman.layoutFolders().map((f) => [f._id, f]));

@@ -1,0 +1,128 @@
+<ng-container *transloco="let t">
+    <div class="overflow-x-auto rounded-xl border border-stone-200/80 dark:border-gray-800">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full bg-transparent">
+            <ng-container matColumnDef="selected" *ngIf="!hideCheckboxes">
+                <th mat-header-cell *matHeaderCellDef class="min-w-20 max-w-20 !border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 dark:!border-gray-800 dark:!bg-gray-950/50">
+                    <mat-checkbox
+                        (change)="$event ? masterToggle() : null"
+                        [checked]="selection.hasValue() && isAllSelected()"
+                        [indeterminate]="selection.hasValue() && !isAllSelected()"
+                        [disabled]="disableActions"
+                    ></mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row" class="min-w-20 max-w-20 !px-4">
+                    <mat-checkbox
+                        (change)="$event ? toggleRow(row) : null"
+                        (click)="$event.stopPropagation()"
+                        [checked]="selection.isSelected(row)"
+                        [disabled]="disableActions"
+                    ></mat-checkbox>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="image">
+                <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.image') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4">
+                    <img
+                        [src]="getRowThumbnail(element)"
+                        [alt]="element.name"
+                        class="h-10 w-10 rounded-full border border-stone-200 object-cover dark:border-gray-700"
+                    />
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.nameId') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4">
+                    <div class="flex flex-col gap-1">
+                        <span class="font-semibold text-stone-950 dark:text-white">{{ element.name }}</span>
+                        <span class="font-mono text-xs text-stone-500 dark:text-stone-400">{{ element._id }}</span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dateOfBirth">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.dateOfBirth') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-sm text-stone-600 dark:text-stone-300">
+                    {{ element.date_of_birth | date: 'MMM d, yyyy' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="nationality">
+                <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.nationality') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-sm text-stone-600 dark:text-stone-300">
+                    {{ element.nationality || '—' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="updatedAt">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.lastUpdated') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-sm text-stone-600 dark:text-stone-300">
+                    {{ element.updatedAt | date: 'short' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions" *ngIf="!hideActions">
+                <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.actions') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-right">
+                    <div class="inline-flex items-center gap-1">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="!rounded-lg hover:!bg-stone-100 dark:hover:!bg-gray-800"
+                            (click)="editItem(element); $event.stopPropagation()"
+                            [disabled]="disableActions"
+                        >
+                            <mat-icon class="!text-stone-600 dark:!text-stone-300">edit</mat-icon>
+                        </button>
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="!rounded-lg hover:!bg-red-50 dark:hover:!bg-red-950/30"
+                            (click)="deleteItem(element); $event.stopPropagation()"
+                            [disabled]="disableActions"
+                        >
+                            <mat-icon class="!text-red-600 dark:!text-red-400">delete_forever</mat-icon>
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr
+                mat-row
+                *matRowDef="let row; columns: displayedColumns"
+                class="h-auto border-b border-stone-100 transition hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
+            ></tr>
+
+            <tr *matNoDataRow>
+                <td [attr.colspan]="displayedColumns.length" class="py-12 text-center">
+                    @if (loading) {
+                        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                    } @else {
+                        <span class="text-sm text-stone-500 dark:text-stone-400">{{ t('smartEnrollPeople.noRecords') }}</span>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <mat-paginator
+        class="!mt-4 !rounded-xl !border !border-stone-200/80 dark:!border-gray-800"
+        [disabled]="disableActions"
+        [pageSize]="25"
+        [pageSizeOptions]="[25, 50, 100]"
+    ></mat-paginator>
+</ng-container>

@@ -73,9 +73,9 @@
     <!-- Navigation footer hook -->
     <ng-container fuseVerticalNavigationContentFooter>
         <div
-            class="text-secondary mb-4 mt-2 flex h-12 flex-0 items-center justify-center px-4 text-center text-xs font-medium"
+            class="mb-4 mt-2 flex h-12 flex-0 items-center justify-center px-4 text-center"
         >
-            <span>Verifik &copy; {{ currentYear }}</span>
+            <layout-footer [compact]="true"></layout-footer>
         </div>
     </ng-container>
 </fuse-vertical-navigation>
@@ -119,7 +119,7 @@
     <sandbox-notice-strip></sandbox-notice-strip>
 
     <!-- Content -->
-    <div class="flex flex-auto flex-col">
+    <div class="flex min-h-0 min-w-0 flex-auto flex-col overflow-hidden">
         <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
              Otherwise, layout changes won't be registered and the view won't be updated! -->
         @if (true) {
@@ -128,9 +128,11 @@
     </div>
 
     <!-- Footer -->
-    <!--<div class="relative flex flex-0 items-center justify-start w-full h-14 px-4 md:px-6 z-49 border-t bg-card dark:bg-transparent print:hidden">
-        <span class="font-medium text-secondary">Verifik &copy; {{currentYear}}</span>
-    </div>-->
+    <div
+        class="bg-card relative z-49 flex min-h-14 h-auto w-full flex-0 items-center justify-start border-t px-4 py-2 md:px-6 dark:bg-transparent print:hidden"
+    >
+        <layout-footer></layout-footer>
+    </div>
 </div>
 
 <!-- Quick chat -->

@@ -1,0 +1,148 @@
+<ng-container *transloco="let t">
+    <div class="overflow-x-auto rounded-xl border border-stone-200/80 dark:border-gray-800">
+        <table mat-table [dataSource]="dataSource" matSort class="w-full bg-transparent" multiTemplateDataRows>
+            <ng-container matColumnDef="expand">
+                <th mat-header-cell *matHeaderCellDef class="max-w-12 !border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 dark:!border-gray-800 dark:!bg-gray-950/50"></th>
+                <td mat-cell *matCellDef="let element" class="max-w-12 !px-4">
+                    <mat-icon
+                        class="text-stone-400 transition-transform"
+                        [class.rotate-180]="element === expandedElement"
+                        [class.text-stone-700]="element === expandedElement"
+                    >
+                        expand_more
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollCollections.nameCode') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="font-semibold text-stone-950 dark:text-white">{{ element.name }}</span>
+                            @if (showTypeBadges) {
+                                <app-collection-scope-badge [collection]="element"></app-collection-scope-badge>
+                            }
+                        </div>
+                        <span class="font-mono text-xs text-stone-500 dark:text-stone-400">{{ element.code }}</span>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="description">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollCollections.description') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-sm text-stone-600 dark:text-stone-300">
+                    {{ element.description || '—' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="updatedAt">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.lastUpdated') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-sm text-stone-600 dark:text-stone-300">
+                    {{ element.updatedAt | date: 'short' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                    {{ t('smartEnrollPeople.actions') }}
+                </th>
+                <td mat-cell *matCellDef="let element" class="!px-4 !py-4 text-right">
+                    <div class="inline-flex items-center gap-1">
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="!rounded-lg hover:!bg-stone-100 dark:hover:!bg-gray-800"
+                            (click)="editCollection.emit(element); $event.stopPropagation()"
+                            [disabled]="disableActions"
+                        >
+                            <mat-icon class="!text-stone-600 dark:!text-stone-300">edit</mat-icon>
+                        </button>
+                        <button
+                            mat-icon-button
+                            type="button"
+                            class="!rounded-lg hover:!bg-red-50 dark:hover:!bg-red-950/30"
+                            (click)="deleteCollection.emit(element); $event.stopPropagation()"
+                            [disabled]="disableActions"
+                        >
+                            <mat-icon class="!text-red-600 dark:!text-red-400">delete_forever</mat-icon>
+                        </button>
+                    </div>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="expandedDetail">
+                <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length" class="!bg-stone-50/70 !p-0 dark:!bg-gray-950/40">
+                    <div class="overflow-hidden border-t border-stone-200/80 dark:border-gray-800" [@detailExpand]="expandedElement === element ? 'expanded' : 'collapsed'">
+                        <div class="px-4 py-4 md:px-6">
+                            @if (element.people && element.people.length > 10) {
+                                <div class="mb-4 flex flex-wrap items-center gap-2">
+                                    <div class="relative min-w-0 flex-1 sm:max-w-sm">
+                                        <mat-icon class="pointer-events-none absolute left-3 top-1/2 !h-4 !w-4 -translate-y-1/2 text-stone-400">search</mat-icon>
+                                        <input
+                                            type="text"
+                                            class="h-10 w-full rounded-xl border border-stone-200 bg-white pl-10 pr-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-100"
+                                            [placeholder]="t('smartEnrollPeople.search')"
+                                            [value]="peopleFilterText"
+                                            (input)="onPeopleTextFilterChange($event)"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-stone-200 text-stone-600 transition hover:bg-stone-50 disabled:opacity-50 dark:border-gray-700 dark:text-stone-300 dark:hover:bg-gray-800"
+                                        (click)="clearPeopleFilters()"
+                                        [disabled]="!peopleFilterText"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-base">filter_list_off</mat-icon>
+                                    </button>
+                                </div>
+                            }
+                            <app-biometrics-people-table
+                                [people]="element.people || []"
+                                [loading]="element.loading"
+                                [filterText]="peopleFilterText"
+                                [disableActions]="disableActions"
+                                (deletePerson)="deletePerson.emit($event)"
+                                (editPerson)="editPerson.emit($event)"
+                                (selectionChange)="onPeopleSelectionChange($event)"
+                            ></app-biometrics-people-table>
+                        </div>
+                    </div>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr
+                mat-row
+                *matRowDef="let element; columns: displayedColumns"
+                class="h-auto cursor-pointer border-b border-stone-100 transition hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
+                [class.bg-stone-50]="expandedElement === element"
+                (click)="toggleCollection(element)"
+            ></tr>
+            <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row !h-0"></tr>
+
+            <tr *matNoDataRow>
+                <td [attr.colspan]="displayedColumns.length" class="py-12 text-center">
+                    @if (loading) {
+                        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                    } @else {
+                        <span class="text-sm text-stone-500 dark:text-stone-400">{{ t('smartEnrollPeople.noRecords') }}</span>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <mat-paginator
+        class="!mt-4 !rounded-xl !border !border-stone-200/80 dark:!border-gray-800"
+        [disabled]="disableActions"
+        [pageSize]="25"
+        [pageSizeOptions]="[25, 50, 100]"
+    ></mat-paginator>
+</ng-container>

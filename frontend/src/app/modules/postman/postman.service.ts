@@ -26,6 +26,7 @@ import {
 } from './postman-url.util';
 
 import { environment } from 'environments/environment';
+import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
 import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
 
 @Injectable({
@@ -39,6 +40,24 @@ export class PostmanService {
     private _accountEnv = inject(AccountEnvironmentService);
 
     endpoints = signal<ApiEndpoint[]>(API_ENDPOINTS);
+
+    /** When set, sidebar and explorer only show endpoints in these categories (or face_recognition codes). */
+    categoryFilter = signal<string[] | null>(null);
+
+    visibleEndpoints = computed(() => {
+        const all = this.endpoints();
+        const categories = this.categoryFilter();
+        if (!categories?.length) return all;
+        return all.filter((ep) => isBiometricsEndpoint(ep.category, ep.code));
+    });
+
+    setCategoryFilter(categories: readonly string[] | null): void {
+        this.categoryFilter.set(categories?.length ? [...categories] : null);
+    }
+
+    clearCategoryFilter(): void {
+        this.categoryFilter.set(null);
+    }
 
     layoutFolders = signal<PostmanFolderDto[]>([]);
     layoutEndpointsRaw = signal<PostmanEndpointRowDto[]>([]);

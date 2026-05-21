@@ -1,0 +1,22 @@
+:host {
+    display: contents;
+}
+
+.usage-history-container {
+    mat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    mat-button-toggle-group {
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
+
+    .usage-history-drawer {
+        .mat-drawer-inner-container {
+            overflow: hidden;
+        }
+    }
+}

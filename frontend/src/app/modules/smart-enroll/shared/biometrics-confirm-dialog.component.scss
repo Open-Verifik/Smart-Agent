@@ -1,0 +1,20 @@
+.biometrics-confirm-dialog-panel.cdk-overlay-pane {
+    max-width: min(480px, 94vw);
+}
+
+.biometrics-confirm-dialog-panel {
+    .mat-mdc-dialog-container {
+        padding: 0 !important;
+        overflow: hidden;
+        border-radius: 1rem;
+    }
+
+    .mat-mdc-dialog-surface {
+        border-radius: 1rem !important;
+        overflow: hidden;
+        background: transparent !important;
+        box-shadow:
+            0 4px 6px -1px rgb(15 23 42 / 0.08),
+            0 2px 4px -2px rgb(15 23 42 / 0.08);
+    }
+}

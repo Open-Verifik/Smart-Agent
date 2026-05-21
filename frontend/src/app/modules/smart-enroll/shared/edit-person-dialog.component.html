@@ -1,0 +1,381 @@
+<div
+    class="flex w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+    *transloco="let t"
+>
+    <header class="flex items-start justify-between gap-4 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:px-6">
+        <div class="flex min-w-0 items-start gap-3">
+            @if (isCreateMode) {
+                @if (photoPreview) {
+                    <img
+                        [src]="photoPreview"
+                        alt=""
+                        class="h-12 w-12 shrink-0 rounded-xl border border-stone-200 object-cover dark:border-gray-700"
+                    />
+                } @else {
+                    <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                        <mat-icon>person_add</mat-icon>
+                    </div>
+                }
+            } @else if (data.person?.thumbnails?.length) {
+                <img
+                    [src]="getRowThumbnail(data.person)"
+                    [alt]="data.person.name"
+                    class="h-12 w-12 shrink-0 rounded-xl border border-stone-200 object-cover dark:border-gray-700"
+                />
+            } @else {
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                    <mat-icon>person</mat-icon>
+                </div>
+            }
+            <div class="min-w-0">
+                <h2 class="truncate text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                    {{ isCreateMode ? t('smartEnrollPeople.createPerson') : t('smartEnrollPeople.editPerson') }}
+                </h2>
+                <p class="mt-1 truncate text-sm leading-6 text-stone-500 dark:text-stone-400">
+                    @if (isCreateMode) {
+                        {{ t('smartEnrollPeople.dialogCreateSubtitle') }}
+                    } @else {
+                        {{ data.person?.name }}
+                    }
+                </p>
+            </div>
+        </div>
+        <button
+            type="button"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+            (click)="onCancel()"
+        >
+            <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+        </button>
+    </header>
+
+    @if (loading) {
+        <div class="flex flex-col items-center justify-center px-6 py-16">
+            <mat-spinner diameter="36"></mat-spinner>
+            <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">{{ t('smartEnrollCollections.loading') }}</p>
+        </div>
+    } @else {
+        <mat-dialog-content class="!flex !max-h-[min(68vh,560px)] !flex-col !gap-6 !overflow-y-auto px-5 py-6 dark:text-stone-100 md:p-6">
+            <form [formGroup]="editForm" class="flex flex-col gap-5">
+                @if (isCreateMode) {
+                    <section class="flex flex-col gap-2">
+                        <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ t('smartEnrollPeople.createMethodLabel') }}
+                        </h3>
+                        <mat-button-toggle-group
+                            [value]="createMethod"
+                            (change)="onCreateMethodChange($event.value)"
+                            class="edit-person-dialog__method-toggle w-full rounded-xl"
+                        >
+                            <mat-button-toggle value="standard" class="flex-1">
+                                {{ t('smartEnrollPeople.createMethodStandard') }}
+                            </mat-button-toggle>
+                            <mat-button-toggle value="liveness" class="flex-1">
+                                {{ t('smartEnrollPeople.createMethodLiveness') }}
+                            </mat-button-toggle>
+                        </mat-button-toggle-group>
+                        <p class="text-xs leading-5 text-stone-500 dark:text-stone-400">
+                            {{ t(dialogSubtitleKey) }}
+                        </p>
+                    </section>
+
+                    <section class="flex flex-col gap-3 rounded-xl border border-stone-200/80 p-4 dark:border-gray-800">
+                        <div class="flex flex-wrap items-center gap-4">
+                            @if (photoPreview) {
+                                <img [src]="photoPreview" alt="" class="h-20 w-20 rounded-xl border border-stone-200 object-cover dark:border-gray-700" />
+                            } @else {
+                                <div class="flex h-20 w-20 items-center justify-center rounded-xl border border-dashed border-stone-300 bg-stone-50 text-stone-400 dark:border-gray-700 dark:bg-gray-950">
+                                    <mat-icon>photo_camera</mat-icon>
+                                </div>
+                            }
+                            <div class="flex min-w-0 flex-1 flex-col gap-2">
+                                <label class="text-sm font-semibold text-stone-950 dark:text-white">
+                                    {{ t('smartEnrollPeople.referencePhoto') }}
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-10 w-fit items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                    (click)="triggerPhotoUpload(photoInput)"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-base">upload</mat-icon>
+                                    <span>{{ photoPreview ? t('smartEnrollPeople.changePhoto') : t('smartEnrollPeople.uploadPhoto') }}</span>
+                                </button>
+                                <input #photoInput type="file" accept="image/*" class="hidden" (change)="onPhotoSelected($event)" />
+                                <p class="text-xs text-stone-500 dark:text-stone-400">{{ t('smartEnrollPeople.photoHint') }}</p>
+                                @if (photoError) {
+                                    <p class="text-xs text-red-600 dark:text-red-400">{{ t('smartEnrollPeople.photoRequired') }}</p>
+                                }
+                            </div>
+                        </div>
+                    </section>
+                }
+
+                <section class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-name">
+                            {{ t('smartEnrollPeople.name') }}
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                            id="person-name"
+                            type="text"
+                            class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                            formControlName="name"
+                        />
+                        @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+                            <p class="text-xs text-red-600 dark:text-red-400">{{ t('smartEnrollPeople.nameRequired') }}</p>
+                        }
+                    </div>
+
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-dob">
+                            {{ t('smartEnrollPeople.dateOfBirth') }}
+                            <span class="text-red-500">*</span>
+                        </label>
+                        <div class="edit-person-dialog__date-field relative">
+                            <input
+                                id="person-dob"
+                                type="text"
+                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 pr-12 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                formControlName="date_of_birth"
+                                [matDatepicker]="dobPicker"
+                                [placeholder]="t('smartEnrollPeople.dateOfBirthPlaceholder')"
+                            />
+                            <mat-datepicker-toggle matIconSuffix [for]="dobPicker"></mat-datepicker-toggle>
+                            <mat-datepicker #dobPicker></mat-datepicker>
+                        </div>
+                        @if (editForm.get('date_of_birth')?.invalid && editForm.get('date_of_birth')?.touched) {
+                            <p class="text-xs text-red-600 dark:text-red-400">{{ t('smartEnrollPeople.dateOfBirthRequired') }}</p>
+                        }
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-nationality">
+                                {{ t('smartEnrollPeople.nationality') }}
+                            </label>
+                            <input
+                                id="person-nationality"
+                                type="text"
+                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                formControlName="nationality"
+                                [placeholder]="t('smartEnrollPeople.nationalityPlaceholder')"
+                            />
+                        </div>
+
+                        @if (isCreateMode) {
+                            <div class="flex flex-col gap-2">
+                                <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-gender">
+                                    {{ t('smartEnrollPeople.gender') }}
+                                    <span class="text-red-500">*</span>
+                                </label>
+                                <select
+                                    id="person-gender"
+                                    class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                    formControlName="gender"
+                                >
+                                    <option value="M">{{ t('smartEnrollPeople.genderMale') }}</option>
+                                    <option value="F">{{ t('smartEnrollPeople.genderFemale') }}</option>
+                                </select>
+                            </div>
+                        }
+                    </div>
+
+                    @if (!isLivenessCreate) {
+                        <div class="flex flex-col gap-2">
+                            <label class="text-sm font-semibold text-stone-950 dark:text-white" for="person-notes">
+                                {{ t('smartEnrollPeople.notes') }}
+                            </label>
+                            <textarea
+                                id="person-notes"
+                                rows="3"
+                                class="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                formControlName="notes"
+                                [placeholder]="t('smartEnrollPeople.notesPlaceholder')"
+                            ></textarea>
+                        </div>
+                    }
+                </section>
+
+                @if (isLivenessCreate) {
+                    <section class="flex flex-col gap-4 rounded-xl border border-stone-200/80 p-4 dark:border-gray-800">
+                        <mat-button-toggle-group
+                            [value]="editForm.get('search_mode')?.value"
+                            (change)="onSearchModeChange($event.value)"
+                            class="rounded-xl"
+                        >
+                            <mat-button-toggle value="fast">{{ t('smartEnrollPeople.fast') }}</mat-button-toggle>
+                            <mat-button-toggle value="accurate">{{ t('smartEnrollPeople.accurate') }}</mat-button-toggle>
+                        </mat-button-toggle-group>
+
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
+                                <label class="text-xs font-medium uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollPeople.minScore') }}: {{ editForm.get('min_score')?.value }}
+                                </label>
+                                <mat-slider class="mt-2 w-full" min="0.5" max="1" step="0.05" discrete>
+                                    <input matSliderThumb formControlName="min_score" />
+                                </mat-slider>
+                            </div>
+                            <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
+                                <label class="text-xs font-medium uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollPeople.livenessMinScore') }}: {{ editForm.get('liveness_min_score')?.value }}
+                                </label>
+                                <mat-slider class="mt-2 w-full" min="0.5" max="1" step="0.05" discrete>
+                                    <input matSliderThumb formControlName="liveness_min_score" />
+                                </mat-slider>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3 rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-3 dark:border-amber-900/50 dark:bg-amber-950/30">
+                            <mat-icon class="shrink-0 text-amber-600 dark:text-amber-400">info</mat-icon>
+                            <p class="text-sm leading-6 text-amber-900 dark:text-amber-100">
+                                {{ t('smartEnrollPeople.livenessBillingHint') }}
+                            </p>
+                        </div>
+                    </section>
+                }
+
+                <section class="flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                            <mat-icon class="!h-4 !w-4 !text-base">folder</mat-icon>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                {{ t('smartEnrollPeople.collections') }}
+                            </h3>
+                            <p class="text-xs text-stone-500 dark:text-stone-400">
+                                @if (isLivenessCreate) {
+                                    {{ t('smartEnrollPeople.collectionRequired') }}
+                                } @else {
+                                    {{ t('smartEnrollPeople.collectionsHint') }}
+                                }
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="max-h-52 space-y-2 overflow-y-auto rounded-xl border border-stone-200/80 p-2 dark:border-gray-800">
+                        @if (isLivenessCreate) {
+                            @for (collection of allCollections; track collection._id) {
+                                <div
+                                    class="flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-3 transition"
+                                    [class.border-stone-200]="!isLivenessCollectionSelected(collection._id)"
+                                    [class.bg-white]="!isLivenessCollectionSelected(collection._id)"
+                                    [class.border-indigo-300]="isLivenessCollectionSelected(collection._id)"
+                                    [class.bg-indigo-50]="isLivenessCollectionSelected(collection._id)"
+                                    [class.dark:border-gray-700]="!isLivenessCollectionSelected(collection._id)"
+                                    [class.dark:bg-gray-950]="!isLivenessCollectionSelected(collection._id)"
+                                    [class.dark:border-indigo-700]="isLivenessCollectionSelected(collection._id)"
+                                    [class.dark:bg-indigo-950]="isLivenessCollectionSelected(collection._id)"
+                                    (click)="onLivenessCollectionSelect(collection)"
+                                >
+                                    <div
+                                        class="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2"
+                                        [class.border-stone-300]="!isLivenessCollectionSelected(collection._id)"
+                                        [class.border-indigo-600]="isLivenessCollectionSelected(collection._id)"
+                                    >
+                                        @if (isLivenessCollectionSelected(collection._id)) {
+                                            <div class="h-2 w-2 rounded-full bg-indigo-600"></div>
+                                        }
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="text-sm font-medium text-stone-950 dark:text-white">{{ collection.name }}</span>
+                                            <app-collection-scope-badge [collection]="collection"></app-collection-scope-badge>
+                                        </div>
+                                        @if (collection.description) {
+                                            <div class="mt-0.5 text-xs leading-5 text-stone-500 dark:text-stone-400">
+                                                {{ collection.description }}
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            } @empty {
+                                <div class="px-3 py-6 text-center text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollPeople.noCollectionsAvailable') }}
+                                </div>
+                            }
+                        } @else {
+                            @for (collection of allCollections; track collection._id) {
+                                <div
+                                    class="flex cursor-pointer items-start gap-3 rounded-xl border px-3 py-3 transition"
+                                    [class.border-stone-200]="!isCollectionSelected(collection.code)"
+                                    [class.bg-white]="!isCollectionSelected(collection.code)"
+                                    [class.border-indigo-300]="isCollectionSelected(collection.code)"
+                                    [class.bg-indigo-50]="isCollectionSelected(collection.code)"
+                                    [class.dark:border-gray-700]="!isCollectionSelected(collection.code)"
+                                    [class.dark:bg-gray-950]="!isCollectionSelected(collection.code)"
+                                    [class.dark:border-indigo-700]="isCollectionSelected(collection.code)"
+                                    [class.dark:bg-indigo-950]="isCollectionSelected(collection.code)"
+                                    (click)="onCollectionChange(collection.code, !isCollectionSelected(collection.code))"
+                                >
+                                    <mat-checkbox
+                                        class="edit-person-dialog__checkbox mt-0.5 pointer-events-none"
+                                        [checked]="isCollectionSelected(collection.code)"
+                                    ></mat-checkbox>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <span class="text-sm font-medium text-stone-950 dark:text-white">{{ collection.name }}</span>
+                                            <app-collection-scope-badge [collection]="collection"></app-collection-scope-badge>
+                                        </div>
+                                        @if (collection.description) {
+                                            <div class="mt-0.5 text-xs leading-5 text-stone-500 dark:text-stone-400">
+                                                {{ collection.description }}
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            } @empty {
+                                <div class="px-3 py-6 text-center text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollPeople.noCollectionsAvailable') }}
+                                </div>
+                            }
+                        }
+                    </div>
+                </section>
+
+                @if (hasWarning && !isCreateMode) {
+                    <section class="flex gap-3 rounded-xl border border-red-200/90 bg-red-50 px-4 py-4 dark:border-red-900/50 dark:bg-red-950/30">
+                        <mat-icon class="shrink-0 text-red-600 dark:text-red-400">warning</mat-icon>
+                        <div class="min-w-0 flex-1 space-y-2">
+                            <h4 class="text-sm font-semibold text-red-900 dark:text-red-100">
+                                {{ t('smartEnrollPeople.warningPersonWillBeDeleted') }}
+                            </h4>
+                            <p class="text-sm leading-6 text-red-800 dark:text-red-200">
+                                {{ t('smartEnrollPeople.warningPersonWillBeDeletedDescription') }}
+                            </p>
+                            @if (showConfirmation) {
+                                <p class="rounded-xl border border-red-300/80 bg-red-100/80 px-3 py-2 text-sm font-medium text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-100">
+                                    {{ t('smartEnrollPeople.warningPersonWillBeDeletedConfirmation') }}
+                                </p>
+                            }
+                        </div>
+                    </section>
+                }
+            </form>
+        </mat-dialog-content>
+
+        <div class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
+            <button
+                mat-stroked-button
+                type="button"
+                class="!min-h-11 w-full !rounded-xl !border-stone-200 !font-medium sm:w-auto dark:!border-gray-700"
+                (click)="onCancel()"
+            >
+                {{ t('cancel') }}
+            </button>
+            <button
+                mat-flat-button
+                [color]="currentSaveButtonColor"
+                type="button"
+                class="!min-h-11 w-full !rounded-xl px-5 sm:w-auto"
+                [disabled]="disableSave"
+                (click)="onSave()"
+            >
+                {{ currentSaveButtonText }}
+            </button>
+        </div>
+    }
+</div>

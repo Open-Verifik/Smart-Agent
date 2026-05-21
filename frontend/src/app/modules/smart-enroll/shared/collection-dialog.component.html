@@ -1,0 +1,124 @@
+<div
+    class="flex w-full flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+    *transloco="let t"
+>
+    <header class="flex items-start justify-between gap-4 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:px-6">
+        <div class="flex min-w-0 items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                <mat-icon>{{ isEditMode ? 'edit' : 'create_new_folder' }}</mat-icon>
+            </div>
+            <div class="min-w-0">
+                <h2 class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                    {{ dialogTitle }}
+                </h2>
+                <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                    {{ isEditMode ? t('smartEnrollCollections.dialogEditSubtitle') : t('smartEnrollCollections.dialogCreateSubtitle') }}
+                </p>
+            </div>
+        </div>
+        <button
+            type="button"
+            class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+            (click)="onCancel()"
+        >
+            <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+        </button>
+    </header>
+
+    @if (loading) {
+        <div class="flex flex-col items-center justify-center px-6 py-16">
+            <mat-spinner diameter="36"></mat-spinner>
+            <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">{{ t('smartEnrollCollections.loading') }}</p>
+        </div>
+    } @else {
+        <mat-dialog-content class="!flex !flex-col !gap-6 !overflow-y-auto px-5 py-6 dark:text-stone-100 md:p-6">
+            <form [formGroup]="createForm" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-stone-950 dark:text-white" for="collection-name">
+                        {{ t('smartEnrollCollections.name') }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="collection-name"
+                        type="text"
+                        class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                        formControlName="name"
+                        [placeholder]="t('smartEnrollCollections.namePlaceholder')"
+                    />
+                    @if (createForm.get('name')?.invalid && createForm.get('name')?.touched) {
+                        <p class="text-xs text-red-600 dark:text-red-400">{{ t('smartEnrollCollections.nameRequired') }}</p>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-stone-950 dark:text-white" for="collection-description">
+                        {{ t('smartEnrollCollections.description') }}
+                    </label>
+                    <textarea
+                        id="collection-description"
+                        rows="3"
+                        class="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                        formControlName="description"
+                        [placeholder]="t('smartEnrollCollections.descriptionPlaceholder')"
+                    ></textarea>
+                </div>
+
+                @if (isEditMode) {
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-stone-950 dark:text-white" for="collection-code">
+                            {{ t('smartEnrollCollections.code') }}
+                        </label>
+                        <input
+                            id="collection-code"
+                            type="text"
+                            readonly
+                            disabled
+                            class="h-11 w-full cursor-not-allowed rounded-xl border border-stone-200 bg-stone-100 px-4 font-mono text-sm text-stone-500 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-400"
+                            [value]="data.collection?.code"
+                        />
+                    </div>
+                }
+
+                @if (allProjects.length > 0) {
+                    <div class="flex flex-col gap-2">
+                        <label class="text-sm font-semibold text-stone-950 dark:text-white" for="collection-project">
+                            {{ t('smartEnrollCollections.project') }}
+                            <span class="font-normal text-stone-500 dark:text-stone-400">({{ t('smartEnrollCollections.optional') }})</span>
+                        </label>
+                        <select
+                            id="collection-project"
+                            class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                            formControlName="project"
+                        >
+                            <option value="">{{ t('smartEnrollCollections.none') }}</option>
+                            @for (project of allProjects; track project._id) {
+                                <option [value]="project._id">{{ project.name }}</option>
+                            }
+                        </select>
+                    </div>
+                }
+            </form>
+        </mat-dialog-content>
+
+        <div class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
+            <button
+                mat-stroked-button
+                type="button"
+                class="!min-h-11 w-full !rounded-xl !border-stone-200 !font-medium sm:w-auto dark:!border-gray-700"
+                (click)="onCancel()"
+            >
+                {{ t('cancel') }}
+            </button>
+            <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                class="!min-h-11 w-full !rounded-xl px-5 sm:w-auto"
+                [disabled]="disableSave"
+                (click)="onSave()"
+            >
+                {{ saveButtonText }}
+            </button>
+        </div>
+    }
+</div>

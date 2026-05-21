@@ -1,0 +1,250 @@
+<ng-container *transloco="let t">
+    <div class="people-container flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8">
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+                <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                    <a routerLink="/home" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                        Verifik
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a routerLink="/smart-enroll/projects" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                        {{ t('nav.smart_enroll') }}
+                    </a>
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t('smartEnrollPeople.title') }}</span>
+                </div>
+
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="max-w-2xl">
+                        <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                            {{ t('smartEnrollPeople.title') }}
+                        </h1>
+                        <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
+                            {{ t('smartEnrollPeople.subtitle') }}
+                        </p>
+                    </div>
+
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        class="min-h-11 shrink-0 rounded-xl px-5"
+                        (click)="createPerson()"
+                        [disabled]="disableActions"
+                    >
+                        <mat-icon class="mr-1 !h-4 !w-4 !text-base">person_add</mat-icon>
+                        <span>{{ t('smartEnrollPeople.createPerson') }}</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+                <!-- Toolbar -->
+                <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="relative min-w-0 flex-1">
+                            <mat-icon class="pointer-events-none absolute left-3 top-1/2 !h-4 !w-4 -translate-y-1/2 text-stone-400">search</mat-icon>
+                            <input
+                                type="text"
+                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                [placeholder]="t('smartEnrollPeople.search')"
+                                [value]="filterText"
+                                (input)="onTextFilterChange($event)"
+                            />
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                (click)="clearFilters()"
+                                [disabled]="disabledClearFilters"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">filter_list_off</mat-icon>
+                                <span>{{ t('smartEnrollPeople.clearFilters') }}</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                (click)="exportData()"
+                                [disabled]="disableActions"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">file_download</mat-icon>
+                                <span>{{ t('export') }}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 border-t border-stone-100 pt-4 dark:border-gray-800">
+                        @if (scopeFilter === 'onboarding') {
+                            <span class="inline-flex items-center gap-1 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-800 dark:border-indigo-800 dark:bg-indigo-950 dark:text-indigo-200">
+                                <span>{{ t('smartEnrollCollections.scopeFilterLabel') }}: {{ t('smartEnrollCollections.scopeFilterOnboarding') }}</span>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-5 w-5 items-center justify-center rounded-full transition hover:bg-indigo-100 dark:hover:bg-indigo-900"
+                                    (click)="removeScopeFilter()"
+                                    [attr.aria-label]="t('smartEnrollCollections.scopeFilterRemove')"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-base">close</mat-icon>
+                                </button>
+                            </span>
+                            <span class="text-xs text-stone-500 dark:text-stone-400">{{ t('smartEnrollPeople.scopeFilterHint') }}</span>
+                        } @else {
+                            <span class="inline-flex items-center gap-2 rounded-full border border-stone-200 bg-stone-50 px-3 py-1 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
+                                {{ t('smartEnrollCollections.scopeFilterAll') }}
+                            </span>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-8 items-center justify-center rounded-xl border border-stone-200 px-3 text-xs font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                (click)="restoreScopeFilter()"
+                            >
+                                {{ t('smartEnrollCollections.scopeFilterRestore') }}
+                            </button>
+                        }
+                    </div>
+                </div>
+
+                <!-- Image search -->
+                <div
+                    class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                    [class.opacity-60]="scopeFilter === 'all'"
+                >
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between px-5 py-4 transition hover:bg-stone-50 dark:hover:bg-gray-800/40 md:px-6"
+                        (click)="toggleImageSearchAccordion()"
+                        [disabled]="scopeFilter === 'all'"
+                    >
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                                <mat-icon class="!h-5 !w-5 !text-xl">image_search</mat-icon>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-sm font-semibold text-stone-950 dark:text-white">{{ t('smartEnrollPeople.searchByImage') }}</p>
+                                <p class="text-xs text-stone-500 dark:text-stone-400">
+                                    @if (scopeFilter === 'all') {
+                                        {{ t('smartEnrollCollections.imageSearchDisabledHint') }}
+                                    } @else {
+                                        {{ t('smartEnrollPeople.imageSearchHint') }}
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                        <mat-icon class="text-stone-400 transition-transform" [class.rotate-180]="imageSearchExpanded">expand_more</mat-icon>
+                    </button>
+
+                    @if (imageSearchExpanded) {
+                        <div class="space-y-4 border-t border-stone-200/80 px-5 py-5 dark:border-gray-800 md:px-6">
+                            <mat-button-toggle-group
+                                [value]="searchMode"
+                                (change)="onSearchModeChange($event.value)"
+                                [disabled]="disableActions || scopeFilter === 'all'"
+                                class="rounded-xl"
+                            >
+                                <mat-button-toggle value="fast">{{ t('smartEnrollPeople.fast') }}</mat-button-toggle>
+                                <mat-button-toggle value="accurate">{{ t('smartEnrollPeople.accurate') }}</mat-button-toggle>
+                            </mat-button-toggle-group>
+
+                            <div class="flex flex-wrap items-center gap-4">
+                                <button
+                                    type="button"
+                                    class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                    (click)="triggerImageUpload()"
+                                    [disabled]="disableActions || scopeFilter === 'all'"
+                                >
+                                    <mat-icon class="!h-4 !w-4 !text-base">upload</mat-icon>
+                                    <span>{{ t('smartEnrollPeople.uploadImage') }}</span>
+                                </button>
+                                <input #imageInput type="file" accept="image/*" class="hidden" (change)="onImageSelected($event)" />
+                                @if (selectedImagePreview) {
+                                    <img [src]="selectedImagePreview" alt="" class="h-16 w-16 rounded-xl border border-stone-200 object-cover dark:border-gray-700" />
+                                }
+                            </div>
+
+                            @if (selectedImagePreview) {
+                                <div class="max-w-md rounded-xl border border-stone-200 p-4 dark:border-gray-800">
+                                    <label class="text-xs font-medium uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
+                                        {{ t('smartEnrollPeople.minScore') }}: {{ minScore }}
+                                    </label>
+                                    <mat-slider class="mt-2 w-full" min="0.5" max="1" step="0.05" discrete>
+                                        <input matSliderThumb [value]="minScore" (valueChange)="onMinScoreChange($event)" />
+                                    </mat-slider>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- People table -->
+                <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                    <div class="flex flex-col gap-3 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                                <mat-icon>group</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                    {{ t('smartEnrollPeople.tableTitle') }}
+                                </h2>
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollPeople.tableSubtitleScoped', {
+                                        count: peopleData().length,
+                                        scope: t(tableScopeLabelKey)
+                                    }) }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-500 dark:bg-gray-800 dark:text-gray-400">
+                            <span class="h-2 w-2 rounded-full" [class.bg-emerald-400]="!loading()" [class.bg-amber-400]="loading()"></span>
+                            {{ loading() ? t('smartEnrollPeople.loading') : t('smartEnrollPeople.live') }}
+                        </div>
+                    </div>
+
+                    <div class="p-5 md:p-6">
+                        @if (loading()) {
+                            <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 py-14 text-center dark:border-gray-800">
+                                <mat-spinner diameter="40"></mat-spinner>
+                                <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">{{ t('smartEnrollPeople.loading') }}</p>
+                            </div>
+                        } @else if (!peopleData().length && !filterText && !selectedImagePreview) {
+                            <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 px-5 py-14 text-center dark:border-gray-800">
+                                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300">
+                                    <mat-icon>person_off</mat-icon>
+                                </div>
+                                <h3 class="mt-4 text-base font-semibold text-stone-950 dark:text-white">
+                                    {{ t('smartEnrollPeople.emptyTitle') }}
+                                </h3>
+                                <p class="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartEnrollPeople.emptySubtitle') }}
+                                </p>
+                                <a
+                                    routerLink="/smart-enroll/projects"
+                                    mat-stroked-button
+                                    type="button"
+                                    class="mt-5 min-h-10 rounded-xl px-5"
+                                >
+                                    <mat-icon class="mr-1 !h-4 !w-4 !text-base">folder</mat-icon>
+                                    {{ t('smartEnrollPeople.viewProjects') }}
+                                </a>
+                            </div>
+                        } @else {
+                            <app-biometrics-people-table
+                                [people]="peopleData()"
+                                [filterText]="filterText"
+                                [loading]="loading()"
+                                [disableActions]="disableActions"
+                                [hideCheckboxes]="true"
+                                (deletePerson)="deletePerson($event)"
+                                (editPerson)="editPerson($event)"
+                            ></app-biometrics-people-table>
+                        }
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</ng-container>

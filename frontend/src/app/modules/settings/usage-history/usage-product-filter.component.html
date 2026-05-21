@@ -1,0 +1,128 @@
+<div
+    class="usage-product-filter w-full"
+    [class.usage-product-filter--open]="menuOpen"
+    (click)="$event.stopPropagation()"
+    *transloco="let t"
+>
+    <button
+        type="button"
+        class="usage-product-filter__trigger"
+        [class.usage-product-filter__trigger--open]="menuOpen"
+        [disabled]="disabled"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen"
+        aria-haspopup="listbox"
+    >
+        <div class="usage-product-filter__trigger-body min-w-0 flex-1">
+            @if (selectedCount === 0) {
+                <span class="usage-product-filter__placeholder">
+                    {{ t('settings.usageHistory.filter_products_placeholder') }}
+                </span>
+            } @else if (selectedCount <= 2) {
+                <div class="usage-product-filter__chips">
+                    @for (code of selectedCodes; track code) {
+                        <span class="usage-product-filter__chip">
+                            <span class="truncate">{{ labelForCode(code) }}</span>
+                            <button
+                                type="button"
+                                class="usage-product-filter__chip-remove"
+                                [attr.aria-label]="t('settings.usageHistory.filter_products_clear')"
+                                (click)="removeChip(code, $event)"
+                            >
+                                <mat-icon class="!h-3 !w-3 !text-xs">close</mat-icon>
+                            </button>
+                        </span>
+                    }
+                </div>
+            } @else {
+                <span class="usage-product-filter__summary">
+                    {{
+                        t('settings.usageHistory.filter_products_selected', {
+                            count: selectedCount,
+                        })
+                    }}
+                </span>
+            }
+        </div>
+        <mat-icon class="usage-product-filter__chevron shrink-0">
+            {{ menuOpen ? 'expand_less' : 'expand_more' }}
+        </mat-icon>
+    </button>
+
+    @if (menuOpen) {
+        <div class="usage-product-filter__panel">
+            <div class="usage-product-filter__search-wrap">
+                <mat-icon class="usage-product-filter__search-icon">search</mat-icon>
+                <input
+                    type="search"
+                    class="usage-product-filter__search-input"
+                    autocomplete="off"
+                    [placeholder]="t('settings.usageHistory.filter_products_search')"
+                    [ngModel]="searchTerm"
+                    (ngModelChange)="onSearchInput($event)"
+                />
+                @if (searchTerm) {
+                    <button
+                        type="button"
+                        class="usage-product-filter__search-clear"
+                        (click)="clearSearch()"
+                        [attr.aria-label]="t('settings.usageHistory.filter_products_search')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                    </button>
+                }
+            </div>
+
+            @if (selectedCount > 0) {
+                <div class="usage-product-filter__panel-actions">
+                    <button
+                        type="button"
+                        class="usage-product-filter__clear-btn"
+                        (click)="clearSelection($event)"
+                    >
+                        {{ t('settings.usageHistory.filter_products_clear') }}
+                    </button>
+                </div>
+            }
+
+            <div class="usage-product-filter__list" role="listbox" [attr.aria-multiselectable]="true">
+                @if (!options.length) {
+                    <p class="usage-product-filter__empty">
+                        {{ t('settings.usageHistory.filter_products_empty') }}
+                    </p>
+                } @else if (!filteredOptions.length) {
+                    <p class="usage-product-filter__empty">
+                        {{ t('settings.usageHistory.no_records') }}
+                    </p>
+                } @else {
+                    @for (option of filteredOptions; track trackByCode($index, option)) {
+                        <button
+                            type="button"
+                            class="usage-product-filter__option"
+                            [class.usage-product-filter__option--selected]="isSelected(option.code)"
+                            role="option"
+                            [attr.aria-selected]="isSelected(option.code)"
+                            (click)="toggleOption(option.code)"
+                        >
+                            <mat-checkbox
+                                class="usage-product-filter__checkbox pointer-events-none"
+                                [checked]="isSelected(option.code)"
+                                [disableRipple]="true"
+                            ></mat-checkbox>
+                            <div class="min-w-0 flex-1 text-left">
+                                <span class="usage-product-filter__option-label">{{
+                                    option.label
+                                }}</span>
+                                @if (option.endpoint) {
+                                    <span class="usage-product-filter__option-endpoint">{{
+                                        option.endpoint
+                                    }}</span>
+                                }
+                            </div>
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+    }
+</div>

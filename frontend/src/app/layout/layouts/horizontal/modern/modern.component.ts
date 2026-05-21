@@ -20,6 +20,7 @@ import { QuickChatComponent } from 'app/layout/common/quick-chat/quick-chat.comp
 import { AccountVerificationStripComponent } from 'app/layout/common/account-strips/account-verification-strip.component';
 import { SandboxNoticeStripComponent } from 'app/layout/common/account-strips/sandbox-notice-strip.component';
 import { ProductionModeToggleComponent } from 'app/layout/common/account-strips/production-mode-toggle.component';
+import { LayoutFooterComponent } from 'app/layout/common/layout-footer/layout-footer.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -44,6 +45,7 @@ import { Subject, takeUntil } from 'rxjs';
         AccountVerificationStripComponent,
         SandboxNoticeStripComponent,
         ProductionModeToggleComponent,
+        LayoutFooterComponent,
     ],
 })
 export class ModernLayoutComponent implements OnInit, OnDestroy {
@@ -61,17 +63,6 @@ export class ModernLayoutComponent implements OnInit, OnDestroy {
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService
     ) {}
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Accessors
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Getter for current year
-     */
-    get currentYear(): number {
-        return new Date().getFullYear();
-    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
