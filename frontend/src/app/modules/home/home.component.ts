@@ -17,6 +17,7 @@ import { SessionService } from '../../core/services/session.service';
 import type { SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
 import { UserService } from '../../core/user/user.service';
 import { DashboardData, HomeService } from './home.service';
+import { QuickChatService } from '../../layout/common/quick-chat/quick-chat.service';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
 interface ChartTheme {
@@ -39,8 +40,10 @@ interface ShortcutItem {
     id: string;
     titleKey: string;
     subtitleKey: string;
-    link: string;
     icon: string;
+    link?: string;
+    action?: 'support-tickets';
+    accent?: 'support';
 }
 
 interface PodiumEntry {
@@ -75,6 +78,7 @@ export class HomeComponent implements OnInit {
     private _userService = inject(UserService);
     private _document = inject(DOCUMENT);
     private _fuseConfig = inject(FuseConfigService);
+    private _quickChatService = inject(QuickChatService);
 
     private _schemeAutoListenerCleanup: (() => void) | null = null;
 
@@ -113,6 +117,14 @@ export class HomeComponent implements OnInit {
 
     shortcuts: ShortcutItem[] = [
         { id: 'chat', titleKey: 'home.shortcuts.chat', subtitleKey: 'nav.ai_validation', link: '/chat', icon: 'chat_bubble' },
+        {
+            id: 'support-tickets',
+            titleKey: 'home.shortcuts.supportTickets',
+            subtitleKey: 'home.shortcuts.supportTicketsSubtitle',
+            icon: 'support_agent',
+            action: 'support-tickets',
+            accent: 'support',
+        },
         { id: 'postman', titleKey: 'home.shortcuts.postman', subtitleKey: 'nav.api_testing', link: '/postman', icon: 'terminal' },
         { id: 'smart-batch', titleKey: 'home.shortcuts.smartBatch', subtitleKey: 'nav.batch_automation', link: '/smart-batch', icon: 'queue' },
         { id: 'smart-access', titleKey: 'home.shortcuts.smartAccess', subtitleKey: 'nav.smart_access_projects_subtitle', link: '/smart-access/projects', icon: 'lock_open' },
@@ -216,6 +228,16 @@ export class HomeComponent implements OnInit {
             panelClass: 'tutorial-modal-dialog',
             maxWidth: '500px',
         });
+    }
+
+    onShortcutActivate(item: ShortcutItem): void {
+        if (item.action === 'support-tickets') {
+            this._quickChatService.requestOpenPanel();
+        }
+    }
+
+    isShortcutLink(item: ShortcutItem): boolean {
+        return Boolean(item.link) && !item.action;
     }
 
     private _resetCharts(): void {

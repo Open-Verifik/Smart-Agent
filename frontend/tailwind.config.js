@@ -66,6 +66,48 @@ const themes = {
     },
 };
 
+/** Demo semantic colors (CSS vars on `.smart-enroll-demos`) */
+const demoRgb = (token) => `rgb(var(--color-${token}) / <alpha-value>)`;
+const demoSemanticColors = {
+    surface: demoRgb('surface'),
+    'surface-container-lowest': demoRgb('surface-container-lowest'),
+    'surface-container-low': demoRgb('surface-container-low'),
+    'surface-container': demoRgb('surface-container'),
+    'surface-container-high': demoRgb('surface-container-high'),
+    'surface-container-highest': demoRgb('surface-container-highest'),
+    'surface-bright': demoRgb('surface-bright'),
+    'surface-dim': demoRgb('surface-dim'),
+    'surface-variant': demoRgb('surface-variant'),
+    'surface-tint': demoRgb('surface-tint'),
+    primary: demoRgb('primary'),
+    'primary-fixed': demoRgb('primary-fixed'),
+    'primary-fixed-dim': demoRgb('primary-fixed-dim'),
+    'primary-container': demoRgb('primary-container'),
+    'on-primary': demoRgb('on-primary'),
+    'on-primary-fixed': demoRgb('on-primary-fixed'),
+    'on-primary-fixed-variant': demoRgb('on-primary-fixed-variant'),
+    'on-primary-container': demoRgb('on-primary-container'),
+    'inverse-primary': demoRgb('inverse-primary'),
+    secondary: demoRgb('secondary'),
+    'on-secondary': demoRgb('on-secondary'),
+    'on-secondary-container': demoRgb('on-secondary-container'),
+    tertiary: demoRgb('tertiary'),
+    'on-tertiary': demoRgb('on-tertiary'),
+    'on-tertiary-container': demoRgb('on-tertiary-container'),
+    background: demoRgb('background'),
+    'on-background': demoRgb('on-background'),
+    'on-surface': demoRgb('on-surface'),
+    'on-surface-variant': demoRgb('on-surface-variant'),
+    'inverse-surface': demoRgb('inverse-surface'),
+    'inverse-on-surface': demoRgb('inverse-on-surface'),
+    outline: demoRgb('outline'),
+    'outline-variant': demoRgb('outline-variant'),
+    error: demoRgb('error'),
+    'error-container': demoRgb('error-container'),
+    'on-error': demoRgb('on-error'),
+    'on-error-container': demoRgb('on-error-container'),
+};
+
 /**
  * Tailwind configuration
  */
@@ -104,6 +146,10 @@ const config = {
             colors: {
                 gray: colors.slate,
                 verifikBrand: customPalettes.verifikBrand,
+                ...demoSemanticColors,
+            },
+            boxShadow: {
+                primary: 'var(--shadow-primary)',
             },
             flex: {
                 0: '0 0 auto',

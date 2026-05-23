@@ -22,14 +22,18 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
                 <div class="flex min-w-0 items-center gap-2">
                     <mat-icon class="shrink-0 text-white" style="font-size:18px;width:18px;height:18px">verified</mat-icon>
                     <span class="truncate text-sm font-medium text-white">
-                        {{ 'accountEnv.verifyStrip.text' | transloco }}
+                        {{
+                            env.verifyStripPendingReview()
+                                ? ('accountEnv.verifyStrip.pendingText' | transloco)
+                                : ('accountEnv.verifyStrip.text' | transloco)
+                        }}
                     </span>
                 </div>
                 <button
                     mat-flat-button
                     type="button"
                     class="!shrink-0 !rounded-lg !bg-white !text-verifikBrand-800 !text-xs !font-semibold hover:!bg-verifikBrand-50 dark:!text-verifikBrand-900"
-                    [disabled]="env.verifyCompanyLoading()"
+                    [disabled]="env.verifyCompanyLoading() || env.verifyStripPendingReview()"
                     (click)="env.startCompanyVerification()"
                 >
                     @if (env.verifyCompanyLoading()) {

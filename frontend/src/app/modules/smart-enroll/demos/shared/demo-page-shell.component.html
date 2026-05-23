@@ -1,0 +1,26 @@
+<div class="smart-enroll-demos flex min-h-screen min-w-0 flex-auto flex-col w-full">
+    <main class="flex flex-auto flex-col w-full px-5 py-8 md:px-8 md:py-10">
+        <nav class="mb-6 text-sm text-on-surface-variant" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-1.5">
+                <li>
+                    <a routerLink="/smart-enroll/collections" class="hover:text-primary transition-colors">
+                        Smart Enroll
+                    </a>
+                </li>
+                <li aria-hidden="true">/</li>
+                <li>
+                    <a routerLink="/smart-enroll/demos" class="hover:text-primary transition-colors">
+                        {{ 'smartEnrollDemos.hub.title' | transloco }}
+                    </a>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="flex w-full min-w-0 flex-col gap-6">
+            <ng-content select="[demoHeaderBack]"></ng-content>
+            <ng-content select="[demoHeaderTitle]"></ng-content>
+            <ng-content select="[demoHeaderActions]"></ng-content>
+            <ng-content></ng-content>
+        </div>
+    </main>
+</div>

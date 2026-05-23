@@ -1,0 +1,46 @@
+<button
+    type="button"
+    role="switch"
+    [attr.aria-checked]="enabled"
+    (click)="toggle()"
+    class="human-id-liveness-toggle w-full rounded-xl border px-4 py-4 text-left flex items-start gap-4 transition-colors"
+    [class.human-id-liveness-toggle--on]="enabled"
+>
+    <span
+        class="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg human-id-liveness-toggle__icon"
+        [class.human-id-liveness-toggle__icon--on]="enabled"
+        aria-hidden="true"
+    >
+        <span class="material-symbols-outlined text-xl">{{ enabled ? 'shield_person' : 'shield' }}</span>
+    </span>
+
+    <span class="flex-1 min-w-0">
+        <span class="flex flex-wrap items-center gap-2 mb-1">
+            @if (stageLabel) {
+                <span class="human-id-liveness-toggle__stage" [class.human-id-liveness-toggle__stage--encrypt]="stage === 'encrypt'" [class.human-id-liveness-toggle__stage--decrypt]="stage === 'decrypt'">
+                    {{ stageLabel }}
+                </span>
+            }
+            <span class="text-sm font-semibold text-on-surface">{{ title }}</span>
+            @if (showRecommended) {
+                <span class="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+                    {{ recommendedLabel }}
+                </span>
+            }
+        </span>
+        <span class="block text-xs text-on-surface-variant leading-relaxed">{{ hint }}</span>
+    </span>
+
+    <span
+        class="relative mt-1 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors human-id-liveness-toggle__track"
+        [class.human-id-liveness-toggle__track--on]="enabled"
+        aria-hidden="true"
+    >
+        <span
+            class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"
+            [class.translate-x-5]="enabled"
+            [ngClass]="{ 'translate-x-0.5': !enabled }"
+        ></span>
+    </span>
+    <span class="sr-only">{{ enabled ? onLabel : offLabel }}</span>
+</button>

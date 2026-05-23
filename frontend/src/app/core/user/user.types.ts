@@ -26,4 +26,6 @@ export interface User {
     settings?: ClientSettingsSnapshot;
     /** When false, recharge / verification gating may apply (see Client model). */
     canRecharge?: boolean;
+    /** Latest client approval request status from session API. */
+    approvalRequestStatus?: 'requested' | 'approved' | 'rejected';
 }

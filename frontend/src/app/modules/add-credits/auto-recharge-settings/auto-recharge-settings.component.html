@@ -1,157 +1,177 @@
-<div class="auto-recharge-dialog">
-    <!-- Header -->
-    <div class="dialog-header">
-        <h2 class="dialog-title">{{ 'addCredits.autoRecharge.dialog.title' | transloco }}</h2>
-        <p class="dialog-subtitle">{{ 'addCredits.autoRecharge.dialog.subtitle' | transloco }}</p>
-    </div>
+<div
+    class="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+>
+    <header class="border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:p-6">
+        <h2 class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+            {{ 'addCredits.autoRecharge.dialog.title' | transloco }}
+        </h2>
+        <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400">
+            {{ 'addCredits.autoRecharge.dialog.subtitle' | transloco }}
+        </p>
+    </header>
 
-    <mat-dialog-content class="p-2">
-        <!-- Error Message -->
-        <div *ngIf="error" class="error-message">
-            <mat-icon>error_outline</mat-icon>
-            <p>{{ error }}</p>
+    <mat-dialog-content
+        class="!flex !max-h-[min(62vh,520px)] !flex-col !gap-5 !overflow-y-auto px-5 py-5 dark:text-stone-100 md:p-6"
+    >
+        <div
+            *ngIf="error"
+            class="flex gap-3 rounded-xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm dark:border-red-900/50 dark:bg-red-950/30"
+            role="alert"
+        >
+            <mat-icon class="shrink-0 text-red-600 dark:text-red-400" style="font-size: 20px; width: 20px; height: 20px"
+                >error_outline</mat-icon
+            >
+            <p class="m-0 flex-1 leading-relaxed text-red-950 dark:text-red-100">{{ error }}</p>
         </div>
 
-        <!-- Enable Toggle Card -->
-        <div class="enable-card" [class.active]="enabled">
-            <div class="enable-info">
-                <h3 class="enable-title">{{ 'addCredits.autoRecharge.dialog.enable' | transloco }}</h3>
-                <p class="enable-desc">{{ 'addCredits.autoRecharge.dialog.enableDesc' | transloco }}</p>
+        <!-- Enable toggle -->
+        <div
+            class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition"
+            [ngClass]="
+                enabled
+                    ? 'border-indigo-400 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-950/20 dark:ring-indigo-400/20'
+                    : 'border-stone-200 bg-stone-50/50 dark:border-gray-700 dark:bg-gray-950/50'
+            "
+        >
+            <div class="min-w-0">
+                <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                    {{ 'addCredits.autoRecharge.dialog.enable' | transloco }}
+                </p>
+                <p class="mt-0.5 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                    {{ 'addCredits.autoRecharge.dialog.enableDesc' | transloco }}
+                </p>
             </div>
-            <label class="switch">
-                <input type="checkbox" [(ngModel)]="enabled" />
-                <span class="slider"></span>
+            <label class="relative inline-flex shrink-0 cursor-pointer items-center">
+                <input type="checkbox" class="peer sr-only" [(ngModel)]="enabled" />
+                <span
+                    class="relative h-6 w-11 rounded-full bg-stone-300 transition peer-checked:bg-indigo-600 peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500/40 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-gray-600 dark:peer-checked:bg-indigo-500"
+                ></span>
             </label>
         </div>
 
-        <!-- Settings Group (Shown when enabled) -->
-        <div *ngIf="enabled" class="settings-group">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <!-- Threshold -->
-                <div class="input-container">
-                    <label class="input-label">{{ 'addCredits.autoRecharge.dialog.balanceThreshold' | transloco }}</label>
-                    <div class="premium-input-wrapper">
-                        <span class="input-prefix">$</span>
+        <div *ngIf="enabled" class="flex flex-col gap-5">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-stone-950 dark:text-white">
+                        {{ 'addCredits.autoRecharge.dialog.balanceThreshold' | transloco }}
+                    </label>
+                    <div
+                        class="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50/80 px-3 py-2 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:focus-within:border-indigo-400 dark:focus-within:ring-indigo-400/20"
+                    >
+                        <span class="text-sm font-semibold text-stone-400 dark:text-stone-500">$</span>
                         <input
                             type="number"
+                            class="min-w-0 flex-1 border-0 bg-transparent text-base font-semibold text-stone-950 outline-none dark:text-white"
                             [(ngModel)]="minThreshold"
                             placeholder="10"
                             min="10"
                             max="1990"
                         />
-                        <span class="input-suffix">USD</span>
+                        <span class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500"
+                            >USD</span
+                        >
                     </div>
-                    <p class="input-hint">{{ 'addCredits.autoRecharge.dialog.balanceThresholdHint' | transloco }}</p>
+                    <p class="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                        {{ 'addCredits.autoRecharge.dialog.balanceThresholdHint' | transloco }}
+                    </p>
                 </div>
 
-                <!-- Recharge Amount -->
-                <div class="input-container">
-                    <label class="input-label">{{ 'addCredits.autoRecharge.dialog.rechargeAmount' | transloco }}</label>
-                    <div class="premium-input-wrapper">
-                        <span class="input-prefix">$</span>
+                <div class="flex flex-col gap-2">
+                    <label class="text-sm font-semibold text-stone-950 dark:text-white">
+                        {{ 'addCredits.autoRecharge.dialog.rechargeAmount' | transloco }}
+                    </label>
+                    <div
+                        class="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50/80 px-3 py-2 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:focus-within:border-indigo-400 dark:focus-within:ring-indigo-400/20"
+                    >
+                        <span class="text-sm font-semibold text-stone-400 dark:text-stone-500">$</span>
                         <input
                             type="number"
+                            class="min-w-0 flex-1 border-0 bg-transparent text-base font-semibold text-stone-950 outline-none dark:text-white"
                             [(ngModel)]="minRecharge"
                             placeholder="40"
                             [min]="minRechargeUsd"
                             [max]="maxRechargeUsd"
                         />
-                        <span class="input-suffix">USD</span>
+                        <span class="text-xs font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500"
+                            >USD</span
+                        >
                     </div>
-                    <p class="input-hint">{{ 'addCredits.autoRecharge.dialog.rechargeAmountHint' | transloco }}</p>
+                    <p class="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                        {{ 'addCredits.autoRecharge.dialog.rechargeAmountHint' | transloco }}
+                    </p>
                 </div>
             </div>
 
-            <!-- Payment Card Selection -->
-            <div class="section" *ngIf="data?.cards && data.cards.length > 0">
-                <label class="section-label">{{ 'addCredits.autoRecharge.dialog.paymentMethod' | transloco }}</label>
+            <section *ngIf="data?.cards?.length" class="flex flex-col gap-2">
+                <label class="text-sm font-semibold text-stone-950 dark:text-white">
+                    {{ 'addCredits.autoRecharge.dialog.paymentMethod' | transloco }}
+                </label>
 
-                <div class="card-display" *ngIf="selectedCardId">
-                    <ng-container *ngFor="let card of data.cards">
-                        <div *ngIf="card._id === selectedCardId" class="selected-card">
-                            <div class="card-icon-wrapper">
-                                <ng-container [ngSwitch]="card.brand?.toLowerCase()">
-                                    <span *ngSwitchCase="'visa'" class="card-brand-icon visa">
-                                        <svg
-                                            viewBox="0 0 48 48"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <path
-                                                d="M18.8 32H15.1L17.4 17.5H21.1L18.8 32ZM32.5 17.7C31.7 17.3 30.5 17 29.2 17C24.9 17 21.8 19.3 21.8 22.5C21.8 24.9 24 26.3 25.7 27.1C27.4 27.9 28 28.5 28 29.3C28 30.6 26.5 31.1 25.2 31.1C24 31.1 23 30.8 22.1 30.4L21.7 30.2L21.3 32.7C22 33 23.4 33.3 24.8 33.4C29.4 33.4 32.4 31.1 32.4 27.6C32.4 21.9 24.5 21.6 24.5 19.4C24.5 18.7 25.1 18 26.5 17.8C27.2 17.7 28.6 17.6 30.1 18.2L30.6 18.4L31 16L32.5 17.7ZM42.5 17.5H39C38.1 17.5 37.4 18 37 18.8L31.5 32H35.3L36 29.8H40.7L41.2 32H44.6L42.5 17.5ZM37.2 26.8L39.2 21.1L40.2 26.8H37.2ZM13.8 17.5L10.1 27.4L8.7 18.4L8.3 17.5H4L4.1 17.8L7.6 32H11.5L17.4 17.5H13.8Z"
-                                                fill="#1A1F71"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <span
-                                        *ngSwitchCase="'mastercard'"
-                                        class="card-brand-icon mastercard"
-                                    >
-                                        <svg
-                                            viewBox="0 0 48 48"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <circle
-                                                cx="18"
-                                                cy="24"
-                                                r="12"
-                                                fill="#EB001B"
-                                                fill-opacity="0.8"
-                                            />
-                                            <circle
-                                                cx="30"
-                                                cy="24"
-                                                r="12"
-                                                fill="#F79E1B"
-                                                fill-opacity="0.8"
-                                            />
-                                            <path
-                                                d="M24 16.5C21.6 18.5 20.2 21.3 20.2 24.5C20.2 27.7 21.6 30.5 24 32.5C26.4 30.5 27.8 27.7 27.8 24.5C27.8 21.3 26.4 18.5 24 16.5Z"
-                                                fill="#FF5F00"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <span *ngSwitchCase="'amex'" class="card-brand-icon amex">
-                                        <svg
-                                            viewBox="0 0 48 48"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <rect width="48" height="32" rx="4" fill="#006FCF" />
-                                            <path
-                                                d="M12 24L10 18H8L12 24ZM12 24L14 30H16L12 24ZM30 18H24V30H30V18ZM28 28H26V20H28V28ZM38 18H32V30H38V18ZM36 28H34V20H36V28ZM22 18H16V30H22V18ZM20 28H18V20H20V28Z"
-                                                fill="white"
-                                            />
-                                        </svg>
-                                    </span>
-                                    <mat-icon *ngSwitchDefault class="card-brand-mat-icon"
-                                        >credit_card</mat-icon
-                                    >
-                                </ng-container>
-                            </div>
+                <button
+                    *ngFor="let card of data.cards"
+                    type="button"
+                    class="flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left transition"
+                    [ngClass]="{
+                        'border-indigo-400 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-950/20 dark:ring-indigo-400/20':
+                            selectedCardId === card._id,
+                        'border-stone-200 bg-white hover:border-stone-300 dark:border-gray-700 dark:bg-gray-950/50 dark:hover:border-gray-600':
+                            selectedCardId !== card._id,
+                    }"
+                    (click)="selectCard(card._id)"
+                    [disabled]="loading"
+                >
+                    <div
+                        class="flex h-10 w-[4.75rem] shrink-0 items-center justify-center rounded-md border border-stone-200 bg-white px-2 dark:border-gray-600 dark:bg-gray-900"
+                    >
+                        <img
+                            [src]="getCardLogo(card.brand)"
+                            [alt]="card.brand"
+                            class="max-h-[1.125rem] w-auto max-w-full object-contain"
+                        />
+                    </div>
 
-                            <div class="card-details">
-                                <span class="card-number">•••• {{ card.lastFour }}</span>
-                                <span class="card-brand-name">{{ card.brand | titlecase }}</span>
-                            </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="block truncate font-medium tabular-nums text-stone-900 dark:text-stone-100">
+                            •••• {{ card.lastFour }}
+                        </span>
+                        <span class="mt-0.5 block truncate text-xs text-stone-500 dark:text-stone-400">
+                            {{ card.brand | titlecase }}
+                        </span>
+                    </div>
 
-                            <span *ngIf="card.isDefault" class="default-badge">{{ 'addCredits.autoRecharge.dialog.default' | transloco }}</span>
-                        </div>
-                    </ng-container>
-                </div>
-            </div>
+                    <span
+                        *ngIf="card.isDefault"
+                        class="shrink-0 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                    >
+                        {{ 'addCredits.autoRecharge.dialog.default' | transloco }}
+                    </span>
+                </button>
+            </section>
         </div>
     </mat-dialog-content>
 
-    <!-- Dialog Actions -->
-    <div class="dialog-actions">
-        <button type="button" class="cancel-button" (click)="close()" [disabled]="loading">
-            Cancel
+    <div
+        class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6"
+    >
+        <button
+            mat-stroked-button
+            type="button"
+            class="!min-h-11 w-full !rounded-xl !border-stone-200 !font-medium sm:w-auto dark:!border-gray-700"
+            (click)="close()"
+            [disabled]="loading"
+        >
+            {{ 'addCredits.autoRecharge.dialog.cancel' | transloco }}
         </button>
-        <button type="button" class="save-button" (click)="save()" [disabled]="loading">
-            <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
-            <span *ngIf="!loading">Save Settings</span>
+        <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            class="flex !min-h-11 w-full shrink-0 items-center justify-center gap-2 !rounded-xl px-5 sm:w-auto"
+            (click)="save()"
+            [disabled]="loading"
+        >
+            <mat-spinner *ngIf="loading" diameter="20" class="inline-block"></mat-spinner>
+            <span *ngIf="!loading">{{ 'addCredits.autoRecharge.dialog.saveSettings' | transloco }}</span>
         </button>
     </div>
 </div>

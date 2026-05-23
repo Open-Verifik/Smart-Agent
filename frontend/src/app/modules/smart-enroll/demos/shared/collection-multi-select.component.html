@@ -1,0 +1,106 @@
+<div class="space-y-2" (mousedown)="$event.stopPropagation()">
+    <div class="flex flex-wrap gap-2 min-h-[2.25rem]">
+        @for (id of selectedIds; track id) {
+            <span
+                class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-primary/15 text-on-surface text-xs font-medium border border-primary/25"
+            >
+                <span class="max-w-[200px] truncate">{{ byId.get(id)?.name ?? id }}</span>
+                <button
+                    type="button"
+                    (click)="remove(id)"
+                    [disabled]="disabled"
+                    class="shrink-0 p-0.5 rounded hover:bg-primary/20 text-on-surface-variant disabled:opacity-50"
+                    [attr.aria-label]="'smartEnrollDemos.common.removeItemAria' | transloco: { label: byId.get(id)?.name ?? id }"
+                >
+                    <span class="material-symbols-outlined text-[16px]">close</span>
+                </button>
+            </span>
+        }
+    </div>
+
+    <div class="relative">
+        <button
+            type="button"
+            [id]="labelId"
+            [disabled]="disabled || loading"
+            [attr.aria-expanded]="open"
+            [attr.aria-controls]="open ? listId : null"
+            (click)="toggleOpen()"
+            class="w-full flex items-center justify-between gap-2 bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-left text-sm text-on-surface focus:outline-none focus:border-primary/60 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            <span [class.text-on-surface-variant]="selectedIds.length === 0">
+                @if (loading) {
+                    {{ 'smartEnrollDemos.common.loadingCollections' | transloco }}
+                } @else if (selectedIds.length === 0) {
+                    {{ 'smartEnrollDemos.common.selectCollections' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.common.collectionsSelected' | transloco: { count: selectedIds.length } }}
+                }
+            </span>
+            <span class="material-symbols-outlined text-on-surface-variant/70 shrink-0">
+                {{ open ? 'expand_less' : 'expand_more' }}
+            </span>
+        </button>
+
+        @if (open && !loading) {
+            <div
+                class="absolute left-0 right-0 top-[calc(100%+6px)] z-50 flex max-h-[min(320px,calc(100vh-220px))] flex-col overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-container-low shadow-lg"
+            >
+                @if (items.length === 0) {
+                    <div class="px-4 py-6 text-sm text-on-surface-variant text-center">
+                        @if (emptySlot) {
+                            <span [innerHTML]="emptySlot"></span>
+                        } @else {
+                            {{ 'smartEnrollDemos.common.noCollectionsAvailable' | transloco }}
+                        }
+                    </div>
+                } @else {
+                    <div class="shrink-0 border-b border-outline-variant/20 p-2">
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/70"
+                                aria-hidden="true"
+                            >
+                                search
+                            </span>
+                            <input
+                                #searchInput
+                                type="search"
+                                [(ngModel)]="search"
+                                [placeholder]="'smartEnrollDemos.common.searchCollectionsPlaceholder' | transloco"
+                                class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-high/50 py-2 pl-9 pr-3 text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:border-primary/60"
+                            />
+                        </div>
+                    </div>
+                    <ul [id]="listId" class="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1">
+                        @if (filtered.length === 0) {
+                            <li class="px-3 py-6 text-center text-xs text-on-surface-variant">
+                                {{ 'smartEnrollDemos.common.noMatches' | transloco }}
+                            </li>
+                        } @else {
+                            @for (item of filtered; track item._id) {
+                                <li class="px-1">
+                                    <label
+                                        class="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors"
+                                        [ngClass]="selectedIds.includes(item._id) ? 'bg-primary/10' : 'hover:bg-surface-container-high/80'"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            class="mt-0.5 h-4 w-4 shrink-0 rounded border-outline-variant text-primary focus:ring-primary/40"
+                                            [checked]="selectedIds.includes(item._id)"
+                                            (change)="toggle(item._id)"
+                                        />
+                                        <span class="min-w-0 flex-1">
+                                            <span class="font-medium text-on-surface block truncate">{{ item.name }}</span>
+                                            <span class="text-xs text-on-surface-variant font-mono">{{ truncateCode(item.code) }}</span>
+                                        </span>
+                                    </label>
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+            </div>
+        }
+    </div>
+</div>

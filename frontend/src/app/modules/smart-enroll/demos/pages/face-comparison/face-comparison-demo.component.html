@@ -1,0 +1,152 @@
+<app-demo-page-shell>
+    @if (!authChecked) {
+        <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else {
+        <div class="flex items-center justify-center mb-10 pt-4 gap-2">
+            @for (label of stepLabels; track label; let i = $index) {
+                <div class="flex items-center">
+                    <div class="flex flex-col items-center">
+                        <div
+                            class="h-10 w-10 rounded-full flex items-center justify-center font-bold transition-all"
+                            [ngClass]="{
+                                'bg-primary text-on-primary': step > i + 1,
+                                'bg-primary-container ring-4 ring-primary-container/20': step === i + 1,
+                                'bg-surface-container-high border border-outline-variant text-on-surface-variant/50': step < i + 1
+                            }"
+                        >
+                            @if (step > i + 1) {
+                                <span class="material-symbols-outlined text-sm">check</span>
+                            } @else {
+                                {{ i + 1 }}
+                            }
+                        </div>
+                        <span class="text-[0.6875rem] font-bold uppercase tracking-wider mt-2" [ngClass]="step === i + 1 ? 'text-primary' : 'text-on-surface-variant/50'">
+                            {{ label | transloco }}
+                        </span>
+                    </div>
+                    @if (i < 2) {
+                        <div class="w-12 h-0.5 mx-2 mb-5" [ngClass]="step > i + 1 ? 'bg-primary' : 'bg-outline-variant/30'"></div>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-black tracking-tight text-on-surface mb-2">
+                @if (step === 1) {
+                    {{ 'smartEnrollDemos.faceComparison.headlineSource' | transloco }}
+                } @else if (step === 2) {
+                    {{ 'smartEnrollDemos.faceComparison.headlineTarget' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.faceComparison.headlineAnalysis' | transloco }}
+                }
+            </h2>
+            <p class="text-on-surface-variant text-sm max-w-xl mx-auto">
+                @if (step === 1) {
+                    {{ 'smartEnrollDemos.faceComparison.subIdleSource' | transloco }}
+                } @else if (step === 2) {
+                    {{ 'smartEnrollDemos.faceComparison.subIdleTarget' | transloco }}
+                } @else if (isLoading) {
+                    {{ 'smartEnrollDemos.faceComparison.subLoading' | transloco }}
+                } @else if (result) {
+                    {{ 'smartEnrollDemos.faceComparison.subResult' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.faceComparison.subProcessing' | transloco }}
+                }
+            </p>
+        </div>
+
+        @if (step === 1 || step === 2) {
+            <div class="max-w-2xl mx-auto space-y-5">
+                @if (source.preview || target.preview) {
+                    <div class="flex gap-4 justify-center">
+                        @for (slot of [{ data: source, key: 'source', label: 'smartEnrollDemos.faceComparison.slotSource' }, { data: target, key: 'target', label: 'smartEnrollDemos.faceComparison.slotTarget' }]; track slot.key) {
+                            <div class="flex flex-col items-center gap-2">
+                                <div class="relative w-16 h-16 rounded-full overflow-hidden border transition-all" [ngClass]="highlightSlot === slot.key ? 'ring-4 ring-emerald-400/35' : 'border-outline-variant/30'">
+                                    @if (slot.data.preview) {
+                                        <app-demo-raster-image [src]="slot.data.preview" alt="" className="w-full h-full object-cover" />
+                                    } @else {
+                                        <div class="w-full h-full flex items-center justify-center bg-surface-container-high">
+                                            <span class="material-symbols-outlined text-on-surface-variant/55">face</span>
+                                        </div>
+                                    }
+                                </div>
+                                <span class="text-[10px] uppercase tracking-wide text-on-surface-variant">{{ slot.label | transloco }}</span>
+                            </div>
+                        }
+                    </div>
+                }
+
+                @if (step === 1) {
+                    <div>
+                        <label class="block text-[0.6875rem] font-bold uppercase tracking-wider text-on-surface-variant mb-2" for="compare-min-score">
+                            {{ 'smartEnrollDemos.faceComparison.compareMinScoreLabel' | transloco }}
+                        </label>
+                        <div class="flex items-center gap-4 mb-4">
+                            <input
+                                id="compare-min-score"
+                                type="range"
+                                min="0.67"
+                                max="0.95"
+                                step="0.01"
+                                [(ngModel)]="compareMinScore"
+                                name="compareMinScore"
+                                class="demo-range-input flex-1"
+                            />
+                            <span class="text-sm font-mono text-primary w-14 shrink-0 tabular-nums">{{ compareMinScore.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                }
+
+                <app-demo-choose-one-callout [description]="'smartEnrollDemos.faceComparison.chooseOneDescription' | transloco" />
+                <app-demo-capture-option-heading label="A" [title]="'smartEnrollDemos.faceComparison.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.faceComparison.cameraSubtitle' | transloco" />
+                <app-demo-scanner-shell>
+                    <app-face-guided-camera [fillFrame]="true" (captured)="onCapture($event)" />
+                </app-demo-scanner-shell>
+                <app-demo-or-divider />
+                <app-demo-capture-option-heading label="B" [title]="'smartEnrollDemos.faceComparison.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.faceComparison.uploadSubtitle' | transloco" />
+                <app-demo-upload-image-button (clicked)="triggerUpload(currentSlot)" [primaryText]="'smartEnrollDemos.faceComparison.uploadPrimary' | transloco" [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco" />
+                <input #sourceFileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'source')" />
+                <input #targetFileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event, 'target')" />
+            </div>
+        }
+
+        @if (step === 3) {
+            <div class="max-w-lg mx-auto">
+                @if (isLoading) {
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 rounded-full border-2 border-primary/40 border-t-primary animate-spin mx-auto mb-4"></div>
+                        <p class="text-on-surface-variant">{{ 'smartEnrollDemos.faceComparison.analyzing' | transloco }}</p>
+                    </div>
+                } @else if (result) {
+                    <div class="rounded-2xl p-8 text-center border" [ngClass]="result.match ? 'bg-surface-container-low border-primary/20' : 'bg-error-container/10 border-error/20'">
+                        <h2 class="text-3xl font-black tracking-tight mb-2">
+                            {{ (result.match ? 'smartEnrollDemos.faceComparison.matchConfirmed' : 'smartEnrollDemos.faceComparison.noMatch') | transloco }}
+                        </h2>
+                        <p class="text-on-surface-variant mb-8">{{ resultMessage() }}</p>
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="bg-surface-container rounded-lg p-4">
+                                <p class="text-2xl font-black text-primary">{{ (result.score * 100).toFixed(1) }}%</p>
+                                <p class="text-[10px] mt-1 text-on-surface-variant uppercase">{{ 'smartEnrollDemos.faceComparison.similarityMin' | transloco: { score: compareMinScore.toFixed(2) } }}</p>
+                            </div>
+                            <div class="bg-surface-container rounded-lg p-4">
+                                <p class="text-2xl font-black text-on-surface">{{ (result.match ? 'smartEnrollDemos.faceComparison.verdictMatch' : 'smartEnrollDemos.faceComparison.verdictDiff') | transloco }}</p>
+                                <p class="text-[10px] mt-1 text-on-surface-variant uppercase">{{ 'smartEnrollDemos.faceComparison.verdict' | transloco }}</p>
+                            </div>
+                        </div>
+                        <app-demo-result-actions
+                            [secondaryLabel]="'smartEnrollDemos.faceComparison.tryAgain' | transloco"
+                            [primaryLabel]="'smartEnrollDemos.common.backToDemos' | transloco"
+                            (secondary)="reset()"
+                        />
+                    </div>
+                } @else if (error) {
+                    <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-3">
+                        <span class="material-symbols-outlined text-error text-sm">error_outline</span>
+                        <span class="text-sm text-on-error-container">{{ error }}</span>
+                    </div>
+                }
+            </div>
+        }
+    }
+</app-demo-page-shell>

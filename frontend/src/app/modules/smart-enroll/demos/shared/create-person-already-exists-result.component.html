@@ -1,0 +1,47 @@
+<div class="space-y-5">
+    <div class="rounded-2xl bg-surface-container-low border border-error/25 p-6">
+        <div class="flex items-start gap-3 mb-6">
+            <span class="material-symbols-outlined text-error text-2xl shrink-0">person_off</span>
+            <div>
+                <p class="font-bold text-on-surface text-lg">{{ 'smartEnrollDemos.alreadyEnrolled.title' | transloco }}</p>
+                <p class="text-sm text-on-surface-variant mt-1">{{ 'smartEnrollDemos.alreadyEnrolled.body' | transloco }}</p>
+            </div>
+        </div>
+
+        @if (previews.length) {
+            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                <h3 class="text-sm font-bold text-primary mb-3">{{ 'smartEnrollDemos.alreadyEnrolled.imagesHeading' | transloco }}</h3>
+                <div class="flex flex-wrap gap-4">
+                    @for (src of previews; track $index) {
+                        <app-demo-raster-image [src]="src" alt="" className="max-h-56 w-auto max-w-[220px] object-contain rounded-xl border border-outline-variant/20" />
+                    }
+                </div>
+            </section>
+        }
+
+        <section class="rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+            <h3 class="text-sm font-bold text-primary mb-3">{{ 'smartEnrollDemos.alreadyEnrolled.nextSteps' | transloco }}</h3>
+            <ul class="space-y-3 text-sm text-on-surface-variant">
+                <li class="flex flex-wrap items-center gap-2">
+                    <a routerLink="/smart-enroll/demos/update-person" class="text-primary font-semibold underline underline-offset-2">
+                        {{ 'smartEnrollDemos.alreadyEnrolled.updateDemo' | transloco }}
+                    </a>
+                </li>
+                <li class="flex flex-wrap items-center gap-2">
+                    <a routerLink="/smart-enroll/demos/delete-person" class="text-primary font-semibold underline underline-offset-2">
+                        {{ 'smartEnrollDemos.alreadyEnrolled.deleteDemo' | transloco }}
+                    </a>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <app-demo-result-actions
+        [secondaryLabel]="'smartEnrollDemos.alreadyEnrolled.editFormAgain' | transloco"
+        secondaryIcon="edit"
+        [primaryLabel]="'smartEnrollDemos.alreadyEnrolled.backToDemos' | transloco"
+        [primaryRouterLink]="null"
+        (secondary)="editForm.emit()"
+        (primary)="backToDemos.emit()"
+    />
+</div>

@@ -1,0 +1,40 @@
+@let shellClass =
+    'flex w-full items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-5 text-on-surface font-semibold shadow-sm transition-colors active:scale-[0.99] ' +
+    (loading
+        ? 'border-primary/50 bg-surface-bright cursor-wait'
+        : disabled
+          ? 'cursor-not-allowed border-outline-variant/30 bg-surface-container/50 opacity-60'
+          : 'border-primary/35 bg-surface-container/80 hover:border-primary/55 hover:bg-surface-bright cursor-pointer') +
+    ' ' +
+    className;
+
+@if (useNativeInput) {
+    <label [class]="shellClass">
+        <input
+            type="file"
+            [id]="id || null"
+            [accept]="accept"
+            [multiple]="multiple"
+            [disabled]="disabled || loading"
+            class="sr-only"
+            (change)="onNativeFileChange($event)"
+        />
+        <span class="material-symbols-outlined text-primary" [class.animate-spin]="loading" aria-hidden="true">{{ loading ? 'progress_activity' : icon }}</span>
+        <span class="min-w-0 text-left">
+            <span class="block truncate">{{ primaryText }}</span>
+            @if (secondaryText) {
+                <span class="mt-0.5 block truncate text-xs font-normal text-on-surface-variant">{{ secondaryText }}</span>
+            }
+        </span>
+    </label>
+} @else {
+    <button type="button" [id]="id || null" [disabled]="disabled || loading" (click)="clicked.emit()" [class]="shellClass">
+        <span class="material-symbols-outlined text-primary" [class.animate-spin]="loading" aria-hidden="true">{{ loading ? 'progress_activity' : icon }}</span>
+        <span class="min-w-0 text-left">
+            <span class="block truncate">{{ primaryText }}</span>
+            @if (secondaryText) {
+                <span class="mt-0.5 block truncate text-xs font-normal text-on-surface-variant">{{ secondaryText }}</span>
+            }
+        </span>
+    </button>
+}

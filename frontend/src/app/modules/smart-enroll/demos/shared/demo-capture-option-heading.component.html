@@ -1,0 +1,12 @@
+<div class="mb-3 flex items-center gap-2" [class]="className">
+    <span
+        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-xs font-bold text-primary"
+        aria-hidden="true"
+    >
+        {{ label }}
+    </span>
+    <div>
+        <h3 [id]="id || null" class="text-sm font-bold tracking-tight text-on-surface">{{ title }}</h3>
+        <p class="text-xs text-on-surface-variant">{{ subtitle }}</p>
+    </div>
+</div>

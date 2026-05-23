@@ -1,0 +1,50 @@
+@if (usage) {
+    <section
+        class="rounded-xl border p-4 sm:p-5"
+        [class]="
+            usage.charged && usage.creditsCharged != null
+                ? 'border-stone-200/90 bg-gradient-to-br from-stone-50 to-white dark:border-gray-800 dark:from-gray-900/80 dark:to-gray-900/40'
+                : 'border-outline-variant/20 bg-surface-container-high/40'
+        "
+    >
+        @if (usage.creditsCharged != null && usage.charged) {
+            <div class="flex items-start gap-4">
+                <div
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-900"
+                    aria-hidden="true"
+                >
+                    <span class="material-symbols-outlined text-2xl text-stone-800 dark:text-stone-100">payments</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                        <span class="text-3xl font-semibold tracking-tight tabular-nums text-stone-950 dark:text-white">
+                            {{ formatAmount(usage.creditsCharged!) }}
+                        </span>
+                        <span class="text-sm font-medium text-stone-500 dark:text-stone-400">
+                            {{ 'smartEnrollDemos.common.creditsUnit' | transloco }}
+                        </span>
+                    </div>
+                    <p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
+                        {{ 'smartEnrollDemos.common.creditsChargedLabel' | transloco }}
+                    </p>
+                </div>
+            </div>
+        } @else if (usage.creditsCharged != null) {
+            <div class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-xl text-stone-400 dark:text-stone-500 shrink-0" aria-hidden="true">info</span>
+                <p class="text-sm leading-relaxed text-on-surface-variant">
+                    {{ notChargedKey | transloco }}
+                </p>
+            </div>
+        }
+
+        @if (usage.featureCode) {
+            <p
+                class="inline-flex max-w-full items-center rounded-lg border border-stone-200/80 bg-white/80 px-2.5 py-1 text-[11px] font-mono text-stone-600 dark:border-gray-700 dark:bg-gray-900/60 dark:text-stone-400"
+                [class.mt-3]="usage.creditsCharged != null"
+            >
+                {{ usage.featureCode }}
+            </p>
+        }
+    </section>
+}

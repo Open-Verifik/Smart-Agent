@@ -1,0 +1,70 @@
+<div class="space-y-5">
+    <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6">
+        <div class="flex items-center gap-3 mb-6">
+            <span class="material-symbols-outlined text-primary text-2xl">preview</span>
+            <div>
+                <p class="font-bold text-on-surface text-lg">{{ 'smartEnrollDemos.humanIdPreviewResult.successTitle' | transloco }}</p>
+                <p class="text-sm text-on-surface-variant">{{ 'smartEnrollDemos.humanIdPreviewResult.successSubtitle' | transloco }}</p>
+            </div>
+        </div>
+
+        @if (hasSummaryRow()) {
+            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                <h3 class="text-sm font-bold text-primary mb-3">{{ 'smartEnrollDemos.humanIdPreviewResult.summaryHeading' | transloco }}</h3>
+                <dl class="space-y-2 text-sm">
+                    @if (parsed?.passwordLayer !== undefined) {
+                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,11rem)_1fr] gap-x-3 gap-y-1">
+                            <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.humanIdPreviewResult.passwordLayerLabel' | transloco }}</dt>
+                            <dd class="text-on-surface">{{ formatPasswordLayer(parsed!.passwordLayer!) }}</dd>
+                        </div>
+                    }
+                    @if (parsed?.requireLiveness !== undefined) {
+                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,11rem)_1fr] gap-x-3 gap-y-1">
+                            <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.humanIdPreviewResult.livenessRequiredLabel' | transloco }}</dt>
+                            <dd class="text-on-surface">
+                                {{
+                                    parsed!.requireLiveness
+                                        ? ('smartEnrollDemos.common.yes' | transloco)
+                                        : ('smartEnrollDemos.common.no' | transloco)
+                                }}
+                            </dd>
+                        </div>
+                    }
+                </dl>
+            </section>
+        }
+
+        @if (parsed?.publicData) {
+            <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                <h3 class="text-sm font-bold text-primary mb-3">{{ 'smartEnrollDemos.humanIdPreviewResult.publicDataHeading' | transloco }}</h3>
+                <dl class="space-y-2 text-sm">
+                    @for (entry of objectEntries(parsed!.publicData); track entry[0]) {
+                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,11rem)_1fr] gap-x-3 gap-y-1 border-b border-outline-variant/10 pb-2 last:border-0 last:pb-0">
+                            <dt class="text-on-surface-variant font-medium">{{ entry[0] }}</dt>
+                            <dd class="font-mono text-xs text-on-surface break-all">
+                                {{ formatValue(entry[1], ('smartEnrollDemos.common.yes' | transloco), ('smartEnrollDemos.common.no' | transloco)) }}
+                            </dd>
+                        </div>
+                    }
+                </dl>
+            </section>
+        }
+    </div>
+
+    <details class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 px-4 py-3 group">
+        <summary class="cursor-pointer list-none font-bold text-sm text-on-surface-variant flex items-center justify-between gap-2">
+            <span>{{ 'smartEnrollDemos.humanIdPreviewResult.rawDebug' | transloco }}</span>
+            <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform text-lg">expand_more</span>
+        </summary>
+        <pre class="mt-3 text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ result | json }}</pre>
+    </details>
+
+    <app-demo-result-actions
+        [secondaryLabel]="'smartEnrollDemos.humanIdPreviewResult.previewAnother' | transloco"
+        secondaryIcon="visibility"
+        [primaryLabel]="'smartEnrollDemos.humanIdPreviewResult.backToDemos' | transloco"
+        [primaryRouterLink]="null"
+        (secondary)="previewAnother.emit()"
+        (primary)="backToDemos.emit()"
+    />
+</div>

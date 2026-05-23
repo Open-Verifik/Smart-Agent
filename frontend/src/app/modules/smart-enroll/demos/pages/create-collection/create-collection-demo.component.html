@@ -1,0 +1,173 @@
+<app-demo-page-shell>
+    <div class="mb-8">
+        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+            @if (step === 'result') {
+                {{ 'smartEnrollDemos.createCollection.heroTitleResult' | transloco }}
+            } @else {
+                {{ 'smartEnrollDemos.createCollection.heroTitleForm' | transloco }}
+            }
+        </h2>
+        <p class="text-on-surface-variant">
+            @if (step === 'result') {
+                {{ 'smartEnrollDemos.createCollection.heroSubtitleResult' | transloco }}
+            } @else {
+                {{ 'smartEnrollDemos.createCollection.heroSubtitleForm' | transloco }}
+            }
+        </p>
+    </div>
+
+    @if (!authChecked) {
+        <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else if (step === 'form') {
+        <form (ngSubmit)="handleSubmit()" class="space-y-5">
+            <div>
+                <label class="block text-sm font-semibold text-on-surface mb-1.5" for="col-name">
+                    {{ 'smartEnrollDemos.createCollection.nameLabel' | transloco }}
+                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                </label>
+                <input
+                    id="col-name"
+                    type="text"
+                    required
+                    [(ngModel)]="name"
+                    name="name"
+                    [placeholder]="'smartEnrollDemos.createCollection.namePlaceholder' | transloco"
+                    class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors"
+                />
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-on-surface mb-1.5" for="col-desc">
+                    {{ 'smartEnrollDemos.createCollection.descLabel' | transloco }}
+                </label>
+                <textarea
+                    id="col-desc"
+                    [(ngModel)]="description"
+                    name="description"
+                    rows="3"
+                    [placeholder]="'smartEnrollDemos.createCollection.descPlaceholder' | transloco"
+                    class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors resize-none"
+                ></textarea>
+            </div>
+            @if (error) {
+                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
+                    <span class="material-symbols-outlined text-sm">error_outline</span>
+                    {{ error }}
+                </div>
+            }
+            <button
+                type="submit"
+                class="demo-btn-primary"
+            >
+                {{ 'smartEnrollDemos.createCollection.submit' | transloco }}
+            </button>
+        </form>
+    } @else if (step === 'processing') {
+        <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-on-surface font-semibold">{{ 'smartEnrollDemos.createCollection.processing' | transloco }}</p>
+        </div>
+    } @else {
+        <div class="space-y-4">
+            <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="material-symbols-outlined text-primary text-2xl">check_circle</span>
+                    <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.createCollection.successTitle' | transloco }}</p>
+                </div>
+                <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{
+                    result | json
+                }}</pre>
+            </div>
+            <app-demo-result-actions
+                [secondaryLabel]="'smartEnrollDemos.createCollection.createAnother' | transloco"
+                secondaryIcon="add"
+                [primaryLabel]="'smartEnrollDemos.createCollection.backToDemos' | transloco"
+                [primaryRouterLink]="null"
+                (secondary)="reset()"
+                (primary)="backToDemos()"
+            />
+        </div>
+    }
+
+    @if (showApiReference) {
+        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 text-left w-full px-4 py-3 group">
+            <summary class="cursor-pointer list-none font-bold text-sm text-primary flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                    {{ 'smartEnrollDemos.createCollection.apiRefSummary' | transloco }}
+                </span>
+                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform">
+                    expand_more
+                </span>
+            </summary>
+            <div class="mt-4 space-y-4 text-sm text-on-surface-variant border-t border-outline-variant/15 pt-4">
+                <p>
+                    {{ 'smartEnrollDemos.createCollection.apiRefOfficialDocs' | transloco }}
+                    <a
+                        href="https://docs.verifik.co/resources/create-a-collection/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-primary underline underline-offset-2"
+                    >
+                        {{ 'smartEnrollDemos.createCollection.apiRefLinkLabel' | transloco }}
+                    </a>
+                </p>
+                <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.createCollection.apiRefBody' | transloco }}</p>
+                <div>
+                    <p class="font-mono text-xs text-on-surface mb-1">{{ 'smartEnrollDemos.createCollection.apiRefEndpoint' | transloco }}</p>
+                    <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.createCollection.apiRefEndpointDesc' | transloco }}</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-outline-variant/20">
+                                <th class="text-left py-2 pr-2 font-semibold text-on-surface">{{ 'smartEnrollDemos.common.tableHeader' | transloco }}</th>
+                                <th class="text-left py-2 font-semibold text-on-surface">{{ 'smartEnrollDemos.common.tableValue' | transloco }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-outline-variant/10">
+                                <td class="py-2 pr-2 font-mono">Content-Type</td>
+                                <td class="font-mono">application/json</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 pr-2 font-mono">Authorization</td>
+                                <td class="font-mono">Bearer &lt;token&gt;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-outline-variant/20">
+                                <th class="text-left py-2 pr-1">{{ 'smartEnrollDemos.common.tableParam' | transloco }}</th>
+                                <th class="text-left py-2 pr-1">{{ 'smartEnrollDemos.common.tableReq' | transloco }}</th>
+                                <th class="text-left py-2">{{ 'smartEnrollDemos.common.tableDescription' | transloco }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-on-surface-variant">
+                            <tr class="border-b border-outline-variant/10 align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createCollection.paramName' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.yes' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createCollection.paramNameDesc' | transloco }}</td>
+                            </tr>
+                            <tr class="align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createCollection.paramDescription' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.no' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createCollection.paramDescriptionDesc' | transloco }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ apiFetchExample }}</pre>
+                <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ apiResponseExample }}</pre>
+                <ul class="list-disc pl-5 space-y-1 text-xs">
+                    <li>{{ 'smartEnrollDemos.createCollection.bullet1' | transloco }}</li>
+                    <li>{{ 'smartEnrollDemos.createCollection.bullet2' | transloco }}</li>
+                </ul>
+            </div>
+        </details>
+    }
+
+    <app-demo-related-docs-section [items]="relatedDocs" />
+</app-demo-page-shell>

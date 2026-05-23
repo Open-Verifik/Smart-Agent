@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { MAX_CREDIT_PURCHASE_USD, MIN_CREDIT_PURCHASE_USD } from '../add-credits.constants';
 import { AutoRechargeConfig, CreditsService, PaymentCard } from '../services/credits.service';
 
@@ -33,6 +33,7 @@ export interface AutoRechargeSettingsData {
 export class AutoRechargeSettingsComponent implements OnInit {
     private _dialogRef = inject(MatDialogRef<AutoRechargeSettingsComponent>);
     private _creditsService = inject(CreditsService);
+    private _transloco = inject(TranslocoService);
     data = inject<AutoRechargeSettingsData>(MAT_DIALOG_DATA);
 
     enabled: boolean = false;
@@ -73,24 +74,33 @@ export class AutoRechargeSettingsComponent implements OnInit {
         }
     }
 
+    getCardLogo(brand: string): string {
+        const logos: Record<string, string> = {
+            visa: 'https://cdn.verifik.co/assets/billing-svg/VisaLogo.svg',
+            mastercard: 'https://cdn.verifik.co/assets/billing-svg/MasterCardLogo.svg',
+            amex: 'https://cdn.verifik.co/assets/billing-svg/AmericanExpressLogo.svg',
+        };
+        return logos[brand?.toLowerCase()] || '';
+    }
+
     close(): void {
         this._dialogRef.close();
     }
 
     save(): void {
         if (this.enabled && !this.selectedCardId) {
-            this.error = 'Please select a payment method for auto-recharge';
+            this.error = this._transloco.translate('addCredits.autoRecharge.dialog.errors.selectCard');
             return;
         }
 
         if (this.enabled) {
             if (this.minRecharge < MIN_CREDIT_PURCHASE_USD || this.minRecharge > MAX_CREDIT_PURCHASE_USD) {
-                this.error = `Recharge amount must be between $${MIN_CREDIT_PURCHASE_USD} and $${MAX_CREDIT_PURCHASE_USD}`;
+                this.error = this._transloco.translate('addCredits.autoRecharge.dialog.errors.rechargeRange');
                 return;
             }
 
             if (this.minThreshold < 10 || this.minThreshold > 1990) {
-                this.error = 'Threshold amount must be between $10 and $1990';
+                this.error = this._transloco.translate('addCredits.autoRecharge.dialog.errors.thresholdRange');
                 return;
             }
         }
@@ -112,7 +122,9 @@ export class AutoRechargeSettingsComponent implements OnInit {
             },
             error: (err) => {
                 this.loading = false;
-                this.error = err.error?.message || 'Failed to save auto-recharge settings';
+                this.error =
+                    err.error?.message ||
+                    this._transloco.translate('addCredits.autoRecharge.dialog.errors.saveFailed');
             },
         });
     }

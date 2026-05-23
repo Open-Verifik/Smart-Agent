@@ -1,0 +1,111 @@
+<app-demo-page-shell>
+    <div class="mb-8">
+        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+            {{ (result ? 'smartEnrollDemos.searchLivePerson.heroTitleComplete' : 'smartEnrollDemos.searchLivePerson.heroTitleInitial') | transloco }}
+        </h2>
+        <p class="text-on-surface-variant">
+            {{ (result ? 'smartEnrollDemos.searchLivePerson.heroSubtitleComplete' : 'smartEnrollDemos.searchLivePerson.heroSubtitleInitial') | transloco }}
+        </p>
+    </div>
+
+    @if (!authChecked) {
+        <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else {
+        <div class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">
+                        {{ 'smartEnrollDemos.searchLivePerson.livenessMinLabel' | transloco: { score: livenessMinScore.toFixed(2) } }}
+                    </label>
+                    <input type="range" min="0.5" max="1" step="0.01" [(ngModel)]="livenessMinScore" name="livenessMinScore" class="w-full" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">
+                        {{ 'smartEnrollDemos.searchLivePerson.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
+                    </label>
+                    <input type="range" min="0.5" max="1" step="0.01" [(ngModel)]="minScore" name="minScore" class="w-full" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchLivePerson.searchModeLabel' | transloco }}</label>
+                    <select [(ngModel)]="searchMode" name="searchMode" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary/60">
+                        <option value="FAST">FAST</option>
+                        <option value="ACCURATE">ACCURATE</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchLivePerson.collectionIdLabel' | transloco }}</label>
+                    <input type="text" [(ngModel)]="collectionId" name="collectionId" [placeholder]="'smartEnrollDemos.searchLivePerson.optionalPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
+                </div>
+            </div>
+
+            @if (!image) {
+                <div class="space-y-5">
+                    <app-demo-choose-one-callout [description]="'smartEnrollDemos.searchLivePerson.chooseOneDescription' | transloco" />
+                    <section aria-labelledby="search-live-person-camera-heading">
+                        <app-demo-capture-option-heading label="A" id="search-live-person-camera-heading" [title]="'smartEnrollDemos.searchLivePerson.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.searchLivePerson.cameraSubtitle' | transloco" />
+                        <app-demo-scanner-shell>
+                            <div class="flex min-h-0 flex-1 flex-col">
+                                <app-face-guided-camera [fillFrame]="true" [hideIdleExplainer]="true" [disabled]="loading" [captureSuccessFeedbackMs]="750" (captured)="onCapture($event)" />
+                            </div>
+                        </app-demo-scanner-shell>
+                    </section>
+                    <app-demo-or-divider />
+                    <section aria-labelledby="search-live-person-upload-heading">
+                        <app-demo-capture-option-heading label="B" id="search-live-person-upload-heading" [title]="'smartEnrollDemos.searchLivePerson.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.searchLivePerson.uploadSubtitle' | transloco" />
+                        <app-demo-upload-image-button (clicked)="triggerFilePicker()" [primaryText]="'smartEnrollDemos.searchLivePerson.uploadPrimary' | transloco" [secondaryText]="'smartEnrollDemos.searchLivePerson.uploadSecondary' | transloco" />
+                    </section>
+                </div>
+            }
+
+            @if (preview && image) {
+                <div
+                    class="overflow-hidden rounded-xl border transition-all duration-300"
+                    [ngClass]="previewHighlighted ? 'border-emerald-400/50 ring-4 ring-emerald-400/20' : 'border-frost'"
+                >
+                    <app-demo-raster-image [src]="preview" [alt]="'smartEnrollDemos.searchLivePerson.previewAlt' | transloco" className="w-full aspect-video object-cover" />
+                </div>
+            }
+
+            @if (image) {
+                <button type="button" (click)="handleSearch()" [disabled]="loading" class="demo-btn-primary">
+                    {{ (loading ? 'smartEnrollDemos.searchLivePerson.searching' : 'smartEnrollDemos.searchLivePerson.searchLive') | transloco }}
+                </button>
+            }
+
+            <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFileSelected($event)" />
+
+            @if (error) {
+                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
+                    <span class="material-symbols-outlined text-sm">error_outline</span>
+                    {{ error }}
+                </div>
+            }
+
+            @if (result) {
+                <app-search-live-person-result [result]="result" (reset)="reset()" />
+            }
+        </div>
+    }
+
+    @if (showApiReference) {
+        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 text-left max-w-3xl mx-auto w-full px-4 py-3 group">
+            <summary class="cursor-pointer list-none font-bold text-sm text-primary flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                    {{ 'smartEnrollDemos.searchLivePerson.apiRefSummary' | transloco }}
+                </span>
+                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <div class="mt-4 space-y-4 text-sm text-on-surface-variant border-t border-outline-variant/15 pt-4">
+                <p>
+                    {{ 'smartEnrollDemos.common.officialDocsLead' | transloco }}
+                    <a href="https://docs.verifik.co/biometrics/search-live-face" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-2">docs.verifik.co/biometrics/search-live-face</a>
+                    {{ 'smartEnrollDemos.searchLivePerson.apiRefLinkSuffix' | transloco }}
+                </p>
+                <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.searchLivePerson.apiRefBody' | transloco }}</p>
+            </div>
+        </details>
+    }
+
+    <app-demo-related-docs-section [items]="relatedDocs" />
+</app-demo-page-shell>

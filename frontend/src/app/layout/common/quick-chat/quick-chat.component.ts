@@ -3,17 +3,21 @@ import { DOCUMENT, NgClass } from '@angular/common';
 import {
     AfterViewInit,
     Component,
+    DestroyRef,
     ElementRef,
     HostBinding,
     Inject,
+    inject,
     OnDestroy,
     Renderer2,
     ViewChild,
     ViewEncapsulation,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
+import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/support-ticket-chat-panel/support-ticket-chat-panel.component';
 
 @Component({
@@ -25,6 +29,9 @@ import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/sup
     imports: [NgClass, MatIconModule, MatButtonModule, TranslocoModule, SupportTicketChatPanelComponent],
 })
 export class QuickChatComponent implements AfterViewInit, OnDestroy {
+    private readonly _destroyRef = inject(DestroyRef);
+    private readonly _quickChatService = inject(QuickChatService);
+
     @ViewChild('ticketPanel') ticketPanel?: SupportTicketChatPanelComponent;
 
     opened = false;
@@ -41,6 +48,10 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
         private _scrollStrategyOptions: ScrollStrategyOptions,
     ) {
         this._scrollStrategy = this._scrollStrategyOptions.block();
+
+        this._quickChatService.openPanel$
+            .pipe(takeUntilDestroyed(this._destroyRef))
+            .subscribe(() => this.open());
     }
 
     @HostBinding('class')

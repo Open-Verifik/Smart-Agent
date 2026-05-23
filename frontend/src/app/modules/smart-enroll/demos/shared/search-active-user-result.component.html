@@ -1,0 +1,85 @@
+<div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-4">
+    <div class="inline-flex rounded-lg border border-outline-variant/30 bg-surface-container-high/40 p-1">
+        <button type="button" (click)="setTab('matches')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors" [class.bg-primary]="activeTab === 'matches'" [class.text-on-primary]="activeTab === 'matches'" [class.text-on-surface-variant]="activeTab !== 'matches'">
+            {{ 'smartEnrollDemos.searchActiveUserResult.tabMatches' | transloco }}
+        </button>
+        <button type="button" (click)="setTab('raw')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors" [class.bg-primary]="activeTab === 'raw'" [class.text-on-primary]="activeTab === 'raw'" [class.text-on-surface-variant]="activeTab !== 'raw'">
+            {{ 'smartEnrollDemos.searchActiveUserResult.tabRaw' | transloco }}
+        </button>
+    </div>
+
+    @if (activeTab === 'matches') {
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.searchActiveUserResult.activeUserSearchResults' | transloco }}</p>
+                <button type="button" (click)="reset.emit()" class="text-xs text-primary underline">{{ 'smartEnrollDemos.searchActiveUserResult.reset' | transloco }}</button>
+            </div>
+
+            @if (liveness) {
+                <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                    <p class="font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.searchActiveUserResult.liveness' | transloco }}</p>
+                    <dl class="space-y-1.5 text-sm">
+                        @if (typeof liveness['passed'] === 'boolean') {
+                            <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,10rem)_1fr] gap-x-3 gap-y-1">
+                                <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.searchActiveUserResult.passedField' | transloco }}</dt>
+                                <dd [class.text-emerald-400]="liveness['passed']" [class.text-error]="!liveness['passed']">
+                                    {{ (liveness['passed'] ? 'smartEnrollDemos.common.yes' : 'smartEnrollDemos.common.no') | transloco }}
+                                </dd>
+                            </div>
+                        }
+                        @if (typeof liveness['score'] === 'number') {
+                            <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,10rem)_1fr] gap-x-3 gap-y-1">
+                                <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.searchActiveUserResult.score' | transloco }}</dt>
+                                <dd class="text-on-surface">{{ formatScoreValue(liveness['score']) }}</dd>
+                            </div>
+                        }
+                    </dl>
+                </div>
+            }
+
+            @if (matches.length === 0) {
+                <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4 text-sm text-on-surface-variant">
+                    {{ 'smartEnrollDemos.searchActiveUserResult.noMatchesThreshold' | transloco }}
+                </div>
+            } @else {
+                <div class="space-y-3">
+                    @for (match of matches; track $index; let i = $index) {
+                        <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div>
+                                    <p class="text-sm text-on-surface-variant">{{ 'smartEnrollDemos.searchActiveUserResult.matchNumber' | transloco: { n: i + 1 } }}</p>
+                                    <p class="font-bold text-on-surface">{{ match['name'] || ('smartEnrollDemos.common.unknownPerson' | transloco) }}</p>
+                                    @if (match['id']) { <p class="font-mono text-xs text-on-surface-variant break-all">{{ match['id'] }}</p> }
+                                </div>
+                                <div class="rounded-lg bg-primary/10 border border-primary/25 px-3 py-2">
+                                    <p class="text-[0.65rem] uppercase tracking-wide text-primary/80">{{ 'smartEnrollDemos.searchActiveUserResult.similarity' | transloco }}</p>
+                                    <p class="font-bold text-primary">{{ formatScoreValue(typeof match['score'] === 'number' ? match['score'] : null) }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (signature || requestId) {
+                <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/30 p-4 text-sm space-y-1">
+                    <p class="font-semibold text-on-surface">{{ 'smartEnrollDemos.searchActiveUserResult.responseSignature' | transloco }}</p>
+                    @if (signature?.message) { <p class="text-on-surface-variant">{{ signature!.message }}</p> }
+                    @if (requestId) { <p class="font-mono text-xs text-on-surface-variant break-all">{{ 'smartEnrollDemos.searchActiveUserResult.requestIdPrefix' | transloco }} {{ requestId }}</p> }
+                </div>
+            }
+        </div>
+    } @else {
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.searchActiveUserResult.rawResponse' | transloco }}</p>
+                <button type="button" (click)="copyRaw()" class="text-xs text-primary underline">
+                    @if (copyState === 'copied') { {{ 'smartEnrollDemos.searchActiveUserResult.copied' | transloco }} }
+                    @else if (copyState === 'error') { {{ 'smartEnrollDemos.searchActiveUserResult.copyFailed' | transloco }} }
+                    @else { {{ 'smartEnrollDemos.searchActiveUserResult.copy' | transloco }} }
+                </button>
+            </div>
+            <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ result | json }}</pre>
+        </div>
+    }
+</div>

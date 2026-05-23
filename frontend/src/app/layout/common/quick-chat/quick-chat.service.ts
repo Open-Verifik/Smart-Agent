@@ -6,6 +6,7 @@ import {
     map,
     Observable,
     of,
+    Subject,
     switchMap,
     tap,
     throwError,
@@ -15,6 +16,10 @@ import {
 export class QuickChatService {
     private _chat: BehaviorSubject<Chat> = new BehaviorSubject(null);
     private _chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>(null);
+    private readonly _openPanel$ = new Subject<void>();
+
+    /** Emits when a feature (e.g. home quick access) requests the support tickets panel. */
+    readonly openPanel$ = this._openPanel$.asObservable();
 
     /**
      * Constructor
@@ -42,6 +47,11 @@ export class QuickChatService {
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+
+    /** Open the support tickets side panel (handled by QuickChatComponent). */
+    requestOpenPanel(): void {
+        this._openPanel$.next();
+    }
 
     /**
      * Get chats

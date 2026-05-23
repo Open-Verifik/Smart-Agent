@@ -1,0 +1,128 @@
+<app-demo-page-shell>
+    <div class="mb-8 mt-6">
+        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+            {{ (step === 'result' ? 'smartEnrollDemos.humanidCreate.heroTitleResult' : 'smartEnrollDemos.humanidCreate.heroTitleForm') | transloco }}
+        </h2>
+        <p class="text-on-surface-variant">{{ 'smartEnrollDemos.humanidCreate.heroSubtitle' | transloco }}</p>
+    </div>
+
+    @if (step === 'form') {
+        <form class="space-y-6" (submit)="submit($event)">
+            <section class="rounded-2xl border border-outline-variant/25 bg-surface-container-low/40 p-5 sm:p-6 space-y-5">
+                <header class="flex items-start gap-3">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-sm font-bold text-primary">1</span>
+                    <div>
+                        <h3 class="text-base font-bold text-on-surface">{{ 'smartEnrollDemos.humanidCreate.step1Title' | transloco }}</h3>
+                        <p class="text-sm text-on-surface-variant">{{ 'smartEnrollDemos.humanidCreate.step1Subtitle' | transloco }}</p>
+                    </div>
+                </header>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="hid-identifier">
+                        {{ 'smartEnrollDemos.humanidCreate.identifierLabel' | transloco }}
+                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                    </label>
+                    <input id="hid-identifier" type="text" required [(ngModel)]="identifier" name="identifier" [placeholder]="'smartEnrollDemos.humanidCreate.identifierPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60" />
+                </div>
+                <app-human-id-json-key-value-field #publicDataField [label]="'smartEnrollDemos.humanidCreate.publicDataLabel' | transloco" [required]="true" [hint]="'smartEnrollDemos.humanidCreate.publicDataHint' | transloco" [(value)]="publicData" />
+                <app-human-id-json-key-value-field #metadataField [label]="'smartEnrollDemos.humanidCreate.metadataLabel' | transloco" [required]="true" [hint]="'smartEnrollDemos.humanidCreate.metadataHint' | transloco" [(value)]="metadata" />
+            </section>
+
+            <section class="rounded-2xl border border-outline-variant/25 bg-surface-container-low/40 p-5 sm:p-6 space-y-5">
+                <header class="flex items-start gap-3">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-sm font-bold text-primary">2</span>
+                    <div>
+                        <h3 class="text-base font-bold text-on-surface">{{ 'smartEnrollDemos.humanidCreate.step2Title' | transloco }}</h3>
+                        <p class="text-sm text-on-surface-variant">{{ 'smartEnrollDemos.humanidCreate.step2Subtitle' | transloco }}</p>
+                    </div>
+                </header>
+                @if (!faceB64) {
+                    <app-demo-choose-one-callout [description]="'smartEnrollDemos.humanidCreate.chooseOneDescription' | transloco" />
+                    <app-demo-capture-option-heading label="A" headingId="humanid-create-camera-heading" [title]="'smartEnrollDemos.humanidCreate.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.humanidCreate.cameraSubtitle' | transloco" />
+                    <app-face-guided-camera (captured)="onCapture($event)" />
+                    <app-demo-or-divider />
+                    <app-demo-capture-option-heading label="B" headingId="humanid-create-upload-heading" [title]="'smartEnrollDemos.humanidCreate.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.humanidCreate.uploadSubtitle' | transloco" />
+                    <app-demo-upload-image-button id="btn-upload-humanid-create" [primaryText]="'smartEnrollDemos.humanidCreate.uploadPrimary' | transloco" [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco" (clicked)="fileInput.click()" />
+                    <input #fileInput type="file" accept="image/*" class="hidden" (change)="onFile($event)" />
+                }
+                @if (facePreview && faceB64) {
+                    <img [src]="facePreview" alt="" class="w-full aspect-video rounded-xl border border-frost object-cover mb-3" />
+                    <button type="button" (click)="clearFace()" class="text-sm text-primary underline">{{ 'smartEnrollDemos.humanidCreate.changeFaceImage' | transloco }}</button>
+                }
+            </section>
+
+            <section class="rounded-2xl border border-outline-variant/25 bg-surface-container-low/40 p-5 sm:p-6 space-y-5">
+                <header class="flex items-start gap-3">
+                    <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-sm font-bold text-primary">3</span>
+                    <div>
+                        <h3 class="text-base font-bold text-on-surface">{{ 'smartEnrollDemos.humanidCreate.step3Title' | transloco }}</h3>
+                        <p class="text-sm text-on-surface-variant">{{ 'smartEnrollDemos.humanidCreate.step3Subtitle' | transloco }}</p>
+                    </div>
+                </header>
+
+                <p class="human-id-liveness-callout">{{ 'smartEnrollDemos.humanidCreate.livenessSettingsIntro' | transloco }}</p>
+
+                <app-human-id-liveness-toggle
+                    stage="encrypt"
+                    [stageLabel]="'smartEnrollDemos.humanidCreate.livenessOnEncryptStage' | transloco"
+                    [title]="'smartEnrollDemos.humanidCreate.livenessOnEncryptTitle' | transloco"
+                    [hint]="'smartEnrollDemos.humanidCreate.livenessOnEncryptHint' | transloco"
+                    [enabled]="livenessDetectionPriorCreation"
+                    [onLabel]="'smartEnrollDemos.humanidCreate.unlockLivenessOn' | transloco"
+                    [offLabel]="'smartEnrollDemos.humanidCreate.unlockLivenessOff' | transloco"
+                    (enabledChange)="livenessDetectionPriorCreation = $event"
+                />
+
+                <app-human-id-liveness-toggle
+                    stage="decrypt"
+                    [stageLabel]="'smartEnrollDemos.humanidCreate.livenessOnDecryptStage' | transloco"
+                    [title]="'smartEnrollDemos.humanidCreate.livenessOnDecryptTitle' | transloco"
+                    [hint]="'smartEnrollDemos.humanidCreate.livenessOnDecryptHint' | transloco"
+                    [enabled]="requireLiveness"
+                    [showRecommended]="true"
+                    [recommendedLabel]="'smartEnrollDemos.humanidCreate.recommendedBadge' | transloco"
+                    [onLabel]="'smartEnrollDemos.humanidCreate.unlockLivenessOn' | transloco"
+                    [offLabel]="'smartEnrollDemos.humanidCreate.unlockLivenessOff' | transloco"
+                    (enabledChange)="requireLiveness = $event"
+                />
+
+                <div>
+                    <p class="text-sm font-semibold mb-1">{{ 'smartEnrollDemos.humanidCreate.unlockToleranceTitle' | transloco }}</p>
+                    <p class="text-xs text-on-surface-variant mb-3">{{ 'smartEnrollDemos.humanidCreate.unlockToleranceHint' | transloco }}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        @for (opt of toleranceOptions; track opt) {
+                            <button type="button" (click)="tolerance = opt" class="text-left rounded-xl border px-3 py-2.5" [ngClass]="tolerance === opt ? 'border-primary/50 bg-primary-10' : 'border-outline-variant/30'">
+                                <span class="text-sm font-semibold">{{ opt }}</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-1.5" for="hid-pw">{{ 'smartEnrollDemos.humanidCreate.unlockPasswordTitle' | transloco }}</label>
+                    <input id="hid-pw" type="text" [(ngModel)]="password" name="password" [placeholder]="'smartEnrollDemos.humanidCreate.passwordPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-primary/60" />
+                </div>
+            </section>
+
+            @if (error) {
+                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg text-sm text-error">
+                    @if (errorCode === 'ERR_LIVENESS_FAILED') {
+                        <p class="font-semibold">{{ 'smartEnrollDemos.humanidCreate.errorLivenessFailedTitle' | transloco }}</p>
+                        <p>{{ 'smartEnrollDemos.humanidCreate.errorLivenessFailedBody' | transloco }}</p>
+                    } @else {
+                        {{ error }}
+                    }
+                </div>
+            }
+            <button type="submit" [disabled]="!faceB64" class="demo-btn-primary">
+                <span class="material-symbols-outlined text-lg" aria-hidden="true">fingerprint</span>
+                {{ 'smartEnrollDemos.humanidCreate.submitCta' | transloco }}
+            </button>
+        </form>
+    } @else if (step === 'processing') {
+        <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p class="font-semibold">{{ 'smartEnrollDemos.humanidCreate.processing' | transloco }}</p>
+        </div>
+    } @else {
+        <app-human-id-structured-result [result]="result" [successTitle]="'smartEnrollDemos.humanidCreate.resultSuccessTitle' | transloco" (createAnother)="reset()" (backToDemos)="backToDemos()" />
+    }
+</app-demo-page-shell>

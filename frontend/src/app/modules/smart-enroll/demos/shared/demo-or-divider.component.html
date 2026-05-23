@@ -1,0 +1,14 @@
+<div
+    class="relative flex items-center gap-3 py-1"
+    [class]="className"
+    role="separator"
+    [attr.aria-label]="ariaLabel"
+>
+    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-outline-variant/50 to-transparent"></div>
+    <span
+        class="shrink-0 rounded-full border border-outline-variant/40 bg-surface-container-high px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-on-surface-variant/80"
+    >
+        {{ resolvedLabel }}
+    </span>
+    <div class="h-px flex-1 bg-gradient-to-r from-transparent via-outline-variant/50 to-transparent"></div>
+</div>

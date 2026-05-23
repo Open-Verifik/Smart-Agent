@@ -1,0 +1,109 @@
+<div #rootRef class="space-y-2">
+    <div class="relative">
+        <button
+            type="button"
+            [id]="labelId || null"
+            [disabled]="disabled || loading"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="open()"
+            [attr.aria-controls]="open() ? listId : null"
+            (click)="toggleOpen()"
+            class="w-full flex items-center justify-between gap-2 bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-left text-sm text-on-surface focus:outline-none focus:border-primary/60 transition-colors"
+            [ngClass]="{ 'opacity-50 cursor-not-allowed': disabled || loading }"
+        >
+            <span [ngClass]="{ 'text-on-surface-variant': !selectedId }">
+                @if (loading) {
+                    {{ 'smartEnrollDemos.common.loadingPeople' | transloco }}
+                } @else {
+                    {{ summary }}
+                }
+            </span>
+            <span class="material-symbols-outlined text-on-surface-variant/70 shrink-0">
+                {{ open() ? 'expand_less' : 'expand_more' }}
+            </span>
+        </button>
+
+        @if (open() && !loading) {
+            <div
+                class="absolute left-0 right-0 top-[calc(100%+6px)] z-50 flex max-h-[min(320px,calc(100vh-220px))] flex-col overflow-hidden rounded-lg border border-outline-variant/30 bg-surface-container-low shadow-lg"
+                role="presentation"
+            >
+                @if (items.length === 0) {
+                    <div class="px-4 py-6 text-sm text-on-surface-variant text-center">
+                        {{ 'smartEnrollDemos.common.noPeopleInProject' | transloco }}
+                    </div>
+                } @else {
+                    <div class="shrink-0 border-b border-outline-variant/20 p-2">
+                        <label [for]="listId + '-search'" class="sr-only">
+                            {{ 'smartEnrollDemos.common.searchPeopleSr' | transloco }}
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="material-symbols-outlined pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant/70"
+                                aria-hidden="true"
+                            >
+                                search
+                            </span>
+                            <input
+                                #searchInput
+                                [id]="listId + '-search'"
+                                type="search"
+                                autocomplete="off"
+                                [ngModel]="search()"
+                                (ngModelChange)="search.set($event)"
+                                [placeholder]="'smartEnrollDemos.common.searchPeoplePlaceholder' | transloco"
+                                class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-high/50 py-2 pl-9 pr-3 text-sm text-on-surface outline-none placeholder:text-on-surface-variant/50 focus:border-primary/60"
+                            />
+                        </div>
+                    </div>
+                    <ul
+                        [id]="listId"
+                        role="listbox"
+                        [attr.aria-label]="'smartEnrollDemos.common.peopleListAria' | transloco"
+                        class="min-h-0 flex-1 overflow-y-auto overscroll-contain py-1"
+                    >
+                        @if (filtered().length === 0) {
+                            <li class="px-3 py-6 text-center text-xs text-on-surface-variant">
+                                {{ 'smartEnrollDemos.common.noMatches' | transloco }}
+                            </li>
+                        } @else {
+                            @for (it of filtered(); track it._id) {
+                                @let checked = selectedId === it._id;
+                                <li role="option" [attr.aria-selected]="checked" class="px-1">
+                                    <button
+                                        type="button"
+                                        (click)="pick(it._id)"
+                                        class="w-full flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors"
+                                        [ngClass]="checked ? 'bg-primary/10' : 'hover:bg-surface-container-high/80'"
+                                    >
+                                        <span
+                                            class="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-outline-variant flex items-center justify-center"
+                                            [ngClass]="{ 'border-primary bg-primary': checked }"
+                                            aria-hidden="true"
+                                        >
+                                            @if (checked) {
+                                                <span class="h-1.5 w-1.5 rounded-full bg-white"></span>
+                                            }
+                                        </span>
+                                        <span class="min-w-0 flex-1">
+                                            <span class="font-medium text-on-surface block truncate">
+                                                {{ it.name || ('smartEnrollDemos.common.emDash' | transloco) }}
+                                            </span>
+                                            <span class="text-xs text-on-surface-variant font-mono">{{ truncateId(it._id) }}</span>
+                                        </span>
+                                    </button>
+                                </li>
+                            }
+                        }
+                    </ul>
+                }
+            </div>
+        }
+    </div>
+    @if (error) {
+        <p class="text-sm text-error flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">error_outline</span>
+            {{ error }}
+        </p>
+    }
+</div>

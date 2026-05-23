@@ -1,0 +1,137 @@
+<div class="smart-enroll-demos-hub flex min-h-screen min-w-0 flex-auto flex-col w-full bg-stone-50 dark:bg-gray-900">
+    <div class="w-full flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <nav class="mb-6 text-sm text-stone-500 dark:text-stone-400" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap items-center gap-1.5">
+                <li>
+                    <a routerLink="/smart-enroll/collections" class="hover:text-stone-700 dark:hover:text-stone-200">
+                        Smart Enroll
+                    </a>
+                </li>
+                <li aria-hidden="true">/</li>
+                <li class="font-medium text-stone-900 dark:text-stone-100">
+                    {{ 'smartEnrollDemos.hub.title' | transloco }}
+                </li>
+            </ol>
+        </nav>
+
+        <section class="mb-12">
+            <p class="text-primary text-[0.75rem] font-semibold tracking-widest uppercase mb-4 text-blue-400">
+                {{ 'smartEnrollDemos.hub.heroEyebrow' | transloco }}
+            </p>
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-stone-900 dark:text-stone-100 mb-4">
+                {{ 'smartEnrollDemos.hub.heroTitle' | transloco }}
+            </h1>
+            <p class="text-stone-600 dark:text-stone-400 text-lg max-w-2xl leading-relaxed">
+                {{ 'smartEnrollDemos.hub.heroBody' | transloco }}
+            </p>
+        </section>
+
+        <section class="mb-16">
+            <div class="mb-8">
+                <p class="text-blue-400 text-[0.6875rem] font-bold tracking-widest uppercase mb-1">
+                    {{ 'smartEnrollDemos.hub.decentralizedEyebrow' | transloco }}
+                </p>
+                <h2 class="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+                    {{ 'smartEnrollDemos.hub.decentralizedTitle' | transloco }}
+                </h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                @for (demo of humanAuthnDemos; track demo.id) {
+                    <a
+                        [routerLink]="demo.href"
+                        [id]="'demo-card-' + demo.id"
+                        class="demo-card group relative flex min-h-[240px] w-full flex-col items-stretch text-left overflow-hidden rounded-2xl border border-stone-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6"
+                    >
+                        <div class="mb-5 flex w-full shrink-0 justify-between items-start">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-stone-200 dark:border-gray-700 bg-blue-500/5 text-lg font-bold tabular-nums leading-none text-blue-500 group-hover:bg-blue-500/10 transition-colors"
+                                aria-hidden="true"
+                            >
+                                {{ demo.stepNumber }}
+                            </div>
+                            <span
+                                class="text-[10px] font-medium text-stone-500 dark:text-stone-400 border border-stone-200 dark:border-gray-700 rounded-full px-2.5 py-1"
+                            >
+                                {{ demo.badgeKey | transloco }}
+                            </span>
+                        </div>
+                        <div class="flex min-h-0 flex-1 flex-col items-start text-left">
+                            <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-3 tracking-tight">
+                                {{ demo.titleKey | transloco }}
+                            </h3>
+                            <p class="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">
+                                {{ demo.descriptionKey | transloco }}
+                            </p>
+                        </div>
+                        <div
+                            class="mt-auto flex w-full shrink-0 items-center justify-start pt-6 text-blue-500 text-sm font-medium gap-1.5 group-hover:gap-2 transition-all"
+                        >
+                            {{ 'smartEnrollDemos.hub.demoCta' | transloco }}
+                            <span class="material-symbols-outlined text-base leading-none">arrow_forward</span>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <div class="mb-8">
+                <p class="text-blue-400 text-[0.6875rem] font-bold tracking-widest uppercase mb-1">
+                    {{ 'smartEnrollDemos.hub.traditionalEyebrow' | transloco }}
+                </p>
+                <h2 class="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+                    {{ 'smartEnrollDemos.hub.traditionalTitle' | transloco }}
+                </h2>
+            </div>
+
+            <div class="space-y-14">
+                @for (section of traditionalSections; track section.id) {
+                    <div>
+                        <h3 class="text-xs font-bold tracking-widest uppercase text-blue-400 mb-4">
+                            {{ section.labelKey | transloco }}
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            @for (demo of section.demos; track demo.id) {
+                                <a
+                                    [routerLink]="demo.href"
+                                    [id]="'demo-card-' + demo.id"
+                                    class="demo-card group relative flex min-h-[240px] w-full flex-col items-stretch text-left overflow-hidden rounded-2xl border border-stone-200 dark:border-gray-800 bg-white dark:bg-gray-900/50 p-6"
+                                >
+                                    <div class="mb-5 flex w-full shrink-0 justify-between items-start">
+                                        @if (demo.stepNumber != null) {
+                                            <div
+                                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-stone-200 dark:border-gray-700 bg-blue-500/5 text-lg font-bold tabular-nums leading-none text-blue-500 group-hover:bg-blue-500/10 transition-colors"
+                                                aria-hidden="true"
+                                            >
+                                                {{ demo.stepNumber }}
+                                            </div>
+                                        }
+                                        <span
+                                            class="text-[10px] font-medium text-stone-500 dark:text-stone-400 border border-stone-200 dark:border-gray-700 rounded-full px-2.5 py-1"
+                                        >
+                                            {{ demo.badgeKey | transloco }}
+                                        </span>
+                                    </div>
+                                    <div class="flex min-h-0 flex-1 flex-col items-start text-left">
+                                        <h3 class="text-lg font-semibold text-stone-900 dark:text-stone-100 mb-3 tracking-tight">
+                                            {{ demo.titleKey | transloco }}
+                                        </h3>
+                                        <p class="text-stone-600 dark:text-stone-400 text-sm leading-relaxed">
+                                            {{ demo.descriptionKey | transloco }}
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="mt-auto flex w-full shrink-0 items-center justify-start pt-6 text-blue-500 text-sm font-medium gap-1.5 group-hover:gap-2 transition-all"
+                                    >
+                                        {{ 'smartEnrollDemos.hub.demoCta' | transloco }}
+                                        <span class="material-symbols-outlined text-base leading-none">arrow_forward</span>
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>

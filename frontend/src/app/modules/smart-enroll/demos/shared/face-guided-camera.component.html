@@ -1,0 +1,53 @@
+@if (modelsError) {
+    <div class="rounded-xl border border-outline-variant/30 bg-surface-container-low p-4 text-sm text-on-surface">{{ modelsError }}</div>
+} @else if (!modelsReady) {
+    <div class="flex flex-col items-center justify-center gap-3 rounded-xl border border-outline-variant/30 bg-surface-container-low p-8">
+        <span class="material-symbols-outlined text-4xl text-primary animate-pulse">face_retouching_natural</span>
+        <p class="text-sm text-on-surface-variant">Loading face detection…</p>
+    </div>
+} @else {
+    <div [class]="fillFrame ? 'flex h-full min-h-0 flex-1 flex-col gap-3' : 'space-y-3'">
+        <div #container [class]="viewfinderClass">
+            <div class="absolute inset-0" [class.scale-x-[-1]]="mirror">
+                <video #video class="absolute inset-0 h-full w-full object-cover bg-black" autoplay playsinline muted></video>
+                <canvas #mask class="pointer-events-none absolute inset-0 z-[1] h-full w-full" aria-hidden="true"></canvas>
+            </div>
+            @if (captureSuccess) {
+                <div class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-emerald-950/45 px-4 text-center backdrop-blur-[2px]">
+                    <div class="flex h-16 w-16 items-center justify-center rounded-full border border-emerald-300/40 bg-emerald-400/20">
+                        <span class="material-symbols-outlined text-4xl text-emerald-200">check_circle</span>
+                    </div>
+                    <p class="text-base font-semibold text-white">Photo captured</p>
+                </div>
+            }
+            @if (!streamActive) {
+                <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-surface-container-high/80 z-10 px-4 text-center backdrop-blur-sm">
+                    @if (!hideIdleExplainer) {
+                        <p class="text-sm text-on-surface-variant">Use the guided camera for automatic capture when your face is aligned.</p>
+                    }
+                    <button
+                        type="button"
+                        [disabled]="disabled || cameraStarting"
+                        (click)="startCamera()"
+                        class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-primary-cta text-on-primary-container font-bold text-sm shadow-primary disabled:opacity-50"
+                    >
+                        <span class="material-symbols-outlined text-lg">photo_camera</span>
+                        {{ cameraStarting ? 'Starting…' : 'Open camera' }}
+                    </button>
+                </div>
+            }
+        </div>
+        <div class="min-h-[4.5rem] text-center text-sm">
+            @if (captureSuccess) {
+                <p class="font-semibold text-green-400">Photo captured</p>
+            } @else if (guideError) {
+                <p class="font-semibold text-on-surface">{{ guideError.title }}</p>
+                <p class="text-sm text-on-surface-variant">{{ guideError.subtitle }}</p>
+            } @else if (statusOk) {
+                <p class="text-sm font-medium text-green-400">Hold still…</p>
+            } @else {
+                <p class="text-sm text-on-surface-variant">Align your face in the frame</p>
+            }
+        </div>
+    </div>
+}

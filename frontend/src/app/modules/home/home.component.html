@@ -350,15 +350,35 @@
         </h2>
         <div class="shortcuts-grid">
             @for (item of shortcuts; track item.id) {
-                <a [routerLink]="item.link" class="shortcut-card">
-                    <div class="shortcut-icon">
-                        <mat-icon>{{ item.icon }}</mat-icon>
-                    </div>
-                    <div>
-                        <div class="shortcut-title">{{ item.titleKey | transloco }}</div>
-                        <div class="shortcut-subtitle">{{ item.subtitleKey | transloco }}</div>
-                    </div>
-                </a>
+                @if (isShortcutLink(item)) {
+                    <a [routerLink]="item.link!" class="shortcut-card">
+                        <div class="shortcut-icon">
+                            <mat-icon>{{ item.icon }}</mat-icon>
+                        </div>
+                        <div>
+                            <div class="shortcut-title">{{ item.titleKey | transloco }}</div>
+                            <div class="shortcut-subtitle">{{ item.subtitleKey | transloco }}</div>
+                        </div>
+                    </a>
+                } @else {
+                    <button
+                        type="button"
+                        class="shortcut-card"
+                        [class.shortcut-card--support]="item.accent === 'support'"
+                        (click)="onShortcutActivate(item)"
+                    >
+                        <div
+                            class="shortcut-icon"
+                            [class.shortcut-icon--support]="item.accent === 'support'"
+                        >
+                            <mat-icon>{{ item.icon }}</mat-icon>
+                        </div>
+                        <div>
+                            <div class="shortcut-title">{{ item.titleKey | transloco }}</div>
+                            <div class="shortcut-subtitle">{{ item.subtitleKey | transloco }}</div>
+                        </div>
+                    </button>
+                }
             }
         </div>
     </section>

@@ -1,0 +1,19 @@
+<div class="flex flex-col gap-3 sm:flex-row">
+    @if (showSecondary && secondaryLabel) {
+        <button type="button" (click)="onSecondaryClick()" class="demo-btn-secondary demo-btn-inline">
+            <span class="material-symbols-outlined text-lg" aria-hidden="true">{{ secondaryIcon }}</span>
+            <span class="whitespace-nowrap">{{ secondaryLabel }}</span>
+        </button>
+    }
+    @if (primaryRouterLink) {
+        <a [routerLink]="primaryRouterLink" class="demo-btn-primary demo-btn-inline">
+            <span class="whitespace-nowrap">{{ primaryLabel }}</span>
+            <span class="material-symbols-outlined text-lg" aria-hidden="true">{{ primaryIcon }}</span>
+        </a>
+    } @else {
+        <button type="button" (click)="onPrimaryClick()" class="demo-btn-primary demo-btn-inline">
+            <span class="whitespace-nowrap">{{ primaryLabel }}</span>
+            <span class="material-symbols-outlined text-lg" aria-hidden="true">{{ primaryIcon }}</span>
+        </button>
+    }
+</div>

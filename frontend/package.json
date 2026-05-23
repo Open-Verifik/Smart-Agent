@@ -7,7 +7,8 @@
         "prebuild": "node ../backend/scripts/sync-discovery-frontend-public.js",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
-        "test": "ng test"
+        "test": "ng test",
+        "i18n:audit-demos": "node scripts/audit-smart-enroll-demos-i18n.mjs"
     },
     "private": true,
     "packageManager": "npm@11.6.1",
@@ -27,6 +28,8 @@
         "@handsontable/angular-wrapper": "^17.0.1",
         "@jsverse/transloco": "7.5.1",
         "@stripe/stripe-js": "^4.10.0",
+        "@tensorflow/tfjs": "^4.22.0",
+        "@vladmandic/face-api": "^1.7.15",
         "ag-grid-angular": "^35.1.0",
         "ag-grid-community": "^35.1.0",
         "apexcharts": "^5.3.6",

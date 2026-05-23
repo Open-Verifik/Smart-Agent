@@ -69,6 +69,10 @@
     text-decoration: none;
     color: inherit;
     transition: all 0.2s ease;
+    width: 100%;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
 
     &:hover {
         border-color: rgb(99, 102, 241);
@@ -87,6 +91,42 @@
     }
 }
 
+.shortcut-card--support {
+    border-color: rgba(20, 184, 166, 0.35);
+    background: linear-gradient(
+        135deg,
+        rgba(20, 184, 166, 0.06) 0%,
+        rgba(255, 255, 255, 0.9) 55%
+    );
+
+    &:hover {
+        border-color: rgb(13, 148, 136);
+        background: linear-gradient(
+            135deg,
+            rgba(20, 184, 166, 0.12) 0%,
+            rgba(240, 253, 250, 0.95) 55%
+        );
+    }
+
+    :host-context(.dark) & {
+        border-color: rgba(45, 212, 191, 0.35);
+        background: linear-gradient(
+            135deg,
+            rgba(20, 184, 166, 0.14) 0%,
+            rgb(30, 41, 59) 60%
+        );
+
+        &:hover {
+            border-color: rgb(45, 212, 191);
+            background: linear-gradient(
+                135deg,
+                rgba(20, 184, 166, 0.22) 0%,
+                rgb(30, 41, 59) 60%
+            );
+        }
+    }
+}
+
 .shortcut-icon {
     width: 48px;
     height: 48px;
@@ -97,6 +137,16 @@
     flex-shrink: 0;
     background: rgba(99, 102, 241, 0.1);
     color: rgb(99, 102, 241);
+}
+
+.shortcut-icon--support {
+    background: rgba(20, 184, 166, 0.16);
+    color: rgb(13, 148, 136);
+
+    :host-context(.dark) & {
+        background: rgba(45, 212, 191, 0.18);
+        color: rgb(94, 234, 212);
+    }
 }
 
 .shortcut-title {

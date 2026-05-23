@@ -508,8 +508,9 @@ export class AddCreditsComponent implements OnInit {
 
     openAutoRechargeSettings(): void {
         const dialogRef = this._dialog.open(AutoRechargeSettingsComponent, {
-            width: '600px',
-            maxWidth: '90vw',
+            width: '560px',
+            maxWidth: '92vw',
+            panelClass: 'auto-recharge-dialog-panel',
             data: {
                 config: this.autoRechargeConfig(),
                 cards: this.cards(),

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { UserService } from 'app/core/user/user.service';
 import { environment } from 'environments/environment';
-import { catchError, finalize, of, tap, throwError } from 'rxjs';
+import { catchError, finalize, of, switchMap, tap, throwError } from 'rxjs';
 
 export interface PaymentCard {
     _id: string;
@@ -41,6 +41,37 @@ export class CreditsService {
     private apiUrl = environment.apiUrl;
     private _userService = inject(UserService);
 
+    private authHeaders(): Record<string, string> {
+        const token = localStorage.getItem('accessToken');
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    private cardListParams(gatewayProvider: string = 'stripe') {
+        return {
+            'populates[]': 'client',
+            where_gatewayProvider: gatewayProvider,
+        };
+    }
+
+    private normalizeCardList(data: unknown): PaymentCard[] {
+        if (Array.isArray(data)) {
+            return data;
+        }
+
+        if (data && typeof data === 'object' && Array.isArray((data as { docs?: PaymentCard[] }).docs)) {
+            return (data as { docs: PaymentCard[] }).docs;
+        }
+
+        return [];
+    }
+
+    private fetchCards(gatewayProvider: string = 'stripe') {
+        return this._httpClient.get<{ data: PaymentCard[] }>(`${this.apiUrl}/v2/credit-cards`, {
+            headers: this.authHeaders(),
+            params: this.cardListParams(gatewayProvider),
+        });
+    }
+
     constructor(private _httpClient: HttpClient) {
         // Subscribe to user updates to keep balance in sync
         this._userService.user$.subscribe((user) => {
@@ -75,19 +106,9 @@ export class CreditsService {
         this.loading.set(true);
         this.error.set(null);
 
-        const token = localStorage.getItem('accessToken');
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-        const params = {
-            'populates[]': 'client',
-            where_gatewayProvider: gatewayProvider,
-        };
-
-        return this._httpClient
-            .get<{ data: PaymentCard[] }>(`${this.apiUrl}/v2/credit-cards`, { headers, params })
-            .pipe(
+        return this.fetchCards(gatewayProvider).pipe(
                 tap((response) => {
-                    this.cards.set(response.data || []);
+                    this.cards.set(this.normalizeCardList(response.data));
                 }),
                 catchError((err) => {
                     console.error('Error fetching cards:', err);
@@ -159,30 +180,47 @@ export class CreditsService {
     /**
      * Set default payment card
      */
-    setDefaultCard(cardId: string) {
-        this.loading.set(true);
+    setDefaultCard(cardId: string, gatewayProvider: string = 'stripe') {
         this.error.set(null);
 
-        const token = localStorage.getItem('accessToken');
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        this.cards.update((cards) =>
+            cards.map((card) => ({
+                ...card,
+                isDefault: card._id === cardId,
+            })),
+        );
 
         return this._httpClient
-            .put<{
-                data: PaymentCard[];
-            }>(`${this.apiUrl}/v2/credit-cards/${cardId}/default`, {}, { headers })
+            .put<{ data: PaymentCard[] | { docs?: PaymentCard[] } }>(
+                `${this.apiUrl}/v2/credit-cards/${cardId}/default`,
+                {},
+                { headers: this.authHeaders() },
+            )
             .pipe(
-                tap((response) => {
-                    // Update cards with new default status
-                    this.cards.set(response.data || []);
+                switchMap((response) => {
+                    const cards = this.normalizeCardList(response.data);
+
+                    if (cards.length > 0) {
+                        this.cards.set(cards);
+                        return of(response);
+                    }
+
+                    return this.fetchCards(gatewayProvider).pipe(
+                        tap((listResponse) => {
+                            this.cards.set(this.normalizeCardList(listResponse.data));
+                        }),
+                    );
                 }),
                 catchError((err) => {
                     console.error('Error setting default card:', err);
                     this.error.set('Failed to set default card');
-                    return throwError(() => err);
+                    return this.fetchCards(gatewayProvider).pipe(
+                        tap((listResponse) => {
+                            this.cards.set(this.normalizeCardList(listResponse.data));
+                        }),
+                        switchMap(() => throwError(() => err)),
+                    );
                 }),
-                finalize(() => {
-                    this.loading.set(false);
-                })
             );
     }
 

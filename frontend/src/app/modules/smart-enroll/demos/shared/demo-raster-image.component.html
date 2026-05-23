@@ -1,0 +1,19 @@
+@if (fill) {
+    <img
+        [src]="src"
+        [alt]="alt"
+        [attr.sizes]="sizes"
+        (error)="onError($event)"
+        class="absolute inset-0 h-full w-full object-cover"
+        [ngClass]="className"
+    />
+} @else {
+    <img
+        [src]="src"
+        [alt]="alt"
+        [attr.width]="width"
+        [attr.height]="height"
+        (error)="onError($event)"
+        [ngClass]="className"
+    />
+}

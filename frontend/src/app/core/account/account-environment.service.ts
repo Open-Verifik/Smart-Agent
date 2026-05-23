@@ -31,6 +31,13 @@ export class AccountEnvironmentService {
         () => this.isAuthenticated() && this.accountSnapshot()?.canRecharge === false,
     );
 
+    readonly verifyStripPendingReview = computed(
+        () =>
+            this.isAuthenticated() &&
+            this.accountSnapshot()?.canRecharge === false &&
+            this.accountSnapshot()?.approvalRequestStatus === 'requested',
+    );
+
     readonly showSandboxStrip = computed(
         () => this.isAuthenticated() && this._isSandboxModeActive(),
     );

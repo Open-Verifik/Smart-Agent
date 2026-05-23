@@ -1,0 +1,220 @@
+<app-demo-confirm-modal
+    [open]="confirmOpen"
+    [title]="confirmTitle"
+    [description]="confirmDescription"
+    [confirmLabel]="confirmLabel"
+    variant="danger"
+    (confirmed)="performDelete()"
+    (cancelled)="cancelConfirm()"
+/>
+
+<app-demo-page-shell>
+    <div class="mb-8">
+        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+            @if (step === 'result') {
+                {{ 'smartEnrollDemos.deletePerson.heroTitleResult' | transloco }}
+            } @else {
+                {{ 'smartEnrollDemos.deletePerson.heroTitleForm' | transloco }}
+            }
+        </h2>
+        <p class="text-on-surface-variant">
+            @if (step === 'result') {
+                {{ 'smartEnrollDemos.deletePerson.heroSubtitleResult' | transloco }}
+            } @else {
+                {{ 'smartEnrollDemos.deletePerson.heroSubtitleForm' | transloco }}
+            }
+        </p>
+    </div>
+
+    @if (!authChecked) {
+        <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else if (step === 'form') {
+        <form (ngSubmit)="handleSubmit()" class="space-y-5">
+            <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-4 space-y-2 text-sm text-on-surface-variant">
+                <p [innerHTML]="'smartEnrollDemos.deletePerson.fullDeleteRich' | transloco"></p>
+                <p [innerHTML]="'smartEnrollDemos.deletePerson.partialDeleteRich' | transloco"></p>
+            </div>
+
+            <div class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-4 space-y-3">
+                <label class="block text-sm font-semibold text-on-surface" id="del-person-label">
+                    {{ 'smartEnrollDemos.deletePerson.personLabel' | transloco }}
+                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                </label>
+                <p class="text-xs text-on-surface-variant">{{ 'smartEnrollDemos.deletePerson.personHint' | transloco }}</p>
+                <app-person-single-select
+                    labelId="del-person-label"
+                    [items]="personRows"
+                    [selectedId]="selectedPersonId"
+                    (selectedIdChange)="onPersonSelected($event)"
+                    [loading]="personsLoading"
+                    [error]="personsError"
+                />
+                @if (selectedPersonId?.trim() && loadingPersonDetail) {
+                    <p class="text-sm text-on-surface-variant flex items-center gap-2">
+                        <span class="inline-block h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></span>
+                        {{ 'smartEnrollDemos.deletePerson.loadingPersonCollections' | transloco }}
+                    </p>
+                }
+                @if (loadPersonDetailError) {
+                    <p class="text-sm text-error flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">error_outline</span>
+                        {{ loadPersonDetailError }}
+                    </p>
+                }
+            </div>
+
+            <fieldset class="space-y-3 rounded-xl border border-outline-variant/20 p-4">
+                <legend class="text-sm font-semibold text-on-surface px-1">{{ 'smartEnrollDemos.deletePerson.modeLegend' | transloco }}</legend>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input
+                        type="radio"
+                        name="del-mode"
+                        [checked]="mode === 'full'"
+                        (change)="handleModeChange('full')"
+                        class="mt-1"
+                    />
+                    <span>
+                        <span class="font-medium text-on-surface">{{ 'smartEnrollDemos.deletePerson.modeFullTitle' | transloco }}</span>
+                        <span class="block text-xs text-on-surface-variant">{{ 'smartEnrollDemos.deletePerson.modeFullHint' | transloco }}</span>
+                    </span>
+                </label>
+                <label class="flex items-start gap-3 cursor-pointer">
+                    <input
+                        type="radio"
+                        name="del-mode"
+                        [checked]="mode === 'collection'"
+                        (change)="handleModeChange('collection')"
+                        class="mt-1"
+                    />
+                    <span>
+                        <span class="font-medium text-on-surface">{{ 'smartEnrollDemos.deletePerson.modeCollectionTitle' | transloco }}</span>
+                        <span class="block text-xs text-on-surface-variant">{{ 'smartEnrollDemos.deletePerson.modeCollectionHint' | transloco }}</span>
+                    </span>
+                </label>
+            </fieldset>
+
+            @if (mode === 'collection') {
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5" id="del-col-label">
+                        {{ 'smartEnrollDemos.deletePerson.collectionLabel' | transloco }}
+                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                    </label>
+                    @if (collectionsError) {
+                        <div class="mb-2 text-sm text-error flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-sm">error_outline</span>
+                            {{ collectionsError }}
+                        </div>
+                    }
+                    <app-collection-single-select
+                        labelId="del-col-label"
+                        [items]="collectionsForPicker"
+                        [selectedCode]="selectedCollectionCode"
+                        (selectedCodeChange)="selectedCollectionCode = $event"
+                        [loading]="collectionsLoading || loadingPersonDetail"
+                    />
+                </div>
+            }
+
+            @if (error) {
+                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
+                    <span class="material-symbols-outlined text-sm">error_outline</span>
+                    {{ error }}
+                </div>
+            }
+
+            <button
+                type="submit"
+                [disabled]="
+                    !selectedPersonId?.trim() ||
+                    (mode === 'collection' &&
+                        (!selectedCollectionCode?.trim() || loadingPersonDetail || !!loadPersonDetailError)) ||
+                    collectionsLoading ||
+                    personsLoading
+                "
+                class="w-full py-3 bg-error text-white font-bold rounded-lg shadow-primary hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+            >
+                @if (mode === 'full') {
+                    {{ 'smartEnrollDemos.deletePerson.submitFull' | transloco }}
+                } @else {
+                    {{ 'smartEnrollDemos.deletePerson.submitCollection' | transloco }}
+                }
+            </button>
+        </form>
+    } @else if (step === 'processing') {
+        <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-on-surface font-semibold">{{ 'smartEnrollDemos.deletePerson.processing' | transloco }}</p>
+        </div>
+    } @else if (hasPersonPayload) {
+        <app-create-person-result
+            mode="delete"
+            [result]="result"
+            (enrollAnother)="reset()"
+            (backToDemos)="backToDemos()"
+        />
+    } @else {
+        <div class="space-y-5">
+            <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary text-3xl">task_alt</span>
+                    <div>
+                        <p class="font-bold text-on-surface text-lg">{{ 'smartEnrollDemos.deletePerson.resultNoPersonDocTitle' | transloco }}</p>
+                        <p class="text-sm text-on-surface-variant mt-1">{{ 'smartEnrollDemos.deletePerson.resultNoPersonDocBody' | transloco }}</p>
+                    </div>
+                </div>
+            </div>
+            <details class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 px-4 py-3 group">
+                <summary class="cursor-pointer list-none font-bold text-sm text-on-surface-variant flex items-center justify-between gap-2">
+                    <span>{{ 'smartEnrollDemos.personResult.rawDebug' | transloco }}</span>
+                    <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform text-lg">
+                        expand_more
+                    </span>
+                </summary>
+                <pre class="mt-3 text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{
+                    redactedResultJson
+                }}</pre>
+            </details>
+            <app-demo-result-actions
+                [secondaryLabel]="'smartEnrollDemos.personResult.anotherAction' | transloco"
+                [primaryLabel]="'smartEnrollDemos.common.backToDemos' | transloco"
+                [primaryRouterLink]="null"
+                (secondary)="reset()"
+                (primary)="backToDemos()"
+            />
+        </div>
+    }
+
+    @if (showApiReference) {
+        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 text-left max-w-3xl mx-auto w-full px-4 py-3 group">
+            <summary class="cursor-pointer list-none font-bold text-sm text-primary flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                    {{ 'smartEnrollDemos.deletePerson.apiRefSummary' | transloco }}
+                </span>
+                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform">
+                    expand_more
+                </span>
+            </summary>
+            <div class="mt-4 space-y-3 text-sm text-on-surface-variant border-t border-outline-variant/15 pt-4">
+                <p>
+                    {{ 'smartEnrollDemos.deletePerson.apiRefOfficialDocs' | transloco }}
+                    <a
+                        href="https://docs.verifik.co/resources/persons/delete-a-person"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-primary underline underline-offset-2"
+                    >
+                        {{ 'smartEnrollDemos.deletePerson.apiRefLinkLabel' | transloco }}
+                    </a>
+                </p>
+                <p class="text-xs leading-relaxed font-mono">
+                    {{ 'smartEnrollDemos.deletePerson.apiRefEndpointLine' | transloco }}
+                    <br />
+                    {{ 'smartEnrollDemos.deletePerson.apiRefOptionalQuery' | transloco }}
+                </p>
+            </div>
+        </details>
+    }
+
+    <app-demo-related-docs-section [items]="relatedDocs" />
+</app-demo-page-shell>

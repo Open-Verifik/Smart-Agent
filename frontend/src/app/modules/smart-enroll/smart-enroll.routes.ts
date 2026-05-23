@@ -37,4 +37,8 @@ export default [
         loadComponent: () =>
             import('./usage-history/usage-history.component').then((m) => m.SmartEnrollUsageHistoryComponent),
     },
+    {
+        path: 'demos',
+        loadChildren: () => import('./demos/demos.routes').then((m) => m.default),
+    },
 ] as Routes;

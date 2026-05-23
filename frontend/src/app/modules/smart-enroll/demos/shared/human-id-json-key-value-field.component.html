@@ -1,0 +1,111 @@
+<div class="space-y-2">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+        <label class="block text-sm font-semibold text-on-surface">
+            {{ label }}
+            @if (required) {
+                <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+            }
+        </label>
+        <div
+            class="inline-flex rounded-lg border border-outline-variant/30 bg-surface-container-high/50 p-0.5"
+            role="group"
+            [attr.aria-label]="label + ' input mode'"
+        >
+            <button
+                type="button"
+                (click)="switchToRows()"
+                [class]="
+                    'rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ' +
+                    (mode === 'rows'
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'text-on-surface-variant hover:text-on-surface')
+                "
+            >
+                Key / value
+            </button>
+            <button
+                type="button"
+                (click)="switchToJson()"
+                [class]="
+                    'rounded-md px-3 py-1.5 text-xs font-semibold transition-colors ' +
+                    (mode === 'json'
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : 'text-on-surface-variant hover:text-on-surface')
+                "
+            >
+                JSON
+            </button>
+        </div>
+    </div>
+    @if (hint) {
+        <p class="text-xs text-on-surface-variant">{{ hint }}</p>
+    }
+
+    @if (mode === 'json') {
+        <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+                <button
+                    type="button"
+                    (click)="applyJson()"
+                    class="text-xs font-semibold text-primary underline underline-offset-2"
+                >
+                    Format & validate
+                </button>
+                <span class="text-[0.65rem] text-on-surface-variant">Values are stored as strings for the API.</span>
+            </div>
+            <textarea
+                [(ngModel)]="jsonDraft"
+                (blur)="applyJson()"
+                spellcheck="false"
+                rows="12"
+                class="w-full min-h-[12rem] rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-3 font-mono text-[0.8rem] leading-relaxed text-on-surface shadow-inner focus:border-primary/60 focus:outline-none"
+                [attr.aria-invalid]="!!jsonError"
+            ></textarea>
+            @if (jsonError) {
+                <p class="text-xs text-error">{{ jsonError }}</p>
+            }
+        </div>
+    } @else {
+        <div class="space-y-2 rounded-xl border border-outline-variant/20 bg-surface-container-low/40 p-3">
+            <div class="grid grid-cols-[1fr_1fr_auto] gap-2 text-[0.65rem] font-semibold uppercase tracking-wide text-on-surface-variant">
+                <span>Key</span>
+                <span>Value</span>
+                <span class="sr-only">Remove</span>
+            </div>
+            @for (row of rows; track row.id) {
+                <div class="grid grid-cols-[1fr_1fr_auto] gap-2 items-center">
+                    <input
+                        type="text"
+                        [value]="row.key"
+                        (input)="onRowChange(row.id, 'key', $any($event.target).value)"
+                        placeholder="fieldName"
+                        class="rounded-lg border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/60 focus:outline-none"
+                    />
+                    <input
+                        type="text"
+                        [value]="row.value"
+                        (input)="onRowChange(row.id, 'value', $any($event.target).value)"
+                        placeholder="value"
+                        class="rounded-lg border border-outline-variant/30 bg-surface-container-low px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/60 focus:outline-none"
+                    />
+                    <button
+                        type="button"
+                        (click)="removeRow(row.id)"
+                        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-on-surface-variant hover:bg-error-container/20 hover:text-error"
+                        aria-label="Remove row"
+                    >
+                        <span class="material-symbols-outlined text-lg">close</span>
+                    </button>
+                </div>
+            }
+            <button
+                type="button"
+                (click)="addRow()"
+                class="mt-1 flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+            >
+                <span class="material-symbols-outlined text-base">add</span>
+                Add field
+            </button>
+        </div>
+    }
+</div>

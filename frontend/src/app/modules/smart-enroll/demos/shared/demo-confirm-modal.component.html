@@ -1,0 +1,37 @@
+@if (open) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/55 backdrop-blur-[2px]" role="presentation">
+        <div
+            role="dialog"
+            aria-modal="true"
+            [attr.aria-labelledby]="titleId"
+            class="w-full max-w-md rounded-2xl border border-outline-variant/25 bg-surface-container-low shadow-xl shadow-black/30"
+        >
+            <div class="p-6 space-y-4">
+                <h2 [id]="titleId" class="text-lg font-bold text-on-surface tracking-tight">{{ title }}</h2>
+                <p class="text-sm text-on-surface-variant leading-relaxed">{{ description }}</p>
+                <div class="flex flex-col-reverse sm:flex-row gap-3 pt-2">
+                    <button
+                        type="button"
+                        (click)="onCancel()"
+                        class="flex-1 py-3 bg-surface-container text-on-surface font-semibold rounded-lg ghost-border hover:bg-surface-container-high transition-all active:scale-[0.98]"
+                    >
+                        {{ resolvedCancel }}
+                    </button>
+                    <button
+                        #confirmButton
+                        type="button"
+                        (click)="onConfirm()"
+                        class="flex-1 py-3 font-bold rounded-lg shadow-primary hover:opacity-90 active:scale-[0.98] transition-all"
+                        [ngClass]="
+                            variant === 'danger'
+                                ? 'bg-error text-white'
+                                : 'bg-primary-cta text-on-primary-container'
+                        "
+                    >
+                        {{ confirmLabel }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

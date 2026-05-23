@@ -1,0 +1,65 @@
+@if (parsed?.data) {
+    <div class="space-y-5">
+        <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="material-symbols-outlined text-primary text-2xl">{{ headerIcon }}</span>
+                <div>
+                    <p class="font-bold text-on-surface text-lg">
+                        {{ parsed.name || ('smartEnrollDemos.personResult.personEnrolled' | transloco) }}
+                    </p>
+                    <p class="text-sm text-on-surface-variant">
+                        {{ 'smartEnrollDemos.personResult.subtitleCreate' | transloco }}
+                    </p>
+                </div>
+            </div>
+
+            @if (parsed.personId) {
+                <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                    <h3 class="text-sm font-bold text-primary mb-2">{{ 'smartEnrollDemos.personResult.personId' | transloco }}</h3>
+                    <p class="font-mono text-sm text-on-surface break-all">{{ parsed.personId }}</p>
+                </section>
+            }
+
+            @if (parsed.thumbnails.length) {
+                <section class="mb-6 rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                    <h3 class="text-sm font-bold text-primary mb-3">{{ 'smartEnrollDemos.personResult.thumbnails' | transloco }}</h3>
+                    <div class="flex flex-wrap gap-4">
+                        @for (thumb of parsed.thumbnails; track $index) {
+                            <app-demo-raster-image
+                                [src]="thumb.src"
+                                [alt]="'smartEnrollDemos.personResult.thumbnailAlt' | transloco"
+                                className="max-h-48 w-auto max-w-[200px] object-contain rounded-xl border border-outline-variant/20"
+                            />
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+
+        <app-demo-credits-usage [result]="result" class="block" />
+
+        <details class="rounded-xl border border-outline-variant/20 bg-surface-container-low/50 px-4 py-3 group">
+            <summary class="cursor-pointer list-none font-bold text-sm text-on-surface-variant flex items-center justify-between gap-2">
+                <span>{{ 'smartEnrollDemos.personResult.rawDebug' | transloco }}</span>
+                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform text-lg">expand_more</span>
+            </summary>
+            <pre class="mt-3 text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ result | json }}</pre>
+        </details>
+
+        <app-demo-result-actions
+            [secondaryLabel]="'smartEnrollDemos.personResult.enrollAnother' | transloco"
+            secondaryIcon="person_add"
+            [primaryLabel]="'smartEnrollDemos.personResult.backToDemos' | transloco"
+            [primaryRouterLink]="null"
+            (secondary)="enrollAnother.emit()"
+            (primary)="backToDemos.emit()"
+        />
+    </div>
+} @else {
+    <div class="space-y-5">
+        <div class="rounded-2xl border border-outline-variant/20 bg-surface-container-low p-6">
+            <p class="text-on-surface-variant text-sm">{{ 'smartEnrollDemos.personResult.noPersonObject' | transloco }}</p>
+        </div>
+        <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto">{{ result | json }}</pre>
+    </div>
+}

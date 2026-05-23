@@ -1,0 +1,16 @@
+<div
+    [class]="
+        'group relative mx-auto w-full min-h-[360px] h-[min(70vh,620px)] overflow-hidden rounded-xl border border-outline-variant/25 bg-surface-container-low shadow-ambient ' +
+        shellClass
+    "
+>
+    <div class="pointer-events-none absolute inset-0 opacity-[0.025] blueprint-grid" aria-hidden="true"></div>
+    <div class="scanner-corner-tl"></div>
+    <div class="scanner-corner-tr"></div>
+    <div class="scanner-corner-bl"></div>
+    <div class="scanner-corner-br"></div>
+    <div class="scan-line"></div>
+    <div [class]="'relative z-20 flex h-full w-full min-h-0 flex-col p-2 sm:p-3 ' + innerClass">
+        <ng-content />
+    </div>
+</div>

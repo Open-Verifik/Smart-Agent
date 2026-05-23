@@ -116,6 +116,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 link: '/smart-enroll/api',
             },
             {
+                id: 'smart-enroll-demos',
+                title: 'nav.demos',
+                subtitle: 'nav.demos_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:play-circle',
+                link: '/smart-enroll/demos',
+            },
+            {
                 id: 'smart-enroll-usage-history',
                 title: 'nav.biometrics_usage_history',
                 subtitle: 'nav.biometrics_usage_history_subtitle',
@@ -330,6 +338,14 @@ export const horizontalNavigation: FuseNavigationItem[] = [
                 type: 'basic',
                 icon: 'heroicons_outline:command-line',
                 link: '/smart-enroll/api',
+            },
+            {
+                id: 'smart-enroll-demos',
+                title: 'nav.demos',
+                subtitle: 'nav.demos_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:play-circle',
+                link: '/smart-enroll/demos',
             },
             {
                 id: 'smart-enroll-usage-history',

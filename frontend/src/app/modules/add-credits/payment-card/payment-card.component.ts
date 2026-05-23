@@ -45,12 +45,35 @@ export class PaymentCardComponent {
         }
     }
 
-    onDelete(): void {
-        // Simple confirmation dialog
+    onRowClick(event: MouseEvent): void {
+        if (this.isDefault || this.isExpired(this.card.expires_at)) {
+            return;
+        }
+
+        const target = event.target as HTMLElement;
+        if (target.closest('button')) {
+            return;
+        }
+
+        this.onSetDefault();
+    }
+
+    onRowKeydown(event: Event): void {
+        event.preventDefault();
+        this.onSetDefault();
+    }
+
+    onSetDefaultClick(event: MouseEvent): void {
+        event.stopPropagation();
+        this.onSetDefault();
+    }
+
+    onDeleteClick(event: MouseEvent): void {
+        event.stopPropagation();
+
         const confirmed = confirm('Are you sure you want to delete this payment card?');
         if (confirmed) {
             this.delete.emit(this.card._id);
         }
     }
-
 }

@@ -1,0 +1,105 @@
+<app-demo-page-shell>
+    <div class="mb-8">
+        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+            {{ (result ? 'smartEnrollDemos.searchCrops.heroTitleComplete' : 'smartEnrollDemos.searchCrops.heroTitleInitial') | transloco }}
+        </h2>
+        <p class="text-on-surface-variant">
+            {{ (result ? 'smartEnrollDemos.searchCrops.heroSubtitleComplete' : 'smartEnrollDemos.searchCrops.heroSubtitleInitial') | transloco }}
+        </p>
+    </div>
+
+    @if (!authChecked) {
+        <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else {
+        <div class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">
+                        {{ 'smartEnrollDemos.searchCrops.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
+                    </label>
+                    <input type="range" min="0.2" max="1" step="0.01" [(ngModel)]="minScore" name="minScore" class="w-full" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchCrops.searchModeLabel' | transloco }}</label>
+                    <select [(ngModel)]="searchMode" name="searchMode" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary/60">
+                        <option value="FAST">FAST</option>
+                        <option value="ACCURATE">ACCURATE</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchCrops.collectionIdLabel' | transloco }}</label>
+                    <input type="text" [(ngModel)]="collectionId" name="collectionId" [placeholder]="'smartEnrollDemos.searchCrops.optionalPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchCrops.maxResultsLabel' | transloco }}</label>
+                    <input type="number" min="1" [(ngModel)]="maxResults" name="maxResults" [placeholder]="'smartEnrollDemos.searchCrops.optionalPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
+                </div>
+            </div>
+
+            <div class="space-y-5">
+                <app-demo-choose-one-callout [description]="'smartEnrollDemos.searchCrops.chooseOneDescription' | transloco" />
+                <section aria-labelledby="search-crops-camera-heading">
+                    <app-demo-capture-option-heading label="A" id="search-crops-camera-heading" [title]="'smartEnrollDemos.searchCrops.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.searchCrops.cameraSubtitle' | transloco" />
+                    <app-demo-scanner-shell>
+                        <div class="flex min-h-0 flex-1 flex-col">
+                            <app-face-guided-camera [fillFrame]="true" [hideIdleExplainer]="true" [captureSuccessFeedbackMs]="750" (captured)="onFaceCapture($event)" />
+                        </div>
+                    </app-demo-scanner-shell>
+                </section>
+                <app-demo-or-divider />
+                <section aria-labelledby="search-crops-upload-heading">
+                    <app-demo-capture-option-heading label="B" id="search-crops-upload-heading" [title]="'smartEnrollDemos.searchCrops.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.searchCrops.uploadSubtitle' | transloco" />
+                    <app-demo-upload-image-button (clicked)="triggerFilePicker()" [primaryText]="images.length ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length }) : ('smartEnrollDemos.common.uploadFaceImages' | transloco)" [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco" icon="add_photo_alternate" />
+                </section>
+            </div>
+
+            @if (previews.length > 0) {
+                <div class="flex flex-wrap gap-2">
+                    @for (preview of previews; track $index) {
+                        <app-demo-raster-image [src]="preview" alt="" [width]="80" [height]="80" className="w-20 h-20 object-cover rounded-lg border border-frost" />
+                    }
+                </div>
+            }
+
+            <button type="button" (click)="handleSearch()" [disabled]="!images.length || loading" class="demo-btn-primary">
+                {{ (loading ? 'smartEnrollDemos.searchCrops.searching' : 'smartEnrollDemos.searchCrops.search') | transloco }}
+            </button>
+
+            <input #fileInput type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" />
+
+            @if (error) {
+                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
+                    <span class="material-symbols-outlined text-sm">error_outline</span>
+                    {{ error }}
+                </div>
+            }
+
+            @if (result) {
+                <div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.searchCrops.resultTitle' | transloco }}</p>
+                        <button type="button" (click)="reset()" class="text-xs text-primary underline">{{ 'smartEnrollDemos.searchCrops.reset' | transloco }}</button>
+                    </div>
+                    <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ result | json }}</pre>
+                </div>
+            }
+        </div>
+    }
+
+    @if (showApiReference) {
+        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 text-left max-w-3xl mx-auto w-full px-4 py-3 group">
+            <summary class="cursor-pointer list-none font-bold text-sm text-primary flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                    {{ 'smartEnrollDemos.searchCrops.apiRefSummary' | transloco }}
+                </span>
+                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform">expand_more</span>
+            </summary>
+            <div class="mt-4 text-sm text-on-surface-variant border-t border-outline-variant/15 pt-4">
+                <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.searchCrops.apiRefBody' | transloco }}</p>
+            </div>
+        </details>
+    }
+
+    <app-demo-related-docs-section [items]="relatedDocs" />
+</app-demo-page-shell>

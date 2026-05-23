@@ -1,0 +1,135 @@
+<div class="rounded-2xl bg-surface-container-low border border-primary/20 p-6 space-y-4">
+    <div class="inline-flex rounded-lg border border-outline-variant/30 bg-surface-container-high/40 p-1">
+        <button
+            type="button"
+            (click)="setTab('matches')"
+            class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+            [class.bg-primary]="activeTab === 'matches'"
+            [class.text-on-primary]="activeTab === 'matches'"
+            [class.text-on-surface-variant]="activeTab !== 'matches'"
+        >
+            {{ 'smartEnrollDemos.searchPersonResult.tabMatches' | transloco }}
+        </button>
+        <button
+            type="button"
+            (click)="setTab('raw')"
+            class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
+            [class.bg-primary]="activeTab === 'raw'"
+            [class.text-on-primary]="activeTab === 'raw'"
+            [class.text-on-surface-variant]="activeTab !== 'raw'"
+        >
+            {{ 'smartEnrollDemos.searchPersonResult.tabRaw' | transloco }}
+        </button>
+    </div>
+
+    @if (activeTab === 'matches') {
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.searchPersonResult.searchResults' | transloco }}</p>
+                <button type="button" (click)="reset.emit()" class="text-xs text-primary underline">
+                    {{ 'smartEnrollDemos.searchPersonResult.reset' | transloco }}
+                </button>
+            </div>
+
+            @if (matches.length === 0) {
+                <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4 text-sm text-on-surface-variant">
+                    {{ 'smartEnrollDemos.searchPersonResult.noMatchesThreshold' | transloco }}
+                </div>
+            } @else {
+                <div class="space-y-3">
+                    @for (match of matches; track match.id; let i = $index) {
+                        <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/40 p-4">
+                            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                <div class="flex items-start gap-3">
+                                    @if (match.thumbnails[0]) {
+                                        <app-demo-raster-image
+                                            [src]="match.thumbnails[0].src"
+                                            [alt]="match.name"
+                                            [width]="64"
+                                            [height]="64"
+                                            className="w-16 h-16 rounded-lg object-cover border border-outline-variant/25"
+                                        />
+                                    }
+                                    <div>
+                                        <p class="text-sm text-on-surface-variant">
+                                            {{ 'smartEnrollDemos.searchPersonResult.matchNumber' | transloco: { n: i + 1 } }}
+                                        </p>
+                                        <p class="font-bold text-on-surface">{{ match.name }}</p>
+                                        @if (match.id) {
+                                            <p class="font-mono text-xs text-on-surface-variant break-all">{{ match.id }}</p>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="rounded-lg bg-primary/10 border border-primary/25 px-3 py-2">
+                                    <p class="text-[0.65rem] uppercase tracking-wide text-primary/80">
+                                        {{ 'smartEnrollDemos.searchPersonResult.similarity' | transloco }}
+                                    </p>
+                                    <p class="font-bold text-primary">{{ formatScoreValue(match.score) }}</p>
+                                </div>
+                            </div>
+                            @if (match.gender || match.dateOfBirth || match.nationality || match.notes != null) {
+                                <dl class="mt-4 space-y-2 text-sm">
+                                    @if (match.gender) {
+                                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,10rem)_1fr] gap-x-3 gap-y-1">
+                                            <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.searchPersonResult.gender' | transloco }}</dt>
+                                            <dd class="text-on-surface">{{ formatGender(match.gender) }}</dd>
+                                        </div>
+                                    }
+                                    @if (match.dateOfBirth) {
+                                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,10rem)_1fr] gap-x-3 gap-y-1">
+                                            <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.searchPersonResult.dateOfBirth' | transloco }}</dt>
+                                            <dd class="text-on-surface">{{ formatDobValue(match.dateOfBirth) }}</dd>
+                                        </div>
+                                    }
+                                    @if (match.nationality) {
+                                        <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,10rem)_1fr] gap-x-3 gap-y-1">
+                                            <dt class="text-on-surface-variant font-medium">{{ 'smartEnrollDemos.searchPersonResult.nationality' | transloco }}</dt>
+                                            <dd class="text-on-surface">{{ match.nationality }}</dd>
+                                        </div>
+                                    }
+                                </dl>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+
+            @if (signature || requestId) {
+                <div class="rounded-xl border border-outline-variant/20 bg-surface-container-high/30 p-4 text-sm space-y-1">
+                    <p class="font-semibold text-on-surface">{{ 'smartEnrollDemos.searchPersonResult.responseSignature' | transloco }}</p>
+                    @if (signature?.message) {
+                        <p class="text-on-surface-variant">{{ signature!.message }}</p>
+                    }
+                    @if (signature?.dateTime) {
+                        <p class="text-on-surface-variant">
+                            {{ 'smartEnrollDemos.searchPersonResult.timestampPrefix' | transloco }} {{ signature!.dateTime }}
+                        </p>
+                    }
+                    @if (requestId) {
+                        <p class="font-mono text-xs text-on-surface-variant break-all">
+                            {{ 'smartEnrollDemos.searchPersonResult.requestIdPrefix' | transloco }} {{ requestId }}
+                        </p>
+                    }
+                </div>
+            }
+        </div>
+    } @else {
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <p class="font-bold text-on-surface">{{ 'smartEnrollDemos.searchPersonResult.rawResponse' | transloco }}</p>
+                <button type="button" (click)="copyRaw()" class="text-xs text-primary underline">
+                    @if (copyState === 'copied') {
+                        {{ 'smartEnrollDemos.searchPersonResult.copied' | transloco }}
+                    } @else if (copyState === 'error') {
+                        {{ 'smartEnrollDemos.searchPersonResult.copyFailed' | transloco }}
+                    } @else {
+                        {{ 'smartEnrollDemos.searchPersonResult.copy' | transloco }}
+                    }
+                </button>
+            </div>
+            <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{
+                result | json
+            }}</pre>
+        </div>
+    }
+</div>

@@ -1,0 +1,450 @@
+{
+  "es": {
+    "smartEnrollDemos": {
+      "hub": {
+        "demos": {
+          "humanid": {
+            "badge": "HumanID",
+            "title": "HumanID",
+            "description": "Captura un rostro en vivo y autentícate con una prueba HumanID descentralizada. No se requiere base de datos facial central."
+          }
+        }
+      },
+      "humanidCreate": {
+        "step1Title": "1. Identidad",
+        "step1Subtitle": "A quién pertenece este HumanID: campos públicos en la prueba y datos privados que permanecen cifrados hasta que descifres.",
+        "step2Title": "2. Captura facial",
+        "step2Subtitle": "Ancla la prueba a un rostro en vivo.",
+        "step3Title": "3. Reglas de desbloqueo",
+        "step3Subtitle": "Elige cuándo se requiere un rostro en vivo: al cifrar (creación), al descifrar (desbloqueo) o ambos. La tolerancia se aplica cuando la prueba de vida está activada.",
+        "identifierHint": "Un identificador único para este HumanID — suele ser un nombre de usuario, correo o número de documento.",
+        "livenessOnEncryptTitle": "Exigir un rostro en vivo al crear",
+        "livenessOnEncryptHint": "Si está ACTIVADO, la foto facial usada para crear este HumanID debe superar una prueba de vida (anti-spoof) al cifrar. Úsalo para bloquear fotos estáticas o impresiones durante la creación.",
+        "livenessOnEncryptStage": "Cifrado",
+        "livenessOnDecryptTitle": "Exigir un rostro en vivo al descifrar",
+        "livenessOnDecryptHint": "Si está ACTIVADO, cada descifrado debe usar una captura de cámara en tiempo real (anti-spoof). Si está DESACTIVADO, una foto fija de la misma persona puede desbloquear la prueba — más fácil para el usuario, menos seguro.",
+        "livenessOnDecryptStage": "Descifrado",
+        "livenessSettingsIntro": "Estos ajustes son independientes. Puedes exigir prueba de vida solo al crear, solo al descifrar, en ambos o en ninguno. La prueba de vida al descifrar también activa la facturación mensual por usuario activo.",
+        "livenessSettingsSectionTitle": "Requisitos de prueba de vida",
+        "livenessSettingsSectionSubtitle": "Comprobaciones anti-spoof — controles separados para crear y desbloquear.",
+        "unlockLivenessOn": "Activado",
+        "unlockLivenessOff": "Desactivado",
+        "unlockToleranceTitle": "Tolerancia de prueba de vida",
+        "unlockToleranceHint": "Qué tan estrictas deben ser las comprobaciones anti-spoof (prueba de vida) cuando se requiere un rostro en vivo al cifrar o descifrar.",
+        "toleranceRegularLabel": "Regular",
+        "toleranceRegularDescription": "Más permisivo; fotos de alta calidad pueden pasar como «en vivo». Prefiere Endurecido cuando necesites bloquear imágenes estáticas.",
+        "toleranceSoftLabel": "Suave",
+        "toleranceSoftDescription": "Prueba de vida más indulgente — menos fallos, ligeramente mayor riesgo de spoofing.",
+        "toleranceHardenedLabel": "Endurecido",
+        "toleranceHardenedDescription": "Prueba de vida más estricta — máximo anti-spoof, puede rechazar capturas genuinas.",
+        "unlockPasswordTitle": "Contraseña opcional",
+        "unlockPasswordHint": "Añade un segundo factor además del rostro. Déjalo en blanco para descifrado solo con rostro.",
+        "recommendedBadge": "Recomendado",
+        "errorLivenessFailedTitle": "Falló la comprobación de rostro en vivo",
+        "errorLivenessFailedBody": "Esta imagen no superó la verificación de prueba de vida para HumanID. Usa la cámara guiada u otra captura en tiempo real e inténtalo de nuevo.",
+        "paramLivenessDetectionPriorCreation": "Exigir prueba de vida al cifrar (check_live_face_before_creation)"
+      },
+      "humanidCreateQr": {
+        "step3Title": "3. Prueba de vida y seguridad",
+        "step3Subtitle": "Elige cuándo se requiere un rostro en vivo: al cifrar (creación), al descifrar (desbloqueo) o ambos.",
+        "livenessOnEncryptTitle": "Exigir un rostro en vivo al crear",
+        "livenessOnEncryptHint": "Si está ACTIVADO, la foto facial usada para crear este HumanID QR debe superar una prueba de vida (anti-spoof) al cifrar.",
+        "livenessOnEncryptStage": "Cifrado",
+        "livenessOnDecryptTitle": "Exigir un rostro en vivo al descifrar",
+        "livenessOnDecryptHint": "Si está ACTIVADO, cada descifrado debe usar una captura de cámara en tiempo real (anti-spoof). Si está DESACTIVADO, una foto fija de la misma persona puede desbloquear la prueba.",
+        "livenessOnDecryptStage": "Descifrado",
+        "livenessSettingsIntro": "Estos ajustes son independientes. Puedes exigir prueba de vida solo al crear, solo al descifrar, en ambos o en ninguno. La prueba de vida al descifrar también activa la facturación mensual por usuario activo.",
+        "livenessSettingsSectionTitle": "Requisitos de prueba de vida",
+        "livenessSettingsSectionSubtitle": "Comprobaciones anti-spoof — controles separados para crear y desbloquear.",
+        "unlockLivenessOn": "Activado",
+        "unlockLivenessOff": "Desactivado",
+        "unlockToleranceTitle": "Tolerancia de prueba de vida",
+        "unlockToleranceHint": "Qué tan estrictas deben ser las comprobaciones anti-spoof (prueba de vida) cuando se requiere un rostro en vivo al cifrar o descifrar.",
+        "recommendedBadge": "Recomendado",
+        "errorLivenessFailedTitle": "Falló la comprobación de rostro en vivo",
+        "errorLivenessFailedBody": "Esta imagen no superó la verificación de prueba de vida para HumanID. Usa la cámara guiada u otra captura en tiempo real e inténtalo de nuevo.",
+        "paramLivenessDetectionPriorCreation": "Exigir prueba de vida al cifrar (check_live_face_before_creation)"
+      }
+    }
+  },
+  "fr": {
+    "smartEnrollDemos": {
+      "hub": {
+        "demos": {
+          "humanid": {
+            "badge": "HumanID",
+            "title": "HumanID",
+            "description": "Capturez un visage en direct et authentifiez-vous avec une preuve HumanID décentralisée. Aucune base de visages centrale requise."
+          }
+        }
+      },
+      "common": {
+        "creditsNotCharged": "Aucun crédit facturé pour cette requête (déjà facturé cette période ou non facturable).",
+        "creditsChargedLabel": "Crédits facturés",
+        "creditsUnit": "crédits"
+      },
+      "humanidCreate": {
+        "step1Title": "1. Identité",
+        "step1Subtitle": "À qui appartient ce HumanID — champs publics sur la preuve et données privées chiffrées jusqu'au déchiffrement.",
+        "step2Title": "2. Capture du visage",
+        "step2Subtitle": "Ancrez la preuve à un visage en direct.",
+        "step3Title": "3. Règles de déverrouillage",
+        "step3Subtitle": "Choisissez quand un visage en direct est requis — au chiffrement (création), au déchiffrement (déverrouillage) ou les deux. La tolérance s'applique lorsque la vivacité est activée.",
+        "identifierHint": "Un identifiant unique pour ce HumanID — généralement un nom d'utilisateur, un e-mail ou un numéro de document.",
+        "livenessOnEncryptTitle": "Exiger un visage en direct à la création",
+        "livenessOnEncryptHint": "Si ACTIVÉ, la photo du visage utilisée pour créer ce HumanID doit passer un contrôle de vivacité (anti-spoof) au moment du chiffrement. Utilisez-le pour bloquer les photos statiques ou impressions lors de la création.",
+        "livenessOnEncryptStage": "Chiffrement",
+        "livenessOnDecryptTitle": "Exiger un visage en direct au déchiffrement",
+        "livenessOnDecryptHint": "Si ACTIVÉ, chaque déchiffrement doit utiliser une capture caméra en temps réel (anti-spoof). Si DÉSACTIVÉ, une photo fixe de la même personne peut déverrouiller la preuve — plus simple pour l'utilisateur, moins sécurisé.",
+        "livenessOnDecryptStage": "Déchiffrement",
+        "livenessSettingsIntro": "Ces paramètres sont indépendants. Vous pouvez exiger la vivacité uniquement à la création, uniquement au déchiffrement, les deux ou aucun. La vivacité au déchiffrement active aussi la facturation mensuelle par utilisateur actif.",
+        "livenessSettingsSectionTitle": "Exigences de vivacité",
+        "livenessSettingsSectionSubtitle": "Contrôles anti-spoof — réglages séparés pour la création et le déverrouillage.",
+        "unlockLivenessOn": "Activé",
+        "unlockLivenessOff": "Désactivé",
+        "unlockToleranceTitle": "Tolérance de vivacité",
+        "unlockToleranceHint": "Niveau de rigueur des contrôles anti-spoof (vivacité) lorsqu'un visage en direct est requis au chiffrement ou au déchiffrement.",
+        "toleranceRegularLabel": "Régulier",
+        "toleranceRegularDescription": "Plus permissif ; des photos de haute qualité peuvent passer pour « en direct ». Préférez Renforcé pour bloquer les images statiques.",
+        "toleranceSoftLabel": "Souple",
+        "toleranceSoftDescription": "Vivacité plus indulgente — moins d'échecs, risque de spoof légèrement plus élevé.",
+        "toleranceHardenedLabel": "Renforcé",
+        "toleranceHardenedDescription": "Vivacité la plus stricte — anti-spoof maximal, peut rejeter certaines captures authentiques.",
+        "unlockPasswordTitle": "Mot de passe optionnel",
+        "unlockPasswordHint": "Ajoute un second facteur en plus du visage. Laissez vide pour un déchiffrement par visage uniquement.",
+        "recommendedBadge": "Recommandé",
+        "errorLivenessFailedTitle": "Échec du contrôle de visage en direct",
+        "errorLivenessFailedBody": "Cette image n'a pas passé la vérification de vivacité pour HumanID. Utilisez la caméra guidée ou une autre capture en temps réel, puis réessayez.",
+        "paramLivenessDetectionPriorCreation": "Exiger la vivacité au chiffrement (check_live_face_before_creation)"
+      },
+      "humanidCreateQr": {
+        "step3Title": "3. Vivacité et sécurité",
+        "step3Subtitle": "Choisissez quand un visage en direct est requis — au chiffrement (création), au déchiffrement (déverrouillage) ou les deux.",
+        "livenessOnEncryptTitle": "Exiger un visage en direct à la création",
+        "livenessOnEncryptHint": "Si ACTIVÉ, la photo du visage utilisée pour créer ce HumanID QR doit passer un contrôle de vivacité (anti-spoof) au moment du chiffrement.",
+        "livenessOnEncryptStage": "Chiffrement",
+        "livenessOnDecryptTitle": "Exiger un visage en direct au déchiffrement",
+        "livenessOnDecryptHint": "Si ACTIVÉ, chaque déchiffrement doit utiliser une capture caméra en temps réel (anti-spoof). Si DÉSACTIVÉ, une photo fixe de la même personne peut déverrouiller la preuve.",
+        "livenessOnDecryptStage": "Déchiffrement",
+        "livenessSettingsIntro": "Ces paramètres sont indépendants. Vous pouvez exiger la vivacité uniquement à la création, uniquement au déchiffrement, les deux ou aucun. La vivacité au déchiffrement active aussi la facturation mensuelle par utilisateur actif.",
+        "livenessSettingsSectionTitle": "Exigences de vivacité",
+        "livenessSettingsSectionSubtitle": "Contrôles anti-spoof — réglages séparés pour la création et le déverrouillage.",
+        "unlockLivenessOn": "Activé",
+        "unlockLivenessOff": "Désactivé",
+        "unlockToleranceTitle": "Tolérance de vivacité",
+        "unlockToleranceHint": "Niveau de rigueur des contrôles anti-spoof (vivacité) lorsqu'un visage en direct est requis au chiffrement ou au déchiffrement.",
+        "recommendedBadge": "Recommandé",
+        "errorLivenessFailedTitle": "Échec du contrôle de visage en direct",
+        "errorLivenessFailedBody": "Cette image n'a pas passé la vérification de vivacité pour HumanID. Utilisez la caméra guidée ou une autre capture en temps réel, puis réessayez.",
+        "paramLivenessDetectionPriorCreation": "Exiger la vivacité au chiffrement (check_live_face_before_creation)"
+      },
+      "personResult": {
+        "creditsHeading": "Crédits / utilisation"
+      }
+    }
+  },
+  "pt": {
+    "smartEnrollDemos": {
+      "hub": {
+        "demos": {
+          "humanid": {
+            "badge": "HumanID",
+            "title": "HumanID",
+            "description": "Capture um rosto ao vivo e autentique-se com uma prova HumanID descentralizada. Nenhum banco de dados facial central é necessário."
+          }
+        }
+      },
+      "common": {
+        "creditsNotCharged": "Nenhum crédito cobrado nesta solicitação (já faturado neste período ou não faturável).",
+        "creditsChargedLabel": "Créditos cobrados",
+        "creditsUnit": "créditos"
+      },
+      "humanidCreate": {
+        "step1Title": "1. Identidade",
+        "step1Subtitle": "A quem pertence este HumanID — campos públicos na prova e dados privados que permanecem criptografados até você descriptografar.",
+        "step2Title": "2. Captura facial",
+        "step2Subtitle": "Ancore a prova a um rosto ao vivo.",
+        "step3Title": "3. Regras de desbloqueio",
+        "step3Subtitle": "Escolha quando um rosto ao vivo é necessário — na criptografia (criação), na descriptografia (desbloqueio) ou ambos. A tolerância se aplica sempre que a vivacidade estiver ativada.",
+        "identifierHint": "Um identificador único para este HumanID — geralmente um nome de usuário, e-mail ou número de documento.",
+        "livenessOnEncryptTitle": "Exigir rosto ao vivo na criação",
+        "livenessOnEncryptHint": "Quando LIGADO, a foto facial usada para criar este HumanID deve passar em uma verificação de vivacidade (anti-spoof) no momento da criptografia. Use para bloquear fotos estáticas ou impressões durante a criação.",
+        "livenessOnEncryptStage": "Criptografia",
+        "livenessOnDecryptTitle": "Exigir rosto ao vivo na descriptografia",
+        "livenessOnDecryptHint": "Quando LIGADO, cada descriptografia deve usar uma captura de câmera em tempo real (anti-spoof). Quando DESLIGADO, uma foto fixa da mesma pessoa pode desbloquear a prova — mais fácil para o usuário, menos seguro.",
+        "livenessOnDecryptStage": "Descriptografia",
+        "livenessSettingsIntro": "Essas configurações são independentes. Você pode exigir vivacidade apenas na criação, apenas na descriptografia, em ambos ou em nenhum. A vivacidade na descriptografia também habilita a cobrança mensal por usuário ativo.",
+        "livenessSettingsSectionTitle": "Requisitos de vivacidade",
+        "livenessSettingsSectionSubtitle": "Verificações anti-spoof — controles separados para criar e desbloquear.",
+        "unlockLivenessOn": "Ligado",
+        "unlockLivenessOff": "Desligado",
+        "unlockToleranceTitle": "Tolerância de vivacidade",
+        "unlockToleranceHint": "Quão rigorosas devem ser as verificações anti-spoof (vivacidade) quando um rosto ao vivo é exigido na criptografia ou descriptografia.",
+        "toleranceRegularLabel": "Regular",
+        "toleranceRegularDescription": "Mais permissivo; fotos de alta qualidade podem passar como «ao vivo». Prefira Endurecido quando precisar bloquear imagens estáticas.",
+        "toleranceSoftLabel": "Suave",
+        "toleranceSoftDescription": "Vivacidade mais indulgente — menos falhas, risco de spoof ligeiramente maior.",
+        "toleranceHardenedLabel": "Endurecido",
+        "toleranceHardenedDescription": "Vivacidade mais rigorosa — anti-spoof máximo, pode rejeitar capturas genuínas.",
+        "unlockPasswordTitle": "Senha opcional",
+        "unlockPasswordHint": "Adiciona um segundo fator além do rosto. Deixe em branco para descriptografia apenas com rosto.",
+        "recommendedBadge": "Recomendado",
+        "errorLivenessFailedTitle": "Falha na verificação de rosto ao vivo",
+        "errorLivenessFailedBody": "Esta imagem não passou na verificação de vivacidade para HumanID. Use a câmera guiada ou outra captura em tempo real e tente novamente.",
+        "paramLivenessDetectionPriorCreation": "Exigir vivacidade na criptografia (check_live_face_before_creation)"
+      },
+      "humanidCreateQr": {
+        "step3Title": "3. Vivacidade e segurança",
+        "step3Subtitle": "Escolha quando um rosto ao vivo é necessário — na criptografia (criação), na descriptografia (desbloqueio) ou ambos.",
+        "livenessOnEncryptTitle": "Exigir rosto ao vivo na criação",
+        "livenessOnEncryptHint": "Quando LIGADO, a foto facial usada para criar este HumanID QR deve passar em uma verificação de vivacidade (anti-spoof) no momento da criptografia.",
+        "livenessOnEncryptStage": "Criptografia",
+        "livenessOnDecryptTitle": "Exigir rosto ao vivo na descriptografia",
+        "livenessOnDecryptHint": "Quando LIGADO, cada descriptografia deve usar uma captura de câmera em tempo real (anti-spoof). Quando DESLIGADO, uma foto fixa da mesma pessoa pode desbloquear a prova.",
+        "livenessOnDecryptStage": "Descriptografia",
+        "livenessSettingsIntro": "Essas configurações são independentes. Você pode exigir vivacidade apenas na criação, apenas na descriptografia, em ambos ou em nenhum. A vivacidade na descriptografia também habilita a cobrança mensal por usuário ativo.",
+        "livenessSettingsSectionTitle": "Requisitos de vivacidade",
+        "livenessSettingsSectionSubtitle": "Verificações anti-spoof — controles separados para criar e desbloquear.",
+        "unlockLivenessOn": "Ligado",
+        "unlockLivenessOff": "Desligado",
+        "unlockToleranceTitle": "Tolerância de vivacidade",
+        "unlockToleranceHint": "Quão rigorosas devem ser as verificações anti-spoof (vivacidade) quando um rosto ao vivo é exigido na criptografia ou descriptografia.",
+        "recommendedBadge": "Recomendado",
+        "errorLivenessFailedTitle": "Falha na verificação de rosto ao vivo",
+        "errorLivenessFailedBody": "Esta imagem não passou na verificação de vivacidade para HumanID. Use a câmera guiada ou outra captura em tempo real e tente novamente.",
+        "paramLivenessDetectionPriorCreation": "Exigir vivacidade na criptografia (check_live_face_before_creation)"
+      },
+      "personResult": {
+        "creditsHeading": "Créditos / uso"
+      }
+    }
+  },
+  "ko": {
+    "smartEnrollDemos": {
+      "hub": {
+        "demos": {
+          "humanid": {
+            "badge": "HumanID",
+            "title": "HumanID",
+            "description": "실시간 얼굴을 캡처하고 분산형 HumanID 증명으로 인증하세요. 중앙 얼굴 데이터베이스가 필요하지 않습니다."
+          }
+        }
+      },
+      "common": {
+        "creditsNotCharged": "이 요청에는 크레딧이 청구되지 않았습니다(이미 이 기간에 청구되었거나 청구 대상이 아님).",
+        "creditsChargedLabel": "청구된 크레딧",
+        "creditsUnit": "크레딧"
+      },
+      "humanidCreate": {
+        "step1Title": "1. 신원",
+        "step1Subtitle": "이 HumanID의 소유자와 증명에 포함되는 데이터 — 공개 필드와 복호화 전까지 암호화되는 비공개 데이터.",
+        "step2Title": "2. 얼굴 캡처",
+        "step2Subtitle": "증명을 실시간 얼굴에 연결합니다.",
+        "step3Title": "3. 잠금 해제 규칙",
+        "step3Subtitle": "실시간 얼굴이 필요한 시점을 선택하세요 — 암호화(생성), 복호화(잠금 해제) 또는 둘 다. 활동성이 켜져 있을 때마다 허용 오차가 적용됩니다.",
+        "identifierHint": "이 HumanID의 고유 식별자 — 일반적으로 사용자 이름, 이메일 또는 문서 번호입니다.",
+        "livenessOnEncryptTitle": "생성 시 실시간 얼굴 요구",
+        "livenessOnEncryptHint": "켜면 HumanID 생성에 사용된 얼굴 사진이 암호화 시점에 활동성(스푸핑 방지) 검사를 통과해야 합니다. 생성 중 정지 사진이나 인쇄물을 차단할 때 사용하세요.",
+        "livenessOnEncryptStage": "암호화",
+        "livenessOnDecryptTitle": "복호화 시 실시간 얼굴 요구",
+        "livenessOnDecryptHint": "켜면 모든 복호화에 실시간 카메라 캡처(스푸핑 방지)가 필요합니다. 끄면 같은 사람의 정지 사진으로도 증명을 잠금 해제할 수 있습니다 — 사용자에게는 쉽지만 보안은 낮습니다.",
+        "livenessOnDecryptStage": "복호화",
+        "livenessSettingsIntro": "이 설정들은 서로 독립적입니다. 생성 시에만, 복호화 시에만, 둘 다, 또는 둘 다 아닌 경우에 활동성을 요구할 수 있습니다. 복호화 활동성은 월별 활성 사용자 과금도 활성화합니다.",
+        "livenessSettingsSectionTitle": "활동성 요구 사항",
+        "livenessSettingsSectionSubtitle": "스푸핑 방지 검사 — 생성과 잠금 해제에 대한 별도 제어.",
+        "unlockLivenessOn": "켜짐",
+        "unlockLivenessOff": "꺼짐",
+        "unlockToleranceTitle": "활동성 허용 오차",
+        "unlockToleranceHint": "암호화 또는 복호화 시 실시간 얼굴이 필요할 때 스푸핑 방지(활동성) 검사의 엄격함.",
+        "toleranceRegularLabel": "Regular",
+        "toleranceRegularDescription": "더 관대함 — 고품질 사진이 «실시간»으로 통과할 수 있습니다. 정지 이미지를 차단하려면 Hardened를 권장합니다.",
+        "toleranceSoftLabel": "Soft",
+        "toleranceSoftDescription": "더 관대한 활동성 — 실패는 적지만 스푸핑 위험이 약간 높습니다.",
+        "toleranceHardenedLabel": "Hardened",
+        "toleranceHardenedDescription": "가장 엄격한 활동성 — 최대 스푸핑 방지, 일부 정상 캡처를 거부할 수 있습니다.",
+        "unlockPasswordTitle": "선택적 비밀번호",
+        "unlockPasswordHint": "얼굴 외에 두 번째 인증 요소를 추가합니다. 얼굴만으로 복호화하려면 비워 두세요.",
+        "recommendedBadge": "권장",
+        "errorLivenessFailedTitle": "실시간 얼굴 검사 실패",
+        "errorLivenessFailedBody": "이 이미지는 HumanID 활동성 검증을 통과하지 못했습니다. 안내 카메라 또는 다른 실시간 캡처를 사용한 후 다시 시도하세요.",
+        "paramLivenessDetectionPriorCreation": "암호화 시 활동성 요구 (check_live_face_before_creation)"
+      },
+      "humanidCreateQr": {
+        "step3Title": "3. 활동성 및 보안",
+        "step3Subtitle": "실시간 얼굴이 필요한 시점을 선택하세요 — 암호화(생성), 복호화(잠금 해제) 또는 둘 다.",
+        "livenessOnEncryptTitle": "생성 시 실시간 얼굴 요구",
+        "livenessOnEncryptHint": "켜면 이 QR HumanID 생성에 사용된 얼굴 사진이 암호화 시점에 활동성(스푸핑 방지) 검사를 통과해야 합니다.",
+        "livenessOnEncryptStage": "암호화",
+        "livenessOnDecryptTitle": "복호화 시 실시간 얼굴 요구",
+        "livenessOnDecryptHint": "켜면 모든 복호화에 실시간 카메라 캡처(스푸핑 방지)가 필요합니다. 끄면 같은 사람의 정지 사진으로도 증명을 잠금 해제할 수 있습니다.",
+        "livenessOnDecryptStage": "복호화",
+        "livenessSettingsIntro": "이 설정들은 서로 독립적입니다. 생성 시에만, 복호화 시에만, 둘 다, 또는 둘 다 아닌 경우에 활동성을 요구할 수 있습니다. 복호화 활동성은 월별 활성 사용자 과금도 활성화합니다.",
+        "livenessSettingsSectionTitle": "활동성 요구 사항",
+        "livenessSettingsSectionSubtitle": "스푸핑 방지 검사 — 생성과 잠금 해제에 대한 별도 제어.",
+        "unlockLivenessOn": "켜짐",
+        "unlockLivenessOff": "꺼짐",
+        "unlockToleranceTitle": "활동성 허용 오차",
+        "unlockToleranceHint": "암호화 또는 복호화 시 실시간 얼굴이 필요할 때 스푸핑 방지(활동성) 검사의 엄격함.",
+        "recommendedBadge": "권장",
+        "errorLivenessFailedTitle": "실시간 얼굴 검사 실패",
+        "errorLivenessFailedBody": "이 이미지는 HumanID 활동성 검증을 통과하지 못했습니다. 안내 카메라 또는 다른 실시간 캡처를 사용한 후 다시 시도하세요.",
+        "paramLivenessDetectionPriorCreation": "암호화 시 활동성 요구 (check_live_face_before_creation)"
+      },
+      "personResult": {
+        "creditsHeading": "크레딧 / 사용량"
+      }
+    }
+  },
+  "ja": {
+    "smartEnrollDemos": {
+      "hub": {
+        "demos": {
+          "humanid": {
+            "badge": "HumanID",
+            "title": "HumanID",
+            "description": "ライブ顔をキャプチャし、分散型 HumanID 証明で認証します。中央の顔データベースは不要です。"
+          }
+        }
+      },
+      "common": {
+        "creditsNotCharged": "このリクエストではクレジットは課金されませんでした（この期間ですでに課金済み、または課金対象外）。",
+        "creditsChargedLabel": "課金されたクレジット",
+        "creditsUnit": "クレジット"
+      },
+      "humanidCreate": {
+        "step1Title": "1. 本人情報",
+        "step1Subtitle": "この HumanID の所有者 — 証明上の公開フィールドと、復号するまで暗号化された非公開データ。",
+        "step2Title": "2. 顔のキャプチャ",
+        "step2Subtitle": "証明をライブ顔に紐づけます。",
+        "step3Title": "3. ロック解除ルール",
+        "step3Subtitle": "ライブ顔が必要なタイミングを選択 — 暗号化（作成）、復号（ロック解除）、または両方。ライブネスが有効な場合は許容度が適用されます。",
+        "identifierHint": "この HumanID の一意の識別子 — 通常はユーザー名、メール、または書類番号です。",
+        "livenessOnEncryptTitle": "作成時にライブ顔を要求",
+        "livenessOnEncryptHint": "ON の場合、この HumanID の作成に使った顔写真は暗号化時にライブネス（スプーフィング防止）チェックを通過する必要があります。作成時の静止画やプリントを防ぐ場合に使用します。",
+        "livenessOnEncryptStage": "暗号化",
+        "livenessOnDecryptTitle": "復号時にライブ顔を要求",
+        "livenessOnDecryptHint": "ON の場合、すべての復号にリアルタイムのカメラキャプチャ（スプーフィング防止）が必要です。OFF の場合、同一人物の静止画でも証明を解除できます — ユーザーには簡単ですが、セキュリティは低くなります。",
+        "livenessOnDecryptStage": "復号",
+        "livenessSettingsIntro": "これらの設定は独立しています。作成時のみ、復号時のみ、両方、またはどちらも不要にライブネスを要求できます。復号時のライブネスは月次アクティブユーザーの課金も有効にします。",
+        "livenessSettingsSectionTitle": "ライブネス要件",
+        "livenessSettingsSectionSubtitle": "スプーフィング防止チェック — 作成とロック解除の個別コントロール。",
+        "unlockLivenessOn": "オン",
+        "unlockLivenessOff": "オフ",
+        "unlockToleranceTitle": "ライブネス許容度",
+        "unlockToleranceHint": "暗号化または復号時にライブ顔が必要な場合の、スプーフィング防止（ライブネス）チェックの厳しさ。",
+        "toleranceRegularLabel": "Regular",
+        "toleranceRegularDescription": "より寛容 — 高品質な写真が「ライブ」として通過する場合があります。静止画をブロックする場合は Hardened を推奨します。",
+        "toleranceSoftLabel": "Soft",
+        "toleranceSoftDescription": "より寛容なライブネス — 失敗は少ないが、スプーフィングリスクがやや高くなります。",
+        "toleranceHardenedLabel": "Hardened",
+        "toleranceHardenedDescription": "最も厳格なライブネス — 最強のスプーフィング防止、一部の正当なキャプチャを拒否する場合があります。",
+        "unlockPasswordTitle": "任意のパスワード",
+        "unlockPasswordHint": "顔に加えて第二要素を追加します。顔のみで復号する場合は空欄のままにしてください。",
+        "recommendedBadge": "推奨",
+        "errorLivenessFailedTitle": "ライブ顔チェックに失敗",
+        "errorLivenessFailedBody": "この画像は HumanID のライブネス検証に合格しませんでした。ガイド付きカメラまたは別のリアルタイムキャプチャを使用して、もう一度お試しください。",
+        "paramLivenessDetectionPriorCreation": "暗号化時にライブネスを要求 (check_live_face_before_creation)"
+      },
+      "humanidCreateQr": {
+        "step3Title": "3. ライブネスとセキュリティ",
+        "step3Subtitle": "ライブ顔が必要なタイミングを選択 — 暗号化（作成）、復号（ロック解除）、または両方。",
+        "livenessOnEncryptTitle": "作成時にライブ顔を要求",
+        "livenessOnEncryptHint": "ON の場合、この QR HumanID の作成に使った顔写真は暗号化時にライブネス（スプーフィング防止）チェックを通過する必要があります。",
+        "livenessOnEncryptStage": "暗号化",
+        "livenessOnDecryptTitle": "復号時にライブ顔を要求",
+        "livenessOnDecryptHint": "ON の場合、すべての復号にリアルタイムのカメラキャプチャ（スプーフィング防止）が必要です。OFF の場合、同一人物の静止画でも証明を解除できます。",
+        "livenessOnDecryptStage": "復号",
+        "livenessSettingsIntro": "これらの設定は独立しています。作成時のみ、復号時のみ、両方、またはどちらも不要にライブネスを要求できます。復号時のライブネスは月次アクティブユーザーの課金も有効にします。",
+        "livenessSettingsSectionTitle": "ライブネス要件",
+        "livenessSettingsSectionSubtitle": "スプーフィング防止チェック — 作成とロック解除の個別コントロール。",
+        "unlockLivenessOn": "オン",
+        "unlockLivenessOff": "オフ",
+        "unlockToleranceTitle": "ライブネス許容度",
+        "unlockToleranceHint": "暗号化または復号時にライブ顔が必要な場合の、スプーフィング防止（ライブネス）チェックの厳しさ。",
+        "recommendedBadge": "推奨",
+        "errorLivenessFailedTitle": "ライブ顔チェックに失敗",
+        "errorLivenessFailedBody": "この画像は HumanID のライブネス検証に合格しませんでした。ガイド付きカメラまたは別のリアルタイムキャプチャを使用して、もう一度お試しください。",
+        "paramLivenessDetectionPriorCreation": "暗号化時にライブネスを要求 (check_live_face_before_creation)"
+      },
+      "personResult": {
+        "creditsHeading": "クレジット / 使用量"
+      }
+    }
+  },
+  "zh": {
+    "smartEnrollDemos": {
+      "hub": {
+        "demos": {
+          "humanid": {
+            "badge": "HumanID",
+            "title": "HumanID",
+            "description": "采集实时人脸，使用去中心化 HumanID 证明进行认证。无需中央人脸数据库。"
+          }
+        }
+      },
+      "common": {
+        "creditsNotCharged": "此请求未扣减积分（本周期已计费或不可计费）。",
+        "creditsChargedLabel": "已扣积分",
+        "creditsUnit": "积分"
+      },
+      "humanidCreate": {
+        "step1Title": "1. 身份",
+        "step1Subtitle": "此 HumanID 的归属 — 证明上的公开字段以及解密前保持加密的私有数据。",
+        "step2Title": "2. 人脸采集",
+        "step2Subtitle": "将证明绑定到实时人脸。",
+        "step3Title": "3. 解锁规则",
+        "step3Subtitle": "选择何时需要实时人脸 — 加密（创建）、解密（解锁）或两者。启用活体检测时适用容差设置。",
+        "identifierHint": "此 HumanID 的唯一标识 — 通常是用户名、电子邮件或证件号码。",
+        "livenessOnEncryptTitle": "创建时要求实时人脸",
+        "livenessOnEncryptHint": "开启后，用于创建此 HumanID 的人脸照片必须在加密时通过活体（防欺骗）检测。可用于在创建时阻止静态照片或打印件。",
+        "livenessOnEncryptStage": "加密",
+        "livenessOnDecryptTitle": "解密时要求实时人脸",
+        "livenessOnDecryptHint": "开启后，每次解密都必须使用实时摄像头采集（防欺骗）。关闭后，同一人的静态照片也可解锁证明 — 对用户更简单，但安全性较低。",
+        "livenessOnDecryptStage": "解密",
+        "livenessSettingsIntro": "这些设置相互独立。您可以仅在创建时、仅在解密时、两者都要求，或都不要求活体检测。解密活体检测还会启用按月活跃用户计费。",
+        "livenessSettingsSectionTitle": "活体检测要求",
+        "livenessSettingsSectionSubtitle": "防欺骗检测 — 创建与解锁的独立控制。",
+        "unlockLivenessOn": "开",
+        "unlockLivenessOff": "关",
+        "unlockToleranceTitle": "活体容差",
+        "unlockToleranceHint": "在加密或解密需要实时人脸时，防欺骗（活体）检测的严格程度。",
+        "toleranceRegularLabel": "Regular",
+        "toleranceRegularDescription": "更宽松；高质量照片可能被视为「活体」。需要阻止静态图像时建议使用 Hardened。",
+        "toleranceSoftLabel": "Soft",
+        "toleranceSoftDescription": "更宽松的活体检测 — 失败更少，欺骗风险略高。",
+        "toleranceHardenedLabel": "Hardened",
+        "toleranceHardenedDescription": "最严格的活体检测 — 最强防欺骗，可能拒绝部分真实采集。",
+        "unlockPasswordTitle": "可选密码",
+        "unlockPasswordHint": "在人脸之外增加第二因素。留空则仅通过人脸解密。",
+        "recommendedBadge": "推荐",
+        "errorLivenessFailedTitle": "实时人脸检测失败",
+        "errorLivenessFailedBody": "此图像未通过 HumanID 活体验证。请使用引导摄像头或其他实时采集后重试。",
+        "paramLivenessDetectionPriorCreation": "加密时要求活体 (check_live_face_before_creation)"
+      },
+      "humanidCreateQr": {
+        "step3Title": "3. 活体与安全",
+        "step3Subtitle": "选择何时需要实时人脸 — 加密（创建）、解密（解锁）或两者。",
+        "livenessOnEncryptTitle": "创建时要求实时人脸",
+        "livenessOnEncryptHint": "开启后，用于创建此 QR HumanID 的人脸照片必须在加密时通过活体（防欺骗）检测。",
+        "livenessOnEncryptStage": "加密",
+        "livenessOnDecryptTitle": "解密时要求实时人脸",
+        "livenessOnDecryptHint": "开启后，每次解密都必须使用实时摄像头采集（防欺骗）。关闭后，同一人的静态照片也可解锁证明。",
+        "livenessOnDecryptStage": "解密",
+        "livenessSettingsIntro": "这些设置相互独立。您可以仅在创建时、仅在解密时、两者都要求，或都不要求活体检测。解密活体检测还会启用按月活跃用户计费。",
+        "livenessSettingsSectionTitle": "活体检测要求",
+        "livenessSettingsSectionSubtitle": "防欺骗检测 — 创建与解锁的独立控制。",
+        "unlockLivenessOn": "开",
+        "unlockLivenessOff": "关",
+        "unlockToleranceTitle": "活体容差",
+        "unlockToleranceHint": "在加密或解密需要实时人脸时，防欺骗（活体）检测的严格程度。",
+        "recommendedBadge": "推荐",
+        "errorLivenessFailedTitle": "实时人脸检测失败",
+        "errorLivenessFailedBody": "此图像未通过 HumanID 活体验证。请使用引导摄像头或其他实时采集后重试。",
+        "paramLivenessDetectionPriorCreation": "加密时要求活体 (check_live_face_before_creation)"
+      },
+      "personResult": {
+        "creditsHeading": "积分 / 使用量"
+      }
+    }
+  }
+}

@@ -1,0 +1,312 @@
+<app-demo-page-shell>
+    <div class="mb-8">
+        <h2 class="text-3xl font-black tracking-tight text-on-surface mb-2">
+            @if (step === 'result') {
+                {{ 'smartEnrollDemos.createPerson.heroTitleResult' | transloco }}
+            } @else if (step === 'conflict') {
+                {{ 'smartEnrollDemos.createPerson.heroTitleConflict' | transloco }}
+            } @else {
+                {{ 'smartEnrollDemos.createPerson.heroTitleForm' | transloco }}
+            }
+        </h2>
+        <p class="text-on-surface-variant">
+            @if (step === 'result') {
+                {{ 'smartEnrollDemos.createPerson.heroSubtitleResult' | transloco }}
+            } @else if (step === 'conflict') {
+                {{ 'smartEnrollDemos.createPerson.heroSubtitleConflict' | transloco }}
+            } @else {
+                {{ 'smartEnrollDemos.createPerson.heroSubtitleForm' | transloco }}
+            }
+        </p>
+    </div>
+
+    @if (!authChecked) {
+        <div class="h-60 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else if (step === 'form') {
+        <form (ngSubmit)="handleSubmit()" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-name">
+                        {{ 'smartEnrollDemos.createPerson.fullNameLabel' | transloco }}
+                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                    </label>
+                    <input
+                        id="p-name"
+                        type="text"
+                        required
+                        [(ngModel)]="name"
+                        name="name"
+                        [placeholder]="'smartEnrollDemos.createPerson.namePlaceholder' | transloco"
+                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-gender">
+                        {{ 'smartEnrollDemos.createPerson.genderLabel' | transloco }}
+                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                    </label>
+                    <select
+                        id="p-gender"
+                        [(ngModel)]="gender"
+                        name="gender"
+                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60 transition-colors"
+                    >
+                        <option value="M">{{ 'smartEnrollDemos.common.male' | transloco }}</option>
+                        <option value="F">{{ 'smartEnrollDemos.common.female' | transloco }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-dob">
+                        {{ 'smartEnrollDemos.createPerson.dobLabel' | transloco }}
+                        <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                    </label>
+                    <input
+                        id="p-dob"
+                        type="date"
+                        required
+                        [(ngModel)]="dob"
+                        name="dob"
+                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60 transition-colors"
+                    />
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-nat">
+                        {{ 'smartEnrollDemos.createPerson.nationalityLabel' | transloco }}
+                    </label>
+                    <input
+                        id="p-nat"
+                        type="text"
+                        [(ngModel)]="nationality"
+                        name="nationality"
+                        [placeholder]="'smartEnrollDemos.createPerson.nationalityPlaceholder' | transloco"
+                        class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60 transition-colors"
+                    />
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-on-surface mb-1.5" for="p-col">
+                    {{ 'smartEnrollDemos.createPerson.collectionsLabel' | transloco }}
+                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                </label>
+                @if (collectionsError) {
+                    <div class="mb-2 text-sm text-error flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">error_outline</span>
+                        {{ collectionsError }}
+                    </div>
+                }
+                <app-collection-multi-select
+                    labelId="p-col"
+                    [items]="collectionItems"
+                    [selectedIds]="selectedCollectionIds"
+                    (selectedIdsChange)="selectedCollectionIds = $event"
+                    [loading]="collectionsLoading"
+                    [emptySlot]="noCollectionsEmptySlot"
+                />
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-on-surface mb-1.5">
+                    {{ 'smartEnrollDemos.createPerson.faceImagesLabel' | transloco }}
+                    <span class="text-error">{{ 'smartEnrollDemos.common.requiredStar' | transloco }}</span>
+                </label>
+                <div class="space-y-5 mb-3">
+                    <app-demo-choose-one-callout
+                        [description]="'smartEnrollDemos.createPerson.chooseOneDescription' | transloco"
+                    />
+                    <section aria-labelledby="create-person-camera-heading">
+                        <app-demo-capture-option-heading
+                            label="A"
+                            id="create-person-camera-heading"
+                            [title]="'smartEnrollDemos.createPerson.cameraTitle' | transloco"
+                            [subtitle]="'smartEnrollDemos.createPerson.cameraSubtitle' | transloco"
+                        />
+                        <app-demo-scanner-shell>
+                            <div class="flex min-h-0 flex-1 flex-col">
+                                <app-face-guided-camera
+                                    [fillFrame]="true"
+                                    [hideIdleExplainer]="true"
+                                    [captureSuccessFeedbackMs]="750"
+                                    (captured)="onFaceCapture($event)"
+                                />
+                            </div>
+                        </app-demo-scanner-shell>
+                    </section>
+                    <app-demo-or-divider />
+                    <section aria-labelledby="create-person-upload-heading">
+                        <app-demo-capture-option-heading
+                            label="B"
+                            id="create-person-upload-heading"
+                            [title]="'smartEnrollDemos.createPerson.uploadTitle' | transloco"
+                            [subtitle]="'smartEnrollDemos.createPerson.uploadSubtitle' | transloco"
+                        />
+                        <app-demo-upload-image-button
+                            (clicked)="triggerFilePicker()"
+                            [primaryText]="
+                                images.length
+                                    ? ('smartEnrollDemos.common.imagesAddMore' | transloco: { count: images.length })
+                                    : ('smartEnrollDemos.common.uploadFaceImages' | transloco)
+                            "
+                            [secondaryText]="'smartEnrollDemos.common.jpegPngGallery' | transloco"
+                            icon="add_photo_alternate"
+                        />
+                    </section>
+                </div>
+                @if (previews.length > 0) {
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        @for (preview of previews; track $index) {
+                            <app-demo-raster-image
+                                [src]="preview"
+                                alt=""
+                                [width]="80"
+                                [height]="80"
+                                className="w-20 h-20 object-cover rounded-lg border border-frost"
+                            />
+                        }
+                    </div>
+                }
+                <input
+                    #fileInput
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    class="hidden"
+                    (change)="onFilesSelected($event)"
+                />
+            </div>
+            @if (error) {
+                <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-2 text-sm text-error">
+                    <span class="material-symbols-outlined text-sm">error_outline</span>
+                    {{ error }}
+                </div>
+            }
+            <button
+                type="submit"
+                [disabled]="!images.length || !selectedCollectionIds.length || collectionsLoading"
+                class="demo-btn-primary"
+            >
+                {{ 'smartEnrollDemos.createPerson.submit' | transloco }}
+            </button>
+        </form>
+    } @else if (step === 'processing') {
+        <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="w-12 h-12 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-on-surface font-semibold">{{ 'smartEnrollDemos.createPerson.processing' | transloco }}</p>
+        </div>
+    } @else if (step === 'conflict') {
+        <app-create-person-already-exists-result
+            [previews]="previews"
+            (editForm)="backToFormFromConflict()"
+            (backToDemos)="backToDemos()"
+        />
+    } @else {
+        <app-create-person-result
+            [result]="result"
+            (enrollAnother)="reset()"
+            (backToDemos)="backToDemos()"
+        />
+    }
+
+    @if (showApiReference) {
+        <details class="mt-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 text-left max-w-3xl mx-auto w-full px-4 py-3 group">
+            <summary class="cursor-pointer list-none font-bold text-sm text-primary flex items-center justify-between gap-2">
+                <span class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg">menu_book</span>
+                    {{ 'smartEnrollDemos.createPerson.apiRefSummary' | transloco }}
+                </span>
+                <span class="material-symbols-outlined text-on-surface-variant/70 group-open:rotate-180 transition-transform">
+                    expand_more
+                </span>
+            </summary>
+            <div class="mt-4 space-y-4 text-sm text-on-surface-variant border-t border-outline-variant/15 pt-4">
+                <p>
+                    {{ 'smartEnrollDemos.createPerson.apiRefOfficialDocs' | transloco }}
+                    <a
+                        href="https://docs.verifik.co/resources/create-a-person/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-primary underline underline-offset-2"
+                    >
+                        {{ 'smartEnrollDemos.createPerson.apiRefLinkLabel' | transloco }}
+                    </a>
+                </p>
+                <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.createPerson.apiRefBody' | transloco }}</p>
+                <div>
+                    <p class="font-mono text-xs text-on-surface mb-1">{{ 'smartEnrollDemos.createPerson.apiRefEndpoint' | transloco }}</p>
+                    <p class="text-xs leading-relaxed">{{ 'smartEnrollDemos.createPerson.apiRefEndpointDesc' | transloco }}</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-outline-variant/20">
+                                <th class="text-left py-2 pr-2 font-semibold text-on-surface">{{ 'smartEnrollDemos.common.tableHeader' | transloco }}</th>
+                                <th class="text-left py-2 font-semibold text-on-surface">{{ 'smartEnrollDemos.common.tableValue' | transloco }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b border-outline-variant/10">
+                                <td class="py-2 pr-2 font-mono">Content-Type</td>
+                                <td class="font-mono">application/json</td>
+                            </tr>
+                            <tr>
+                                <td class="py-2 pr-2 font-mono">Authorization</td>
+                                <td class="font-mono">Bearer &lt;token&gt;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs border-collapse">
+                        <thead>
+                            <tr class="border-b border-outline-variant/20">
+                                <th class="text-left py-2 pr-1">{{ 'smartEnrollDemos.common.tableParam' | transloco }}</th>
+                                <th class="text-left py-2 pr-1">{{ 'smartEnrollDemos.common.tableReq' | transloco }}</th>
+                                <th class="text-left py-2">{{ 'smartEnrollDemos.common.tableDescription' | transloco }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-on-surface-variant">
+                            <tr class="border-b border-outline-variant/10 align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createPerson.paramName' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.yes' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createPerson.paramNameDesc' | transloco }}</td>
+                            </tr>
+                            <tr class="border-b border-outline-variant/10 align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createPerson.paramImages' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.yes' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createPerson.paramImagesDesc' | transloco }}</td>
+                            </tr>
+                            <tr class="border-b border-outline-variant/10 align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createPerson.paramGender' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.yes' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createPerson.paramGenderDesc' | transloco }}</td>
+                            </tr>
+                            <tr class="border-b border-outline-variant/10 align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createPerson.paramDob' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.yes' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createPerson.paramDobDesc' | transloco }}</td>
+                            </tr>
+                            <tr class="border-b border-outline-variant/10 align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createPerson.paramCollections' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.yes' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createPerson.paramCollectionsDesc' | transloco }}</td>
+                            </tr>
+                            <tr class="align-top">
+                                <td class="py-2 font-mono text-primary">{{ 'smartEnrollDemos.createPerson.paramNationality' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.common.no' | transloco }}</td>
+                                <td>{{ 'smartEnrollDemos.createPerson.paramNationalityDesc' | transloco }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ apiFetchExample }}</pre>
+                <pre class="text-[0.65rem] font-mono bg-surface-container-high/80 rounded-lg p-3 overflow-x-auto text-on-surface whitespace-pre-wrap">{{ apiResponseExample }}</pre>
+                <ul class="list-disc pl-5 space-y-1 text-xs">
+                    <li>{{ 'smartEnrollDemos.createPerson.bullet1' | transloco }}</li>
+                    <li>{{ 'smartEnrollDemos.createPerson.bullet2' | transloco }}</li>
+                </ul>
+            </div>
+        </details>
+    }
+
+    <app-demo-related-docs-section [items]="relatedDocs" />
+</app-demo-page-shell>
