@@ -12,50 +12,36 @@ import {
     throwError,
 } from 'rxjs';
 
+export type QuickChatTab = 'notifications' | 'tickets';
+
+export interface QuickChatOpenRequest {
+    tab?: QuickChatTab;
+}
+
 @Injectable({ providedIn: 'root' })
 export class QuickChatService {
     private _chat: BehaviorSubject<Chat> = new BehaviorSubject(null);
     private _chats: BehaviorSubject<Chat[]> = new BehaviorSubject<Chat[]>(null);
-    private readonly _openPanel$ = new Subject<void>();
+    private readonly _openPanel$ = new Subject<QuickChatOpenRequest>();
 
-    /** Emits when a feature (e.g. home quick access) requests the support tickets panel. */
+    /** Emits when a feature requests the messages hub panel. */
     readonly openPanel$ = this._openPanel$.asObservable();
 
-    /**
-     * Constructor
-     */
     constructor(private _httpClient: HttpClient) {}
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Accessors
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Getter for chat
-     */
     get chat$(): Observable<Chat> {
         return this._chat.asObservable();
     }
 
-    /**
-     * Getter for chats
-     */
     get chats$(): Observable<Chat[]> {
         return this._chats.asObservable();
     }
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /** Open the support tickets side panel (handled by QuickChatComponent). */
-    requestOpenPanel(): void {
-        this._openPanel$.next();
+    /** Open the messages hub (notifications and/or support tab). */
+    requestOpenPanel(options?: QuickChatOpenRequest): void {
+        this._openPanel$.next(options ?? {});
     }
 
-    /**
-     * Get chats
-     */
     getChats(): Observable<any> {
         return of([]).pipe(
             tap((response: Chat[]) => {
@@ -64,18 +50,10 @@ export class QuickChatService {
         );
     }
 
-    /**
-     * Get chat
-     *
-     * @param id
-     */
     getChatById(id: string): Observable<any> {
         return of(null).pipe(
             map((chat) => {
-                // Update the chat
                 this._chat.next(chat);
-
-                // Return the chat
                 return chat;
             }),
             switchMap((chat) => {

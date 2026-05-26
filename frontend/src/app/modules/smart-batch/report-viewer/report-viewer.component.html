@@ -1,6 +1,6 @@
-<div class="min-h-screen w-full bg-gray-50">
+<div class="min-h-screen w-full bg-stone-50 dark:bg-gray-950">
     <!-- Header -->
-    <div class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="sticky top-0 z-10 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
         <div class="w-full px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
@@ -12,10 +12,10 @@
                         <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div>
-                        <h1 class="text-xl font-bold text-gray-900">
+                        <h1 class="text-xl font-bold text-stone-950 dark:text-white">
                             {{ 'smartReport.generateReport' | transloco }}
                         </h1>
-                        <p class="text-sm text-gray-500">
+                        <p class="text-sm text-stone-500 dark:text-stone-400">
                             {{ batch()?.name || ('smartReport.batchReport' | transloco) }}
                         </p>
                     </div>
@@ -39,14 +39,14 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Template Selection (unified: template list + match status + edit action) -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
                         <div class="p-6">
-                            <h3 class="font-semibold text-gray-900 mb-4">
+                            <h3 class="mb-4 font-semibold text-stone-950 dark:text-white">
                                 {{ 'smartReport.selectTemplate' | transloco }}
                             </h3>
 
                             @if (templates().length === 0) {
-                                <div class="text-center py-8 text-gray-400">
+                                <div class="py-8 text-center text-stone-400 dark:text-stone-500">
                                     <mat-icon class="!text-4xl !w-10 !h-10 mb-2"
                                         >description</mat-icon
                                     >
@@ -66,18 +66,11 @@
                                 <div class="space-y-2 max-h-[320px] overflow-y-auto pr-1">
                                     @for (template of templates(); track template._id) {
                                         <div
-                                            class="p-4 rounded-xl border cursor-pointer transition-all"
-                                            [class.border-indigo-500]="
+                                            class="cursor-pointer rounded-xl border p-4 transition-all"
+                                            [ngClass]="
                                                 selectedTemplate()?._id === template._id
-                                            "
-                                            [class.bg-indigo-50]="
-                                                selectedTemplate()?._id === template._id
-                                            "
-                                            [class.border-gray-200]="
-                                                selectedTemplate()?._id !== template._id
-                                            "
-                                            [class.hover:border-indigo-300]="
-                                                selectedTemplate()?._id !== template._id
+                                                    ? 'border-indigo-500 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950/30'
+                                                    : 'border-stone-200 hover:border-indigo-300 dark:border-gray-700 dark:hover:border-indigo-600'
                                             "
                                             (click)="selectTemplate(template)"
                                         >
@@ -97,13 +90,12 @@
                                                     </mat-icon>
                                                 </div>
                                                 <div class="flex-1 min-w-0">
-                                                    <p class="font-medium text-gray-900">
+                                                    <p class="font-medium text-stone-950 dark:text-white">
                                                         {{ template.name }}
                                                     </p>
-                                                    <p class="text-xs text-gray-500">
+                                                    <p class="text-xs text-stone-500 dark:text-stone-400">
                                                         {{ template.sections?.length || 0 }}
-                                                        {{ 'smartReport.sections' | transloco }} •
-                                                        {{ template.pdfEngine || 'puppeteer' }}
+                                                        {{ 'smartReport.sections' | transloco }}
                                                     </p>
                                                     @if (
                                                         selectedTemplate()?._id === template._id &&
@@ -112,7 +104,7 @@
                                                     ) {
                                                         @if (match.matches) {
                                                             <span
-                                                                class="inline-flex items-center gap-1 mt-1 text-xs text-emerald-600"
+                                                                class="mt-1 inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-300"
                                                             >
                                                                 <mat-icon
                                                                     class="!text-sm !w-3.5 !h-3.5"
@@ -125,7 +117,7 @@
                                                             </span>
                                                         } @else if (match.missingPaths.length > 0) {
                                                             <span
-                                                                class="inline-flex items-center gap-1 mt-1 text-xs text-amber-600"
+                                                                class="mt-1 inline-flex items-center gap-1 text-xs text-amber-600 dark:text-amber-300"
                                                                 [matTooltip]="
                                                                     ('smartReport.paths'
                                                                         | transloco) +
@@ -162,12 +154,14 @@
                         <!-- Unified: match status + edit-in-builder (single footer) -->
                         @if (selectedTemplate() && templateMatch(); as match) {
                             <div
-                                class="border-t border-gray-100 px-6 py-4"
-                                [class.bg-emerald-50]="match.matches"
-                                [class.bg-amber-50]="!match.matches"
+                                class="border-t border-stone-100 px-6 py-4 dark:border-gray-800"
+                                [ngClass]="{
+                                    'bg-emerald-50 dark:bg-emerald-950/30': match.matches,
+                                    'bg-amber-50 dark:bg-amber-950/30': !match.matches,
+                                }"
                             >
                                 @if (match.matches) {
-                                    <p class="text-sm text-emerald-700 mb-3 flex items-start gap-2">
+                                    <p class="mb-3 flex items-start gap-2 text-sm text-emerald-700 dark:text-emerald-300">
                                         <mat-icon class="!text-lg !w-5 !h-5 shrink-0 mt-0.5"
                                             >check_circle</mat-icon
                                         >
@@ -178,7 +172,7 @@
                                     <button
                                         mat-stroked-button
                                         (click)="openReportBuilder()"
-                                        class="!rounded-xl !text-emerald-700 !border-emerald-300 !inline-flex !items-center !justify-center"
+                                        class="!inline-flex !items-center !justify-center !rounded-xl !border-emerald-300 !text-emerald-700 dark:!border-emerald-700 dark:!text-emerald-300"
                                     >
                                         <mat-icon class="mr-2 !text-lg !align-middle"
                                             >edit</mat-icon
@@ -186,7 +180,7 @@
                                         {{ 'smartReport.editInBuilder' | transloco }}
                                     </button>
                                 } @else {
-                                    <p class="text-sm text-amber-700 mb-2 flex items-start gap-2">
+                                    <p class="mb-2 flex items-start gap-2 text-sm text-amber-700 dark:text-amber-300">
                                         <mat-icon class="!text-lg !w-5 !h-5 shrink-0 mt-0.5"
                                             >warning</mat-icon
                                         >
@@ -195,14 +189,14 @@
                                                 | transloco: { count: match.missingPaths.length }
                                         }}</span>
                                     </p>
-                                    <p class="text-xs text-amber-600/80 mb-3 pl-7">
+                                    <p class="mb-3 pl-7 text-xs text-amber-600/80 dark:text-amber-400/90">
                                         {{ 'smartReport.paths' | transloco }}:
                                         {{ formatMissingPaths(match.missingPaths) }}
                                     </p>
                                     <button
                                         mat-stroked-button
                                         (click)="openReportBuilder()"
-                                        class="!rounded-xl !text-amber-700 !border-amber-300 !inline-flex !items-center !justify-center"
+                                        class="!inline-flex !items-center !justify-center !rounded-xl !border-amber-300 !text-amber-700 dark:!border-amber-700 dark:!text-amber-300"
                                     >
                                         <mat-icon class="mr-2 !text-lg !align-middle"
                                             >edit</mat-icon
@@ -216,8 +210,8 @@
 
                     <!-- Actions -->
                     @if (selectedTemplate() || stepResultBlocks().length > 0) {
-                        <div class="bg-white rounded-2xl border border-gray-200 p-6 mt-6">
-                            <h3 class="font-semibold text-gray-900 mb-4">
+                        <div class="mt-6 rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                            <h3 class="mb-4 font-semibold text-stone-950 dark:text-white">
                                 {{ 'smartReport.actions' | transloco }}
                             </h3>
                             <div class="space-y-3">
@@ -271,14 +265,16 @@
                                 @if (stepResultBlocks().length > 0) {
                                     <div
                                         class="pt-3"
-                                        [class.border-t]="selectedTemplate()"
-                                        [class.border-gray-100]="selectedTemplate()"
-                                        [class.mt-3]="selectedTemplate()"
+                                        [ngClass]="
+                                            selectedTemplate()
+                                                ? 'mt-3 border-t border-stone-100 dark:border-gray-800'
+                                                : ''
+                                        "
                                     >
-                                        <p class="text-xs text-gray-500 mb-2 uppercase font-medium">
+                                        <p class="mb-2 text-xs font-medium uppercase text-stone-500 dark:text-stone-400">
                                             {{ 'smartReport.exportData' | transloco }}
                                         </p>
-                                        <p class="text-xs text-gray-500 mb-3 leading-relaxed">
+                                        <p class="mb-3 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
                                             {{ 'smartReport.detailedExportHint' | transloco }}
                                         </p>
                                         <div class="space-y-2">
@@ -313,14 +309,14 @@
                 <!-- Right column: Step results layout + PDF Preview -->
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Step results layout (print-style, drag-and-drop) -->
-                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                        <div class="border-b border-stone-200 bg-stone-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-950/50">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <h3 class="font-semibold text-gray-900">
+                                    <h3 class="font-semibold text-stone-950 dark:text-white">
                                         {{ 'smartReport.stepResultsLayout' | transloco }}
                                     </h3>
-                                    <p class="text-xs text-gray-500 mt-0.5">
+                                    <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                                         @if (selectedRowIndex() != null) {
                                             {{
                                                 'smartReport.reportForRecord'
@@ -372,7 +368,7 @@
                             <div class="p-6">
                                 @if (stepResultBlocks().length === 0) {
                                     <div
-                                        class="flex flex-col items-center justify-center py-12 text-gray-400"
+                                        class="flex flex-col items-center justify-center py-12 text-stone-400 dark:text-stone-500"
                                     >
                                         <mat-icon class="!text-5xl !w-12 !h-12 mb-3"
                                             >table_chart</mat-icon
@@ -388,7 +384,7 @@
                                     @if (stepResultsViewMode() === 'excel-ag') {
                                         <!-- Excel view: AG Grid -->
                                         <div
-                                            class="excel-view-container mx-auto rounded-xl overflow-hidden"
+                                            class="excel-view-container mx-auto overflow-hidden rounded-xl border border-stone-200 dark:border-gray-800"
                                             style="height: 480px; width: 100%"
                                         >
                                             <ag-grid-angular
@@ -410,14 +406,14 @@
                                     } @else {
                                         <!-- Table or JSON view: record-grouped layout (like PDF preview) -->
                                         <div
-                                            class="mb-4 bg-white rounded-lg border border-gray-200 overflow-hidden flex flex-col sm:flex-row items-center justify-between p-2 pl-4"
+                                            class="mb-4 flex flex-col items-center justify-between overflow-hidden rounded-lg border border-stone-200 bg-white p-2 pl-4 sm:flex-row dark:border-gray-800 dark:bg-gray-950/50"
                                         >
                                             <mat-form-field
                                                 appearance="outline"
                                                 subscriptSizing="dynamic"
                                                 class="w-full sm:w-72"
                                             >
-                                                <mat-icon matPrefix class="text-gray-400 mr-2"
+                                                <mat-icon matPrefix class="mr-2 text-stone-400 dark:text-stone-500"
                                                     >search</mat-icon
                                                 >
                                                 <mat-label>{{
@@ -451,7 +447,7 @@
                                             ></mat-paginator>
                                         </div>
                                         <div
-                                            class="mx-auto bg-[#fafafa] rounded-lg border border-gray-200 shadow-sm p-6 min-h-[400px]"
+                                            class="mx-auto min-h-[400px] rounded-lg border border-stone-200 bg-stone-50 p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950/50"
                                         >
                                             <div class="space-y-4">
                                                 @for (
@@ -459,16 +455,16 @@
                                                     track recordBlock.rowIndex
                                                 ) {
                                                     <div
-                                                        class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                                                        class="overflow-hidden rounded-lg border border-stone-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
                                                     >
                                                         <div
-                                                            class="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100 bg-gray-50"
+                                                            class="flex items-center gap-3 border-b border-stone-100 bg-stone-50 px-4 py-2.5 dark:border-gray-800 dark:bg-gray-950/50"
                                                         >
                                                             <mat-icon
-                                                                class="!text-base text-gray-400"
+                                                                class="!text-base text-stone-400 dark:text-stone-500"
                                                                 >person</mat-icon
                                                             >
-                                                            <span class="font-medium text-gray-900">
+                                                            <span class="font-medium text-stone-950 dark:text-white">
                                                                 {{ 'smartReport.row' | transloco }}
                                                                 #{{ recordBlock.rowIndex + 1 }}
                                                             </span>
@@ -476,7 +472,7 @@
                                                         @if (stepResultsViewMode() === 'table') {
                                                             <!-- Table view: steps per record -->
                                                             <div
-                                                                class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto"
+                                                                class="overflow-x-auto border-t border-stone-100 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-950/30"
                                                             >
                                                                 @for (
                                                                     step of recordBlock.steps;
@@ -484,11 +480,11 @@
                                                                 ) {
                                                                     <div class="mb-4 last:mb-0">
                                                                         <p
-                                                                            class="text-xs font-medium text-gray-500 mb-2"
+                                                                            class="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400"
                                                                         >
                                                                             {{ step.label }}
                                                                             <span
-                                                                                class="text-gray-400"
+                                                                                class="text-stone-400 dark:text-stone-500"
                                                                                 >({{
                                                                                     'smartReport.step'
                                                                                         | transloco
@@ -511,10 +507,10 @@
                                                                                         track $index
                                                                                     ) {
                                                                                         <tr
-                                                                                            class="border-b border-gray-100 last:border-0"
+                                                                                            class="border-b border-stone-100 last:border-0 dark:border-gray-800"
                                                                                         >
                                                                                             <td
-                                                                                                class="py-2 pr-4 align-top text-gray-500"
+                                                                                                class="py-2 pr-4 align-top text-stone-500 dark:text-stone-400"
                                                                                                 style="
                                                                                                     min-width: 140px;
                                                                                                 "
@@ -524,7 +520,7 @@
                                                                                                 }}
                                                                                             </td>
                                                                                             <td
-                                                                                                class="py-2 break-words text-gray-900"
+                                                                                                class="break-words py-2 text-stone-950 dark:text-stone-100"
                                                                                             >
                                                                                                 {{
                                                                                                     field.value
@@ -536,7 +532,7 @@
                                                                             </table>
                                                                         } @else {
                                                                             <p
-                                                                                class="text-sm text-gray-400 py-2"
+                                                                                class="py-2 text-sm text-stone-400 dark:text-stone-500"
                                                                             >
                                                                                 —
                                                                             </p>
@@ -547,21 +543,21 @@
                                                         } @else {
                                                             <!-- JSON view: steps per record -->
                                                             <div
-                                                                class="px-4 py-3 bg-white border-t border-gray-100 overflow-x-auto"
+                                                                class="overflow-x-auto border-t border-stone-100 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-950/30"
                                                             >
                                                                 @for (
                                                                     step of recordBlock.steps;
                                                                     track step.sequence
                                                                 ) {
                                                                     <div
-                                                                        class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 mb-3 last:mb-0"
+                                                                        class="mb-3 border-b border-stone-100 pb-3 last:mb-0 last:border-0 last:pb-0 dark:border-gray-800"
                                                                     >
                                                                         <p
-                                                                            class="text-xs font-medium text-gray-500 mb-2"
+                                                                            class="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400"
                                                                         >
                                                                             {{ step.label }}
                                                                             <span
-                                                                                class="text-gray-400"
+                                                                                class="text-stone-400 dark:text-stone-500"
                                                                                 >({{
                                                                                     'smartReport.step'
                                                                                         | transloco
@@ -578,7 +574,7 @@
                                                                                 <button
                                                                                     type="button"
                                                                                     mat-icon-button
-                                                                                    class="!absolute top-1.5 right-1.5 z-10 !h-9 !min-h-9 !w-auto !min-w-9 !rounded-lg !border border-gray-200/90 !bg-white/95 px-1.5 shadow-sm hover:!border-gray-300 hover:bg-white"
+                                                                                    class="!absolute top-1.5 right-1.5 z-10 !h-9 !min-h-9 !w-auto !min-w-9 !rounded-lg !border border-stone-200/90 !bg-white/95 px-1.5 shadow-sm hover:!border-stone-300 hover:bg-white dark:!border-gray-700 dark:!bg-gray-900/95 dark:hover:!border-gray-600 dark:hover:!bg-gray-800"
                                                                                     [matTooltip]="
                                                                                         'smartReport.copyJson'
                                                                                             | transloco
@@ -602,7 +598,7 @@
                                                                                         )
                                                                                     ) {
                                                                                         <span
-                                                                                            class="text-xs font-medium text-emerald-700 whitespace-nowrap px-1"
+                                                                                            class="whitespace-nowrap px-1 text-xs font-medium text-emerald-700 dark:text-emerald-300"
                                                                                             >{{
                                                                                                 'smartReport.copied'
                                                                                                     | transloco
@@ -610,14 +606,14 @@
                                                                                         >
                                                                                     } @else {
                                                                                         <mat-icon
-                                                                                            class="!text-[18px] text-gray-600"
+                                                                                            class="!text-[18px] text-stone-600 dark:text-stone-300"
                                                                                             >content_copy</mat-icon
                                                                                         >
                                                                                     }
                                                                                 </button>
                                                                             }
                                                                             <pre
-                                                                                class="bg-gray-50 rounded-lg p-3 pr-14 text-xs font-mono text-gray-800 overflow-auto max-h-64 border border-gray-100"
+                                                                                class="m-0 max-h-64 overflow-auto rounded-lg border border-stone-100 bg-stone-50 p-3 pr-14 font-mono text-xs text-stone-800 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
                                                                                 >{{
                                                                                     formatJson(
                                                                                         step.data
@@ -640,20 +636,20 @@
                     </div>
 
                     <!-- Report Preview (same as builder) -->
-                    <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-                        <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
-                            <h3 class="font-semibold text-gray-900">
+                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                        <div class="border-b border-stone-200 bg-stone-50 px-6 py-4 dark:border-gray-800 dark:bg-gray-950/50">
+                            <h3 class="font-semibold text-stone-950 dark:text-white">
                                 {{ 'smartReport.preview' | transloco }}
                             </h3>
-                            <p class="text-xs text-gray-500 mt-0.5">
+                            <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
                                 {{ 'smartReport.previewSameAsBuilder' | transloco }}
                             </p>
                         </div>
 
-                        <div class="min-h-[600px] p-6 overflow-auto">
+                        <div class="min-h-[600px] overflow-auto p-6 dark:bg-gray-950/30">
                             @if (isGenerating()) {
                                 <div
-                                    class="flex flex-col items-center justify-center h-64 text-gray-400"
+                                    class="flex h-64 flex-col items-center justify-center text-stone-400 dark:text-stone-500"
                                 >
                                     <mat-spinner diameter="48" class="mb-4"></mat-spinner>
                                     <p>{{ 'smartReport.generatingPdf' | transloco }}</p>
@@ -685,7 +681,8 @@
                                     "
                                     [watermarkType]="selectedTemplate()!.watermark?.type || 'text'"
                                     [watermarkText]="
-                                        selectedTemplate()!.watermark?.text || 'CONFIDENTIAL'
+                                        selectedTemplate()!.watermark?.text ||
+                                        ('smartReport.watermarkTextPlaceholder' | transloco)
                                     "
                                     [watermarkOpacity]="
                                         selectedTemplate()!.watermark?.opacity ?? 0.08
@@ -696,7 +693,7 @@
                                 />
                                 @if (previewDataForAllRows().length > 1) {
                                     <div
-                                        class="flex items-center justify-center gap-4 mt-6 pt-4 border-t border-gray-200"
+                                        class="mt-6 flex items-center justify-center gap-4 border-t border-stone-200 pt-4 dark:border-gray-800"
                                     >
                                         <button
                                             mat-icon-button
@@ -706,7 +703,7 @@
                                         >
                                             <mat-icon>chevron_left</mat-icon>
                                         </button>
-                                        <span class="text-sm text-gray-600">
+                                        <span class="text-sm text-stone-600 dark:text-stone-400">
                                             {{ 'smartReport.previewPage' | transloco }}
                                             {{ previewPageIndex() + 1 }}
                                             {{ 'smartReport.previewPageOf' | transloco }}
@@ -727,7 +724,7 @@
                                 }
                             } @else {
                                 <div
-                                    class="flex flex-col items-center justify-center h-64 text-gray-400"
+                                    class="flex h-64 flex-col items-center justify-center text-stone-400 dark:text-stone-500"
                                 >
                                     <mat-icon class="!text-6xl !w-16 !h-16 mb-4"
                                         >description</mat-icon

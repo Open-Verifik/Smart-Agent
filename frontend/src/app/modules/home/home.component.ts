@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { FuseConfigService } from '@fuse/services/config/config.service';
 import type { FuseConfig } from '@fuse/services/config/config.types';
@@ -19,6 +19,8 @@ import { UserService } from '../../core/user/user.service';
 import { DashboardData, HomeService } from './home.service';
 import { QuickChatService } from '../../layout/common/quick-chat/quick-chat.service';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
+import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
+import { HomeNotificationBannersComponent } from './home-notification-banners/home-notification-banners.component';
 
 interface ChartTheme {
     tooltipTheme: 'light' | 'dark';
@@ -64,6 +66,7 @@ interface PodiumEntry {
         NgApexchartsModule,
         RouterLink,
         TranslocoModule,
+        HomeNotificationBannersComponent,
     ],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
@@ -75,10 +78,12 @@ export class HomeComponent implements OnInit {
     private _matDialog = inject(MatDialog);
     private _transloco = inject(TranslocoService);
     private _router = inject(Router);
+    private _route = inject(ActivatedRoute);
     private _userService = inject(UserService);
     private _document = inject(DOCUMENT);
     private _fuseConfig = inject(FuseConfigService);
     private _quickChatService = inject(QuickChatService);
+    private _appNotificationsService = inject(AppNotificationsService);
 
     private _schemeAutoListenerCleanup: (() => void) | null = null;
 
@@ -166,6 +171,9 @@ export class HomeComponent implements OnInit {
         this.isAuthenticated.set(this._sessionService.hasValidAuthentication());
 
         if (this.isAuthenticated()) {
+            this._appNotificationsService.syncInbox('smart_agent').subscribe();
+            this._handleOpenNotificationsQueryParam();
+
             this._userService
                 .get()
                 .pipe(
@@ -580,5 +588,26 @@ export class HomeComponent implements OnInit {
                 const attrVal = el.getAttribute('fill') as string;
                 el.setAttribute('fill', `url(${currentURL}${attrVal.slice(attrVal.indexOf('#'))}`);
             });
+    }
+
+    private _handleOpenNotificationsQueryParam(): void {
+        const openNotifications = this._route.snapshot.queryParamMap.get('openNotifications');
+        if (openNotifications !== '1') return;
+
+        this._appNotificationsService.refreshHubInbox().subscribe({
+            next: () => {
+                this._quickChatService.requestOpenPanel({ tab: 'notifications' });
+            },
+            error: () => {
+                this._quickChatService.requestOpenPanel({ tab: 'notifications' });
+            },
+        });
+
+        void this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { openNotifications: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }

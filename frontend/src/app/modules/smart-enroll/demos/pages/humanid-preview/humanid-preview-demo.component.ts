@@ -48,7 +48,7 @@ type ProofMode = 'paste' | 'qr';
         HumanIdPreviewResultComponent,
     ],
     templateUrl: './humanid-preview-demo.component.html',
-    styleUrl: '../../styles/demos-theme.scss',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HumanidPreviewDemoComponent implements OnInit {

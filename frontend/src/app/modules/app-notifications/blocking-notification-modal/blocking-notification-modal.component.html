@@ -1,0 +1,64 @@
+<h2 mat-dialog-title class="!text-lg !font-semibold">{{ item.content.title }}</h2>
+
+<mat-dialog-content class="blocking-modal-content">
+    @if (item.content.summary) {
+        <p class="text-secondary mb-3 text-sm">{{ item.content.summary }}</p>
+    }
+    @if (item.content.body) {
+        <div
+            class="blocking-modal-body prose prose-sm dark:prose-invert max-w-none text-sm"
+            [innerHTML]="safeBodyHtml(item.content.body)"
+        ></div>
+    }
+
+    @if (item.interactionMode === 'accept' && item.legal?.url) {
+        <div class="mt-4 rounded-lg border border-divider p-3">
+            <a
+                class="text-primary text-sm font-medium underline"
+                [href]="item.legal.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{ 'appNotifications.inbox.legalLink' | transloco }}</a
+            >
+            @if (item.legal.version) {
+                <p class="text-hint mt-1 text-xs">
+                    {{
+                        'appNotifications.inbox.legalVersion'
+                            | transloco: { version: item.legal.version }
+                    }}
+                </p>
+            }
+            <mat-checkbox
+                class="mt-2 block"
+                [checked]="legalAccepted()"
+                (change)="legalAccepted.set($event.checked)"
+            >
+                {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}
+            </mat-checkbox>
+        </div>
+    }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="flex flex-wrap gap-2">
+    @if (item.cta?.url) {
+        <button mat-stroked-button type="button" (click)="openCta()">
+            {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
+        </button>
+    }
+    <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="primaryActionDisabled()"
+        (click)="runPrimary()"
+    >
+        @if (actionBusy()) {
+            <mat-spinner diameter="20" class="mr-2 inline-block"></mat-spinner>
+        }
+        @if (item.interactionMode === 'accept') {
+            {{ 'appNotifications.inbox.actions.accept' | transloco }}
+        } @else {
+            {{ 'appNotifications.inbox.actions.acknowledge' | transloco }}
+        }
+    </button>
+</mat-dialog-actions>

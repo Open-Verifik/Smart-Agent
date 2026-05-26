@@ -1,6 +1,7 @@
 import { coerceBooleanProperty } from '@angular/cdk/coercion';
 
 import {
+    ChangeDetectorRef,
     Component,
     inject,
     Input,
@@ -23,13 +24,14 @@ import { Subject, takeUntil } from 'rxjs';
     imports: [MatProgressBarModule],
 })
 export class FuseLoadingBarComponent implements OnChanges, OnInit, OnDestroy {
-    private _fuseLoadingService = inject(FuseLoadingService);
+    private readonly _fuseLoadingService = inject(FuseLoadingService);
+    private readonly _cdr = inject(ChangeDetectorRef);
 
     @Input() autoMode: boolean = true;
-    mode: 'determinate' | 'indeterminate';
-    progress: number = 0;
-    show: boolean = false;
-    private _unsubscribeAll: Subject<any> = new Subject<any>();
+    mode: 'determinate' | 'indeterminate' = 'indeterminate';
+    progress = 0;
+    show = false;
+    private readonly _unsubscribeAll: Subject<void> = new Subject<void>();
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -54,23 +56,41 @@ export class FuseLoadingBarComponent implements OnChanges, OnInit, OnDestroy {
      * On init
      */
     ngOnInit(): void {
-        // Subscribe to the service
+        // Seed current values synchronously so the first render already has the
+        // latest emission from the BehaviorSubjects. This prevents the dev-mode
+        // ExpressionChangedAfterItHasBeenCheckedError when the subscriptions
+        // fire immediately on subscribe (common with the Fuse loading bar).
+        const modeSrc = this._fuseLoadingService['mode$'] as any;
+        const progressSrc = this._fuseLoadingService['progress$'] as any;
+        const showSrc = this._fuseLoadingService['show$'] as any;
+
+        if (modeSrc?.source?.value) this.mode = modeSrc.source.value;
+        const p = progressSrc?.source?.value;
+        if (typeof p === 'number') this.progress = p < 0 || p > 100 ? 0 : p;
+        if (typeof showSrc?.source?.value === 'boolean') this.show = showSrc.source.value;
+
+        // Subscribe and mark for check after each update. The synchronous
+        // initial emission + later updates from interceptors/resolvers/etc.
+        // can otherwise trigger NG0100 in dev mode.
         this._fuseLoadingService.mode$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((value) => {
                 this.mode = value;
+                this._cdr.markForCheck();
             });
 
         this._fuseLoadingService.progress$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((value) => {
-                this.progress = value;
+                this.progress = typeof value === 'number' && value >= 0 && value <= 100 ? value : 0;
+                this._cdr.markForCheck();
             });
 
         this._fuseLoadingService.show$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((value) => {
-                this.show = value;
+                this.show = !!value;
+                this._cdr.markForCheck();
             });
     }
 
@@ -79,7 +99,7 @@ export class FuseLoadingBarComponent implements OnChanges, OnInit, OnDestroy {
      */
     ngOnDestroy(): void {
         // Unsubscribe from all subscriptions
-        this._unsubscribeAll.next(null);
+        this._unsubscribeAll.next();
         this._unsubscribeAll.complete();
     }
 }

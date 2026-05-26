@@ -45,7 +45,7 @@ type Tolerance = 'REGULAR' | 'SOFT' | 'HARDENED';
         HumanIdStructuredResultComponent,
     ],
     templateUrl: './humanid-create-qr-demo.component.html',
-    styleUrl: '../../styles/demos-theme.scss',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HumanidCreateQrDemoComponent implements OnInit {

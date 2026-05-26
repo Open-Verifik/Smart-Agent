@@ -17,7 +17,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
-import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
+import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
+import {
+    QuickChatService,
+    QuickChatTab,
+} from 'app/layout/common/quick-chat/quick-chat.service';
+import { NotificationInboxPanelComponent } from 'app/modules/app-notifications/notification-inbox-panel/notification-inbox-panel.component';
 import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/support-ticket-chat-panel/support-ticket-chat-panel.component';
 
 @Component({
@@ -26,16 +31,28 @@ import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/sup
     styleUrls: ['./quick-chat.component.scss'],
     encapsulation: ViewEncapsulation.None,
     exportAs: 'quickChat',
-    imports: [NgClass, MatIconModule, MatButtonModule, TranslocoModule, SupportTicketChatPanelComponent],
+    imports: [
+        NgClass,
+        MatIconModule,
+        MatButtonModule,
+        TranslocoModule,
+        SupportTicketChatPanelComponent,
+        NotificationInboxPanelComponent,
+    ],
 })
 export class QuickChatComponent implements AfterViewInit, OnDestroy {
     private readonly _destroyRef = inject(DestroyRef);
     private readonly _quickChatService = inject(QuickChatService);
+    private readonly _appNotifications = inject(AppNotificationsService);
 
     @ViewChild('ticketPanel') ticketPanel?: SupportTicketChatPanelComponent;
+    @ViewChild('notificationPanel') notificationPanel?: NotificationInboxPanelComponent;
 
     opened = false;
     expanded = false;
+    activeTab: QuickChatTab = 'tickets';
+
+    readonly unreadCount = this._appNotifications.unreadCount;
 
     private _mutationObserver: MutationObserver;
     private readonly _scrollStrategy: ScrollStrategy;
@@ -45,13 +62,18 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
         @Inject(DOCUMENT) private _document: Document,
         private _elementRef: ElementRef,
         private _renderer2: Renderer2,
-        private _scrollStrategyOptions: ScrollStrategyOptions,
+        private _scrollStrategyOptions: ScrollStrategyOptions
     ) {
         this._scrollStrategy = this._scrollStrategyOptions.block();
 
         this._quickChatService.openPanel$
             .pipe(takeUntilDestroyed(this._destroyRef))
-            .subscribe(() => this.open());
+            .subscribe((request) => {
+                if (request.tab) {
+                    this.activeTab = request.tab;
+                }
+                this.open();
+            });
     }
 
     @HostBinding('class')
@@ -63,7 +85,6 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
-        // Fix for Firefox when overlay blocks scroll on html (Fuse layout).
         this._mutationObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 const mutationTarget = mutation.target as HTMLElement;
@@ -73,13 +94,13 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
                         this._renderer2.setStyle(
                             this._elementRef.nativeElement,
                             'margin-top',
-                            `${Math.abs(top)}px`,
+                            `${Math.abs(top)}px`
                         );
                     } else {
                         this._renderer2.setStyle(
                             this._elementRef.nativeElement,
                             'margin-top',
-                            null,
+                            null
                         );
                     }
                 }
@@ -95,8 +116,16 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
         this._mutationObserver?.disconnect();
     }
 
+    setActiveTab(tab: QuickChatTab): void {
+        this.activeTab = tab;
+        this._refreshActivePanel();
+    }
+
     open(): void {
-        if (this.opened) return;
+        if (this.opened) {
+            this._refreshActivePanel();
+            return;
+        }
         this._toggleOpened(true);
     }
 
@@ -123,9 +152,22 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
 
         if (open) {
             this._showOverlay();
-            setTimeout(() => this.ticketPanel?.refreshIfNeeded(), 0);
+            setTimeout(() => this._refreshActivePanel(), 0);
         } else {
             this._hideOverlay();
+        }
+    }
+
+    private _refreshActivePanel(): void {
+        if (this.activeTab === 'notifications') {
+            // Panel stays mounted while the drawer is open; refresh updates shared hub state.
+            if (this.notificationPanel) {
+                this.notificationPanel.refreshIfNeeded();
+            } else {
+                this._appNotifications.refreshHubInbox().subscribe();
+            }
+        } else {
+            this.ticketPanel?.refreshIfNeeded();
         }
     }
 
@@ -138,7 +180,7 @@ export class QuickChatComponent implements AfterViewInit, OnDestroy {
         this._overlay.classList.add('quick-chat-overlay');
         this._renderer2.appendChild(
             this._elementRef.nativeElement.parentElement,
-            this._overlay,
+            this._overlay
         );
 
         this._scrollStrategy.enable();

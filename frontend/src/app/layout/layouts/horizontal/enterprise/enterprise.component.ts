@@ -17,6 +17,7 @@ import { LanguagesComponent } from 'app/layout/common/languages/languages.compon
 // import { MessagesComponent } from 'app/layout/common/messages/messages.component';
 // import { NotificationsComponent } from 'app/layout/common/notifications/notifications.component';
 import { QuickChatComponent } from 'app/layout/common/quick-chat/quick-chat.component';
+import { BlockingNotificationModalHostComponent } from 'app/modules/app-notifications/blocking-notification-modal-host/blocking-notification-modal-host.component';
 import { SearchComponent } from 'app/layout/common/search/search.component';
 // import { ShortcutsComponent } from 'app/layout/common/shortcuts/shortcuts.component';
 import { AccountVerificationStripComponent } from 'app/layout/common/account-strips/account-verification-strip.component';
@@ -46,6 +47,7 @@ import { Subject, takeUntil } from 'rxjs';
         FuseHorizontalNavigationComponent,
         RouterOutlet,
         QuickChatComponent,
+        BlockingNotificationModalHostComponent,
         AccountVerificationStripComponent,
         SandboxNoticeStripComponent,
         ProductionModeToggleComponent,

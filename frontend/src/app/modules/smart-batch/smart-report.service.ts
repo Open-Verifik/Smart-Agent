@@ -3,10 +3,6 @@ import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
 
-// ============================================
-// INTERFACES
-// ============================================
-
 export interface ReportSection {
     id: string;
     type: 'header' | 'text' | 'table' | 'field' | 'image' | 'divider' | 'spacer';
@@ -29,11 +25,26 @@ export interface ReportSection {
     };
 }
 
+export interface BatchConfigurationRef {
+    _id?: string;
+    id?: string;
+    name?: string;
+}
+
 export interface SmartReportTemplate {
     _id?: string;
     name: string;
     description?: string;
-    batchConfiguration?: string;
+    type?: 'client' | 'System';
+    systemKey?: string;
+    country?: string;
+    category?: 'citizen' | 'company' | 'vehicle';
+    tier?: 'essential' | 'comprehensive';
+    nameKey?: string;
+    descriptionKey?: string;
+    clonedFromSystemKey?: string;
+    presetSteps?: { appFeatureCode: string; sequence: number }[];
+    batchConfiguration?: string | BatchConfigurationRef;
     client?: string;
 
     // Branding
@@ -164,7 +175,8 @@ export class SmartReportService {
     // ============================================
 
     getTemplates(configId?: string): Observable<SmartReportTemplate[]> {
-        let params = {};
+        this.isLoading.set(true);
+        let params: Record<string, string> = {};
         if (configId) {
             params = { batchConfiguration: configId };
         }
@@ -174,7 +186,13 @@ export class SmartReportService {
             }>(`${environment.apiUrl}/v2/smart-report-templates`, { params })
             .pipe(
                 map((res) => res.data),
-                tap((templates) => this.templates.set(templates))
+                tap({
+                    next: (templates) => {
+                        this.templates.set(templates);
+                        this.isLoading.set(false);
+                    },
+                    error: () => this.isLoading.set(false),
+                })
             );
     }
 

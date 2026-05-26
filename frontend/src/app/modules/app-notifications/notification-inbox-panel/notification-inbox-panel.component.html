@@ -1,0 +1,247 @@
+<div class="notification-inbox flex h-full min-h-0 w-full min-w-0 flex-auto flex-col overflow-hidden bg-card">
+    @if (!hasSession()) {
+        <div class="flex flex-auto flex-col items-center justify-center gap-4 p-6 text-center">
+            <mat-icon class="icon-size-14 text-hint" [svgIcon]="'heroicons_outline:bell'"></mat-icon>
+            <div class="text-lg font-medium">
+                {{ 'appNotifications.inbox.guest.title' | transloco }}
+            </div>
+            <p class="text-secondary max-w-sm text-sm">
+                {{ 'appNotifications.inbox.guest.body' | transloco }}
+            </p>
+            <button mat-flat-button color="primary" type="button" (click)="openSignIn()">
+                {{ 'appNotifications.inbox.guest.signIn' | transloco }}
+            </button>
+        </div>
+    } @else if (!canUseApi()) {
+        <div class="flex flex-auto flex-col items-center justify-center gap-4 p-6 text-center">
+            <mat-icon class="icon-size-14 text-hint" [svgIcon]="'heroicons_outline:lock-closed'"></mat-icon>
+            <div class="text-lg font-medium">
+                {{ 'appNotifications.inbox.workspaceOnly.title' | transloco }}
+            </div>
+            <p class="text-secondary max-w-sm text-sm">
+                {{ 'appNotifications.inbox.workspaceOnly.body' | transloco }}
+            </p>
+            <button mat-flat-button color="primary" type="button" (click)="openSignIn()">
+                {{ 'appNotifications.inbox.workspaceOnly.signIn' | transloco }}
+            </button>
+        </div>
+    } @else {
+        <div class="flex min-h-0 min-w-0 w-full flex-auto flex-col overflow-hidden">
+            <div
+                class="border-divider flex min-h-0 min-w-0 w-full flex-1 flex-col"
+                [class.hidden]="!showListPane()"
+            >
+                <div class="border-divider flex flex-0 items-center border-b px-3 py-3">
+                    <span
+                        class="text-secondary truncate text-xs font-semibold uppercase tracking-wide"
+                        >{{ 'appNotifications.inbox.listHeading' | transloco }}</span
+                    >
+                </div>
+
+                @if (loadingList()) {
+                    <div class="flex flex-auto items-center justify-center p-4">
+                        <mat-spinner diameter="32"></mat-spinner>
+                    </div>
+                } @else if (listError()) {
+                    <div class="text-secondary p-4 text-center text-sm">
+                        {{ listError()! | transloco }}
+                    </div>
+                } @else if (!items().length) {
+                    <div
+                        class="text-secondary flex flex-auto flex-col items-center justify-center gap-2 p-4 text-center text-sm"
+                    >
+                        @if (pendingOutsideInbox()) {
+                            <mat-icon class="icon-size-10 text-teal-600" [svgIcon]="'heroicons_outline:bell-alert'"></mat-icon>
+                            <span class="text-default font-medium">{{
+                                'appNotifications.inbox.pendingOutsideInbox.title' | transloco
+                            }}</span>
+                            <p class="text-secondary max-w-xs text-xs leading-relaxed">{{
+                                'appNotifications.inbox.pendingOutsideInbox.body' | transloco
+                            }}</p>
+                        } @else {
+                            <mat-icon class="icon-size-10 text-hint" [svgIcon]="'heroicons_outline:bell-slash'"></mat-icon>
+                            <span>{{ 'appNotifications.inbox.emptyList' | transloco }}</span>
+                        }
+                    </div>
+                } @else {
+                    <div
+                        class="flex min-h-0 flex-auto flex-col gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain p-3"
+                        fuseScrollbar
+                        [fuseScrollbarOptions]="{
+                            wheelPropagation: false,
+                            suppressScrollX: true,
+                        }"
+                    >
+                        @for (item of items(); track trackByNotificationId($index, item)) {
+                            <button
+                                type="button"
+                                class="inbox-card group flex w-full min-w-0 gap-3 rounded-xl border px-3 py-3 text-left shadow-sm transition-[box-shadow,border-color,background-color,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                                [ngClass]="
+                                    item.receipt.isUnread
+                                        ? 'inbox-card--unread'
+                                        : 'inbox-card--read'
+                                "
+                                (click)="selectItem(item)"
+                            >
+                                <div class="flex min-w-0 flex-1 flex-col gap-1">
+                                    <div class="flex w-full min-w-0 items-start gap-2">
+                                        <span
+                                            class="inbox-pill shrink-0"
+                                            [ngClass]="categoryBadgeClass(item.category)"
+                                            >{{ categoryLabelKey(item.category) | transloco }}</span
+                                        >
+                                        @if (item.receipt.isUnread) {
+                                            <span class="inbox-unread-dot shrink-0" aria-hidden="true"></span>
+                                        } @else {
+                                            <span class="inbox-read-label shrink-0">{{
+                                                'appNotifications.inbox.readLabel' | transloco
+                                            }}</span>
+                                        }
+                                    </div>
+                                    <span
+                                        class="min-w-0 truncate text-sm font-semibold leading-snug"
+                                        [class.text-default]="item.receipt.isUnread"
+                                        [class.text-secondary]="isReadItem(item)"
+                                        >{{ item.content.title }}</span
+                                    >
+                                    @if (item.content.summary) {
+                                        <span class="text-secondary line-clamp-2 text-xs leading-relaxed">{{
+                                            item.content.summary
+                                        }}</span>
+                                    }
+                                    @if (item.publishedAt) {
+                                        <span class="text-hint text-[11px]">{{
+                                            item.publishedAt | date: 'medium'
+                                        }}</span>
+                                    }
+                                </div>
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div
+                class="border-divider flex min-h-0 min-w-0 w-full flex-1 flex-col"
+                [class.hidden]="!showDetailPane()"
+            >
+                <div
+                    class="border-divider flex flex-0 items-center gap-1 border-b px-2 py-2"
+                >
+                    <button
+                        mat-icon-button
+                        type="button"
+                        [attr.aria-label]="'appNotifications.inbox.backAria' | transloco"
+                        (click)="clearSelection()"
+                    >
+                        <mat-icon [svgIcon]="'heroicons_outline:arrow-left'"></mat-icon>
+                    </button>
+                    <span class="text-secondary truncate text-xs font-semibold uppercase tracking-wide">{{
+                        'appNotifications.inbox.detailHeading' | transloco
+                    }}</span>
+                </div>
+
+                @if (loadingDetail()) {
+                    <div class="flex flex-auto items-center justify-center p-4">
+                        <mat-spinner diameter="32"></mat-spinner>
+                    </div>
+                } @else if (detailError()) {
+                    <div class="text-secondary p-4 text-center text-sm">
+                        {{ detailError()! | transloco }}
+                    </div>
+                } @else if (selectedItem()) {
+                    @let item = selectedItem()!;
+                    <div
+                        class="inbox-detail-scroll flex min-h-0 min-w-0 w-full flex-auto flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain p-4"
+                        fuseScrollbar
+                        [fuseScrollbarOptions]="{
+                            wheelPropagation: false,
+                            suppressScrollX: true,
+                        }"
+                    >
+                        <span
+                            class="inbox-pill mb-2 w-fit max-w-full"
+                            [ngClass]="categoryBadgeClass(item.category)"
+                            >{{ categoryLabelKey(item.category) | transloco }}</span
+                        >
+                        <h3 class="text-default mb-1 break-words text-lg font-semibold">{{ item.content.title }}</h3>
+                        @if (item.content.summary) {
+                            <p class="text-secondary mb-3 break-words text-sm">{{ item.content.summary }}</p>
+                        }
+                        @if (item.content.body) {
+                            <div
+                                class="inbox-body prose prose-sm dark:prose-invert max-w-full text-sm"
+                                [innerHTML]="safeBodyHtml(item.content.body)"
+                            ></div>
+                        }
+
+                        @if (item.interactionMode === 'accept' && item.legal?.url) {
+                            <div class="mt-4 rounded-lg border border-divider p-3">
+                                <a
+                                    class="text-primary text-sm font-medium underline"
+                                    [href]="item.legal.url"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    >{{ 'appNotifications.inbox.legalLink' | transloco }}</a
+                                >
+                                @if (item.legal.version) {
+                                    <p class="text-hint mt-1 text-xs">
+                                        {{
+                                            'appNotifications.inbox.legalVersion'
+                                                | transloco: { version: item.legal.version }
+                                        }}
+                                    </p>
+                                }
+                                <mat-checkbox
+                                    class="mt-2 block"
+                                    [checked]="legalAccepted()"
+                                    (change)="legalAccepted.set($event.checked)"
+                                >
+                                    {{ 'appNotifications.inbox.legalAcceptCheckbox' | transloco }}
+                                </mat-checkbox>
+                            </div>
+                        }
+                    </div>
+
+                    <div
+                        class="border-divider flex flex-0 flex-wrap items-center gap-2 border-t p-3"
+                    >
+                        @if (item.cta?.url) {
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                (click)="openCtaUrl(item)"
+                            >
+                                {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
+                            </button>
+                        }
+                        @if (showPrimaryAction(item)) {
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                [disabled]="primaryActionDisabled(item)"
+                                (click)="runPrimaryAction()"
+                            >
+                                @if (actionBusy()) {
+                                    <mat-spinner diameter="20" class="mr-2 inline-block"></mat-spinner>
+                                }
+                                {{ primaryActionKey(item.interactionMode) | transloco }}
+                            </button>
+                        }
+                        @if (item.interactionMode === 'informational' || item.interactionMode === 'seen_required') {
+                            <button
+                                mat-button
+                                type="button"
+                                [disabled]="actionBusy()"
+                                (click)="dismissFromDetail()"
+                            >
+                                {{ 'appNotifications.inbox.actions.dismiss' | transloco }}
+                            </button>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

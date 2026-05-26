@@ -47,6 +47,7 @@ import {
     SmartBatchSuccessWhenRule,
 } from '../../smart-batch.service';
 import { getStepDisplayFields } from '../../step-result-presenters/registry';
+import { inferBatchCategory, SmartBatchInputModeService } from '../../smart-batch-input-mode.service';
 
 type RowFilter = 'all' | 'pending' | 'completed' | 'failed' | 'partial';
 
@@ -131,6 +132,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _sanitizer = inject(DomSanitizer);
     private _transloco = inject(TranslocoService);
     private _snack = inject(MatSnackBar);
+    private _inputModeService = inject(SmartBatchInputModeService);
     private _destroy$ = new Subject<void>();
     private _processingAborted = false;
     /**
@@ -138,6 +140,9 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
      * batch counter updates on the server (stale snapshot races).
      */
     private _persistChain: Promise<void> = Promise.resolve();
+    private _shouldAutostart = false;
+    private _reportOnComplete = false;
+    private _reportRowIndex = '0';
 
     /** Effective parallel row workers for the current run (`1` unless single-step batch). */
     parallelRowConcurrency = signal(1);
@@ -280,7 +285,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsPending',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipPending',
-                    accentClass: '!border-blue-500 !text-blue-800 hover:!bg-blue-50/90',
+                    accentClass:
+                        '!border-blue-500 !text-blue-800 hover:!bg-blue-50/90 dark:!text-blue-300 dark:hover:!bg-blue-950/30',
                     dotClass: 'bg-blue-500',
                     iconClass: 'text-blue-600',
                 };
@@ -288,7 +294,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsSuccessful',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipSuccessful',
-                    accentClass: '!border-emerald-500 !text-emerald-800 hover:!bg-emerald-50/90',
+                    accentClass:
+                        '!border-emerald-500 !text-emerald-800 hover:!bg-emerald-50/90 dark:!text-emerald-300 dark:hover:!bg-emerald-950/30',
                     dotClass: 'bg-emerald-500',
                     iconClass: 'text-emerald-600',
                 };
@@ -296,7 +303,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsFailed',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipFailed',
-                    accentClass: '!border-red-500 !text-red-800 hover:!bg-red-50/90',
+                    accentClass:
+                        '!border-red-500 !text-red-800 hover:!bg-red-50/90 dark:!text-red-300 dark:hover:!bg-red-950/30',
                     dotClass: 'bg-red-500',
                     iconClass: 'text-red-600',
                 };
@@ -304,7 +312,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsPartial',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipPartial',
-                    accentClass: '!border-amber-500 !text-amber-900 hover:!bg-amber-50/90',
+                    accentClass:
+                        '!border-amber-500 !text-amber-900 hover:!bg-amber-50/90 dark:!text-amber-300 dark:hover:!bg-amber-950/30',
                     dotClass: 'bg-amber-500',
                     iconClass: 'text-amber-600',
                 };
@@ -312,7 +321,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 return {
                     labelKey: 'batchProcessing.downloadInputsAll',
                     tooltipKey: 'batchProcessing.downloadInputsTooltipAll',
-                    accentClass: '!border-slate-400 !text-slate-800 hover:!bg-slate-50/90',
+                    accentClass:
+                        '!border-slate-400 !text-slate-800 hover:!bg-slate-50/90 dark:!text-stone-300 dark:hover:!bg-gray-800/50',
                     dotClass: 'bg-slate-500',
                     iconClass: 'text-indigo-600',
                 };
@@ -448,6 +458,11 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this._loadParallelRowsPreferenceFromStorage();
+        this._route.queryParams.subscribe((query) => {
+            this._shouldAutostart = query['autostart'] === '1';
+            this._reportOnComplete = query['reportOnComplete'] === '1';
+            this._reportRowIndex = query['rowIndex'] ?? '0';
+        });
         this._route.params.subscribe((params) => {
             this.configId.set(params['configId']);
             this.batchId.set(params['batchId']);
@@ -529,6 +544,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 this.batch.set(res.data);
                 if (!silent) {
                     this.isLoading.set(false);
+                }
+                if (this._shouldAutostart && !this.isProcessing() && !this.isStarting()) {
+                    this._shouldAutostart = false;
+                    void this.startProcessing().then(() => this._maybeRedirectToReport());
                 }
             },
             error: (err) => {
@@ -638,6 +657,20 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this.currentStepIndex.set(null);
         this.parallelRowConcurrency.set(1);
         this.processingActiveRowIndexes.set([]);
+        this._maybeRedirectToReport();
+    }
+
+    private _maybeRedirectToReport(): void {
+        if (!this._reportOnComplete) return;
+
+        this._reportOnComplete = false;
+        const configId = this.configId();
+        const batchId = this.batchId();
+        if (!configId || !batchId) return;
+
+        this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'report'], {
+            queryParams: { rowIndex: this._reportRowIndex },
+        });
     }
 
     /** Parallel worker pool over rows (single-step batches only). */
@@ -1363,9 +1396,38 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     editInputs(): void {
         const configId = this.configId();
         const batchId = this.batchId();
-        if (configId && batchId && this.batch()?.status !== 'processing') {
-            this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'inputs']);
+        const batch = this.batch();
+        if (!configId || !batchId || batch?.status === 'processing') {
+            return;
         }
+
+        const title = batch?.name ?? this.configuration()?.name ?? '';
+        const category = inferBatchCategory(title || this.configuration()?.name);
+
+        this._inputModeService
+            .openModeDialog({
+                context: 'addInputs',
+                title,
+                category,
+            })
+            .subscribe((mode) => {
+                if (!mode) {
+                    return;
+                }
+
+                if (mode === 'single') {
+                    this._router.navigate([
+                        '/smart-batch',
+                        configId,
+                        'batch',
+                        batchId,
+                        'quick-validate',
+                    ]);
+                    return;
+                }
+
+                this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'inputs']);
+            });
     }
 
     generateRowReport(row: SmartBatchRow): void {

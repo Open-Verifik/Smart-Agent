@@ -99,12 +99,24 @@
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "allowedHosts": ["verifik.app", "localhost", ".verifik.app"],
+                        "host": "0.0.0.0",
+                        "port": 5555
+                    },
                     "configurations": {
                         "production": {
                             "buildTarget": "avalanche-agent:build:production"
                         },
                         "development": {
                             "buildTarget": "avalanche-agent:build:development"
+                        },
+                        "docker": {
+                            "buildTarget": "avalanche-agent:build:development",
+                            "host": "0.0.0.0",
+                            "port": 5555,
+                            "poll": 1000,
+                            "disableHostCheck": true
                         }
                     },
                     "defaultConfiguration": "development"

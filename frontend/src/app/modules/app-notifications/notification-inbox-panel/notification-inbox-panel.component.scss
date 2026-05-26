@@ -1,0 +1,175 @@
+:host {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.inbox-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+}
+
+.inbox-pill--billing {
+    background: rgb(204 251 241 / 0.85);
+    color: rgb(15 118 110);
+}
+
+.inbox-pill--security {
+    background: rgb(254 226 226 / 0.9);
+    color: rgb(185 28 28);
+}
+
+.inbox-pill--legal {
+    background: rgb(237 233 254 / 0.9);
+    color: rgb(109 40 217);
+}
+
+.inbox-pill--maintenance {
+    background: rgb(254 243 199 / 0.9);
+    color: rgb(180 83 9);
+}
+
+.inbox-pill--product {
+    background: rgb(219 234 254 / 0.9);
+    color: rgb(29 78 216);
+}
+
+.inbox-pill--system {
+    background: rgb(241 245 249 / 0.95);
+    color: rgb(71 85 105);
+}
+
+:host-context(.dark) {
+    .inbox-pill--billing {
+        background: rgb(19 78 74 / 0.55);
+        color: rgb(94 234 212);
+    }
+
+    .inbox-pill--security {
+        background: rgb(127 29 29 / 0.45);
+        color: rgb(252 165 165);
+    }
+
+    .inbox-pill--legal {
+        background: rgb(76 29 149 / 0.4);
+        color: rgb(216 180 254);
+    }
+
+    .inbox-pill--maintenance {
+        background: rgb(120 53 15 / 0.45);
+        color: rgb(253 186 116);
+    }
+
+    .inbox-pill--product {
+        background: rgb(30 58 138 / 0.45);
+        color: rgb(147 197 253);
+    }
+
+    .inbox-pill--system {
+        background: rgb(51 65 85 / 0.55);
+        color: rgb(203 213 225);
+    }
+}
+
+.inbox-unread-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgb(13 148 136);
+    margin-left: auto;
+}
+
+.inbox-card--unread {
+    border-color: rgb(45 212 191 / 0.45);
+    background: rgb(240 253 250 / 0.65);
+}
+
+.inbox-card--read {
+    border-color: rgb(231 229 228 / 0.75);
+    background: rgb(250 250 249 / 0.9);
+    opacity: 0.82;
+}
+
+.inbox-read-label {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgb(120 113 108);
+}
+
+:host-context(.dark) .inbox-card--unread {
+    border-color: rgb(45 212 191 / 0.35);
+    background: rgb(19 78 74 / 0.25);
+}
+
+:host-context(.dark) .inbox-card--read {
+    border-color: rgb(68 64 60 / 0.65);
+    background: rgb(28 25 23 / 0.45);
+    opacity: 0.88;
+}
+
+:host-context(.dark) .inbox-read-label {
+    color: rgb(168 162 158);
+}
+
+.inbox-detail-scroll {
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.inbox-detail-scroll :deep(.ps__rail-x) {
+    display: none !important;
+}
+
+.inbox-body {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    :deep(a) {
+        color: rgb(13 148 136);
+        text-decoration: underline;
+        overflow-wrap: anywhere;
+    }
+
+    :deep(p),
+    :deep(li),
+    :deep(h1),
+    :deep(h2),
+    :deep(h3),
+    :deep(h4),
+    :deep(blockquote),
+    :deep(td),
+    :deep(th) {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        max-width: 100%;
+    }
+
+    :deep(pre),
+    :deep(table) {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    :deep(img),
+    :deep(video),
+    :deep(iframe) {
+        max-width: 100%;
+        height: auto;
+    }
+}

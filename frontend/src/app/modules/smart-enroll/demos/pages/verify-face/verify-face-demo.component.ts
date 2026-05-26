@@ -53,7 +53,7 @@ const RELATED_DOC_HREFS = [
         FaceGuidedCameraComponent,
     ],
     templateUrl: './verify-face-demo.component.html',
-    styleUrl: '../../styles/demos-theme.scss',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VerifyFaceDemoComponent implements OnInit {

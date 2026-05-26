@@ -68,7 +68,70 @@
     "backHome": "Volver al inicio",
     "closeAria": "Cerrar"
   },
+  "messagesHub": {
+    "railTitle": "Mensajes",
+    "headerTitle": "Mensajes",
+    "tabs": {
+      "notifications": "Notificaciones",
+      "support": "Soporte"
+    },
+    "fullscreenEnterAria": "Expandir panel de mensajes",
+    "fullscreenExitAria": "Salir de pantalla completa",
+    "closeAria": "Cerrar mensajes"
+  },
+  "appNotifications": {
+    "banners": {
+      "dismissAria": "Descartar banner"
+    },
+    "inbox": {
+      "guest": {
+        "title": "Inicia sesión para ver notificaciones",
+        "body": "Las actualizaciones de campañas y avisos de cuenta aparecen aquí después de iniciar sesión con tu cuenta Verifik.",
+        "signIn": "Iniciar sesión"
+      },
+      "workspaceOnly": {
+        "title": "Se requiere cuenta Verifik",
+        "body": "Las notificaciones requieren una sesión de espacio de trabajo Verifik. El inicio solo con billetera no puede cargar el buzón—inicia sesión con tu cuenta Verifik.",
+        "signIn": "Iniciar sesión con Verifik"
+      },
+      "listHeading": "Notificaciones",
+      "detailHeading": "Detalle",
+      "readLabel": "Leída",
+      "emptyList": "Aún no hay notificaciones.",
+      "pendingOutsideInbox": {
+        "title": "Tienes una notificación pendiente",
+        "body": "Esta actualización puede aparecer como banner en Inicio o en una ventana emergente. Revisa esas superficies o actualiza esta lista."
+      },
+      "backAria": "Volver a la lista",
+      "legalLink": "Ver documento legal",
+      "legalVersion": "Versión {{version}}",
+      "legalAcceptCheckbox": "He leído y acepto los términos anteriores",
+      "ctaDefault": "Más información",
+      "categories": {
+        "system": "Sistema",
+        "maintenance": "Mantenimiento",
+        "billing": "Facturación",
+        "legal": "Legal",
+        "product": "Producto",
+        "security": "Seguridad"
+      },
+      "actions": {
+        "dismiss": "Descartar",
+        "markSeen": "Marcar como visto",
+        "acknowledge": "Confirmar",
+        "accept": "Aceptar"
+      },
+      "errors": {
+        "loadList": "No se pudieron cargar las notificaciones. Intenta de nuevo.",
+        "loadDetail": "No se pudo cargar esta notificación.",
+        "action": "La acción falló. Intenta de nuevo."
+      }
+    }
+  },
   "home": {
+    "notifications": {
+      "openFromEmail": "Abriendo tus notificaciones…"
+    },
     "welcome": {
       "title": "La capa de confianza para agentes de IA",
       "subtitle": "Verifica humanos y empresas detrás de agentes autónomos. Con más de 14 integraciones oficiales de bases de datos gubernamentales y el protocolo de pago x402."

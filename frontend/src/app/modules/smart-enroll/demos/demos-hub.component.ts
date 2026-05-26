@@ -25,7 +25,7 @@ interface DemoCard {
     standalone: true,
     imports: [CommonModule, RouterLink, TranslocoModule],
     templateUrl: './demos-hub.component.html',
-    styleUrl: './styles/demos-theme.scss',
+    styleUrl: './styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         class: 'flex flex-auto min-w-0 w-full',

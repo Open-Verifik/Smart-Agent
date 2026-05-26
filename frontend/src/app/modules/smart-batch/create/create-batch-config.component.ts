@@ -316,7 +316,12 @@ export class CreateBatchConfigComponent {
             });
         } else {
             this._smartBatchService.createConfiguration(config).subscribe({
-                next: () => {
+                next: (res) => {
+                    const id = res.data._id ?? res.data.id;
+                    if (id) {
+                        this._router.navigate(['/smart-batch', id]);
+                        return;
+                    }
                     this._router.navigate(['/smart-batch']);
                 },
                 error: (err) => {

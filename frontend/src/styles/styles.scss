@@ -14,6 +14,19 @@
     }
 }
 
+.dark .excel-view-container {
+    .ag-theme-quartz {
+        --ag-background-color: rgb(3 7 18);
+        --ag-foreground-color: rgb(231 229 228);
+        --ag-header-background-color: rgb(17 24 39);
+        --ag-border-color: rgb(55 65 81);
+        --ag-row-hover-color: rgb(31 41 55);
+        --ag-selected-row-background-color: rgb(31 41 55);
+        --ag-odd-row-background-color: rgb(3 7 18);
+        --ag-header-foreground-color: rgb(214 211 209);
+    }
+}
+
 /* API Explorer — rename endpoint / folder dialogs (rounded shell on overlay) */
 .postman-rename-endpoint-dialog-shell .mat-mdc-dialog-container,
 .postman-folder-dialog-shell .mat-mdc-dialog-container {

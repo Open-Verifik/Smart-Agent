@@ -8,7 +8,7 @@ export type HumanIdLivenessStage = 'encrypt' | 'decrypt';
     standalone: true,
     imports: [NgClass],
     templateUrl: './human-id-liveness-toggle.component.html',
-    styleUrl: '../styles/demos-theme.scss',
+    styleUrl: '../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HumanIdLivenessToggleComponent {

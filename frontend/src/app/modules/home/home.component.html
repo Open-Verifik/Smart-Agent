@@ -1,4 +1,8 @@
 <div class="home-container">
+    @if (isAuthenticated()) {
+        <app-home-notification-banners></app-home-notification-banners>
+    }
+
     <!-- Welcome / Hero -->
     <div class="mb-8">
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">

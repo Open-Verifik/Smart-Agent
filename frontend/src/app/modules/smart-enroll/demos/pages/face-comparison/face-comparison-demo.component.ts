@@ -50,7 +50,7 @@ const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
         DemoResultActionsComponent,
     ],
     templateUrl: './face-comparison-demo.component.html',
-    styleUrl: '../../styles/demos-theme.scss',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FaceComparisonDemoComponent implements OnInit, OnDestroy {

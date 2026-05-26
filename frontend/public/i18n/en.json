@@ -68,7 +68,70 @@
         "backHome": "Back to home",
         "closeAria": "Close"
     },
+    "messagesHub": {
+        "railTitle": "Messages",
+        "headerTitle": "Messages",
+        "tabs": {
+            "notifications": "Notifications",
+            "support": "Support"
+        },
+        "fullscreenEnterAria": "Expand messages panel",
+        "fullscreenExitAria": "Exit full screen",
+        "closeAria": "Close messages"
+    },
+    "appNotifications": {
+        "banners": {
+            "dismissAria": "Dismiss banner"
+        },
+        "inbox": {
+            "guest": {
+                "title": "Sign in to view notifications",
+                "body": "Campaign updates and account notices appear here after you sign in with your Verifik account.",
+                "signIn": "Sign in"
+            },
+            "workspaceOnly": {
+                "title": "Verifik account required",
+                "body": "Notifications need a Verifik workspace session. Wallet-only sign-in cannot load the inbox—please sign in with your Verifik account.",
+                "signIn": "Sign in with Verifik"
+            },
+            "listHeading": "Notifications",
+            "detailHeading": "Details",
+            "readLabel": "Read",
+            "emptyList": "No notifications yet",
+            "pendingOutsideInbox": {
+                "title": "You have a pending notification",
+                "body": "This update may appear as a banner on Home or in a popup. Check those surfaces or refresh this list."
+            },
+            "backAria": "Back to notification list",
+            "legalLink": "View legal document",
+            "legalVersion": "Version {{version}}",
+            "legalAcceptCheckbox": "I have read and accept the terms above",
+            "ctaDefault": "Learn more",
+            "categories": {
+                "system": "System",
+                "maintenance": "Maintenance",
+                "billing": "Billing",
+                "legal": "Legal",
+                "product": "Product",
+                "security": "Security"
+            },
+            "actions": {
+                "dismiss": "Dismiss",
+                "markSeen": "Mark as seen",
+                "acknowledge": "Acknowledge",
+                "accept": "Accept"
+            },
+            "errors": {
+                "loadList": "Could not load notifications. Try again.",
+                "loadDetail": "Could not load this notification.",
+                "action": "Action failed. Try again."
+            }
+        }
+    },
     "home": {
+        "notifications": {
+            "openFromEmail": "Opening your notifications…"
+        },
         "welcome": {
             "title": "The Trust Layer for AI Agents",
             "subtitle": "Verify humans and companies behind autonomous agents. Powered by 14+ official government database integrations and the x402 payment protocol."

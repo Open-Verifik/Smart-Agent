@@ -390,6 +390,14 @@
     }
 }
 
+.smart-batch-mode-dialog {
+    .mat-mdc-dialog-container .mdc-dialog__surface {
+        padding: 0 !important;
+        border-radius: 20px !important;
+        overflow: hidden;
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 /*  @ Drawer
 /* -------------------------------------------------------------------------- */

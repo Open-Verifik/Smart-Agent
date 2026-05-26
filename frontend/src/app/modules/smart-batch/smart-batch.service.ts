@@ -2,6 +2,13 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { tap } from 'rxjs';
+import type { SmartReportTemplate } from './smart-report.service';
+
+export interface CloneSystemPresetResult {
+    batchConfiguration: BatchConfiguration;
+    template: SmartReportTemplate;
+    reused?: boolean;
+}
 
 export type SmartBatchRowStatus = 'pending' | 'processing' | 'completed' | 'failed' | 'partial';
 
@@ -161,6 +168,13 @@ export class SmartBatchService {
         return this._httpClient.post<{ data: SmartBatch }>(
             `${environment.apiUrl}/v2/smart-batches`,
             data
+        );
+    }
+
+    cloneSystemPreset(systemKey: string) {
+        return this._httpClient.post<{ data: CloneSystemPresetResult }>(
+            `${environment.apiUrl}/v2/smart-batch-presets/${systemKey}/clone`,
+            {}
         );
     }
 

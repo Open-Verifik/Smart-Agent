@@ -56,7 +56,7 @@ type ProofMode = 'paste' | 'qr';
         HumanIdDecryptResultComponent,
     ],
     templateUrl: './humanid-decrypt-demo.component.html',
-    styleUrl: '../../styles/demos-theme.scss',
+    styleUrl: '../../styles/_demos-theme.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HumanidDecryptDemoComponent implements OnInit {

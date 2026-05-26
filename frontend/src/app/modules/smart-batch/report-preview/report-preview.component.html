@@ -228,13 +228,17 @@
                                 [style.text-align]="section.style?.textAlign || 'left'"
                             >
                                 <span
-                                    class="text-gray-500 min-w-[140px] shrink-0"
+                                    class="min-w-[140px] shrink-0"
                                     [style.font-size.px]="section.style?.fontSize || 12"
+                                    [style.font-weight]="section.style?.fontWeight || 'normal'"
+                                    [style.color]="section.style?.color || '#6B7280'"
                                     >{{ section.label || ('smartReport.field' | transloco) }}</span
                                 >
                                 <span
-                                    class="text-gray-900 font-medium"
                                     [style.font-size.px]="section.style?.fontSize || 12"
+                                    [style.font-weight]="
+                                        section.style?.fontWeight === 'bold' ? 'bold' : 500
+                                    "
                                     [style.color]="section.style?.color || '#111827'"
                                     >{{ resolveDataPath(section.dataPath) || '—' }}</span
                                 >
@@ -411,13 +415,15 @@
                     [style.text-align]="section.style?.textAlign || 'left'"
                 >
                     <span
-                        class="text-gray-500 min-w-[140px] shrink-0"
+                        class="min-w-[140px] shrink-0"
                         [style.font-size.px]="section.style?.fontSize || 12"
+                        [style.font-weight]="section.style?.fontWeight || 'normal'"
+                        [style.color]="section.style?.color || '#6B7280'"
                         >{{ section.label || ('smartReport.field' | transloco) }}</span
                     >
                     <span
-                        class="text-gray-900 font-medium"
                         [style.font-size.px]="section.style?.fontSize || 12"
+                        [style.font-weight]="section.style?.fontWeight === 'bold' ? 'bold' : 500"
                         [style.color]="section.style?.color || '#111827'"
                         >{{ resolveDataPath(section.dataPath) || '—' }}</span
                     >

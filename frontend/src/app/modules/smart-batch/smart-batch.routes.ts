@@ -21,6 +21,27 @@ export default [
             ),
     },
     {
+        path: 'report-builder',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-builder/report-builder.component').then(
+                (m) => m.ReportBuilderComponent
+            ),
+    },
+    {
+        path: 'report-builder/:templateId',
+        loadComponent: () =>
+            import('app/modules/smart-batch/report-builder/report-builder.component').then(
+                (m) => m.ReportBuilderComponent
+            ),
+    },
+    {
+        path: ':configId/quick-validate',
+        loadComponent: () =>
+            import('app/modules/smart-batch/quick-validate/quick-validate.component').then(
+                (m) => m.QuickValidateComponent
+            ),
+    },
+    {
         path: ':configId',
         loadComponent: () =>
             import('app/modules/smart-batch/dashboard/batch-dashboard.component').then(
@@ -39,6 +60,13 @@ export default [
         loadComponent: () =>
             import('app/modules/smart-batch/dashboard/create-batch/create-batch.component').then(
                 (m) => m.CreateBatchComponent
+            ),
+    },
+    {
+        path: ':configId/batch/:batchId/quick-validate',
+        loadComponent: () =>
+            import('app/modules/smart-batch/quick-validate/quick-validate.component').then(
+                (m) => m.QuickValidateComponent
             ),
     },
     {

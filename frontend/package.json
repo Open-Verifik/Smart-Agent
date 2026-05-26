@@ -4,11 +4,13 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve --port=4201",
+        "start:docker": "node scripts/patch-vite-hmr-host.mjs && ng serve --configuration=docker",
         "prebuild": "node ../backend/scripts/sync-discovery-frontend-public.js",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
-        "i18n:audit-demos": "node scripts/audit-smart-enroll-demos-i18n.mjs"
+        "i18n:audit-demos": "node scripts/audit-smart-enroll-demos-i18n.mjs",
+        "deploy:readiness": "node scripts/deploy-readiness-check.mjs"
     },
     "private": true,
     "packageManager": "npm@11.6.1",

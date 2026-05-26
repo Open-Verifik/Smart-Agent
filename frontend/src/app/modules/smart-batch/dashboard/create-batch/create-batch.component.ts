@@ -1767,7 +1767,12 @@ export class CreateBatchComponent implements OnInit {
         };
 
         this._smartBatchService.createSmartBatch(payload).subscribe({
-            next: () => {
+            next: (res) => {
+                const batchId = res.data._id;
+                if (batchId) {
+                    this._router.navigate(['/smart-batch', this.configId(), 'batch', batchId]);
+                    return;
+                }
                 this._router.navigate(['/smart-batch', this.configId()]);
             },
             error: (err) => {

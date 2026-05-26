@@ -8,7 +8,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -58,9 +58,33 @@ export interface RecordResultBlock {
     steps: { sequence: number; label: string; featureCode?: string; data: any }[];
 }
 
+const createReportViewerPaginatorIntl = (): MatPaginatorIntl => {
+    const transloco = inject(TranslocoService);
+    const intl = new MatPaginatorIntl();
+
+    intl.itemsPerPageLabel = transloco.translate('smartReport.paginatorItemsPerPage');
+    intl.nextPageLabel = transloco.translate('smartReport.paginatorNextPage');
+    intl.previousPageLabel = transloco.translate('smartReport.paginatorPreviousPage');
+    intl.firstPageLabel = transloco.translate('smartReport.paginatorFirstPage');
+    intl.lastPageLabel = transloco.translate('smartReport.paginatorLastPage');
+    intl.getRangeLabel = (page, pageSize, length) => {
+        if (length === 0 || pageSize === 0) {
+            return transloco.translate('smartReport.paginatorRangeEmpty');
+        }
+
+        const start = page * pageSize + 1;
+        const end = Math.min((page + 1) * pageSize, length);
+
+        return transloco.translate('smartReport.paginatorRange', { start, end, total: length });
+    };
+
+    return intl;
+};
+
 @Component({
     selector: 'report-viewer',
     standalone: true,
+    providers: [{ provide: MatPaginatorIntl, useFactory: createReportViewerPaginatorIntl }],
     imports: [
         CommonModule,
         RouterModule,
@@ -253,7 +277,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (!row) return { inputData: {}, results: {} };
 
         return {
-            batchName: b?.name ?? 'Batch',
+            batchName: b?.name ?? this._defaultBatchLabel(),
             rowIndex: row.rowIndex,
             inputData: row.inputData ?? {},
             results: row.results ?? {},
@@ -270,7 +294,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const rowIndex = this.selectedRowIndex();
         const filtered = rowIndex != null ? rows.filter((r) => r.rowIndex === rowIndex) : rows;
         return filtered.map((row) => ({
-            batchName: b?.name ?? 'Batch',
+            batchName: b?.name ?? this._defaultBatchLabel(),
             rowIndex: row.rowIndex,
             inputData: row.inputData ?? {},
             results: row.results ?? {},
@@ -340,7 +364,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 }, 2400);
             },
             () => {
-                this._snack.open(this._transloco.translate('smartReport.failedToCopy'), 'Close', {
+                this._snack.open(this._transloco.translate('smartReport.failedToCopy'), this._snackCloseLabel(), {
                     duration: 3000,
                 });
             }
@@ -354,11 +378,28 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
         const rows = b.rows;
         const rowIndex = this.selectedRowIndex();
-        const row = rowIndex != null ? rows.find((r) => r.rowIndex === rowIndex) : rows[0];
-        if (!row) return null;
 
-        const rowData = buildRowDataForResolution(row);
-        return validateTemplateAgainstData(template, rowData);
+        if (rowIndex != null) {
+            const row = rows.find((r) => r.rowIndex === rowIndex);
+            if (!row) return null;
+            return validateTemplateAgainstData(template, buildRowDataForResolution(row));
+        }
+
+        const missingByPath = new Map<string, { path: string; label?: string }>();
+        const matchedPaths = new Set<string>();
+
+        for (const row of rows) {
+            const result = validateTemplateAgainstData(template, buildRowDataForResolution(row));
+            result.matchedPaths.forEach((path) => matchedPaths.add(path));
+            result.missingPaths.forEach((item) => missingByPath.set(item.path, item));
+        }
+
+        const missingPaths = Array.from(missingByPath.values());
+        return {
+            matches: missingPaths.length === 0,
+            matchedPaths: Array.from(matchedPaths),
+            missingPaths,
+        };
     });
 
     /** AG Grid: column definitions and row data for Excel v1 (record-grouped like PDF preview) */
@@ -396,8 +437,18 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
         const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const colDefs: ColDef[] = [
-            { field: 'step', headerName: 'Step', width: 220, flex: 0 },
-            { field: 'rowNum', headerName: 'Row #', width: 80, flex: 0 },
+            {
+                field: 'step',
+                headerName: this._transloco.translate('smartReport.step'),
+                width: 220,
+                flex: 0,
+            },
+            {
+                field: 'rowNum',
+                headerName: this._transloco.translate('smartReport.rowNum'),
+                width: 80,
+                flex: 0,
+            },
         ];
         fieldLabels.forEach((label) => {
             colDefs.push({ field: label, headerName: label, minWidth: 130, flex: 1 });
@@ -689,7 +740,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     error: () =>
                         this._snack.open(
                             this._transloco.translate('smartReport.failedToSaveTemplatePreference'),
-                            'Close',
+                            this._snackCloseLabel(),
                             {
                                 duration: 3000,
                             }
@@ -705,7 +756,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (!template || !batchId) {
             this._snack.open(
                 this._transloco.translate('smartReport.pleaseSelectTemplate'),
-                'Close',
+                this._snackCloseLabel(),
                 { duration: 3000 }
             );
             return;
@@ -718,7 +769,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             .createReport({
                 template: template._id!,
                 smartBatch: batchId,
-                name: `Report - ${this.batch()?.name || 'Batch'}`,
+                name: `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name || this._defaultBatchLabel()}`,
             })
             .subscribe({
                 next: (report) => {
@@ -746,7 +797,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                                 this.isGenerating.set(false);
                                 this._snack.open(
                                     this._transloco.translate('smartReport.reportGenerated'),
-                                    'Close',
+                                    this._snackCloseLabel(),
                                     { duration: 3000 }
                                 );
                             },
@@ -755,7 +806,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                                 this.isGenerating.set(false);
                                 this._snack.open(
                                     this._transloco.translate('smartReport.failedToGenerateReport'),
-                                    'Close',
+                                    this._snackCloseLabel(),
                                     {
                                         duration: 3000,
                                     }
@@ -768,7 +819,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                     this.isGenerating.set(false);
                     this._snack.open(
                         this._transloco.translate('smartReport.failedToCreateReport'),
-                        'Close',
+                        this._snackCloseLabel(),
                         { duration: 3000 }
                     );
                 },
@@ -780,13 +831,13 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (!report?._id) {
             this._snack.open(
                 this._transloco.translate('smartReport.generateReportFirst'),
-                'Close',
+                this._snackCloseLabel(),
                 { duration: 3000 }
             );
             return;
         }
 
-        const defaultSubject = `Report - ${this.batch()?.name ?? 'Batch'}`;
+        const defaultSubject = `${this._transloco.translate('smartReport.generateReport')} - ${this.batch()?.name ?? this._defaultBatchLabel()}`;
         const dialogRef = this._dialog.open(SendSampleModalComponent, {
             panelClass: 'send-sample-dialog',
             maxWidth: '560px',
@@ -812,14 +863,14 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                         if (res.success) {
                             this._snack.open(
                                 this._transloco.translate('smartReport.emailSent'),
-                                'Close',
+                                this._snackCloseLabel(),
                                 { duration: 3000 }
                             );
                         } else {
                             this._snack.open(
                                 res.error ||
                                     this._transloco.translate('smartReport.failedToSendEmail'),
-                                'Close',
+                                this._snackCloseLabel(),
                                 {
                                     duration: 3000,
                                 }
@@ -830,7 +881,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                         this.isSending.set(false);
                         this._snack.open(
                             this._transloco.translate('smartReport.failedToSendEmail'),
-                            'Close',
+                            this._snackCloseLabel(),
                             { duration: 3000 }
                         );
                     },
@@ -843,7 +894,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (!report?._id) {
             this._snack.open(
                 this._transloco.translate('smartReport.generateReportFirst'),
-                'Close',
+                this._snackCloseLabel(),
                 { duration: 3000 }
             );
             return;
@@ -861,7 +912,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                         const errorMsg = await this._parseBlobError(blob);
                         this._snack.open(
                             errorMsg || this._transloco.translate('smartReport.invalidPdfReceived'),
-                            'Close',
+                            this._snackCloseLabel(),
                             {
                                 duration: 4000,
                             }
@@ -876,14 +927,14 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
                 a.download = `SmartReport_${report._id}.pdf`;
                 a.click();
                 URL.revokeObjectURL(url);
-                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), 'Close', {
+                this._snack.open(this._transloco.translate('smartReport.pdfDownloaded'), this._snackCloseLabel(), {
                     duration: 2000,
                 });
             },
             error: () => {
                 this._snack.open(
                     this._transloco.translate('smartReport.failedToDownloadPdf'),
-                    'Close',
+                    this._snackCloseLabel(),
                     { duration: 3000 }
                 );
             },
@@ -909,7 +960,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     downloadAsCsv(): void {
         const blocks = this.stepResultBlocks();
         if (blocks.length === 0) {
-            this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), 'Close', {
+            this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), this._snackCloseLabel(), {
                 duration: 3000,
             });
             return;
@@ -928,7 +979,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             }
         }
         const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
-        const headerRow = ['Step', 'Row #', ...fieldLabels];
+        const headerRow = [
+            this._transloco.translate('smartReport.step'),
+            this._transloco.translate('smartReport.rowNum'),
+            ...fieldLabels,
+        ];
         const csvRows = [this._escapeCsvRow(headerRow)];
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
@@ -962,7 +1017,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         );
         a.click();
         URL.revokeObjectURL(url);
-        this._snack.open(this._transloco.translate('smartReport.csvDownloaded'), 'Close', {
+        this._snack.open(this._transloco.translate('smartReport.csvDownloaded'), this._snackCloseLabel(), {
             duration: 2000,
         });
     }
@@ -970,7 +1025,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     downloadAsExcel(): void {
         const blocks = this.stepResultBlocks();
         if (blocks.length === 0) {
-            this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), 'Close', {
+            this._snack.open(this._transloco.translate('smartReport.noStepResultsYet'), this._snackCloseLabel(), {
                 duration: 3000,
             });
             return;
@@ -990,7 +1045,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         }
         const fieldLabels = sortStepExportFieldLabels(Array.from(allFieldLabels));
         const sheetData: (string | number)[][] = [];
-        sheetData.push(['Step', 'Row #', ...fieldLabels]);
+        sheetData.push([
+            this._transloco.translate('smartReport.step'),
+            this._transloco.translate('smartReport.rowNum'),
+            ...fieldLabels,
+        ]);
         for (const block of blocks) {
             for (const rowResult of block.rowResults) {
                 const fieldsMap = new Map<string, string>();
@@ -1020,7 +1079,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             '_'
         );
         XLSX.writeFile(wb, filename);
-        this._snack.open(this._transloco.translate('smartReport.excelDownloaded'), 'Close', {
+        this._snack.open(this._transloco.translate('smartReport.excelDownloaded'), this._snackCloseLabel(), {
             duration: 2000,
         });
     }
@@ -1033,6 +1092,14 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         } else if (configId) {
             this._router.navigate(['/smart-batch', configId]);
         }
+    }
+
+    private _snackCloseLabel(): string {
+        return this._transloco.translate('smartReport.close');
+    }
+
+    private _defaultBatchLabel(): string {
+        return this._transloco.translate('smartReport.batchReport');
     }
 
     /**
@@ -1050,7 +1117,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
         const previewData = row
             ? {
-                  batchName: b?.name ?? 'Batch',
+                  batchName: b?.name ?? this._defaultBatchLabel(),
                   rowIndex: row.rowIndex,
                   inputData: row.inputData ?? {},
                   results: row.results ?? {},

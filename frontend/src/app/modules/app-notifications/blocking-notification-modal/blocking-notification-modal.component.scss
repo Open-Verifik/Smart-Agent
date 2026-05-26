@@ -1,0 +1,9 @@
+.blocking-modal-content {
+    max-height: min(60vh, 480px);
+    overflow-y: auto;
+}
+
+.blocking-modal-body :deep(a) {
+    color: rgb(13 148 136);
+    text-decoration: underline;
+}

@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -14,6 +13,7 @@ import {
     SmartBatchService,
     SmartBatchStats,
 } from '../smart-batch.service';
+import { inferBatchCategory, SmartBatchInputModeService } from '../smart-batch-input-mode.service';
 
 @Component({
     selector: 'batch-dashboard',
@@ -23,7 +23,6 @@ import {
         TranslocoModule,
         RouterModule,
         MatButtonModule,
-        MatDialogModule,
         MatIconModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
@@ -36,7 +35,7 @@ export class BatchDashboardComponent implements OnInit {
     private _smartBatchService = inject(SmartBatchService);
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
-    private _dialog = inject(MatDialog);
+    private _inputModeService = inject(SmartBatchInputModeService);
 
     configId = signal<string | null>(null);
     configuration = signal<BatchConfiguration | null>(null);
@@ -137,7 +136,43 @@ export class BatchDashboardComponent implements OnInit {
     }
 
     addInputs(batchId: string) {
-        this._router.navigate(['/smart-batch', this.configId(), 'batch', batchId, 'inputs']);
+        const configId = this.configId();
+        if (!configId) {
+            return;
+        }
+
+        const batch = this.batches().find((b) => b._id === batchId);
+        if (batch?.status === 'processing') {
+            return;
+        }
+
+        const title = batch?.name ?? this.configuration()?.name ?? '';
+        const category = inferBatchCategory(title || this.configuration()?.name);
+
+        this._inputModeService
+            .openModeDialog({
+                context: 'addInputs',
+                title,
+                category,
+            })
+            .subscribe((mode) => {
+                if (!mode) {
+                    return;
+                }
+
+                if (mode === 'single') {
+                    this._router.navigate([
+                        '/smart-batch',
+                        configId,
+                        'batch',
+                        batchId,
+                        'quick-validate',
+                    ]);
+                    return;
+                }
+
+                this._router.navigate(['/smart-batch', configId, 'batch', batchId, 'inputs']);
+            });
     }
 
     canAddInputs(batch: SmartBatch): boolean {

@@ -1,0 +1,168 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+        >
+            <div class="mx-auto flex w-full max-w-3xl flex-col gap-5">
+                <div
+                    class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+                >
+                    <a
+                        routerLink="/home"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >Verifik</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    @if (isAppendMode()) {
+                        <a
+                            [routerLink]="['/smart-batch', configId()]"
+                            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                            >{{ t('smartBatchLanding.title') }}</a
+                        >
+                        <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                        <a
+                            [routerLink]="['/smart-batch', configId(), 'batch', batchId()]"
+                            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                            >{{ pageSubtitle() }}</a
+                        >
+                    } @else {
+                        <a
+                            routerLink="/smart-batch"
+                            [queryParams]="{ tab: 'templates' }"
+                            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                            >{{ t('smartBatchLanding.title') }}</a
+                        >
+                    }
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{
+                        t(pageTitleKey())
+                    }}</span>
+                </div>
+
+                <div class="flex items-start gap-4">
+                    <button
+                        type="button"
+                        (click)="goBack()"
+                        class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                        [attr.aria-label]="t('smartBatchSystemPresets.back')"
+                    >
+                        <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
+                    </button>
+                    <div class="min-w-0 flex-1">
+                        <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                            {{ t(pageTitleKey()) }}
+                        </h1>
+                        <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
+                            @if (isAppendMode()) {
+                                {{ t('batchProcessing.addOneRecordDesc') }}
+                            } @else {
+                                {{ pageSubtitle() }}
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto w-full max-w-3xl">
+                @if (isLoading()) {
+                    <div
+                        class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 py-20 text-center dark:border-gray-800"
+                    >
+                        <mat-spinner diameter="40"></mat-spinner>
+                        <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">
+                            {{ t('smartBatchLanding.loadingConfigurations') }}
+                        </p>
+                    </div>
+                } @else {
+                    <div
+                        class="mb-6 inline-flex rounded-xl border border-stone-200 bg-white p-1 dark:border-gray-800 dark:bg-gray-900/70"
+                    >
+                        <button
+                            type="button"
+                            class="rounded-lg bg-stone-950 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                        >
+                            {{ t('smartBatchSystemPresets.singleRecordTab') }}
+                        </button>
+                        <button
+                            type="button"
+                            (click)="goToBatchUpload()"
+                            class="rounded-lg px-4 py-2 text-sm font-medium text-stone-600 transition hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-gray-800"
+                        >
+                            {{ t('smartBatchSystemPresets.batchUploadTab') }}
+                        </button>
+                    </div>
+
+                    <div
+                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6"
+                    >
+                        <div class="mb-6 flex items-start gap-3">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                            >
+                                <mat-icon>edit_document</mat-icon>
+                            </div>
+                            <div>
+                                <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                    {{ t('smartBatchSystemPresets.inputDetailsTitle') }}
+                                </h2>
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ t('smartBatchSystemPresets.inputDetailsDesc') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        @if (form) {
+                            <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
+                                @for (field of requiredFields(); track field.field) {
+                                    <div>
+                                        <label
+                                            class="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
+                                            [for]="field.field"
+                                        >
+                                            {{ fieldLabel(field) }}
+                                            @if (field.required) {
+                                                <span class="text-red-500">*</span>
+                                            }
+                                        </label>
+                                        @if (field.enumValues?.length) {
+                                            <select
+                                                [id]="field.field"
+                                                [formControlName]="field.field"
+                                                class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none transition focus:border-stone-950 focus:ring-2 focus:ring-stone-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-white dark:focus:ring-gray-800"
+                                            >
+                                                <option value="" disabled selected hidden></option>
+                                                @for (opt of field.enumValues; track opt) {
+                                                    <option [value]="opt">{{ opt }}</option>
+                                                }
+                                            </select>
+                                        } @else {
+                                            <input
+                                                [id]="field.field"
+                                                [formControlName]="field.field"
+                                                class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-stone-950 focus:ring-2 focus:ring-stone-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500 dark:focus:border-white dark:focus:ring-gray-800"
+                                                [placeholder]="field.field"
+                                            />
+                                        }
+                                    </div>
+                                }
+
+                                <button
+                                    type="submit"
+                                    class="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                    [disabled]="form.invalid || isSubmitting()"
+                                >
+                                    @if (isSubmitting()) {
+                                        <mat-spinner diameter="18"></mat-spinner>
+                                    }
+                                    <span>{{ t('smartBatchSystemPresets.runValidation') }}</span>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>

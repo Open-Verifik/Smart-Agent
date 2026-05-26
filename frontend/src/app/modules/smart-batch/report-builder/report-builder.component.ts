@@ -17,6 +17,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { ReportPreviewComponent } from '../report-preview/report-preview.component';
+import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
     ReportSection,
     SampleReportData,
@@ -71,9 +72,13 @@ export class ReportBuilderComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _previewDataService = inject(ReportBuilderPreviewDataService);
     private _transloco = inject(TranslocoService);
+    private _batchService = inject(SmartBatchService);
 
     configId = signal<string | null>(null);
     templateId = signal<string | null>(null);
+    /** Optional batch configuration link persisted with the template. */
+    linkedConfigId = signal<string | null>(null);
+    configurations = this._batchService.configurations;
 
     template = signal<SmartReportTemplate | null>(null);
     // State
@@ -182,10 +187,16 @@ export class ReportBuilderComponent implements OnInit {
 
     ngOnInit(): void {
         this._applyPreviewDataFromRouterState();
+        this._batchService.getConfigurations().subscribe();
 
         this._route.params.subscribe((params) => {
-            this.configId.set(params['configId']);
-            this.templateId.set(params['templateId']);
+            const routeConfigId = params['configId'] ?? null;
+            this.configId.set(routeConfigId);
+            this.templateId.set(params['templateId'] ?? null);
+
+            if (routeConfigId) {
+                this.linkedConfigId.set(routeConfigId);
+            }
 
             if (this.templateId()) {
                 this._loadTemplate();
@@ -235,8 +246,30 @@ export class ReportBuilderComponent implements OnInit {
         this.isLoading.set(true);
         this._reportService.getTemplate(id).subscribe({
             next: (template) => {
+                if (!template) {
+                    this.isLoading.set(false);
+                    this._snack.open(
+                        this._transloco.translate('smartReport.failedToLoadTemplate'),
+                        this._transloco.translate('smartReport.close'),
+                        { duration: 4000 }
+                    );
+                    const configId = this.configId();
+                    if (configId) {
+                        this._router.navigate(['/smart-batch', configId]);
+                    } else {
+                        this._router.navigate(['/smart-batch']);
+                    }
+                    return;
+                }
+
                 this.template.set(template);
                 this.sections.set(template.sections || []);
+                if (!this.linkedConfigId() && template.batchConfiguration) {
+                    const linkedId = this._resolveBatchConfigId(template.batchConfiguration);
+                    if (linkedId) {
+                        this.linkedConfigId.set(linkedId);
+                    }
+                }
                 if (
                     !this._hasPreviewDataFromNavigation &&
                     template.sampleData &&
@@ -292,7 +325,11 @@ export class ReportBuilderComponent implements OnInit {
             error: (err) => {
                 console.error('Failed to load template:', err);
                 this.isLoading.set(false);
-                this._snack.open('Failed to load template', 'Close', { duration: 3000 });
+                this._snack.open(
+                    this._transloco.translate('smartReport.failedToLoadTemplate'),
+                    this._transloco.translate('smartReport.close'),
+                    { duration: 4000 }
+                );
             },
         });
     }
@@ -454,7 +491,7 @@ export class ReportBuilderComponent implements OnInit {
         const templateData: Partial<SmartReportTemplate> = {
             ...formVal,
             sections: this.sections(),
-            batchConfiguration: this.configId() || undefined,
+            batchConfiguration: this.linkedConfigId() || undefined,
             sampleData: this.previewData(),
             logo: this.logoUrl() || undefined,
             watermark: {
@@ -529,12 +566,17 @@ export class ReportBuilderComponent implements OnInit {
                     this._snack.open('Template created!', 'Close', { duration: 3000 });
                     this.isSaving.set(false);
                     if (onSuccess) onSuccess();
-                    this._router.navigate([
-                        '/smart-batch',
-                        this.configId(),
-                        'report-builder',
-                        created._id,
-                    ]);
+                    const linkedId = this.linkedConfigId();
+                    if (linkedId) {
+                        this._router.navigate([
+                            '/smart-batch',
+                            linkedId,
+                            'report-builder',
+                            created._id,
+                        ]);
+                    } else {
+                        this._router.navigate(['/smart-batch', 'report-builder', created._id]);
+                    }
                 },
                 error: (err) => {
                     console.error('Create failed:', err);
@@ -755,12 +797,32 @@ export class ReportBuilderComponent implements OnInit {
     // ============================================
 
     goBack(): void {
-        const configId = this.configId();
+        const configId = this.configId() ?? this.linkedConfigId();
         if (configId) {
             this._router.navigate(['/smart-batch', configId]);
         } else {
-            this._router.navigate(['/smart-batch']);
+            this._router.navigate(['/smart-batch'], { queryParams: { tab: 'templates' } });
         }
+    }
+
+    setLinkedConfigId(value: string | null): void {
+        this.linkedConfigId.set(value || null);
+    }
+
+    getConfigOptionLabel(config: BatchConfiguration): string {
+        const id = config._id ?? config.id ?? '';
+        const format = `${(config.inputFormat || '').toUpperCase()} → ${(config.outputFormat || '').toUpperCase()}`;
+        const steps = config.steps?.length ?? 0;
+        const suffix = id.length > 6 ? ` · …${id.slice(-6)}` : '';
+        return `${config.name} · ${format} · ${steps} ${this._transloco.translate('smartBatchLanding.steps').toLowerCase()}${suffix}`;
+    }
+
+    private _resolveBatchConfigId(
+        ref: string | BatchConfiguration | { _id?: string; id?: string } | null | undefined
+    ): string | null {
+        if (!ref) return null;
+        if (typeof ref === 'string') return ref;
+        return ref._id ?? ref.id ?? null;
     }
 
     getSectionIcon(type: string): string {

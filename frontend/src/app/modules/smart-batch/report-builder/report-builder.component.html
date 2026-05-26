@@ -1,6 +1,6 @@
-<div class="min-h-screen w-full bg-gray-50">
+<div class="min-h-screen w-full bg-stone-50 dark:bg-gray-950">
     <!-- ========== TOP BAR ========== -->
-    <div class="bg-white border-b border-gray-200 sticky top-0 z-20">
+    <div class="sticky top-0 z-20 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -12,7 +12,7 @@
                         <mat-icon>arrow_back</mat-icon>
                     </button>
                     <div>
-                        <h1 class="text-lg font-bold text-gray-900">
+                        <h1 class="text-lg font-bold text-stone-950 dark:text-white">
                             {{
                                 (templateId()
                                     ? 'smartReport.editReportTemplate'
@@ -20,7 +20,7 @@
                                 ) | transloco
                             }}
                         </h1>
-                        <p class="text-xs text-gray-500">
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
                             {{ 'smartReport.designReportLayout' | transloco }}
                         </p>
                     </div>
@@ -96,8 +96,8 @@
             <!-- ============================== -->
             <div class="w-full lg:w-[440px] shrink-0 space-y-4">
                 <!-- Template Settings -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-5">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-4">
+                <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                    <h3 class="mb-4 text-sm font-semibold text-stone-950 dark:text-white">
                         {{ 'smartReport.templateSettings' | transloco }}
                     </h3>
                     <form [formGroup]="templateForm" class="space-y-4">
@@ -108,6 +108,25 @@
                                 formControlName="name"
                                 [placeholder]="'smartReport.templateNamePlaceholder' | transloco"
                             />
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-label>{{
+                                'smartReport.linkedConfigurationOptional' | transloco
+                            }}</mat-label>
+                            <mat-select
+                                [value]="linkedConfigId() ?? ''"
+                                (selectionChange)="setLinkedConfigId($event.value || null)"
+                            >
+                                <mat-option value="">{{
+                                    'smartReport.noLinkedConfiguration' | transloco
+                                }}</mat-option>
+                                @for (config of configurations(); track config._id ?? config.id) {
+                                    <mat-option [value]="config._id ?? config.id ?? ''">
+                                        {{ getConfigOptionLabel(config) }}
+                                    </mat-option>
+                                }
+                            </mat-select>
                         </mat-form-field>
 
                         <div class="grid grid-cols-3 gap-3">
@@ -135,37 +154,41 @@
                             <mat-form-field appearance="outline">
                                 <mat-label>{{ 'smartReport.pdfEngine' | transloco }}</mat-label>
                                 <mat-select formControlName="pdfEngine">
-                                    <mat-option value="puppeteer">Puppeteer</mat-option>
-                                    <mat-option value="pdfkit">PDFKit</mat-option>
+                                    <mat-option value="puppeteer">{{
+                                        'smartReport.pdfEngineHtml' | transloco
+                                    }}</mat-option>
+                                    <mat-option value="pdfkit">{{
+                                        'smartReport.pdfEngineClassic' | transloco
+                                    }}</mat-option>
                                 </mat-select>
                             </mat-form-field>
                         </div>
 
                         <div class="flex items-center gap-4">
-                            <label class="text-sm text-gray-600"
+                            <label class="text-sm text-stone-600 dark:text-stone-400"
                                 >{{ 'smartReport.primaryColor' | transloco }}:</label
                             >
                             <input
                                 type="color"
                                 formControlName="primaryColor"
-                                class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer"
+                                class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
                             />
                         </div>
 
                         <!-- Workspace Logo (drag & resize on preview) -->
-                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3">
+                        <div class="space-y-3 rounded-xl border border-stone-100 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/50">
                             <div class="flex items-center gap-2">
-                                <mat-icon class="text-gray-400 !w-5 !h-5 !text-[20px]"
+                                <mat-icon class="!h-5 !w-5 !text-[20px] text-stone-400 dark:text-stone-500"
                                     >image</mat-icon
                                 >
-                                <span class="text-sm font-medium text-gray-700">{{
+                                <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{
                                     'smartReport.workspaceLogo' | transloco
                                 }}</span>
                             </div>
 
                             @if (logoUrl()) {
                                 <div
-                                    class="relative group border border-gray-200 rounded-lg p-2 bg-white flex justify-center"
+                                    class="relative group flex justify-center rounded-lg border border-stone-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900/70"
                                 >
                                     <img
                                         [src]="logoUrl()"
@@ -175,14 +198,14 @@
                                     <button
                                         type="button"
                                         (click)="removeLogo()"
-                                        class="absolute top-1 right-1 p-1 bg-red-50 text-red-500 rounded-full hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        class="absolute right-1 top-1 rounded-full bg-red-50 p-1 text-red-500 opacity-0 transition-opacity hover:bg-red-100 group-hover:opacity-100 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/60"
                                         [matTooltip]="'smartReport.remove' | transloco"
                                     >
                                         <mat-icon class="!w-4 !h-4 !text-[16px]">close</mat-icon>
                                     </button>
                                 </div>
                                 <label
-                                    class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-gray-300 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer text-xs text-gray-500 w-full justify-center"
+                                    class="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 px-3 py-2 text-xs text-stone-500 transition-colors hover:border-indigo-300 hover:bg-indigo-50 dark:border-gray-600 dark:text-stone-400 dark:hover:border-indigo-600 dark:hover:bg-indigo-950/30"
                                 >
                                     <mat-icon class="!text-base">upload</mat-icon>
                                     {{ 'smartReport.replaceLogo' | transloco }}
@@ -193,14 +216,14 @@
                                         class="hidden"
                                     />
                                 </label>
-                                <p class="text-xs text-gray-400">
+                                <p class="text-xs text-stone-400 dark:text-stone-500">
                                     {{ 'smartReport.dragLogoToPosition' | transloco }}
                                 </p>
 
                                 <!-- Precise width / height inputs -->
                                 <div class="grid grid-cols-2 gap-2 pt-1">
                                     <label class="block">
-                                        <span class="text-[10px] text-gray-400">
+                                        <span class="text-[10px] text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.width' | transloco }} (px)
                                         </span>
                                         <input
@@ -209,11 +232,11 @@
                                             min="24"
                                             max="800"
                                             step="1"
-                                            class="w-full px-2 py-1.5 border border-gray-200 rounded-md text-xs"
+                                            class="w-full rounded-md border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                         />
                                     </label>
                                     <label class="block">
-                                        <span class="text-[10px] text-gray-400">
+                                        <span class="text-[10px] text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.height' | transloco }} (px)
                                         </span>
                                         <input
@@ -222,20 +245,20 @@
                                             min="16"
                                             max="600"
                                             step="1"
-                                            class="w-full px-2 py-1.5 border border-gray-200 rounded-md text-xs"
+                                            class="w-full rounded-md border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                         />
                                     </label>
                                 </div>
 
                                 <!-- Auto-fit content below logo -->
                                 <div
-                                    class="flex items-center justify-between pt-2 border-t border-gray-200"
+                                    class="flex items-center justify-between border-t border-stone-200 pt-2 dark:border-gray-800"
                                 >
                                     <div class="flex-1 pr-2">
-                                        <p class="text-xs font-medium text-gray-700">
+                                        <p class="text-xs font-medium text-stone-700 dark:text-stone-300">
                                             {{ 'smartReport.autoFitBelowLogo' | transloco }}
                                         </p>
-                                        <p class="text-[10px] text-gray-400 mt-0.5">
+                                        <p class="mt-0.5 text-[10px] text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.autoFitContentHint' | transloco }}
                                         </p>
                                     </div>
@@ -246,7 +269,7 @@
                                 </div>
                             } @else {
                                 <label
-                                    class="flex items-center justify-center gap-2 px-3 py-3 rounded-lg border border-dashed border-gray-300 hover:border-indigo-300 hover:bg-indigo-50 transition-colors cursor-pointer text-sm text-gray-500 w-full"
+                                    class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 px-3 py-3 text-sm text-stone-500 transition-colors hover:border-indigo-300 hover:bg-indigo-50 dark:border-gray-600 dark:text-stone-400 dark:hover:border-indigo-600 dark:hover:bg-indigo-950/30"
                                 >
                                     <mat-icon class="!text-base">upload</mat-icon>
                                     {{ 'smartReport.uploadLogo' | transloco }}
@@ -257,19 +280,19 @@
                                         class="hidden"
                                     />
                                 </label>
-                                <p class="text-xs text-gray-400 text-center">
+                                <p class="text-center text-xs text-stone-400 dark:text-stone-500">
                                     PNG, JPG, SVG &middot; max 500KB
                                 </p>
                             }
                         </div>
 
                         <!-- Content top padding -->
-                        <div class="pt-3 border-t border-gray-100">
-                            <div class="flex items-center justify-between mb-1">
-                                <label class="text-xs font-medium text-gray-500">{{
+                        <div class="border-t border-stone-100 pt-3 dark:border-gray-800">
+                            <div class="mb-1 flex items-center justify-between">
+                                <label class="text-xs font-medium text-stone-500 dark:text-stone-400">{{
                                     'smartReport.contentTopPadding' | transloco
                                 }}</label>
-                                <span class="text-xs text-gray-500 font-mono">
+                                <span class="font-mono text-xs text-stone-500 dark:text-stone-400">
                                     {{ templateForm.get('bodyTopPadding')?.value || 0 }} px
                                     @if (
                                         (templateForm.get('bodyTopPadding')?.value || 0) === 0 &&
@@ -288,30 +311,30 @@
                                 min="0"
                                 max="400"
                                 step="4"
-                                class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-indigo-600 dark:bg-gray-700"
                             />
-                            <p class="text-[10px] text-gray-400 mt-1">
+                            <p class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">
                                 {{ 'smartReport.contentTopPaddingHint' | transloco }}
                             </p>
                         </div>
 
                         <!-- Footer Legend -->
-                        <div class="pt-3 border-t border-gray-100">
-                            <label class="text-xs font-medium text-gray-500 mb-1 block">{{
+                        <div class="border-t border-stone-100 pt-3 dark:border-gray-800">
+                            <label class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">{{
                                 'smartReport.footerLegend' | transloco
                             }}</label>
                             <textarea
                                 formControlName="legend"
-                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs text-gray-600 resize-none"
+                                class="w-full resize-none rounded-lg border border-stone-200 px-3 py-2 text-xs text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
                                 rows="2"
                                 [placeholder]="'smartReport.footerLegendPlaceholder' | transloco"
                             ></textarea>
                         </div>
 
                         <!-- Pagination -->
-                        <div class="pt-3 border-t border-gray-100">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-medium text-gray-500">{{
+                        <div class="border-t border-stone-100 pt-3 dark:border-gray-800">
+                            <div class="mb-2 flex items-center justify-between">
+                                <label class="text-xs font-medium text-stone-500 dark:text-stone-400">{{
                                     'smartReport.pageNumbers' | transloco
                                 }}</label>
                                 <label class="relative inline-flex items-center cursor-pointer">
@@ -321,7 +344,7 @@
                                         class="sr-only peer"
                                     />
                                     <div
-                                        class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"
+                                        class="peer h-5 w-9 rounded-full bg-stone-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-stone-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-indigo-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:bg-gray-700 dark:after:border-gray-600"
                                     ></div>
                                 </label>
                             </div>
@@ -347,9 +370,9 @@
                         </div>
 
                         <!-- Watermark -->
-                        <div class="pt-3 border-t border-gray-100">
-                            <div class="flex items-center justify-between mb-2">
-                                <label class="text-xs font-medium text-gray-500">{{
+                        <div class="border-t border-stone-100 pt-3 dark:border-gray-800">
+                            <div class="mb-2 flex items-center justify-between">
+                                <label class="text-xs font-medium text-stone-500 dark:text-stone-400">{{
                                     'smartReport.watermark' | transloco
                                 }}</label>
                                 <label class="relative inline-flex items-center cursor-pointer">
@@ -359,7 +382,7 @@
                                         class="sr-only peer"
                                     />
                                     <div
-                                        class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"
+                                        class="peer h-5 w-9 rounded-full bg-stone-200 after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:border after:border-stone-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-indigo-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none dark:bg-gray-700 dark:after:border-gray-600"
                                     ></div>
                                 </label>
                             </div>
@@ -372,12 +395,11 @@
                                             (click)="
                                                 templateForm.get('watermarkType')?.setValue('text')
                                             "
-                                            class="flex-1 py-2 rounded-lg border text-xs transition-colors"
-                                            [class.bg-indigo-50]="
+                                            class="flex-1 rounded-lg border py-2 text-xs transition-colors text-stone-700 dark:text-stone-300"
+                                            [ngClass]="
                                                 templateForm.get('watermarkType')?.value === 'text'
-                                            "
-                                            [class.border-indigo-300]="
-                                                templateForm.get('watermarkType')?.value === 'text'
+                                                    ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                    : 'border-stone-200 dark:border-gray-700'
                                             "
                                         >
                                             {{ 'smartReport.watermarkText' | transloco }}
@@ -387,12 +409,11 @@
                                             (click)="
                                                 templateForm.get('watermarkType')?.setValue('logo')
                                             "
-                                            class="flex-1 py-2 rounded-lg border text-xs transition-colors"
-                                            [class.bg-indigo-50]="
+                                            class="flex-1 rounded-lg border py-2 text-xs transition-colors text-stone-700 dark:text-stone-300"
+                                            [ngClass]="
                                                 templateForm.get('watermarkType')?.value === 'logo'
-                                            "
-                                            [class.border-indigo-300]="
-                                                templateForm.get('watermarkType')?.value === 'logo'
+                                                    ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                    : 'border-stone-200 dark:border-gray-700'
                                             "
                                         >
                                             {{ 'smartReport.watermarkLogo' | transloco }}
@@ -405,7 +426,7 @@
                                             <input
                                                 type="text"
                                                 formControlName="watermarkText"
-                                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs"
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                 [placeholder]="
                                                     'smartReport.watermarkTextPlaceholder'
                                                         | transloco
@@ -418,7 +439,7 @@
                                         templateForm.get('watermarkType')?.value === 'logo' &&
                                         !logoUrl()
                                     ) {
-                                        <p class="text-xs text-amber-500">
+                                        <p class="text-xs text-amber-500 dark:text-amber-300">
                                             {{ 'smartReport.watermarkLogoHint' | transloco }}
                                         </p>
                                     }
@@ -426,10 +447,10 @@
                                     <!-- Opacity slider -->
                                     <div>
                                         <div class="flex items-center justify-between mb-1">
-                                            <label class="text-xs text-gray-400">{{
+                                            <label class="text-xs text-stone-400 dark:text-stone-500">{{
                                                 'smartReport.watermarkOpacity' | transloco
                                             }}</label>
-                                            <span class="text-xs text-gray-500 font-mono"
+                                            <span class="font-mono text-xs text-stone-500 dark:text-stone-400"
                                                 >{{
                                                     templateForm.get('watermarkOpacity')?.value *
                                                         100 | number: '1.0-0'
@@ -442,13 +463,13 @@
                                             min="0.01"
                                             max="0.5"
                                             step="0.01"
-                                            class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                            class="h-1.5 w-full cursor-pointer appearance-none rounded-lg bg-stone-200 accent-indigo-600 dark:bg-gray-700"
                                         />
                                     </div>
 
                                     <!-- Pattern -->
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
                                             'smartReport.watermarkPattern' | transloco
                                         }}</label>
                                         <div class="flex gap-1">
@@ -459,14 +480,12 @@
                                                         .get('watermarkPattern')
                                                         ?.setValue('single')
                                                 "
-                                                class="flex-1 py-2 rounded-lg border text-xs transition-colors"
-                                                [class.bg-indigo-50]="
+                                                class="flex-1 rounded-lg border py-2 text-xs transition-colors text-stone-700 dark:text-stone-300"
+                                                [ngClass]="
                                                     templateForm.get('watermarkPattern')?.value ===
                                                     'single'
-                                                "
-                                                [class.border-indigo-300]="
-                                                    templateForm.get('watermarkPattern')?.value ===
-                                                    'single'
+                                                        ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                        : 'border-stone-200 dark:border-gray-700'
                                                 "
                                             >
                                                 {{ 'smartReport.watermarkSingle' | transloco }}
@@ -478,14 +497,12 @@
                                                         .get('watermarkPattern')
                                                         ?.setValue('repeated')
                                                 "
-                                                class="flex-1 py-2 rounded-lg border text-xs transition-colors"
-                                                [class.bg-indigo-50]="
+                                                class="flex-1 rounded-lg border py-2 text-xs transition-colors text-stone-700 dark:text-stone-300"
+                                                [ngClass]="
                                                     templateForm.get('watermarkPattern')?.value ===
                                                     'repeated'
-                                                "
-                                                [class.border-indigo-300]="
-                                                    templateForm.get('watermarkPattern')?.value ===
-                                                    'repeated'
+                                                        ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                        : 'border-stone-200 dark:border-gray-700'
                                                 "
                                             >
                                                 {{ 'smartReport.watermarkRepeated' | transloco }}
@@ -497,13 +514,13 @@
                         </div>
 
                         <!-- Security Configuration -->
-                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-4">
+                        <div class="space-y-4 rounded-xl border border-stone-100 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <mat-icon class="text-gray-400 !w-5 !h-5 !text-[20px]"
+                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-stone-400 dark:text-stone-500"
                                         >lock</mat-icon
                                     >
-                                    <span class="text-sm font-medium text-gray-700">{{
+                                    <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{
                                         'smartReport.securityTitle' | transloco
                                     }}</span>
                                 </div>
@@ -514,17 +531,17 @@
                             </div>
 
                             @if (templateForm.get('securityEnabled')?.value) {
-                                <div class="space-y-4 pt-2 border-t border-gray-200">
+                                <div class="space-y-4 border-t border-stone-200 pt-2 dark:border-gray-800">
                                     <!-- Password -->
                                     <div>
-                                        <label class="text-xs text-gray-400 mb-1 block">{{
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
                                             'smartReport.securityPassword' | transloco
                                         }}</label>
                                         <div class="relative">
                                             <input
                                                 [type]="showPassword ? 'text' : 'password'"
                                                 formControlName="securityPassword"
-                                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm pr-10"
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 pr-10 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                 [placeholder]="
                                                     'smartReport.securityPasswordPlaceholder'
                                                         | transloco
@@ -533,14 +550,14 @@
                                             <button
                                                 type="button"
                                                 (click)="showPassword = !showPassword"
-                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                class="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-500 dark:hover:text-stone-300"
                                             >
                                                 <mat-icon class="!w-4 !h-4 !text-[16px]">{{
                                                     showPassword ? 'visibility_off' : 'visibility'
                                                 }}</mat-icon>
                                             </button>
                                         </div>
-                                        <p class="text-[10px] text-gray-400 mt-1">
+                                        <p class="mt-1 text-[10px] text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.securityPasswordHint' | transloco }}
                                         </p>
                                     </div>
@@ -549,13 +566,13 @@
                         </div>
 
                         <!-- Signature Configuration -->
-                        <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-4">
+                        <div class="space-y-4 rounded-xl border border-stone-100 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <mat-icon class="text-gray-400 !w-5 !h-5 !text-[20px]"
+                                    <mat-icon class="!h-5 !w-5 !text-[20px] text-stone-400 dark:text-stone-500"
                                         >draw</mat-icon
                                     >
-                                    <span class="text-sm font-medium text-gray-700">{{ 'smartReport.signature' | transloco }}</span>
+                                    <span class="text-sm font-medium text-stone-700 dark:text-stone-300">{{ 'smartReport.signature' | transloco }}</span>
                                 </div>
                                 <mat-slide-toggle
                                     formControlName="signatureEnabled"
@@ -564,10 +581,10 @@
                             </div>
 
                             @if (templateForm.get('signatureEnabled')?.value) {
-                                <div class="space-y-4 pt-2 border-t border-gray-200">
+                                <div class="space-y-4 border-t border-stone-200 pt-2 dark:border-gray-800">
                                     @if (templateForm.get('signatureImage')?.value) {
                                         <div
-                                            class="relative group border border-gray-200 rounded-lg p-2 bg-white flex justify-center"
+                                            class="relative group flex justify-center rounded-lg border border-stone-200 bg-white p-2 dark:border-gray-700 dark:bg-gray-900/70"
                                         >
                                             <img
                                                 [src]="templateForm.get('signatureImage')?.value"
@@ -580,21 +597,21 @@
                                                         signatureImage: null,
                                                     })
                                                 "
-                                                class="absolute top-1 right-1 p-1 bg-red-50 text-red-500 rounded-full hover:bg-red-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                class="absolute right-1 top-1 rounded-full bg-red-50 p-1 text-red-500 opacity-0 transition-opacity hover:bg-red-100 group-hover:opacity-100 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/60"
                                             >
                                                 <mat-icon class="!w-4 !h-4 !text-[16px]"
                                                     >close</mat-icon
                                                 >
                                             </button>
                                         </div>
-                                        <p class="text-xs text-gray-400">
+                                        <p class="text-xs text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.dragSignatureToPosition' | transloco }}
                                         </p>
 
                                         <!-- Precise width / height inputs -->
                                         <div class="grid grid-cols-2 gap-2 pt-1">
                                             <label class="block">
-                                                <span class="text-[10px] text-gray-400">
+                                                <span class="text-[10px] text-stone-400 dark:text-stone-500">
                                                     {{ 'smartReport.width' | transloco }} (px)
                                                 </span>
                                                 <input
@@ -603,11 +620,11 @@
                                                     min="24"
                                                     max="800"
                                                     step="1"
-                                                    class="w-full px-2 py-1.5 border border-gray-200 rounded-md text-xs"
+                                                    class="w-full rounded-md border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                 />
                                             </label>
                                             <label class="block">
-                                                <span class="text-[10px] text-gray-400">
+                                                <span class="text-[10px] text-stone-400 dark:text-stone-500">
                                                     {{ 'smartReport.height' | transloco }} (px)
                                                 </span>
                                                 <input
@@ -616,7 +633,7 @@
                                                     min="16"
                                                     max="600"
                                                     step="1"
-                                                    class="w-full px-2 py-1.5 border border-gray-200 rounded-md text-xs"
+                                                    class="w-full rounded-md border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                 />
                                             </label>
                                         </div>
@@ -639,15 +656,15 @@
                 </div>
 
                 <!-- Helper Data - available paths from preview -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-4">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-2">
+                <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                    <h3 class="mb-2 text-sm font-semibold text-stone-950 dark:text-white">
                         {{ 'smartReport.helperData' | transloco }}
                     </h3>
-                    <p class="text-xs text-gray-500 mb-3">
+                    <p class="mb-3 text-xs text-stone-500 dark:text-stone-400">
                         {{ 'smartReport.helperDataHint' | transloco }}
                     </p>
                     @if (helperDataPaths().length === 0) {
-                        <p class="text-xs text-gray-400 italic">
+                        <p class="text-xs italic text-stone-400 dark:text-stone-500">
                             {{ 'smartReport.openFromReportViewer' | transloco }}
                         </p>
                     } @else {
@@ -655,14 +672,14 @@
                             @for (item of helperDataPaths(); track item.path) {
                                 @if (item.type === 'leaf') {
                                     <div
-                                        class="group flex items-center gap-2 py-1.5 px-2 rounded hover:bg-gray-50 text-xs"
+                                        class="group flex items-center gap-2 rounded px-2 py-1.5 text-xs hover:bg-stone-50 dark:hover:bg-gray-800/50"
                                     >
                                         <code
-                                            class="flex-1 min-w-0 truncate text-gray-700 font-mono"
+                                            class="min-w-0 flex-1 truncate font-mono text-stone-700 dark:text-stone-300"
                                             >{{ item.path }}</code
                                         >
                                         <span
-                                            class="text-gray-400 truncate max-w-[120px]"
+                                            class="max-w-[120px] truncate text-stone-400 dark:text-stone-500"
                                             [title]="item.value"
                                             >{{ item.value }}</span
                                         >
@@ -679,7 +696,7 @@
                                     </div>
                                 } @else {
                                     <div class="group flex items-center gap-2 pt-1.5 pb-0.5">
-                                        <span class="text-xs font-medium text-gray-500">{{
+                                        <span class="text-xs font-medium text-stone-500 dark:text-stone-400">{{
                                             item.path
                                         }}</span>
                                         <button
@@ -702,17 +719,17 @@
                 </div>
 
                 <!-- Add Sections toolbar -->
-                <div class="bg-white rounded-2xl border border-gray-200 p-4">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-3">
+                <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                    <h3 class="mb-3 text-sm font-semibold text-stone-950 dark:text-white">
                         {{ 'smartReport.addSections' | transloco }}
                     </h3>
                     <div class="flex flex-wrap gap-2">
                         @for (sectionType of sectionTypes; track sectionType.type) {
                             <button
                                 (click)="addSection(sectionType.type)"
-                                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors text-sm text-gray-700"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-700 transition-colors hover:border-indigo-300 hover:bg-indigo-50 dark:border-gray-700 dark:text-stone-300 dark:hover:border-indigo-600 dark:hover:bg-indigo-950/30"
                             >
-                                <mat-icon class="!text-base text-gray-400">{{
+                                <mat-icon class="!text-base text-stone-400 dark:text-stone-500">{{
                                     sectionType.icon
                                 }}</mat-icon>
                                 {{ sectionType.labelKey | transloco }}
@@ -722,19 +739,19 @@
                 </div>
 
                 <!-- Section List (drag & drop) -->
-                <div class="bg-white rounded-2xl border border-gray-200">
+                <div class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
                     <div
-                        class="px-5 py-3 border-b border-gray-100 flex items-center justify-between"
+                        class="flex items-center justify-between border-b border-stone-100 px-5 py-3 dark:border-gray-800"
                     >
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-900">
+                            <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
                                 {{ 'smartReport.reportLayout' | transloco }}
                             </h3>
-                            <p class="text-xs text-gray-400">
+                            <p class="text-xs text-stone-400 dark:text-stone-500">
                                 {{ 'smartReport.dragToReorder' | transloco }}
                             </p>
                         </div>
-                        <span class="text-xs font-medium text-gray-400"
+                        <span class="text-xs font-medium text-stone-400 dark:text-stone-500"
                             >{{ sections().length }} {{ 'smartReport.sections' | transloco }}</span
                         >
                     </div>
@@ -746,7 +763,7 @@
                     >
                         @if (sections().length === 0) {
                             <div
-                                class="flex flex-col items-center justify-center h-40 text-gray-300"
+                                class="flex h-40 flex-col items-center justify-center text-stone-300 dark:text-stone-600"
                             >
                                 <mat-icon class="!text-4xl !w-10 !h-10 mb-2">add_box</mat-icon>
                                 <p class="text-sm">
@@ -758,17 +775,16 @@
                         @for (section of sections(); track section.id) {
                             <div
                                 cdkDrag
-                                class="flex items-center gap-2 bg-white border rounded-lg px-3 py-2.5 mb-2 cursor-pointer hover:border-indigo-300 transition-colors group"
-                                [class.ring-2]="currentSelectedSection()?.id === section.id"
-                                [class.ring-indigo-500]="
-                                    currentSelectedSection()?.id === section.id
-                                "
-                                [class.bg-indigo-50]="currentSelectedSection()?.id === section.id"
+                                class="group mb-2 flex cursor-pointer items-center gap-2 rounded-lg border border-stone-200 bg-white px-3 py-2.5 transition-colors hover:border-indigo-300 dark:border-gray-700 dark:bg-gray-900/70 dark:hover:border-indigo-600"
+                                [ngClass]="{
+                                    'bg-indigo-50 ring-2 ring-indigo-500 dark:bg-indigo-950/30':
+                                        currentSelectedSection()?.id === section.id,
+                                }"
                                 (click)="selectSection(section)"
                             >
                                 <div
                                     cdkDragHandle
-                                    class="shrink-0 w-6 h-6 rounded flex items-center justify-center cursor-grab text-gray-300 hover:text-gray-500"
+                                    class="flex h-6 w-6 shrink-0 cursor-grab items-center justify-center rounded text-stone-300 hover:text-stone-500 dark:text-stone-600 dark:hover:text-stone-400"
                                 >
                                     <mat-icon class="!text-sm">drag_indicator</mat-icon>
                                 </div>
@@ -787,10 +803,10 @@
                                 </div>
 
                                 <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-gray-800 truncate">
+                                    <p class="truncate text-sm font-medium text-stone-800 dark:text-stone-200">
                                         {{ getSectionLabel(section.type) }}
                                     </p>
-                                    <p class="text-xs text-gray-400 truncate">
+                                    <p class="truncate text-xs text-stone-400 dark:text-stone-500">
                                         @if (section.label) {
                                             {{ section.label }}
                                         } @else if (section.staticContent) {
@@ -818,7 +834,7 @@
                                         [matTooltip]="'smartReport.duplicate' | transloco"
                                         class="!w-7 !h-7"
                                     >
-                                        <mat-icon class="!text-sm text-gray-400"
+                                        <mat-icon class="!text-sm text-stone-400 dark:text-stone-500"
                                             >content_copy</mat-icon
                                         >
                                     </button>
@@ -846,10 +862,10 @@
             <div class="flex-1 min-w-0">
                 <div class="sticky top-20">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-semibold text-gray-500">
+                        <h3 class="text-sm font-semibold text-stone-500 dark:text-stone-400">
                             {{ 'smartReport.preview' | transloco }}
                         </h3>
-                        <span class="text-xs text-gray-400">{{
+                        <span class="text-xs text-stone-400 dark:text-stone-500">{{
                             'smartReport.livePreviewWithSample' | transloco
                         }}</span>
                     </div>
@@ -858,19 +874,19 @@
                     @if (currentSelectedSection(); as sel) {
                         <div
                             cdkDrag
-                            class="absolute z-40 top-12 right-2 w-80 rounded-xl border border-indigo-200 bg-white shadow-2xl max-h-[min(70vh,560px)] flex flex-col"
+                            class="absolute right-2 top-12 z-40 flex max-h-[min(70vh,560px)] w-80 flex-col rounded-xl border border-indigo-200 bg-white shadow-2xl dark:border-indigo-800 dark:bg-gray-900"
                         >
                             <!-- Drag handle / title bar -->
                             <div
                                 cdkDragHandle
-                                class="flex items-center justify-between px-3 py-2 border-b border-gray-100 cursor-grab active:cursor-grabbing select-none rounded-t-xl bg-gray-50"
+                                class="flex cursor-grab select-none items-center justify-between rounded-t-xl border-b border-stone-100 bg-stone-50 px-3 py-2 active:cursor-grabbing dark:border-gray-800 dark:bg-gray-950/50"
                             >
-                                <div class="flex items-center gap-2 min-w-0">
+                                <div class="flex min-w-0 items-center gap-2">
                                     <mat-icon
-                                        class="!text-base !w-4 !h-4 text-gray-400 shrink-0"
+                                        class="!h-4 !w-4 shrink-0 !text-base text-stone-400 dark:text-stone-500"
                                         >drag_indicator</mat-icon
                                     >
-                                    <h3 class="text-sm font-semibold text-gray-900 truncate">
+                                    <h3 class="truncate text-sm font-semibold text-stone-950 dark:text-white">
                                         {{ 'smartReport.edit' | transloco }}
                                         {{ getSectionLabel(sel.type) }}
                                     </h3>
@@ -880,7 +896,7 @@
                                     (click)="selectedSection.set(null)"
                                     class="!w-7 !h-7 shrink-0"
                                 >
-                                    <mat-icon class="!text-base text-gray-400">close</mat-icon>
+                                    <mat-icon class="!text-base text-stone-400 dark:text-stone-500">close</mat-icon>
                                 </button>
                             </div>
 
@@ -889,7 +905,7 @@
                                 @if (sel.type === 'header') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.titleText' | transloco }}</label
                                         >
                                         <input
@@ -901,7 +917,7 @@
                                                     label: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             [placeholder]="'smartReport.reportTitle' | transloco"
                                         />
                                     </div>
@@ -911,7 +927,7 @@
                                 @if (sel.type === 'text') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.content' | transloco }}</label
                                         >
                                         <textarea
@@ -921,7 +937,7 @@
                                                     staticContent: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             rows="4"
                                             [placeholder]="
                                                 'smartReport.enterTextContent' | transloco
@@ -934,7 +950,7 @@
                                 @if (sel.type === 'field') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.label' | transloco }}</label
                                         >
                                         <input
@@ -945,13 +961,13 @@
                                                     label: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             [placeholder]="'smartReport.fieldLabel' | transloco"
                                         />
                                     </div>
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.dataPath' | transloco }}</label
                                         >
                                         <input
@@ -962,12 +978,12 @@
                                                     dataPath: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             [placeholder]="
                                                 'smartReport.dataPathPlaceholder' | transloco
                                             "
                                         />
-                                        <p class="text-xs text-gray-400 mt-1">
+                                        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.dotSeparatedPath' | transloco }}
                                         </p>
                                     </div>
@@ -977,7 +993,7 @@
                                 @if (sel.type === 'table') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.tableTitle' | transloco }}</label
                                         >
                                         <input
@@ -988,13 +1004,13 @@
                                                     label: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             [placeholder]="'smartReport.tableLabel' | transloco"
                                         />
                                     </div>
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.dataPathObject' | transloco }}</label
                                         >
                                         <input
@@ -1005,10 +1021,10 @@
                                                     dataPath: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             placeholder="results.1"
                                         />
-                                        <p class="text-xs text-gray-400 mt-1">
+                                        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
                                             {{ 'smartReport.pathToObject' | transloco }}
                                         </p>
                                     </div>
@@ -1018,7 +1034,7 @@
                                 @if (sel.type === 'image') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.imageUrl' | transloco }}</label
                                         >
                                         <input
@@ -1029,13 +1045,13 @@
                                                     staticContent: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             placeholder="https://example.com/logo.png"
                                         />
                                     </div>
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.altText' | transloco }}</label
                                         >
                                         <input
@@ -1046,7 +1062,7 @@
                                                     label: $any($event.target).value,
                                                 })
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             [placeholder]="'smartReport.companyLogo' | transloco"
                                         />
                                     </div>
@@ -1056,7 +1072,7 @@
                                 @if (sel.type === 'spacer') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.heightPx' | transloco }}</label
                                         >
                                         <input
@@ -1068,7 +1084,7 @@
                                                     $any($event.target).value
                                                 )
                                             "
-                                            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                             min="4"
                                             max="200"
                                         />
@@ -1079,14 +1095,14 @@
                                 @if (sel.type === 'divider') {
                                     <div>
                                         <label
-                                            class="text-xs font-medium text-gray-500 mb-1 block"
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
                                             >{{ 'smartReport.color' | transloco }}</label
                                         >
                                         <input
                                             type="color"
                                             [value]="sel.style?.color || '#E5E7EB'"
                                             (input)="updateStyleColor($any($event.target).value)"
-                                            class="w-9 h-9 rounded-lg border border-gray-200 cursor-pointer"
+                                            class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
                                         />
                                     </div>
                                 }
@@ -1097,14 +1113,14 @@
                                     sel.type === 'text' ||
                                     sel.type === 'field'
                                 ) {
-                                    <div class="pt-3 border-t border-gray-100 space-y-3">
-                                        <h4 class="text-xs font-medium text-gray-500">
+                                    <div class="space-y-3 border-t border-stone-100 pt-3 dark:border-gray-800">
+                                        <h4 class="text-xs font-medium text-stone-500 dark:text-stone-400">
                                             {{ 'smartReport.style' | transloco }}
                                         </h4>
 
                                         <!-- Text Align -->
                                         <div>
-                                            <label class="text-xs text-gray-400 mb-1 block">{{
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
                                                 'smartReport.textAlign' | transloco
                                             }}</label>
                                             <div class="flex gap-1">
@@ -1114,12 +1130,11 @@
                                                 ) {
                                                     <button
                                                         (click)="updateTextAlign(align)"
-                                                        class="flex-1 py-2 rounded-lg border text-sm transition-colors"
-                                                        [class.bg-indigo-50]="
+                                                        class="flex-1 rounded-lg border py-2 text-sm transition-colors text-stone-700 dark:text-stone-300"
+                                                        [ngClass]="
                                                             sel.style?.textAlign === align
-                                                        "
-                                                        [class.border-indigo-300]="
-                                                            sel.style?.textAlign === align
+                                                                ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                                : 'border-stone-200 dark:border-gray-700'
                                                         "
                                                     >
                                                         <mat-icon class="!text-base"
@@ -1132,7 +1147,7 @@
 
                                         <!-- Font Size -->
                                         <div>
-                                            <label class="text-xs text-gray-400 mb-1 block">{{
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
                                                 'smartReport.fontSize' | transloco
                                             }}</label>
                                             <input
@@ -1141,7 +1156,7 @@
                                                 (input)="
                                                     updateFontSize(+$any($event.target).value)
                                                 "
-                                                class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
                                                 min="8"
                                                 max="72"
                                             />
@@ -1149,30 +1164,28 @@
 
                                         <!-- Font Weight -->
                                         <div>
-                                            <label class="text-xs text-gray-400 mb-1 block">{{
+                                            <label class="mb-1 block text-xs text-stone-400 dark:text-stone-500">{{
                                                 'smartReport.fontWeight' | transloco
                                             }}</label>
                                             <div class="flex gap-1">
                                                 <button
                                                     (click)="updateFontWeight('normal')"
-                                                    class="flex-1 py-2 rounded-lg border text-sm transition-colors"
-                                                    [class.bg-indigo-50]="
+                                                    class="flex-1 rounded-lg border py-2 text-sm transition-colors text-stone-700 dark:text-stone-300"
+                                                    [ngClass]="
                                                         sel.style?.fontWeight !== 'bold'
-                                                    "
-                                                    [class.border-indigo-300]="
-                                                        sel.style?.fontWeight !== 'bold'
+                                                            ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                            : 'border-stone-200 dark:border-gray-700'
                                                     "
                                                 >
                                                     {{ 'smartReport.normal' | transloco }}
                                                 </button>
                                                 <button
                                                     (click)="updateFontWeight('bold')"
-                                                    class="flex-1 py-2 rounded-lg border text-sm font-bold transition-colors"
-                                                    [class.bg-indigo-50]="
+                                                    class="flex-1 rounded-lg border py-2 text-sm font-bold transition-colors text-stone-700 dark:text-stone-300"
+                                                    [ngClass]="
                                                         sel.style?.fontWeight === 'bold'
-                                                    "
-                                                    [class.border-indigo-300]="
-                                                        sel.style?.fontWeight === 'bold'
+                                                            ? 'border-indigo-300 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30'
+                                                            : 'border-stone-200 dark:border-gray-700'
                                                     "
                                                 >
                                                     {{ 'smartReport.bold' | transloco }}
@@ -1182,7 +1195,7 @@
 
                                         <!-- Text Color -->
                                         <div class="flex items-center gap-3">
-                                            <label class="text-xs text-gray-400">{{
+                                            <label class="text-xs text-stone-400 dark:text-stone-500">{{
                                                 'smartReport.textColor' | transloco
                                             }}</label>
                                             <input
@@ -1191,7 +1204,7 @@
                                                 (input)="
                                                     updateStyleColor($any($event.target).value)
                                                 "
-                                                class="w-8 h-8 rounded border border-gray-200 cursor-pointer"
+                                                class="h-8 w-8 cursor-pointer rounded border border-stone-200 dark:border-gray-700"
                                             />
                                         </div>
                                     </div>
