@@ -1,32 +1,156 @@
 {
   "appFeatures": {
-    "colombia_special_api_identity_lookup": {
-      "title": "Colombia - Información Privada de Ciudadanos",
-      "description": "Accede a información privada de ciudadanos colombianos. Este servicio proporciona datos personales integrales incluyendo verificación detallada de identidad. Contacta al servicio al cliente de Verifik para más detalles."
+    "world_api_dea": {
+      "title": "Global - Verificación Antecedentes DEA",
+      "description": "Servicio integral de verificación de antecedentes usando bases de datos DEA (Administración de Control de Drogas). Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros internacionales de control de drogas."
+    },
+    "usa_api_vehicle": {
+      "title": "Estados Unidos - Verificación de Vehículos",
+      "description": "Recupera información de un vehículo en EE. UU. por placa (plate) y estado (state), con datos decodificados a partir de fuentes estilo NHTSA."
+    },
+    "colombia_api_simit_agreements": {
+      "title": "Colombia - Acuerdos de Pago SIMIT",
+      "description": "Verifica acuerdos de pago activos para comparendos registrados en SIMIT."
+    },
+    "feature_kyc_solution": {
+      "title": "Solución KYC",
+      "description": "Solución de KYC integrada de Verifik: identidad, documento, biometría y listas restrictivas en un flujo extremo a extremo. Referencia por defecto para flujos completos de KYC."
+    },
+    "peru_identity_lookup": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Verifica a un ciudadano peruano por DNI. Indica documentType DNIPE y documentNumber; devuelve campos de identidad de registros oficiales para flujos de KYC y onboarding."
+    },
+    "colombia_api_vehicle_complete": {
+      "title": "Colombia - Información Completa de Vehículo",
+      "description": "Obtén información integral de vehículos colombianos. Incluye detalles de propiedad, especificaciones, estado legal y datos de registro."
+    },
+    "colombia_api_driver": {
+      "title": "Colombia - Verificación de Licencia de Conducción (RUNT)",
+      "description": "Verifica el estado y validez de la licencia de conducción colombiana mediante RUNT."
+    },
+    "colombia_api_registraduria_voting": {
+      "title": "Colombia - Verificación de Registros Electorales",
+      "description": "Servicio de verificación de registros electorales para ciudadanos de Colombia. Proporciona estado de votación e información electoral."
+    },
+    "colombia_api_vehicle": {
+      "title": "Colombia - Información Vehicular Básica",
+      "description": "Obtén datos generales de registro y características básicas de un vehículo colombiano mediante su placa."
+    },
+    "colombia_api_simit_suspensions": {
+      "title": "Colombia - Suspensiones de Licencia SIMIT",
+      "description": "Verifica suspensiones o cancelaciones de licencia de conducción en SIMIT."
+    },
+    "chile_api_vehicle": {
+      "title": "Chile - Verificación de Vehículos",
+      "description": "Consulta por placa (plate, sin espacios ni puntos). Suele devolver marca, modelo, año, chasis/VIN, motor, color, tipo, resumen de multas y RUT del titular si el registro lo permite—útil para flotas, garantías y siniestros."
+    },
+    "colombia_api_vehicle_complete_by_vin": {
+      "title": "Colombia - Reporte Vehicular Completo (Por VIN)",
+      "description": "Obtén un historial exhaustivo y reporte técnico de un vehículo en Colombia usando su número de identificación vehicular (VIN)."
+    },
+    "brasil_api_identity_lookup": {
+      "title": "Brasil - Verificación de Identidad",
+      "description": "Confirma el CPF de una persona física en Brasil contra fuentes oficiales. Envía CPF, fecha de nacimiento en DD/MM/YYYY y el número de documento con o sin separadores; si los datos coinciden, la respuesta devuelve nombres e identificadores normalizados. Pensado para KYC, prevención de fraude y onboarding regulado."
+    },
+    "communication_global_email_otp": {
+      "title": "OTP por Correo",
+      "description": "Envía un código de un solo uso (OTP) por correo electrónico para flujos de verificación de usuarios. Indica la dirección del destinatario y los parámetros del mensaje; la API entrega el OTP y devuelve metadatos de envío y entrega para KYC e inicio de sesión."
+    },
+    "colombia_api_rues": {
+      "title": "Colombia - Consulta RUES básica (v2)",
+      "description": "API v2 (legado): valida el registro empresarial en RUES por NIT. Devuelve datos esenciales con menor costo en catálogo. Para expediente completo use GET /v2/co/rues/complete, o preferir los endpoints v3 en integraciones nuevas."
     },
     "colombia_api_identity_lookup": {
       "title": "Colombia - Verificación de Cédula",
       "description": "Verifica información de cédula de ciudadanía colombiana. Obtén nombre completo, estado del documento y datos básicos de verificación ciudadana."
     },
-    "colombia_special_api_police_identity_lookup": {
-      "title": "Colombia - Verificación de Registros Policiales",
-      "description": "Verifica registros policiales a través del sistema de Policía Nacional de Colombia. Verifica interacciones con autoridades y registros policiales. Requiere tipo de documento, número de documento y fecha de expedición."
-    },
-    "world_api_dea": {
-      "title": "Global - Verificación Antecedentes DEA",
-      "description": "Servicio integral de verificación de antecedentes usando bases de datos DEA (Administración de Control de Drogas). Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros internacionales de control de drogas."
-    },
-    "colombia_api_military_situation": {
-      "title": "Colombia - Registros de Servicio Militar",
-      "description": "Verifica registros de servicio militar a través del sistema militar de Colombia. Verifica estado de servicio, obligaciones militares y registros de servicio. Requiere cédula colombiana (CC) y número de documento."
-    },
     "colombia_api_rethus": {
       "title": "Colombia - Verificación de Registros de Salud",
       "description": "Accede a registros de salud colombianos a través del sistema Rethus. Verifica historial médico, estado de salud e información de proveedores de salud. Requiere tipo de documento (CC, CE, PPT) y número de documento."
     },
-    "colombia_api_rues": {
-      "title": "Colombia - Verificación de Registro de Empresa",
-      "description": "Verifica registro de empresa a través del sistema RUES (Registro Único Empresarial y Social) de Colombia. Verifica registro empresarial, estado legal e información de la empresa. Requiere tipo de documento y número de documento."
+    "colombia_api_contraloria_certificate": {
+      "title": "Colombia - Certificado de Responsabilidad Fiscal (Contraloría)",
+      "description": "Certificado de responsabilidad fiscal de la Contraloría General de la República."
+    },
+    "venezuela_api_identity_lookup": {
+      "title": "Venezuela - Verificación de Identidad",
+      "description": "Esta ruta devuelve datos de identidad para ciudadanos venezolanos con documento nacional CCVE (Cédula de Identidad). Envía el número de cédula como documentNumber; la API resuelve el registro y devuelve nombres estructurados para KYC, onboarding y control de fraude. Para residentes extranjeros, usa GET /v2/ve/foreigner-id (CEVE)."
+    },
+    "mexico_api_vehicle": {
+      "title": "México - Verificación de Vehículos",
+      "description": "El servicio de información de vehículos proporciona información detallada sobre un vehículo en México basado en su número de placa de matrícula. Este servicio específicamente devuelve información sobre la marca, modelo, año, VIN y otros detalles relacionados del vehículo."
+    },
+    "world_api_interpol": {
+      "title": "Global - Verificación Antecedentes Interpol",
+      "description": "Verificación internacional de antecedentes usando bases de datos Interpol. Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros criminales internacionales y listas de búsqueda."
+    },
+    "world_api_ofac": {
+      "title": "Global - Verificación Sanciones OFAC",
+      "description": "Verifica individuos y entidades contra listas de sanciones OFAC (Oficina de Control de Activos Extranjeros). Busca por nombre completo O número de documento con tipo de documento. Verifica cumplimiento con sanciones económicas estadounidenses."
+    },
+    "mexico_identity_lookup": {
+      "title": "México - Verificación de Identidad",
+      "description": "Este punto de acceso verifica el CURP (Clave Única de Registro de Población) frente a registros oficiales. Envía documentType y documentNumber en una solicitud GET; una respuesta exitosa confirma el registro de identidad y devuelve el nombre y datos biográficos validados cuando el CURP es reconocido."
+    },
+    "peru_api_vehicle": {
+      "title": "Perú - Verificación de Vehículos",
+      "description": "El servicio de Información de Vehículos Peruanos proporciona datos detallados sobre vehículos registrados en Perú basándose en su número de placa. La respuesta incluye detalles clave como la marca, modelo, año, números de serie del motor y chasis, capacidad de asientos y tipo de uso del vehículo."
+    },
+    "peru_api_vehicle_soat": {
+      "title": "Perú - Verificación de Vehículos",
+      "description": "Este servicio proporciona información sobre el estado del seguro de un vehículo en Perú. Retorna detalles incluyendo el nombre de la compañía de seguros, fechas de inicio y fin de la póliza, número de placa del vehículo, número de póliza, tipo de uso, clase de vehículo y estado de la póliza."
+    },
+    "colombia_api_simit_subpoenas": {
+      "title": "Colombia - Comparendos SIMIT",
+      "description": "Consulta comparendos de tránsito activos asociados a un documento o vehículo."
+    },
+    "colombia_api_min_trabajo": {
+      "title": "Colombia - Verificación de Certificados Laborales",
+      "description": "Servicio de verificación de certificados laborales para Colombia. Proporciona certificaciones relacionadas con el trabajo e información del estado laboral."
+    },
+    "colombia_api_criminal_history": {
+      "title": "Colombia - Verificación de Antecedentes Legales",
+      "description": "Servicio de verificación de antecedentes legales para ciudadanos de Colombia. Proporciona información sobre procesos judiciales y registros legales."
+    },
+    "costarica_api_identity_lookup": {
+      "title": "Costa Rica - Verificación de Identidad",
+      "description": "Este endpoint verifica la CCCR (Cédula de Identidad Costarricense) frente a fuentes oficiales. Envía documentType con valor CCCR y el documentNumber (cédula sin espacios) en una solicitud GET; la respuesta incluye nombres estructurados para KYC, onboarding y control de fraude."
+    },
+    "chile_api_transport_vehicle": {
+      "title": "Chile - Vehículo de transporte",
+      "description": "Consulta de vehículo de transporte en Chile."
+    },
+    "panama_api_vehicle": {
+      "title": "Panamá - Verificación de Vehículos",
+      "description": "Consulta un vehículo panameño por placa. Devuelve marca, modelo, año y metadatos de registro para verificaciones de cumplimiento y suscripción."
+    },
+    "chile_api_business_lookup": {
+      "title": "Chile - Consulta de Empresa",
+      "description": "Consulta empresas chilenas por RUT: razón social, actividad, rubros y líneas de negocio autorizadas desde registros oficiales para KYB y due diligence de proveedores."
+    },
+    "ecuador_api_vehicle_fines": {
+      "title": "Ecuador - Multas Vehiculares",
+      "description": "Consulta un vehículo ecuatoriano por plate (placa). Devuelve datos de registro y multas pendientes para cumplimiento, flotas y riesgo."
+    },
+    "colombia_api_simit_subpoenas_details": {
+      "title": "Colombia - Detalles de Comparendo SIMIT",
+      "description": "Obtén información detallada de un comparendo específico, incluyendo tipo de infracción y costo."
+    },
+    "brasil_api_company_lookup": {
+      "title": "Brasil - Consulta de Empresa",
+      "description": "Verifica una persona jurídica brasileña contra los registros oficiales de CNPJ. Usa documentType=CNPJ y un documentNumber de 14 dígitos sin separadores. Suele devolver situación registral, domicilio, naturaleza jurídica y actividades económicas. Apto para KYB, debida diligencia y cumplimiento."
+    },
+    "colombia_api_dian_invoicer": {
+      "title": "Colombia - Estado de Facturación Electrónica DIAN",
+      "description": "Verifica el estado de registro de facturación electrónica ante la DIAN."
+    },
+    "api_colombia_contracts": {
+      "title": "Colombia - Verificación de Contratos Gubernamentales",
+      "description": "Verifica contratos gubernamentales y registros de compras públicas en Colombia."
+    },
+    "colombia_api_police_rnmc": {
+      "title": "Colombia - Verificación de Registros Policiales",
+      "description": "Servicio de verificación de registros policiales para ciudadanos de Colombia. Proporciona información sobre interacciones policiales y registros."
     },
     "colombia_api_dian": {
       "title": "Colombia - Verificación de Información Tributaria",
@@ -44,61 +168,17 @@
       "title": "Colombia - Estado del SOAT Vehicular",
       "description": "Verifica las pólizas activas y vigencia del SOAT (Seguro Obligatorio de Accidentes de Tránsito) para una placa dada."
     },
-    "usa_api_vehicle": {
-      "title": "Estados Unidos - Verificación de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "world_api_onu": {
-      "title": "Global - Verificación Sanciones ONU",
-      "description": "Verifica individuos y entidades contra listas de sanciones de las Naciones Unidas. Busca por nombre completo O número de documento con tipo de documento. Verifica cumplimiento con regímenes de sanciones internacionales."
-    },
-    "feature_kyc_solution": {
-      "title": "Solución KYC",
-      "description": "Proporciona servicios confiables de verificación y validación."
+    "colombia_api_simit_resolutions": {
+      "title": "Colombia - Resoluciones SIMIT",
+      "description": "Accede a resoluciones formales de infracciones de tránsito en etapa de sanción."
     },
     "world_api_covid": {
       "title": "Global - Estadísticas COVID",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Consulta estadísticas de COVID-19 por país y fecha. Devuelve contadores agregados de casos, fallecimientos y recuperados para analítica y tableros."
     },
     "colombia_api_affiliations": {
-      "title": "Colombia - Afiliaciones en Salud",
-      "description": "Verificación de afiliaciones de salud y seguridad social para Colombia. Accede a información de EPS, ARL y pensión."
-    },
-    "colombia_api_contraloria_certificate": {
-      "title": "Colombia - Certificado de Contraloría",
-      "description": "El servicio permite verificar el certificado de buena conducta emitido por la Contraloría General de Colombia ingresando el tipo y número de documento, y devuelve la fecha de consulta junto con el certificado en formato PDF codificado en base64."
-    },
-    "peru_identity_lookup": {
-      "title": "Peru - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Peru. Verifica información personal y autenticidad del documento."
-    },
-    "venezuela_api_identity_lookup": {
-      "title": "Venezuela - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Venezuela. Verifica información personal y autenticidad del documento."
-    },
-    "colombia_api_vehicle_complete": {
-      "title": "Colombia - Información Completa de Vehículo",
-      "description": "Obtén información integral de vehículos colombianos. Incluye detalles de propiedad, especificaciones, estado legal y datos de registro."
-    },
-    "mexico_api_vehicle": {
-      "title": "Mexico - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Mexico. Verifica registro del vehículo e información básica."
-    },
-    "feature_passwordless_solution": {
-      "title": "Autenticación sin Contraseña",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "world_api_interpol": {
-      "title": "Global - Verificación Antecedentes Interpol",
-      "description": "Verificación internacional de antecedentes usando bases de datos Interpol. Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros criminales internacionales y listas de búsqueda."
-    },
-    "colombia_api_sena": {
-      "title": "Colombia - Certificados SENA",
-      "description": "Verificación de certificados académicos y de formación del SENA (Servicio Nacional de Aprendizaje)."
-    },
-    "world_api_ofac": {
-      "title": "Global - Verificación Sanciones OFAC",
-      "description": "Verifica individuos y entidades contra listas de sanciones OFAC (Oficina de Control de Activos Extranjeros). Busca por nombre completo O número de documento con tipo de documento. Verifica cumplimiento con sanciones económicas estadounidenses."
+      "title": "Colombia - Afiliaciones de Salud y Seguridad Social",
+      "description": "Verifica afiliaciones de salud y seguridad social para Colombia. Accede a información de EPS, ARL y pensión."
     },
     "colombia_api_registraduria_certificate": {
       "title": "Colombia - Verificación de Registros Electorales",
@@ -106,63 +186,95 @@
     },
     "colombia_api_delinquent_debtors": {
       "title": "Colombia - Deudores Morosos (BDME)",
-      "description": "Verifica si un individuo o empresa está registrado en el Boletín de Deudores Morosos del Estado (BDME)."
-    },
-    "world_api_fbi": {
-      "title": "Global - Verificación Antecedentes FBI",
-      "description": "Verificación integral de antecedentes usando bases de datos FBI (Oficina Federal de Investigaciones). Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros criminales federales."
-    },
-    "mexico_identity_lookup": {
-      "title": "Mexico - Verificación de Identidad Consulta",
-      "description": "Servicio general de verificación de datos para Mexico. Proporciona verificación y validación confiable de información."
+      "description": "Verifica si una persona o empresa está registrada en la BDME (Base de Datos de Morosos)."
     },
     "ecuador_api_identity_lookup": {
       "title": "Ecuador - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Ecuador. Verifica información personal y autenticidad del documento."
-    },
-    "colombia_api_driver": {
-      "title": "Colombia - Consulta de Licencia de Conducción",
-      "description": "Verifica el estado de la licencia de conducción, categorías y restricciones a través del sistema RUNT."
-    },
-    "peru_api_vehicle": {
-      "title": "Peru - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Peru. Verifica registro del vehículo e información básica."
-    },
-    "peru_api_vehicle_soat": {
-      "title": "Peru - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Peru. Verifica registro del vehículo e información básica."
+      "description": "Consulta la identidad de un ciudadano ecuatoriano con documentType CCEC y documentNumber. Devuelve campos basados en registros oficiales para KYC y cumplimiento."
     },
     "ecuador_api_vehicle": {
-      "title": "Ecuador - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Ecuador. Verifica registro del vehículo e información básica."
+      "title": "Ecuador - Verificación de Vehículos",
+      "description": "Consulta un vehículo ecuatoriano por plate (sin espacios ni puntos). Útil para verificación, seguros, flotas y cumplimiento."
     },
-    "feature_data_api": {
-      "title": "API de Datos",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "colombia_api_min_trabajo": {
-      "title": "Colombia - Verificación de Certificados Laborales",
-      "description": "Servicio de verificación de certificados laborales para Colombia. Proporciona certificaciones relacionadas con el trabajo e información del estado laboral."
-    },
-    "colombia_api_registraduria_voting": {
-      "title": "Colombia - Verificación de Registros Electorales",
-      "description": "Servicio de verificación de registros electorales para ciudadanos de Colombia. Proporciona estado de votación e información electoral."
+    "colombia_api_simit_complete": {
+      "title": "Colombia - Historial de Tránsito Completo SIMIT",
+      "description": "Verificación completa de antecedentes de tránsito incluyendo comparendos, acuerdos y suspensiones."
     },
     "world_api_europol": {
       "title": "Global - Verificación Antecedentes Europol",
       "description": "Verificación europea de antecedentes usando bases de datos Europol. Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros criminales europeos y bases de datos de inteligencia."
     },
-    "colombia_api_criminal_history": {
-      "title": "Colombia - Verificación de Antecedentes Legales",
-      "description": "Servicio de verificación de antecedentes legales para ciudadanos de Colombia. Proporciona información sobre procesos judiciales y registros legales."
-    },
     "colombia_api_judicial_processes": {
-      "title": "Colombia - Consulta de Procesos Judiciales",
+      "title": "Colombia - Procesos Judiciales",
       "description": "Búsqueda de procesos judiciales usando número de documento en los juzgados de Colombia."
     },
-    "colombia_api_vehicle": {
-      "title": "Colombia - Información Vehicular Básica",
-      "description": "Obtén datos generales de registro y características básicas de un vehículo colombiano mediante su placa."
+    "panama_api_identity_full_lookup": {
+      "title": "Panamá - Verificación de Identidad",
+      "description": "Verificación extendida de identidad panameña. Indica la cédula para obtener campos completos de identidad incluyendo nombres, fechas y metadatos de registro para KYC."
+    },
+    "ecuador_api_criminal_history": {
+      "title": "Ecuador - Antecedentes Penales",
+      "description": "Consulta de antecedentes penales en Ecuador. Indica el número de documento del ciudadano para verificar registros pendientes y antecedentes judiciales en flujos de cumplimiento y contratación."
+    },
+    "panama_api_identity_lookup": {
+      "title": "Panamá - Verificación de Identidad",
+      "description": "Validación de identidad para personas en Panamá con la CCPA (Cédula de Identidad Personal). Envías documentType (CCPA), documentNumber normalizado y dateOfBirth en DD/MM/YYYY; la API contrasta los datos con fuentes civiles oficiales. Pensada para KYC, onboarding y reducción de fraude en flujos totalmente automatizados por HTTPS."
+    },
+    "spain_api_identity_lookup": {
+      "title": "España - Verificación de Identidad",
+      "description": "Validación de identidad para personas en España mediante consulta a fuentes oficiales. Envías tipo de documento (DNIES o NIE), número (sin espacios) y fecha de vencimiento (DD/MM/YYYY); la API comprueba coherencia entre documento, nombre y caducidad. Sirve para KYC, reducción de fraude y cumplimiento en onboarding, contratación, seguros o marketplaces: sabrás si el documento existe, está vigente y corresponde a la persona indicada."
+    },
+    "peru_identity_extra_lookup": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Consulta extendida de identidad peruana con campos personales adicionales. Indica documentType DNIPE y documentNumber; devuelve datos de identidad enriquecidos cuando estén disponibles."
+    },
+    "usa_api_driver_license_lookup": {
+      "title": "Estados Unidos - Verificación de Licencia de Conducción",
+      "description": "Consulta el estado, vigencia, restricciones, endosos y designaciones de una licencia de conducir de Florida mediante documentNumber."
+    },
+    "communication_global_messaging_whatsapp": {
+      "title": "Global - Mensajería WhatsApp",
+      "description": "Envía mensajes de WhatsApp a nivel global a través del gateway de Verifik. Indica el número del destinatario, la plantilla y las variables; útil para entrega de OTP, alertas transaccionales y notificaciones de KYC."
+    },
+    "biometrics_id_scan_only": {
+      "title": "Escaneo de Documento de Identidad",
+      "description": "Flujo de escaneo de documento de identidad sin coincidencia biométrica. Devuelve campos de OCR y señales de validación del documento para pipelines de KYC."
+    },
+    "brasil_api_vehicle": {
+      "title": "Brasil - Verificación de Vehículos",
+      "description": "El servicio de información de vehículos brasileños te permite verificar la autenticidad de la información de vehículos brasileños proporcionando el número de placa de matrícula del vehículo. El servicio devuelve información detallada sobre el vehículo, incluyendo su marca, modelo, año de fabricación, motor, transmisión, tipo de combustible y más."
+    },
+    "argentina_api_identity_lookup": {
+      "title": "Argentina - Verificación de Identidad",
+      "description": "Consulta la identidad de un ciudadano argentino con documentType DNIAR y documentNumber. Devuelve campos basados en registros oficiales para KYC y cumplimiento."
+    },
+    "ecuador_api_company_lookup": {
+      "title": "Ecuador - Consulta de Empresa",
+      "description": "Consulta datos de empresa ecuatoriana por RUCEC (documentType + documentNumber). Devuelve campos de registro para KYB y cumplimiento."
+    },
+    "colombia_special_api_police_identity_lookup": {
+      "title": "Colombia - Verificación de Registros Policiales",
+      "description": "Verifica registros policiales a través del sistema de Policía Nacional de Colombia. Verifica interacciones con autoridades y registros policiales. Requiere tipo de documento, número de documento y fecha de expedición."
+    },
+    "colombia_api_military_situation": {
+      "title": "Colombia - Registros de Servicio Militar",
+      "description": "Verifica registros de servicio militar a través del sistema militar de Colombia. Verifica estado de servicio, obligaciones militares y registros de servicio. Requiere cédula colombiana (CC) y número de documento."
+    },
+    "world_api_onu": {
+      "title": "Global - Verificación Sanciones ONU",
+      "description": "Verifica individuos y entidades contra listas de sanciones de las Naciones Unidas. Busca por nombre completo O número de documento con tipo de documento. Verifica cumplimiento con regímenes de sanciones internacionales."
+    },
+    "feature_passwordless_solution": {
+      "title": "Autenticación sin Contraseña",
+      "description": "Solución de autenticación sin contraseña que combina verificación de identidad con prueba biométrica. Permite onboarding sin contraseñas y mantiene un rastro de auditoría verificable."
+    },
+    "colombia_api_sena": {
+      "title": "Colombia - Certificados SENA",
+      "description": "Verifica registros de formación y certificación del SENA (Servicio Nacional de Aprendizaje)."
+    },
+    "world_api_fbi": {
+      "title": "Global - Verificación Antecedentes FBI",
+      "description": "Verificación integral de antecedentes usando bases de datos FBI (Oficina Federal de Investigaciones). Busca por nombre completo O número de documento con tipo de documento. Verifica individuos contra registros criminales federales."
     },
     "colombia_api_pico_placa": {
       "title": "Colombia - Restricciones de Pico y Placa",
@@ -170,267 +282,111 @@
     },
     "feature_pdf_generator": {
       "title": "Generador de Informes PDF",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "panama_api_identity_full_lookup": {
-      "title": "Panama - Verificación Completa de Identidad",
-      "description": "Servicio integral de verificación de identidad para ciudadanos de Panama. Proporciona información personal completa incluyendo nombre completo, detalles del documento y datos adicionales de verificación."
+      "description": "Genera reportes en PDF a partir de validaciones de Verifik. Agrega los registros consultados en un documento descargable y listo para auditoría para equipos de cumplimiento."
     },
     "chile_api_identity_lookup": {
       "title": "Chile - Verificación de Identidad",
       "description": "Verifica identidad en Chile con RUN/RUT: datos nominales frente a fuentes del registro civil oficial para KYC, onboarding y prevención de fraude."
     },
-    "costarica_api_identity_lookup": {
-      "title": "Costa Rica — Identidad nacional (CCCR)",
-      "description": "Verificación de cédula nacional costarricense (CCCR): GET /v2/cr/cedula con documentType CCCR y documentNumber para KYC y prevención de fraude."
-    },
-    "ecuador_api_criminal_history": {
-      "title": "Ecuador - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Ecuador. Verifica información personal y autenticidad del documento."
-    },
-    "chile_api_vehicle": {
-      "title": "Chile - Verificación de Vehículos",
-      "description": "Consulta vehículos inscritos en Chile por patente: bastidor, motor, marca, modelo, año, color, multas cuando apliquen y datos del titular si la fuente los expone; útil para flotas, seguros y cumplimiento."
-    },
-    "panama_api_identity_lookup": {
-      "title": "Panama - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Panama. Verifica información personal y autenticidad del documento."
-    },
-    "panama_api_vehicle": {
-      "title": "Panama - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Panama. Verifica registro del vehículo e información básica."
-    },
-    "chile_api_business_lookup": {
-      "title": "Chile - Consulta de Empresa",
-      "description": "Consulta empresas chilenas por RUT: razón social, rubro, actividad y líneas de servicio autorizadas según registros oficiales para KYB y debida diligencia de proveedores."
-    },
-    "spain_api_identity_lookup": {
-      "title": "Spain - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Spain. Verifica información personal y autenticidad del documento."
-    },
-    "ecuador_api_vehicle_fines": {
-      "title": "Ecuador - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Ecuador. Verifica registro del vehículo e información básica."
-    },
     "colombia_api_vehicle_complete_by_plate": {
       "title": "Colombia - Reporte Vehicular Completo (Por Placa)",
       "description": "Obtén un historial exhaustivo y reporte técnico de un vehículo en Colombia usando su número de placa."
     },
-    "colombia_api_vehicle_complete_by_vin": {
-      "title": "Colombia - Reporte Vehicular Completo (Por VIN)",
-      "description": "Obtén un historial exhaustivo y reporte técnico de un vehículo en Colombia usando su número de identificación vehicular (VIN)."
-    },
-    "peru_identity_extra_lookup": {
-      "title": "Peru - Verificación Completa de Identidad",
-      "description": "Servicio integral de verificación de identidad para ciudadanos de Peru. Proporciona información personal completa incluyendo nombre completo, detalles del documento y datos adicionales de verificación."
-    },
     "colombia_api_lawyers": {
-      "title": "Colombia - Registro Nacional de Abogados",
-      "description": "Verifica credenciales, estado activo y sanciones de abogados en el registro nacional."
-    },
-    "brasil_api_identity_lookup": {
-      "title": "Brasil - Verificación de Identidad",
-      "description": "Verifica CPF brasileño con fecha de nacimiento frente a fuentes oficiales: confirma nombre, fecha de nacimiento y datos de identidad para KYC, onboarding y prevención de fraude."
-    },
-    "usa_api_driver_license_lookup": {
-      "title": "Estados Unidos - Verificación de Licencia de Conducción",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "co_bogota_taxi_plate": {
-      "title": "Taxi de Bogotá por placa",
-      "description": "Consulta datos del conductor y tarjeta de operación de taxi registrados en Bogotá usando la placa del vehículo."
-    },
-    "co_bogota_taxi_driver_card": {
-      "title": "Taxi de Bogotá por tarjeta de control",
-      "description": "Consulta datos del conductor y tarjeta de operación de taxi registrados en Bogotá usando el número de tarjeta de control."
-    },
-    "india_api_epic_lookup": {
-      "title": "Consulta de nombre EPIC (India)",
-      "description": "Devuelve datos relacionados con el nombre para un número EPIC (identificador de votante) indio desde la búsqueda electoral de la ECI."
-    },
-    "india_api_epic_voting_lookup": {
-      "title": "Consulta electoral EPIC (India)",
-      "description": "Devuelve detalles del lugar de votación y ubicación electoral para un número EPIC (identificador de votante)."
-    },
-    "usa_api_driver_license_lookup_kansas": {
-      "title": "Verificación de licencia de conducir de Kansas",
-      "description": "Valida el estado, vencimiento, restricciones, endosos y designaciones de la licencia de conducir de Kansas a partir del número de licencia."
-    },
-    "consultar_procesos_judiciales": {
-      "title": "Colombia - Historial de Procesos Judiciales",
-      "description": "Consulta el historial judicial completo y procesos legales activos."
-    },
-    "credit_intent": {
-      "title": "Intención de Compra de Créditos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Colombia - Verificación de Abogados",
+      "description": "Verifica registro y estado profesional de abogados ante el colegio de abogados."
     },
     "ip-lookup": {
       "title": "Consulta de Geoubicación IP",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Geolocaliza una dirección IPv4 o IPv6. Devuelve país, región, ciudad, ISP/ASN y señales de riesgo para detección de fraude y control de acceso."
     },
-    "colombia_api_judicial_records": {
-      "title": "Colombia - Base de Datos de Antecedentes Judiciales",
-      "description": "Consulta antecedentes judiciales e información de historial de fuentes oficiales."
+    "colombia_api_runt_owners": {
+      "title": "Colombia - Verificación de Propietarios de Vehículos (RUNT)",
+      "description": "Verifica propiedad vehicular y propietarios registrados mediante RUNT."
     },
     "communication_messaging_sms": {
       "title": "Mensajería SMS",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Envía mensajes SMS a través del gateway global de Verifik. Indica el número de teléfono destino y el cuerpo del mensaje; admite OTP, alertas transaccionales y notificaciones, con metadatos de entrega en la respuesta."
     },
     "communication_colombia_messaging_whatsapp": {
       "title": "Colombia - Mensajería WhatsApp",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "communication_global_messaging_whatsapp": {
-      "title": "Global - Mensajería WhatsApp",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "communication_global_email_otp": {
-      "title": "OTP por Correo",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "biometrics_id_scan_only": {
-      "title": "Escaneo de Documento de Identidad",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "credit_intent_kyc_passwordless": {
-      "title": "Intención de Crédito KYC sin Contraseña",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "brasil_api_company_lookup": {
-      "title": "Brasil - Consulta de Empresa",
-      "description": "Consulta empresas brasileñas por CNPJ (documentType CNPJ + documentNumber): datos de registro para KYB, alta de proveedores y cumplimiento."
-    },
-    "brasil_api_vehicle": {
-      "title": "Brasil - Verificación de Vehículos",
-      "description": "Consulta datos del vehículo en Brasil por placa (plate): información orientada al registro para flotas, seguros y activos; el alcance depende de la fuente."
-    },
-    "argentina_api_identity_lookup": {
-      "title": "Argentina - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Argentina. Verifica información personal y autenticidad del documento."
-    },
-    "ecuador_api_company_lookup": {
-      "title": "Ecuador - Verificación de Empresa Consulta",
-      "description": "Servicio general de verificación de datos para Ecuador. Proporciona verificación y validación confiable de información."
+      "description": "Envía mensajes de WhatsApp con remitente enrutado en Colombia a través del gateway de Verifik. Indica destinatario, plantilla y variables para alertas transaccionales, OTP y notificaciones de KYC."
     },
     "usa_api_ssn": {
       "title": "Estados Unidos - Verificación de SSN",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Valida un Número de Seguro Social (SSN) de EE. UU. Pasando el SSN como parámetro de consulta documentNumber (tal como figura en el documento)."
     },
-    "colombia_api_dian_invoicer": {
-      "title": "Colombia - Facturador Electrónico DIAN",
-      "description": "Verifica si una empresa o individuo está registrado como facturador electrónico en la DIAN."
-    },
-    "api_colombia_contracts": {
-      "title": "Colombia - Contratos Estatales (SECOP)",
-      "description": "Consulta contratos públicos, propuestas e información de contratistas en el SECOP."
-    },
-    "colombia_api_police_rnmc": {
-      "title": "Colombia - Verificación de Registros Policiales",
-      "description": "Servicio de verificación de registros policiales para ciudadanos de Colombia. Proporciona información sobre interacciones policiales y registros."
-    },
-    "bolivia_api_identity_lookup": {
-      "title": "Bolivia - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Bolivia. Verifica información personal y autenticidad del documento."
-    },
-    "colombia_pep_lookup": {
-      "title": "Colombia - Consulta PEP (Personas Expuestas Políticamente)",
-      "description": "Verifica si un individuo está clasificado como Persona Expuesta Políticamente (PEP) en Colombia."
-    },
-    "api_autodata_manufacturers": {
-      "title": "Base de Datos de Fabricantes de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+    "colombia_api_identity_lookup_extra": {
+      "title": "Colombia - Verificación de Identidad",
+      "description": "La misma integración está disponible como POST con cuerpo JSON con los mismos campos. En GET usa parámetros de query como abajo."
     },
     "world_api_phone_lookup": {
       "title": "Global - Consulta de Teléfono",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Inteligencia sobre números telefónicos. Devuelve operador, tipo de línea, país y señales de validez para apoyar verificaciones de fraude y onboarding."
     },
-    "Mexico_api_ine_model_e": {
-      "title": "Mexico - Verificación de Ine Model E",
-      "description": "Servicio general de verificación de datos para Mexico. Proporciona verificación y validación confiable de información."
+    "colombia_special_api_identity_lookup": {
+      "title": "Colombia - Información Privada de Ciudadanos",
+      "description": "Accede a información privada de ciudadanos colombianos. Este servicio proporciona datos personales integrales incluyendo verificación detallada de identidad. Contacta al servicio al cliente de Verifik para más detalles."
     },
-    "Mexico_api_ine_model_d": {
-      "title": "Mexico - Verificación de Ine Model D",
-      "description": "Servicio general de verificación de datos para Mexico. Proporciona verificación y validación confiable de información."
+    "credit_intent_kyc_passwordless": {
+      "title": "Intención de Crédito KYC sin Contraseña",
+      "description": "Crea una intención de compra de créditos para el flujo de KYC sin contraseña. Devuelve el id de la intención y metadatos de precio para liquidar on-chain con x402 antes de iniciar la sesión de KYC."
     },
-    "Mexico_api_ine_model_c": {
-      "title": "Mexico - Verificación de Ine Model C",
-      "description": "Servicio general de verificación de datos para Mexico. Proporciona verificación y validación confiable de información."
+    "colombia_pep_lookup": {
+      "title": "Colombia - Consulta de Personas Políticamente Expuestas (PEP)",
+      "description": "Verifica si una persona está registrada como políticamente expuesta (PEP) para cumplimiento."
     },
-    "api_autodata_enginer": {
-      "title": "Base de Datos de Motores de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+    "bolivia_api_identity_lookup": {
+      "title": "Bolivia - Verificación de Identidad",
+      "description": "Consulta la identidad de un ciudadano boliviano con documentType CI, documentNumber y dateOfBirth (DD/MM/AAAA). Devuelve campos basados en registros oficiales para KYC y cumplimiento."
     },
-    "colombia_api_rues_full": {
-      "title": "Colombia - Detalles Completos de Empresa (RUES)",
-      "description": "Datos completos de empresas del RUES incluyendo representantes legales, junta directiva e indicadores financieros."
+    "chile_api_driver_license": {
+      "title": "Chile - Licencia de Conducción",
+      "description": "Consulta la licencia por documentNumber (número de licencia). Suele devolver RUT, clase, restricciones, fechas de control, comuna y dirección, según el registro—útil para flotas y RR.HH. donde importa la habilitación para conducir."
     },
-    "api_autodata_enginer_code": {
-      "title": "Consulta de Código de Motor",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "api_autodata_selection": {
-      "title": "Base de Datos de Selección de Vehículos",
-      "description": "Proporciona servicios confiables de verificación y validación."
+    "api_autodata_manufacturers": {
+      "title": "Base de Datos de Fabricantes de Vehículos",
+      "description": "Conjunto de referencia de fabricantes de vehículos. Devuelve la lista de marcas soportadas (con metadatos) para acotar consultas posteriores en Autodata."
     },
     "colombia_api_sisconmp": {
-      "title": "Colombia - Registro de Transporte de Pasajeros (SISCONMP)",
-      "description": "Verifica la idoneidad del conductor y capacidades de operación vehicular para transporte público."
-    },
-    "data_finance_incomestatement": {
-      "title": "Financiero - Estado de Resultados",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "data_finance_balancesheet": {
-      "title": "Financiero - Balance General",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "data_finance_cashflow": {
-      "title": "Financiero - Flujo de Caja",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "data_finance_stockprice": {
-      "title": "Financiero - Precio de Acciones",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "paraguay_api_identity_lookup": {
-      "title": "Paraguay - Verificación de Identidad Consulta",
-      "description": "Servicio general de verificación de datos para Paraguay. Proporciona verificación y validación confiable de información."
-    },
-    "canada_api_driver_license_alberta": {
-      "title": "Canada - Verificación de Conductor Licencia Alberta",
-      "description": "Servicio general de verificación de datos para Canada. Proporciona verificación y validación confiable de información."
-    },
-    "canada_api_driver_license_ontario": {
-      "title": "Canada - Verificación de Conductor Licencia Ontario",
-      "description": "Servicio general de verificación de datos para Canada. Proporciona verificación y validación confiable de información."
+      "title": "Colombia - Verificación de Transporte SISCONMP",
+      "description": "Verifica registro de operadores de transporte y carga en el sistema SISCONMP."
     },
     "colombia_api_vehicle_complete_by_plate_simplified": {
       "title": "Colombia - Reporte Vehicular Simplificado",
       "description": "Una versión resumida del chequeo de antecedentes vehiculares centrada en marcadores esenciales físicos y legales."
     },
+    "canada_api_driver_license_ontario": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "| Provincia | Endpoint | Descripción | |----------|----------|-------------| | Columbia Británica | /v2/ca/british-columbia/driver-license | Verificar licencias de conducir de BC con número de documento y apellido | | Ontario | /v2/ca/ontario/driver-license | Verificar licencias de conducir de Ontario con número de documento |"
+    },
     "canada_api_driver_license_quebec": {
-      "title": "Canada - Verificación de Conductor Licencia Quebec",
-      "description": "Servicio general de verificación de datos para Canada. Proporciona verificación y validación confiable de información."
+      "title": "Canadá - Licencia de Conducción",
+      "description": "Valida una licencia de conducir canadiense (Quebec). Indica el número de licencia y los campos de soporte; devuelve emisión, estado y metadatos de identidad para verificaciones de KYC."
     },
     "ocr_scan_pro": {
       "title": "Escaneo OCR de Documentos Pro",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "el_salvador_api_identity_lookup": {
-      "title": "El Salvador - Verificación de El Salvador Api Identidad Consulta",
-      "description": "Servicio general de verificación de datos para El Salvador. Proporciona verificación y validación confiable de información."
-    },
-    "canada_api_driver_license_british-columbia": {
-      "title": "Canada - Verificación de Conductor Licencia British-columbia",
-      "description": "Servicio general de verificación de datos para Canada. Proporciona verificación y validación confiable de información."
+      "description": "OCR para producción enfocado en documentos de identidad. Envía una imagen (URL o Base64) y recibe campos de identidad estructurados junto con el texto extraído para flujos de KYC y onboarding."
     },
     "ocr_scan_gpt": {
       "title": "Escaneo OCR de Documentos GPT",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "OCR potenciado por GPT para documentos de identidad y otros escaneos. Envía una imagen y recibe campos estructurados (nombres, números de documento, fechas) junto con el texto extraído para flujos de KYC."
     },
-    "colombia_api_identity_lookup_extra": {
-      "title": "Colombia - Verificación Completa de Identidad",
-      "description": "Servicio integral de verificación de identidad para ciudadanos de Colombia. Proporciona información personal completa incluyendo nombre completo, detalles del documento y datos adicionales de verificación."
+    "el_salvador_api_identity_lookup": {
+      "title": "El Salvador - Verificación de Identidad",
+      "description": "La API de Verificación de Identidad de Verifik te ayuda a autenticar ciudadanos salvadoreños usando datos oficiales del gobierno. Está diseñada para agilizar tus procesos de KYC (Conozca a su Cliente), prevenir fraudes y asegurar el cumplimiento normativo sin complicaciones."
+    },
+    "paraguay_api_identity_lookup": {
+      "title": "Paraguay - Verificación de Identidad",
+      "description": "Consulta la identidad de un ciudadano paraguayo con documentNumber (CIC). Devuelve campos basados en registros oficiales para procesos de KYC y cumplimiento."
+    },
+    "canada_api_driver_license_british-columbia": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "El servicio de Verificación de Licencia de Conducir de British Columbia ofrece un método directo para verificar la autenticidad y validez de una licencia de conducir en la provincia de British Columbia, Canadá. Utilizando este servicio, puedes validar rápidamente una licencia de conducir basándose en el número de documento y apellido proporcionados."
+    },
+    "colombia_api_identity_ce_foreigner_id": {
+      "title": "Colombia - Verificación de Estado Migratorio",
+      "description": "Servicio de verificación de registros migratorios para Colombia. Proporciona estado migratorio e información de registro de extranjeros."
     },
     "colombia_api_identity_pep_foreigner_id": {
       "title": "Colombia - Verificación de Estado Migratorio",
@@ -438,255 +394,199 @@
     },
     "ocr_scan_studio": {
       "title": "Escaneo OCR de Documentos Studio",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Para garantizar los más altos niveles de precisión y confiabilidad de los datos, toda la información extraída pasa por un riguroso proceso de validación y verificación. Cada campo es evaluado, con un indicador de estado claro que muestra si la predicción OCR fue precisa, dando a los usuarios confianza en la calidad de los resultados."
     },
     "canada_api_company": {
-      "title": "Canada - Verificación de Empresa",
-      "description": "Servicio general de verificación de datos para Canada. Proporciona verificación y validación confiable de información."
-    },
-    "us_api_passport_entries": {
-      "title": "United States - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de United States. Verifica información personal y autenticidad del documento."
-    },
-    "mexico_api_company": {
-      "title": "Mexico - Verificación de Empresa",
-      "description": "Servicio general de verificación de datos para Mexico. Proporciona verificación y validación confiable de información."
-    },
-    "face_recognition_compare": {
-      "title": "Comparación Facial",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "face_recognition_compare_live": {
-      "title": "Comparación Facial en Vivo",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "face_recognition_liveness": {
-      "title": "Detección de Vitalidad Facial",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "title": "Canadá - Consulta de Empresa",
+      "description": "Consulta registros empresariales provinciales en Canadá con business (nombre de la empresa) y province (código de provincia de dos letras). Suele devolver número de empresa, estado, identificadores de registro y domicilio cuando hay coincidencia. Apto para KYB, debida diligencia y cumplimiento."
     },
     "face_recognition_search_live_face": {
       "title": "Búsqueda Facial en Vivo",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Ejecuta detección de vitalidad en una sola imagen de prueba y, si pasa, realiza búsqueda 1:N en una colección."
+    },
+    "face_recognition_compare": {
+      "title": "Comparación Facial",
+      "description": "Compara una imagen de prueba contra una o más imágenes de galería y retorna un puntaje de similitud. Usa search_mode para balancear velocidad y precisión."
+    },
+    "face_recognition_compare_live": {
+      "title": "Comparación Facial en Vivo",
+      "description": "Compara una imagen de prueba en vivo contra una galería y realiza validación de vitalidad en la prueba. Tanto el umbral de comparación como el de vitalidad son configurables."
+    },
+    "face_recognition_liveness": {
+      "title": "Detección de Vitalidad Facial",
+      "description": "Detecta si una imagen facial enviada proviene de una persona en vivo o de un spoof (foto, reproducción de pantalla, copia impresa). Retorna un puntaje de vitalidad y un resultado de aprobado/rechazado basado en un umbral de puntaje mínimo."
     },
     "face_recognition_verify": {
       "title": "Verificación Facial",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Verifica que una o más imágenes de rostro coincidan con una persona enrolada concreta identificada por id (MongoDB _id de la persona). Devuelve el perfil enrolado y un score de similitud cuando la coincidencia supera min_score. Opcionalmente usa collection_id para acotar la verificación."
     },
     "face_recognition_detect": {
       "title": "Detección Facial",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Detecta rostros humanos en una imagen. Devuelve cuadros delimitadores y señales de calidad; se usa habitualmente como paso previo a flujos de vivacidad o comparación de rostros."
     },
     "face_recognition_search_crops": {
       "title": "Búsqueda Facial (Recortes)",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Realiza búsqueda 1:N optimizada para pequeños recortes faciales, ideal cuando no puedes escalar imágenes."
     },
     "face_recognition_search": {
       "title": "Búsqueda Facial",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Busca una o más imágenes contra una colección facial y retorna coincidencias potenciales clasificadas por similitud."
+    },
+    "mexico_api_company": {
+      "title": "México - Consulta de Empresa",
+      "description": "Este punto de acceso consulta una persona moral mexicana por su identificador FME (Folio Mercantil Electrónico). Usa GET con documentType=FME y documentNumber para obtener datos oficiales de registro, como la razón social y la ciudad, desde fuentes del registro mercantil gubernamental."
     },
     "colombia_api_vehicle_valores_fasecolda_by_plate": {
-      "title": "Colombia - Valor de Referencia Vehicular por Placa",
-      "description": "Determina el valor comercial (Fasecolda) de un vehículo usando su placa."
+      "title": "Colombia - Valores Vehiculares Fasecolda (por Placa)",
+      "description": "Obtén valores comerciales de vehículos de Fasecolda por placa."
     },
     "colombia_api_vehicle_valores_fasecolda_by_code": {
-      "title": "Colombia - Valor de Referencia Vehicular por Código",
-      "description": "Determina el valor comercial de un vehículo usando su código Fasecolda específico."
+      "title": "Colombia - Valores Vehiculares Fasecolda (por Código)",
+      "description": "Obtén valores comerciales de vehículos de Fasecolda por código."
+    },
+    "colombia_api_simit_plate": {
+      "title": "Colombia - Comparendos por Placa SIMIT",
+      "description": "Consulta comparendos y sanciones asociados a una placa vehicular específica."
+    },
+    "argentina_api_vehicle": {
+      "title": "Argentina - Verificación de Vehículos",
+      "description": "El servicio de información de vehículos argentinos proporciona información detallada sobre vehículos registrados en Argentina usando su número de placa de matrícula. Este servicio devuelve datos completos del vehículo incluyendo marca, modelo, año, especificaciones del motor y detalles de registro."
+    },
+    "colombia_api_rues_full": {
+      "title": "Colombia - RUES Completo (v2)",
+      "description": "API v2 (legado): recupera información empresarial completa del registro RUES de Colombia por NIT—registro mercantil, representantes y actividades. Mayor costo que la consulta básica v2 por consolidar más detalle oficial."
     },
     "usa_api_company": {
       "title": "Estados Unidos - Consulta de Empresa",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Devuelve información para una empresa estadounidense por nombre empresarial (SEC EDGAR). Envía business en el cuerpo JSON de la solicitud POST."
     },
-    "colombia_api_runt_owners": {
-      "title": "Colombia - Historial de Propietarios de Vehículos",
-      "description": "Obtiene la cadena completa de propiedad y dueños actuales de un vehículo desde el RUNT."
+    "usa_api_driver_license_lookup_kansas": {
+      "title": "CONSULTAR LICENCIA DE KANSAS",
+      "description": "El Servicio de Validación de Licencia de Manejo de Kansas permite a los desarrolladores validar programáticamente el estado, restricciones, endosos y designaciones de las licencias de manejo de Kansas. Al proporcionar un número válido de licencia de manejo de Kansas, los usuarios pueden obtener una respuesta que incluye detalles como el estado de la licencia, fecha de vencimiento, cualquier restricción o endoso, y designaciones asociadas con la licencia."
     },
-    "chile_api_driver_license": {
-      "title": "Chile - Licencia de Conducción",
-      "description": "Obtén datos de la licencia de conducir chilena por número de documento de licencia: RUT, clase, fechas de control, dirección, restricciones y campos del registro para screening laboral y cumplimiento de movilidad."
-    },
-    "colombia_api_lawyers_certificate": {
-      "title": "Colombia - Certificado Disciplinario de Abogados",
-      "description": "Obtén el certificado oficial de antecedentes disciplinarios para profesionales del derecho."
-    },
-    "argentina_api_vehicle": {
-      "title": "Argentina - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Argentina. Verifica registro del vehículo e información básica."
-    },
-    "argentina_api_company_lookup": {
-      "title": "Argentina - Verificación de Argentina Api Empresa Consulta",
-      "description": "Servicio general de verificación de datos para Argentina. Proporciona verificación y validación confiable de información."
-    },
-    "bolivia_api_vehicle": {
-      "title": "Bolivia - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Bolivia. Verifica registro del vehículo e información básica."
+    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
+      "title": "Colombia - Historial de Accidentes Fasecolda",
+      "description": "Consulta historial de accidentes y siniestros vehiculares de Fasecolda por placa."
     },
     "brasil_api_criminal_history": {
-      "title": "Brasil - Verificación de Antecedentes",
-      "description": "Verificación de antecedentes en Brasil (CPF + fecha de nacimiento): resultado orientado a screening con campos de identidad e informe oficial cuando la fuente lo entrega—no constituye asesoría legal."
-    },
-    "bolivia_api_business_lookup": {
-      "title": "Bolivia - Verificación de Bolivia Api Business Consulta",
-      "description": "Servicio general de verificación de datos para Bolivia. Proporciona verificación y validación confiable de información."
+      "title": "brasil api criminal history",
+      "description": "El servicio de Verificación de Antecedentes de Brasil proporciona información detallada sobre individuos brasileños. Al realizar una consulta, la respuesta incluye datos relevantes como nombres asociados, capacidad para emitir reportes, número de certificación, número de documento, tipo de documento, primer nombre, nombre completo, apellido y un archivo PDF codificado en base64."
     },
     "costa_rica_api_business_lookup": {
       "title": "Costa Rica — Consulta empresarial (NITE)",
       "description": "Consulta KYB para empresas en Costa Rica: GET /v2/cr/company con documentType NITE y documentNumber (identificador NITE) para registro y verificación comercial."
     },
-    "paraguay_api_business_lookup": {
-      "title": "Paraguay - Verificación de Business Consulta",
-      "description": "Servicio general de verificación de datos para Paraguay. Proporciona verificación y validación confiable de información."
+    "argentina_api_company_lookup": {
+      "title": "Argentina - Consulta de Empresa",
+      "description": "Recuperar datos de empresa por CUIT."
     },
-    "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-      "title": "Colombia - Historial de Siniestros Vehiculares (Fasecolda)",
-      "description": "Consulta el historial de pérdida total y reclamos por accidentes de un vehículo en Fasecolda."
-    },
-    "colombia_api_vehicle_tax": {
-      "title": "Colombia - Estado de Impuestos Vehiculares",
-      "description": "Consulta el estado de pago e historial de los impuestos vehiculares anuales."
+    "bolivia_api_business_lookup": {
+      "title": "Bolivia - Consulta de Empresa",
+      "description": "Recuperar datos de empresa boliviana por identificador tributario."
     },
     "colombia_api_vehicle_accidentality_bogota": {
       "title": "Colombia - Accidentalidad Vehicular Bogotá",
       "description": "Consulta registros de accidentes e incidentes de tránsito registrados específicamente en la base de datos de tránsito distrital de Bogotá."
     },
-    "api_data_sheet_vehicle": {
-      "title": "Ficha Técnica de Vehículo",
-      "description": "Proporciona servicios confiables de verificación y validación."
+    "colombia_api_vehicle_tax": {
+      "title": "Colombia - Estado de Impuestos Vehiculares",
+      "description": "Consulta el estado de pago e historial de los impuestos vehiculares anuales."
     },
-    "api_data_sheet_vehicle_by-plate_br": {
-      "title": "Brasil - Ficha Técnica de Vehículo (por Placa)",
-      "description": "Ficha técnica vehicular ampliada en Brasil por placa (data-sheet-by-plate): más detalle técnico que la consulta básica por placa, según cobertura del registro."
+    "colombia_api_lawyers_certificate": {
+      "title": "Colombia - Verificación de Abogados",
+      "description": "Obtén certificación y verificación del estado profesional de abogados."
     },
-    "face_recognition_search_active_user": {
-      "title": "Búsqueda Facial (Usuario Activo)",
-      "description": "Proporciona servicios confiables de verificación y validación."
+    "colombia_api_judicial_records": {
+      "title": "Colombia - Antecedentes Judiciales",
+      "description": "Accede a antecedentes judiciales e historial legal de ciudadanos colombianos."
     },
-    "matpis_appointments": {
-      "title": "Citas MATPIS",
-      "description": "Proporciona servicios confiables de verificación y validación."
-    },
-    "chile_api_taxpayer_lookup": {
-      "title": "Chile - Consulta de Contribuyente (RUT)",
-      "description": "Consulta datos asociados al RUT de contribuyente en Chile: campos de identidad que devuelve la fuente para verificación fiscal y cruce de personas o empresas."
+    "paraguay_api_business_lookup": {
+      "title": "Paraguay - Consulta de Empresa",
+      "description": "Recuperar datos de empresa paraguaya por identificador."
     },
     "chile_api_validate": {
-      "title": "Chile - Validación de Documento de Identidad",
-      "description": "Flujo de validación reforzada de documentos de identidad chilenos (RUN/RUT) con tipo y número de documento y número de serie opcional, para comprobaciones adicionales de autenticidad."
+      "title": "chile api validate",
+      "description": "Envía RUN o RUT, número de documento y serie impresa para obtener un estado de vigencia desde fuentes de validación civil o tributaria—úsalo cuando deba confirmarse el documento físico, no solo el número."
     },
-    "colombia_api_simit_agreements": {
-      "title": "Colombia - Acuerdos de Pago SIMIT",
-      "description": "Verifica acuerdos de pago activos por multas de tránsito registradas en SIMIT."
+    "chile_api_taxpayer_lookup": {
+      "title": "chile api taxpayer lookup",
+      "description": "Devuelve campos de nombre e identificadores alineados con uso tributario—útil para KYB, altas de proveedores y validación de facturación donde el RUT debe coincidir con el contribuyente registrado."
     },
-    "colombia_api_simit_suspensions": {
-      "title": "Colombia - Suspensiones de Licencia SIMIT",
-      "description": "Consulta suspensiones o cancelaciones de licencia de conducción en el sistema SIMIT."
-    },
-    "colombia_api_simit_subpoenas": {
-      "title": "Colombia - Consulta de Comparendos SIMIT",
-      "description": "Consulta comparendos de tránsito activos asociados a un documento o vehículo."
-    },
-    "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - Detalles de Comparendo SIMIT",
-      "description": "Obtén información detallada sobre un comparendo específico, incluyendo tipo de infracción y costo."
-    },
-    "colombia_api_simit_resolutions": {
-      "title": "Colombia - Resoluciones Sancionatorias SIMIT",
-      "description": "Accede a las resoluciones formales por infracciones de tránsito que han llegado a etapa de sanción."
-    },
-    "colombia_api_simit_complete": {
-      "title": "Colombia - Reporte Completo SIMIT",
-      "description": "Verificación integral de antecedentes de tránsito incluyendo multas, acuerdos y suspensiones por documento."
-    },
-    "colombia_api_simit_plate": {
-      "title": "Colombia - SIMIT por Placa",
-      "description": "Consulta multas de tránsito y sanciones asociadas directamente a una placa de vehículo."
-    },
-    "world_api_passport_entries": {
-      "title": "United States - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de United States. Verifica información personal y autenticidad del documento."
-    },
-    "validate-document": {
-      "title": "Colombia - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Colombia. Verifica información personal y autenticidad del documento."
+    "paraguay_api_vehicle": {
+      "title": "Paraguay - Verificación de Vehículos",
+      "description": "Consulta un vehículo en Paraguay por plate (placa de matrícula). Devuelve detalles del vehículo y del propietario para verificación y cumplimiento."
     },
     "costa_rica_api_vehicle": {
       "title": "Costa Rica — Verificación vehicular",
       "description": "Consulta de vehículo por placa: GET /v2/cr/vehicle con el parámetro obligatorio plate; devuelve datos del titular y del vehículo, infracciones e historial de propietarios cuando estén disponibles."
     },
-    "paraguay_api_vehicle": {
-      "title": "Paraguay - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Paraguay. Verifica registro del vehículo e información básica."
-    },
     "usa_api_vehicle_lookup_by_vin": {
       "title": "Estados Unidos - Consulta de Vehículo por VIN",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Decodifica por VIN con el parámetro vin (exactamente 17 caracteres)."
     },
-    "colombia_api_identity_ce_foreigner_id": {
-      "title": "Colombia - Verificación de Estado Migratorio",
-      "description": "Servicio de verificación de registros migratorios para Colombia. Proporciona estado migratorio e información de registro de extranjeros."
-    },
-    "colombia_api_vehicle_fines_bogota": {
-      "title": "Colombia - Multas de Tránsito Bogotá",
-      "description": "Verifica penalidades e infracciones de tránsito locales pendientes restringidas a la ciudad de Bogotá."
+    "guatemala_api_identity_lookup": {
+      "title": "Guatemala - Verificación de Identidad",
+      "description": "La API de Verificación de Identidad de Verifik te ayuda a autenticar ciudadanos guatemaltecos usando datos oficiales del gobierno. Está diseñada para agilizar tus procesos de KYC (Conozca a su Cliente), prevenir fraudes y asegurar el cumplimiento normativo sin complicaciones."
     },
     "colombia_api_vehicle_fines_medellin": {
       "title": "Colombia - Multas de Tránsito Medellín",
       "description": "Verifica penalidades e infracciones de tránsito locales pendientes restringidas a la ciudad de Medellín."
     },
-    "guatemala_api_identity_lookup": {
-      "title": "Guatemala - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Guatemala. Verifica información personal y autenticidad del documento."
+    "colombia_api_vehicle_fines_bogota": {
+      "title": "Colombia - Multas de Tránsito Bogotá",
+      "description": "Verifica penalidades e infracciones de tránsito locales pendientes restringidas a la ciudad de Bogotá."
     },
     "honduras_api_identity_lookup": {
       "title": "Honduras - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Honduras. Verifica información personal y autenticidad del documento."
+      "description": "La API de Verificación de Identidad de Verifik te ayuda a autenticar ciudadanos hondureños usando datos oficiales del gobierno. Está diseñada para agilizar tus procesos de KYC (Conozca a su Cliente), prevenir fraudes y asegurar el cumplimiento normativo sin complicaciones."
     },
     "republica_dominicana_api_citizen_lookup": {
-      "title": "Dominican Republic - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Dominican Republic. Verifica información personal y autenticidad del documento."
+      "title": "República Dominicana - Verificación de Identidad",
+      "description": "La API de Verificación de Identidad de Verifik te ayuda a autenticar ciudadanos dominicanos usando datos oficiales del gobierno. Está diseñada para agilizar tus procesos de KYC (Conozca a su Cliente), prevenir fraudes y asegurar el cumplimiento normativo sin complicaciones."
     },
     "venezuela_foreigner_api": {
       "title": "Venezuela - Verificación de Estado Migratorio",
       "description": "Servicio de verificación de registros migratorios para Venezuela. Proporciona estado migratorio e información de registro de extranjeros."
     },
-    "colombia_sisben_api_lookup": {
-      "title": "Colombia - Verificación de Puntaje SISBEN",
-      "description": "Verifica el grupo de clasificación y estado de una persona en el sistema de apoyo social SISBEN."
-    },
-    "spain_api_vehicle_lookup": {
-      "title": "Spain - Verificación de Vehículo",
-      "description": "Servicio estándar de verificación de vehículos para Spain. Verifica registro del vehículo e información básica."
-    },
-    "spain_api_company_lookup": {
-      "title": "Spain - Verificación de Spain Api Empresa Consulta",
-      "description": "Servicio general de verificación de datos para Spain. Proporciona verificación y validación confiable de información."
-    },
-    "panama_api_business_lookup": {
-      "title": "Panama - Verificación de Panama Api Business Consulta",
-      "description": "Servicio general de verificación de datos para Panama. Proporciona verificación y validación confiable de información."
+    "bolivia_api_vehicle": {
+      "title": "Bolivia - Verificación de Vehículos",
+      "description": "Consulta un vehículo en Bolivia por plate (placa de matrícula). Devuelve detalles del vehículo y del registro para verificación y cumplimiento."
     },
     "uruguay_api_identity_lookup": {
       "title": "Uruguay - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Uruguay. Verifica información personal y autenticidad del documento."
+      "description": "La API de Verificación de Identidad de Verifik te ayuda a autenticar ciudadanos uruguayos usando datos oficiales del gobierno. Está diseñada para agilizar tus procesos de KYC (Conozca a su Cliente), prevenir fraudes y asegurar el cumplimiento normativo sin complicaciones."
+    },
+    "spain_api_company_lookup": {
+      "title": "España - Consulta de Empresa",
+      "description": "Consulta de datos de empresa en España por identificador fiscal (por ejemplo CIF). La respuesta te ayuda en KYB y due diligence: confirmar que la entidad existe y alinear razón social o estado con tu política de contratación de proveedores o clientes B2B. No reemplaza un informe legal o auditoría contable; sí automatiza el paso previo de “¿esta empresa es quien dice ser?” en tiempo de solicitud."
+    },
+    "panama_api_business_lookup": {
+      "title": "Panamá - Consulta de Empresa",
+      "description": "Consulta de empresa en Panamá por RUC. Envías documentType (RUC), el documentNumber del contribuyente y el dv (dígito verificador). Sirve para KYB, alta de proveedores y revisiones de cumplimiento cuando necesitas razón social, estado y representación en una sola respuesta HTTPS."
+    },
+    "validate-document": {
+      "title": "validate-document",
+      "description": "Valida la imagen capturada de un documento de identidad colombiano. Devuelve señales de vivacidad y autenticidad del documento para reforzar flujos de captura de KYC."
     },
     "peru_api_identity_ce_foreigner_id": {
       "title": "Peru - Verificación de Estado Migratorio",
       "description": "Servicio de verificación de registros migratorios para Peru. Proporciona estado migratorio e información de registro de extranjeros."
     },
     "colombia_api_rues_full_v3": {
-      "title": "Colombia - Reporte Detallado de Empresa (RUES V3)",
-      "description": "API V3 con detalles completos de registro corporativo, información accionaria y situación legal."
+      "title": "Colombia - RUES Completo (v3)",
+      "description": "Recupera información empresarial completa del registro RUES de Colombia (NIT + categoría: RM, PROP, RUNEOL, etc.). Mismos parámetros que GET /v3/co/rues, con registro mercantil, actividades económicas, establecimientos y representantes legales. Mayor costo que la consulta resumen v3 por consolidar más fuentes oficiales."
     },
     "colombia_api_rues_v3": {
-      "title": "Colombia - Registro Básico de Empresa (RUES V3)",
-      "description": "API V3 para verificar el estado activo y detalles básicos de registro de empresas en el RUES."
-    },
-    "peru_identity_lookup_v3": {
-      "title": "Peru - Verificación de Identidad",
-      "description": "Servicio estándar de verificación de identidad para ciudadanos de Peru. Verifica información personal y autenticidad del documento."
+      "title": "Colombia - Consulta RUES resumen (v3)",
+      "description": "Consulta RUES v3 por NIT y categoría de registro (RM, PROP, RNT, ESAL, etc.). Devuelve un resumen normalizado por categoría—no el expediente completo. Menor costo; use colombia_api_rues_full_v3 para representantes, actividades y establecimientos."
     },
     "peru_identity_extra_lookup_v3": {
-      "title": "Peru - Verificación Completa de Identidad",
-      "description": "Servicio integral de verificación de identidad para ciudadanos de Peru. Proporciona información personal completa incluyendo nombre completo, detalles del documento y datos adicionales de verificación."
+      "title": "Perú - Verificación de Identidad",
+      "description": "Esta llamada API realiza una verificación extendida de identidad para un ciudadano peruano usando su número de DNI (Documento Nacional de Identidad). Este Servicio recupera información personal detallada. Devuelve datos como el nombre completo del individuo, primer nombre, apellido, estado civil, fecha de nacimiento, número de documento, fechas de expedición y vencimiento, y detalles adicionales como dirección y firma de verificación, certificado por Verifik."
+    },
+    "peru_identity_lookup_v3": {
+      "title": "Perú - Verificación de Identidad",
+      "description": "Consulta estándar de DNI peruano (v3) ante RENIEC: valida el número de documento y devuelve datos básicos de identidad. Usa documentType=DNI y el documentNumber de 8 dígitos."
     },
     "colombia_api_identity_ppt_foreigner_id": {
       "title": "Colombia - Verificación de Estado Migratorio",
@@ -696,21 +596,89 @@
       "title": "Colombia - Verificación de Certificados Laborales",
       "description": "Servicio de verificación de certificados laborales para Colombia. Proporciona certificaciones relacionadas con el trabajo e información del estado laboral."
     },
-    "peru_api_company_lookup_v3": {
-      "title": "Peru - Verificación de Empresa Consulta V3",
-      "description": "Servicio general de verificación de datos para Peru. Proporciona verificación y validación confiable de información."
+    "colombia_sisben_api_lookup": {
+      "title": "Colombia - Verificación de Puntaje SISBEN",
+      "description": "Verifica puntaje y clasificación del SISBEN (Sistema de Identificación de Potenciales Beneficiarios)."
     },
     "face_recognition_detect_face": {
       "title": "Detección Facial",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Detecta y valida la presencia de un rostro humano en una imagen. Útil como paso previo a flujos de vivacidad o comparación de rostros; devuelve cuadros delimitadores y señales de calidad."
+    },
+    "peru_api_company_lookup_v3": {
+      "title": "Perú - Consulta de Empresa",
+      "description": "Consulta una empresa peruana por RUC con documentType=RUC y documentNumber. Devuelve razón social, estado, dirección y condición del contribuyente desde registros oficiales (KYB y debida diligencia)."
     },
     "document-liveness": {
       "title": "Detección de Vitalidad de Documento",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Verifica si una imagen capturada de un documento de identidad es real o un ataque de pantalla/impresión. Devuelve puntajes e indicadores de vivacidad para reforzar la captura de documentos en KYC."
+    },
+    "consultar_procesos_judiciales": {
+      "title": "Colombia - Procesos Judiciales",
+      "description": "Consulta historial judicial completo y procesos legales activos."
+    },
+    "credit_intent": {
+      "title": "Intención de Compra de Créditos",
+      "description": "Crea una intención de compra de créditos de Verifik para liquidación con x402. Devuelve el id de la intención y metadatos de precio para confirmar el pago on-chain de llamadas posteriores."
+    },
+    "Mexico_api_ine_model_e": {
+      "title": "México - INE Modelo E",
+      "description": "Valida un documento INE mexicano modelo E. Indica los campos de OCR/MRZ de la credencial para verificar autenticidad contra el padrón del INE."
+    },
+    "Mexico_api_ine_model_d": {
+      "title": "México - INE Modelo D",
+      "description": "Valida un documento INE mexicano modelo D. Indica los campos de OCR/MRZ de la credencial para verificar autenticidad contra el padrón del INE."
+    },
+    "Mexico_api_ine_model_c": {
+      "title": "México - INE Modelo C",
+      "description": "Valida un documento INE mexicano modelo C. Indica los campos de OCR/MRZ de la credencial para verificar autenticidad contra el padrón del INE."
+    },
+    "api_autodata_enginer": {
+      "title": "Base de Datos de Motores de Vehículos",
+      "description": "Conjunto de referencia de motores de vehículos. Consulta familias de motores y especificaciones utilizadas por otros endpoints de Autodata."
+    },
+    "api_autodata_enginer_code": {
+      "title": "Consulta de Código de Motor",
+      "description": "Resuelve un motor de vehículo por su código de fabricante/ingeniero. Devuelve especificaciones y datos de compatibilidad para flujos de repuestos y diagnóstico."
+    },
+    "data_finance_incomestatement": {
+      "title": "Financiero - Estado de Resultados",
+      "description": "Estado de resultados de empresas públicas. Indica el ticker para obtener ingresos, gastos y partidas de utilidad para análisis financiero."
+    },
+    "data_finance_balancesheet": {
+      "title": "Financiero - Balance General",
+      "description": "Balance general de empresas públicas. Indica el ticker para obtener activos, pasivos y partidas de patrimonio usados en análisis financiero."
+    },
+    "data_finance_cashflow": {
+      "title": "Financiero - Flujo de Caja",
+      "description": "Estado de flujos de efectivo de empresas públicas. Indica el ticker para obtener flujos operativos, de inversión y de financiamiento."
+    },
+    "data_finance_stockprice": {
+      "title": "Financiero - Precio de Acciones",
+      "description": "Cotizaciones bursátiles de empresas públicas. Indica el ticker para obtener precios actuales e históricos para analítica y tableros."
+    },
+    "canada_api_driver_license_alberta": {
+      "title": "Canadá - Licencia de Conducción",
+      "description": "Valida una licencia de conducir canadiense (Alberta). Indica el número de licencia y los campos de soporte; devuelve emisión, estado y metadatos de identidad para verificaciones de KYC."
+    },
+    "us_api_passport_entries": {
+      "title": "us api passport entries",
+      "description": "Envía firstName, lastName, dateOfBirth, passportNumber y passportCountry como parámetros de consulta. El formato de fecha debe seguir el contrato de tu integración (por ejemplo YYYY-MM-DD o dd/mm/yyyy)."
+    },
+    "api_data_sheet_vehicle_by-plate_br": {
+      "title": "Brasil - Ficha Técnica de Vehículo (por Placa)",
+      "description": "Ficha técnica vehicular ampliada en Brasil por placa (data-sheet-by-plate): más detalle técnico que la consulta básica por placa, según cobertura del registro."
+    },
+    "face_recognition_search_active_user": {
+      "title": "Búsqueda Facial (Usuario Activo)",
+      "description": "Realiza búsqueda 1:N usando una sola imagen de prueba sin detección de vitalidad. Diseñado para flujos de verificación de usuario activo."
+    },
+    "spain_api_vehicle_lookup": {
+      "title": "España - Verificación de Vehículos",
+      "description": "Consulta por matrícula (sin espacios) los datos del vehículo disponibles en la fuente: habitualmente marca, modelo, año, tipo de vehículo u otros campos según disponibilidad. Útil para seguros, compraventa, flotas y antifraud: contrastas lo que declara el usuario con un registro coherente. No sustituye inspección física ni peritaje. Si la matrícula no existe o el formato es incorrecto, recibirás el error documentado (404 o validación)."
     },
     "colombia_api_inpec": {
-      "title": "Colombia - Registros Penitenciarios (INPEC)",
-      "description": "Búsqueda de registros institucionales penitenciarios y estado de encarcelamiento a través del INPEC."
+      "title": "Colombia - Antecedentes Penitenciarios INPEC",
+      "description": "Verifica antecedentes penitenciarios y de reclusión mediante el sistema INPEC."
     },
     "colombia_sigep_by_name": {
       "title": "Colombia - Búsqueda de Funcionarios SIGEP",
@@ -721,8 +689,8 @@
       "description": "Consulta de funcionarios públicos y contratistas gubernamentales colombianos usando su número de documento (CC o NIT). Obtén información profesional completa de los registros SIGEP."
     },
     "colombia_inpec_lookup": {
-      "title": "Colombia - Consulta de Registros Penitenciarios INPEC",
-      "description": "Consulta de registros penitenciarios e información de reclusos colombianos usando número de documento y apellido. Obtén estado de admisión, situación legal y detalles de la institución penitenciaria de los registros INPEC."
+      "title": "Colombia - Antecedentes Penitenciarios INPEC",
+      "description": "Consulta antecedentes penitenciarios e historial de reclusión."
     },
     "zelf-proofs": {
       "title": "Zelf Proofs",
@@ -731,6 +699,30 @@
     "zelf-proof-liveness-active-user": {
       "title": "Zelf Proof con Detección de Vida",
       "description": "Servicio de Zelf Proof con detección de vida para verificación de identidad mejorada. Este servicio proporciona generación de pruebas con detección activa de vida para asegurar que la persona esté físicamente presente durante la verificación."
+    },
+    "guatemala_api_identity_extra_lookup": {
+      "title": "Guatemala - Verificación de Identidad Extra",
+      "description": "Servicio estándar de verificación de identidad para ciudadanos de Guatemala. Verifica información personal y autenticidad del documento."
+    },
+    "india_api_epic_lookup": {
+      "title": "CONSULTAR EPIC INDIA",
+      "description": "Envía un GET con el EPIC en el parámetro de consulta documentNumber. La respuesta incluye campos de nombre estructurados, valores opcionales en script local, y en caso de éxito un bloque de signature de Verifik."
+    },
+    "india_api_epic_voting_lookup": {
+      "title": "CONSULTAR VOTACION EPIC INDIA",
+      "description": "GET con documentNumber (EPIC de 10 caracteres). La respuesta se orienta a datos de mesa y ubicación (no al perfil de nombres de GET /v2/in/epic)."
+    },
+    "co_bogota_taxi_plate": {
+      "title": "Colombia - Consulta Taxi Bogotá por Placa",
+      "description": "Consulta de conductor y vehículo de taxi en Bogotá por número de placa. Retorna información asociada al taxi y su conductor."
+    },
+    "co_bogota_taxi_driver_card": {
+      "title": "Colombia - Consulta Conductor Taxi Bogotá por Tarjeta",
+      "description": "Consulta de conductor de taxi en Bogotá por número de tarjeta/licencia. Retorna información asociada al conductor."
+    },
+    "colombia_api_identity_lookup_premium": {
+      "title": "Colombia - Verificación Premium de Identidad",
+      "description": "Consulta premium de ciudadano colombiano (solo CC). Resuelve automáticamente la fecha de expedición y devuelve los mismos campos enriquecidos que /v2/co/cedula/extra. El costo elevado refleja el procesamiento encadenado aguas arriba."
     }
   }
 }

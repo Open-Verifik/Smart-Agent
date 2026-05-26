@@ -2682,6 +2682,17 @@
             "rateThis": "Rate this"
         },
         "inputPlaceholder": "Type your request (e.g., 'Validate ID 12345678')...",
+        "attachments": {
+            "unsupportedFormat": "That file is not a supported image. Use JPEG, PNG, WebP, or GIF.",
+            "sourceTooLarge": "This image is too large (max {{maxMb}} MB). Choose a smaller file.",
+            "stillTooLarge": "We could not compress this image enough for upload. Try a smaller photo or screenshot.",
+            "compressed": "Image optimized for upload ({{from}} KB → {{to}} KB).",
+            "payloadTooLarge": "Attachments are too large to send together. Remove one or use smaller images.",
+            "preparing": "Optimizing image…"
+        },
+        "errors": {
+            "requestTooLarge": "The upload was too large for the server. Try a smaller image or fewer attachments."
+        },
         "securedBy": "Secured by Verifik",
         "mode": {
             "credits": "CREDITS"

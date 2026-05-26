@@ -29,8 +29,8 @@
             "description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number."
         },
         "colombia_api_rues": {
-            "title": "Colombia - Company Registration Verification",
-            "description": "Verify company registration through Colombia's RUES (Registro Único Empresarial y Social) system. Check business registration, legal status, and company information. Requires document type and document number."
+            "title": "Colombia - RUES Business Lookup (v2, legacy)",
+            "description": "Legacy v2 API: validate Colombian business registration in RUES by NIT. Returns essential company data at lower catalog cost. For a full dossier use GET /v2/co/rues/complete, or prefer v3 endpoints for new integrations."
         },
         "colombia_api_dian": {
             "title": "Colombia - Tax Information Verification",
@@ -405,8 +405,8 @@
             "description": "Provides reliable verification and validation services."
         },
         "colombia_api_rues_full": {
-            "title": "Colombia - RUES Business Verification",
-            "description": "Comprehensive company data from RUES including legal representatives, boards, and financial indicators."
+            "title": "Colombia - RUES Complete (v2, legacy)",
+            "description": "Legacy v2 API: retrieves complete Colombian business information from RUES by NIT—including registry, representatives, and economic activities. Higher cost than basic v2 because more official data is aggregated in one response."
         },
         "api_autodata_enginer_code": {
             "title": "Vehicle Engine Code Lookup",
@@ -721,12 +721,12 @@
             "description": "Verify foreign residents in Peru using the CE (Cédula de Extranjero) via GET /v2/pe/foreigner-id/ce with documentNumber and dateOfBirth (DD/MM/YYYY)."
         },
         "colombia_api_rues_full_v3": {
-            "title": "Colombia - RUES Business Verification",
-            "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing."
+            "title": "Colombia - RUES Complete (v3)",
+            "description": "Retrieves complete Colombian business information from the RUES registry (NIT + category). Same parameters as GET /v3/co/rues, with commercial registry, economic activities, establishments, and legal representatives. Higher cost than the v3 summary endpoint due to full data aggregation."
         },
         "colombia_api_rues_v3": {
-            "title": "Colombia - RUES Business Verification",
-            "description": "RUES V3 business verification with comprehensive company data."
+            "title": "Colombia - RUES Summary (v3)",
+            "description": "V3 basic RUES lookup by NIT and registry category (RM, PROP, RNT, ESAL, etc.). Returns a normalized category summary—not the full dossier. Lower cost; use colombia_api_rues_full_v3 for representatives, activities, and establishments."
         },
         "peru_identity_lookup_v3": {
             "title": "Peru — DNI verification (v3)",

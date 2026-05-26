@@ -479,7 +479,7 @@
                             </div>
 
                             <!-- Bubble -->
-                            <div class="max-w-[85%]">
+                            <div class="max-w-[85%] min-w-0 flex-1">
                                 <div
                                     class="message-bubble p-4 rounded-2xl shadow-sm border"
                                     [class.bg-slate-900]="msg.role === 'user'"
@@ -494,16 +494,34 @@
                                     [class.dark:border-slate-700]="msg.role !== 'user'"
                                     [class.rounded-tl-sm]="msg.role !== 'user'"
                                 >
+                                    @let display = getMessageDisplay(msg);
+
                                     <!-- Content -->
                                     <div
-                                        class="markdown-body text-sm leading-relaxed whitespace-pre-wrap font-sans"
-                                        [innerHTML]="msg.content | markdown"
+                                        class="markdown-body text-sm leading-relaxed break-words font-sans"
+                                        [innerHTML]="display.displayContent | markdown"
                                     ></div>
 
+                                    @if (display.displayToolCall; as toolPreview) {
+                                        <div
+                                            class="mt-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-200 dark:border-slate-700 text-xs max-w-full overflow-hidden"
+                                        >
+                                            <div
+                                                class="font-semibold text-slate-700 dark:text-slate-200 mb-1"
+                                            >
+                                                Tool: {{ toolPreview.tool }}
+                                            </div>
+                                            <pre
+                                                class="whitespace-pre-wrap break-words max-w-full overflow-x-auto m-0 text-slate-600 dark:text-slate-400"
+                                                >{{ toolPreview.args | json }}</pre
+                                            >
+                                        </div>
+                                    }
+
                                     <!-- Images -->
-                                    @if (msg.images && msg.images.length > 0) {
+                                    @if (display.allImages.length > 0) {
                                         <div class="flex flex-wrap gap-2 mt-3">
-                                            @for (imgSrc of msg.images; track $index) {
+                                            @for (imgSrc of display.allImages; track $index) {
                                                 <img
                                                     [src]="getImageUrl(imgSrc)"
                                                     class="max-w-[200px] h-auto rounded-lg border border-slate-200 dark:border-slate-700 cursor-pointer hover:opacity-90 transition-opacity"
@@ -551,10 +569,10 @@
                                     <!-- Data Display -->
                                     @if (msg.data) {
                                         <div
-                                            class="mt-3 p-3 bg-slate-100 dark:bg-slate-950 rounded-lg text-xs font-mono overflow-x-auto border border-slate-200 dark:border-slate-800"
+                                            class="mt-3 p-3 bg-slate-100 dark:bg-slate-950 rounded-lg text-xs font-mono overflow-x-auto max-w-full border border-slate-200 dark:border-slate-800"
                                         >
-                                            <pre class="whitespace-pre-wrap">{{
-                                                msg.data | json
+                                            <pre class="whitespace-pre-wrap break-words">{{
+                                                display.displayData | json
                                             }}</pre>
                                         </div>
 
@@ -652,13 +670,13 @@
             @if (pendingAttachments().length > 0) {
                 <div class="max-w-4xl mx-auto mb-3 pl-12">
                     <div class="flex gap-3 overflow-x-auto pb-2">
-                        @for (img of pendingAttachments(); track $index) {
+                        @for (attachment of pendingAttachments(); track $index) {
                             <div
                                 class="relative group w-20 h-20 shrink-0 cursor-zoom-in"
-                                (click)="openImagePreview(img)"
+                                (click)="openImagePreview(attachment.dataUrl)"
                             >
                                 <img
-                                    [src]="img"
+                                    [src]="attachment.dataUrl"
                                     class="w-full h-full object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm"
                                 />
                                 <button
@@ -676,7 +694,7 @@
                 </div>
             }
 
-            <div class="max-w-4xl mx-auto flex gap-3 items-center relative">
+            <div class="max-w-4xl mx-auto flex gap-3 items-end">
                 <!-- File Input (Hidden) -->
                 <input
                     type="file"
@@ -691,38 +709,59 @@
                 <button
                     mat-icon-button
                     (click)="fileInput.click()"
-                    class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                    matTooltip="Attach image"
-                >
-                    <mat-icon>attach_file</mat-icon>
-                </button>
-
-                <input
-                    [(ngModel)]="userInput"
-                    (keyup.enter)="sendMessage()"
-                    (paste)="onPaste($event)"
-                    type="text"
-                    [placeholder]="'chat.inputPlaceholder' | transloco"
-                    class="flex-1 h-12 pl-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all placeholder:text-slate-400 shadow-sm"
-                />
-
-                <button
-                    (click)="sendMessage()"
-                    [disabled]="
-                        isLoading() || (!userInput().trim() && pendingAttachments().length === 0)
+                    [disabled]="isPreparingAttachment()"
+                    class="mb-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors disabled:opacity-50"
+                    [matTooltip]="
+                        isPreparingAttachment()
+                            ? ('chat.attachments.preparing' | transloco)
+                            : 'Attach image'
                     "
-                    class="absolute right-2 top-2 h-8 w-8 flex items-center justify-center rounded-lg bg-slate-900 text-white hover:bg-slate-700 disabled:opacity-50 disabled:bg-slate-200 disabled:text-slate-400 transition-all shadow-md"
                 >
-                    @if (isLoading()) {
+                    @if (isPreparingAttachment()) {
                         <mat-progress-spinner
                             mode="indeterminate"
-                            diameter="16"
-                            color="accent"
+                            diameter="20"
                         ></mat-progress-spinner>
                     } @else {
-                        <mat-icon class="!w-4 !h-4 !text-[16px]">arrow_upward</mat-icon>
+                        <mat-icon>attach_file</mat-icon>
                     }
                 </button>
+
+                <div class="relative flex-1">
+                    <textarea
+                        #messageInput
+                        cdkTextareaAutosize
+                        [cdkAutosizeMinRows]="1"
+                        [cdkAutosizeMaxRows]="6"
+                        [ngModel]="userInput()"
+                        (ngModelChange)="userInput.set($event)"
+                        (keydown)="onInputKeydown($event)"
+                        (paste)="onPaste($event)"
+                        [placeholder]="'chat.inputPlaceholder' | transloco"
+                        class="chat-message-input w-full min-h-12 py-3 pl-4 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all placeholder:text-slate-400 shadow-sm leading-normal"
+                        rows="1"
+                    ></textarea>
+
+                    <button
+                        (click)="sendMessage()"
+                        [disabled]="
+                            isLoading() ||
+                            isPreparingAttachment() ||
+                            (!userInput().trim() && pendingAttachments().length === 0)
+                        "
+                        class="absolute right-2 bottom-2 h-8 w-8 flex items-center justify-center rounded-lg bg-slate-900 text-white hover:bg-slate-700 disabled:opacity-50 disabled:bg-slate-200 disabled:text-slate-400 transition-all shadow-md"
+                    >
+                        @if (isLoading()) {
+                            <mat-progress-spinner
+                                mode="indeterminate"
+                                diameter="16"
+                                color="accent"
+                            ></mat-progress-spinner>
+                        } @else {
+                            <mat-icon class="!w-4 !h-4 !text-[16px]">arrow_upward</mat-icon>
+                        }
+                    </button>
+                </div>
             </div>
             <div class="text-center mt-2 text-[10px] text-slate-400">
                 Verifik Agent can make mistakes. Verify important information.

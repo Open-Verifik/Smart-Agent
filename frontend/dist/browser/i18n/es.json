@@ -2682,6 +2682,17 @@
       "rateThis": "Calificar esto"
     },
     "inputPlaceholder": "Escribe tu solicitud (ej. 'Validar ID 12345678')...",
+    "attachments": {
+      "unsupportedFormat": "Ese archivo no es una imagen compatible. Usa JPEG, PNG, WebP o GIF.",
+      "sourceTooLarge": "La imagen es demasiado grande (máx. {{maxMb}} MB). Elige un archivo más pequeño.",
+      "stillTooLarge": "No pudimos comprimir la imagen lo suficiente para enviarla. Prueba una foto o captura más pequeña.",
+      "compressed": "Imagen optimizada para envío ({{from}} KB → {{to}} KB).",
+      "payloadTooLarge": "Los adjuntos son demasiado grandes para enviarlos juntos. Quita uno o usa imágenes más pequeñas.",
+      "preparing": "Optimizando imagen…"
+    },
+    "errors": {
+      "requestTooLarge": "La carga superó el límite del servidor. Prueba una imagen más pequeña o menos adjuntos."
+    },
     "securedBy": "Asegurado por Verifik",
     "mode": {
       "credits": "CRÉDITOS"

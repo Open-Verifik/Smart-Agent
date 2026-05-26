@@ -29,8 +29,8 @@
             "description": "Accede a registros de salud colombianos a través del sistema Rethus. Verifica historial médico, estado de salud e información de proveedores de salud. Requiere tipo de documento (CC, CE, PPT) y número de documento."
         },
         "colombia_api_rues": {
-            "title": "Colombia - Verificación de Registro de Empresa",
-            "description": "Verifica registro de empresa a través del sistema RUES (Registro Único Empresarial y Social) de Colombia. Verifica registro empresarial, estado legal e información de la empresa. Requiere tipo de documento y número de documento."
+            "title": "Colombia - Consulta RUES básica (v2)",
+            "description": "API v2 (legado): valida el registro empresarial en RUES por NIT. Devuelve datos esenciales con menor costo en catálogo. Para expediente completo use GET /v2/co/rues/complete, o preferir los endpoints v3 en integraciones nuevas."
         },
         "colombia_api_dian": {
             "title": "Colombia - Verificación de Información Tributaria",
@@ -405,8 +405,8 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "colombia_api_rues_full": {
-            "title": "Colombia - Verificación Empresarial RUES",
-            "description": "Datos empresariales completos del RUES incluyendo representantes legales, juntas y indicadores financieros."
+            "title": "Colombia - RUES Completo (v2)",
+            "description": "API v2 (legado): recupera información empresarial completa del registro RUES de Colombia por NIT—registro mercantil, representantes y actividades. Mayor costo que la consulta básica v2 por consolidar más detalle oficial."
         },
         "api_autodata_enginer_code": {
             "title": "Consulta de Código de Motor",
@@ -721,12 +721,12 @@
             "description": "Consulta la cédula de extranjero (CE) en Perú. Usa GET /v2/pe/foreigner-id/ce con documentNumber y dateOfBirth (DD/MM/AAAA)."
         },
         "colombia_api_rues_full_v3": {
-            "title": "Colombia - Verificación Empresarial RUES",
-            "description": "API V3 para detalles completos de registro corporativo, información de accionistas y estado legal."
+            "title": "Colombia - RUES Completo (v3)",
+            "description": "Recupera información empresarial completa del registro RUES de Colombia (NIT + categoría: RM, PROP, RUNEOL, etc.). Mismos parámetros que GET /v3/co/rues, con registro mercantil, actividades económicas, establecimientos y representantes legales. Mayor costo que la consulta resumen v3 por consolidar más fuentes oficiales."
         },
         "colombia_api_rues_v3": {
-            "title": "Colombia - Verificación Empresarial RUES",
-            "description": "Verificación empresarial RUES V3 con datos completos de la empresa."
+            "title": "Colombia - Consulta RUES resumen (v3)",
+            "description": "Consulta RUES v3 por NIT y categoría de registro (RM, PROP, RNT, ESAL, etc.). Devuelve un resumen normalizado por categoría—no el expediente completo. Menor costo; use colombia_api_rues_full_v3 para representantes, actividades y establecimientos."
         },
         "peru_identity_lookup_v3": {
             "title": "Perú — Verificación de DNI (v3)",

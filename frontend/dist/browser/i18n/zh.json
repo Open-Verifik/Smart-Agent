@@ -2612,6 +2612,17 @@
       "rateThis": "评价这个"
     },
     "inputPlaceholder": "输入您的请求 (例如: '验证ID 12345678')...",
+    "attachments": {
+      "unsupportedFormat": "不支持的图片格式。请使用 JPEG、PNG、WebP 或 GIF。",
+      "sourceTooLarge": "图片过大（最大 {{maxMb}} MB）。请选择更小的文件。",
+      "stillTooLarge": "无法将图片压缩到可上传的大小。请尝试更小的照片或截图。",
+      "compressed": "已优化以便上传（{{from}} KB → {{to}} KB）。",
+      "payloadTooLarge": "附件合计过大，无法一起发送。请移除一个或使用更小的图片。",
+      "preparing": "正在优化图片…"
+    },
+    "errors": {
+      "requestTooLarge": "上传超出服务器限制。请使用更小的图片或减少附件。"
+    },
     "securedBy": "由Verifik保护",
     "mode": {
       "credits": "积分"

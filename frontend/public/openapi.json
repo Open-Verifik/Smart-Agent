@@ -1670,6 +1670,57 @@
         ]
       }
     },
+    "/api/cl/transport-vehicle": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "chile_api_transport_vehicle",
+        "summary": "Chile - Public Transport Vehicle",
+        "description": "Provides reliable verification and validation services for Chile public transport vehicles.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: plate"
+          }
+        ]
+      }
+    },
     "/api/cl/company": {
       "get": {
         "tags": [
@@ -4612,7 +4663,7 @@
         ],
         "operationId": "canada_api_driver_license_quebec",
         "summary": "Canada - Driver License",
-        "description": "Verifies a Quebec driver's license against provincial records using the license document number. Typical fields include license class, status, issue-related data, and a confirmation number when returned by the source. Use it for KYC, fleet and mobility onboarding, and compliance checks.",
+        "description": "Validate a Canadian (Quebec) driver license. Provide the license number and supporting fields; returns issuance, status, and identity metadata for KYC checks.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4670,7 +4721,7 @@
           "LATAM"
         ],
         "operationId": "ocr_scan_gpt",
-        "summary": "OCR Document Scan GPT",
+        "summary": "OCR Document Scan Prompt",
         "description": "GPT-powered OCR for ID documents and other scans. Submit an image and receive structured fields (names, document numbers, dates) plus the raw extracted text for downstream KYC workflows.",
         "x-payment-info": {
           "price": {
@@ -5381,7 +5432,7 @@
         ],
         "operationId": "face_recognition_detect",
         "summary": "Face Detection",
-        "description": "Detects and extracts faces from images. This endpoint can be used to identify and locate faces in images before performing liveness detection or face comparison.",
+        "description": "Detect human faces in an image. Returns bounding boxes and quality signals; commonly used as a pre-step before liveness or face-compare flows.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8987,70 +9038,6 @@
           }
         },
         "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          }
-        ]
-      }
-    },
-    "/api/co/policia/consultar": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_special_api_police_identity_lookup",
-        "summary": "Colombia - Police Records Check",
-        "description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.2"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "NIT"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
           {
             "name": "documentNumber",
             "in": "query",

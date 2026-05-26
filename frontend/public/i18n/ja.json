@@ -2612,6 +2612,17 @@
       "rateThis": "これを評価"
     },
     "inputPlaceholder": "リクエストを入力してください (例: 'ID 12345678を検証')...",
+    "attachments": {
+      "unsupportedFormat": "サポートされていない画像形式です。JPEG、PNG、WebP、GIFを使用してください。",
+      "sourceTooLarge": "画像が大きすぎます（最大 {{maxMb}} MB）。より小さいファイルを選択してください。",
+      "stillTooLarge": "アップロード用に十分に圧縮できませんでした。より小さい写真をお試しください。",
+      "compressed": "送信用に最適化しました（{{from}} KB → {{to}} KB）。",
+      "payloadTooLarge": "添付ファイルの合計が大きすぎます。1つ削除するか、より小さい画像を使用してください。",
+      "preparing": "画像を最適化しています…"
+    },
+    "errors": {
+      "requestTooLarge": "アップロードがサーバーの制限を超えました。より小さい画像をお試しください。"
+    },
     "securedBy": "Verifikによって保護",
     "mode": {
       "credits": "クレジット"

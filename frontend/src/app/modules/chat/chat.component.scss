@@ -42,10 +42,19 @@
   /* Replaced by fixed inset-0 z-50 ... */
 }
 
+/* Message bubble containment */
+.message-bubble {
+  overflow: hidden;
+  max-width: 100%;
+}
+
 /* Markdown Content Styling */
 .markdown-body {
   font-family: 'Inter', system-ui, sans-serif;
   line-height: 1.6;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 
   p {
     margin-bottom: 0.75rem;
@@ -166,4 +175,9 @@
 }
 .delay-300 {
   animation-delay: 300ms;
+}
+
+.chat-message-input {
+  resize: none;
+  overflow-y: auto;
 }

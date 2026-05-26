@@ -1,5 +1,6 @@
+import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as QRCode from 'qrcode';
 
@@ -9,7 +10,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import { MarkdownPipe } from '../../shared/pipes/markdown.pipe';
@@ -18,6 +19,23 @@ import { AgentFeedbackComponent } from './agent-feedback/agent-feedback.componen
 import { DeleteConfirmationComponent } from './delete-confirmation/delete-confirmation.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 import { AgentWalletService } from './services/agent-wallet.service';
+import {
+    MessageDisplayView,
+    prepareMessageForDisplay,
+} from './utils/chat-message-display.util';
+import {
+    CHAT_IMAGE_MAX_PAYLOAD_BYTES,
+    CHAT_IMAGE_MAX_SOURCE_FILE_BYTES,
+    ChatImagePrepareError,
+    estimateChatPayloadBytes,
+    prepareChatImageAttachment,
+} from './utils/chat-image-prepare.util';
+
+interface PendingChatAttachment {
+    dataUrl: string;
+    originalSizeKb: number;
+    compressedSizeKb: number;
+}
 
 // --- Interfaces ---
 interface ToolCall {
@@ -115,6 +133,7 @@ interface AgentInfo {
     imports: [
         CommonModule,
         FormsModule,
+        TextFieldModule,
         MatIconModule,
         MatButtonModule,
         MatProgressSpinnerModule,
@@ -130,6 +149,9 @@ interface AgentInfo {
 export class ChatComponent implements OnInit {
     protected readonly window = window; // Expose window for template
     @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+    @ViewChild(CdkTextareaAutosize) private messageInputAutosize?: CdkTextareaAutosize;
+
+    private readonly _transloco = inject(TranslocoService);
 
     baseUrl = environment.baseUrl;
     protected readonly smartAgentUrl = environment.smartAgentUrl;
@@ -342,6 +364,7 @@ export class ChatComponent implements OnInit {
         // Reset UI State immediately
         this.currentConversationId.set(null);
         this.userInput.set('');
+        this.messageInputAutosize?.reset();
         this.pendingAttachments.set([]);
         this.thinkingSteps.set([]);
         this.currentThinkingStep.set('');
@@ -505,19 +528,21 @@ export class ChatComponent implements OnInit {
     }
 
     // Image Attachments
-    pendingAttachments = signal<string[]>([]); // Base64 strings
+    pendingAttachments = signal<PendingChatAttachment[]>([]);
+    isPreparingAttachment = signal(false);
 
     async onPaste(event: ClipboardEvent) {
         const items = event.clipboardData?.items;
-        if (items) {
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    const blob = items[i].getAsFile();
-                    if (blob) {
-                        const base64 = await this.fileToBase64(blob);
-                        this.pendingAttachments.update((current) => [...current, base64]);
-                    }
-                }
+        if (!items) {
+            return;
+        }
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') === -1) {
+                continue;
+            }
+            const pastedFile = items[i].getAsFile();
+            if (pastedFile) {
+                await this.prepareAttachmentFromFile(pastedFile);
             }
         }
     }
@@ -525,32 +550,97 @@ export class ChatComponent implements OnInit {
     onFileSelected(event: Event) {
         const input = event.target as HTMLInputElement;
         if (input.files) {
-            Array.from(input.files).forEach(async (file) => {
-                const base64 = await this.fileToBase64(file);
-                this.pendingAttachments.update((current) => [...current, base64]);
+            Array.from(input.files).forEach((selectedFile) => {
+                void this.prepareAttachmentFromFile(selectedFile);
             });
         }
-        input.value = ''; // Reset input
+        input.value = '';
     }
 
     removeAttachment(index: number) {
         this.pendingAttachments.update((current) => current.filter((_, i) => i !== index));
     }
 
-    private fileToBase64(file: File): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = (error) => reject(error);
-        });
+    private async prepareAttachmentFromFile(sourceFile: File): Promise<void> {
+        this.isPreparingAttachment.set(true);
+        try {
+            const prepared = await prepareChatImageAttachment(sourceFile);
+            this.pendingAttachments.update((current) => [
+                ...current,
+                {
+                    dataUrl: prepared.dataUrl,
+                    originalSizeKb: prepared.originalSizeKb,
+                    compressedSizeKb: prepared.compressedSizeKb,
+                },
+            ]);
+            if (prepared.compressedSizeKb < prepared.originalSizeKb) {
+                this.showAttachmentNotice(
+                    this._transloco.translate('chat.attachments.compressed', {
+                        from: prepared.originalSizeKb,
+                        to: prepared.compressedSizeKb,
+                    }),
+                );
+            }
+        } catch (prepareError) {
+            this.showAttachmentError(prepareError);
+        } finally {
+            this.isPreparingAttachment.set(false);
+        }
+    }
+
+    private showAttachmentError(prepareError: unknown): void {
+        let messageKey = 'chat.attachments.unsupportedFormat';
+        let params: Record<string, string | number> = {};
+
+        if (prepareError instanceof ChatImagePrepareError) {
+            if (prepareError.code === 'source_too_large') {
+                messageKey = 'chat.attachments.sourceTooLarge';
+                params = {
+                    maxMb: Math.round(CHAT_IMAGE_MAX_SOURCE_FILE_BYTES / (1024 * 1024)),
+                };
+            } else if (prepareError.code === 'still_too_large') {
+                messageKey = 'chat.attachments.stillTooLarge';
+            } else if (prepareError.code === 'unsupported_format') {
+                messageKey = 'chat.attachments.unsupportedFormat';
+            } else {
+                messageKey = 'chat.attachments.stillTooLarge';
+            }
+        }
+
+        this.showAttachmentNotice(this._transloco.translate(messageKey, params));
+    }
+
+    private showAttachmentNotice(noticeText: string): void {
+        this.messages.update((msgs) => [
+            ...msgs,
+            { role: 'system', content: noticeText },
+        ]);
+        this.scrollToBottom();
+    }
+
+    onInputKeydown(event: KeyboardEvent): void {
+        if (event.key !== 'Enter' || event.shiftKey) return;
+
+        event.preventDefault();
+        this.sendMessage();
     }
 
     async sendMessage() {
         const input = this.userInput();
-        const images = this.pendingAttachments();
+        const pendingList = this.pendingAttachments();
+        const attachmentDataUrls = pendingList.map((attachment) => attachment.dataUrl);
 
-        if (!input.trim() && images.length === 0) return;
+        if (!input.trim() && attachmentDataUrls.length === 0) return;
+
+        if (
+            attachmentDataUrls.length > 0 &&
+            estimateChatPayloadBytes(attachmentDataUrls) > CHAT_IMAGE_MAX_PAYLOAD_BYTES
+        ) {
+            this.showAttachmentNotice(
+                this._transloco.translate('chat.attachments.payloadTooLarge'),
+            );
+            return;
+        }
 
         // Check Auth
         const isCredits = this.chatMode() === 'credits';
@@ -579,20 +669,21 @@ export class ChatComponent implements OnInit {
             // But preserving current structure, we'll wait for backend response or just not show images in USER bubble immediately
             // unless we extend ChatMessage interface.
             // Let's extend ChatMessage interface first? Added `images?: string[]` to interface below.
-            images: images,
+            images: attachmentDataUrls,
         };
 
         this.messages.update((msgs) => [...msgs, userMsg]);
 
         this.userInput.set('');
-        this.pendingAttachments.set([]); // Clear attachments
+        this.messageInputAutosize?.reset();
+        this.pendingAttachments.set([]);
         this.isLoading.set(true);
         this.scrollToBottom();
 
         this.startThinkingSimulation();
 
         try {
-            await this.callAgent(input, null, null, images);
+            await this.callAgent(input, null, null, attachmentDataUrls);
         } catch (error: any) {
             this.handleError(error);
         }
@@ -794,6 +885,11 @@ export class ChatComponent implements OnInit {
         return `${this.baseUrl}${src}`;
     }
 
+    /** Display-safe view: redacts base64, extracts images; does not mutate stored messages. */
+    getMessageDisplay(msg: ChatMessage): MessageDisplayView {
+        return prepareMessageForDisplay(msg);
+    }
+
     getUserId(): string {
         // Try to get from verifik_account (User Profile) first
         try {
@@ -942,9 +1038,20 @@ export class ChatComponent implements OnInit {
     handleError(error: any) {
         this.isLoading.set(false);
         console.error(error);
+        const httpStatus = error?.status ?? error?.statusCode;
+        const errorMessageText = String(error?.message ?? '');
+        const isPayloadTooLarge =
+            httpStatus === 413 ||
+            errorMessageText.includes('413') ||
+            errorMessageText.toLowerCase().includes('entity too large');
+
+        const displayMessage = isPayloadTooLarge
+            ? this._transloco.translate('chat.errors.requestTooLarge')
+            : 'Error: ' + (errorMessageText || 'Something went wrong');
+
         this.messages.update((msgs) => [
             ...msgs,
-            { role: 'system', content: 'Error: ' + (error.message || 'Something went wrong') },
+            { role: 'system', content: displayMessage },
         ]);
         this.scrollToBottom();
     }

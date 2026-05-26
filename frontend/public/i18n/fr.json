@@ -2500,6 +2500,17 @@
       "rateThis": "Notez ceci"
     },
     "inputPlaceholder": "Tapez votre demande (ex : 'Valider ID 12345678')...",
+    "attachments": {
+      "unsupportedFormat": "Format d'image non pris en charge. Utilisez JPEG, PNG, WebP ou GIF.",
+      "sourceTooLarge": "Image trop volumineuse (max. {{maxMb}} Mo). Choisissez un fichier plus petit.",
+      "stillTooLarge": "Impossible de compresser suffisamment cette image. Essayez une photo plus petite.",
+      "compressed": "Image optimisée pour l'envoi ({{from}} Ko → {{to}} Ko).",
+      "payloadTooLarge": "Les pièces jointes sont trop volumineuses. Supprimez-en une ou réduisez la taille.",
+      "preparing": "Optimisation de l'image…"
+    },
+    "errors": {
+      "requestTooLarge": "Le téléversement dépasse la limite du serveur. Utilisez une image plus petite."
+    },
     "securedBy": "Sécurisé par Verifik",
     "mode": {
       "credits": "CRÉDITS"
