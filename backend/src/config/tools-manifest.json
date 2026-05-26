@@ -843,6 +843,29 @@
 			}
 		},
 		{
+			"id": "chile_api_transport_vehicle",
+			"name": "Chile - Public Transport Vehicle",
+			"category": "Chile - Public Transport Vehicle",
+			"url": "https://ai.verifik.co/api/cl/transport-vehicle",
+			"verifikPath": "/v2/cl/transport-vehicle",
+			"method": "GET",
+			"description": "Provides reliable verification and validation services for Chile public transport vehicles.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
 			"id": "chile_api_business_lookup",
 			"name": "Chile - Company Lookup",
 			"category": "Chile - Company Lookup",
@@ -2303,7 +2326,7 @@
 			"url": "https://ai.verifik.co/api/ca/quebec/driver-license",
 			"verifikPath": "/v2/ca/quebec/driver-license",
 			"method": "POST",
-			"description": "Verifies a Quebec driver's license against provincial records using the license document number. Typical fields include license class, status, issue-related data, and a confirmation number when returned by the source. Use it for KYC, fleet and mobility onboarding, and compliance checks.",
+			"description": "Validate a Canadian (Quebec) driver license. Provide the license number and supporting fields; returns issuance, status, and identity metadata for KYC checks.",
 			"country": "Canada",
 			"priceUsd": 0.4,
 			"parameters": {
@@ -2321,8 +2344,8 @@
 		},
 		{
 			"id": "ocr_scan_gpt",
-			"name": "OCR Document Scan GPT",
-			"category": "Global - OCR Document Scan GPT",
+			"name": "OCR Document Scan Prompt",
+			"category": "Global - OCR Document Scan Prompt",
 			"url": "https://ai.verifik.co/api/ocr/scan-gpt",
 			"verifikPath": "/v2/ocr/scan-gpt",
 			"method": "POST",
@@ -2664,7 +2687,7 @@
 			"url": "https://ai.verifik.co/api/face-recognition/detect",
 			"verifikPath": "/v2/face-recognition/detect",
 			"method": "POST",
-			"description": "Detects and extracts faces from images. This endpoint can be used to identify and locate faces in images before performing liveness detection or face comparison.",
+			"description": "Detect human faces in an image. Returns bounding boxes and quality signals; commonly used as a pre-step before liveness or face-compare flows.",
 			"country": "world",
 			"priceUsd": 0.03,
 			"parameters": {
@@ -4376,38 +4399,6 @@
 					"documentNumber"
 				]
 			}
-		},
-		{
-			"id": "colombia_special_api_police_identity_lookup",
-			"name": "Colombia - Police Records Check",
-			"url": "https://ai.verifik.co/api/co/policia/consultar",
-			"method": "GET",
-			"description": "Check police records through Colombia's National Police system. Verify interactions with law enforcement and police records. Requires document type, document number, and expedition date.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": [
-							"CC",
-							"NIT"
-						]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": [
-					"documentType",
-					"documentNumber"
-				]
-			},
-			"category": "Colombia - Police Records Check",
-			"verifikPath": "/v2/co/policia/consultar"
 		},
 		{
 			"id": "colombia_api_runt_owners",

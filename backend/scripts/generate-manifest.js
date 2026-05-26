@@ -22,8 +22,8 @@
  *   `United States`).
  *
  * Unpublished paths:
- *   `EXCLUDED_PUBLIC_PATHS` — not included in tools-manifest.json (discovery,
- *   Sponge, agent catalog). Proxy may still forward if the path exists upstream.
+ *   `excluded-public-paths.js` — not included in tools-manifest.json (discovery,
+ *   Sponge, agent catalog) and blocked at the proxy layer.
  *
  * Orphans:
  *   Endpoints currently in the manifest but missing from the source feed
@@ -39,6 +39,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { isExcludedTool } = require("../src/config/excluded-public-paths");
 
 const SOURCE_PATH = process.env.APP_FEATURES_PATH || "/Users/miguel/verifik/verifik-backend/scripts/app-features-final.json";
 const OUTPUT_PATH = path.resolve(__dirname, "../src/config/tools-manifest.json");
@@ -49,34 +50,6 @@ const OUTPUT_PATH = path.resolve(__dirname, "../src/config/tools-manifest.json")
  */
 const AGENT_BASE_URL = process.env.AGENT_BASE_URL || "https://ai.verifik.co/";
 const DROP_ORPHANS = process.env.DROP_ORPHANS === "1" || process.env.DROP_ORPHANS === "true";
-
-/**
- * Public URL pathnames (`https://ai.verifik.co` + path) to omit from the manifest.
- */
-const EXCLUDED_PUBLIC_PATHS = new Set([
-	"/api/credit-intents/kyc-passwordless",
-	"/api/face-recognition/search-active-user",
-	"/api/face-recognition/search-live-face",
-	"/api/face-recognition/search/crops",
-	"/api/face-recognition/verify",
-	"/api/ocr/scan-pro",
-	"/api/appointments",
-	"/api/autodata/selection",
-]);
-
-/**
- * @param {{ url?: string } | null | undefined} tool
- * @returns {boolean}
- */
-const isExcludedTool = (tool) => {
-	if (!tool || !tool.url) return false;
-	try {
-		const pathname = new URL(tool.url).pathname;
-		return EXCLUDED_PUBLIC_PATHS.has(pathname);
-	} catch {
-		return false;
-	}
-};
 
 /** Sponge `category` max length */
 const SPONGE_CATEGORY_MAX = 128;

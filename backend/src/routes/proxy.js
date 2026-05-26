@@ -1,4 +1,5 @@
 const Router = require("@koa/router").Router || require("@koa/router");
+const disabledEndpointGuard = require("../middleware/disabledEndpointGuard");
 const x402Middleware = require("../middleware/x402");
 const proxyController = require("../controllers/proxyController");
 
@@ -8,15 +9,15 @@ const router = new Router();
  * Legacy proxy routes — kept for backwards compatibility.
  * These are the original /v2/* and /v3/* paths that hit Verifik directly.
  */
-router.all(/^\/v2\/.+/, x402Middleware, proxyController.handleRequest);
-router.all(/^\/v3\/.+/, x402Middleware, proxyController.handleRequest);
+router.all(/^\/v2\/.+/, disabledEndpointGuard, x402Middleware, proxyController.handleRequest);
+router.all(/^\/v3\/.+/, disabledEndpointGuard, x402Middleware, proxyController.handleRequest);
 
 /**
  * Generic proxy entry for Postman UI (x-target-url header required).
  * Must be registered BEFORE the broad /api/* catch-all below so this
  * exact path is never swallowed by the regex.
  */
-router.all("/api/proxy", x402Middleware, proxyController.handleRequest);
+router.all("/api/proxy", disabledEndpointGuard, x402Middleware, proxyController.handleRequest);
 
 /**
  * Public alias routes under /api — these are the canonical paths advertised
@@ -29,7 +30,7 @@ router.all("/api/proxy", x402Middleware, proxyController.handleRequest);
  * Reserved paths that must NOT hit the Verifik proxy are excluded via the
  * negative lookahead: agent/, proxy, uploads/
  */
-router.all(/^\/api\/v3\/.+/, x402Middleware, proxyController.handleRequest);
-router.all(/^\/api\/(?!agent\/|proxy(?:\/|$)|uploads\/).+/, x402Middleware, proxyController.handleRequest);
+router.all(/^\/api\/v3\/.+/, disabledEndpointGuard, x402Middleware, proxyController.handleRequest);
+router.all(/^\/api\/(?!agent\/|proxy(?:\/|$)|uploads\/).+/, disabledEndpointGuard, x402Middleware, proxyController.handleRequest);
 
 module.exports = router;
