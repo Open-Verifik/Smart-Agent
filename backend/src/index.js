@@ -24,7 +24,12 @@ app.use(async (ctx, next) => {
 });
 
 app.use(cors());
-app.use(koaBody());
+app.use(
+	koaBody({
+		jsonLimit: "2mb",
+		formLimit: "2mb",
+	}),
+);
 
 // Import Routes
 // Import Routes
