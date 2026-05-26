@@ -593,7 +593,7 @@
       "description": "Servicio de verificación de registros migratorios para Colombia. Proporciona estado migratorio e información de registro de extranjeros."
     },
     "colombia_api_min_trabajo_v3": {
-      "title": "Colombia - Verificación de Certificados Laborales",
+      "title": "Colombia - Certificación de Trabajo en Alturas",
       "description": "Servicio de verificación de certificados laborales para Colombia. Proporciona certificaciones relacionadas con el trabajo e información del estado laboral."
     },
     "colombia_sisben_api_lookup": {

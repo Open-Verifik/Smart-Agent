@@ -741,7 +741,7 @@
             "description": "核验哥伦比亚 PPT（Permiso de Protección Temporal）。使用 GET /v2/co/foreigner-id/ppt，传入 documentNumber 与 expeditionDate。"
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "Colombia - 劳动证书验证",
+            "title": "哥伦比亚 — 高空作业认证",
             "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
         },
         "peru_api_company_lookup_v3": {

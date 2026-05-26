@@ -7610,7 +7610,7 @@
       }
     },
     "/api/v3/co/rues-complete": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -7618,8 +7618,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_rues_full_v3",
-        "summary": "Colombia - RUES Business Verification",
-        "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing.",
+        "summary": "Colombia - RUES Complete (v3)",
+        "description": "Retrieves complete Colombian business information from the RUES registry (NIT + category). Same parameters as GET /v3/co/rues, with commercial registry, economic activities, establishments, and legal representatives. Higher cost than the v3 summary endpoint due to full data aggregation.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7647,52 +7647,52 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "NIT"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "RM",
-                "PROP",
-                "RUNEOL",
-                "RNT",
-                "ESAL",
-                "RESAL",
-                "JUEGOS",
-                "EXTRANJERAS"
-              ]
-            },
-            "description": "Parameter: category"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "NIT"
+                    ]
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Parameter: category",
+                    "enum": [
+                      "RM",
+                      "PROP",
+                      "RUNEOL",
+                      "RNT",
+                      "ESAL",
+                      "RESAL",
+                      "JUEGOS",
+                      "EXTRANJERAS"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "category",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/v3/co/rues": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -7700,8 +7700,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_rues_v3",
-        "summary": "Colombia - RUES Business Verification",
-        "description": "RUES V3 business verification with comprehensive company data.",
+        "summary": "Colombia - RUES Summary (v3)",
+        "description": "V3 basic RUES lookup by NIT and registry category (RM, PROP, RNT, ESAL, etc.). Returns a normalized category summary—not the full dossier. Lower cost; use colombia_api_rues_full_v3 for representatives, activities, and establishments.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7729,48 +7729,48 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "NIT"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "RM",
-                "PROP",
-                "RUNEOL",
-                "RNT",
-                "ESAL",
-                "RESAL",
-                "JUEGOS",
-                "EXTRANJERAS"
-              ]
-            },
-            "description": "Parameter: category"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "NIT"
+                    ]
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Parameter: category",
+                    "enum": [
+                      "RM",
+                      "PROP",
+                      "RUNEOL",
+                      "RNT",
+                      "ESAL",
+                      "RESAL",
+                      "JUEGOS",
+                      "EXTRANJERAS"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "category",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/v3/pe/cedula/extra": {
@@ -7960,7 +7960,7 @@
       }
     },
     "/api/v3/co/ministerio-de-trabajo/certificados": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -7968,7 +7968,7 @@
           "LATAM"
         ],
         "operationId": "colombia_api_min_trabajo_v3",
-        "summary": "Colombia - Labor Certificates Verification",
+        "summary": "Colombia - Work at Heights Certification",
         "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information.",
         "x-payment-info": {
           "price": {
@@ -7997,33 +7997,37 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "CE",
-                "PPT",
-                "PEP",
-                "PA"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "PPT",
+                      "PEP",
+                      "PA"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/sisben": {

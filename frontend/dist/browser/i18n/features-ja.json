@@ -741,7 +741,7 @@
             "description": "コロンビアの PPT（Permiso de Protección Temporal）を照会します。GET /v2/co/foreigner-id/ppt に documentNumber と expeditionDate を指定します。"
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "Colombia - 労働証明書検証",
+            "title": "コロンビア — 高所作業認証",
             "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
         },
         "peru_api_company_lookup_v3": {

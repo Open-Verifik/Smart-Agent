@@ -593,7 +593,7 @@
       "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information."
     },
     "colombia_api_min_trabajo_v3": {
-      "title": "Colombia - Labor Certificates Verification",
+      "title": "Colombia - Work at Heights Certification",
       "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
     },
     "colombia_sisben_api_lookup": {

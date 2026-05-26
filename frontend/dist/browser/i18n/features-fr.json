@@ -741,7 +741,7 @@
             "description": "Vérifie le PPT colombien (Permiso de Protección Temporal) via GET /v2/co/foreigner-id/ppt avec documentNumber et expeditionDate."
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "Colombie - Labor Certificates Verification",
+            "title": "Colombie - Certification de travail en hauteur",
             "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information."
         },
         "peru_api_company_lookup_v3": {

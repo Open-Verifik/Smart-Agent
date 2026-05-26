@@ -741,7 +741,7 @@
             "description": "콜롬비아 PPT(Permiso de Protección Temporal)를 조회합니다. GET /v2/co/foreigner-id/ppt에 documentNumber와 expeditionDate를 전달합니다."
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "Colombia - 노동 증명서 확인",
+            "title": "콜롬비아 — 고소 작업 인증",
             "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
         },
         "peru_api_company_lookup_v3": {

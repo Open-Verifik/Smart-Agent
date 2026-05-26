@@ -741,7 +741,7 @@
             "description": "Consulta o PPT colombiano. Use GET /v2/co/foreigner-id/ppt com documentNumber e expeditionDate."
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "Colombia - Verificação de Certificados Trabalhistas",
+            "title": "Colômbia - Certificação de Trabalho em Altura",
             "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
         },
         "peru_api_company_lookup_v3": {
