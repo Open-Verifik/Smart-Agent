@@ -13,16 +13,16 @@
             "description": "検証 Colombian national ID (cédula) information. 取得 full name, document status, and basic citizen verification data."
         },
         "colombia_special_api_police_identity_lookup": {
-            "title": "コロンビア - 警察記録確認",
-            "description": "確認 police records through Colombia's National Police system. 検証 interactions with law enforcement and police records. 必要 document type, document number, and expedition date."
+            "title": "コロンビア — 警察記録照会",
+            "description": "コロンビアの警察記録照会サービス。"
         },
         "world_api_dea": {
-            "title": "グローバル - DEA身元調査",
-            "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. 検索 by full name OR document number with document type. 検証 individuals against international drug enforcement records."
+            "title": "DEA 身元照会",
+            "description": "米国 DEA のウォッチリストとの照合サービス。"
         },
         "colombia_api_military_situation": {
-            "title": "Colombia - 軍事サービス記録",
-            "description": "検証 military service records through Colombia's military system. 確認 service status, military obligations, and service records. 必要 Colombian ID (CC) and document number."
+            "title": "コロンビア — 兵役状況",
+            "description": "コロンビア市民証（CC）で兵役（situación militar）を照会します。"
         },
         "colombia_api_rethus": {
             "title": "Colombia - 健康記録検証",
@@ -33,28 +33,28 @@
             "description": "検証 company registration through Colombia's RUES (Registro Único Empresarial y Social) system. 確認 business registration, legal status, and company information. 必要 document type and document number."
         },
         "colombia_api_dian": {
-            "title": "Colombia - 税務情報検証",
-            "description": "検証 tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. 確認 tax status, obligations, and compliance records. 必要 document type and document number."
+            "title": "コロンビア — DIAN 税務確認",
+            "description": "コロンビア DIAN で NIT による企業の税務登録状態を確認します。GET /v2/co/company/dian。"
         },
         "peru_api_company_lookup": {
             "title": "Peru - 事業登録検索",
             "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
         },
         "colombia_api_judicial_process_details": {
-            "title": "コロンビア - 司法手続きの詳細",
-            "description": "コロンビアの司法手続きに関する詳細情報を取得します。ステータス、履歴、裁判所の詳細を含みます。"
+            "title": "コロンビア — 司法手続きの詳細",
+            "description": "手続き番号でコロンビアの特定事件の詳細（当事者・行為）を取得します（Rama Judicial）。"
         },
         "colombia_api_vehicle_soat": {
             "title": "Colombia - 車両確認",
             "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
         },
         "usa_api_vehicle": {
-            "title": "アメリカ - 車両検証",
-            "description": "ナンバーと州で米国登録車両を照会。GET /v2/usa/vehicle に plate と state。NHTSA 系デコードで車両属性を返します。"
+            "title": "アメリカ合衆国 — 車両情報（ナンバー・州）",
+            "description": "GET /v2/usa/vehicle。plate と state で米国登録車両を照会します。"
         },
         "world_api_onu": {
-            "title": "グローバル - 国連制裁確認",
-            "description": "確認 individuals and entities against United Nations sanctions lists. 検索 by full name OR document number with document type. 検証 compliance with international sanctions regimes."
+            "title": "国連（ONU）身元照会",
+            "description": "個人または法人が国連の制裁リストに掲載されているかをシンプルかつ効率的に確認できる API です。文書タイプや文書番号などの識別情報を送信することで、国際制裁の対象であるかを迅速に判別できます。"
         },
         "feature_kyc_solution": {
             "title": "KYC Solution",
@@ -69,76 +69,76 @@
             "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information."
         },
         "colombia_api_contraloria_certificate": {
-            "title": "コロンビア - コントラロリア証明",
-            "description": "コロンビア総監査院（Contraloría General de Colombia）が発行した品行証明書を、身分証の種類と番号を入力して照合できます。照会日付と、base64でエンコードされたPDF形式の証明書を返します。"
+            "title": "コロンビア — Contraloría 証明書",
+            "description": "本サービスでは、文書タイプと文書番号を入力するだけで、コロンビア会計検査院（Contraloría General de Colombia）が発行する善行証明書を検証できます。照会日と base64 エンコードされた PDF 証明書が返却されます。"
         },
         "peru_identity_lookup": {
             "title": "ペルー - 国民ID検証",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "venezuela_api_identity_lookup": {
-            "title": "ベネズエラ — 国籍身分証（CCVE）",
-            "description": "ベネズエラ国民の CCVE 身分証照会。GET /v2/ve/cedula、必須クエリ documentNumber。KYC・不正対策向けに構造化された氏名を返します。"
+            "title": "ベネズエラ — 国民身分証（CCVE）",
+            "description": "ベネズエラの国民 ID 照会。GET /v2/ve/cedula を介して文書番号で cédula（CCVE）保持者を検証し、KYC や不正防止に活用できます。"
         },
         "colombia_api_vehicle_complete": {
             "title": "Colombia - Complete Vehicle Information",
             "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "メキシコ - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "メキシコ",
+            "description": "ナンバープレートでメキシコの車両情報を検証します。"
         },
         "feature_passwordless_solution": {
             "title": "Passwordless Authentication",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "world_api_interpol": {
-            "title": "グローバル - インターポール身元調査",
-            "description": "International background check using Interpol databases. 検索 by full name OR document number with document type. 検証 individuals against international criminal records and wanted lists."
+            "title": "Interpol 身元照会",
+            "description": "個人または企業の犯罪関連背景情報を照会するための API エンドポイントです。文書タイプおよび文書番号を指定するとレスポンスが返却されます。レスポンスには文書タイプ、文書番号、名、姓、氏名、自然人および法人の名前構成要素が含まれます。"
         },
         "colombia_api_sena": {
             "title": "コロンビア - SENA証明書",
             "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
         },
         "world_api_ofac": {
-            "title": "グローバル - OFAC制裁確認",
-            "description": "確認 individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. 検索 by full name OR document number with document type. 検証 compliance with US economic sanctions."
+            "title": "OFAC 身元照会",
+            "description": "OFAC 身元照会サービス。"
         },
         "colombia_api_registraduria_certificate": {
-            "title": "Colombia - 選挙記録検証",
-            "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
+            "title": "コロンビア — 選挙管理庁 身分証明書有効性証明（CC）",
+            "description": "CC番号と発行日で Registraduría の公式有効性証明書（PDF）を取得します。"
         },
         "colombia_api_delinquent_debtors": {
             "title": "コロンビア - 延滞債務者(BDME)",
             "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
         },
         "world_api_fbi": {
-            "title": "グローバル - FBI身元調査",
-            "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. 検索 by full name OR document number with document type. 検証 individuals against federal criminal records."
+            "title": "FBI 身元照会",
+            "description": "FBI 身元照会サービス。"
         },
         "mexico_identity_lookup": {
-            "title": "メキシコ - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "メキシコ — 国民身分証",
+            "description": "Verifik の KYC API を使用して、CURP によりメキシコ国民の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "ecuador_api_identity_lookup": {
-            "title": "エクアドル - 国民ID検証",
-            "description": "CCEC（documentType CCEC + documentNumber）でエクアドル国民を照会。公式記録ベースの本人確認に利用。"
+            "title": "エクアドル — 国民身分証",
+            "description": "Verifik の KYC API でエクアドルの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "colombia_api_driver": {
-            "title": "コロンビア - 運転免許(RUNT)",
-            "description": "Verify Colombian driver license status and validity through the RUNT system."
+            "title": "RUNT — 運転免許",
+            "description": "コロンビア RUNT で運転免許の状態・区分・有効期限などを証明書番号から照会します。"
         },
         "peru_api_vehicle": {
-            "title": "ペルー - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ペルー — 車両情報（ナンバープレート）",
+            "description": "ペルー車両情報サービスは、ナンバープレートに基づいて、ペルーで登録された車両に関する詳細情報を提供します。レスポンスには、メーカー、モデル、年式、エンジン番号、シャーシ製造番号、定員、用途種別などの主要情報が含まれます。"
         },
         "peru_api_vehicle_soat": {
-            "title": "ペルー - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ペルー — 車両保険（SOAT）",
+            "description": "本サービスは、ペルーにおける車両の保険ステータスに関する情報を提供します。保険会社名、契約開始日・終了日、車両のナンバープレート、契約番号、用途種別、車両クラス、契約ステータスなどの詳細を返します。"
         },
         "ecuador_api_vehicle": {
-            "title": "エクアドル - 車両検証",
-            "description": "ナンバープレート（plate）でエクアドル登録車両を照会。GET /v2/ec/vehiculo/placa。車両・登録情報の確認に利用。"
+            "title": "エクアドル — 車両検証",
+            "description": "ナンバープレートでエクアドル登録車両を照会します。"
         },
         "feature_data_api": {
             "title": "Data API",
@@ -153,24 +153,24 @@
             "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
         },
         "world_api_europol": {
-            "title": "グローバル - ユーロポール身元調査",
-            "description": "European background check using Europol databases. 検索 by full name OR document number with document type. 検証 individuals against European criminal records and intelligence databases."
+            "title": "Europol 身元照会",
+            "description": "Europol の犯罪記録データベースに対するリアルタイム照会サービス。文書タイプと文書番号、または氏名を指定することで、Europol のシステム内のエントリと一致するかを確認できます。"
         },
         "colombia_api_criminal_history": {
-            "title": "Colombia - 法的身元調査",
-            "description": "Legal background verification service のColombia 市民. 提供 information about legal proceedings and judicial records."
+            "title": "コロンビア — 懲戒記録（検察庁 / Procuraduría）",
+            "description": "コロンビア検察庁における懲戒記録（Disciplinary Records）の照会。"
         },
         "colombia_api_judicial_processes": {
-            "title": "コロンビア - 司法手続き",
-            "description": "Search for judicial processes using document number across Colombian courts."
+            "title": "コロンビア — 司法手続き",
+            "description": "CC または NIT でコロンビアの裁判手続き一覧を照会します（Rama Judicial）。"
         },
         "colombia_api_vehicle": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "RUNT — 車両（基本登録）",
+            "description": "コロンビア RUNT でナンバーと名義人情報から車両の登録・基本情報を取得します。"
         },
         "colombia_api_pico_placa": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "ボゴタ — ピコ・イ・プラカ",
+            "description": "コロンビア・ボゴタ登録車両のピコ・イ・プラカ（交通規制）情報を照会します。"
         },
         "feature_pdf_generator": {
             "title": "PDF Report Generator",
@@ -181,68 +181,68 @@
             "description": "パナマのCCPA国民IDを検証：番号・氏名・生年月日を公的戸籍データと照合。KYCや本人確認に。"
         },
         "chile_api_identity_lookup": {
-            "title": "チリ - 本人確認",
-            "description": "チリの国民ID（RUN/RUT）を検証。公的戸籍情報と照合し、KYC・オンボーディング・不正防止に利用できます。"
+            "title": "チリ — 国民身分証",
+            "description": "チリの国民 ID（RUN/RUT）を検証します。氏名や本人確認フィールドを公式戸籍ソースに照合し、KYC、オンボーディング、不正防止に活用できます。"
         },
         "costarica_api_identity_lookup": {
-            "title": "コスタリカ — 国民ID（CCCR）",
-            "description": "コスタリカ国民のCCCR身分証を照会。GET /v2/cr/cedula に documentType=CCCR と documentNumber を指定。KYC・不正防止に利用。"
+            "title": "コスタリカ — 国民身分証（CCCR）",
+            "description": "GET /v2/cr/cedula を介し、documentType と documentNumber でコスタリカの国民 ID（CCCR cédula）を検証します。KYC や不正防止に活用できます。"
         },
         "ecuador_api_criminal_history": {
             "title": "エクアドル - 犯罪歴",
             "description": "エクアドル国民の犯罪・前科照会（GET /v2/ec/cedula/antecedentes）。提供項目はソースに依存。"
         },
         "chile_api_vehicle": {
-            "title": "チリ - 車両検証",
-            "description": "ナンバープレートでチリ登録車両を照会。車台・エンジン・メーカー・車種・年式・色・該当時は違反金、ソースが返す範囲で所有者情報。フリート・保険・コンプライアンス向け。"
+            "title": "チリ — 車両情報",
+            "description": "ナンバープレートでチリの車両を検証します。技術データ、罰金有無、可能であれば所有者の RUT を取得でき、フリート、保険、資産確認に最適です。"
         },
         "panama_api_identity_lookup": {
-            "title": "パナマ - 国民ID検証",
-            "description": "パナマのCCPA国民IDを検証：番号・氏名・生年月日を公的戸籍データと照合。KYCや本人確認に。"
+            "title": "パナマ — 国民身分証",
+            "description": "パナマの CCPA 国民 ID（文書、氏名、生年月日）を公式戸籍ソースに対して検証し、KYC や不正防止に活用できます。"
         },
         "panama_api_vehicle": {
             "title": "パナマ - 車両検証",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "chile_api_business_lookup": {
-            "title": "チリ - 企業検索",
-            "description": "RUTでチリ企業を照会。商号・業種・事業内容・認可サービス区分など公的登記ベースの情報を取得。KYB・ベンダーデューデリ向け。"
+            "title": "チリ — 法人検証",
+            "description": "RUT を用いてチリの企業を照会します。法人名、業種、活動内容、認可された業務範囲を公式登記データから取得し、KYB やベンダーデューデリジェンスに活用できます。"
         },
         "spain_api_identity_lookup": {
-            "title": "スペイン - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "スペイン — 国民身分証",
+            "description": "Verifik の KYC API でスペインの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "ecuador_api_vehicle_fines": {
-            "title": "エクアドル - 車両罰金",
-            "description": "ナンバープレート（plate）で罰金・登録情報を照会。GET /v2/ec/vehiculo/placa/multas。コンプライアンス・フリート向け。"
+            "title": "エクアドル — 車両罰金",
+            "description": "ナンバープレートでエクアドル車両の罰金・登録情報を照会します。"
         },
         "colombia_api_vehicle_complete_by_plate": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "RUNT — ナンバー別車両（フル）",
+            "description": "コロンビア RUNT でナンバーと名義人情報から車両の詳細履歴・技術情報を取得します。"
         },
         "colombia_api_vehicle_complete_by_vin": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "RUNT — VIN別車両",
+            "description": "コロンビア RUNT で VIN から車両の詳細履歴・技術情報を取得します。"
         },
         "peru_identity_extra_lookup": {
             "title": "ペルー - 国民ID検証",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "colombia_api_lawyers": {
-            "title": "コロンビア - 弁護士検証",
-            "description": "Verify lawyer registration and professional status with the Colombian bar."
+            "title": "コロンビア — 弁護士照会",
+            "description": "CC・CE・NITでコロンビアの弁護士公開登録を照会します。"
         },
         "brasil_api_identity_lookup": {
-            "title": "ブラジル - 本人確認",
-            "description": "公的情報源に対しCPFと生年月日で照合し、氏名・生年月日・本人情報を確認。KYC、オンボーディング、不正防止向け。"
+            "title": "ブラジル — 本人確認（CPF）",
+            "description": "Verifik の KYC API でブラジル国民の CPF を公式ソースと照合し、本人確認を数秒で完了します。"
         },
         "usa_api_driver_license_lookup": {
-            "title": "アメリカ - フロリダ州運転免許",
-            "description": "フロリダ州の運転免許番号で照会。GET /v2/usa/florida/driver-license に documentNumber。状態・制限・裏書など取得可能な項目を返します。"
+            "title": "アメリカ合衆国 — フロリダ州運転免許",
+            "description": "GET /v2/usa/florida/driver-license。フロリダ州の運転免許番号で状態・制限などを照会します。"
         },
         "co_bogota_taxi_plate": {
-            "title": "ボゴタのタクシー（ナンバープレート）",
-            "description": "車両のナンバープレートで、ボゴタに登録されたタクシー運転手と運行カードの情報を照会します。"
+            "title": "ボゴタ — タクシー運転者（ナンバープレート）",
+            "description": "車両のナンバープレートで、ボゴタの登録タクシー運転者および運行カード情報を取得します。"
         },
         "co_bogota_taxi_driver_card": {
             "title": "ボゴタのタクシー（管理カード）",
@@ -257,8 +257,8 @@
             "description": "EPIC（有権者ID）番号の投票所および選挙関連の所在地情報を返します。"
         },
         "usa_api_driver_license_lookup_kansas": {
-            "title": "カンザス州運転免許証の確認",
-            "description": "免許証番号から、カンザス州運転免許の状態、有効期限、制限、裏書、指定などを確認します。"
+            "title": "アメリカ合衆国 — カンザス州運転免許",
+            "description": "GET /v2/usa/kansas/driver-license。免許番号・生年月日・氏名でカンザス州の運転免許を照会します。"
         },
         "consultar_procesos_judiciales": {
             "title": "コロンビア - 司法手続き",
@@ -273,8 +273,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "colombia_api_judicial_records": {
-            "title": "コロンビア - 司法記録",
-            "description": "Access judicial background records and legal history for Colombian citizens."
+            "title": "コロンビア — 司法記録（裁判所事件）",
+            "description": "CC・都市・番号でコロンビアの裁判所事件（expediente）を照会します（Rama Judicial）。"
         },
         "communication_messaging_sms": {
             "title": "SMS Messaging",
@@ -329,16 +329,16 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "brasil_api_company_lookup": {
-            "title": "ブラジル - 企業検索",
-            "description": "CNPJでブラジル法人を照会（documentType CNPJ + documentNumber）。登記ベースのデータでKYB、取引先審査、コンプライアンスに利用。"
+            "title": "ブラジル — 法人検証（CNPJ）",
+            "description": "Verifik の KYB API でブラジル企業を CNPJ により公式登記と照合し、数秒で検証します。"
         },
         "brasil_api_vehicle": {
-            "title": "ブラジル - 車両検証",
-            "description": "ナンバープレート（plate）でブラジル車両情報を照会。フリート、保険、資産確認向け。取得項目はソースの提供範囲に依存。"
+            "title": "ブラジル — 車両情報",
+            "description": "ブラジルのナンバープレート照会：登記スタイルの車両属性（メーカー、モデル、年式、VIN/シャーシ、該当時は FIPE コード）をフリート、保険、担保、マーケットプレイス向けに提供します。"
         },
         "argentina_api_identity_lookup": {
-            "title": "アルゼンチン - 国民ID検証",
-            "description": "DNI（documentType DNIAR + documentNumber）でアルゼンチン国民を照会。公式記録ベースの本人確認に利用。"
+            "title": "アルゼンチン — 国民身分証",
+            "description": "Verifik の KYC API でアルゼンチンの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "argentina_api_identity_lookup_extra": {
             "title": "アルゼンチン - 本人確認（拡張）",
@@ -353,32 +353,32 @@
             "description": "チリで発行された戸籍・登録系証明書の照合。"
         },
         "ecuador_api_company_lookup": {
-            "title": "エクアドル - 企業検索",
-            "description": "RUCEC（documentType RUCEC + documentNumber）でエクアドル法人を照会。GET /v2/ec/company。KYB・取引先審査向け。"
+            "title": "エクアドル — 法人検証",
+            "description": "Verifik の KYB API を使用してエクアドル企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "usa_api_ssn": {
-            "title": "アメリカ - SSN（社会保障番号）",
-            "description": "米国 SSN を照会。GET /v2/usa/ssn に documentNumber（書面どおりの形式）。発行年・州・有効性など取得可能な項目を返します。"
+            "title": "アメリカ合衆国 — SSN（社会保障番号）検証",
+            "description": "GET /v2/usa/ssn で米国 SSN を照会。documentNumber に SSN を指定します。"
         },
         "colombia_api_dian_invoicer": {
-            "title": "コロンビア - DIAN電子請求",
-            "description": "Verify electronic invoicing (facturación electrónica) registration status with DIAN."
+            "title": "コロンビア — DIAN 法定請求者（電子請求）",
+            "description": "コロンビア DIAN の法定請求者・電子請求登録を NIT で確認します。GET /v2/co/company/dian/invoicer。"
         },
         "api_colombia_contracts": {
-            "title": "コロンビア - 政府契約",
-            "description": "Verify government contracts and procurement records in Colombia."
+            "title": "コロンビア — 公共契約（Public Contracts）",
+            "description": "コロンビアの公共契約に関するバックグラウンド調査。"
         },
         "colombia_api_police_rnmc": {
-            "title": "コロンビア - 警察記録確認",
-            "description": "Police records verification service のColombia 市民. 提供 information about police interactions and records."
+            "title": "コロンビア — 警察の是正措置遵守の確認",
+            "description": "コロンビアにおける是正措置の遵守状況（警察 RNMC）を照会します。"
         },
         "bolivia_api_identity_lookup": {
-            "title": "ボリビア - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ボリビア — 国民身分証",
+            "description": "Verifik の KYC API でボリビアの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "colombia_pep_lookup": {
-            "title": "コロンビア - PEP照会",
-            "description": "Check if a person is listed as politically exposed (PEP) for compliance purposes."
+            "title": "コロンビア — PEP 検索（AML）",
+            "description": "CC / NIT で政治的露出者（PEP）を照会します（AML）。"
         },
         "api_autodata_manufacturers": {
             "title": "Vehicle Manufacturers Database",
@@ -417,8 +417,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "colombia_api_sisconmp": {
-            "title": "コロンビア - SISCONMP運輸検証",
-            "description": "Verify transport and cargo operator registration in the SISCONMP system."
+            "title": "SISCONMP — 研修・受講記録",
+            "description": "コロンビア SISCONMP に登録された運送・貨物関連の研修記録を照会します。"
         },
         "data_finance_incomestatement": {
             "title": "Financial - Income Statement",
@@ -437,24 +437,24 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "paraguay_api_identity_lookup": {
-            "title": "パラグアイ - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "パラグアイ — 国民身分証",
+            "description": "Verifik の KYC API でパラグアイの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "canada_api_driver_license_alberta": {
             "title": "カナダ - 運転免許",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "canada_api_driver_license_ontario": {
-            "title": "カナダ - 運転免許",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "オンタリオ — 運転免許",
+            "description": "オンタリオ（カナダ）の運転免許を文書番号で検証します。"
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "RUNT — ナンバー別車両（簡易）",
+            "description": "コロンビア RUNT でナンバーと名義人の証番号から車両の要点情報を取得します。"
         },
         "canada_api_driver_license_quebec": {
-            "title": "カナダ - 運転免許",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ケベック — 運転免許",
+            "description": "ケベック州（カナダ）の運転免許を文書番号で検証します。"
         },
         "ocr_scan_pro": {
             "title": "OCR Document Scan Pro",
@@ -465,40 +465,40 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "canada_api_driver_license_british-columbia": {
-            "title": "カナダ - 運転免許",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ブリティッシュコロンビア — 運転免許",
+            "description": "ブリティッシュコロンビア（カナダ）の運転免許を、文書番号と姓を用いて検証します。"
         },
         "ocr_scan_gpt": {
             "title": "OCR文書スキャンGPT",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "colombia_api_identity_lookup_extra": {
-            "title": "コロンビア - 国民ID検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "コロンビア — 国民ID（拡張）",
+            "description": "CC 番号と発行日で拡張属性を照会します。"
         },
         "colombia_api_identity_lookup_premium": {
             "title": "コロンビア — 国民身分証プレミアム(CC)",
-            "description": "CC プレミアム: 発行日を自動解決し、/v2/co/cedula/extra と同じ拡張フィールド。GET/POST /v2/co/cedula/premium。"
+            "description": "コロンビア国民身分証（CC）を「本人像」で確認: 番号だけ入力。発行日はVerifikが裏で解決し、cédula extra相当の豊富な戻り値。基本の照会よりクレジット高め。"
         },
         "colombia_api_identity_pep_foreigner_id": {
             "title": "コロンビア — PEP（特別滞在許可）",
-            "description": "コロンビアの PEP（Permiso Especial de Permanencia）を照会します。GET /v2/co/foreigner-id/pep に documentNumber と expeditionDate を指定します。"
+            "description": "Migración Colombia の PEP（Permiso Especial de Permanencia）を照会します。"
         },
         "ocr_scan_studio": {
             "title": "OCR Document Scan Studio",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "canada_api_company": {
-            "title": "カナダ - 企業検索",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "カナダ — 法人検証",
+            "description": "Verifik の KYB API を使用してカナダ法人を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "us_api_passport_entries": {
-            "title": "アメリカ — パスポート・米国入出国",
-            "description": "パスポート情報と氏名・生年月日で米国入出国履歴を照会。GET /v2/passport/us/entries。提供可否はアカウント次第。"
+            "title": "アメリカ — パスポート・米国入出国履歴",
+            "description": "GET /v2/passport/us/entries。氏名・生年月日・パスポート番号などで照会します。"
         },
         "mexico_api_company": {
-            "title": "メキシコ - 企業検索",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "メキシコ — 法人検証",
+            "description": "Verifik の KYB API を使用してメキシコ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -533,68 +533,68 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
-            "title": "コロンビア - Fasecolda車両価格 (プレート)",
-            "description": "Get vehicle commercial values from Fasecolda by license plate."
+            "title": "Fasecolda — ナンバー別車両価格",
+            "description": "コロンビア車両ナンバーで Fasecolda の商用価値・仕様・モデル年別価格を取得します。"
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
-            "title": "コロンビア - Fasecolda車両価格 (コード)",
-            "description": "Get vehicle commercial values from Fasecolda by vehicle code."
+            "title": "Fasecolda — コード別車両価格",
+            "description": "Fasecolda の車両コードで商用価値・仕様・モデル年別価格を取得します。"
         },
         "usa_api_company": {
-            "title": "アメリカ - 企業検索（KYB）",
-            "description": "SEC EDGAR を用いた米国企業照会。POST /v2/usa/company の JSON に business（商号全文または一部）。CIK・EIN・住所・上場情報などを返します。"
+            "title": "アメリカ — 法人（SEC EDGAR）",
+            "description": "SEC EDGAR を用いた米国企業の法人名検索・企業情報取得。POST /v2/usa/company。"
         },
         "colombia_api_runt_owners": {
             "title": "コロンビア - 車両所有者(RUNT)",
             "description": "Verify vehicle ownership and registered owners through the RUNT system."
         },
         "chile_api_driver_license": {
-            "title": "チリ - 運転免許",
-            "description": "免許証番号でチリの運転免許詳細を取得。RUT、クラス、管理日、住所、制限事項、登録上の項目。採用・モビリティコンプライアンス向け。"
+            "title": "チリ — 運転免許",
+            "description": "ライセンス番号でチリの運転免許を照会します。免許クラス、制限、管理日、RUT、住所などを公式自動車登録から取得し、フリート管理や労働力のコンプライアンス確認に活用できます。"
         },
         "colombia_api_lawyers_certificate": {
-            "title": "コロンビ아 - 弁護士検証",
-            "description": "Obtain lawyer certification and professional status verification."
+            "title": "法曹資格証明（有効性）",
+            "description": "コロンビアの法曹の登録・証明の有効性を documentType（CC/CE）、documentNumber、quality で照会します。"
         },
         "argentina_api_vehicle": {
-            "title": "アルゼンチン - 車両検証",
-            "description": "ナンバープレート（plate）でアルゼンチン登録車両を照会。車両・登録情報の確認に利用。"
+            "title": "アルゼンチン — 車両情報",
+            "description": "ナンバープレートを用いてアルゼンチンの車両情報を照会します。"
         },
         "argentina_api_company_lookup": {
-            "title": "アルゼンチン - 企業検索",
-            "description": "CUIT（documentType CUIT + documentNumber）でアルゼンチン法人を照会。KYB・取引先審査向け。"
+            "title": "アルゼンチン — 法人検証",
+            "description": "Verifik の KYB API を使用してアルゼンチン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "bolivia_api_vehicle": {
-            "title": "ボリビア - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ボリビア — 車両情報",
+            "description": "ナンバープレートを用いてボリビアの車両に関する情報を取得する車両検証サービス。"
         },
         "brasil_api_criminal_history": {
-            "title": "ブラジル - バックグラウンドチェック",
-            "description": "ブラジル個人の身元調査（CPF + 生年月日）。本人情報と、取得可能な公式レポート出力。スクリーニング向け。法的助言ではありません。"
+            "title": "ブラジル",
+            "description": "CPF を用いてブラジル個人のバックグラウンドチェックを実施します。"
         },
         "bolivia_api_business_lookup": {
-            "title": "ボリビア - 企業検索",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "ボリビア — 法人検証",
+            "description": "Verifik の KYB API を使用してボリビア企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "costa_rica_api_business_lookup": {
-            "title": "コスタリカ — 法人照会（NITE）",
-            "description": "コスタリカ法人のKYB照会。GET /v2/cr/company に documentType=NITE と documentNumber（NITE番号）を指定し、登録・取引先確認に利用。"
+            "title": "コスタリカ — 法人検証（NITE）",
+            "description": "GET /v2/cr/company を介して、documentType に NITE と documentNumber を指定し、登録およびコンプライアンスのためのコスタリカ KYB 企業照会を行います。"
         },
         "paraguay_api_business_lookup": {
-            "title": "パラグアイ - 企業検索",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "パラグアイ — 法人検証",
+            "description": "Verifik の KYB API を使用してパラグアイ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "コロンビア - Fasecolda事故履歴",
-            "description": "Check vehicle accident and claim history from Fasecolda by plate."
+            "title": "Fasecolda — 事故・保険金請求履歴",
+            "description": "Fasecolda 公式データでコロンビア車両の保険事故・請求履歴を照会します。"
         },
         "colombia_api_vehicle_tax": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "ボゴタ — 車両税",
+            "description": "ボゴタ登録車両の税負担・滞納状況を、所有者の証明とナンバーで照会します。"
         },
         "colombia_api_vehicle_accidentality_bogota": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "ボゴタ — 交通事故履歴",
+            "description": "ボゴタ登録車両の事故履歴（日付、様式番号、深刻度）をナンバーで照会します。"
         },
         "api_data_sheet_vehicle": {
             "title": "Vehicle Data Sheet",
@@ -613,40 +613,40 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "chile_api_taxpayer_lookup": {
-            "title": "チリ - 納税者（RUT）照会",
-            "description": "チリの納税者RUTに紐づく、ソースが返す本人・氏名情報を照会。税務関連の実在確認やエンティティ突合に利用。"
+            "title": "チリ — 納税者（RUT）照会",
+            "description": "RUT でチリの納税者記録を照会します。税務関連ソースから構造化された氏名フィールドを取得し、KYB、請求書発行、ベンダー確認に活用できます。"
         },
         "chile_api_validate": {
-            "title": "チリ - 身分証明書の追加検証",
-            "description": "チリの身分証（RUN/RUT）について、証種・番号と任意のシリアルで強化検証。真偽確認の追加ステップ向け。"
+            "title": "チリ — 身分証明書の検証",
+            "description": "チリの RUN または RUT と文書のシリアル番号を、戸籍または税務の検証フローに対して照会します。物理的な ID チェック向けに有効性ステータスを返します。"
         },
         "colombia_api_simit_agreements": {
-            "title": "コロンビア - SIMIT支払契約",
-            "description": "Verify active payment agreements for transit fines registered in SIMIT."
+            "title": "SIMIT — 分割払い合意",
+            "description": "SIMIT 交通違反に関する分割払い合意の照会サービス。"
         },
         "colombia_api_simit_suspensions": {
-            "title": "コロンビア - SIMIT免許停止",
-            "description": "Check for driver license suspensions or cancellations in the SIMIT system."
+            "title": "SIMIT — 免許停止",
+            "description": "コロンビア SIMIT で身分証により運転免許の停止・取消情報を照会します。"
         },
         "colombia_api_simit_subpoenas": {
-            "title": "コロンビア - SIMIT交通違反",
-            "description": "Look up active transit subpoenas (comparendos) associated with an ID or vehicle."
+            "title": "SIMIT — 反則金（Comparendos）",
+            "description": "SIMIT 交通違反・反則金照会サービス。"
         },
         "colombia_api_simit_subpoenas_details": {
             "title": "コロンビア - SIMIT違反詳細",
             "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
         },
         "colombia_api_simit_resolutions": {
-            "title": "コロンビア - SIMIT決定",
-            "description": "Access formal resolutions for traffic infractions that have reached the sanction stage."
+            "title": "SIMIT — 決議",
+            "description": "SIMIT 交通違反決議照会サービス。"
         },
         "colombia_api_simit_complete": {
-            "title": "コロンビア - SIMIT完全履歴",
-            "description": "Comprehensive transit background check including fines, agreements, and suspensions by ID."
+            "title": "SIMIT — 身分証明書による一般照会",
+            "description": "文書番号別の SIMIT 包括的データ照会サービス。"
         },
         "colombia_api_simit_plate": {
-            "title": "コロンビア - SIMITプレート別違反",
-            "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate."
+            "title": "SIMIT — ナンバープレートによる一般照会",
+            "description": "ナンバープレート別の SIMIT 包括的データ照会サービス。"
         },
         "world_api_passport_entries": {
             "title": "グローバル — パスポート・米国入出国",
@@ -657,24 +657,24 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "costa_rica_api_vehicle": {
-            "title": "コスタリカ — 車両照会",
-            "description": "ナンバープレートで照会。GET /v2/cr/vehicle に必須パラメータ plate。所有者・車両情報、取得可能な場合は違反・過去所有者履歴を返します。"
+            "title": "コスタリカ — 車両情報",
+            "description": "GET /v2/cr/vehicle で必要なナンバープレートを指定し、コスタリカの車両を照会します。利用可能な場合、所有者、仕様、違反、所有者履歴を返します。"
         },
         "paraguay_api_vehicle": {
-            "title": "パラグアイ - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "パラグアイ — 車両情報",
+            "description": "ナンバープレートを用いてパラグアイの車両に関する包括的な情報を取得する車両検証サービス。"
         },
         "usa_api_vehicle_lookup_by_vin": {
-            "title": "アメリカ - 車両（VIN）",
-            "description": "17 桁の VIN で米国車両をデコード。GET /v2/usa/vehicle-by-vin に vin。任意で force。ナンバー照会と整合した車両オブジェクトを返します。"
+            "title": "アメリカ合衆国 — 車両（VIN）",
+            "description": "GET /v2/usa/vehicle-by-vin。17 桁の VIN で米国車両をデコードします。"
         },
         "colombia_api_identity_ce_foreigner_id": {
-            "title": "コロンビア — 外国人CE（Cédula de Extranjero）",
-            "description": "コロンビアの外国人向け CE を照会し、本人情報・在留状況などを取得します。GET /v2/co/foreigner-id/ce に documentNumber と expeditionDate を指定します。"
+            "title": "コロンビア — 外国人 CE（Cédula de Extranjería）",
+            "description": "Migración Colombia の CE を照会します。"
         },
         "colombia_api_vehicle_fines_bogota": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "ボゴタ — 車両反則金",
+            "description": "コロンビア・ボゴタの車両ナンバーで交通反則金・違反の照会。"
         },
         "colombia_api_vehicle_fines_medellin": {
             "title": "Colombia - 車両確認",
@@ -693,60 +693,60 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "venezuela_foreigner_api": {
-            "title": "ベネズエラ — 外国人身分証（CEVE）",
-            "description": "在留外国人の CEVE 身分照会。GET /v2/ve/foreigner-id、必須 documentNumber。国民（CCVE）は /v2/ve/cedula を使用します。"
+            "title": "ベネズエラ — 外国人 ID（CEVE）",
+            "description": "ベネズエラの外国人 cédula（CEVE）を文書番号で検証します。GET /v2/ve/foreigner-id を介して、KYC とコンプライアンスに活用できます。"
         },
         "colombia_sisben_api_lookup": {
-            "title": "コロンビア - SISBENスコア",
-            "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios) score and classification."
+            "title": "コロンビア — SISBEN スコア",
+            "description": "コロンビアの SISBEN グループ・スコア情報を照会します。"
         },
         "spain_api_vehicle_lookup": {
-            "title": "スペイン - 車両検証",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "スペイン",
+            "description": "Verifik 経由でナンバープレート（matrícula）によりスペインの車両登録データを照会します。"
         },
         "spain_api_company_lookup": {
-            "title": "スペイン - 企業検索",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "スペイン — 企業（CIF/NIF）",
+            "description": "Verifik の KYB API を使用してスペイン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "panama_api_business_lookup": {
-            "title": "パナマ - 企業検索",
-            "description": "RUCでパナマ法人を照会：商号・ステータス・代表者など公的登記情報。KYB・デューデリに。"
+            "title": "パナマ — 法人検証",
+            "description": "RUC でパナマの企業を照会し、法人名、ステータス、代表者、登記情報などを公式ソースから取得します。KYB やデューデリジェンスに活用できます。"
         },
         "uruguay_api_identity_lookup": {
             "title": "ウルグアイ - 国民ID検証",
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "peru_api_identity_ce_foreigner_id": {
-            "title": "ペルー — 外国人CE（Cédula de Extranjero）",
-            "description": "ペルーの外国人向け CE（Cédula de Extranjero）を、文書番号と生年月日で照会します。在留状況・国籍・外国人登録情報などを返します。GET /v2/pe/foreigner-id/ce に documentNumber と dateOfBirth（DD/MM/YYYY）を指定します。"
+            "title": "ペルー — 外国人 ID",
+            "description": "ペルーに居住する外国人の身分証を検証する、外国人居住者向けの本人確認サービス。"
         },
         "colombia_api_rues_full_v3": {
-            "title": "Colombia - RUES Complete (v3)",
-            "description": "Latest V3 API for complete corporate registration details, shareholder information, and legal standing."
+            "title": "コロンビア — RUES 企業フル照会 (v3)",
+            "description": "コロンビア RUES で NIT と登録区分から企業のフル情報を取得します。GET /v3/co/rues-complete。"
         },
         "colombia_api_rues_v3": {
-            "title": "Colombia - RUES Summary (v3)",
-            "description": "RUES V3 business verification with comprehensive company data."
+            "title": "コロンビア — RUES 企業照会 (v3)",
+            "description": "NIT と登録区分でコロンビア RUES の基本情報を照会します。GET /v3/co/rues。"
         },
         "peru_identity_lookup_v3": {
-            "title": "ペルー — DNI本人確認（v3）",
-            "description": "RENIEC 連携の標準 DNI 照会。documentType=DNI と 8 桁の documentNumber で GET /v3/pe/cedula。拡張データ（写真など）は /v3/pe/cedula/extra を使用。"
+            "title": "ペルー",
+            "description": "DNI v3 API を使用してペルー市民の本人確認を行います。"
         },
         "peru_identity_extra_lookup_v3": {
-            "title": "ペルー — DNI拡張照会（写真・住所など）",
-            "description": "RENIEC 連携の拡張 DNI 照会。写真・住所・配偶者の有無・発行／有効期限・ubigeo などを取得。GET /v3/pe/cedula/extra に documentType=DNI と 8 桁の documentNumber。任意で force=1。"
+            "title": "ペルー — DNI（拡張データ）",
+            "description": "Verifik の KYC API を使用して、ペルー市民の DNI（国民身分証明書）に関する拡張情報（住所、生年月日、写真、配偶者の有無など）を取得します。公式の RENIEC データに直接接続し、数秒で本人確認を行います。"
         },
         "colombia_api_identity_ppt_foreigner_id": {
             "title": "コロンビア — PPT（一時保護許可）",
-            "description": "コロンビアの PPT（Permiso de Protección Temporal）を照会します。GET /v2/co/foreigner-id/ppt に documentNumber と expeditionDate を指定します。"
+            "description": "Migración Colombia の PPT 状態を照会します。"
         },
         "colombia_api_min_trabajo_v3": {
             "title": "コロンビア — 高所作業認証",
             "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
         },
         "peru_api_company_lookup_v3": {
-            "title": "ペルー — 法人検索（RUC・v3）",
-            "description": "ペルー法人を RUC で照会。GET /v3/pe/company に documentType=RUC と documentNumber。商号・住所・ステータス等、公式登記ベースの KYB 向けデータ。"
+            "title": "ペルー — 法人検証",
+            "description": "Verifik の KYB API を使用してペルー企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -757,20 +757,20 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "colombia_api_inpec": {
-            "title": "コロンビア - INPEC刑務所記録",
-            "description": "Verify penitentiary and incarceration records through the INPEC system."
+            "title": "コロンビア — INPEC（収容者照会）",
+            "description": "コロンビア国家刑務所・矯正機関（INPEC）の管理下で身柄拘束されている人の照会を行います。"
         },
         "colombia_sigep_by_name": {
-            "title": "Colombia - SIGEP Public Officials 検索",
-            "description": "検索 Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database."
+            "title": "コロンビア — SIGEP（氏名検索）",
+            "description": "フルネームでコロンビア SIGEP の公務員・契約者ディレクトリを検索します。"
         },
         "colombia_sigep_by_number": {
-            "title": "Colombia - SIGEP Official 検索 by Document",
-            "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). 取得 complete professional information from SIGEP records."
+            "title": "コロンビア — SIGEP（文書番号）",
+            "description": "CC または NIT でコロンビアの公務員・契約者情報を SIGEP から照会します。"
         },
         "colombia_inpec_lookup": {
-            "title": "コロンビア - INPEC刑務所記録",
-            "description": "Look up penitentiary records and incarceration history."
+            "title": "コロンビア — INPEC（収容者照会）",
+            "description": "コロンビア国家刑務所・矯正機関（INPEC）の管理下で身柄拘束されている人の照会を行います。"
         },
         "zelf-proofs": {
             "title": "Zelf Proofs",
@@ -791,615 +791,6 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "グアテマラ - 身元追加検索",
             "description": "追加のデータポイントを含む、グアテマラ市民向けの包括的な身元確認。"
-        }
-    },
-    "smartBatchLanding": {
-        "title": "Smart Batch",
-        "subtitle": "バッチ処理の設定とレポートテンプレートを管理します。",
-        "configurationsTab": "設定",
-        "reportTemplatesTab": "レポートテンプレート",
-        "createConfiguration": "設定を作成",
-        "createTemplate": "テンプレートを作成",
-        "createCustomTemplate": "カスタムテンプレートを作成",
-        "createBlankTemplate": "空白テンプレートを作成",
-        "createBlankTemplateHint": "レポートビルダーで一から始めます。必要なら後からバッチ設定をリンクできます。",
-        "createTemplateFirstHint": "いつでも空白テンプレートを作成できます。バッチ設定のリンクは任意です。",
-        "loadingConfigurations": "設定を読み込み中...",
-        "loadingTemplates": "テンプレートを読み込み中...",
-        "noConfigurations": "設定が見つかりません",
-        "noConfigurationsDesc": "データ処理を自動化する最初のバッチ設定を作成してください。",
-        "createFirstConfiguration": "設定を作成",
-        "noTemplates": "レポートテンプレートはまだありません",
-        "noTemplatesDesc": "PDFエクスポートを一からデザインするか、上のVerifikワークフローを複製してください。",
-        "noTemplatesHint": "空白テンプレートを作成してレイアウトをデザインし、必要に応じてバッチ設定にリンクします。",
-        "steps": "ステップ",
-        "strategy": "戦略",
-        "inactive": "無効",
-        "sections": "セクション",
-        "pageSize": "用紙サイズ",
-        "pdfEngine": "PDFエンジン",
-        "linkedTo": "リンク先",
-        "standalone": "スタンドアロン",
-        "edit": "編集",
-        "delete": "削除",
-        "deleteConfirmation": "このテンプレートを削除してもよろしいですか？",
-        "noDescription": "説明がありません。"
-    },
-    "smartBatchSystemPresets": {
-        "sectionTitle": "Verifikテンプレート",
-        "sectionDesc": "コロンビア向けの検証ワークフロー。アカウントに複製して単件またはバッチで実行できます。",
-        "myTemplatesTitle": "マイテンプレート",
-        "useTemplate": "テンプレートを使用",
-        "essential": "基本",
-        "comprehensive": "包括",
-        "citizen": "コロンビア市民",
-        "company": "コロンビア企業",
-        "vehicle": "コロンビア車両",
-        "chooseModeDesc": "この検証をどのように実行しますか？",
-        "validateOneRecord": "1件を検証",
-        "uploadBatch": "バッチをアップロード (CSV)",
-        "cancel": "キャンセル",
-        "validateOneRecordHint": "1件の書類番号またはナンバーを入力すると、PDFレポートをすぐに取得できます。",
-        "validateOneRecordHintCitizen": "身分証番号（CCまたはCE）を1件入力すると、PDFレポートをすぐに取得できます。",
-        "validateOneRecordHintCompany": "企業NITを1件入力すると、PDFレポートをすぐに取得できます。",
-        "validateOneRecordHintVehicle": "ナンバープレートを1件入力すると、PDFレポートをすぐに取得できます。",
-        "uploadBatchHint": "CSVをアップロードして複数レコードを一括処理します。",
-        "inputDetailsTitle": "検証情報",
-        "inputDetailsDesc": "このワークフローに必要な項目を入力してください。",
-        "cloning": "テンプレートを設定中…",
-        "cloneFailed": "テンプレートを設定できませんでした。もう一度お試しください。",
-        "reusedExisting": "既存のテンプレートのコピーを使用しています。",
-        "unlinkedTemplate": "このテンプレートは設定にリンクされていません。",
-        "noSystemTemplates": "システムテンプレートはまだありません。",
-        "quickValidateTitle": "クイック検証",
-        "singleRecordTab": "単一レコード",
-        "batchUploadTab": "バッチアップロード",
-        "runValidation": "検証を実行",
-        "back": "戻る",
-        "co.citizen.essential.title": "コロンビア市民を検証",
-        "co.citizen.essential.description": "身分証明書と刑事記録の確認。",
-        "co.citizen.comprehensive.title": "コロンビア市民を検証（包括）",
-        "co.citizen.comprehensive.description": "プレミアム本人確認、刑事・司法記録、社会保険加入情報。",
-        "co.company.essential.title": "コロンビア企業を検証",
-        "co.company.essential.description": "基本RUES商業登記の確認。",
-        "co.company.comprehensive.title": "コロンビア企業を検証（包括）",
-        "co.company.comprehensive.description": "完全RUES登録とDIAN税務ステータス。",
-        "co.vehicle.essential.title": "コロンビア車両を検証",
-        "co.vehicle.essential.description": "SOATと車検を含む基本車両情報。",
-        "co.vehicle.comprehensive.title": "コロンビア車両を検証（包括）",
-        "co.vehicle.comprehensive.description": "完全RUNTレポートとナンバー別SIMIT違反。"
-    },
-    "createBatchConfig": {
-        "edit": "編集",
-        "create": "作成",
-        "batchConfiguration": "バッチ設定",
-        "basicInformation": "基本情報",
-        "configurationName": "設定名",
-        "namePlaceholder": "例：コロンビアID検証バッチ",
-        "nameRequired": "名前は必須です",
-        "description": "説明",
-        "descriptionPlaceholder": "このバッチの目的を説明してください...",
-        "country": "国",
-        "countryRequired": "国は必須です",
-        "mergeStrategy": "マージ戦略",
-        "sequential": "順次（順番に実行し、失敗後も継続）",
-        "parallelIndependent": "並列独立",
-        "parallelWithFallback": "フォールバック付き並列",
-        "inputFieldsFormat": "入力フィールド形式",
-        "resultOutputFormat": "結果出力形式",
-        "saving": "保存中...",
-        "next": "次へ",
-        "selectEndpoints": "エンドポイントを選択",
-        "availableFeatures": "利用可能な機能",
-        "loadingFeatures": "機能を読み込み中...",
-        "available": "利用可能",
-        "searchPlaceholder": "タイトルまたはエンドポイントで検索...",
-        "noEndpointsMatch": "\"{{query}}\" に一致するエンドポイントはありません",
-        "selectedSteps": "選択したステップ（ドラッグで並べ替え）",
-        "selectFeaturesToAdd": "ステップを追加する機能を選択",
-        "back": "戻る",
-        "reviewParameters": "パラメータを確認",
-        "reviewParamsIntro": "各エンドポイントに必要なパラメータを確認してください。バッチ実行時に提供されます。",
-        "requiredParameters": "必須パラメータ",
-        "parametersMappedHint": "これらのパラメータは、バッチ実行時に入力ファイルからマッピングされます。",
-        "noParametersRequired": "このエンドポイントにはパラメータは不要です。",
-        "required": "必須",
-        "reviewAndCreate": "確認して作成",
-        "summary": "概要",
-        "totalSteps": "合計ステップ数",
-        "stepsCount": "{{count}} ステップ",
-        "estimatedCostPerRecord": "レコードあたりの推定コスト",
-        "totalPerRecord": "レコードあたり合計",
-        "updateConfiguration": "設定を更新",
-        "createConfiguration": "設定を作成"
-    },
-    "createBatch": {
-        "createNewBatch": "新規バッチを作成",
-        "addInputsToBatch": "バッチに入力を追加",
-        "uploadDataWith": "\"{{name}}\" で処理するデータをアップロード",
-        "appendDataWith": "「{{name}}」に追加する入力をアップロード",
-        "showTutorial": "チュートリアルを表示",
-        "loadingConfiguration": "設定を読み込み中...",
-        "csvFileRequirements": "アップロード形式と想定フィールド",
-        "requiredFieldsCount": "設定に基づき {{count}} 個の必須フィールド",
-        "fieldCountsSummary": "必須 {{required}} 件、任意 {{optional}} 件 — バッチ設定に基づく",
-        "quickStart": "クイックスタート",
-        "quickStartDesc": "正しい列見出し付きの UTF-8 カンマ区切り（CSV）テンプレートをダウンロードし、行を追加してアップロードしてください。地域によっては Excel がセミコロンで出力します。区切りはカンマ・セミコロン・タブを自動検出します。",
-        "downloadCsvTemplate": "CSVテンプレートをダウンロード",
-        "requiredFields": "必須フィールド",
-        "expectedFieldsHeading": "想定されるフィールド名",
-        "required": "必須",
-        "optional": "任意",
-        "options": "オプション",
-        "usedBy": "使用先：{{stepName}}",
-        "noFieldsRequired": "この設定では列構成が定義されていません。カンマ・セミコロン・タブ区切りのファイルをアップロードでき、見出しはデータと一致させてください。",
-        "proTip": "下の camelCase 名を列見出しに正確に使用してください（順序は問いません）。UTF-8 ファイルで区切り文字は自動検出されます。このバッチに含まれない列はアップロードから取り除かれます。列数が一致しない行はスキップされます — 件数が合わないときはファイル下の通知を確認してください。",
-        "batchDetails": "バッチ詳細",
-        "batchName": "バッチ名",
-        "batchNamePlaceholder": "例：2026年1月身元調査",
-        "batchNameHint": "バッチにわかりやすい名前を付けましょう",
-        "uploadData": "データをアップロード",
-        "template": "テンプレート",
-        "dropOrClick": "ファイルをここにドロップするか、クリックして参照",
-        "dropOrClickMultiple": "ファイルをここにドロップするか、クリックして参照",
-        "acceptsFiles": "{{formats}} ファイルに対応",
-        "removeFile": "ファイルを削除",
-        "filesMergedSummary": "{{count}} 件のファイルを {{rows}} 行に結合しました",
-        "fileRowsCount": "{{count}} 行",
-        "existingBatchRowCount": "このバッチにはすでに {{count}} 行の入力があります。新しい行を追加するにはさらにファイルをアップロードしてください。",
-        "appendBlockedProcessing": "このバッチは処理中です。入力を追加する前に一時停止するか完了を待ってください。",
-        "rowsParsedSuccess": "{{count}} 行を正常に解析しました",
-        "columnsDetected": "{{count}} 列を検出しました",
-        "dataPreview": "データプレビュー",
-        "issuesCount": "{{count}} 件の問題",
-        "fixHighlightedCells": "ハイライトされたセルを修正して続行",
-        "missingValues": "{{count}} 件の欠損値",
-        "invalidValues": "{{count}} 件の無効な値",
-        "invalidDateFormat": "「{{field}}」は {{format}} 形式の有効な日付にしてください。",
-        "moreRowsHaveErrors": "さらに {{count}} 行にエラーがあります（プレビューには表示されていません）",
-        "estimatedCost": "推定コスト",
-        "rows": "行",
-        "steps": "ステップ",
-        "cancel": "キャンセル",
-        "creating": "作成中...",
-        "parsing": "解析中...",
-        "appending": "追加中...",
-        "createBatch": "バッチを作成",
-        "appendInputs": "入力を追加",
-        "errorsInRow": "この行に {{count}} 件のエラー",
-        "skippedRowsNotice": "ヘッダーの列数と一致しないため、{{total}} 行中 {{skipped}} 行がスキップされました。",
-        "delimiterHintSemicolon": "1 列のみ検出されましたが、見出しはセミコロン区切りのようです。誤りの場合は引用符を確認するか、カンマ区切り CSV で保存してください。",
-        "delimiterHintTab": "1 列のみ検出されましたが、見出しはタブ区切りのようです。誤りの場合は再エクスポートするかテンプレートを使用してください。",
-        "strippedUnknownColumnsNotice": "このバッチで使わない {{count}} 列を削除しました: {{columns}}.",
-        "noMatchingColumns": "バッチと一致する列見出しがありません。次のいずれかを含めてください: {{fields}}.",
-        "noDataRowsAfterColumnFilter": "不要な列を削除した後、データ行が残りません。想定フィールド名の下に値があるか確認してください。",
-        "pairDocumentTypeRequiredWhenNumber": "\"documentNumber\" がある場合は \"documentType\" も必須です（両方入力するか、両方空にしてください）。",
-        "pairDocumentNumberRequiredWhenType": "\"documentType\" がある場合は \"documentNumber\" も必須です（両方入力するか、両方空にしてください）。",
-        "validationXorBothModes": "氏名全文と（文書種別＋番号）はどちらか一方のみ入力してください（{{step}}）。",
-        "validationXorNeitherMode": "氏名全文、または文書種別と番号のいずれかを入力してください（{{step}}）。",
-        "validationLeakDocumentWhenFullName": "氏名で検索する場合は「{{field}}」は空にしてください（{{step}}）。",
-        "validationLeakFullNameWhenDocument": "文書で検索する場合は「{{field}}」は空にしてください（{{step}}）。",
-        "validationConditionalRequired": "「{{whenField}}」が次のいずれかのとき「{{field}}」が必須です: {{values}}（{{step}}）。",
-        "dependencyRuleIssues": "ルール抵触 {{count}} 件",
-        "validationIssuesListSeparator": "、",
-        "validationIssuesBanner": "{{rowCount}} 行で問題が {{issueCount}} 件あります: {{breakdown}}。下のハイライトされたセルを確認してください。",
-        "missingRequiredColumns": "必須の列がありません: {{fields}}。正しい形式はテンプレートをダウンロードしてください。",
-        "disabledCreating": "バッチを作成しています...",
-        "disabledAppending": "入力を追加しています...",
-        "disabledParsing": "アップロードされたファイルを解析しています...",
-        "disabledProcessing": "このバッチの処理中は入力を追加できません",
-        "disabledNoFile": "続行するにはデータ入りのファイルをアップロードしてください",
-        "disabledNoBatchName": "続行するにはバッチ名を入力してください",
-        "disabledFixDataErrors": "データのエラーを修正してから続行してください",
-        "searchModesIntro": "各行ではどちらか一方のみを使ってください。氏名での検索、または文書種別と番号での検索です（種別によっては生年月日が追加で必要になります）。同一行で両方を混在させないでください。",
-        "searchModeOptionFullName": "オプション A — 氏名で検索",
-        "searchModeOptionDocument": "オプション B — 文書で検索",
-        "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
-        "fieldConditional": "条件付き必須",
-        "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。",
-        "perEndpointIntro": "各カードは、そのバッチ手順でスプレッドシートに含める列を示します。氏名と書類のルールは、表示されている手順にのみ適用されます。",
-        "endpointStepLabel": "手順 {{sequence}}",
-        "endpointXorRule": "この手順では、行ごとにどちらか一方を選んでください。氏名フィールド、または文書の種類と番号（記載の条件付きフィールドを含む）。",
-        "endpointRequiredFieldsLabel": "必須",
-        "endpointConditionalFieldsLabel": "条件付き",
-        "endpointOptionalFieldsLabel": "任意",
-        "endpointNoFieldsRequired": "この手順に必須の列はありません。"
-    },
-    "batchTutorial": {
-        "stepOf": "ステップ {{current}} / {{total}}",
-        "back": "戻る",
-        "next": "次へ",
-        "getStarted": "始める",
-        "welcomeTitle": "バッチ作成へようこそ！",
-        "welcomeDesc": "このウィザードでは、データの一括アップロードと処理をサポートします。主要なステップを一緒に進めましょう。",
-        "welcomeTip": "右上のヘルプボタンをクリックすると、いつでもこのチュートリアルを再表示できます。",
-        "step1Title": "ステップ1：バッチに名前を付ける",
-        "step1Desc": "後で簡単に識別できるように、バッチにわかりやすい名前を付けましょう。例：「2026年1月検証」や「人事身元調査Q1」。",
-        "step2Title": "ステップ2：テンプレートをダウンロード",
-        "step2Desc": "アップロード前に、CSVテンプレートをダウンロードしてください。このテンプレートには、バッチ設定に基づく必要な列がすべて含まれています。",
-        "step2Tip": "テンプレートにより、データが正しい形式で、必要なフィールドがすべて含まれていることが保証されます。",
-        "step3Title": "ステップ3：データを入力",
-        "step3Desc": "ExcelまたはGoogleスプレッドシートでテンプレートを開き、データを入力してください。各行は処理する1件のレコードを表します。",
-        "step3Tip": "必須フィールド（*でマーク）はすべて入力してください。空の必須フィールドはエラーの原因になります。",
-        "step4Title": "ステップ4：ファイルをアップロード",
-        "step4Desc": "完成したCSVファイルをアップロード領域にドラッグ＆ドロップするか、クリックして参照してください。データを検証してプレビューを表示します。",
-        "step5Title": "ステップ5：確認して送信",
-        "step5Desc": "データプレビューで内容を確認し、推定コストを確認してから「バッチを作成」をクリックして処理を開始しましょう！",
-        "step5Tip": "問題があれば、ファイルを削除して別のファイルをアップロードできます。"
-    },
-    "smartReport": {
-        "generateReport": "レポートを生成",
-        "batchReport": "バッチレポート",
-        "createTemplate": "テンプレートを作成",
-        "selectTemplate": "テンプレートを選択",
-        "noTemplatesFound": "テンプレートが見つかりません",
-        "sections": "セクション",
-        "templateMatchesData": "テンプレートはデータと一致します",
-        "missingFields": "{{count}} フィールドが不足しています",
-        "dataMatch": "データ一致",
-        "templateMatchesBatchData": "テンプレートはバッチデータと一致します",
-        "templateReadyToUse": "すぐに使用できます。いつでもビルダーでこのテンプレートをカスタマイズできます。",
-        "editInBuilder": "ビルダーで編集",
-        "missingFieldsEditInBuilder": "バッチデータに{{count}}フィールドが不足しています。ビルダーでテンプレートを編集して修正してください。",
-        "editWithRealData": "実際のデータで編集",
-        "editTemplateWithRealData": "実際のデータでテンプレートを編集",
-        "paths": "パス",
-        "actions": "アクション",
-        "generatePdf": "PDFを生成",
-        "generating": "生成中...",
-        "downloadPdf": "PDFをダウンロード",
-        "sendViaEmail": "メールで送信",
-        "sending": "送信中...",
-        "stepResultsLayout": "ステップ結果レイアウト",
-        "reportForRecord": "レコード #{{index}} のレポート",
-        "dragSectionsReorder": "ドラッグして並べ替え。レイアウトは印刷可能です。",
-        "collapseContent": "コンテンツを折りたたむ",
-        "expandContent": "コンテンツを展開",
-        "noStepResultsYet": "ステップ結果はまだありません",
-        "processBatchToSeeResults": "バッチを処理して、各エンドポイントの結果をここで確認してください。",
-        "row": "行",
-        "result": "結果",
-        "viewModeReadable": "読みやすい",
-        "viewModeTable": "テーブル",
-        "viewModeJson": "JSON",
-        "viewModeExcelAg": "Excel v1",
-        "viewModeExcelHt": "Excel v2",
-        "downloadAsCsv": "CSVをダウンロード",
-        "downloadAsExcel": "Excelをダウンロード",
-        "exportData": "データをエクスポート",
-        "detailedExportHint": "各項目が列になります。列数が多くなるため、Excelまたはスプレッドシートのフィルターで整理してください。",
-        "copyJson": "JSONをコピー",
-        "csvDownloaded": "CSVをダウンロードしました",
-        "excelDownloaded": "Excelをダウンロードしました",
-        "step": "ステップ",
-        "preview": "プレビュー",
-        "previewSameAsBuilder": "レポートビルダーと同じプレビュー — バッチデータでレンダリングされたテンプレート",
-        "previewPage": "ページ",
-        "previewPageOf": "/",
-        "previewPrevious": "前のページ",
-        "previewNext": "次のページ",
-        "generatingPdf": "PDFを生成中...",
-        "noPreviewAvailable": "プレビューがありません",
-        "selectTemplateAndBatch": "テンプレートを選択し、バッチに処理済みの行があることを確認してください",
-        "back": "戻る",
-        "generateReportFirst": "まずレポートを生成してください",
-        "emailSent": "メールを送信しました！",
-        "failedToSendEmail": "メールの送信に失敗しました",
-        "pdfDownloaded": "PDFをダウンロードしました",
-        "failedToDownloadPdf": "PDFのダウンロードに失敗しました",
-        "invalidPdfReceived": "サーバーから無効なPDFを受信しました",
-        "editReportTemplate": "レポートテンプレートを編集",
-        "newReportTemplate": "新しいレポートテンプレート",
-        "designReportLayout": "ドラッグ＆ドロップでレポートレイアウトをデザイン",
-        "sendSample": "サンプルを送信",
-        "sendingSample": "サンプルを送信中...",
-        "downloadSample": "サンプルをダウンロード",
-        "downloadingSample": "PDFを生成中...",
-        "saveTemplateFirst": "サンプル送信を有効にするには、まずテンプレートを保存してください",
-        "saveTemplate": "テンプレートを保存",
-        "saving": "保存中...",
-        "templateSettings": "テンプレート設定",
-        "templateName": "テンプレート名",
-        "templateNamePlaceholder": "マイレポートテンプレート",
-        "linkedConfigurationOptional": "リンクする設定（任意）",
-        "noLinkedConfiguration": "なし（スタンドアロン）",
-        "pageSize": "用紙サイズ",
-        "orientation": "向き",
-        "portrait": "縦",
-        "landscape": "横",
-        "pdfEngine": "PDFエンジン",
-        "primaryColor": "メインカラー",
-        "helperData": "ヘルパーデータ",
-        "helperDataHint": "データフィールドまたはテーブルセクションでこれらのパスを使用",
-        "openFromReportViewer": "レポートビューアからバッチデータで開いて、利用可能なパスを確認",
-        "copyPath": "パスをコピー",
-        "copyPathForTable": "パスをコピー（テーブルセクション用）",
-        "addSections": "セクションを追加",
-        "reportLayout": "レポートレイアウト",
-        "dragToReorder": "ドラッグしてセクションを並べ替え",
-        "addSectionsFromAbove": "上からセクションを追加",
-        "section": "セクション",
-        "sectionNumber": "セクション #{{num}}",
-        "edit": "編集",
-        "duplicate": "複製",
-        "delete": "削除",
-        "titleText": "タイトルテキスト",
-        "reportTitle": "レポートタイトル",
-        "content": "コンテンツ",
-        "enterTextContent": "テキストコンテンツを入力...",
-        "label": "ラベル",
-        "fieldLabel": "フィールドラベル",
-        "dataPath": "データパス",
-        "dataPathPlaceholder": "results.1.fullName",
-        "dotSeparatedPath": "ドット区切りのデータパス（例：results.1.fullName）",
-        "tableTitle": "テーブルタイトル",
-        "tableLabel": "テーブルラベル",
-        "dataPathObject": "データパス（オブジェクト）",
-        "pathToObject": "キーが行になるオブジェクトへのパス",
-        "imageUrl": "画像URL",
-        "altText": "代替テキスト",
-        "companyLogo": "会社ロゴ",
-        "heightPx": "高さ（px）",
-        "color": "色",
-        "style": "スタイル",
-        "textAlign": "テキスト配置",
-        "fontSize": "フォントサイズ",
-        "fontWeight": "フォントの太さ",
-        "normal": "通常",
-        "bold": "太字",
-        "textColor": "テキスト色",
-        "livePreviewWithSample": "サンプルデータでのライブプレビュー",
-        "missing": "不足",
-        "sendSampleReport": "サンプルレポートを送信",
-        "sendReport": "レポートを送信",
-        "enterRecipientsAndSubject": "受信者のメールとオプションの件名を入力",
-        "recipientEmails": "受信者メール",
-        "recipientsPlaceholder": "email1@example.com, email2@example.com",
-        "separateEmailsWithCommas": "複数のメールはカンマで区切ってください",
-        "atLeastOneRecipient": "少なくとも1人の受信者が必要です",
-        "enterValidEmails": "有効なメールアドレスを入力してください",
-        "subjectOptional": "件名（任意）",
-        "subjectOptionalPlaceholder": "サンプルレポート：テンプレートプレビュー",
-        "reportBatchPlaceholder": "レポート - バッチ",
-        "cancel": "キャンセル",
-        "noSectionsToPreview": "プレビューするセクションがありません",
-        "untitled": "無題",
-        "textContent": "テキストコンテンツ...",
-        "field": "フィールド",
-        "noDataAtPath": "パス \"{{path}}\" にデータがありません",
-        "image": "画像",
-        "failedToSaveTemplatePreference": "テンプレートの設定の保存に失敗しました",
-        "pleaseSelectTemplate": "テンプレートを選択してください",
-        "reportGenerated": "レポートを生成しました！",
-        "failedToGenerateReport": "レポートの生成に失敗しました",
-        "failedToCreateReport": "レポートの作成に失敗しました",
-        "sectionHeader": "ヘッダー",
-        "sectionText": "テキストブロック",
-        "sectionField": "データフィールド",
-        "sectionTable": "テーブル",
-        "sectionImage": "画像",
-        "sectionDivider": "区切り線",
-        "sectionSpacer": "スペーサー",
-        "samplePdfSentSuccess": "サンプルPDFを正常に送信しました",
-        "failedToSendSamplePdf": "サンプルPDFの送信に失敗しました",
-        "copied": "コピーしました",
-        "failedToCopy": "コピーに失敗しました",
-        "searchRecords": "レコードを検索...",
-        "typeToFind": "入力して検索...",
-        "signature": "署名",
-        "dragSignatureToPosition": "プレビューで署名をドラッグして配置します。",
-        "drawSignature": "署名を描く",
-        "saveSignature": "署名を保存",
-        "useMouseOrFingerToSign": "マウスまたは指で上に署名してください。",
-        "clear": "クリア",
-        "autoFitBelowLogo": "ロゴの下にコンテンツを自動調整",
-        "autoFitContentHint": "有効にすると、セクションコンテンツはロゴの下から自動的に始まります。",
-        "autoFitLabel": "自動調整",
-        "contentTopPadding": "コンテンツ上余白",
-        "contentTopPaddingHint": "セクションコンテンツを下に押します。0 にすると自動調整に戻ります（有効時）。0 より大きい値は自動調整を上書きします。",
-        "dragLogoToPosition": "プレビューでロゴをドラッグして位置とサイズを調整します。",
-        "footerLegend": "フッター注記",
-        "footerLegendPlaceholder": "免責事項、法的テキスト、各ページ下部の注記を追加…",
-        "height": "高さ",
-        "pageNumberPosition": "位置",
-        "pageNumbers": "ページ番号",
-        "remove": "削除",
-        "replaceLogo": "ロゴを置換",
-        "securityPassword": "パスワード",
-        "securityPasswordHint": "生成された PDF を開くにはこのパスワードが必要です。",
-        "securityPasswordPlaceholder": "安全なパスワードを設定…",
-        "securityTitle": "PDF パスワード保護",
-        "uploadLogo": "ロゴをアップロード",
-        "watermark": "透かし",
-        "watermarkLogo": "🖼 ロゴ",
-        "watermarkLogoHint": "透かしに使うロゴを上でアップロードしてください",
-        "watermarkOpacity": "不透明度",
-        "watermarkPattern": "レイアウト",
-        "watermarkRepeated": "◈ 繰り返し",
-        "watermarkSingle": "◇ 単一",
-        "watermarkText": "✦ テキスト",
-        "watermarkTextPlaceholder": "CONFIDENTIAL",
-        "width": "幅",
-        "workspaceLogo": "ワークスペースロゴ",
-        "failedToLoadTemplate": "このテンプレートを読み込めませんでした。",
-        "close": "閉じる",
-        "rowNum": "行 #",
-        "pdfEngineHtml": "リッチレイアウト（推奨）",
-        "pdfEngineClassic": "クラシックレイアウト",
-        "paginatorItemsPerPage": "1ページあたりの件数:",
-        "paginatorNextPage": "次のページ",
-        "paginatorPreviousPage": "前のページ",
-        "paginatorFirstPage": "最初のページ",
-        "paginatorLastPage": "最後のページ",
-        "paginatorRange": "{{start}} – {{end}} / {{total}}",
-        "paginatorRangeEmpty": "0 / 0"
-    },
-    "batchProcessing": {
-        "backToDashboard": "ダッシュボードに戻る",
-        "batchProcessing": "バッチ処理",
-        "records": "件",
-        "status": "ステータス",
-        "starting": "開始中...",
-        "startProcessing": "処理を開始",
-        "pause": "一時停止",
-        "resume": "再開",
-        "parallelWorkers": "同時件数",
-        "parallelWorkersHint": "並列実行する件数（1ステップのバッチのみ）。小さいほど負荷とレート制限リスクが下がります。",
-        "pausing": "一時停止中...",
-        "pauseFailed": "バッチを一時停止できませんでした。もう一度お試しください。",
-        "addInputs": "入力を追加",
-        "generateReport": "レポートを生成",
-        "processing": "処理中...",
-        "processingParallelHint": "最大 {{conc}} 件の API チェックを同時実行（1 ステップのバッチのみ）。",
-        "parallelActiveRows": "実行中の行: {{rows}}",
-        "processingSteps": "処理ステップ",
-        "credits": "クレジット",
-        "pending": "保留中",
-        "recordsWaiting": "{{count}}件のレコードが待機中",
-        "allRecordsProcessed": "すべてのレコードが処理されました！",
-        "rowNumber": "行 {{index}}",
-        "completed": "完了",
-        "failed": "失敗",
-        "partial": "一部完了",
-        "recordsVerified": "{{count}}件のレコードを検証済み",
-        "noCompletedRecordsYet": "まだ完了したレコードはありません",
-        "verified": "検証済み",
-        "skipped": "スキップ",
-        "rowDetails": "行 #{{index}} の詳細",
-        "readable": "読みやすい",
-        "json": "JSON",
-        "generatePdfReport": "PDFレポートを生成",
-        "inputData": "入力データ",
-        "stepResults": "ステップ結果",
-        "errors": "エラー",
-        "stepError": "ステップ {{step}}: {{code}}",
-        "stepStatusCompleted": "{{step}}: 完了",
-        "stepStatusFailed": "{{step}}: 失敗",
-        "stepStatusPending": "{{step}}: 保留中",
-        "stepStatusSkipped": "{{step}}: スキップ",
-        "draft": "下書き",
-        "cancelled": "キャンセル",
-        "totalCost": "合計コスト",
-        "successful": "成功",
-        "requestsFailed": "リクエスト失敗",
-        "requestsSuccessful": "リクエスト成功",
-        "requestsPartial": "再試行が必要なレコード",
-        "all": "すべて",
-        "noResultsFound": "結果が見つかりません",
-        "continueOnFailureTitle": "エンドポイントが失敗してもバッチは継続します",
-        "continueOnFailureBody": "各エンドポイントは独立して試行されます。1つのチェックが失敗しても残りのチェックは実行され、失敗したステップだけ再試行できるように行は一部完了として表示されます。",
-        "retryStep": "再試行",
-        "retrying": "再試行中...",
-        "retryAllFailed": "失敗したすべてを再試行 ({{count}})",
-        "retryAllFailedTooltip": "失敗した各行の結果をクリアし、保留に戻してから、それらの行についてバッチを最初のステップから再実行します。",
-        "retryThisFailedRow": "この行を最初のステップから再試行",
-        "retryFailedBlocked": "再試行する前に、現在の実行が終わるまでお待ちください。",
-        "retryAllFailedError": "再試行を開始できませんでした。もう一度お試しください。",
-        "retryRowFailedError": "この行を再試行できませんでした。もう一度お試しください。",
-        "continuePendingSteps": "保留中 {{count}} 件を続行",
-        "continuing": "続行中...",
-        "continuePendingStepsHint": "完了済みのチェックはスキップし、保留中の {{count}} 件のみ実行します。",
-        "openPdfInNewTab": "新しいタブで開く",
-        "downloadPdf": "PDF をダウンロード",
-        "pdfPreview": "PDF のプレビュー",
-        "pdfOmittedForJsonView": "[PDF は省略 — 読みやすい表示でプレビュー]",
-        "downloadInputsAll": "すべての入力をダウンロード",
-        "downloadInputsPending": "保留中の入力をダウンロード",
-        "downloadInputsSuccessful": "成功した入力をダウンロード",
-        "downloadInputsFailed": "失敗した入力をダウンロード",
-        "downloadInputsPartial": "一部のみの入力をダウンロード",
-        "downloadInputsTooltipAll": "メニューからバッチ内の全行の元入力列を Excel / CSV / JSON でエクスポートします。検索フィルターは無視されます。",
-        "downloadInputsTooltipPending": "メニューから保留中の行の元入力列のみを Excel / CSV / JSON でエクスポートします。検索フィルターは無視されます。",
-        "downloadInputsTooltipSuccessful": "メニューから成功した行の元入力列のみを Excel / CSV / JSON でエクスポートします。検索フィルターは無視されます。",
-        "downloadInputsTooltipFailed": "メニューから失敗した行の元入力列のみを Excel / CSV / JSON でエクスポートします。検索フィルターは無視されます。",
-        "downloadInputsTooltipPartial": "メニューから部分完了行の元入力列のみを Excel / CSV / JSON でエクスポートします。検索フィルターは無視されます。",
-        "exportAsExcel": "Excel (.xlsx)",
-        "exportAsCsv": "CSV",
-        "exportAsJson": "JSON",
-        "exportFormatLabel_xlsx": "Excel",
-        "exportFormatLabel_csv": "CSV",
-        "exportFormatLabel_json": "JSON",
-        "inputExportDoneWithFormat": "{{format}} として {{count}} 行をエクスポートしました。",
-        "inputExportNoRows": "このタブでエクスポートできる行がありません。",
-        "failedExportDismiss": "閉じる",
-        "ruesCategory": "登録カテゴリ",
-        "ruesCategoryNone": "（なし — 省略可）",
-        "ruesCategorySaved": "入力を保存しました。",
-        "ruesCategorySaveFailed": "入力を保存できませんでした。やり直してください。",
-        "ruesCategoryHint": "省略可能です。クリアするとこの行からカテゴリが削除されます。一部の RUES v3 ではクエリに category がないと RM が使われる場合があります。",
-        "ruesCategoryEdit": "カテゴリを編集",
-        "ruesCategoryApply": "適用",
-        "ruesCategoryCancel": "キャンセル",
-        "addInputsDialogEyebrow": "入力を追加",
-        "addInputsChooseModeDesc": "レコードをどのように追加しますか？",
-        "addOneRecord": "1件追加",
-        "addOneRecordHintCitizen": "身分証番号（CCまたはCE）を入力してこのバッチに追加します。",
-        "addOneRecordHintCompany": "企業NITを入力してこのバッチに追加します。",
-        "addOneRecordHintVehicle": "ナンバープレートを入力してこのバッチに追加します。",
-        "uploadBatchAppendHint": "CSVをアップロードしてこのバッチに複数行を追加します。",
-        "addOneRecordTitle": "1件追加",
-        "addOneRecordDesc": "必須項目を入力して、このバッチに1件追加します。",
-        "appendFailed": "レコードを追加できませんでした。もう一度お試しください。"
-    },
-    "batchDashboard": {
-        "backToSmartBatch": "Smart Batchに戻る",
-        "loading": "読み込み中...",
-        "batchProcessingDashboard": "バッチ処理ダッシュボード",
-        "createBatch": "バッチを作成",
-        "steps": "ステップ",
-        "strategy": "戦略",
-        "format": "形式",
-        "costPerRow": "行あたりのコスト",
-        "processingSteps": "処理ステップ",
-        "disabled": "無効",
-        "costBreakdown": "コスト内訳",
-        "totalPerRow": "1行あたりの合計",
-        "total": "合計",
-        "totalBatches": "バッチ総数",
-        "success": "成功",
-        "completedRows": "完了した行",
-        "queue": "キュー",
-        "pendingRows": "保留中の行",
-        "error": "エラー",
-        "failedRows": "失敗した行",
-        "loadingBatches": "バッチを読み込み中...",
-        "noBatchesYet": "まだバッチがありません",
-        "createFirstBatchDescription": "最初のバッチを作成して、この設定でデータの処理を開始してください。",
-        "createFirstBatch": "最初のバッチを作成",
-        "batches": "バッチ",
-        "name": "名前",
-        "status": "ステータス",
-        "progress": "進捗",
-        "rows": "行",
-        "created": "作成日",
-        "actions": "操作",
-        "viewDetails": "詳細を表示",
-        "addInputs": "入力を追加",
-        "failedCount": "({{count}}件失敗)",
-        "partialCount": "({{count}}件一部完了)"
-    },
-    "addCredits": {
-        "promo": {
-            "weekOneUsd50": {
-                "badge": "期間限定",
-                "title": "アカウント作成から1週間以内に50ドル・100ドル・150ドル・200ドルのいずれかをチャージでクレジット価値が2倍",
-                "body": "Verifik のクライアント・アカウント作成から7日以内に、合計50米ドルのクレジットをご購入いただいた場合（初回ログインではなく、登録済みプロフィール上の作成日時が基準です）、同一金額のボーナスクレジットを付与します。該当するチャージについて、ご利用いただけるクレジット価値はお支払い額の2倍相当になります。",
-                "accountCreatedNotice": "クライアント登録から1週間が経過する前に、対象金額（50ドル / 100ドル / 150ドル / 200ドル）の購入を完了する必要があります。この期間を過ぎた場合、または本プロモーションを1回ご利用済みの場合は、通常レートが適用されます。",
-                "deadline": "資格を満たす購入は {{expiresAt}} までに完了してください",
-                "walletStrip": "初週限定: {{amountUsd}} のいずれかを選んで購入すると、このプロモ適用中はクレジット価値が2倍になります（上記バナー参照）。",
-                "dialogDouble": "初週プロモ：{{payUsd}} をお支払いすると、総クレジット価値は {{receivedUsd}} になります（ボーナス込み）。"
-            }
-        },
-        "purchaseDialog": {
-            "errors": {
-                "duplicate_credit_purchase_quick": "このドル建ての金額は追加済みです。少し待つか別の金額にしてください。",
-                "duplicate_credit_purchase_same_day": "この金額のクレジットは本日追加済みです。別の金額か、翌日にもう一度どうぞ。",
-                "credit_purchase_invalid_amount": "その金額は範囲外です。金額を直して試してください。",
-                "kycVerificationStartFailed": "KYCの画面を開けませんでした。再試行するかサポートにお問い合わせください。",
-                "selectPaymentMethod": "続行する保存済みのカードを選んでください。",
-                "amountOutOfRange": "{{minUsd}} から {{maxUsd}} の範囲で金額を入力してください。",
-                "paymentPendingVerification": "お支払いの確認が保留中です。銀行の承認後にクレジットが反映されます。"
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,6 +47,8 @@ import {
 } from '../sandbox/sandbox-error-profiles';
 import { distinctUntilChanged, map, skip } from 'rxjs';
 import { AboutEndpointComponent } from './about-endpoint.component';
+import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
+import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
 
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
@@ -75,6 +78,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
         MatSelectModule,
         TranslocoPipe,
         AboutEndpointComponent,
+        PostmanEndpointLabelComponent,
     ],
     host: { class: 'block h-full' },
     template: `
@@ -86,15 +90,17 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             <div *ngIf="endpoint() as ep" class="px-4 pt-4 pb-2 select-text">
                 <ng-container *ngIf="ep.code; else defaultHeader">
                     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
-                        <ng-container *ngIf="ep.layoutDisplayName?.trim(); else catalogTitle">
-                            {{ ep.layoutDisplayName?.trim() }}
-                        </ng-container>
-                        <ng-template #catalogTitle>
-                            {{ 'appFeatures.' + ep.code + '.title' | transloco }}
-                        </ng-template>
+                        <postman-endpoint-label
+                            [country]="ep.country"
+                            [title]="endpointHeaderCopy(ep).title"
+                            [tooltipTitle]="endpointHeaderCopy(ep).fullTitle"
+                            [preformatted]="true"
+                            size="md"
+                            [truncate]="false"
+                        />
                     </h2>
                     <p class="text-sm text-slate-500 dark:text-slate-400">
-                        {{ 'appFeatures.' + ep.code + '.description' | transloco }}
+                        {{ endpointHeaderCopy(ep).description }}
                     </p>
                 </ng-container>
                 <ng-template #defaultHeader>
@@ -976,6 +982,25 @@ export class RequestEditorComponent {
     private _userService = inject(UserService);
     private _accountEnv = inject(AccountEnvironmentService);
     translocoService = inject(TranslocoService);
+
+    private _activeLang = toSignal(this.translocoService.langChanges$, {
+        initialValue: this.translocoService.getActiveLang(),
+    });
+
+    endpointHeaderCopy(ep: ApiEndpoint) {
+        const catalogTitle = ep.code
+            ? this.translocoService.translate(`appFeatures.${ep.code}.title`)
+            : ep.label;
+        const catalogDescription = ep.code
+            ? this.translocoService.translate(`appFeatures.${ep.code}.description`)
+            : ep.description ?? '';
+        return resolvePostmanEndpointCopy({
+            endpoint: ep,
+            catalogTitle,
+            catalogDescription,
+            locale: this._activeLang(),
+        });
+    }
 
     endpoint = this._postmanService.selectedEndpoint;
     isLoading = this._postmanService.isLoading;

@@ -1,6 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
+const sanitizeCatalogName = (value) => {
+  if (!value?.trim()) return value;
+  let text = value.trim();
+  text = text.replace(/\\U0001[A-Fa-f0-9]{4}/g, '');
+  text = text.replace(/^[\u{1F1E6}-\u{1F1FF}]{2}\s*/u, '');
+  return text.replace(/\s{2,}/g, ' ').trim();
+};
+
 /**
  * When backend `name` / `nameES` used a broken template (`" - …"`), prefer
  * curated strings from public Transloco bundles (same source as runtime).
@@ -42,7 +50,7 @@ features.forEach((feature) => {
   //            appFeatures.<CODE>.description = description
 
   appFeatures[feature.code] = {
-    title: feature.name,
+    title: sanitizeCatalogName(feature.name),
     description: feature.description,
   };
 });
@@ -74,8 +82,8 @@ features.forEach((feature) => {
   if (!feature.code) return;
 
   appFeaturesES[feature.code] = {
-    title: feature.nameES || feature.name, // Fallback to name if nameES missing
-    description: feature.descriptionES || feature.description, // Fallback
+    title: sanitizeCatalogName(feature.nameES || feature.name),
+    description: feature.descriptionES || feature.description,
   };
 });
 

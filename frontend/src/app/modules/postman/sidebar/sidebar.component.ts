@@ -44,6 +44,9 @@ import {
   PostmanRenameEndpointDialogComponent,
   PostmanRenameEndpointDialogData,
 } from '../postman-rename-endpoint-dialog.component';
+import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
+import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
+import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
 
 function buildFolderTree(
   folders: PostmanFolderDto[],
@@ -94,6 +97,8 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
     DragDropModule,
     TranslocoPipe,
     PostmanSidebarFolderComponent,
+    PostmanEndpointLabelComponent,
+    PostmanEndpointActionsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -239,7 +244,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
               >
                 <div
                   *ngFor="let endpoint of category.endpoints; trackBy: trackByEndpoint"
-                  class="flex items-center rounded-md hover:bg-slate-200 dark:hover:bg-slate-800"
+                  class="group/row relative flex items-center rounded-md hover:bg-slate-200 dark:hover:bg-slate-800"
                   [class.bg-blue-100]="selectedEndpoint()?.id === endpoint.id"
                   [class.dark:bg-blue-900]="selectedEndpoint()?.id === endpoint.id"
                 >
@@ -250,7 +255,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                     routerLinkActive="bg-blue-100 dark:bg-blue-900"
                     [routerLinkActiveOptions]="{ exact: false }"
                     (click)="select(endpoint)"
-                    class="flex-1 min-w-0 flex items-center px-3 py-2 text-sm text-left no-underline text-inherit rounded-md"
+                    class="flex min-w-0 flex-1 items-center px-3 py-2 pr-7 text-sm text-left no-underline text-inherit rounded-md"
                   >
                     <span
                       class="text-[10px] font-bold rounded px-1 py-0.5 flex-shrink-0 mr-2 w-10 flex items-center justify-center"
@@ -263,74 +268,25 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                     >
                       {{ endpoint.method }}
                     </span>
-                    <span class="truncate select-text">
-                      <ng-container *ngIf="hasLayoutDisplayName(endpoint); else libTitle">
-                        {{ endpoint.layoutDisplayName }}
-                      </ng-container>
-                      <ng-template #libTitle>
-                        {{
-                          endpoint.code
-                            ? ('appFeatures.' + endpoint.code + '.title' | transloco)
-                            : endpoint.label
-                        }}
-                      </ng-template>
-                    </span>
+                    <postman-endpoint-label
+                      class="min-w-0 flex-1 select-text"
+                      [country]="endpoint.country"
+                      [title]="endpointDisplayCopy(endpoint).title"
+                      [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
+                      [preformatted]="true"
+                      size="sm"
+                      [truncate]="true"
+                    />
                   </a>
-                  <button
+                  <postman-endpoint-actions
                     *ngIf="endpoint.code"
-                    type="button"
-                    mat-icon-button
-                    class="!w-7 !h-7 flex-shrink-0 opacity-60 hover:opacity-100"
-                    [matMenuTriggerFor]="libEpMenu"
-                    [matTooltip]="'postman.sidebar.endpointMenuTooltip' | transloco"
-                    matTooltipPosition="left"
-                    (click)="$event.preventDefault(); $event.stopPropagation()"
-                  >
-                    <mat-icon class="!w-4 !h-4 !text-[18px]">more_vert</mat-icon>
-                  </button>
-                  <mat-menu #libEpMenu="matMenu" class="postman-endpoint-actions-menu">
-                    <ng-container *ngIf="hasMoveTargets(endpoint)">
-                      <button
-                        mat-menu-item
-                        disabled
-                        class="!opacity-100 !cursor-default !min-h-0 !py-1.5 pointer-events-none"
-                      >
-                        <span class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{{
-                          'postman.sidebar.sectionMoveTo' | transloco
-                        }}</span>
-                      </button>
-                      <button
-                        *ngIf="endpoint.postmanFolderId"
-                        mat-menu-item
-                        (click)="onMoveEndpoint({ endpoint, folderId: null })"
-                      >
-                        <mat-icon class="!w-4 !h-4 !mr-2 text-slate-500">inventory_2</mat-icon>
-                        <span>{{ 'postman.sidebar.moveToLibrary' | transloco }}</span>
-                      </button>
-                      <button
-                        *ngFor="let opt of folderMenuOptionsFiltered(endpoint)"
-                        mat-menu-item
-                        (click)="onMoveEndpoint({ endpoint, folderId: opt.id })"
-                      >
-                        <mat-icon class="!w-4 !h-4 !mr-2 text-slate-500">folder</mat-icon>
-                        <span>{{ opt.label }}</span>
-                      </button>
-                      <mat-divider></mat-divider>
-                    </ng-container>
-                    <button
-                      mat-menu-item
-                      disabled
-                      class="!opacity-100 !cursor-default !min-h-0 !py-1.5 pointer-events-none"
-                    >
-                      <span class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{{
-                        'postman.sidebar.sectionEndpoint' | transloco
-                      }}</span>
-                    </button>
-                    <button mat-menu-item (click)="openRenameEndpoint(endpoint)">
-                      <mat-icon class="!w-4 !h-4 !mr-2 text-slate-500">edit</mat-icon>
-                      {{ 'postman.sidebar.renameEndpoint' | transloco }}
-                    </button>
-                  </mat-menu>
+                    [endpoint]="endpoint"
+                    [isSelected]="selectedEndpoint()?.id === endpoint.id"
+                    [showMoveSection]="hasMoveTargets(endpoint)"
+                    [moveOptions]="folderMenuOptionsFiltered(endpoint)"
+                    (moveEndpoint)="onMoveEndpoint($event)"
+                    (renameEndpoint)="openRenameEndpoint($event)"
+                  />
                 </div>
               </div>
             </div>
@@ -394,13 +350,16 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                 >
                   {{ collapsed ? endpoint.method.substring(0, 1) : endpoint.method }}
                 </span>
-                <span *ngIf="!collapsed" class="truncate select-text">
-                  {{
-                    endpoint.code
-                      ? ('appFeatures.' + endpoint.code + '.title' | transloco)
-                      : endpoint.label
-                  }}
-                </span>
+                <postman-endpoint-label
+                  *ngIf="!collapsed"
+                  class="min-w-0 flex-1 select-text"
+                  [country]="endpoint.country"
+                  [title]="endpointDisplayCopy(endpoint).title"
+                  [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
+                  [preformatted]="true"
+                  size="sm"
+                  [truncate]="true"
+                />
               </a>
             </div>
           </div>
@@ -804,7 +763,24 @@ export class SidebarComponent {
     return endpoint.id;
   }
 
-  hasLayoutDisplayName(ep: ApiEndpoint): boolean {
-    return Boolean(ep.layoutDisplayName?.trim());
+  /** Resolved sidebar label (custom display name or catalog title). */
+  endpointDisplayCopy(endpoint: ApiEndpoint) {
+    return resolvePostmanEndpointCopy({
+      endpoint,
+      catalogTitle: this._defaultEndpointCatalogTitle(endpoint),
+      catalogDescription: this._defaultEndpointCatalogDescription(endpoint),
+      locale: this._transloco.getActiveLang(),
+    });
+  }
+
+  endpointDisplayTitle(endpoint: ApiEndpoint): string {
+    return this.endpointDisplayCopy(endpoint).title;
+  }
+
+  private _defaultEndpointCatalogDescription(endpoint: ApiEndpoint): string {
+    if (endpoint.code) {
+      return this._transloco.translate(`appFeatures.${endpoint.code}.description`);
+    }
+    return endpoint.description ?? '';
   }
 }

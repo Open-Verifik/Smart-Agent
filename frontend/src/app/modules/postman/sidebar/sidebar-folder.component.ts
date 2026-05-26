@@ -19,9 +19,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiEndpoint, PostmanFolderDto, SidebarFolderNode } from '../postman.types';
 import { PostmanService } from '../postman.service';
+import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
+import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
+import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
 
 @Component({
   selector: 'postman-sidebar-folder',
@@ -38,6 +41,8 @@ import { PostmanService } from '../postman.service';
     DragDropModule,
     TranslocoPipe,
     PostmanSidebarFolderComponent,
+    PostmanEndpointLabelComponent,
+    PostmanEndpointActionsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [
@@ -150,7 +155,7 @@ import { PostmanService } from '../postman.service';
             cdkDrag
             [cdkDragData]="endpoint"
             [cdkDragDisabled]="isEndpointDragDisabled(endpoint)"
-            class="flex items-center gap-0 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800"
+            class="group/row relative flex items-center gap-0 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800"
             [class.bg-blue-100]="selectedEndpoint?.id === endpoint.id"
             [class.dark:bg-blue-900]="selectedEndpoint?.id === endpoint.id"
           >
@@ -173,7 +178,7 @@ import { PostmanService } from '../postman.service';
               routerLinkActive="bg-blue-100 dark:bg-blue-900"
               [routerLinkActiveOptions]="{ exact: false }"
               (click)="selectEndpoint.emit(endpoint)"
-              class="flex-1 min-w-0 flex items-center px-2 py-1.5 text-sm text-left no-underline text-inherit rounded-md"
+              class="flex min-w-0 flex-1 items-center px-2 py-1.5 pr-7 text-sm text-left no-underline text-inherit rounded-md"
             >
             <span
               class="text-[10px] font-bold rounded px-1 py-0.5 flex-shrink-0 mr-2 w-10 flex items-center justify-center"
@@ -186,74 +191,26 @@ import { PostmanService } from '../postman.service';
             >
               {{ sidebarCollapsed ? endpoint.method.substring(0, 1) : endpoint.method }}
             </span>
-            <span *ngIf="!sidebarCollapsed" class="truncate select-text">
-              <ng-container *ngIf="layoutName(endpoint); else titleFeat">
-                {{ endpoint.layoutDisplayName }}
-              </ng-container>
-              <ng-template #titleFeat>
-                {{
-                  endpoint.code
-                    ? ('appFeatures.' + endpoint.code + '.title' | transloco)
-                    : endpoint.label
-                }}
-              </ng-template>
-            </span>
+            <postman-endpoint-label
+              *ngIf="!sidebarCollapsed"
+              class="min-w-0 flex-1 select-text"
+              [country]="endpoint.country"
+              [title]="endpointDisplayCopy(endpoint).title"
+              [tooltipTitle]="endpointDisplayCopy(endpoint).fullTitle"
+              [preformatted]="true"
+              size="sm"
+              [truncate]="true"
+            />
           </a>
-          <button
+          <postman-endpoint-actions
             *ngIf="!sidebarCollapsed && endpoint.code"
-            type="button"
-            mat-icon-button
-            class="!w-7 !h-7 flex-shrink-0 opacity-60 hover:opacity-100"
-            [matMenuTriggerFor]="epMenu"
-            [matTooltip]="'postman.sidebar.endpointMenuTooltip' | transloco"
-            matTooltipPosition="left"
-            (click)="$event.preventDefault(); $event.stopPropagation()"
-          >
-            <mat-icon class="!w-4 !h-4 !text-[18px]">more_vert</mat-icon>
-          </button>
-          <mat-menu #epMenu="matMenu" class="postman-endpoint-actions-menu">
-            <ng-container *ngIf="hasMoveTargets(endpoint)">
-              <button
-                mat-menu-item
-                disabled
-                class="!opacity-100 !cursor-default !min-h-0 !py-1.5 pointer-events-none"
-              >
-                <span class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{{
-                  'postman.sidebar.sectionMoveTo' | transloco
-                }}</span>
-              </button>
-              <button
-                *ngIf="endpoint.postmanFolderId"
-                mat-menu-item
-                (click)="moveEndpoint.emit({ endpoint, folderId: null })"
-              >
-                <mat-icon class="!w-4 !h-4 !mr-2 text-slate-500">inventory_2</mat-icon>
-                <span>{{ 'postman.sidebar.moveToLibrary' | transloco }}</span>
-              </button>
-              <button
-                *ngFor="let opt of folderMenuOptionsFiltered(endpoint)"
-                mat-menu-item
-                (click)="moveEndpoint.emit({ endpoint, folderId: opt.id })"
-              >
-                <mat-icon class="!w-4 !h-4 !mr-2 text-slate-500">folder</mat-icon>
-                <span>{{ opt.label }}</span>
-              </button>
-              <mat-divider></mat-divider>
-            </ng-container>
-            <button
-              mat-menu-item
-              disabled
-              class="!opacity-100 !cursor-default !min-h-0 !py-1.5 pointer-events-none"
-            >
-              <span class="text-[11px] font-bold uppercase tracking-wide text-slate-500">{{
-                'postman.sidebar.sectionEndpoint' | transloco
-              }}</span>
-            </button>
-            <button mat-menu-item (click)="renameEndpoint.emit(endpoint)">
-              <mat-icon class="!w-4 !h-4 !mr-2 text-slate-500">edit</mat-icon>
-              {{ 'postman.sidebar.renameEndpoint' | transloco }}
-            </button>
-          </mat-menu>
+            [endpoint]="endpoint"
+            [isSelected]="selectedEndpoint?.id === endpoint.id"
+            [showMoveSection]="hasMoveTargets(endpoint)"
+            [moveOptions]="folderMenuOptionsFiltered(endpoint)"
+            (moveEndpoint)="moveEndpoint.emit($event)"
+            (renameEndpoint)="renameEndpoint.emit($event)"
+          />
           </div>
         </div>
       </div>
@@ -262,6 +219,7 @@ import { PostmanService } from '../postman.service';
 })
 export class PostmanSidebarFolderComponent {
   private _postman = inject(PostmanService);
+  private _transloco = inject(TranslocoService);
 
   @Input({ required: true }) nodes!: SidebarFolderNode[];
   @Input() sidebarCollapsed = false;
@@ -325,8 +283,21 @@ export class PostmanSidebarFolderComponent {
     return this.collapsedFolderIds.has(folderId);
   }
 
-  layoutName(ep: ApiEndpoint): boolean {
-    return Boolean(ep.layoutDisplayName?.trim());
+  endpointDisplayCopy(endpoint: ApiEndpoint) {
+    return resolvePostmanEndpointCopy({
+      endpoint,
+      catalogTitle: endpoint.code
+        ? this._transloco.translate(`appFeatures.${endpoint.code}.title`)
+        : endpoint.label,
+      catalogDescription: endpoint.code
+        ? this._transloco.translate(`appFeatures.${endpoint.code}.description`)
+        : endpoint.description ?? '',
+      locale: this._transloco.getActiveLang(),
+    });
+  }
+
+  endpointDisplayTitle(endpoint: ApiEndpoint): string {
+    return this.endpointDisplayCopy(endpoint).title;
   }
 
   isEndpointDragDisabled(ep: ApiEndpoint): boolean {

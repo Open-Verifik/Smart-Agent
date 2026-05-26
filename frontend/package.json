@@ -10,6 +10,8 @@
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "i18n:audit-demos": "node scripts/audit-smart-enroll-demos-i18n.mjs",
+        "i18n:sync-features-from-docs": "node scripts/sync-app-features-i18n-from-docs.mjs",
+        "i18n:sync-all-locales-from-docs": "node scripts/sync-all-locale-features-from-docs.mjs",
         "deploy:readiness": "node scripts/deploy-readiness-check.mjs"
     },
     "private": true,

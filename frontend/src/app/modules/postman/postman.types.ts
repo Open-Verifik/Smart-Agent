@@ -32,6 +32,10 @@ export interface EndpointDocResponse {
 }
 
 export interface EndpointDocLang {
+    /** MDX frontmatter title — used for Postman header/sidebar when present. */
+    title?: string;
+    /** MDX frontmatter description — short subtitle under the endpoint title. */
+    description?: string;
     overview?: string;
     headers?: EndpointDocHeaderRow[];
     params?: EndpointDocParamRow[];
