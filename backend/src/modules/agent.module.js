@@ -5,6 +5,11 @@ const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
 const config = require("../config");
+const {
+	parseToolCallFromText,
+	formatToolCallSummary,
+	redactInlineBase64InText,
+} = require("../utils/chat-response-redact.util");
 
 // Import model constants from gemini.module
 const MODELS = {
@@ -312,12 +317,12 @@ const chatWithAgent = async (
 
         console.log("[Agent] Raw Response:", responseText);
 
-        // 4. Parse for Tool Calls (JSON)
-        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        // 4. Parse for Tool Calls (JSON) — prefer full-string parse for large payloads
+        const parsedToolCall = parseToolCallFromText(responseText);
+        const toolCall = parsedToolCall;
 
-        if (jsonMatch) {
+        if (toolCall) {
             try {
-                const toolCall = JSON.parse(jsonMatch[0]);
                 if (toolCall.tool && toolCall.args) {
                     console.log("[Agent] Detected Tool Call:", toolCall);
 
@@ -389,14 +394,23 @@ const chatWithAgent = async (
                     };
                 }
             } catch (e) {
-                console.warn("[Agent] Failed to parse JSON from response:", e);
+                console.warn("[Agent] Failed to handle tool call from response:", e);
             }
         }
 
-        // Default text response
+        const fallbackTool = parseToolCallFromText(responseText);
+        if (fallbackTool) {
+            return {
+                role: "assistant",
+                content: formatToolCallSummary(fallbackTool.tool, fallbackTool.args),
+                tool_call: fallbackTool,
+            };
+        }
+
+        // Default text response (redact accidental inline base64 in prose)
         return {
             role: "assistant",
-            content: responseText,
+            content: redactInlineBase64InText(responseText),
         };
     } catch (error) {
         console.error("[Agent] Chat Error:", error.response?.data || error.message);

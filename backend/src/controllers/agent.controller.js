@@ -1,5 +1,6 @@
 const AgentModule = require("../modules/agent.module");
 const ConversationRepository = require("../repositories/conversation.repository");
+const { redactMessageForPersistence } = require("../utils/chat-response-redact.util");
 
 /**
  * Handle chat request
@@ -109,8 +110,8 @@ const chat = async (ctx) => {
 		};
 		messagesToSave.push(userMsg);
 
-		// 3. Assistant Message (response)
-		const assistantMsg = response;
+		// 3. Assistant Message (response) — persist without large base64 blobs
+		const assistantMsg = redactMessageForPersistence(response);
 		messagesToSave.push(assistantMsg);
 
 		if (conversation) {
