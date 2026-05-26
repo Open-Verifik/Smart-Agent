@@ -3,7 +3,6 @@ import {
     ChangeDetectionStrategy,
     Component,
     OnDestroy,
-    SecurityContext,
     computed,
     inject,
     signal,
@@ -17,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthUtils } from 'app/core/auth/auth.utils';
+import { trustNotificationBodyHtml } from 'app/core/notifications/notification-body-html.util';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import {
     InboxItem,
@@ -120,8 +120,7 @@ export class NotificationInboxPanelComponent implements OnDestroy {
     }
 
     safeBodyHtml(body: string): SafeHtml {
-        const cleaned = this._sanitizer.sanitize(SecurityContext.HTML, body || '') || '';
-        return this._sanitizer.bypassSecurityTrustHtml(cleaned);
+        return trustNotificationBodyHtml(this._sanitizer, body);
     }
 
     categoryLabelKey(cat: NotificationCategory): string {

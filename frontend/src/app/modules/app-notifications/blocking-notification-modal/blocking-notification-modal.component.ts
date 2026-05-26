@@ -1,4 +1,4 @@
-import { Component, inject, SecurityContext, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,6 +11,7 @@ import {
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
+import { trustNotificationBodyHtml } from 'app/core/notifications/notification-body-html.util';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { InboxItem } from 'app/core/notifications/app-notifications.models';
 
@@ -46,8 +47,7 @@ export class BlockingNotificationModalComponent {
     legalAccepted = signal(false);
 
     safeBodyHtml(body: string): SafeHtml {
-        const cleaned = this._sanitizer.sanitize(SecurityContext.HTML, body || '') || '';
-        return this._sanitizer.bypassSecurityTrustHtml(cleaned);
+        return trustNotificationBodyHtml(this._sanitizer, body);
     }
 
     primaryActionDisabled(): boolean {
