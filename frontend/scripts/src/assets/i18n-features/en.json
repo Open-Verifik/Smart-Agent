@@ -97,8 +97,8 @@
       "description": "This API endpoint allows you to search the criminal background of an individual or a company. To receive a successful response, it is necessary to provide the document type and document number. The response returns details such as document type, document number, first name, last name, full name, and name components for both natural and legal persons."
     },
     "colombia_api_sena": {
-      "title": "Colombia - SENA Certificates",
-      "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+      "title": "SENA Certificates",
+      "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records via GET /v2/co/sena/certificados."
     },
     "world_api_ofac": {
       "title": "OFAC Background Check",

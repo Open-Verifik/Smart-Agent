@@ -97,8 +97,8 @@
             "description": "個人または企業の犯罪関連背景情報を照会するための API エンドポイントです。文書タイプおよび文書番号を指定するとレスポンスが返却されます。レスポンスには文書タイプ、文書番号、名、姓、氏名、自然人および法人の名前構成要素が含まれます。"
         },
         "colombia_api_sena": {
-            "title": "コロンビア - SENA証明書",
-            "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+            "title": "コロンビア — SENA 証明書",
+            "description": "GET /v2/co/sena/certificados で SENA（Servicio Nacional de Aprendizaje）の研修・認定記録を照会します。"
         },
         "world_api_ofac": {
             "title": "OFAC 身元照会",

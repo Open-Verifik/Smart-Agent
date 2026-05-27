@@ -97,8 +97,8 @@
             "description": "Consulta antecedentes criminais ligados à Interpol usando documentType, documentNumber ou fullName."
         },
         "colombia_api_sena": {
-            "title": "Colômbia - Certificados SENA",
-            "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+            "title": "Certificados SENA",
+            "description": "Verifique formações e certificações SENA (Servicio Nacional de Aprendizaje) via GET /v2/co/sena/certificados."
         },
         "world_api_ofac": {
             "title": "Verificação de sanções OFAC",

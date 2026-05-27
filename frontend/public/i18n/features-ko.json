@@ -97,8 +97,8 @@
             "description": "본 API 엔드포인트는 개인 또는 법인의 형사 배경을 조회할 수 있도록 합니다. 정상 응답을 받으려면 문서 종류와 문서 번호를 제공해야 하며, 응답에는 자연인 및 법인의 문서 종류, 문서 번호, 이름, 성, 전체 성명 및 이름 구성 요소 등이 포함됩니다."
         },
         "colombia_api_sena": {
-            "title": "콜롬비아 - SENA 증명서",
-            "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+            "title": "콜롬비아 — SENA 증명서",
+            "description": "GET /v2/co/sena/certificados로 SENA(Servicio Nacional de Aprendizaje) 교육 및 인증 기록을 조회합니다."
         },
         "world_api_ofac": {
             "title": "🌐 OFAC 배경 조회",

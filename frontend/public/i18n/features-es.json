@@ -97,8 +97,8 @@
             "description": "Este endpoint de API te permite buscar los antecedentes penales de un individuo o una empresa. Para recibir una respuesta exitosa, es necesario proporcionar el tipo de documento y el número de documento. La respuesta devuelve detalles como tipo de documento, número de documento, nombre, apellido, nombre completo y componentes del nombre para personas naturales y jurídicas."
         },
         "colombia_api_sena": {
-            "title": "Colombia - Certificados SENA",
-            "description": "Verifica registros de formación y certificación del SENA (Servicio Nacional de Aprendizaje)."
+            "title": "Certificados SENA",
+            "description": "Verifica registros de formación y certificación del SENA (Servicio Nacional de Aprendizaje) mediante GET /v2/co/sena/certificados."
         },
         "world_api_ofac": {
             "title": "Verificación de Antecedentes OFAC",

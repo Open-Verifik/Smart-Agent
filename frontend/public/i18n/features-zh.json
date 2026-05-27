@@ -97,8 +97,8 @@
             "description": "该 API 端点允许对个人或企业的犯罪背景进行检索。如需获得成功响应，必须提交证件类型与证件号码。响应将返回证件类型、证件号码、名、姓、姓名全称及其拆解后的姓名分量等信息，适用于自然人与法人。"
         },
         "colombia_api_sena": {
-            "title": "哥伦比亚 - SENA证书",
-            "description": "Verify SENA (Servicio Nacional de Aprendizaje) training and certification records."
+            "title": "SENA 证书",
+            "description": "通过 GET /v2/co/sena/certificados 查询 SENA（Servicio Nacional de Aprendizaje）培训与认证记录。"
         },
         "world_api_ofac": {
             "title": "OFAC 背景核查",
