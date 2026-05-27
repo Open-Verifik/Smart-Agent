@@ -269,8 +269,8 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "ip-lookup": {
-            "title": "IP Geolocation Lookup",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "IP 地理定位",
+            "description": "通过 GET /v2/ip-lookup 查询 IPv4/IPv6 地址的地理位置。"
         },
         "colombia_api_judicial_records": {
             "title": "司法记录（法院案件）",
@@ -345,8 +345,8 @@
             "description": "扩展的阿根廷国民身份验证，用于更深入的 KYC 与注册。"
         },
         "chile_api_transport_vehicle": {
-            "title": "智利 - 交通与车辆信息",
-            "description": "智利的交通与车辆数据，用于合规、车队与保险。"
+            "title": "智利 — 公共交通车辆",
+            "description": "通过 GET /v2/cl/transport-vehicle 按号牌查询智利公共交通 RNT 登记。"
         },
         "cl_certificate_verify": {
             "title": "智利 - 证书核验",
@@ -633,8 +633,8 @@
             "description": "SIMIT 交通违章与罚款服务"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "哥伦比亚 - SIMIT传票详情",
-            "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+            "title": "SIMIT — 罚单详情",
+            "description": "通过 GET /v2/co/simit/comparendo 查询单个 SIMIT comparendo 详情（非 comparendos 列表）。"
         },
         "colombia_api_simit_resolutions": {
             "title": "SIMIT - 决议",
@@ -677,8 +677,8 @@
             "description": "通过车牌查询哥伦比亚波哥大车辆的交通罚单与处罚信息。"
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Colombia - 车辆验证",
-            "description": "标准车辆验证服务 为 Colombia. 验证车辆登记和基本信息."
+            "title": "麦德林 — 交通罚单",
+            "description": "通过 GET /v2/co/medellin/vehicle/fines 查询麦德林本地车辆罚单。"
         },
         "guatemala_api_identity_lookup": {
             "title": "危地马拉 - 国民身份证验证",

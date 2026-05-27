@@ -270,7 +270,7 @@
     },
     "ip-lookup": {
       "title": "Consulta de Geoubicación IP",
-      "description": "Proporciona servicios confiables de verificación y validación."
+      "description": "Geolocaliza una dirección IPv4 o IPv6 mediante GET /v2/ip-lookup. Devuelve país, región, ciudad, ISP/ASN y coordenadas."
     },
     "colombia_api_judicial_records": {
       "title": "Antecedentes judiciales (expedientes)",
@@ -345,8 +345,8 @@
       "description": "Verificación de identidad argentina ampliada para KYC y onboarding más profundos."
     },
     "chile_api_transport_vehicle": {
-      "title": "Chile - Transporte e información de vehículos",
-      "description": "Datos de transporte y vehículo en Chile para cumplimiento, flotas y seguros."
+      "title": "Vehículo de transporte público",
+      "description": "Consulta registro RNT de vehículos de transporte público en Chile por placa mediante GET /v2/cl/transport-vehicle."
     },
     "cl_certificate_verify": {
       "title": "Chile - Verificación de certificados",
@@ -561,8 +561,8 @@
       "description": "Verificar información de vehículos argentinos usando placa de matrícula"
     },
     "argentina_api_company_lookup": {
-      "title": "Argentina",
-      "description": "Verificar empresas argentinas usando CUIT (Código Único de Identificación Tributaria)"
+      "title": "Verificación Empresarial Argentina",
+      "description": "Valida empresas argentinas con la API KYB de Verifik. Conecta con fuentes oficiales y verifica datos empresariales en segundos."
     },
     "bolivia_api_vehicle": {
       "title": "Información de Vehículos",
@@ -633,8 +633,8 @@
       "description": "Servicio de comparendos y multas SIMIT"
     },
     "colombia_api_simit_subpoenas_details": {
-      "title": "Colombia - Detalles de Comparendo SIMIT",
-      "description": "Obtén información detallada de un comparendo específico, incluyendo tipo de infracción y costo."
+      "title": "SIMIT — Detalles de comparendo",
+      "description": "Obtén información detallada de un comparendo SIMIT específico mediante GET /v2/co/simit/comparendo."
     },
     "colombia_api_simit_resolutions": {
       "title": "SIMIT - Resoluciones",
@@ -677,8 +677,8 @@
       "description": "Servicio de multas de vehículos de Bogotá"
     },
     "colombia_api_vehicle_fines_medellin": {
-      "title": "Colombia - Multas de Tránsito Medellín",
-      "description": "Verifica penalidades e infracciones de tránsito locales pendientes restringidas a la ciudad de Medellín."
+      "title": "Medellín — Multas de tránsito",
+      "description": "Consulta multas y comparendos locales de vehículos en Medellín mediante GET /v2/co/medellin/vehicle/fines."
     },
     "guatemala_api_identity_lookup": {
       "title": "Ciudadano Guatemalteco",

@@ -269,8 +269,8 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "ip-lookup": {
-            "title": "IP Geolocation Lookup",
-            "description": "Fornece serviços confiáveis de verificação e validação."
+            "title": "Geolocalização IP",
+            "description": "Geolocalize um endereço IPv4/IPv6 via GET /v2/ip-lookup."
         },
         "colombia_api_judicial_records": {
             "title": "Antecedentes judiciais (expedientes)",
@@ -345,8 +345,8 @@
             "description": "Verificação de identidade argentina ampliada para KYC e onboarding em mais profundidade."
         },
         "chile_api_transport_vehicle": {
-            "title": "Chile - Transporte e informações de veículo",
-            "description": "Dados de transporte e veículo no Chile para conformidade, frotas e seguros."
+            "title": "Transporte público",
+            "description": "Registro RNT de transporte público no Chile via GET /v2/cl/transport-vehicle."
         },
         "cl_certificate_verify": {
             "title": "Chile - Verificação de certificados",
@@ -633,8 +633,8 @@
             "description": "Serviço de autuações e multas de trânsito SIMIT"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "Colômbia - Detalhes da Multa SIMIT",
-            "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+            "title": "SIMIT — Detalhes comparendo",
+            "description": "Detalhe de um comparendo SIMIT via GET /v2/co/simit/comparendo."
         },
         "colombia_api_simit_resolutions": {
             "title": "SIMIT - Resoluções",
@@ -677,8 +677,8 @@
             "description": "Consulta multas e autuações de trânsito em Bogotá (Colômbia) pela placa."
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Colombia - Verificação de Veículo",
-            "description": "Serviço padrão de verificação de veículo para Colombia. Verifica registro do veículo e informações básicas."
+            "title": "Medellín — Multas",
+            "description": "Multas locais Medellín via GET /v2/co/medellin/vehicle/fines."
         },
         "guatemala_api_identity_lookup": {
             "title": "Guatemala - Verificação de Identidade Nacional",

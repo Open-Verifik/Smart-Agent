@@ -269,8 +269,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "ip-lookup": {
-            "title": "IP Geolocation Lookup",
-            "description": "信頼性の高い検証と検証サービスを提供します。"
+            "title": "IP ジオロケーション",
+            "description": "GET /v2/ip-lookup で IPv4/IPv6 の位置情報を照会します。"
         },
         "colombia_api_judicial_records": {
             "title": "コロンビア — 司法記録（裁判所事件）",
@@ -345,8 +345,8 @@
             "description": "より深いKYC向けの拡張アルゼンチン本人確認。"
         },
         "chile_api_transport_vehicle": {
-            "title": "チリ - 交通・車両情報",
-            "description": "コンプライアンス、フリート、保険向けのチリの交通・車両データ。"
+            "title": "チリ — 公共交通車両",
+            "description": "GET /v2/cl/transport-vehicle でチリ公共交通 RNT を照会します。"
         },
         "cl_certificate_verify": {
             "title": "チリ - 証明書照合",
@@ -633,8 +633,8 @@
             "description": "SIMIT 交通違反・反則金照会サービス。"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "コロンビア - SIMIT違反詳細",
-            "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+            "title": "SIMIT — 違反切符詳細",
+            "description": "GET /v2/co/simit/comparendo で単一 comparendo の詳細を取得します。"
         },
         "colombia_api_simit_resolutions": {
             "title": "SIMIT — 決議",
@@ -677,8 +677,8 @@
             "description": "コロンビア・ボゴタの車両ナンバーで交通反則金・違反の照会。"
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Colombia - 車両確認",
-            "description": "標準的な車両確認サービス のColombia. 車両登録と基本情報を検証."
+            "title": "メデジン — 交通違反",
+            "description": "GET /v2/co/medellin/vehicle/fines でメデジンの車両違反を照会します。"
         },
         "guatemala_api_identity_lookup": {
             "title": "グアテマラ - 国民ID検証",

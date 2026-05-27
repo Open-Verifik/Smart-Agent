@@ -269,8 +269,8 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "ip-lookup": {
-            "title": "IP Geolocation Lookup",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "IP 지리적 위치",
+            "description": "GET /v2/ip-lookup로 IPv4/IPv6 주소의 위치를 조회합니다."
         },
         "colombia_api_judicial_records": {
             "title": "콜롬비아 — 사법 기록(재판부 사건)",
@@ -345,8 +345,8 @@
             "description": "심화 KYC를 위한 확장된 아르헨티나 신원 확인."
         },
         "chile_api_transport_vehicle": {
-            "title": "칠레 - 교통·차량 정보",
-            "description": "규정 준수, 플릿, 보험을 위한 칠레 교통·차량 데이터."
+            "title": "칠레 — 대중교통 차량",
+            "description": "GET /v2/cl/transport-vehicle로 칠레 대중교통 RNT를 조회합니다."
         },
         "cl_certificate_verify": {
             "title": "칠레 - 증명서 검증",
@@ -633,8 +633,8 @@
             "description": "SIMIT 교통 위반 통고 및 과태료 서비스."
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "콜롬비아 - SIMIT 과태료 상세",
-            "description": "Get detailed information regarding a specific transit subpoena, including infraction type and cost."
+            "title": "SIMIT — 범칙금 상세",
+            "description": "GET /v2/co/simit/comparendo로 단일 comparendo 상세를 조회합니다."
         },
         "colombia_api_simit_resolutions": {
             "title": "SIMIT — 결의",
@@ -677,8 +677,8 @@
             "description": "보고타(콜롬비아) 차량 번호판으로 과태료·통고 내역을 조회합니다."
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Colombia - 차량 확인",
-            "description": "표준 차량 확인 서비스 를 위한 Colombia. 차량 등록 및 기본 정보 확인."
+            "title": "메데인 — 교통 벌금",
+            "description": "GET /v2/co/medellin/vehicle/fines로 메데인 차량 벌금을 조회합니다."
         },
         "guatemala_api_identity_lookup": {
             "title": "과테말라 - 국민ID 검증",
