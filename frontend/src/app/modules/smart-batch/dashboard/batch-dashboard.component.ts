@@ -128,7 +128,35 @@ export class BatchDashboardComponent implements OnInit {
     }
 
     createBatch() {
-        this._router.navigate(['smart-batch', this.configId(), 'batch', 'new']);
+        const configId = this.configId();
+        if (!configId) {
+            return;
+        }
+
+        const title = this.configuration()?.name ?? '';
+        const category = inferBatchCategory(title);
+
+        this._inputModeService
+            .openModeDialog({
+                context: 'useTemplate',
+                title,
+                category,
+            })
+            .subscribe((mode) => {
+                if (!mode) {
+                    return;
+                }
+
+                if (mode === 'single') {
+                    this._router.navigate(
+                        ['/smart-batch', configId, 'quick-validate'],
+                        { queryParams: { from: 'dashboard' } }
+                    );
+                    return;
+                }
+
+                this._router.navigate(['/smart-batch', configId, 'batch', 'new']);
+            });
     }
 
     viewBatch(batchId: string) {

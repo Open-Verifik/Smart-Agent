@@ -108,6 +108,7 @@
     "validateOneRecordHintCitizen": "단일 시민의 세부 정보를 검증합니다.",
     "validateOneRecordHintCompany": "단일 기업의 세부 정보를 검증합니다.",
     "validateOneRecordHintVehicle": "단일 차량의 세부 정보를 검증합니다.",
+    "quickValidateTitle": "빠른 검증",
     "singleRecordTab": "단일 검증",
     "batchUploadTab": "배치 업로드",
     "inputDetailsTitle": "상세 정보 입력",

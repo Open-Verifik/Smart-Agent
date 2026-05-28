@@ -15,6 +15,49 @@ import {
     extractRequiredFieldsFromConfig,
 } from '../batch-required-fields.util';
 import { BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
+import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
+
+/** Represents a required field extracted from step dependencies */
+interface RequiredField {
+    field: string;
+    required: boolean;
+    stepName: string;
+    stepSequence: number;
+    enumValues?: string[];
+    type?: string;
+    description?: string;
+    dependencyGroup?: string;
+    requiredWhen?: { field: string; in?: string[] };
+    dateFormat?: string;
+}
+
+/** AppFeature dependency entry (subset used by batch validation) */
+interface FeatureDependency {
+    field: string;
+    type?: string;
+    required?: boolean;
+    enum?: string[] | null;
+    description?: string;
+    dependencyGroup?: string;
+    requiredWhen?: { field: string; in?: string[] };
+    dateFormat?: string;
+}
+
+/** Per-endpoint summary used to render the "Expected fields" panel */
+interface EndpointFieldsView {
+    sequence: number;
+    name: string;
+    code: string;
+    enabled: boolean;
+    xor: {
+        nameFields: RequiredField[];
+        documentFields: RequiredField[];
+        dobWhenValues: string | null;
+    } | null;
+    requiredFields: RequiredField[];
+    conditionalFields: RequiredField[];
+    optionalFields: RequiredField[];
+}
 
 @Component({
     selector: 'quick-validate',
@@ -49,6 +92,7 @@ export class QuickValidateComponent implements OnInit {
     batch = signal<SmartBatch | null>(null);
     isLoading = signal(true);
     isSubmitting = signal(false);
+    from = signal<string | null>(null);
     form!: FormGroup;
 
     isAppendMode = computed(() => !!this.batchId());
@@ -66,6 +110,14 @@ export class QuickValidateComponent implements OnInit {
         return this.configuration()?.name ?? '';
     });
 
+    endpointFieldsViews = computed(() => {
+        const config = this.configuration();
+        if (!config || !config.steps) return [];
+        return config.steps
+            .filter((step) => step.enabled !== false)
+            .map((step) => this.buildEndpointFieldsView(step));
+    });
+
     ngOnInit(): void {
         this._route.params.subscribe((params) => {
             const id = params['configId'];
@@ -79,6 +131,10 @@ export class QuickValidateComponent implements OnInit {
             } else {
                 this.batch.set(null);
             }
+        });
+
+        this._route.queryParams.subscribe((queryParams) => {
+            this.from.set(queryParams['from'] ?? null);
         });
     }
 
@@ -131,6 +187,11 @@ export class QuickValidateComponent implements OnInit {
     goBack(): void {
         if (this.isAppendMode()) {
             this._router.navigate(['/smart-batch', this.configId(), 'batch', this.batchId()]);
+            return;
+        }
+
+        if (this.from() === 'dashboard') {
+            this._router.navigate(['/smart-batch', this.configId()]);
             return;
         }
 
@@ -207,5 +268,148 @@ export class QuickValidateComponent implements OnInit {
 
     fieldLabel(field: BatchRequiredField): string {
         return field.description || field.field;
+    }
+
+    private normalizeDependencyGroup(d: { dependencyGroup?: string }): string | null {
+        if (d.dependencyGroup == null) return null;
+        const s = String(d.dependencyGroup).trim();
+        return s.length ? s : null;
+    }
+
+    private buildEndpointFieldsView(step: any): EndpointFieldsView {
+        const feature = step.appFeature as {
+            name?: string;
+            code?: string;
+            dependencies?: unknown[];
+        };
+        const fields: RequiredField[] = ((feature?.dependencies || []) as Array<Record<string, any>>)
+            .filter((dep) => dep?.field && isClientVisibleBatchDependencyField(String(dep.field)))
+            .map((dep) => ({
+                field: String(dep.field),
+                required: dep.required || false,
+                stepName: feature?.name || 'Unknown Step',
+                stepSequence: step.sequence,
+                enumValues: (dep.enum as string[] | null | undefined) || undefined,
+                type: (dep.type as string) || 'string',
+                description: (dep.description as string) || undefined,
+                dependencyGroup: dep.dependencyGroup as string | undefined,
+                requiredWhen: dep.requiredWhen as { field: string; in?: string[] } | undefined,
+                dateFormat: (dep.dateFormat as string) || undefined,
+            }));
+
+        const xor = this.computeXorFieldGroups(fields);
+
+        const baseView = {
+            sequence: step.sequence,
+            name: feature?.name || 'Unknown Step',
+            code: feature?.code || '',
+            enabled: step.enabled !== false,
+        };
+
+        if (xor) {
+            return {
+                ...baseView,
+                xor,
+                requiredFields: [],
+                conditionalFields: [],
+                optionalFields: [],
+            };
+        }
+
+        const requiredFields = fields
+            .filter((f) => f.required)
+            .sort((a, b) => a.field.localeCompare(b.field));
+        const conditionalFields = fields
+            .filter((f) => !f.required && this.fieldHasConditionalRule(f))
+            .sort((a, b) => a.field.localeCompare(b.field));
+        const optionalFields = fields
+            .filter((f) => !f.required && !this.fieldHasConditionalRule(f))
+            .sort((a, b) => a.field.localeCompare(b.field));
+
+        return {
+            ...baseView,
+            xor: null,
+            requiredFields,
+            conditionalFields,
+            optionalFields,
+        };
+    }
+
+    private computeXorFieldGroups(fields: RequiredField[]): {
+        nameFields: RequiredField[];
+        documentFields: RequiredField[];
+        dobWhenValues: string | null;
+    } | null {
+        const minimal: FeatureDependency[] = fields.map((f) => ({
+            field: f.field,
+            dependencyGroup: f.dependencyGroup,
+            requiredWhen: f.requiredWhen,
+        }));
+        const xor = this.buildXorGroupMetadata(minimal);
+        if (!xor) return null;
+
+        const { docGroupIds, nameGroupIds } = xor;
+
+        const nameFields = fields
+            .filter((f) => {
+                const g = this.normalizeDependencyGroup(f);
+                return g !== null && nameGroupIds.has(g);
+            })
+            .sort((a, b) => a.field.localeCompare(b.field));
+
+        const docOrder = ['documentType', 'documentNumber', 'dateOfBirth', 'expirationDate'];
+        const docFields = fields.filter((f) => {
+            const g = this.normalizeDependencyGroup(f);
+            return g !== null && docGroupIds.has(g);
+        });
+        const documentFields = [...docFields].sort((a, b) => {
+            const ia = docOrder.indexOf(a.field);
+            const ib = docOrder.indexOf(b.field);
+            if (ia === -1 && ib === -1) return a.field.localeCompare(b.field);
+            if (ia === -1) return 1;
+            if (ib === -1) return -1;
+            return ia - ib;
+        });
+
+        const dob = documentFields.find(
+            (d) => d.field === 'dateOfBirth' && d.requiredWhen?.in?.length
+        );
+        const dobWhenValues = dob?.requiredWhen?.in?.join(', ') ?? null;
+
+        if (nameFields.length === 0 || documentFields.length === 0) return null;
+
+        return { nameFields, documentFields, dobWhenValues };
+    }
+
+    private buildXorGroupMetadata(deps: FeatureDependency[]): {
+        docGroupIds: Set<string>;
+        nameGroupIds: Set<string>;
+    } | null {
+        const grouped = new Map<string, FeatureDependency[]>();
+        for (const d of deps) {
+            const g = this.normalizeDependencyGroup(d);
+            if (g === null) continue;
+            if (!grouped.has(g)) grouped.set(g, []);
+            grouped.get(g)!.push(d);
+        }
+        if (grouped.size < 2) return null;
+
+        const docGroupIds = new Set<string>();
+        const nameGroupIds = new Set<string>();
+        for (const [gid, list] of grouped) {
+            if (list.some((x) => x.field === 'documentType' || x.field === 'documentNumber')) {
+                docGroupIds.add(gid);
+            }
+            if (list.some((x) => x.field === 'fullName')) {
+                nameGroupIds.add(gid);
+            }
+        }
+        if (docGroupIds.size === 0 || nameGroupIds.size === 0) return null;
+        return { docGroupIds, nameGroupIds };
+    }
+
+    fieldHasConditionalRule(field: RequiredField): boolean {
+        const w = field.requiredWhen;
+        return Boolean(w?.field && Array.isArray(w.in) && w.in.length > 0);
     }
 }

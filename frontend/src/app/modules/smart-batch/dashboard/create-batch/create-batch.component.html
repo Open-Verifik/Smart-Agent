@@ -241,6 +241,12 @@
                                         </span>
                                     </div>
                                     <p
+                                        *ngIf="field.description"
+                                        class="mt-1 text-xs leading-relaxed text-stone-500 dark:text-stone-400"
+                                    >
+                                        {{ field.description }}
+                                    </p>
+                                    <p
                                         *ngIf="
                                             fieldHasConditionalRule(field) && !field.required
                                         "

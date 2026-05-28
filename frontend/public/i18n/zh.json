@@ -108,6 +108,7 @@
     "validateOneRecordHintCitizen": "核验单个公民的详细信息。",
     "validateOneRecordHintCompany": "核验单个企业的详细信息。",
     "validateOneRecordHintVehicle": "核验单辆车的详细信息。",
+    "quickValidateTitle": "快速核验",
     "singleRecordTab": "单条核验",
     "batchUploadTab": "批量上传",
     "inputDetailsTitle": "输入详细信息",

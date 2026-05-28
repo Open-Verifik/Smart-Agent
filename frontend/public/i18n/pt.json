@@ -108,6 +108,7 @@
     "validateOneRecordHintCitizen": "Valide detalhes de um único cidadão.",
     "validateOneRecordHintCompany": "Valide detalhes de uma única empresa.",
     "validateOneRecordHintVehicle": "Valide detalhes de um único veículo.",
+    "quickValidateTitle": "Validação rápida",
     "singleRecordTab": "Validação única",
     "batchUploadTab": "Upload em lote",
     "inputDetailsTitle": "Inserir detalhes",

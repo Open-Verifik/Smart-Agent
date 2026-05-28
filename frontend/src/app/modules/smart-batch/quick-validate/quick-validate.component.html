@@ -25,6 +25,18 @@
                             class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
                             >{{ pageSubtitle() }}</a
                         >
+                    } @else if (from() === 'dashboard') {
+                        <a
+                            routerLink="/smart-batch"
+                            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                            >{{ t('smartBatchLanding.title') }}</a
+                        >
+                        <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                        <a
+                            [routerLink]="['/smart-batch', configId()]"
+                            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                            >{{ pageSubtitle() }}</a
+                        >
                     } @else {
                         <a
                             routerLink="/smart-batch"
@@ -65,7 +77,7 @@
         </header>
 
         <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
-            <div class="mx-auto w-full max-w-3xl">
+            <div class="mx-auto w-full max-w-6xl">
                 @if (isLoading()) {
                     <div
                         class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 py-20 text-center dark:border-gray-800"
@@ -94,72 +106,364 @@
                         </button>
                     </div>
 
-                    <div
-                        class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6"
-                    >
-                        <div class="mb-6 flex items-start gap-3">
+                    <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+                        <!-- Left Column: Input Details Form -->
+                        <div class="lg:col-span-7">
                             <div
-                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                                class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6"
                             >
-                                <mat-icon>edit_document</mat-icon>
-                            </div>
-                            <div>
-                                <h2 class="text-base font-semibold text-stone-950 dark:text-white">
-                                    {{ t('smartBatchSystemPresets.inputDetailsTitle') }}
-                                </h2>
-                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                                    {{ t('smartBatchSystemPresets.inputDetailsDesc') }}
-                                </p>
+                                <div class="mb-6 flex items-start gap-3">
+                                    <div
+                                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                                    >
+                                        <mat-icon>edit_document</mat-icon>
+                                    </div>
+                                    <div>
+                                        <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                            {{ t('smartBatchSystemPresets.inputDetailsTitle') }}
+                                        </h2>
+                                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                            {{ t('smartBatchSystemPresets.inputDetailsDesc') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                @if (form) {
+                                    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
+                                        @for (field of requiredFields(); track field.field) {
+                                            <div>
+                                                <label
+                                                    class="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
+                                                    [for]="field.field"
+                                                >
+                                                    {{ fieldLabel(field) }}
+                                                    @if (field.required) {
+                                                        <span class="text-red-500">*</span>
+                                                    }
+                                                </label>
+                                                @if (field.enumValues?.length) {
+                                                    <select
+                                                        [id]="field.field"
+                                                        [formControlName]="field.field"
+                                                        class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none transition focus:border-stone-950 focus:ring-2 focus:ring-stone-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-white dark:focus:ring-gray-800"
+                                                    >
+                                                        <option value="" disabled selected hidden></option>
+                                                        @for (opt of field.enumValues; track opt) {
+                                                            <option [value]="opt">{{ opt }}</option>
+                                                        }
+                                                    </select>
+                                                } @else {
+                                                    <input
+                                                        [id]="field.field"
+                                                        [formControlName]="field.field"
+                                                        class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-stone-950 focus:ring-2 focus:ring-stone-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500 dark:focus:border-white dark:focus:ring-gray-800"
+                                                        [placeholder]="field.field"
+                                                    />
+                                                }
+                                            </div>
+                                        }
+
+                                        <button
+                                            type="submit"
+                                            class="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                            [disabled]="form.invalid || isSubmitting()"
+                                        >
+                                            @if (isSubmitting()) {
+                                                <mat-spinner diameter="18"></mat-spinner>
+                                            }
+                                            <span>{{ t('smartBatchSystemPresets.runValidation') }}</span>
+                                        </button>
+                                    </form>
+                                }
                             </div>
                         </div>
 
-                        @if (form) {
-                            <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-5">
-                                @for (field of requiredFields(); track field.field) {
-                                    <div>
-                                        <label
-                                            class="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
-                                            [for]="field.field"
-                                        >
-                                            {{ fieldLabel(field) }}
-                                            @if (field.required) {
-                                                <span class="text-red-500">*</span>
-                                            }
-                                        </label>
-                                        @if (field.enumValues?.length) {
-                                            <select
-                                                [id]="field.field"
-                                                [formControlName]="field.field"
-                                                class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none transition focus:border-stone-950 focus:ring-2 focus:ring-stone-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:focus:border-white dark:focus:ring-gray-800"
-                                            >
-                                                <option value="" disabled selected hidden></option>
-                                                @for (opt of field.enumValues; track opt) {
-                                                    <option [value]="opt">{{ opt }}</option>
-                                                }
-                                            </select>
-                                        } @else {
-                                            <input
-                                                [id]="field.field"
-                                                [formControlName]="field.field"
-                                                class="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-950 outline-none transition placeholder:text-stone-400 focus:border-stone-950 focus:ring-2 focus:ring-stone-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white dark:placeholder:text-stone-500 dark:focus:border-white dark:focus:ring-gray-800"
-                                                [placeholder]="field.field"
-                                            />
-                                        }
-                                    </div>
-                                }
-
-                                <button
-                                    type="submit"
-                                    class="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
-                                    [disabled]="form.invalid || isSubmitting()"
+                        <!-- Right Column: Expected fields / steps helper -->
+                        <div class="lg:col-span-5" *ngIf="endpointFieldsViews().length > 0">
+                            <!-- Expected field cards: shared template (flat grid or XOR grouped layout) -->
+                            <ng-template #expectedFieldCard let-field="field">
+                                <div
+                                    class="flex items-start gap-3 rounded-xl border bg-white p-3 dark:bg-gray-800/60"
+                                    [ngClass]="
+                                        field.required
+                                            ? 'border-orange-200 dark:border-orange-800/50'
+                                            : fieldHasConditionalRule(field)
+                                              ? 'border-sky-200 dark:border-sky-800/50'
+                                              : 'border-stone-200 dark:border-gray-700'
+                                    "
                                 >
-                                    @if (isSubmitting()) {
-                                        <mat-spinner diameter="18"></mat-spinner>
-                                    }
-                                    <span>{{ t('smartBatchSystemPresets.runValidation') }}</span>
-                                </button>
-                            </form>
-                        }
+                                    <div
+                                        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                                        [ngClass]="
+                                            field.required
+                                                ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400'
+                                                : fieldHasConditionalRule(field)
+                                                  ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300'
+                                                  : 'bg-stone-100 text-stone-500 dark:bg-gray-700'
+                                        "
+                                    >
+                                        <mat-icon *ngIf="field.required" class="icon-size-4"
+                                            >priority_high</mat-icon
+                                        >
+                                        <mat-icon
+                                            *ngIf="!field.required && fieldHasConditionalRule(field)"
+                                            class="icon-size-4"
+                                            >rule_folder</mat-icon
+                                        >
+                                        <mat-icon
+                                            *ngIf="!field.required && !fieldHasConditionalRule(field)"
+                                            class="icon-size-4"
+                                            >remove</mat-icon
+                                        >
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex flex-wrap items-center gap-2">
+                                            <code
+                                                class="rounded bg-stone-100 px-1.5 py-0.5 text-sm font-medium text-stone-900 dark:bg-gray-700 dark:text-white"
+                                                >{{ field.field }}</code
+                                            >
+                                            <span
+                                                *ngIf="field.required"
+                                                class="text-[10px] font-bold uppercase text-orange-600 dark:text-orange-400"
+                                                >{{ t('createBatch.required') }}</span
+                                            >
+                                            <span
+                                                *ngIf="
+                                                    !field.required && fieldHasConditionalRule(field)
+                                                "
+                                                class="text-[10px] font-bold uppercase text-sky-700 dark:text-sky-300"
+                                                >{{ t('createBatch.fieldConditional') }}</span
+                                            >
+                                            <span
+                                                *ngIf="
+                                                    !field.required && !fieldHasConditionalRule(field)
+                                                "
+                                                class="text-[10px] font-medium uppercase text-stone-400"
+                                                >{{ t('createBatch.optional') }}</span
+                                            >
+                                            <span
+                                                *ngIf="field.enumValues?.length"
+                                                class="text-[10px] font-medium uppercase text-violet-600 dark:text-violet-400"
+                                            >
+                                                • {{ t('createBatch.options') }}
+                                            </span>
+                                        </div>
+                                        <p
+                                            *ngIf="field.description"
+                                            class="mt-1 text-xs leading-relaxed text-stone-500 dark:text-stone-400"
+                                        >
+                                            {{ field.description }}
+                                        </p>
+                                        <p
+                                            *ngIf="
+                                                fieldHasConditionalRule(field) && !field.required
+                                            "
+                                            class="mt-1.5 text-xs leading-relaxed text-sky-800 dark:text-sky-200"
+                                        >
+                                            {{
+                                                t('createBatch.fieldConditionalDetail', {
+                                                    whenField: field.requiredWhen?.field ?? '',
+                                                    values: (field.requiredWhen?.in || []).join(', ')
+                                                })
+                                            }}
+                                        </p>
+                                        <div
+                                            *ngIf="field.enumValues?.length"
+                                            class="mt-2 flex flex-wrap gap-1"
+                                        >
+                                            <span
+                                                *ngFor="let val of field.enumValues"
+                                                class="rounded border border-violet-200 bg-violet-50 px-1.5 py-0.5 text-[10px] text-violet-700 dark:border-violet-800/50 dark:bg-violet-900/20 dark:text-violet-300"
+                                            >
+                                                {{ val }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ng-template>
+
+                            <div>
+                                <h4
+                                    class="mb-3 text-sm font-semibold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                >
+                                    {{ t('createBatch.expectedFieldsHeading') }}
+                                </h4>
+                                <p
+                                    class="mb-4 text-xs leading-relaxed text-stone-500 dark:text-stone-400"
+                                >
+                                    {{ t('createBatch.perEndpointIntro') }}
+                                </p>
+
+                                <div class="space-y-4">
+                                    <div
+                                        *ngFor="let view of endpointFieldsViews()"
+                                        class="rounded-2xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/70"
+                                    >
+                                        <div class="mb-4 flex flex-wrap items-center gap-2">
+                                            <span
+                                                class="rounded bg-stone-200 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-700 dark:bg-gray-800 dark:text-stone-200"
+                                            >
+                                                {{
+                                                    t('createBatch.endpointStepLabel', { sequence: view.sequence })
+                                                }}
+                                            </span>
+                                            <h5 class="text-xs font-semibold text-stone-900 dark:text-white">
+                                                {{ view.name }}
+                                            </h5>
+                                            <code
+                                                *ngIf="view.code"
+                                                class="rounded bg-stone-100 px-1.5 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                                                >{{ view.code }}</code
+                                            >
+                                        </div>
+
+                                        <ng-container *ngIf="view.xor as xor; else flatLayout">
+                                            <div
+                                                class="mb-3 flex items-start gap-2 rounded-xl border border-indigo-200 bg-indigo-50/80 p-3 dark:border-indigo-800/50 dark:bg-indigo-950/30"
+                                            >
+                                                <mat-icon
+                                                    class="icon-size-4 shrink-0 text-indigo-600 dark:text-indigo-300"
+                                                    >alt_route</mat-icon
+                                                >
+                                                <p class="text-[11px] leading-relaxed text-indigo-900 dark:text-indigo-100">
+                                                    {{ t('createBatch.endpointXorRule') }}
+                                                </p>
+                                            </div>
+                                            <div class="grid grid-cols-1 gap-4">
+                                                <div
+                                                    class="rounded-xl border border-stone-200/90 bg-stone-50/50 p-3 dark:border-gray-800 dark:bg-gray-900/40"
+                                                >
+                                                    <h6
+                                                        class="mb-3 text-[10px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                                    >
+                                                        {{ t('createBatch.searchModeOptionFullName') }}
+                                                    </h6>
+                                                    <div class="grid grid-cols-1 gap-3">
+                                                        <ng-container
+                                                            *ngFor="let field of xor.nameFields"
+                                                        >
+                                                            <ng-container
+                                                                *ngTemplateOutlet="
+                                                                    expectedFieldCard;
+                                                                    context: { field: field }
+                                                                "
+                                                            ></ng-container>
+                                                        </ng-container>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="rounded-xl border border-stone-200/90 bg-stone-50/50 p-3 dark:border-gray-800 dark:bg-gray-900/40"
+                                                >
+                                                    <h6
+                                                        class="mb-3 text-[10px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                                    >
+                                                        {{ t('createBatch.searchModeOptionDocument') }}
+                                                    </h6>
+                                                    <p
+                                                        *ngIf="xor.dobWhenValues as values"
+                                                        class="mb-3 text-[11px] leading-relaxed text-stone-600 dark:text-stone-400"
+                                                    >
+                                                        {{
+                                                            t('createBatch.dateOfBirthConditionalHint', { values: values })
+                                                        }}
+                                                    </p>
+                                                    <div class="grid grid-cols-1 gap-3">
+                                                        <ng-container
+                                                            *ngFor="let field of xor.documentFields"
+                                                        >
+                                                            <ng-container
+                                                                *ngTemplateOutlet="
+                                                                    expectedFieldCard;
+                                                                    context: { field: field }
+                                                                "
+                                                            ></ng-container>
+                                                        </ng-container>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+
+                                        <ng-template #flatLayout>
+                                            <ng-container
+                                                *ngIf="
+                                                    view.requiredFields.length === 0 &&
+                                                        view.conditionalFields.length === 0 &&
+                                                        view.optionalFields.length === 0;
+                                                    else nonEmptyFlat
+                                                "
+                                            >
+                                                <p class="text-[11px] text-stone-500 dark:text-stone-400">
+                                                    {{ t('createBatch.endpointNoFieldsRequired') }}
+                                                </p>
+                                            </ng-container>
+                                            <ng-template #nonEmptyFlat>
+                                                <div class="space-y-4">
+                                                    <div *ngIf="view.requiredFields.length > 0">
+                                                        <h6
+                                                            class="mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                                        >
+                                                            {{ t('createBatch.endpointRequiredFieldsLabel') }}
+                                                        </h6>
+                                                        <div class="grid grid-cols-1 gap-3">
+                                                            <ng-container
+                                                                *ngFor="let field of view.requiredFields"
+                                                            >
+                                                                <ng-container
+                                                                    *ngTemplateOutlet="
+                                                                        expectedFieldCard;
+                                                                        context: { field: field }
+                                                                    "
+                                                                ></ng-container>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngIf="view.conditionalFields.length > 0">
+                                                        <h6
+                                                            class="mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                                        >
+                                                            {{ t('createBatch.endpointConditionalFieldsLabel') }}
+                                                        </h6>
+                                                        <div class="grid grid-cols-1 gap-3">
+                                                            <ng-container
+                                                                *ngFor="
+                                                                    let field of view.conditionalFields
+                                                                "
+                                                            >
+                                                                <ng-container
+                                                                    *ngTemplateOutlet="
+                                                                        expectedFieldCard;
+                                                                        context: { field: field }
+                                                                    "
+                                                                ></ng-container>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                    <div *ngIf="view.optionalFields.length > 0">
+                                                        <h6
+                                                            class="mb-2 text-[10px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300"
+                                                        >
+                                                            {{ t('createBatch.endpointOptionalFieldsLabel') }}
+                                                        </h6>
+                                                        <div class="grid grid-cols-1 gap-3">
+                                                            <ng-container
+                                                                *ngFor="let field of view.optionalFields"
+                                                            >
+                                                                <ng-container
+                                                                    *ngTemplateOutlet="
+                                                                        expectedFieldCard;
+                                                                        context: { field: field }
+                                                                    "
+                                                                ></ng-container>
+                                                            </ng-container>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </ng-template>
+                                        </ng-template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 }
             </div>

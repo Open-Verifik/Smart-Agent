@@ -108,6 +108,7 @@
     "validateOneRecordHintCitizen": "単一の市民の詳細情報を検証します。",
     "validateOneRecordHintCompany": "単一の企業の詳細情報を検証します。",
     "validateOneRecordHintVehicle": "単一の車両の詳細情報を検証します。",
+    "quickValidateTitle": "クイック検証",
     "singleRecordTab": "個別検証",
     "batchUploadTab": "バッチアップロード",
     "inputDetailsTitle": "詳細情報の入力",
