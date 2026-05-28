@@ -59,7 +59,139 @@
     "authRequiredBody": "Smart Batch는 구성을 불러오고 배치 작업을 실행하려면 계정이 필요합니다. 계속하려면 로그인하거나 홈으로 돌아가세요.",
     "authRequiredSignIn": "로그인",
     "authRequiredBackHome": "홈으로",
-    "authRequiredClose": "닫기"
+    "authRequiredClose": "닫기",
+    "title": "Smart Batch",
+    "subtitle": "자동 배치 검증 플로우를 설정하고 관리합니다.",
+    "createConfiguration": "구성 만들기",
+    "createBlankTemplate": "빈 템플릿 만들기",
+    "configurationsTab": "구성",
+    "reportTemplatesTab": "보고서 템플릿",
+    "loadingConfigurations": "구성을 불러오는 중...",
+    "noConfigurations": "아직 구성이 없습니다",
+    "noConfigurationsDesc": "일괄 처리를 시작하려면 첫 번째 구성을 만드세요.",
+    "createFirstConfiguration": "첫 번째 구성 만들기",
+    "edit": "편집",
+    "delete": "삭제",
+    "inactive": "비활성",
+    "noDescription": "설명 없음",
+    "steps": "단계",
+    "strategy": "통합 전략",
+    "loadingTemplates": "템플릿을 불러오는 중...",
+    "sections": "섹션",
+    "createBlankTemplateHint": "맞춤형 보고서 레이아웃을 설계하려면 사용자 지정 템플릿을 만드세요.",
+    "linkedTo": "연결 대상",
+    "standalone": "독립형",
+    "deleteConfirmation": "이 템플릿을 삭제하시겠습니까?"
+  },
+  "smartBatchSystemPresets": {
+    "cloning": "템플릿 프리셋 복제 중...",
+    "sectionTitle": "시스템 프리셋",
+    "sectionDesc": "즉시 사용할 수 있는 사전 구성된 배치 처리 템플릿입니다.",
+    "noSystemTemplates": "사용 가능한 시스템 템플릿이 없습니다.",
+    "useTemplate": "템플릿 사용",
+    "myTemplatesTitle": "내 템플릿",
+    "unlinkedTemplate": "이 템플릿은 어떠한 구성과도 연결되어 있지 않습니다.",
+    "reusedExisting": "기존 템플릿 구성을 다시 사용했습니다.",
+    "cloneFailed": "템플릿 복제에 실패했습니다. 다시 시도해 주세요.",
+    "essential": "필수",
+    "comprehensive": "종합",
+    "citizen": "시민",
+    "company": "기업",
+    "vehicle": "차량",
+    "uploadBatch": "배치 업로드",
+    "cancel": "취소",
+    "chooseModeDesc": "이 템플릿을 사용할 방법을 선택하세요.",
+    "validateOneRecord": "단일 검증",
+    "uploadBatchHint": "CSV/Excel 스프레드시트를 사용하여 여러 레코드를 처리합니다.",
+    "validateOneRecordHint": "단일 레코드에 대해 수동 검증을 실행합니다.",
+    "validateOneRecordHintCitizen": "단일 시민의 세부 정보를 검증합니다.",
+    "validateOneRecordHintCompany": "단일 기업의 세부 정보를 검증합니다.",
+    "validateOneRecordHintVehicle": "단일 차량의 세부 정보를 검증합니다.",
+    "singleRecordTab": "단일 검증",
+    "batchUploadTab": "배치 업로드",
+    "inputDetailsTitle": "상세 정보 입력",
+    "inputDetailsDesc": "확인을 위한 상세 정보를 제공해 주세요.",
+    "runValidation": "검증 실행",
+    "back": "이전",
+    "co": {
+      "citizen": {
+        "essential": {
+          "title": "콜롬비아 시민 필수 검증",
+          "description": "국가 등록국(Registraduría) 및 기본 배경 조사를 포함한 콜롬비아 시민을 위한 필수 신원 확인."
+        },
+        "comprehensive": {
+          "title": "콜롬비아 시민 종합 검증",
+          "description": "PEP 조회, 사법 배경, 세무 기록 및 전문직 확인을 포함한 콜롬비아 시민에 대한 심층 검증."
+        }
+      },
+      "company": {
+        "essential": {
+          "title": "콜롬비아 기업 필수 검증",
+          "description": "콜롬비아 사업체를 위한 필수 기업 등록(RUES) 확인."
+        },
+        "comprehensive": {
+          "title": "콜롬비아 기업 종합 검증",
+          "description": "법적 대표성, 세무 상태(DIAN) 및 준수 이력을 포함한 콜롬비아 기업에 대한 종합적인 법인 검증."
+        }
+      },
+      "vehicle": {
+        "essential": {
+          "title": "콜롬비아 차량 필수 검증",
+          "description": "콜롬비아의 표준 등록 기록을 사용한 기본 차량 확인."
+        },
+        "comprehensive": {
+          "title": "콜롬비아 차량 종합 검증",
+          "description": "콜롬비아 차량에 대한 종합적인 교통 및 소유권 기록 조회, 충돌/사고 이력 및 세무 기록 확인."
+        }
+      }
+    }
+  },
+  "createBatchConfig": {
+    "edit": "편집",
+    "create": "생성",
+    "batchConfiguration": "배치 구성",
+    "basicInformation": "기본 정보",
+    "configurationName": "구성 이름",
+    "namePlaceholder": "예: 일일 시민 검증",
+    "nameRequired": "이름은 필수 항목입니다",
+    "description": "설명",
+    "descriptionPlaceholder": "이 구성에 대한 설명을 입력하세요",
+    "country": "국가",
+    "countryRequired": "국가는 필수 항목입니다",
+    "mergeStrategy": "병합 전략",
+    "sequential": "순차적",
+    "parallelIndependent": "병렬 독립",
+    "parallelWithFallback": "대체 가능한 병렬",
+    "inputFieldsFormat": "입력 필드 형식",
+    "resultOutputFormat": "결과 출력 형식",
+    "saving": "저장 중...",
+    "next": "다음",
+    "selectEndpoints": "엔드포인트 선택",
+    "availableFeatures": "사용 가능한 기능",
+    "loadingFeatures": "기능을 불러오는 중...",
+    "available": "사용 가능",
+    "searchPlaceholder": "엔드포인트 검색...",
+    "noEndpointsMatch": "이 '{query}'에 일치하는 엔드포인트가 없습니다",
+    "selectedSteps": "선택한 단계",
+    "selectFeaturesToAdd": "왼쪽에서 기능을 선택하여 검증 단계로 추가하세요.",
+    "back": "이전",
+    "reviewParameters": "매개변수 검토",
+    "reviewParamsIntro": "선택한 각 검증 단계의 필수 매개변수를 검토하고 구성하세요.",
+    "requiredParameters": "필수 매개변수",
+    "required": "필수",
+    "parametersMappedHint": "이 매개변수들은 업로드한 입력 파일 헤더에서 매핑됩니다.",
+    "noParametersRequired": "이 단계에는 매개변수가 필요하지 않습니다.",
+    "reviewAndCreate": "검토 및 생성",
+    "summary": "요약",
+    "totalSteps": "총 단계",
+    "stepsCount": "{count}단계",
+    "estimatedCostPerRecord": "레코드당 예상 비용",
+    "totalPerRecord": "레코드당 총 비용",
+    "updateConfiguration": "구성 업데이트",
+    "createConfiguration": "구성 생성"
+  },
+  "batchDashboard": {
+    "backToSmartBatch": "Smart Batch로 돌아가기"
   },
   "guestFeatureAuth": {
     "title": "로그인 필요",

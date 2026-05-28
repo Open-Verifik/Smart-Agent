@@ -59,7 +59,139 @@
     "authRequiredBody": "Smart Batch 会使用您的账号加载配置并运行批处理任务。请登录以继续，或返回首页。",
     "authRequiredSignIn": "登录",
     "authRequiredBackHome": "返回首页",
-    "authRequiredClose": "关闭"
+    "authRequiredClose": "关闭",
+    "title": "Smart Batch",
+    "subtitle": "配置和管理您的自动批量核验流程。",
+    "createConfiguration": "创建配置",
+    "createBlankTemplate": "创建空白模板",
+    "configurationsTab": "配置列表",
+    "reportTemplatesTab": "报告模板",
+    "loadingConfigurations": "正在加载配置...",
+    "noConfigurations": "暂无配置",
+    "noConfigurationsDesc": "创建您的第一个批量配置以开始使用。",
+    "createFirstConfiguration": "创建首个配置",
+    "edit": "编辑",
+    "delete": "删除",
+    "inactive": "未启用",
+    "noDescription": "未提供描述",
+    "steps": "步骤",
+    "strategy": "策略",
+    "loadingTemplates": "正在加载模板...",
+    "sections": "区块",
+    "createBlankTemplateHint": "创建自定义模板以设计专属的报告布局。",
+    "linkedTo": "关联至",
+    "standalone": "独立模板",
+    "deleteConfirmation": "您确定要删除此模板吗？"
+  },
+  "smartBatchSystemPresets": {
+    "cloning": "正在复制模板预设...",
+    "sectionTitle": "系统预设",
+    "sectionDesc": "开箱即用的预配置批处理模板。",
+    "noSystemTemplates": "没有可用的系统模板。",
+    "useTemplate": "使用模板",
+    "myTemplatesTitle": "我的模板",
+    "unlinkedTemplate": "此模板未关联任何配置。",
+    "reusedExisting": "已重用现有的模板配置。",
+    "cloneFailed": "复制模板失败。请重试。",
+    "essential": "基础版",
+    "comprehensive": "全面版",
+    "citizen": "公民",
+    "company": "企业",
+    "vehicle": "车辆",
+    "uploadBatch": "批量上传",
+    "cancel": "取消",
+    "chooseModeDesc": "选择您希望如何使用此模板。",
+    "validateOneRecord": "单条核验",
+    "uploadBatchHint": "使用 CSV/Excel 电子表格处理多条记录。",
+    "validateOneRecordHint": "手动核验单条记录。",
+    "validateOneRecordHintCitizen": "核验单个公民的详细信息。",
+    "validateOneRecordHintCompany": "核验单个企业的详细信息。",
+    "validateOneRecordHintVehicle": "核验单辆车的详细信息。",
+    "singleRecordTab": "单条核验",
+    "batchUploadTab": "批量上传",
+    "inputDetailsTitle": "输入详细信息",
+    "inputDetailsDesc": "提供用于核验的详细信息。",
+    "runValidation": "运行核验",
+    "back": "返回",
+    "co": {
+      "citizen": {
+        "essential": {
+          "title": "哥伦比亚公民基础核验",
+          "description": "哥伦比亚公民的基础身份检查，包括国家登记处 (Registraduría) 和基本背景信息。"
+        },
+        "comprehensive": {
+          "title": "哥伦比亚公民全面核验",
+          "description": "哥伦比亚公民的深度核验，包括 PEP 检查、司法背景、税务记录和专业资格核验。"
+        }
+      },
+      "company": {
+        "essential": {
+          "title": "哥伦比亚企业基础核验",
+          "description": "哥伦比亚商业实体的基础企业登记处核验 (RUES)。"
+        },
+        "comprehensive": {
+          "title": "哥伦比亚企业全面核验",
+          "description": "哥伦比亚企业的全面商业核验，包括法人代表、税务状态 (DIAN) 和合规历史。"
+        }
+      },
+      "vehicle": {
+        "essential": {
+          "title": "哥伦比亚车辆基础核验",
+          "description": "使用哥伦比亚标准登记记录的车辆基础核验。"
+        },
+        "comprehensive": {
+          "title": "哥伦比亚车辆全面核验",
+          "description": "哥伦比亚车辆的全面交通和所有权记录检查、碰撞/事故历史以及税务记录核验。"
+        }
+      }
+    }
+  },
+  "createBatchConfig": {
+    "edit": "编辑",
+    "create": "创建",
+    "batchConfiguration": "批处理配置",
+    "basicInformation": "基本信息",
+    "configurationName": "配置名称",
+    "namePlaceholder": "例如：每日公民核验",
+    "nameRequired": "名称是必填项",
+    "description": "描述",
+    "descriptionPlaceholder": "为此配置提供描述",
+    "country": "国家",
+    "countryRequired": "国家是必填项",
+    "mergeStrategy": "合并策略",
+    "sequential": "顺序",
+    "parallelIndependent": "并行独立",
+    "parallelWithFallback": "并行带备用",
+    "inputFieldsFormat": "输入字段格式",
+    "resultOutputFormat": "结果输出格式",
+    "saving": "正在保存...",
+    "next": "下一步",
+    "selectEndpoints": "选择端点",
+    "availableFeatures": "可用特征",
+    "loadingFeatures": "正在加载特征...",
+    "available": "可用",
+    "searchPlaceholder": "搜索端点...",
+    "noEndpointsMatch": "没有端点匹配 '{query}'",
+    "selectedSteps": "选定步骤",
+    "selectFeaturesToAdd": "从左侧选择要添加为核验步骤的特征。",
+    "back": "返回",
+    "reviewParameters": "检查参数",
+    "reviewParamsIntro": "检查并配置所选各核验步骤的必需参数。",
+    "requiredParameters": "必需参数",
+    "required": "必需",
+    "parametersMappedHint": "这些参数将从您上传的输入文件表头中映射。",
+    "noParametersRequired": "此步骤不需要参数。",
+    "reviewAndCreate": "检查并创建",
+    "summary": "摘要",
+    "totalSteps": "总步骤",
+    "stepsCount": "{count} 个步骤",
+    "estimatedCostPerRecord": "单条记录预估成本",
+    "totalPerRecord": "单条记录总计",
+    "updateConfiguration": "更新配置",
+    "createConfiguration": "创建配置"
+  },
+  "batchDashboard": {
+    "backToSmartBatch": "返回 Smart Batch"
   },
   "guestFeatureAuth": {
     "title": "需要登录",

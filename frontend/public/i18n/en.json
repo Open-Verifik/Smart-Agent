@@ -59,7 +59,139 @@
         "authRequiredBody": "Smart Batch uses your account to load configurations and run batch jobs. Sign in to continue, or go back to the home page.",
         "authRequiredSignIn": "Sign in",
         "authRequiredBackHome": "Back to home",
-        "authRequiredClose": "Close"
+        "authRequiredClose": "Close",
+        "title": "Smart Batch",
+        "subtitle": "Configure and manage your automated batch verification flows.",
+        "createConfiguration": "Create Configuration",
+        "createBlankTemplate": "Create Blank Template",
+        "configurationsTab": "Configurations",
+        "reportTemplatesTab": "Report Templates",
+        "loadingConfigurations": "Loading configurations...",
+        "noConfigurations": "No configurations yet",
+        "noConfigurationsDesc": "Create your first batch configuration to get started.",
+        "createFirstConfiguration": "Create first configuration",
+        "edit": "Edit",
+        "delete": "Delete",
+        "inactive": "Inactive",
+        "noDescription": "No description provided",
+        "steps": "Steps",
+        "strategy": "Strategy",
+        "loadingTemplates": "Loading templates...",
+        "sections": "Sections",
+        "createBlankTemplateHint": "Create a custom template to design a tailored report layout.",
+        "linkedTo": "Linked to",
+        "standalone": "Standalone",
+        "deleteConfirmation": "Are you sure you want to delete this template?"
+    },
+    "smartBatchSystemPresets": {
+        "cloning": "Cloning template preset...",
+        "sectionTitle": "System Presets",
+        "sectionDesc": "Pre-configured batch processing templates ready to use.",
+        "noSystemTemplates": "No system templates available.",
+        "useTemplate": "Use Template",
+        "myTemplatesTitle": "My Templates",
+        "unlinkedTemplate": "This template is not linked to any configuration.",
+        "reusedExisting": "Reused existing template configuration.",
+        "cloneFailed": "Failed to clone template. Please try again.",
+        "essential": "Essential",
+        "comprehensive": "Comprehensive",
+        "citizen": "Citizen",
+        "company": "Company",
+        "vehicle": "Vehicle",
+        "uploadBatch": "Batch upload",
+        "cancel": "Cancel",
+        "chooseModeDesc": "Choose how you want to use this template.",
+        "validateOneRecord": "Single validation",
+        "uploadBatchHint": "Process multiple records using a CSV/Excel spreadsheet.",
+        "validateOneRecordHint": "Run a manual validation for a single record.",
+        "validateOneRecordHintCitizen": "Validate details for a single citizen.",
+        "validateOneRecordHintCompany": "Validate details for a single company.",
+        "validateOneRecordHintVehicle": "Validate details for a single vehicle.",
+        "singleRecordTab": "Single validation",
+        "batchUploadTab": "Batch upload",
+        "inputDetailsTitle": "Input details",
+        "inputDetailsDesc": "Provide details for verification.",
+        "runValidation": "Run validation",
+        "back": "Back",
+        "co": {
+            "citizen": {
+                "essential": {
+                    "title": "Colombia Citizen Essential",
+                    "description": "Essential identity checks for Colombian citizens, including national registry (Registraduría) and basic background information."
+                },
+                "comprehensive": {
+                    "title": "Colombia Citizen Comprehensive",
+                    "description": "Deep verification for Colombian citizens, including PEP checks, judicial background, tax records, and professional verification."
+                }
+            },
+            "company": {
+                "essential": {
+                    "title": "Colombia Company Essential",
+                    "description": "Essential company registry check (RUES) for Colombian business entities."
+                },
+                "comprehensive": {
+                    "title": "Colombia Company Comprehensive",
+                    "description": "Comprehensive corporate verification for Colombian businesses, including legal representation, tax status (DIAN) and compliance histories."
+                }
+            },
+            "vehicle": {
+                "essential": {
+                    "title": "Colombia Vehicle Essential",
+                    "description": "Basic vehicle verification using standard registration records in Colombia."
+                },
+                "comprehensive": {
+                    "title": "Colombia Vehicle Comprehensive",
+                    "description": "Comprehensive traffic and ownership records check, histories of collision/incidents, and tax records for vehicles in Colombia."
+                }
+            }
+        }
+    },
+    "createBatchConfig": {
+        "edit": "Edit",
+        "create": "Create",
+        "batchConfiguration": "Batch Configuration",
+        "basicInformation": "Basic Information",
+        "configurationName": "Configuration Name",
+        "namePlaceholder": "e.g., Daily Citizen Verification",
+        "nameRequired": "Name is required",
+        "description": "Description",
+        "descriptionPlaceholder": "Provide a description for this configuration",
+        "country": "Country",
+        "countryRequired": "Country is required",
+        "mergeStrategy": "Merge Strategy",
+        "sequential": "Sequential",
+        "parallelIndependent": "Parallel Independent",
+        "parallelWithFallback": "Parallel with Fallback",
+        "inputFieldsFormat": "Input Fields Format",
+        "resultOutputFormat": "Result Output Format",
+        "saving": "Saving...",
+        "next": "Next",
+        "selectEndpoints": "Select Endpoints",
+        "availableFeatures": "Available Features",
+        "loadingFeatures": "Loading features...",
+        "available": "Available",
+        "searchPlaceholder": "Search endpoints...",
+        "noEndpointsMatch": "No endpoints match '{query}'",
+        "selectedSteps": "Selected Steps",
+        "selectFeaturesToAdd": "Select features from the left to add them as verification steps.",
+        "back": "Back",
+        "reviewParameters": "Review Parameters",
+        "reviewParamsIntro": "Review and configure the required parameters for each of your selected verification steps.",
+        "requiredParameters": "Required Parameters",
+        "required": "Required",
+        "parametersMappedHint": "These parameters will be mapped from your uploaded input file headers.",
+        "noParametersRequired": "No parameters required for this step.",
+        "reviewAndCreate": "Review & Create",
+        "summary": "Summary",
+        "totalSteps": "Total Steps",
+        "stepsCount": "{count} step",
+        "estimatedCostPerRecord": "Estimated Cost per Record",
+        "totalPerRecord": "Total per Record",
+        "updateConfiguration": "Update Configuration",
+        "createConfiguration": "Create Configuration"
+    },
+    "batchDashboard": {
+        "backToSmartBatch": "Back to Smart Batch"
     },
     "guestFeatureAuth": {
         "title": "Sign in required",

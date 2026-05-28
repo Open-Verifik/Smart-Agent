@@ -59,7 +59,139 @@
     "authRequiredBody": "O Smart Batch usa a sua conta para carregar configurações e executar lotes. Inicie sessão para continuar ou volte ao início.",
     "authRequiredSignIn": "Iniciar sessão",
     "authRequiredBackHome": "Voltar ao início",
-    "authRequiredClose": "Fechar"
+    "authRequiredClose": "Fechar",
+    "title": "Smart Batch",
+    "subtitle": "Configure e gerencie seus fluxos automatizados de verificação em lote.",
+    "createConfiguration": "Criar Configuração",
+    "createBlankTemplate": "Criar Modelo em Branco",
+    "configurationsTab": "Configurações",
+    "reportTemplatesTab": "Modelos de Relatório",
+    "loadingConfigurations": "Carregando configurações...",
+    "noConfigurations": "Nenhuma configuração ainda",
+    "noConfigurationsDesc": "Crie sua primeira configuração em lote para começar.",
+    "createFirstConfiguration": "Criar primeira configuração",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "inactive": "Inativo",
+    "noDescription": "Nenhuma descrição fornecida",
+    "steps": "Etapas",
+    "strategy": "Estratégia",
+    "loadingTemplates": "Carregando modelos...",
+    "sections": "Seções",
+    "createBlankTemplateHint": "Crie um modelo personalizado para desenhar um layout de relatório sob medida.",
+    "linkedTo": "Vinculado a",
+    "standalone": "Autônomo",
+    "deleteConfirmation": "Tem certeza de que deseja excluir este modelo?"
+  },
+  "smartBatchSystemPresets": {
+    "cloning": "Clonando modelo predefinido...",
+    "sectionTitle": "Modelos do Sistema",
+    "sectionDesc": "Modelos de processamento em lote pré-configurados prontos para uso.",
+    "noSystemTemplates": "Nenhum modelo do sistema disponível.",
+    "useTemplate": "Usar modelo",
+    "myTemplatesTitle": "Meus modelos",
+    "unlinkedTemplate": "Este modelo não está vinculado a nenhuma configuração.",
+    "reusedExisting": "Configuração de modelo existente reutilizada.",
+    "cloneFailed": "Falha ao clonar o modelo. Por favor, tente novamente.",
+    "essential": "Essencial",
+    "comprehensive": "Completo",
+    "citizen": "Cidadão",
+    "company": "Empresa",
+    "vehicle": "Veículo",
+    "uploadBatch": "Upload em lote",
+    "cancel": "Cancelar",
+    "chooseModeDesc": "Escolha como deseja usar este modelo.",
+    "validateOneRecord": "Validação única",
+    "uploadBatchHint": "Processe vários registros usando uma planilha CSV/Excel.",
+    "validateOneRecordHint": "Execute uma validação manual para um único registro.",
+    "validateOneRecordHintCitizen": "Valide detalhes de um único cidadão.",
+    "validateOneRecordHintCompany": "Valide detalhes de uma única empresa.",
+    "validateOneRecordHintVehicle": "Valide detalhes de um único veículo.",
+    "singleRecordTab": "Validação única",
+    "batchUploadTab": "Upload em lote",
+    "inputDetailsTitle": "Inserir detalhes",
+    "inputDetailsDesc": "Forneça os detalhes para verificação.",
+    "runValidation": "Executar validação",
+    "back": "Voltar",
+    "co": {
+      "citizen": {
+        "essential": {
+          "title": "Cidadão Colômbia Essencial",
+          "description": "Verificações de identidade essenciais para cidadãos colombianos, incluindo o registro nacional (Registraduría) e informações básicas de antecedentes."
+        },
+        "comprehensive": {
+          "title": "Cidadão Colômbia Completo",
+          "description": "Verificação profunda para cidadãos colombianos, incluindo consultas de PEP, antecedentes criminais/judiciais, registros fiscais e profissionais."
+        }
+      },
+      "company": {
+        "essential": {
+          "title": "Empresa Colômbia Essencial",
+          "description": "Verificação essencial de registro de empresa (RUES) para entidades empresariais colombianas."
+        },
+        "comprehensive": {
+          "title": "Empresa Colômbia Completo",
+          "description": "Verificação corporativa abrangente para empresas colombianas, incluindo representação legal, situação fiscal (DIAN) e histórico de conformidade."
+        }
+      },
+      "vehicle": {
+        "essential": {
+          "title": "Veículo Colômbia Essencial",
+          "description": "Verificação básica de veículo utilizando registros de matrícula padrão na Colômbia."
+        },
+        "comprehensive": {
+          "title": "Veículo Colômbia Completo",
+          "description": "Verificação abrangente de registros de trânsito, propriedade, histórico de colisões/incidentes e registros fiscais de veículos na Colômbia."
+        }
+      }
+    }
+  },
+  "createBatchConfig": {
+    "edit": "Editar",
+    "create": "Criar",
+    "batchConfiguration": "Configuração em lote",
+    "basicInformation": "Informações básicas",
+    "configurationName": "Nome da configuração",
+    "namePlaceholder": "ex: Validação diária de cidadãos",
+    "nameRequired": "O nome é obrigatório",
+    "description": "Descrição",
+    "descriptionPlaceholder": "Forneça uma descrição para esta configuração",
+    "country": "País",
+    "countryRequired": "O país é obrigatório",
+    "mergeStrategy": "Estratégia de fusão",
+    "sequential": "Sequencial",
+    "parallelIndependent": "Paralelo independente",
+    "parallelWithFallback": "Paralelo com fallback",
+    "inputFieldsFormat": "Formato dos campos de entrada",
+    "resultOutputFormat": "Formato de saída dos resultados",
+    "saving": "Salvando...",
+    "next": "Avançar",
+    "selectEndpoints": "Selecionar endpoints",
+    "availableFeatures": "Recursos disponíveis",
+    "loadingFeatures": "Carregando recursos...",
+    "available": "Disponíveis",
+    "searchPlaceholder": "Buscar endpoints...",
+    "noEndpointsMatch": "Nenhum endpoint corresponde a '{query}'",
+    "selectedSteps": "Etapas selecionadas",
+    "selectFeaturesToAdd": "Selecione recursos à esquerda para adicioná-los como etapas de verificação.",
+    "back": "Voltar",
+    "reviewParameters": "Revisar parâmetros",
+    "reviewParamsIntro": "Examine e configure os parâmetros obrigatórios para cada uma das etapas de verificação selecionadas.",
+    "requiredParameters": "Parâmetros obrigatórios",
+    "required": "Obrigatório",
+    "parametersMappedHint": "Esses parâmetros serão mapeados a partir dos cabeçalhos do arquivo de entrada enviado.",
+    "noParametersRequired": "Nenhum parâmetro necessário para esta etapa.",
+    "reviewAndCreate": "Revisar e criar",
+    "summary": "Resumo",
+    "totalSteps": "Total de etapas",
+    "stepsCount": "{count} etapa(s)",
+    "estimatedCostPerRecord": "Custo estimado por registro",
+    "totalPerRecord": "Total por registro",
+    "updateConfiguration": "Atualizar configuração",
+    "createConfiguration": "Criar configuração"
+  },
+  "batchDashboard": {
+    "backToSmartBatch": "Voltar ao Smart Batch"
   },
   "guestFeatureAuth": {
     "title": "É necessário iniciar sessão",

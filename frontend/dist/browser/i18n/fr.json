@@ -59,7 +59,139 @@
     "authRequiredBody": "Smart Batch utilise votre compte pour charger les configurations et exécuter des lots. Connectez-vous pour continuer ou retournez à l'accueil.",
     "authRequiredSignIn": "Se connecter",
     "authRequiredBackHome": "Retour à l'accueil",
-    "authRequiredClose": "Fermer"
+    "authRequiredClose": "Fermer",
+    "title": "Smart Batch",
+    "subtitle": "Configurez et gérez vos flux de vérification automatisés par lots.",
+    "createConfiguration": "Créer une configuration",
+    "createBlankTemplate": "Créer un modèle vierge",
+    "configurationsTab": "Configurations",
+    "reportTemplatesTab": "Modèles de rapport",
+    "loadingConfigurations": "Chargement des configurations...",
+    "noConfigurations": "Aucune configuration pour le moment",
+    "noConfigurationsDesc": "Créez votre première configuration par lots pour commencer.",
+    "createFirstConfiguration": "Créer la première configuration",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "inactive": "Inactif",
+    "noDescription": "Aucune description fournie",
+    "steps": "Étapes",
+    "strategy": "Stratégie",
+    "loadingTemplates": "Chargement des modèles...",
+    "sections": "Sections",
+    "createBlankTemplateHint": "Créez un modèle personnalisé pour concevoir une mise en page de rapport sur mesure.",
+    "linkedTo": "Lié à",
+    "standalone": "Autonome",
+    "deleteConfirmation": "Êtes-vous sûr de vouloir supprimer ce modèle ?"
+  },
+  "smartBatchSystemPresets": {
+    "cloning": "Clonage du modèle prédéfini...",
+    "sectionTitle": "Modèles Prédéfinis",
+    "sectionDesc": "Modèles de traitement par lots préconfigurés et prêts à l'emploi.",
+    "noSystemTemplates": "Aucun modèle système disponible.",
+    "useTemplate": "Utiliser le modèle",
+    "myTemplatesTitle": "Mes modèles",
+    "unlinkedTemplate": "Ce modèle n'est lié à aucune configuration.",
+    "reusedExisting": "Configuration de modèle existante réutilisée.",
+    "cloneFailed": "Échec du clonage du modèle. Veuillez réessayer.",
+    "essential": "Essentiel",
+    "comprehensive": "Complet",
+    "citizen": "Citoyen",
+    "company": "Entreprise",
+    "vehicle": "Véhicule",
+    "uploadBatch": "Chargement par lots",
+    "cancel": "Annuler",
+    "chooseModeDesc": "Choisissez comment vous souhaitez utiliser ce modèle.",
+    "validateOneRecord": "Validation unique",
+    "uploadBatchHint": "Traiter plusieurs enregistrements à l'aide d'une feuille de calcul CSV/Excel.",
+    "validateOneRecordHint": "Exécuter une vérification manuelle pour un seul enregistrement.",
+    "validateOneRecordHintCitizen": "Valider les détails pour un seul citoyen.",
+    "validateOneRecordHintCompany": "Valider les détails pour une seule entreprise.",
+    "validateOneRecordHintVehicle": "Valider les détails pour un seul véhicule.",
+    "singleRecordTab": "Validation unique",
+    "batchUploadTab": "Chargement par lots",
+    "inputDetailsTitle": "Saisir les détails",
+    "inputDetailsDesc": "Fournir les détails pour la vérification.",
+    "runValidation": "Lancer la vérification",
+    "back": "Retour",
+    "co": {
+      "citizen": {
+        "essential": {
+          "title": "Colombie Citoyen Essentiel",
+          "description": "Vérifications d'identité essentielles pour les citoyens colombiens, y compris le registre national (Registraduría) et les antécédents de base."
+        },
+        "comprehensive": {
+          "title": "Colombie Citoyen Complet",
+          "description": "Vérification approfondie pour les citoyens colombiens, y compris les vérifications PEP, les antécédents judiciaires, fiscaux et professionnels."
+        }
+      },
+      "company": {
+        "essential": {
+          "title": "Colombie Entreprise Essentiel",
+          "description": "Vérification essentielle du registre des entreprises (RUES) pour les entités commerciales colombiennes."
+        },
+        "comprehensive": {
+          "title": "Colombie Entreprise Complet",
+          "description": "Vérification d'entreprise approfondie pour les sociétés colombiennes, y compris la représentation légale, le statut fiscal (DIAN) et l'historique de conformité."
+        }
+      },
+      "vehicle": {
+        "essential": {
+          "title": "Colombie Véhicule Essentiel",
+          "description": "Vérification de base des véhicules à l'aide des registres d'immatriculation standard en Colombie."
+        },
+        "comprehensive": {
+          "title": "Colombie Véhicule Complet",
+          "description": "Vérification complète de l'historique de propriété, du trafic, des collisions/accidents et des registres fiscaux pour les véhicules en Colombie."
+        }
+      }
+    }
+  },
+  "createBatchConfig": {
+    "edit": "Modifier",
+    "create": "Créer",
+    "batchConfiguration": "Configuration de lot",
+    "basicInformation": "Informations de base",
+    "configurationName": "Nom de la configuration",
+    "namePlaceholder": "ex. Vérification quotidienne des citoyens",
+    "nameRequired": "Le nom est requis",
+    "description": "Description",
+    "descriptionPlaceholder": "Fournissez une description pour cette configuration",
+    "country": "Pays",
+    "countryRequired": "Le pays est requis",
+    "mergeStrategy": "Stratégie de fusion",
+    "sequential": "Séquentiel",
+    "parallelIndependent": "Parallèle indépendant",
+    "parallelWithFallback": "Parallèle avec repli",
+    "inputFieldsFormat": "Format des champs de saisie",
+    "resultOutputFormat": "Format de sortie des résultats",
+    "saving": "Enregistrement...",
+    "next": "Suivant",
+    "selectEndpoints": "Sélectionner les points de terminaison",
+    "availableFeatures": "Fonctionnalités disponibles",
+    "loadingFeatures": "Chargement des fonctionnalités...",
+    "available": "Disponibles",
+    "searchPlaceholder": "Rechercher des points de terminaison...",
+    "noEndpointsMatch": "Aucun point de terminaison ne correspond à '{query}'",
+    "selectedSteps": "Étapes sélectionnées",
+    "selectFeaturesToAdd": "Sélectionnez des fonctionnalités sur la gauche pour les ajouter en tant qu'étapes de vérification.",
+    "back": "Retour",
+    "reviewParameters": "Réviser les paramètres",
+    "reviewParamsIntro": "Examinez et configurez les paramètres requis pour chacune des étapes de vérification sélectionnées.",
+    "requiredParameters": "Paramètres requis",
+    "required": "Requis",
+    "parametersMappedHint": "Ces paramètres seront mappés à partir des en-têtes du fichier d'entrée que vous avez téléversé.",
+    "noParametersRequired": "Aucun paramètre requis pour cette étape.",
+    "reviewAndCreate": "Examiner et créer",
+    "summary": "Résumé",
+    "totalSteps": "Nombre total d'étapes",
+    "stepsCount": "{count} étape(s)",
+    "estimatedCostPerRecord": "Coût estimé par enregistrement",
+    "totalPerRecord": "Total par enregistrement",
+    "updateConfiguration": "Mettre à jour la configuration",
+    "createConfiguration": "Créer la configuration"
+  },
+  "batchDashboard": {
+    "backToSmartBatch": "Retour à Smart Batch"
   },
   "guestFeatureAuth": {
     "title": "Connexion requise",
