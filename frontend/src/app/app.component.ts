@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from 'app/core/auth/auth.service';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
+import { AuthService } from 'app/core/auth/auth.service';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
@@ -134,10 +134,14 @@ export class AppComponent implements OnInit {
 
         this._authApiService.getSession().subscribe({
             next: (res: any) => {
-                const userData = res.data?.user || res.user || res;
-                localStorage.setItem('verifik_account', JSON.stringify(userData));
-                this._userService.user = userData;
+                const userData =
+                    this._userService.applySessionResponse(res) ??
+                    res.data?.user ??
+                    res.user ??
+                    res;
+
                 this._accountEnvironment.onSessionSynced(userData);
+
                 this._sessionService.resetReloadTracking();
             },
             error: (err) => {

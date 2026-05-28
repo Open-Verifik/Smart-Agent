@@ -34,15 +34,46 @@ export class UserService {
     // -----------------------------------------------------------------------------------------------------
 
     /**
+     * Persists accessToken and user from a /v2/auth/session response.
+     */
+    applySessionResponse(response: unknown): User | null {
+        if (!response || typeof response !== 'object') {
+            return null;
+        }
+
+        const payload = response as {
+            accessToken?: string;
+            user?: User;
+            data?: { accessToken?: string; user?: User };
+        };
+
+        const accessToken = payload.data?.accessToken ?? payload.accessToken;
+
+        if (accessToken) {
+            localStorage.setItem('accessToken', accessToken);
+        }
+
+        const user = payload.data?.user ?? payload.user ?? null;
+
+        if (!user) return null;
+
+        localStorage.setItem('verifik_account', JSON.stringify(user));
+
+        this._user.next(user);
+
+        return user;
+    }
+
+    /**
      * Get the current signed-in user data
      */
     get(): Observable<User> {
         return this._httpWrapper
             .sendRequest('post', environment.apiUrl + '/v2/auth/session', { origin: 'app' })
             .pipe(
-                map((response) => response.data?.user || response.user || response),
-                tap((user) => {
-                    this._user.next(user);
+                map((response) => {
+                    const user = this.applySessionResponse(response);
+                    return user ?? (response.data?.user || response.user || response);
                 })
             );
     }

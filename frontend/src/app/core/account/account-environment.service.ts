@@ -3,11 +3,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@jsverse/transloco';
-import { catchError, finalize, take } from 'rxjs/operators';
-import { of } from 'rxjs';
 import { environment } from 'environments/environment';
-import { HttpWrapperService } from '../services/http-wrapper.service';
+import { of } from 'rxjs';
+import { catchError, finalize, take } from 'rxjs/operators';
 import { PaymentService } from '../../modules/add-credits/services/payment.service';
+import { HttpWrapperService } from '../services/http-wrapper.service';
 import { SessionService } from '../services/session.service';
 import { UserService } from '../user/user.service';
 import type { User } from '../user/user.types';
@@ -28,18 +28,18 @@ export class AccountEnvironmentService {
     readonly verifyCompanyLoading = signal(false);
 
     readonly showVerifyStrip = computed(
-        () => this.isAuthenticated() && this.accountSnapshot()?.canRecharge === false,
+        () => this.isAuthenticated() && this.accountSnapshot()?.canRecharge === false
     );
 
     readonly verifyStripPendingReview = computed(
         () =>
             this.isAuthenticated() &&
             this.accountSnapshot()?.canRecharge === false &&
-            this.accountSnapshot()?.approvalRequestStatus === 'requested',
+            this.accountSnapshot()?.approvalRequestStatus === 'requested'
     );
 
     readonly showSandboxStrip = computed(
-        () => this.isAuthenticated() && this._isSandboxModeActive(),
+        () => this.isAuthenticated() && this._isSandboxModeActive()
     );
 
     /**
@@ -47,7 +47,7 @@ export class AccountEnvironmentService {
      * The slide-toggle `checked` represents "Production on", not "Sandbox on".
      */
     readonly productionModeOn = computed(
-        () => this.isAuthenticated() && !this._isSandboxModeActive(),
+        () => this.isAuthenticated() && !this._isSandboxModeActive()
     );
 
     /** Toggle is enabled only when canRecharge is explicitly true and settings._id exists. */
@@ -55,7 +55,7 @@ export class AccountEnvironmentService {
         () =>
             this.sandboxToggleLoading() ||
             this.accountSnapshot()?.canRecharge !== true ||
-            !this.accountSnapshot()?.settings?._id,
+            !this.accountSnapshot()?.settings?._id
     );
 
     constructor() {
@@ -77,7 +77,10 @@ export class AccountEnvironmentService {
         }
         this._userService
             .get()
-            .pipe(take(1), catchError(() => of(null)))
+            .pipe(
+                take(1),
+                catchError(() => of(null))
+            )
             .subscribe((user) => {
                 if (user) {
                     this.accountSnapshot.set(user);
@@ -115,14 +118,17 @@ export class AccountEnvironmentService {
                 take(1),
                 finalize(() => this.sandboxToggleLoading.set(false)),
                 catchError((err) => {
-                    console.error('[AccountEnvironmentService] Failed to update sandbox mode:', err);
+                    console.error(
+                        '[AccountEnvironmentService] Failed to update sandbox mode:',
+                        err
+                    );
                     this._snackBar.open(
                         this._transloco.translate('accountEnv.errors.updateFailed'),
                         undefined,
-                        { duration: 4000 },
+                        { duration: 4000 }
                     );
                     return of(null);
-                }),
+                })
             )
             .subscribe((res) => {
                 if (!res) {
@@ -131,7 +137,10 @@ export class AccountEnvironmentService {
                 this._persistSandboxMode(sandboxMode);
                 this._userService
                     .get()
-                    .pipe(take(1), catchError(() => of(null)))
+                    .pipe(
+                        take(1),
+                        catchError(() => of(null))
+                    )
                     .subscribe((fresh) => {
                         if (fresh) {
                             this.accountSnapshot.set(fresh);
@@ -147,7 +156,7 @@ export class AccountEnvironmentService {
                     panelClass: 'sandbox-info-modal-dialog',
                     maxWidth: '520px',
                 });
-            },
+            }
         );
     }
 
@@ -167,15 +176,19 @@ export class AccountEnvironmentService {
                     this._snackBar.open(
                         this._transloco.translate('accountEnv.errors.verifyFailed'),
                         undefined,
-                        { duration: 4000 },
+                        { duration: 4000 }
                     );
                     return of(null);
-                }),
+                })
             )
             .subscribe((response) => {
                 const path = (response as any)?.data?.path;
                 if (path && environment.kycBaseUrl) {
-                    window.open(`${environment.kycBaseUrl}${path}`, '_blank', 'noopener,noreferrer');
+                    window.open(
+                        `${environment.kycBaseUrl}${path}`,
+                        '_blank',
+                        'noopener,noreferrer'
+                    );
                 }
             });
     }
@@ -185,14 +198,15 @@ export class AccountEnvironmentService {
     }
 
     private _isSandboxModeActive(): boolean {
-        if (this.accountSnapshot()?.settings?.sandboxMode === true) {
-            return true;
+        const settings = this.accountSnapshot()?.settings;
+
+        if (settings?._id) {
+            return settings.sandboxMode === true;
         }
 
         const token = localStorage.getItem('accessToken');
-        if (!token) {
-            return false;
-        }
+
+        if (!token) return false;
 
         try {
             const payload = JSON.parse(atob(token.split('.')[1])) as { mode?: string };
