@@ -115,6 +115,10 @@
         "inputDetailsDesc": "Provide details for verification.",
         "runValidation": "Run validation",
         "back": "Back",
+        "documentTypeCompatibilityTitle": "Steps that will run with this document type",
+        "stepWillRun": "Will run",
+        "stepWillSkip": "Will be skipped",
+        "skipReasonDocumentType": "{{documentType}} is not supported for {{stepName}} (allowed: {{allowedValues}})",
         "co": {
             "citizen": {
                 "essential": {
@@ -5756,7 +5760,10 @@
         "endpointRequiredFieldsLabel": "Required",
         "endpointConditionalFieldsLabel": "Conditional",
         "endpointOptionalFieldsLabel": "Optional",
-        "endpointNoFieldsRequired": "No columns are required for this step."
+        "endpointNoFieldsRequired": "No columns are required for this step.",
+        "stepIncompatibleTitle": "Some rows will skip steps at runtime",
+        "stepIncompatibleWarning": "Row {{row}}: {{message}}",
+        "stepIncompatibleDetail": "\"{{value}}\" for {{field}} is not supported by {{step}} (allowed: {{allowed}}). That step will be skipped when the batch runs."
     },
     "batchTutorial": {
         "stepOf": "Step {{current}} of {{total}}",
@@ -5886,5 +5893,23 @@
         "ruesCategoryEdit": "Edit category",
         "ruesCategoryApply": "Apply",
         "ruesCategoryCancel": "Cancel"
+    },
+    "colombiaVehicleReport": {
+        "sections": {
+            "runtIdentity": "RUNT — Vehicle identity",
+            "runtCompliance": "RUNT — Compliance",
+            "runtSoat": "RUNT — SOAT",
+            "runtRtm": "RUNT — Technical inspection",
+            "runtLiens": "RUNT — Liens",
+            "runtProcedures": "RUNT — Procedures",
+            "simitSummary": "SIMIT — Summary",
+            "simitFines": "SIMIT — Fines",
+            "simitAgreements": "SIMIT — Payment agreements",
+            "fasecoldaClaims": "Fasecolda — Claims history",
+            "fasecoldaCatalog": "Fasecolda — Catalog",
+            "fasecoldaValuation": "Fasecolda — Valuation"
+        },
+        "emptySinister": "No claims history on file",
+        "emptyAgreements": "No payment agreements on file"
     }
 }

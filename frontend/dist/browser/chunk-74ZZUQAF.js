@@ -1,0 +1,1 @@
+import{a as n}from"./chunk-WOXRZINP.js";var s=new Set(["force"]),i=e=>e?!s.has(e):!1,c=e=>{let t=n({},e);for(let r of s)for(let o of Object.keys(t))o.toLowerCase()===r&&delete t[o];return t};export{i as a,c as b};

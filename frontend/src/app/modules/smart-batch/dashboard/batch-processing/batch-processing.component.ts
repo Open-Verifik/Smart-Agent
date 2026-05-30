@@ -36,6 +36,13 @@ import {
     inputDataValueForCsvCell,
 } from '../../batch-input-csv.util';
 import {
+    BATCH_INPUT_META_SKIPPED_STEPS_KEY,
+    BatchSkippedStepMeta,
+    getBatchSkippedStepsFromInput,
+    getStepIncompatibilityReason,
+    stripBatchInputMeta,
+} from '../../batch-required-fields.util';
+import {
     AppFeature,
     BatchConfiguration,
     BatchStep,
@@ -735,11 +742,20 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         results: Record<number, any>,
         errors: { step: number; message: string; code: string }[],
         enabledSequences: number[],
-        isFinal: boolean
+        isFinal: boolean,
+        rowInputData?: Record<string, unknown>,
+        skippedSteps?: BatchSkippedStepMeta[]
     ): Promise<void> {
         const status: SmartBatchRowStatus = isFinal
             ? this._deriveRowOutcome(results, errors, enabledSequences)
             : 'processing';
+
+        const inputDataPatch = rowInputData
+            ? {
+                  ...stripBatchInputMeta(rowInputData),
+                  [BATCH_INPUT_META_SKIPPED_STEPS_KEY]: skippedSteps?.length ? skippedSteps : null,
+              }
+            : undefined;
 
         return this._serializedBatchRowMutation(async () => {
             const updatedBatch = await firstValueFrom(
@@ -747,6 +763,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                     status,
                     results,
                     errors,
+                    ...(inputDataPatch ? { inputData: inputDataPatch } : {}),
                 })
             );
             this.batch.set(updatedBatch.data);
@@ -778,6 +795,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }> {
         const results = { ...initialResults };
         let errors = [...initialErrors];
+        let skippedSteps = [...getBatchSkippedStepsFromInput(row.inputData)];
         const doPersist = persist?.persistProgress && !!persist.batchId;
         const showFineGrainedRowStepUi = this.parallelRowConcurrency() <= 1;
 
@@ -789,6 +807,49 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 this.currentRowIndex.set(row.rowIndex);
                 this.currentStepIndex.set(step.sequence);
             }
+
+            const incompatibility = getStepIncompatibilityReason(step, row.inputData);
+            if (incompatibility) {
+                delete results[step.sequence];
+                errors = this._withoutStepError(errors, step.sequence);
+                const feature = step.appFeature as AppFeature;
+                const skipMeta: BatchSkippedStepMeta = {
+                    sequence: step.sequence,
+                    stepName: feature?.name || 'Unknown Step',
+                    stepCode: feature?.code,
+                    field: incompatibility.field,
+                    value: incompatibility.value,
+                    allowedValues: incompatibility.allowedValues,
+                };
+                skippedSteps = [
+                    ...skippedSteps.filter((entry) => entry.sequence !== step.sequence),
+                    skipMeta,
+                ];
+
+                if (doPersist && persist) {
+                    const isLast = i === steps.length - 1;
+                    try {
+                        await this._persistRowProgress(
+                            persist.batchId,
+                            row.rowIndex,
+                            results,
+                            errors,
+                            persist.enabledSequences,
+                            isLast,
+                            row.inputData,
+                            skippedSteps
+                        );
+                    } catch (err) {
+                        console.error(
+                            `Failed to persist row ${row.rowIndex} after skipping step ${step.sequence}:`,
+                            err
+                        );
+                    }
+                }
+                continue;
+            }
+
+            skippedSteps = skippedSteps.filter((entry) => entry.sequence !== step.sequence);
 
             const outcome = await this._executeStep(row, step);
             if ('result' in outcome) {
@@ -808,7 +869,9 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                         results,
                         errors,
                         persist.enabledSequences,
-                        isLast
+                        isLast,
+                        row.inputData,
+                        skippedSteps
                     );
                 } catch (err) {
                     console.error(
@@ -817,6 +880,16 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                     );
                 }
             }
+        }
+
+        if (skippedSteps.length > 0) {
+            row.inputData = {
+                ...stripBatchInputMeta(row.inputData),
+                [BATCH_INPUT_META_SKIPPED_STEPS_KEY]: skippedSteps,
+            };
+        } else if (row.inputData && BATCH_INPUT_META_SKIPPED_STEPS_KEY in row.inputData) {
+            const nextInput = { ...stripBatchInputMeta(row.inputData) };
+            row.inputData = nextInput;
         }
 
         return { results, errors };
@@ -926,6 +999,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             };
         }
 
+        if (feature.code === 'colombia_api_vehicle_sinister_fasecolda_by_plate') {
+            return {
+                plate: params.plate,
+                sinister: [],
+                ...meta,
+            };
+        }
+
         const out: Record<string, unknown> = { ...meta };
         for (const dep of feature.dependencies || []) {
             const f = dep.field;
@@ -939,7 +1020,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
      * Does NOT auto-merge previous results - only uses inputData + parameterDefaults + inputFieldMapping.
      */
     private _buildStepParams(inputData: any, step: BatchStep): any {
-        const params: any = { ...inputData };
+        const params: any = { ...stripBatchInputMeta(inputData) };
 
         // Apply parameter defaults
         if (step.parameterDefaults) {

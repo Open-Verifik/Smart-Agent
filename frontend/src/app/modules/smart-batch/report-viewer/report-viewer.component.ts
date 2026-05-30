@@ -276,11 +276,17 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const row = rowIndex != null ? rows.find((r) => r.rowIndex === rowIndex) : rows[0];
         if (!row) return { inputData: {}, results: {} };
 
+        const batchName = b?.name ?? this._defaultBatchLabel();
+        const resolution = buildRowDataForResolution(row, {
+            steps: this.configuration()?.steps ?? [],
+            batchName,
+            errors: row.errors,
+        });
+
         return {
-            batchName: b?.name ?? this._defaultBatchLabel(),
+            batchName,
             rowIndex: row.rowIndex,
-            inputData: row.inputData ?? {},
-            results: row.results ?? {},
+            ...resolution,
         };
     });
 
@@ -293,11 +299,12 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         const rows = b?.rows ?? [];
         const rowIndex = this.selectedRowIndex();
         const filtered = rowIndex != null ? rows.filter((r) => r.rowIndex === rowIndex) : rows;
+        const batchName = b?.name ?? this._defaultBatchLabel();
+        const steps = this.configuration()?.steps ?? [];
         return filtered.map((row) => ({
-            batchName: b?.name ?? this._defaultBatchLabel(),
+            batchName,
             rowIndex: row.rowIndex,
-            inputData: row.inputData ?? {},
-            results: row.results ?? {},
+            ...buildRowDataForResolution(row, { steps, batchName, errors: row.errors }),
         }));
     });
 
@@ -382,14 +389,25 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
         if (rowIndex != null) {
             const row = rows.find((r) => r.rowIndex === rowIndex);
             if (!row) return null;
-            return validateTemplateAgainstData(template, buildRowDataForResolution(row));
+            return validateTemplateAgainstData(
+                template,
+                buildRowDataForResolution(row, {
+                    steps: this.configuration()?.steps ?? [],
+                    batchName: b?.name,
+                    errors: row.errors,
+                })
+            );
         }
 
         const missingByPath = new Map<string, { path: string; label?: string }>();
         const matchedPaths = new Set<string>();
+        const steps = this.configuration()?.steps ?? [];
 
         for (const row of rows) {
-            const result = validateTemplateAgainstData(template, buildRowDataForResolution(row));
+            const result = validateTemplateAgainstData(
+                template,
+                buildRowDataForResolution(row, { steps, batchName: b?.name, errors: row.errors })
+            );
             result.matchedPaths.forEach((path) => matchedPaths.add(path));
             result.missingPaths.forEach((item) => missingByPath.set(item.path, item));
         }
@@ -1119,8 +1137,11 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
             ? {
                   batchName: b?.name ?? this._defaultBatchLabel(),
                   rowIndex: row.rowIndex,
-                  inputData: row.inputData ?? {},
-                  results: row.results ?? {},
+                  ...buildRowDataForResolution(row, {
+                      steps: this.configuration()?.steps ?? [],
+                      batchName: b?.name,
+                      errors: row.errors,
+                  }),
               }
             : null;
 

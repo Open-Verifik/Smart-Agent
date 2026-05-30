@@ -60,6 +60,11 @@ export function buildHelperDataPaths(previewData: Record<string, any>): HelperDa
         paths.push(...flattenDataForHelper(previewData.results, 'results'));
     }
 
+    if (previewData.report && typeof previewData.report === 'object') {
+        paths.push({ path: 'report', value: '', type: 'object' });
+        paths.push(...flattenDataForHelper(previewData.report, 'report'));
+    }
+
     return paths;
 }
 

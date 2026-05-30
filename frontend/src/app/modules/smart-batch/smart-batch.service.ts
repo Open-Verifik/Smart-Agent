@@ -26,6 +26,9 @@ export interface SmartBatchSuccessWhenRule {
 const SMART_BATCH_SUCCESS_WHEN_FALLBACK: Record<string, SmartBatchSuccessWhenRule[]> = {
     colombia_pep_lookup: [{ httpStatus: 404, responseCodes: ['NotFound'] }],
     api_colombia_contracts: [{ httpStatus: 404, responseCodes: ['NotFound'] }],
+    colombia_api_vehicle_sinister_fasecolda_by_plate: [
+        { httpStatus: 404, responseCodes: ['NotFound'] },
+    ],
 };
 
 export const getEffectiveSmartBatchSuccessWhen = (

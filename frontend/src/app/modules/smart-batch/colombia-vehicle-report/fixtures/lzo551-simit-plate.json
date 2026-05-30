@@ -1,0 +1,37 @@
+{
+  "acuerdosPago": [],
+  "cancelada": false,
+  "cantMultasPagar": "0",
+  "comparendos": [],
+  "multas": [
+    {
+      "departamento": "Cesar",
+      "estadoCartera": "Pendiente de pago",
+      "fechaComparendo": "22/01/2024 00:00:00",
+      "fechaResolucion": "19/07/2024 00:00:00",
+      "infracciones": [
+        {
+          "codigoInfraccion": "C29",
+          "descripcionInfraccion": "Conducir un vehículo a velocidad superior a la máxima permitida.",
+          "valorInfraccion": "572520"
+        }
+      ],
+      "infractor": {
+        "apellido": "RO*** PE** ",
+        "nombre": "LI*** MAR*** ",
+        "numeroDocumento": "53164689",
+        "tipoDocumento": "Cédula"
+      },
+      "numeroResolucion": "2024-FAD-13704",
+      "organismoTransito": "Dptal Cesar - IDTRACESAR",
+      "placa": "LZO551",
+      "valor": "572520",
+      "valorPagar": "779841"
+    }
+  ],
+  "pazSalvo": false,
+  "plate": "LZO551",
+  "totalGeneral": "779841",
+  "totalMultas": "779841",
+  "totalMultasPagar": "1"
+}

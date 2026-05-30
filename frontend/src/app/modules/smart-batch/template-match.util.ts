@@ -1,3 +1,8 @@
+import {
+    buildColombiaVehicleReport,
+    hasColombiaVehicleReportSteps,
+} from './colombia-vehicle-report/colombia-vehicle-report.composer';
+import type { BatchStep } from './smart-batch.service';
 import { ReportSection, SmartReportTemplate } from './smart-report.service';
 
 /** Result of validating template data paths against batch row data */
@@ -63,15 +68,44 @@ export function extractTemplateDataPaths(template: SmartReportTemplate): { path:
  * Batch row: { rowIndex, inputData, results: { [stepSeq]: {...} } }
  * We need: { inputData, results } so paths like "results.1.fullName" resolve.
  */
-export function buildRowDataForResolution(row: {
-    rowIndex?: number;
-    inputData?: Record<string, any>;
-    results?: Record<number, any>;
-}): Record<string, any> {
+export type BuildRowDataForResolutionOptions = {
+    steps?: BatchStep[];
+    batchName?: string;
+    errors?: { step: number; message: string; code: string }[];
+};
+
+/**
+ * Build preview/PDF resolution object from a batch row.
+ * When the configuration includes Colombia vehicle blocks, adds normalized `report.*` paths.
+ */
+export function buildRowDataForResolution(
+    row: {
+        rowIndex?: number;
+        inputData?: Record<string, any>;
+        results?: Record<number, any>;
+        errors?: { step: number; message: string; code: string }[];
+    },
+    options?: BuildRowDataForResolutionOptions
+): Record<string, any> {
     const data: Record<string, any> = {
         inputData: row.inputData ?? {},
         results: row.results ?? {},
     };
+
+    const steps = options?.steps ?? [];
+    if (steps.length > 0 && hasColombiaVehicleReportSteps(steps)) {
+        data.report = buildColombiaVehicleReport(
+            {
+                rowIndex: row.rowIndex ?? 0,
+                inputData: row.inputData,
+                results: row.results,
+                errors: row.errors ?? options?.errors,
+            },
+            steps,
+            { batchName: options?.batchName }
+        );
+    }
+
     return data;
 }
 

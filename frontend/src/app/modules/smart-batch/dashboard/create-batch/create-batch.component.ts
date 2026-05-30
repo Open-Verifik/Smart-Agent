@@ -28,6 +28,10 @@ import {
 } from 'app/core/utils/csv-parse.util';
 import { sanitizeMatrix, sanitizePapaObjectRows } from 'app/core/utils/spreadsheet-sanitize.util';
 import * as XLSX from 'xlsx';
+import {
+    extractRequiredFieldsFromConfig,
+    getUnionEnumValuesForField,
+} from '../../batch-required-fields.util';
 import { getBatchInputCsvHeaders } from '../../batch-input-csv.util';
 import {
     isClientVisibleBatchDependencyField,
@@ -72,10 +76,20 @@ interface CellError {
     expectedValues?: string[];
 }
 
+/** Non-blocking validation notice (e.g. step skipped at runtime for enum mismatch). */
+interface CellWarning {
+    rowIndex: number;
+    column: string;
+    type: 'step_incompatible';
+    stepName: string;
+    message: string;
+}
+
 /** Summary of validation results */
 interface ValidationResult {
     isValid: boolean;
     errors: CellError[];
+    warnings: CellWarning[];
     errorsByRow: Map<number, CellError[]>;
     errorsByColumn: Map<string, CellError[]>;
 }
@@ -191,51 +205,18 @@ export class CreateBatchComponent implements OnInit {
     /** Non-fatal CSV parse notices (skipped rows, delimiter hints). */
     csvParseWarnings = signal<CsvParseWarningNotice[]>([]);
 
-    // Computed: Extract required fields from all steps
-    requiredFields = computed<RequiredField[]>(() => {
-        const config = this.configuration();
-        if (!config?.steps) return [];
-
-        const fieldsMap = new Map<string, RequiredField>();
-
-        config.steps
-            .sort((a, b) => a.sequence - b.sequence)
-            .forEach((step) => {
-                const feature = step.appFeature as any;
-                const dependencies = feature?.dependencies || [];
-
-                dependencies.forEach((dep: any) => {
-                    if (!dep?.field) return;
-                    if (!isClientVisibleBatchDependencyField(dep.field)) return;
-                    const prev = fieldsMap.get(dep.field);
-                    if (!fieldsMap.has(dep.field) || dep.required) {
-                        fieldsMap.set(dep.field, {
-                            field: dep.field,
-                            required: dep.required || false,
-                            stepName: feature?.name || 'Unknown Step',
-                            stepSequence: step.sequence,
-                            enumValues: dep.enum || undefined,
-                            type: dep.type || 'string',
-                            description: dep.description || undefined,
-                            dependencyGroup: dep.dependencyGroup,
-                            requiredWhen: dep.requiredWhen,
-                            dateFormat: dep.dateFormat ?? prev?.dateFormat,
-                        });
-                    } else if (dep.dateFormat && !prev?.dateFormat) {
-                        fieldsMap.set(dep.field, {
-                            ...prev,
-                            dateFormat: dep.dateFormat,
-                        });
-                    }
-                });
-            });
-
-        return Array.from(fieldsMap.values()).sort((a, b) => {
-            // Required fields first, then by name
-            if (a.required !== b.required) return b.required ? 1 : -1;
-            return a.field.localeCompare(b.field);
-        });
-    });
+    // Computed: Extract required fields from all steps (union enums across endpoints)
+    requiredFields = computed<RequiredField[]>(() =>
+        extractRequiredFieldsFromConfig(this.configuration()).map((field) => ({
+            field: field.field,
+            required: field.required,
+            stepName: '',
+            stepSequence: 0,
+            enumValues: field.enumValues,
+            type: field.type,
+            description: field.description,
+        }))
+    );
 
     // Computed: Get only required fields for template
     templateFields = computed(() => {
@@ -348,6 +329,29 @@ export class CreateBatchComponent implements OnInit {
     });
 
     hasBlockingFileIssues = computed(() => this.fileCardIssueBanner() !== null);
+
+    /** Non-blocking step compatibility warnings after upload validation. */
+    validationWarningsList = computed(() => {
+        this._translocoLang();
+        const result = this.validationResult();
+        if (!result?.warnings.length) return [];
+
+        const byKey = new Map<string, { key: string; params: Record<string, unknown> }>();
+        for (const warning of result.warnings) {
+            const dedupeKey = `${warning.rowIndex}:${warning.stepName}:${warning.column}:${warning.message}`;
+            if (byKey.has(dedupeKey)) continue;
+            byKey.set(dedupeKey, {
+                key: 'createBatch.stepIncompatibleWarning',
+                params: {
+                    row: warning.rowIndex + 1,
+                    step: warning.stepName,
+                    field: warning.column,
+                    message: warning.message,
+                },
+            });
+        }
+        return Array.from(byKey.values());
+    });
 
     // Computed: Summary of errors for display
     errorSummary = computed(() => {
@@ -1103,6 +1107,7 @@ export class CreateBatchComponent implements OnInit {
         const config = this.configuration();
         const requiredFieldDefs = this.requiredFields();
         const errors: CellError[] = [];
+        const warnings: CellWarning[] = [];
 
         const missingColumns = requiredFieldDefs
             .filter((f) => f.required)
@@ -1115,6 +1120,7 @@ export class CreateBatchComponent implements OnInit {
             this.validationResult.set({
                 isValid: false,
                 errors: [],
+                warnings: [],
                 errorsByRow: new Map(),
                 errorsByColumn: new Map(),
             });
@@ -1124,7 +1130,7 @@ export class CreateBatchComponent implements OnInit {
         this.missingRequiredColumnsFields.set(null);
 
         if (!config?.steps?.length) {
-            this.finalizeValidation(errors);
+            this.finalizeValidation(errors, warnings);
             return;
         }
 
@@ -1144,14 +1150,21 @@ export class CreateBatchComponent implements OnInit {
                 );
                 if (!deps.length) return;
                 const stepLabel = feature?.name || 'Unknown Step';
-                this.appendStepDependencyValidationErrors(r, rowIndex, deps, stepLabel, errors);
+                this.appendStepDependencyValidationErrors(
+                    r,
+                    rowIndex,
+                    deps,
+                    stepLabel,
+                    errors,
+                    warnings
+                );
             });
         });
 
-        this.finalizeValidation(errors);
+        this.finalizeValidation(errors, warnings);
     }
 
-    private finalizeValidation(errors: CellError[]) {
+    private finalizeValidation(errors: CellError[], warnings: CellWarning[] = []) {
         const errorsByRow = new Map<number, CellError[]>();
         const errorsByColumn = new Map<string, CellError[]>();
 
@@ -1170,6 +1183,7 @@ export class CreateBatchComponent implements OnInit {
         const validationResult: ValidationResult = {
             isValid: errors.length === 0,
             errors,
+            warnings,
             errorsByRow,
             errorsByColumn,
         };
@@ -1186,12 +1200,13 @@ export class CreateBatchComponent implements OnInit {
         rowIndex: number,
         deps: FeatureDependency[],
         stepName: string,
-        errors: CellError[]
+        errors: CellError[],
+        warnings: CellWarning[]
     ): void {
         const xorMeta = this.buildXorGroupMetadata(deps);
 
         if (!xorMeta) {
-            this.appendLegacyStepValidation(row, rowIndex, deps, errors);
+            this.appendLegacyStepValidation(row, rowIndex, deps, stepName, errors, warnings);
             return;
         }
 
@@ -1307,7 +1322,7 @@ export class CreateBatchComponent implements OnInit {
                     message: `"${d.field}" is required but empty`,
                 });
             }
-            this.appendEnumErrorIfAny(rowIndex, d, raw, errors);
+            this.appendEnumErrorIfAny(rowIndex, d, raw, stepName, errors, warnings);
             this.appendDateFormatErrorIfAny(rowIndex, d, raw, errors);
         }
     }
@@ -1359,7 +1374,9 @@ export class CreateBatchComponent implements OnInit {
         row: Record<string, unknown>,
         rowIndex: number,
         deps: FeatureDependency[],
-        errors: CellError[]
+        stepName: string,
+        errors: CellError[],
+        warnings: CellWarning[]
     ): void {
         for (const d of deps) {
             const raw = this.getRowCellRaw(row, d.field);
@@ -1371,7 +1388,7 @@ export class CreateBatchComponent implements OnInit {
                     message: `"${d.field}" is required but empty`,
                 });
             }
-            this.appendEnumErrorIfAny(rowIndex, d, raw, errors);
+            this.appendEnumErrorIfAny(rowIndex, d, raw, stepName, errors, warnings);
             this.appendDateFormatErrorIfAny(rowIndex, d, raw, errors);
         }
 
@@ -1386,21 +1403,43 @@ export class CreateBatchComponent implements OnInit {
         rowIndex: number,
         d: FeatureDependency,
         raw: unknown,
-        errors: CellError[]
+        stepName: string,
+        errors: CellError[],
+        warnings: CellWarning[]
     ): void {
-        const enums = d.enum;
-        if (!enums || !Array.isArray(enums) || enums.length === 0) return;
+        const stepEnums = d.enum;
+        if (!stepEnums || !Array.isArray(stepEnums) || stepEnums.length === 0) return;
         if (this.isEmptyValue(raw)) return;
-        const normalizedValue = String(raw).trim().toLowerCase();
-        const validValues = enums.map((v) => String(v).toLowerCase());
 
-        if (!validValues.includes(normalizedValue)) {
+        const config = this.configuration();
+        const unionEnums = getUnionEnumValuesForField(config, d.field) ?? stepEnums;
+        const normalizedValue = String(raw).trim().toLowerCase();
+        const unionTokens = unionEnums.map((v) => String(v).toLowerCase());
+
+        if (!unionTokens.includes(normalizedValue)) {
             errors.push({
                 rowIndex,
                 column: d.field,
                 type: 'invalid_enum',
-                message: `"${raw}" is not a valid value. Expected: ${enums.join(', ')}`,
-                expectedValues: enums,
+                message: `"${raw}" is not a valid value. Expected: ${unionEnums.join(', ')}`,
+                expectedValues: unionEnums,
+            });
+            return;
+        }
+
+        const stepTokens = stepEnums.map((v) => String(v).toLowerCase());
+        if (!stepTokens.includes(normalizedValue)) {
+            warnings.push({
+                rowIndex,
+                column: d.field,
+                type: 'step_incompatible',
+                stepName,
+                message: this._transloco.translate('createBatch.stepIncompatibleDetail', {
+                    value: String(raw).trim(),
+                    field: d.field,
+                    step: stepName,
+                    allowed: stepEnums.join(', '),
+                }),
             });
         }
     }

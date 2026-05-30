@@ -152,6 +152,70 @@
                                                             <option [value]="opt">{{ opt }}</option>
                                                         }
                                                     </select>
+                                                    @if (field.field === 'documentType' && showStepCompatibility()) {
+                                                        <div
+                                                            class="mt-3 rounded-xl border border-stone-200 bg-stone-50/80 p-3 dark:border-gray-800 dark:bg-gray-950/40"
+                                                        >
+                                                            <p
+                                                                class="mb-2 text-xs font-semibold uppercase tracking-wide text-stone-600 dark:text-stone-400"
+                                                            >
+                                                                {{
+                                                                    t(
+                                                                        'smartBatchSystemPresets.documentTypeCompatibilityTitle'
+                                                                    )
+                                                                }}
+                                                            </p>
+                                                            <ul class="space-y-2">
+                                                                @for (
+                                                                    view of stepCompatibilityViews();
+                                                                    track view.sequence
+                                                                ) {
+                                                                    <li
+                                                                        class="flex items-start gap-2 text-xs leading-relaxed"
+                                                                    >
+                                                                        @if (view.compatible) {
+                                                                            <mat-icon
+                                                                                class="!h-4 !w-4 shrink-0 text-emerald-600 dark:text-emerald-400"
+                                                                                >check_circle</mat-icon
+                                                                            >
+                                                                            <span
+                                                                                class="text-stone-700 dark:text-stone-300"
+                                                                            >
+                                                                                <span class="font-medium">{{
+                                                                                    view.stepName
+                                                                                }}</span>
+                                                                                —
+                                                                                {{
+                                                                                    t(
+                                                                                        'smartBatchSystemPresets.stepWillRun'
+                                                                                    )
+                                                                                }}
+                                                                            </span>
+                                                                        } @else {
+                                                                            <mat-icon
+                                                                                class="!h-4 !w-4 shrink-0 text-amber-600 dark:text-amber-400"
+                                                                                >skip_next</mat-icon
+                                                                            >
+                                                                            <span
+                                                                                class="text-amber-900 dark:text-amber-100"
+                                                                            >
+                                                                                <span class="font-medium">{{
+                                                                                    view.stepName
+                                                                                }}</span>
+                                                                                —
+                                                                                {{
+                                                                                    t(
+                                                                                        'smartBatchSystemPresets.stepWillSkip'
+                                                                                    )
+                                                                                }}:
+                                                                                {{ stepSkipReason(view) }}
+                                                                            </span>
+                                                                        }
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    }
                                                 } @else {
                                                     <input
                                                         [id]="field.field"

@@ -720,6 +720,27 @@
                         </div>
 
                         <div
+                            *ngIf="validationWarningsList().length > 0 && !hasBlockingFileIssues()"
+                            class="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50/90 p-4 dark:border-amber-800/50 dark:bg-amber-950/25"
+                        >
+                            <mat-icon class="shrink-0 text-amber-600 dark:text-amber-400"
+                                >warning</mat-icon
+                            >
+                            <div>
+                                <p class="text-sm font-medium text-amber-900 dark:text-amber-100">
+                                    {{ 'createBatch.stepIncompatibleTitle' | transloco }}
+                                </p>
+                                <ul
+                                    class="mt-2 list-disc space-y-1 pl-4 text-sm text-amber-900 dark:text-amber-100"
+                                >
+                                    <li *ngFor="let notice of validationWarningsList()">
+                                        {{ notice.key | transloco: notice.params }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div
                             *ngIf="parsedRows().length > 0 && !hasBlockingFileIssues()"
                             class="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/90 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/25"
                         >

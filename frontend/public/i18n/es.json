@@ -115,6 +115,10 @@
     "inputDetailsDesc": "Proporciona los detalles para la verificación.",
     "runValidation": "Ejecutar validación",
     "back": "Atrás",
+    "documentTypeCompatibilityTitle": "Pasos que se ejecutarán con este tipo de documento",
+    "stepWillRun": "Se ejecutará",
+    "stepWillSkip": "Se omitirá",
+    "skipReasonDocumentType": "{{documentType}} no es compatible con {{stepName}} (permitidos: {{allowedValues}})",
     "co": {
       "citizen": {
         "essential": {
@@ -5762,8 +5766,11 @@
     "endpointRequiredFieldsLabel": "Obligatorios",
     "endpointConditionalFieldsLabel": "Condicionales",
     "endpointOptionalFieldsLabel": "Opcionales",
-    "endpointNoFieldsRequired": "Este paso no requiere columnas."
-  },
+        "endpointNoFieldsRequired": "Este paso no requiere columnas.",
+        "stepIncompatibleTitle": "Algunas filas omitirán pasos al ejecutarse",
+        "stepIncompatibleWarning": "Fila {{row}}: {{message}}",
+        "stepIncompatibleDetail": "\"{{value}}\" para {{field}} no es compatible con {{step}} (permitidos: {{allowed}}). Ese paso se omitirá al ejecutar el lote."
+    },
   "batchTutorial": {
     "stepOf": "Paso {{current}} de {{total}}",
     "back": "Atrás",
@@ -5892,5 +5899,23 @@
     "addOneRecordTitle": "Agregar un registro",
     "addOneRecordDesc": "Completa los campos requeridos para agregar un registro a este lote.",
     "appendFailed": "No se pudo agregar el registro. Inténtalo de nuevo."
+  },
+  "colombiaVehicleReport": {
+    "sections": {
+      "runtIdentity": "RUNT — Identificación del vehículo",
+      "runtCompliance": "RUNT — Cumplimiento",
+      "runtSoat": "RUNT — SOAT",
+      "runtRtm": "RUNT — Revisión técnico-mecánica",
+      "runtLiens": "RUNT — Garantías",
+      "runtProcedures": "RUNT — Trámites",
+      "simitSummary": "SIMIT — Resumen",
+      "simitFines": "SIMIT — Multas",
+      "simitAgreements": "SIMIT — Acuerdos de pago",
+      "fasecoldaClaims": "Fasecolda — Historial de siniestros",
+      "fasecoldaCatalog": "Fasecolda — Catálogo",
+      "fasecoldaValuation": "Fasecolda — Avalúo"
+    },
+    "emptySinister": "Sin historial de siniestros registrado",
+    "emptyAgreements": "Sin acuerdos de pago registrados"
   }
 }

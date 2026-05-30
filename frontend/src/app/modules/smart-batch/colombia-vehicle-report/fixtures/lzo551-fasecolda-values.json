@@ -1,0 +1,29 @@
+{
+  "absShow": "SI",
+  "axles": "2",
+  "bcpp": "160600",
+  "brakes": "TAMBOR/TAMBOR",
+  "capacityLoad": "3115",
+  "capacityPassengers": "3",
+  "category": "PESADO CARGA",
+  "class": "FURGON",
+  "code": "18963058",
+  "cylinderCapacity": "2498",
+  "doors": "2",
+  "fuel": "DIESEL",
+  "line1": "FHR",
+  "line2": "BJ1045V9JB4-F1",
+  "line3": "MT 2500CC TD 4X2 [2.9] ABS",
+  "marke": "FOTON",
+  "plate": "LZO551",
+  "service": "PÚBLICO",
+  "transmission": "4X2",
+  "typology": "TIPO FURGÓN",
+  "valueModel": [
+    { "estado": "USADO", "modelo": "2024", "valor": "113100" },
+    { "estado": "NUEVO", "modelo": "2025", "valor": "128500" },
+    { "estado": "USADO", "modelo": "2025", "valor": "121000" }
+  ],
+  "weight": "2385",
+  "year": "2024"
+}

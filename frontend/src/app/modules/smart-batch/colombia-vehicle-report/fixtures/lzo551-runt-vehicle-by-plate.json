@@ -1,0 +1,91 @@
+{
+  "datosTecnicos": {
+    "capacidadCarga": "2400",
+    "noEjes": "2",
+    "pasajerosSentados": "3",
+    "pesoBrutoVehicular": "5500 Kgs"
+  },
+  "documentNumber": "53164689",
+  "documentType": "CC",
+  "garantiasFavorDe": [
+    {
+      "tipoDocumentoAcreedor": "NIT",
+      "numeroDocumentoAcreedor": "860034313",
+      "acreedor": "BANCO DAVIVIENDA SA",
+      "fechaInscripcion": "12/09/2023",
+      "confecamaras": "SI"
+    }
+  ],
+  "garantiasMobiliarias": [],
+  "informacionBlindaje": {
+    "blindado": "NO"
+  },
+  "informacionGeneral": {
+    "capacidadCarga": "2400 ",
+    "cilindraje": "2498",
+    "claseVehiculo": "CAMION",
+    "clasicoAntiguo": "NO",
+    "clasificacion": "AUTOMOVIL",
+    "color": "BLANCO MORADO",
+    "diasMatriculado": "990",
+    "estadoDelVehiculo": "ACTIVO",
+    "fechaMatricula": "12/09/2023",
+    "linea": "BJ1045VDJBA-F3",
+    "marca": "FOTON",
+    "modelo": "2024",
+    "noChasis": "LVBV3JBB7RY003089",
+    "noMotor": "77176435",
+    "noPlaca": "LZO551",
+    "noVin": "LVBV3JBB7RY003089",
+    "organismoTransito": "STRIA TTOyTTE MCPAL FUNZA",
+    "pasajerosSentados": "3",
+    "pesoBruto": "5500",
+    "prendas": "SI",
+    "puertas": "2",
+    "seguridadEstado": "NO",
+    "tarjetaServicio": "NO",
+    "tieneGravamenes": "NO",
+    "tipoCarroceria": "FURGON",
+    "tipoCombustible": "DIESEL",
+    "tipoServicio": "Público",
+    "validacionDIAN": "No Exitoso"
+  },
+  "limitacionPropiedad": [],
+  "plate": "LZO551",
+  "soat": [
+    {
+      "noPoliza": "92511190",
+      "fechaVigencia": "08/09/2025",
+      "fechaVencimiento": "07/09/2026",
+      "entidadExpideSoat": "COMPAÑIA MUNDIAL DE SEGUROS S A",
+      "estado": "VIGENTE",
+      "estadoSoat": "EMITIDA"
+    },
+    {
+      "noPoliza": "88834242",
+      "fechaVencimiento": "06/09/2025",
+      "entidadExpideSoat": "COMPAÑIA MUNDIAL DE SEGUROS S A",
+      "estado": "NO VIGENTE"
+    }
+  ],
+  "solicitudes": [
+    {
+      "noSolicitud": "276228504",
+      "fechaSolicitud": "12/09/2025",
+      "estado": "APROBADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "CDA REVISION MILENIO"
+    }
+  ],
+  "tecnoMecanica": [
+    {
+      "fechaExpedicion": "12/09/2025",
+      "fechaVencimiento": "12/09/2026",
+      "cdaExpide": "CDA REVISION MILENIO",
+      "estado": "APROBADA",
+      "vigente": "SI",
+      "nroCertificado": "183889769"
+    }
+  ],
+  "vin": "LVBV3JBB7RY003089"
+}

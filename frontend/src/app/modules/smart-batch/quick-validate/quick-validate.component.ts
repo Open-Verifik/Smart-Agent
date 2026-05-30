@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +14,8 @@ import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/
 import {
     BatchRequiredField,
     extractRequiredFieldsFromConfig,
+    getStepCompatibilityViews,
+    StepCompatibilityView,
 } from '../batch-required-fields.util';
 import { BatchConfiguration, SmartBatch, SmartBatchService } from '../smart-batch.service';
 import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
@@ -85,6 +88,7 @@ export class QuickValidateComponent implements OnInit {
     private _formBuilder = inject(FormBuilder);
     private _snackBar = inject(MatSnackBar);
     private _transloco = inject(TranslocoService);
+    private _destroyRef = inject(DestroyRef);
 
     configId = signal('');
     batchId = signal<string | null>(null);
@@ -94,9 +98,26 @@ export class QuickValidateComponent implements OnInit {
     isSubmitting = signal(false);
     from = signal<string | null>(null);
     form!: FormGroup;
+    /** Current documentType value for step compatibility hints. */
+    documentTypeValue = signal<string>('');
 
     isAppendMode = computed(() => !!this.batchId());
     requiredFields = computed(() => extractRequiredFieldsFromConfig(this.configuration()));
+    hasDocumentTypeField = computed(() =>
+        this.requiredFields().some((field) => field.field === 'documentType')
+    );
+    stepCompatibilityViews = computed((): StepCompatibilityView[] => {
+        const documentType = this.documentTypeValue().trim();
+        if (!documentType) return [];
+        const formValues = (this.form?.value ?? {}) as Record<string, unknown>;
+        return getStepCompatibilityViews(this.configuration(), {
+            ...formValues,
+            documentType,
+        });
+    });
+    showStepCompatibility = computed(
+        () => this.hasDocumentTypeField() && this.stepCompatibilityViews().length > 0
+    );
     pageTitleKey = computed(() =>
         this.isAppendMode()
             ? 'batchProcessing.addOneRecordTitle'
@@ -167,6 +188,16 @@ export class QuickValidateComponent implements OnInit {
             group[field.field] = ['', validators];
         });
         this.form = this._formBuilder.group(group);
+        this.documentTypeValue.set('');
+
+        const documentTypeControl = this.form.get('documentType');
+        if (documentTypeControl) {
+            documentTypeControl.valueChanges
+                .pipe(takeUntilDestroyed(this._destroyRef))
+                .subscribe((value) => {
+                    this.documentTypeValue.set(value != null ? String(value) : '');
+                });
+        }
     }
 
     goToBatchUpload(): void {
@@ -268,6 +299,16 @@ export class QuickValidateComponent implements OnInit {
 
     fieldLabel(field: BatchRequiredField): string {
         return field.description || field.field;
+    }
+
+    stepSkipReason(view: StepCompatibilityView): string {
+        const reason = view.skipReason;
+        if (!reason) return '';
+        return this._transloco.translate('smartBatchSystemPresets.skipReasonDocumentType', {
+            documentType: reason.value,
+            stepName: view.stepName,
+            allowedValues: reason.allowedValues.join(', '),
+        });
     }
 
     private normalizeDependencyGroup(d: { dependencyGroup?: string }): string | null {
