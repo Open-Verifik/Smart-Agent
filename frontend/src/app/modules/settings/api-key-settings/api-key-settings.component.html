@@ -8,6 +8,13 @@
     </p>
 </div>
 
+<app-settings-business-account-empty-state
+    *ngIf="!userClientId"
+    hintKey="settings.api_key.sign_in_hint"
+    (userChange)="onBusinessAccountLinked($event)"
+/>
+
+<ng-container *ngIf="userClientId">
 <!-- New Token Alert -->
 <div *ngIf="showNewTokenAlert" class="new-token-alert mb-6">
     <div class="flex items-start gap-4">
@@ -248,3 +255,4 @@
         </a>
     </div>
 </div>
+</ng-container>

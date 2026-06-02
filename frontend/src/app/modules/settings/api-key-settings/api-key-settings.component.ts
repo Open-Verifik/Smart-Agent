@@ -4,8 +4,13 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    EventEmitter,
+    Input,
+    OnChanges,
     OnDestroy,
     OnInit,
+    Output,
+    SimpleChanges,
     ViewEncapsulation,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +21,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { SettingsService } from '../settings.service';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 
 interface TokenExpiration {
     value: number;
@@ -34,14 +41,18 @@ interface TokenExpiration {
         MatProgressSpinnerModule,
         TranslocoModule,
         ClipboardModule,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './api-key-settings.component.html',
     styleUrl: './api-key-settings.component.scss',
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ApiKeySettingsComponent implements OnInit, OnDestroy {
+export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     private _destroy$ = new Subject<void>();
+
+    @Input() user: unknown;
+    @Output() userChange = new EventEmitter<unknown>();
 
     accessToken: string;
     hidePassword = true;
@@ -72,8 +83,22 @@ export class ApiKeySettingsComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit(): void {
-        this.accessToken = this._settingsService.accessToken;
-        this._cdr.markForCheck();
+        this._loadAccessToken();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['user']) {
+            this._loadAccessToken();
+        }
+    }
+
+    get userClientId(): string | undefined {
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.userChange.emit(account);
+        this._loadAccessToken();
     }
 
     ngOnDestroy(): void {
@@ -191,5 +216,10 @@ export class ApiKeySettingsComponent implements OnInit, OnDestroy {
         const end = this.accessToken.substring(this.accessToken.length - visibleChars);
         const middleLength = this.accessToken.length - visibleChars * 2;
         return `${start}${'•'.repeat(Math.min(middleLength, 20))}${end}`;
+    }
+
+    private _loadAccessToken(): void {
+        this.accessToken = this.userClientId ? this._settingsService.accessToken : '';
+        this._cdr.markForCheck();
     }
 }

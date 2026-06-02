@@ -8,8 +8,14 @@
     </p>
 </div>
 
+<app-settings-business-account-empty-state
+    *ngIf="!userClientId"
+    hintKey="settings.profile.sign_in_hint"
+    (userChange)="onBusinessAccountLinked($event)"
+/>
+
 <!-- Profile Card -->
-<div class="content-card mb-6">
+<div *ngIf="userClientId" class="content-card mb-6">
     <div class="card-body p-0">
         <!-- Photo Upload Section -->
         <div class="p-6 border-b border-gray-100 dark:border-gray-700">

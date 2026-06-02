@@ -2240,6 +2240,7 @@
     "coming_soon_title": "Em breve",
     "coming_soon_desc": "Este recurso está atualmente em desenvolvimento. Volte em breve para atualizações!",
     "business_account_label": "Conta Empresarial",
+    "connect_business_account": "Conectar Conta Empresarial",
     "sections": {
       "account": "Conta",
       "workspace": "Área de Trabalho",
@@ -2271,6 +2272,7 @@
     "profile": {
       "title": "Configurações de Perfil",
       "subtitle": "Gerencie suas informações pessoais e detalhes da conta",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para gerenciar seu perfil.",
       "photo": "Foto",
       "photo_desc": "Adicione uma foto para que outras pessoas possam identificá-lo facilmente.",
       "drag_drop": "Arraste e solte seu arquivo aqui",
@@ -2295,6 +2297,7 @@
     "paymentHistory": {
       "title": "Histórico de Pagamentos",
       "subtitle": "Revise suas compras de créditos e pagamentos de assinatura. Visualize, baixe, imprima ou envie recibos da Verifik para contabilidade e impostos.",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para ver o histórico de pagamentos.",
       "tableTitle": "Transações",
       "tableSubtitle": "Pagamentos aprovados vinculados a esta conta.",
       "loadingHint": "Carregando transações...",
@@ -2340,6 +2343,7 @@
     "api_key": {
       "title": "Gerenciamento de Chave API",
       "subtitle": "Gerencie seus tokens de API para acesso seguro aos serviços Verifik",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para gerenciar sua chave API.",
       "current_token": "Token de Acesso Atual",
       "bearer_token_info": "Use este token no cabeçalho Authorization",
       "active": "Ativo",
@@ -2376,6 +2380,7 @@
     "general": {
       "title": "Configurações Gerais",
       "subtitle": "Gerencie o nome, logo e outras configurações da sua área de trabalho",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para gerenciar as configurações da área de trabalho.",
       "logo": "Logo da Área de Trabalho",
       "logo_desc": "Adicione um logo para identificar sua área de trabalho. Será exibido na navegação.",
       "remove_logo": "Remover Logo",
@@ -2400,6 +2405,7 @@
     "team": {
       "title": "Gerenciamento de Equipe",
       "subtitle": "Gerencie os membros da equipe e suas permissões de acesso",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para gerenciar os membros da equipe.",
       "add_member": "Adicionar Membro",
       "edit_member": "Editar Membro",
       "form_description": "Preencha as informações abaixo para adicionar ou atualizar um membro da equipe.",
@@ -2546,6 +2552,7 @@
     "usageHistory": {
       "title": "Histórico de uso",
       "subtitle": "Acompanhe o consumo de APIs e o gasto de créditos. Os custos não incluem impostos e certas taxas de suporte.",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para ver o histórico de uso.",
       "view_toggle": "Alternar visualização",
       "simplified_view": "Resumo",
       "detailed_view": "Detalhado",

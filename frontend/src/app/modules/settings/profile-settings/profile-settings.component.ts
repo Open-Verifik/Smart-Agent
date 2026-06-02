@@ -24,6 +24,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import { Subject, takeUntil } from 'rxjs';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 import { ProfileData, SettingsService } from '../settings.service';
 
 @Component({
@@ -37,6 +39,7 @@ import { ProfileData, SettingsService } from '../settings.service';
         MatSnackBarModule,
         MatProgressSpinnerModule,
         TranslocoModule,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './profile-settings.component.html',
     styleUrl: './profile-settings.component.scss',
@@ -68,9 +71,24 @@ export class ProfileSettingsComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['user'] && this.user) {
-            this._loadProfileData();
+        if (changes['user']) {
+            if (this.userClientId) {
+                this._loadProfileData();
+            } else {
+                this.profileLoaded = false;
+                this._cdr.markForCheck();
+            }
         }
+    }
+
+    get userClientId(): string | undefined {
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.user = account;
+        this.userChange.emit(account);
+        this._loadProfileData();
     }
 
     ngOnDestroy(): void {
@@ -194,7 +212,7 @@ export class ProfileSettingsComponent implements OnChanges, OnDestroy {
     }
 
     private _loadProfileData(): void {
-        if (!this.user) return;
+        if (!this.user || !this.userClientId) return;
 
         const u = this.user as {
             name?: string;

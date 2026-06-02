@@ -8,11 +8,17 @@
     </p>
 </div>
 
-<div *ngIf="!workspaceLoaded" class="flex items-center justify-center py-12">
+<app-settings-business-account-empty-state
+    *ngIf="!userClientId"
+    hintKey="settings.general.sign_in_hint"
+    (userChange)="onBusinessAccountLinked($event)"
+/>
+
+<div *ngIf="userClientId && !workspaceLoaded" class="flex items-center justify-center py-12">
     <mat-spinner diameter="32"></mat-spinner>
 </div>
 
-<div *ngIf="workspaceLoaded">
+<div *ngIf="userClientId && workspaceLoaded">
     <!-- Workspace Card -->
     <div class="content-card mb-6">
         <div class="card-body p-0">

@@ -2240,6 +2240,7 @@
     "coming_soon_title": "곧 출시",
     "coming_soon_desc": "이 기능은 현재 개발 중입니다. 업데이트를 위해 곧 다시 확인하세요!",
     "business_account_label": "비즈니스 계정",
+    "connect_business_account": "비즈니스 계정 연결",
     "sections": {
       "account": "계정",
       "workspace": "작업 공간",
@@ -2271,6 +2272,7 @@
     "profile": {
       "title": "프로필 설정",
       "subtitle": "개인 정보 및 계정 세부 정보 관리",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 프로필을 관리하세요.",
       "photo": "사진",
       "photo_desc": "다른 사람이 쉽게 식별할 수 있도록 사진을 추가하세요.",
       "drag_drop": "파일을 여기에 끌어다 놓기",
@@ -2295,6 +2297,7 @@
     "paymentHistory": {
       "title": "결제 내역",
       "subtitle": "크레딧 구매 및 구독 결제를 검토할 수 있습니다. 회계 및 세금용 영수증을 미리보기, 다운로드, 인쇄하거나 이메일로 보낼 수 있습니다.",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 결제 내역을 확인하세요.",
       "tableTitle": "거래",
       "tableSubtitle": "이 계정에 연결된 승인된 결제입니다.",
       "loadingHint": "거래를 불러오는 중...",
@@ -2340,6 +2343,7 @@
     "api_key": {
       "title": "API 키 관리",
       "subtitle": "Verifik 서비스에 대한 안전한 액세스를 위한 API 토큰 관리",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 API 키를 관리하세요.",
       "current_token": "현재 액세스 토큰",
       "bearer_token_info": "이 토큰을 Authorization 헤더에서 사용하세요",
       "active": "활성",
@@ -2438,6 +2442,7 @@
     "general": {
       "title": "일반 설정",
       "subtitle": "작업 공간 이름, 로고 및 기타 일반 설정 관리",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 작업 공간 설정을 관리하세요.",
       "logo": "작업 공간 로고",
       "logo_desc": "작업 공간을 식별하기 위한 로고를 추가합니다. 탐색에 표시됩니다.",
       "remove_logo": "로고 제거",
@@ -2462,6 +2467,7 @@
     "team": {
       "title": "팀 관리",
       "subtitle": "팀 멤버 및 액세스 권한 관리",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 팀 멤버를 관리하세요.",
       "add_member": "멤버 추가",
       "edit_member": "멤버 편집",
       "form_description": "팀 멤버를 추가하거나 업데이트하려면 아래 정보를 입력하세요.",
@@ -2546,6 +2552,7 @@
     "usageHistory": {
       "title": "사용 내역",
       "subtitle": "API 소비 및 크레딧 지출을 추적합니다. 표시된 비용에는 세금 및 일부 지원 수수료가 포함되지 않습니다.",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 사용 내역을 확인하세요.",
       "view_toggle": "보기 전환",
       "simplified_view": "요약",
       "detailed_view": "상세",

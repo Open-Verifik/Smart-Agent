@@ -31,6 +31,8 @@ import { CountryDialCode, CountryService } from 'app/core/services/country.servi
 import { forkJoin, of, Subject, takeUntil } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { SettingsService, StaffMember } from '../settings.service';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 
 @Component({
     selector: 'app-staff-list',
@@ -48,6 +50,7 @@ import { SettingsService, StaffMember } from '../settings.service';
         MatDialogModule,
         TranslocoModule,
         RouterModule,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './staff-list.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -58,6 +61,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() user: any;
     @Output() staffChanged = new EventEmitter<void>();
+    @Output() userChange = new EventEmitter<unknown>();
 
     private _unsubscribeAll = new Subject<void>();
 
@@ -110,9 +114,21 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes.user && !changes.user.firstChange && this.user) {
+        if (changes['user']) {
+            this.staffLoaded = false;
             this.loadStaffData();
         }
+    }
+
+    get userClientId(): string | undefined {
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.user = account;
+        this.userChange.emit(account);
+        this.staffLoaded = false;
+        this.loadStaffData();
     }
 
     ngOnDestroy(): void {
@@ -131,7 +147,12 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     loadStaffData(): void {
-        if (!this.user?._id) return;
+        if (!this.userClientId) {
+            this.staffLoaded = true;
+            this.isLoadingStaff = false;
+            this._cdr.markForCheck();
+            return;
+        }
 
         this.isLoadingStaff = true;
         this._cdr.markForCheck();
@@ -160,7 +181,9 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private _loadSubscription(): void {
-        const clientId = this.user._id;
+        const clientId = this.userClientId;
+        if (!clientId) return;
+
         const empty = of({ data: null });
 
         forkJoin({

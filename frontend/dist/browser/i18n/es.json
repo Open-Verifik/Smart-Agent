@@ -2308,6 +2308,7 @@
     "coming_soon_title": "Próximamente",
     "coming_soon_desc": "Esta función está actualmente en desarrollo. ¡Vuelve pronto para actualizaciones!",
     "business_account_label": "Cuenta Empresarial",
+    "connect_business_account": "Conectar Cuenta Empresarial",
     "sections": {
       "account": "Cuenta",
       "workspace": "Espacio de Trabajo",
@@ -2339,6 +2340,7 @@
     "profile": {
       "title": "Configuración de Perfil",
       "subtitle": "Administra tu información personal y detalles de cuenta",
+      "sign_in_hint": "Inicia sesión con tu correo o teléfono para gestionar tu perfil.",
       "photo": "Foto",
       "photo_desc": "Añade una foto para que otros puedan identificarte fácilmente.",
       "drag_drop": "Arrastra y suelta tu archivo aquí",
@@ -2399,6 +2401,7 @@
     "usageHistory": {
       "title": "Historial de uso",
       "subtitle": "Sigue el consumo de APIs y el gasto de créditos. Los costos no incluyen impuestos ni ciertas tarifas de soporte.",
+      "sign_in_hint": "Inicia sesión con tu correo o teléfono para ver el historial de uso.",
       "view_toggle": "Cambiar vista",
       "simplified_view": "Resumen",
       "detailed_view": "Detallado",
@@ -2456,6 +2459,7 @@
     "paymentHistory": {
       "title": "Historial de Pagos",
       "subtitle": "Revisa tus compras de créditos y pagos de suscripción. Previsualiza, descarga, imprime o envía recibos de Verifik para contabilidad e impuestos.",
+      "sign_in_hint": "Inicia sesión con tu correo o teléfono para ver el historial de pagos.",
       "tableTitle": "Transacciones",
       "tableSubtitle": "Pagos aprobados asociados a esta cuenta.",
       "loadingHint": "Cargando transacciones...",
@@ -2501,6 +2505,7 @@
     "api_key": {
       "title": "Gestión de Clave API",
       "subtitle": "Administra tus tokens de API para acceso seguro a los servicios de Verifik",
+      "sign_in_hint": "Inicia sesión con tu correo o teléfono para gestionar tu clave API.",
       "current_token": "Token de Acceso Actual",
       "bearer_token_info": "Usa este token en tu encabezado de Authorization",
       "active": "Activo",
@@ -2537,6 +2542,7 @@
     "general": {
       "title": "Configuración General",
       "subtitle": "Administra el nombre, logo y otras configuraciones de tu espacio de trabajo",
+      "sign_in_hint": "Inicia sesión con tu correo o teléfono para gestionar la configuración del espacio de trabajo.",
       "logo": "Logo del Espacio de Trabajo",
       "logo_desc": "Añade un logo para identificar tu espacio de trabajo. Se mostrará en la navegación.",
       "remove_logo": "Eliminar Logo",
@@ -2561,6 +2567,7 @@
     "team": {
       "title": "Gestión de Equipo",
       "subtitle": "Administra los miembros del equipo y sus permisos de acceso",
+      "sign_in_hint": "Inicia sesión con tu correo o teléfono para gestionar los miembros del equipo.",
       "add_member": "Agregar Miembro",
       "edit_member": "Editar Miembro",
       "form_description": "Completa la información a continuación para agregar o actualizar un miembro del equipo.",

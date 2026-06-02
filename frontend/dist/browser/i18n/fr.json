@@ -2236,6 +2236,7 @@
     "coming_soon_title": "Bientôt disponible",
     "coming_soon_desc": "Cette fonctionnalité est en cours de développement. Revenez bientôt !",
     "business_account_label": "Compte professionnel",
+    "connect_business_account": "Connecter un compte professionnel",
     "sections": {
       "account": "Compte",
       "workspace": "Espace de travail",
@@ -2263,6 +2264,7 @@
     "profile": {
       "title": "Paramètres de profil",
       "subtitle": "Gérer vos informations personnelles et les détails de votre compte",
+      "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour gérer votre profil.",
       "photo": "Photo",
       "photo_desc": "Ajoutez une photo pour que les autres puissent vous identifier facilement.",
       "drag_drop": "Glissez et déposez votre fichier ici",
@@ -2287,6 +2289,7 @@
     "paymentHistory": {
       "title": "Historique des paiements",
       "subtitle": "Consultez vos achats de crédits et vos paiements d'abonnement. Prévisualisez, téléchargez, imprimez ou envoyez par email les reçus Verifik pour votre comptabilité et vos obligations fiscales.",
+      "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour consulter l'historique des paiements.",
       "tableTitle": "Transactions",
       "tableSubtitle": "Paiements approuvés liés à ce compte.",
       "loadingHint": "Chargement des transactions...",
@@ -2332,6 +2335,7 @@
     "api_key": {
       "title": "Gestion des clés API",
       "subtitle": "Gérer vos jetons API pour un accès sécurisé aux services Verifik",
+      "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour gérer votre clé API.",
       "current_token": "Jeton d'accès actuel",
       "bearer_token_info": "Utilisez ce jeton dans votre en-tête Authorization",
       "active": "Actif",
@@ -2368,6 +2372,7 @@
     "general": {
       "title": "Paramètres généraux",
       "subtitle": "Gérer le nom, le logo et d'autres paramètres de votre espace de travail",
+      "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour gérer les paramètres de l'espace de travail.",
       "logo": "Logo de l'espace de travail",
       "logo_desc": "Ajoutez un logo pour identifier votre espace de travail. Il sera affiché dans la navigation.",
       "remove_logo": "Supprimer le logo",
@@ -2392,6 +2397,7 @@
     "team": {
       "title": "Gestion de l'équipe",
       "subtitle": "Gérer les membres de l'équipe et leurs permissions d'accès",
+      "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour gérer les membres de l'équipe.",
       "add_member": "Ajouter un membre",
       "edit_member": "Modifier le membre",
       "form_description": "Remplissez les informations ci-dessous pour ajouter ou mettre à jour un membre de l'équipe.",

@@ -2308,6 +2308,7 @@
         "coming_soon_title": "Coming Soon",
         "coming_soon_desc": "This feature is currently under development. Check back soon for updates!",
         "business_account_label": "Business Account",
+        "connect_business_account": "Connect Business Account",
         "sections": {
             "account": "Account",
             "workspace": "Workspace",
@@ -2339,6 +2340,7 @@
         "profile": {
             "title": "Profile Settings",
             "subtitle": "Manage your personal information and account details",
+            "sign_in_hint": "Sign in with your email or phone to manage your profile.",
             "photo": "Photo",
             "photo_desc": "Add a photo so others can easily identify you.",
             "drag_drop": "Drag and drop your file here",
@@ -2399,6 +2401,7 @@
         "usageHistory": {
             "title": "Usage history",
             "subtitle": "Track your API consumption and credit spend. Costs shown exclude taxes and certain support fees.",
+            "sign_in_hint": "Sign in with your email or phone to view usage history.",
             "view_toggle": "Toggle view",
             "simplified_view": "Summary",
             "detailed_view": "Detailed",
@@ -2456,6 +2459,7 @@
         "paymentHistory": {
             "title": "Payment History",
             "subtitle": "Review your credit purchases and subscription payments. Preview, download, print, or email Verifik receipts for accounting and tax records.",
+            "sign_in_hint": "Sign in with your email or phone to view payment history.",
             "tableTitle": "Transactions",
             "tableSubtitle": "Approved payments tied to this account.",
             "loadingHint": "Loading transactions...",
@@ -2501,6 +2505,7 @@
         "api_key": {
             "title": "API Key Management",
             "subtitle": "Manage your API tokens for secure access to Verifik services",
+            "sign_in_hint": "Sign in with your email or phone to manage your API key.",
             "current_token": "Current Access Token",
             "bearer_token_info": "Use this token in your Authorization header",
             "active": "Active",
@@ -2537,6 +2542,7 @@
         "general": {
             "title": "General Settings",
             "subtitle": "Manage your workspace name, logo, and other general settings",
+            "sign_in_hint": "Sign in with your email or phone to manage workspace settings.",
             "logo": "Workspace Logo",
             "logo_desc": "Add a logo to identify your workspace. This will be displayed in the navigation.",
             "remove_logo": "Remove Logo",
@@ -2561,6 +2567,7 @@
         "team": {
             "title": "Team Management",
             "subtitle": "Manage team members and their access permissions",
+            "sign_in_hint": "Sign in with your email or phone to manage team members.",
             "add_member": "Add Member",
             "edit_member": "Edit Member",
             "form_description": "Fill in the information below to add or update a team member.",

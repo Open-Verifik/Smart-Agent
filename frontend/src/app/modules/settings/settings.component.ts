@@ -25,6 +25,7 @@ import { StaffListComponent } from './staff-list';
 import { NotificationSettingsComponent } from './notification-settings/notification-settings.component';
 import { UsageHistoryComponent } from './usage-history/usage-history.component';
 import { WorkspaceSettingsComponent } from './workspace-settings/workspace-settings.component';
+import { getSettingsUser } from './utils/settings-business-user.util';
 
 interface SettingsPanel {
     id: string;
@@ -208,6 +209,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
      */
     onUserChanged(nextUser: unknown): void {
         this.user = nextUser as typeof this.user;
+        this.isWeb2User = true;
         this._persistAccount();
         this._cdr.markForCheck();
     }
@@ -230,6 +232,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
     isPanelSelected(panelId: string): boolean {
         return this.selectedPanel === panelId;
+    }
+
+    get settingsUser(): unknown {
+        return getSettingsUser(this.user);
     }
 
     private _persistAccount(): void {

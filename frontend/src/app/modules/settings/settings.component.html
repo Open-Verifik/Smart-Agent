@@ -87,39 +87,53 @@
         <!-- Main Content -->
         <mat-sidenav-content class="flex min-h-0 flex-1 flex-col bg-gray-50 dark:bg-gray-900">
             <div class="flex min-h-0 flex-1 flex-col p-6 lg:p-8 max-w-4xl mx-auto w-full">
-                <app-api-key-settings *ngIf="selectedPanel === 'api_key'"></app-api-key-settings>
+                <app-api-key-settings
+                    *ngIf="selectedPanel === 'api_key'"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
+                ></app-api-key-settings>
 
                 <app-profile-settings
                     *ngIf="selectedPanel === 'profile'"
-                    [user]="user"
+                    [user]="settingsUser"
                     (userChange)="onUserChanged($event)"
                 ></app-profile-settings>
 
                 <app-notification-settings
                     *ngIf="selectedPanel === 'notifications'"
-                    [user]="user"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
                 ></app-notification-settings>
 
                 <app-billing-details
                     *ngIf="selectedPanel === 'billing_details'"
-                    [user]="user"
+                    [user]="settingsUser"
                     (userChange)="onUserChanged($event)"
                 ></app-billing-details>
 
-                <app-payment-history *ngIf="selectedPanel === 'payment_history'"></app-payment-history>
+                <app-payment-history
+                    *ngIf="selectedPanel === 'payment_history'"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
+                ></app-payment-history>
 
                 <app-usage-history
                     *ngIf="selectedPanel === 'usage_history'"
-                    [user]="user"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
                 ></app-usage-history>
 
                 <app-workspace-settings
                     *ngIf="selectedPanel === 'general'"
-                    [user]="user"
+                    [user]="settingsUser"
                     (userChange)="onUserChanged($event)"
                 ></app-workspace-settings>
 
-                <app-staff-list *ngIf="selectedPanel === 'team'" [user]="user"></app-staff-list>
+                <app-staff-list
+                    *ngIf="selectedPanel === 'team'"
+                    [user]="settingsUser"
+                    (userChange)="onUserChanged($event)"
+                ></app-staff-list>
             </div>
         </mat-sidenav-content>
     </mat-sidenav-container>

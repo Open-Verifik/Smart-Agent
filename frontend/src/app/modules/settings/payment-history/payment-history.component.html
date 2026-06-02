@@ -30,6 +30,13 @@
         </button>
     </div>
 
+    <app-settings-business-account-empty-state
+        *ngIf="!userClientId"
+        hintKey="settings.paymentHistory.sign_in_hint"
+        (userChange)="onBusinessAccountLinked($event)"
+    />
+
+    <ng-container *ngIf="userClientId">
     <section class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
         <div class="flex flex-col gap-4 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6">
             <div class="flex items-start gap-3">
@@ -179,4 +186,5 @@
             </div>
         </div>
     </section>
+    </ng-container>
 </div>

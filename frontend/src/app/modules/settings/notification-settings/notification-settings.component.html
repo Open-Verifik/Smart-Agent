@@ -55,20 +55,11 @@
             </div>
         </header>
 
-        <!-- Empty (no client) -->
-        <div
+        <app-settings-business-account-empty-state
             *ngIf="!userClientId"
-            class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-14 text-center dark:border-gray-800 dark:bg-gray-900/70"
-        >
-            <div
-                class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300"
-            >
-                <mat-icon>person_off</mat-icon>
-            </div>
-            <p class="max-w-sm text-sm text-stone-500 dark:text-stone-400">
-                {{ t('settings.notifications.sign_in_hint') }}
-            </p>
-        </div>
+            hintKey="settings.notifications.sign_in_hint"
+            (userChange)="onBusinessAccountLinked($event)"
+        />
 
         <ng-container *ngIf="userClientId">
             <!-- Loading -->

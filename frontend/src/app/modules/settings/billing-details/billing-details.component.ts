@@ -11,7 +11,6 @@ import {
     Output,
     SimpleChanges,
     ViewEncapsulation,
-    inject,
 } from '@angular/core';
 import {
     AbstractControl,
@@ -27,7 +26,6 @@ import {
     MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -37,7 +35,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
-import { AuthModalComponent } from 'app/layout/common/auth-modal/auth-modal.component';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 import { ClientSettings, SettingsService } from '../settings.service';
 
 interface CountryCodeOption {
@@ -80,8 +79,8 @@ const nitFormatValidator = (control: AbstractControl): ValidationErrors | null =
         FormsModule,
         ReactiveFormsModule,
         MatButtonModule,
-        MatDialogModule,
         MatIconModule,
+        SettingsBusinessAccountEmptyStateComponent,
         MatInputModule,
         MatAutocompleteModule,
         MatProgressSpinnerModule,
@@ -98,7 +97,6 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
     @Input() user: unknown;
     @Output() userChange = new EventEmitter<unknown>();
 
-    private _dialog = inject(MatDialog);
     private _unsubscribeAll = new Subject<void>();
     payerForm: FormGroup;
     addressForm: FormGroup;
@@ -181,13 +179,13 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     get userClientId(): string | undefined {
-        const verifikAccount = this._getVerifikAccount();
-        if (verifikAccount?._id) {
-            return verifikAccount._id as string;
-        }
+        return getBusinessUserClientId(this.user);
+    }
 
-        const rec = this.user as Record<string, unknown> | null;
-        return rec?.['_id'] as string | undefined;
+    onBusinessAccountLinked(account: unknown): void {
+        this.userChange.emit(account);
+        this.billingLoaded = false;
+        this.loadBillingData();
     }
 
     ngOnInit(): void {
@@ -263,25 +261,6 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         return this._allPersonDocumentTypes.filter((option) => option.value !== 'NIT');
-    }
-
-    openAuthModal(): void {
-        this._dialog
-            .open(AuthModalComponent, {
-                panelClass: 'auth-modal-dialog',
-                width: '400px',
-                maxWidth: '100vw',
-            })
-            .afterClosed()
-            .subscribe(() => {
-                const linkedAccount = this._getVerifikAccount();
-                if (linkedAccount?._id) {
-                    this.userChange.emit(linkedAccount);
-                    this.billingLoaded = false;
-                    this.loadBillingData();
-                }
-                this._cdr.markForCheck();
-            });
     }
 
     loadBillingData(): void {
@@ -838,15 +817,6 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
     private _clearFieldErrors(): void {
         this.businessNameError = '';
         this.businessDocumentError = '';
-    }
-
-    private _getVerifikAccount(): Record<string, unknown> | null {
-        try {
-            const raw = localStorage.getItem('verifik_account');
-            return raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
-        } catch {
-            return null;
-        }
     }
 
     private _resolveSaveErrorMessage(error: any): {

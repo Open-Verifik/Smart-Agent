@@ -3,9 +3,13 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    EventEmitter,
     Input,
+    OnChanges,
     OnDestroy,
     OnInit,
+    Output,
+    SimpleChanges,
     ViewChild,
     ViewEncapsulation,
     inject,
@@ -37,6 +41,8 @@ import {
     UsageProductFilterComponent,
     UsageProductOption,
 } from './usage-product-filter.component';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 
 type ViewMode = 'simplified' | 'detailed';
 
@@ -84,17 +90,19 @@ interface DetailedRow {
         MatTooltipModule,
         TranslocoModule,
         UsageProductFilterComponent,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './usage-history.component.html',
     styleUrl: './usage-history.component.scss',
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UsageHistoryComponent implements OnInit, OnDestroy {
+export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild(MatPaginator) paginator?: MatPaginator;
     @ViewChild(MatSort) sort?: MatSort;
 
     @Input() user: unknown;
+    @Output() userChange = new EventEmitter<unknown>();
 
     private readonly _service = inject(UsageHistoryService);
     private readonly _transloco = inject(TranslocoService);
@@ -186,6 +194,23 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this._setDefaultDateRange();
         this._syncQuickRangeSelectionFromRange();
+        if (this.userClientId) {
+            this._fetch();
+        }
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['user'] && this.userClientId) {
+            this._fetch();
+        }
+    }
+
+    get userClientId(): string | undefined {
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.userChange.emit(account);
         this._fetch();
     }
 
@@ -372,6 +397,7 @@ export class UsageHistoryComponent implements OnInit, OnDestroy {
     }
 
     private _fetch(): void {
+        if (!this.userClientId) return;
         this._loadProductCatalog();
     }
 

@@ -3,9 +3,11 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    EventEmitter,
     Input,
     OnChanges,
     OnDestroy,
+    Output,
     SimpleChanges,
     ViewEncapsulation,
 } from '@angular/core';
@@ -19,6 +21,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { NotificationSettings, SettingsService } from '../settings.service';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 
 /** Keys of the boolean form controls (excluding the master "active" switch). */
 type CategoryKey =
@@ -51,6 +55,7 @@ type NotificationFormSnapshot = Record<CategoryKey | 'active', boolean>;
         MatSlideToggleModule,
         MatTooltipModule,
         TranslocoModule,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './notification-settings.component.html',
     styleUrl: './notification-settings.component.scss',
@@ -61,10 +66,15 @@ export class NotificationSettingsComponent implements OnChanges, OnDestroy {
     private _destroy$ = new Subject<void>();
 
     @Input() user: unknown;
+    @Output() userChange = new EventEmitter<unknown>();
 
     get userClientId(): string | undefined {
-        const rec = this.user as Record<string, unknown> | null;
-        return rec?.['_id'] as string | undefined;
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.userChange.emit(account);
+        this._maybeLoadSettings();
     }
 
     /** Categories rendered in order. Each maps to a boolean form control. */

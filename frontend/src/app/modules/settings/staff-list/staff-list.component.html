@@ -11,7 +11,7 @@
         </div>
 
         <button
-            *ngIf="!user?.staff || user?.role === 'administrador'"
+            *ngIf="userClientId && (!user?.staff || user?.role === 'administrador')"
             mat-flat-button
             color="primary"
             class="!bg-blue-600 hover:!bg-blue-700 text-white rounded-lg px-6 h-10"
@@ -26,6 +26,13 @@
         </button>
     </div>
 
+    <app-settings-business-account-empty-state
+        *ngIf="!userClientId"
+        hintKey="settings.team.sign_in_hint"
+        (userChange)="onBusinessAccountLinked($event)"
+    />
+
+    <ng-container *ngIf="userClientId">
     <!-- Staff Limit Alert -->
     <div *ngIf="selectedSubscription && staffLoaded" class="mb-6">
         <div
@@ -218,6 +225,7 @@
         <!-- end divide-y list body -->
     </div>
     <!-- end content-card -->
+    </ng-container>
 </div>
 
 <!-- Staff Form Dialog -->

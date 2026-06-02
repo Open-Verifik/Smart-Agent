@@ -5,9 +5,11 @@ import {
     Component,
     EventEmitter,
     Input,
+    OnChanges,
     OnDestroy,
     OnInit,
     Output,
+    SimpleChanges,
     TemplateRef,
     ViewChild,
     ViewEncapsulation,
@@ -22,6 +24,8 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { SettingsService, Workspace } from '../settings.service';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 
 @Component({
     selector: 'app-workspace-settings',
@@ -35,13 +39,14 @@ import { SettingsService, Workspace } from '../settings.service';
         MatProgressSpinnerModule,
         MatDialogModule,
         TranslocoModule,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './workspace-settings.component.html',
     styleUrl: './workspace-settings.component.scss',
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkspaceSettingsComponent implements OnInit, OnDestroy {
+export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy {
     private _destroy$ = new Subject<void>();
 
     @Input() user: unknown;
@@ -75,6 +80,23 @@ export class WorkspaceSettingsComponent implements OnInit, OnDestroy {
         this.loadWorkspaceData();
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['user']) {
+            this.workspaceLoaded = false;
+            this.loadWorkspaceData();
+        }
+    }
+
+    get userClientId(): string | undefined {
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.userChange.emit(account);
+        this.workspaceLoaded = false;
+        this.loadWorkspaceData();
+    }
+
     ngOnDestroy(): void {
         this._destroy$.next();
         this._destroy$.complete();
@@ -85,15 +107,15 @@ export class WorkspaceSettingsComponent implements OnInit, OnDestroy {
             return;
         }
 
-        const raw = this.user as { _id?: string };
-        if (!raw?._id) {
+        const clientId = this.userClientId;
+        if (!clientId) {
             this.workspaceLoaded = true;
             this._cdr.markForCheck();
             return;
         }
 
         this._settingsService
-            .getWorkspace(raw._id)
+            .getWorkspace(clientId)
             .pipe(takeUntil(this._destroy$))
             .subscribe({
                 next: (response) => {

@@ -2240,6 +2240,7 @@
     "coming_soon_title": "即将推出",
     "coming_soon_desc": "此功能目前正在开发中。请稍后再来查看更新！",
     "business_account_label": "企业账户",
+    "connect_business_account": "连接企业账户",
     "sections": {
       "account": "账户",
       "workspace": "工作区",
@@ -2271,6 +2272,7 @@
     "profile": {
       "title": "个人资料设置",
       "subtitle": "管理您的个人信息和账户详细信息",
+      "sign_in_hint": "使用电子邮件或电话登录以管理您的个人资料。",
       "photo": "照片",
       "photo_desc": "添加照片以便其他人可以轻松识别您。",
       "drag_drop": "将文件拖放到此处",
@@ -2295,6 +2297,7 @@
     "paymentHistory": {
       "title": "支付记录",
       "subtitle": "在此查看点数购买与订阅付款。可为账务与报税预览、下载、打印或通过邮件发送 Verifik 收据。",
+      "sign_in_hint": "使用电子邮件或电话登录以查看支付记录。",
       "tableTitle": "交易",
       "tableSubtitle": "已批准且归属于本账户的付款。",
       "loadingHint": "正在加载交易记录...",
@@ -2340,6 +2343,7 @@
     "api_key": {
       "title": "API密钥管理",
       "subtitle": "管理您的API令牌以安全访问Verifik服务",
+      "sign_in_hint": "使用电子邮件或电话登录以管理您的 API 密钥。",
       "current_token": "当前访问令牌",
       "bearer_token_info": "在Authorization标头中使用此令牌",
       "active": "活动",
@@ -2438,6 +2442,7 @@
     "general": {
       "title": "常规设置",
       "subtitle": "管理工作区名称、徽标和其他常规设置",
+      "sign_in_hint": "使用电子邮件或电话登录以管理工作区设置。",
       "logo": "工作区徽标",
       "logo_desc": "添加徽标以识别您的工作区。这将显示在导航中。",
       "remove_logo": "删除徽标",
@@ -2462,6 +2467,7 @@
     "team": {
       "title": "团队管理",
       "subtitle": "管理团队成员及其访问权限",
+      "sign_in_hint": "使用电子邮件或电话登录以管理团队成员。",
       "add_member": "添加成员",
       "edit_member": "编辑成员",
       "form_description": "填写以下信息以添加或更新团队成员。",
@@ -2546,6 +2552,7 @@
     "usageHistory": {
       "title": "使用记录",
       "subtitle": "跟踪 API 消耗与积分支出。显示的费用不含税及某些支持费用。",
+      "sign_in_hint": "使用电子邮件或电话登录以查看使用记录。",
       "view_toggle": "切换视图",
       "simplified_view": "摘要",
       "detailed_view": "详细",

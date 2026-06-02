@@ -1,5 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    Inject,
+    Input,
+    OnChanges,
+    OnDestroy,
+    OnInit,
+    Output,
+    SimpleChanges,
+    signal,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -15,17 +26,10 @@ import {
     PaymentHistoryService,
     PaymentTransaction,
 } from './payment-history.service';
+import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { getBusinessUserClientId, getVerifikAccount } from '../utils/settings-business-user.util';
 
-const getStoredUser = (): any => {
-    const raw = localStorage.getItem('verifik_account') || localStorage.getItem('user');
-    if (!raw) return null;
-
-    try {
-        return JSON.parse(raw);
-    } catch {
-        return null;
-    }
-};
+const getStoredUser = (): any => getVerifikAccount() || null;
 
 const SUPPORTED_INVOICE_LANGUAGES = new Set(['en', 'es', 'zh', 'ja', 'pt', 'ko']);
 
@@ -39,10 +43,14 @@ const SUPPORTED_INVOICE_LANGUAGES = new Set(['en', 'es', 'zh', 'ja', 'pt', 'ko']
         MatProgressSpinnerModule,
         MatDialogModule,
         TranslocoModule,
+        SettingsBusinessAccountEmptyStateComponent,
     ],
     templateUrl: './payment-history.component.html',
 })
-export class PaymentHistoryComponent implements OnInit {
+export class PaymentHistoryComponent implements OnInit, OnChanges {
+    @Input() user: unknown;
+    @Output() userChange = new EventEmitter<unknown>();
+
     loading = signal(false);
     error = signal<string | null>(null);
     transactions = signal<PaymentTransaction[]>([]);
@@ -60,7 +68,30 @@ export class PaymentHistoryComponent implements OnInit {
         this.loadTransactions();
     }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['user']) {
+            this.loadTransactions();
+        }
+    }
+
+    get userClientId(): string | undefined {
+        return getBusinessUserClientId(this.user);
+    }
+
+    onBusinessAccountLinked(account: unknown): void {
+        this.userChange.emit(account);
+        this.loadTransactions();
+    }
+
     loadTransactions(page = this.page()): void {
+        if (!this.userClientId) {
+            this.loading.set(false);
+            this.error.set(null);
+            this.transactions.set([]);
+            this.total.set(0);
+            return;
+        }
+
         this.loading.set(true);
         this.error.set(null);
         this.page.set(page);
