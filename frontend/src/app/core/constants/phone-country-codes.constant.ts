@@ -445,6 +445,14 @@ export const PHONE_COUNTRY_CODES: PhoneCountryCodeOption[] = [
                 code: "+670",
                 name: "Timor-Leste",
             },
+            {
+                code: "+886",
+                name: "Taiwan",
+            },
+            {
+                code: "+852",
+                name: "Hong Kong",
+            },
 
             
             {

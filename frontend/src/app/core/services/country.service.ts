@@ -403,6 +403,8 @@ export class CountryService {
       { dialCode: '+95', countryCode: 'mm', name: 'Myanmar', flag: '🇲🇲' },
       { dialCode: '+673', countryCode: 'bn', name: 'Brunei', flag: '🇧🇳' },
       { dialCode: '+670', countryCode: 'tl', name: 'Timor-Leste', flag: '🇹🇱' },
+      { dialCode: '+886', countryCode: 'tw', name: 'Taiwan', flag: '🇹🇼' },
+      { dialCode: '+852', countryCode: 'hk', name: 'Hong Kong', flag: '🇭🇰' },
       { dialCode: '+27', countryCode: 'za', name: 'South Africa', flag: '🇿🇦' },
       { dialCode: '+234', countryCode: 'ng', name: 'Nigeria', flag: '🇳🇬' },
       { dialCode: '+20', countryCode: 'eg', name: 'Egypt', flag: '🇪🇬' },
