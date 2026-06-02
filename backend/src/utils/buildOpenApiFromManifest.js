@@ -51,6 +51,20 @@ const LATAM_COUNTRY_CODES = new Set([
 ]);
 
 /**
+ * @param {string[]} segments
+ * @returns {string|undefined}
+ */
+const resolveRegionSegment = (segments) => {
+	if (!segments.length) return undefined;
+	if (segments[0] === "v2" || segments[0] === "v3") return segments[1];
+	if (segments[0] === "api") {
+		if (segments[1] === "v3") return segments[2];
+		return segments[1];
+	}
+	return segments[0];
+};
+
+/**
  * Region-aware OpenAPI tags for discovery (pay.skills, x402scan, AgentCash).
  *
  * @param {string} pathname
@@ -61,7 +75,7 @@ const deriveOperationTags = (pathname, summary = "") => {
 	const normalized = String(pathname || "").replace(/\/$/, "");
 	const segments = normalized.split("/").filter(Boolean);
 	const summaryText = String(summary || "").trim();
-	const regionSegment = segments[0] === "v2" || segments[0] === "v3" ? segments[1] : segments[0];
+	const regionSegment = resolveRegionSegment(segments);
 
 	if (/^global\s*-/i.test(summaryText)) {
 		return [...BASE_DISCOVERY_TAGS, "Global"];
@@ -75,7 +89,17 @@ const deriveOperationTags = (pathname, summary = "") => {
 		return [...BASE_DISCOVERY_TAGS, "Global"];
 	}
 
-	if (regionSegment && USA_PATH_PREFIXES.some((prefix) => regionSegment === prefix || normalized.includes(`/v2/${prefix}`))) {
+	if (
+		regionSegment &&
+		USA_PATH_PREFIXES.some(
+			(prefix) =>
+				regionSegment === prefix ||
+				normalized.includes(`/v2/${prefix}`) ||
+				normalized.includes(`/v3/${prefix}`) ||
+				normalized.includes(`/api/${prefix}`) ||
+				normalized.includes(`/api/v3/${prefix}`)
+		)
+	) {
 		return [...BASE_DISCOVERY_TAGS, "USA"];
 	}
 
