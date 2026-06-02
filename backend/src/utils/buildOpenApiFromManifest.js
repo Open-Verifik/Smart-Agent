@@ -8,19 +8,83 @@
 const path = require("path");
 const packageJson = require(path.resolve(__dirname, "../../package.json"));
 
-/**
- * Tags for discovery listings (x402scan, AgentCash, etc.). OpenAPI `tags` on each
- * operation give consumers a consistent KYC / KYB / data / LATAM signal — distinct
- * from the old single "VerifikProxy" label.
- */
-const DISCOVERY_OPERATION_TAGS = ["KYC", "KYB", "Data", "LATAM"];
+const BASE_DISCOVERY_TAGS = ["KYC", "KYB", "Data"];
+
+const DISCOVERY_ROOT_TAGS = ["KYC", "KYB", "Data", "LATAM", "Global", "USA"];
 
 const DISCOVERY_TAG_DEFINITIONS = [
 	{ name: "KYC", description: "Identity verification, sanctions, and watchlists" },
 	{ name: "KYB", description: "Business, registry, and company lookups" },
 	{ name: "Data", description: "Government and proprietary datasets via API" },
 	{ name: "LATAM", description: "Strong coverage in Latin America and regional registries" },
+	{ name: "Global", description: "International sanctions, watchlists, and cross-border checks" },
+	{ name: "USA", description: "United States identity, company, and vehicle lookups" },
 ];
+
+const GLOBAL_PATH_SEGMENTS = new Set(["dea", "fbi", "onu", "ofac", "europol", "interpol", "ip-lookup"]);
+
+const USA_PATH_PREFIXES = ["usa", "passport/us"];
+
+const NON_LATAM_REGION_PREFIXES = new Set(["es", "ca"]);
+
+const LATAM_COUNTRY_CODES = new Set([
+	"ar",
+	"bo",
+	"br",
+	"cl",
+	"co",
+	"cr",
+	"do",
+	"ec",
+	"gt",
+	"hn",
+	"mx",
+	"pa",
+	"pe",
+	"py",
+	"sv",
+	"ve",
+]);
+
+/**
+ * Region-aware OpenAPI tags for discovery (pay.skills, x402scan, AgentCash).
+ *
+ * @param {string} pathname
+ * @param {string} [summary]
+ * @returns {string[]}
+ */
+const deriveOperationTags = (pathname, summary = "") => {
+	const normalized = String(pathname || "").replace(/\/$/, "");
+	const segments = normalized.split("/").filter(Boolean);
+	const summaryText = String(summary || "").trim();
+	const regionSegment = segments[0] === "v2" || segments[0] === "v3" ? segments[1] : segments[0];
+
+	if (/^global\s*-/i.test(summaryText)) {
+		return [...BASE_DISCOVERY_TAGS, "Global"];
+	}
+
+	if (/^(usa|united states)\s*-/i.test(summaryText)) {
+		return [...BASE_DISCOVERY_TAGS, "USA"];
+	}
+
+	if (regionSegment && GLOBAL_PATH_SEGMENTS.has(regionSegment)) {
+		return [...BASE_DISCOVERY_TAGS, "Global"];
+	}
+
+	if (regionSegment && USA_PATH_PREFIXES.some((prefix) => regionSegment === prefix || normalized.includes(`/v2/${prefix}`))) {
+		return [...BASE_DISCOVERY_TAGS, "USA"];
+	}
+
+	if (regionSegment && NON_LATAM_REGION_PREFIXES.has(regionSegment)) {
+		return [...BASE_DISCOVERY_TAGS];
+	}
+
+	if (regionSegment && LATAM_COUNTRY_CODES.has(regionSegment)) {
+		return [...BASE_DISCOVERY_TAGS, "LATAM"];
+	}
+
+	return [...BASE_DISCOVERY_TAGS];
+};
 
 /**
  * USD amount string aligned with runtime `priceUsd` (up to 6 decimals, no float noise).
@@ -146,17 +210,19 @@ const xPaymentInfoForProxy = (manifest) => {
 
 /**
  * @param {object} tool
+ * @param {string} pathname
  * @returns {object}
  */
-const buildOperationFromTool = (tool) => {
+const buildOperationFromTool = (tool, pathname) => {
 	const method = String(tool.method || "GET").toUpperCase();
 	const paramSchema = tool.parameters && typeof tool.parameters === "object" ? tool.parameters : { type: "object", properties: {} };
+	const summary = tool.name || tool.id;
 
 	/** @type {object} */
 	const op = {
-		tags: [...DISCOVERY_OPERATION_TAGS],
+		tags: deriveOperationTags(pathname, summary),
 		operationId: String(tool.id || tool.code || "op"),
-		summary: tool.name || tool.id,
+		summary,
 		description: tool.description || undefined,
 		"x-payment-info": xPaymentInfoForTool(tool),
 		responses: {
@@ -214,7 +280,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 		}
 		const method = String(tool.method || "GET").toLowerCase();
 		if (!paths[pathname]) paths[pathname] = {};
-		paths[pathname][method] = buildOperationFromTool(tool);
+		paths[pathname][method] = buildOperationFromTool(tool, pathname);
 	}
 
 	const proxyParameters = [
@@ -228,7 +294,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 	];
 
 	const proxyOpGet = {
-		tags: [...DISCOVERY_OPERATION_TAGS],
+		tags: deriveOperationTags("/api/proxy", "Proxy to Verifik (GET)"),
 		operationId: "api_proxy_get",
 		summary: "Proxy to Verifik (GET)",
 		description:
@@ -242,7 +308,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 	};
 
 	const proxyOpPost = {
-		tags: [...DISCOVERY_OPERATION_TAGS],
+		tags: deriveOperationTags("/api/proxy", "Proxy to Verifik (POST)"),
 		operationId: "api_proxy_post",
 		summary: "Proxy to Verifik (POST)",
 		description:
@@ -279,7 +345,7 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 		servers: [{ url: publicOrigin }],
 		tags: DISCOVERY_TAG_DEFINITIONS,
 		"x-discovery": {
-			tags: [...DISCOVERY_OPERATION_TAGS],
+			tags: [...DISCOVERY_ROOT_TAGS],
 		},
 		paths,
 	};
@@ -288,3 +354,5 @@ const buildOpenApiFromManifest = (manifest, options = {}) => {
 module.exports = buildOpenApiFromManifest;
 module.exports.buildWellKnownX402 = buildWellKnownX402;
 module.exports.formatUsdAmount = formatUsdAmount;
+module.exports.deriveOperationTags = deriveOperationTags;
+module.exports.DISCOVERY_ROOT_TAGS = DISCOVERY_ROOT_TAGS;
