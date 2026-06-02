@@ -158,6 +158,9 @@ export interface SampleReportData {
     rowIndex?: number;
     inputData?: Record<string, any>;
     results?: Record<string, any>;
+    errors?: { step: number; message: string; code: string }[];
+    /** Pre-composed Colombia vehicle report (optional; built at runtime when omitted). */
+    report?: Record<string, any>;
 }
 
 @Injectable({

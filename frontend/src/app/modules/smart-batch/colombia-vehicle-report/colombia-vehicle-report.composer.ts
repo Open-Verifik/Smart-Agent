@@ -15,8 +15,10 @@ import type {
 import {
     formatCop,
     formatYesNo,
+    colombiaVehicleStepErrorKey,
+    humanizeColombiaVehicleError,
     isBenignNoRecord,
-    pickVigenteRtm,
+    pickRtmForReport,
     pickVigenteSoat,
 } from './colombia-vehicle-report.utils';
 
@@ -81,11 +83,13 @@ const buildSummary = (
         const info = (runt.informacionGeneral ?? {}) as Record<string, unknown>;
         const blindaje = (runt.informacionBlindaje ?? {}) as Record<string, unknown>;
         const soat = pickVigenteSoat(runt.soat as { estado?: string }[] | undefined);
-        const rtm = pickVigenteRtm(
-            runt.tecnoMecanica as { vigente?: string; estado?: string }[] | undefined
-        );
+        const rtmPick = pickRtmForReport(runt.tecnoMecanica as Record<string, unknown>[] | undefined);
         summary.soatVigente = soat?.estado != null ? String(soat.estado) : undefined;
-        summary.rtmVigente = rtm?.vigente != null ? String(rtm.vigente) : undefined;
+        summary.rtmVigente = rtmPick
+            ? rtmPick.isVigente
+                ? 'SI'
+                : 'NO'
+            : undefined;
         summary.tieneGravamenes = formatYesNo(info.tieneGravamenes);
         summary.blindado = formatYesNo(blindaje.blindado);
     }
@@ -127,7 +131,7 @@ const buildBlockState = (
                 status: 'error',
                 featureCode,
                 sequence: step?.sequence,
-                errorMessage: stepError.message,
+                errorMessage: humanizeColombiaVehicleError(colombiaVehicleStepErrorKey(stepError)),
             };
         }
         const skippedMeta = getBatchSkippedStepsFromInput(rowInputData).find(
@@ -150,11 +154,11 @@ const buildBlockState = (
             status: 'error',
             featureCode,
             sequence: payload.sequence,
-            errorMessage: stepError.message,
+            errorMessage: humanizeColombiaVehicleError(colombiaVehicleStepErrorKey(stepError)),
         };
     }
 
-    const status = resolveBlockStatus(payload.data);
+    const status = resolveBlockStatus(blockId, payload.data);
     const { displayRows, tables } = presentBlockData(blockId, payload.data);
 
     return {

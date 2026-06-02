@@ -1,0 +1,110 @@
+{
+  "absShow": "SI",
+  "airbags": "7",
+  "airconditioningShow": "SI",
+  "axles": "2",
+  "bcpp": "393900",
+  "brakes": "DISCO/DISCO",
+  "capacityLoad": "0",
+  "capacityPassengers": "7",
+  "category": "LIVIANO PASAJEROS",
+  "class": "CAMPERO",
+  "code": "09036110",
+  "country": "JAP",
+  "cylinderCapacity": "2982",
+  "doors": "5",
+  "electricChairs": "0",
+  "electricGlasses": "4",
+  "electricMirrors": "2",
+  "explorersShow": "SI",
+  "foodSystem": "NO APLICA",
+  "fuel": "DIESEL",
+  "groupUpdate": "1",
+  "homoloCode": "09008141",
+  "importedShow": "SI",
+  "line1": "PRADO [LC 150]",
+  "line2": "TX-L",
+  "line3": "AT 3000CC 5P TD CT",
+  "long": "4930",
+  "marke": "TOYOTA",
+  "novelty": "A",
+  "observation": "",
+  "plate": "MKU606",
+  "power": "161",
+  "rearSuspension": "NO APLICA",
+  "reverseCameraShow": "NO APLICA",
+  "segmentCylinder": "L",
+  "segmentSize": "E",
+  "sensorsShow": "SI",
+  "service": "PARTICULAR",
+  "sunroofShow": "SI",
+  "tachometer": "NO APLICA",
+  "traction": "DOBLE",
+  "transmission": "4X4",
+  "typeAddress": "HIDRÁULICA",
+  "typeAirConditioning": "AUTOMATICO",
+  "typeBox": "AUTOMATICA",
+  "typeHeadlights": "HALOGENO",
+  "typology": "UTILITARIO DEPORTIVO 4X4",
+  "upholsteryLeatherShow": "SI",
+  "valueModel": [
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2021",
+      "modeloId": "31005",
+      "valor": "290600"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2020",
+      "modeloId": "21005",
+      "valor": "276800"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2019",
+      "modeloId": "11005",
+      "valor": "251400"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2014",
+      "modeloId": "45",
+      "valor": "169200"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2013",
+      "modeloId": "44",
+      "valor": "158100"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2012",
+      "modeloId": "43",
+      "valor": "151800"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2011",
+      "modeloId": "42",
+      "valor": "145500"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2010",
+      "modeloId": "41",
+      "valor": "134600"
+    }
+  ],
+  "weight": "2080",
+  "year": "2012"
+}

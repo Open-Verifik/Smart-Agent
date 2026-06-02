@@ -1,0 +1,15 @@
+{
+  "documentNumber": "901234567",
+  "documentType": "NIT",
+  "plate": "KYX455",
+  "__batchSkippedSteps": [
+    {
+      "sequence": 3,
+      "stepName": "Colombia - SIMIT Payment Agreements",
+      "stepCode": "colombia_api_simit_agreements",
+      "field": "documentType",
+      "value": "NIT",
+      "allowedValues": ["CC", "CE", "PA", "RC", "TI"]
+    }
+  ]
+}

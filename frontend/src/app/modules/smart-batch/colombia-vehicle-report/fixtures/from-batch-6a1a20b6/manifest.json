@@ -1,0 +1,262 @@
+{
+  "batchId": "6a1a20b6aa4509aa16febfd0",
+  "batchName": "APIS para Historial Vehicular — 2026-05-29T23:26",
+  "exported": [
+    {
+      "plate": "LZO551",
+      "rowIndex": 0,
+      "status": "partial",
+      "resultKeys": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "errors": [
+        {
+          "step": 4,
+          "code": "NotFound"
+        }
+      ]
+    },
+    {
+      "plate": "HXR704",
+      "rowIndex": 5,
+      "status": "partial",
+      "resultKeys": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ]
+    },
+    {
+      "plate": "MKU606",
+      "rowIndex": 9,
+      "status": "completed",
+      "resultKeys": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "errors": []
+    },
+    {
+      "plate": "ODG78E",
+      "rowIndex": 16,
+      "status": "partial",
+      "resultKeys": [
+        "2",
+        "3",
+        "4"
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        },
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ]
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 19,
+      "status": "completed",
+      "resultKeys": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "errors": []
+    },
+    {
+      "plate": "NQU587",
+      "rowIndex": 22,
+      "status": "partial",
+      "resultKeys": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ]
+    },
+    {
+      "plate": "FTR223",
+      "rowIndex": 39,
+      "status": "partial",
+      "resultKeys": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "InternalServerError"
+        }
+      ]
+    },
+    {
+      "plate": "WOL049",
+      "rowIndex": 41,
+      "status": "partial",
+      "resultKeys": [
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ]
+    },
+    {
+      "plate": "TAX121",
+      "rowIndex": 43,
+      "status": "completed",
+      "resultKeys": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ],
+      "errors": []
+    },
+    {
+      "plate": "HXR704",
+      "rowIndex": 72,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "MKU606",
+      "rowIndex": 81,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 99,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 100,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 101,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ODG78E",
+      "rowIndex": 109,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 1053,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 1178,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 3675,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 5903,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 7193,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 7205,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 8123,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 8832,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "ABC123",
+      "rowIndex": 8956,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    },
+    {
+      "plate": "LZO551",
+      "rowIndex": 11275,
+      "status": "pending",
+      "resultKeys": [],
+      "errors": []
+    }
+  ]
+}

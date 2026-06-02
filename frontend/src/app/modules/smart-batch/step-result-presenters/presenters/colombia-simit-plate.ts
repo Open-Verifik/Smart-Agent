@@ -28,9 +28,22 @@ export const presentColombiaSimitPlate: StepResultPresenter = (data) => {
         row('Cancelada', formatYesNo(o.cancelada)),
     ];
 
+    const totalMultasConsulta = o.totalMultasPagar ?? o.cantMultasPagar;
+    if (totalMultasConsulta != null && String(totalMultasConsulta) !== '0') {
+        rows.push(row('Multas en consulta', totalMultasConsulta));
+    }
+
     const multas = o.multas;
     if (!Array.isArray(multas) || multas.length === 0) {
         rows.push(row('Multas', 'Sin multas registradas'));
+        if (o.pazSalvo === false) {
+            rows.push(
+                row(
+                    'Nota',
+                    'Sin multas en consulta por placa; paz y salvo no confirmado en esta consulta'
+                )
+            );
+        }
         return rows;
     }
 

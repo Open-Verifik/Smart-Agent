@@ -1,0 +1,1347 @@
+{
+  "batchId": "6a1a20b6aa4509aa16febfd0",
+  "configId": "6a18a584844c0e2737679c7b",
+  "batchName": "APIS para Historial Vehicular — 2026-05-29T23:26",
+  "exportedAt": "2026-05-30T01:37:43.523Z",
+  "counts": {
+    "completed": 23,
+    "partial": 33
+  },
+  "rows": [
+    {
+      "rowIndex": 0,
+      "status": "partial",
+      "plate": "LZO551",
+      "documentType": "CC",
+      "documentNumber": "53164689",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "errors": [
+        {
+          "step": 4,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 1,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "FOTON",
+      "valuesYear": "2024",
+      "pattern": "partial|1+2+3+5|e4:NotFound"
+    },
+    {
+      "rowIndex": 1,
+      "status": "partial",
+      "plate": "KYX455",
+      "documentType": "NIT",
+      "documentNumber": "890903938",
+      "resultSteps": [
+        2,
+        4,
+        5
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "valuesYear": "2022",
+      "pattern": "partial|2+4+5|e1:NotFound"
+    },
+    {
+      "rowIndex": 2,
+      "status": "partial",
+      "plate": "GMP82I",
+      "documentType": "CC",
+      "documentNumber": "1001503915",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "HERO",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 3,
+      "status": "partial",
+      "plate": "ZFG04E",
+      "documentType": "CC",
+      "documentNumber": "1000801511",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "HONDA",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 4,
+      "status": "completed",
+      "plate": "DSV067",
+      "documentType": "CC",
+      "documentNumber": "22468888",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "MAZDA",
+      "valuesYear": "2018",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 5,
+      "status": "partial",
+      "plate": "HXR704",
+      "documentType": "CC",
+      "documentNumber": "32688647",
+      "resultSteps": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 1,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "valuesYear": "2015",
+      "pattern": "partial|2+3+4+5|e1:NotFound"
+    },
+    {
+      "rowIndex": 6,
+      "status": "partial",
+      "plate": "FWH56I",
+      "documentType": "CC",
+      "documentNumber": "1105334758",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 7,
+      "status": "partial",
+      "plate": "WPC10H",
+      "documentType": "CC",
+      "documentNumber": "30670385",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "HERO",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 8,
+      "status": "partial",
+      "plate": "ENU14I",
+      "documentType": "CC",
+      "documentNumber": "1233493745",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "VICTORY",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 9,
+      "status": "completed",
+      "plate": "MKU606",
+      "documentType": "CC",
+      "documentNumber": "31302196",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "TOYOTA",
+      "valuesYear": "2012",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 10,
+      "status": "completed",
+      "plate": "QTP984",
+      "documentType": "CC",
+      "documentNumber": "8163964",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "TESLA",
+      "valuesYear": "2026",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 11,
+      "status": "partial",
+      "plate": "FVA35I",
+      "documentType": "CC",
+      "documentNumber": "1028484206",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 12,
+      "status": "partial",
+      "plate": "FVA59I",
+      "documentType": "CC",
+      "documentNumber": "1007397561",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 13,
+      "status": "completed",
+      "plate": "SYS547",
+      "documentType": "CC",
+      "documentNumber": "74085253",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "INTERNATIONAL",
+      "valuesYear": "2004",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 14,
+      "status": "partial",
+      "plate": "ixm07g",
+      "documentType": "CC",
+      "documentNumber": "1026144865",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "TRIUMPH",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 15,
+      "status": "partial",
+      "plate": "EBW04I",
+      "documentType": "CC",
+      "documentNumber": "1028023516",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 16,
+      "status": "partial",
+      "plate": "ODG78E",
+      "documentType": "CC",
+      "documentNumber": "1000472251",
+      "resultSteps": [
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        },
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "pattern": "partial|2+3+4|e1:NotFound,e5:NotFound"
+    },
+    {
+      "rowIndex": 17,
+      "status": "completed",
+      "plate": "ZOH002",
+      "documentType": "CC",
+      "documentNumber": "80142516",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "CHEVROLET",
+      "valuesYear": "2014",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 18,
+      "status": "completed",
+      "plate": "JNO323",
+      "documentType": "CC",
+      "documentNumber": "1030550580",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "PEUGEOT",
+      "valuesYear": "2021",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 19,
+      "status": "completed",
+      "plate": "ABC123",
+      "documentType": "CC",
+      "documentNumber": "1234567890",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 1051,
+      "agreementsCount": 0,
+      "sinisterCount": 1,
+      "pazSalvo": false,
+      "runtMarca": null,
+      "valuesYear": "2026",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 20,
+      "status": "partial",
+      "plate": "PFL02F",
+      "documentType": "CC",
+      "documentNumber": "11511150",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "ROYAL ENFIELD",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 21,
+      "status": "completed",
+      "plate": "BZP423",
+      "documentType": "CC",
+      "documentNumber": "66821624",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "HYUNDAI",
+      "valuesYear": "2007",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 22,
+      "status": "partial",
+      "plate": "NQU587",
+      "documentType": "CC",
+      "documentNumber": "91485695",
+      "resultSteps": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "valuesYear": "2026",
+      "pattern": "partial|2+3+4+5|e1:NotFound"
+    },
+    {
+      "rowIndex": 23,
+      "status": "partial",
+      "plate": "noi82g",
+      "documentType": "CC",
+      "documentNumber": "1152683368",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "VICTORY",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 24,
+      "status": "partial",
+      "plate": "noi82g",
+      "documentType": "CC",
+      "documentNumber": "1152683368",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "VICTORY",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 25,
+      "status": "partial",
+      "plate": "noi82g",
+      "documentType": "CC",
+      "documentNumber": "1152683368",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "VICTORY",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 26,
+      "status": "partial",
+      "plate": "VJX16F",
+      "documentType": "CC",
+      "documentNumber": "1000213732",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 27,
+      "status": "partial",
+      "plate": "dit14i",
+      "documentType": "CC",
+      "documentNumber": "93374802",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "TVS",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 28,
+      "status": "completed",
+      "plate": "QPK406",
+      "documentType": "CC",
+      "documentNumber": "80268892",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "TESLA",
+      "valuesYear": "2026",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 29,
+      "status": "completed",
+      "plate": "FRK544",
+      "documentType": "CC",
+      "documentNumber": "1144189071",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "MAZDA",
+      "valuesYear": "2019",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 30,
+      "status": "partial",
+      "plate": "TLF90E",
+      "documentType": "CC",
+      "documentNumber": "1030636514",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "HONDA",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 31,
+      "status": "partial",
+      "plate": "GYY85I",
+      "documentType": "CC",
+      "documentNumber": "1098715542",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "BAJAJ",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 32,
+      "status": "partial",
+      "plate": "514AIC",
+      "documentType": "CC",
+      "documentNumber": "71764247",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "BAJAJ",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 33,
+      "status": "completed",
+      "plate": "QTM139",
+      "documentType": "CC",
+      "documentNumber": "1019008081",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "KIA",
+      "valuesYear": "2027",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 34,
+      "status": "partial",
+      "plate": "FNT81F",
+      "documentType": "CC",
+      "documentNumber": "1000272963",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "BAJAJ",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 35,
+      "status": "completed",
+      "plate": "XVY477",
+      "documentType": "CC",
+      "documentNumber": "63309849",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "NISSAN",
+      "valuesYear": "2009",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 36,
+      "status": "completed",
+      "plate": "GKV523",
+      "documentType": "CC",
+      "documentNumber": "1098624528",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "CHEVROLET",
+      "valuesYear": "2020",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 37,
+      "status": "completed",
+      "plate": "WDC115",
+      "documentType": "CC",
+      "documentNumber": "7214605",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "RENAULT",
+      "valuesYear": "2015",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 38,
+      "status": "completed",
+      "plate": "TAL568",
+      "documentType": "CC",
+      "documentNumber": "37512367",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "CHEVROLET",
+      "valuesYear": "2012",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 39,
+      "status": "partial",
+      "plate": "FTR223",
+      "documentType": "CC",
+      "documentNumber": "1007977168",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "InternalServerError"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "DAEWOO",
+      "pattern": "partial|1+2+3+4|e5:InternalServerError"
+    },
+    {
+      "rowIndex": 40,
+      "status": "completed",
+      "plate": "WFC151",
+      "documentType": "CC",
+      "documentNumber": "91229819",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "FOTON",
+      "valuesYear": "2015",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 41,
+      "status": "partial",
+      "plate": "WOL049",
+      "documentType": "CC",
+      "documentNumber": "1098614483",
+      "resultSteps": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 1,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "valuesYear": "2018",
+      "pattern": "partial|2+3+4+5|e1:NotFound"
+    },
+    {
+      "rowIndex": 42,
+      "status": "partial",
+      "plate": "DXE07I",
+      "documentType": "CC",
+      "documentNumber": "28211097",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 43,
+      "status": "completed",
+      "plate": "TAX121",
+      "documentType": "CC",
+      "documentNumber": "91538209",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 3,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "CHEVROLET",
+      "valuesYear": "2013",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 44,
+      "status": "completed",
+      "plate": "FOK330",
+      "documentType": "CC",
+      "documentNumber": "53097736",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "RENAULT",
+      "valuesYear": "2019",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 45,
+      "status": "completed",
+      "plate": "GQV522",
+      "documentType": "CC",
+      "documentNumber": "91451160",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "VOLKSWAGEN",
+      "valuesYear": "2022",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 46,
+      "status": "partial",
+      "plate": "GNS09H",
+      "documentType": "CC",
+      "documentNumber": "1020820565",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "VICTORY",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 47,
+      "status": "completed",
+      "plate": "NOS064",
+      "documentType": "CC",
+      "documentNumber": "1019066971",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "RENAULT",
+      "valuesYear": "2024",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 48,
+      "status": "partial",
+      "plate": "YPI39H",
+      "documentType": "CC",
+      "documentNumber": "1083866132",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "SUZUKI",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 49,
+      "status": "partial",
+      "plate": "GAp85I",
+      "documentType": "CC",
+      "documentNumber": "1116543293",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "BAJAJ",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 50,
+      "status": "partial",
+      "plate": "BHN67I",
+      "documentType": "CC",
+      "documentNumber": "1118300997",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    },
+    {
+      "rowIndex": 51,
+      "status": "partial",
+      "plate": "VLZ86F",
+      "documentType": "CC",
+      "documentNumber": "79809927",
+      "resultSteps": [
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 1,
+          "code": "NotFound"
+        },
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "pattern": "partial|2+3+4|e1:NotFound,e5:NotFound"
+    },
+    {
+      "rowIndex": 52,
+      "status": "completed",
+      "plate": "LOR479",
+      "documentType": "CC",
+      "documentNumber": "1045691341",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "MERCEDES BENZ",
+      "valuesYear": "2023",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 53,
+      "status": "completed",
+      "plate": "NSV710",
+      "documentType": "CC",
+      "documentNumber": "79453501",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "CHEVROLET",
+      "valuesYear": "2024",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 54,
+      "status": "completed",
+      "plate": "GQV074",
+      "documentType": "CC",
+      "documentNumber": "63539121",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "errors": [],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "JAC",
+      "valuesYear": "2021",
+      "pattern": "completed|1+2+3+4+5|no-err"
+    },
+    {
+      "rowIndex": 55,
+      "status": "partial",
+      "plate": "YVR40H",
+      "documentType": "CC",
+      "documentNumber": "28544335",
+      "resultSteps": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "errors": [
+        {
+          "step": 5,
+          "code": "NotFound"
+        }
+      ],
+      "multasCount": 0,
+      "agreementsCount": 0,
+      "sinisterCount": 0,
+      "pazSalvo": false,
+      "runtMarca": "AKT",
+      "pattern": "partial|1+2+3+4|e5:NotFound"
+    }
+  ]
+}

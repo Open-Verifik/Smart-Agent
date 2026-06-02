@@ -280,6 +280,8 @@ export class ReportBuilderComponent implements OnInit {
                         rowIndex: template.sampleData.rowIndex ?? 0,
                         inputData: template.sampleData.inputData ?? {},
                         results: template.sampleData.results ?? {},
+                        errors: template.sampleData.errors ?? [],
+                        report: template.sampleData.report,
                     });
                 }
                 this.templateForm.patchValue({

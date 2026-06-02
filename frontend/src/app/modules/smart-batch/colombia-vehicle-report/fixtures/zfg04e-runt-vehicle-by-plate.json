@@ -1,0 +1,60 @@
+{
+  "documentNumber": "1000801511",
+  "documentType": "CC",
+  "plate": "ZFG04E",
+  "garantiasFavorDe": [],
+  "informacionBlindaje": { "blindado": "NO" },
+  "informacionGeneral": {
+    "cilindraje": "124",
+    "claseVehiculo": "MOTOCICLETA",
+    "clasificacion": "MOTO",
+    "color": "BLANCO",
+    "estadoDelVehiculo": "ACTIVO",
+    "fechaMatricula": "25/02/2019",
+    "linea": "CB125F",
+    "marca": "HONDA",
+    "modelo": "2020",
+    "noChasis": "9FMJA2593LF002583",
+    "noLicenciaTransito": "10017876425",
+    "noMotor": "JA25E-4607542",
+    "noPlaca": "ZFG04E",
+    "noVin": "9FMJA2593LF002583",
+    "organismoTransito": "STRIA MCPAL TTOyTTE IBAGUE",
+    "pasajerosSentados": "2",
+    "prendas": "NO",
+    "tieneGravamenes": "NO",
+    "tipoCarroceria": "SIN CARROCERIA",
+    "tipoCombustible": "GASOLINA",
+    "tipoServicio": "Particular",
+    "validacionDIAN": "No Exitoso"
+  },
+  "soat": [
+    {
+      "noPoliza": "91717376",
+      "fechaVigencia": "01/07/2025",
+      "fechaVencimiento": "30/06/2026",
+      "entidadExpideSoat": "COMPAÑIA MUNDIAL DE SEGUROS S A",
+      "estado": "VIGENTE"
+    }
+  ],
+  "solicitudes": [
+    {
+      "noSolicitud": "240217912",
+      "fechaSolicitud": "25/06/2024",
+      "estado": "APROBADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "CDA CHECK AND GO MOTOS"
+    }
+  ],
+  "tecnoMecanica": [
+    {
+      "fechaExpedicion": "25/06/2024",
+      "fechaVencimiento": "25/06/2025",
+      "cdaExpide": "CDA CHECK AND GO MOTOS",
+      "estado": "APROBADA",
+      "vigente": "NO",
+      "nroCertificado": "174017352"
+    }
+  ],
+  "vin": "9FMJA2593LF002583"
+}

@@ -90,6 +90,17 @@
     }
 }
 
+.billing-details__input--error {
+    border-color: rgb(220 38 38);
+}
+
+.billing-details__error {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.25rem;
+    color: rgb(220 38 38);
+}
+
 /* Payer-type selection card (Person / Business). */
 .billing-details__type-card {
     display: block;

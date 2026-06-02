@@ -1,0 +1,153 @@
+{
+  "datosTecnicos": {
+    "alto": null,
+    "ancho": null,
+    "capacidadCarga": null,
+    "largo": null,
+    "noEjes": null,
+    "noLlantas": null,
+    "pasajerosSentados": "2",
+    "pasajerosTotal": null,
+    "peso": null,
+    "pesoBrutoVehicular": null,
+    "rodaje": null
+  },
+  "documentNumber": "1001503915",
+  "documentType": "CC",
+  "garantiasFavorDe": [
+    {
+      "tipoDocumentoAcreedor": "NIT",
+      "numeroDocumentoAcreedor": "900725066",
+      "acreedor": "UNI2 MICROCREDITO S.A.S.",
+      "fechaInscripcion": "24/04/2026",
+      "confecamaras": "SI",
+      "patrimonioAutonomo": null
+    }
+  ],
+  "garantiasMobiliarias": [],
+  "informacionBlindaje": {
+    "autorizacion": null,
+    "blindado": "NO",
+    "fechaBlindaje": null,
+    "fechaDesblindaje": null,
+    "fechaExpedicionCertificado": null,
+    "fechaExpedicionCertificadoFormatoWS": null,
+    "idDocumentoCertificadoBlindaje": null,
+    "nivelBlindaje": null,
+    "nivelBlindajeNumero": null,
+    "numeroResolucion": null,
+    "tipoBlindajeNombre": null
+  },
+  "informacionGeneral": {
+    "capacidadCarga": null,
+    "cilindraje": "125",
+    "claseVehiculo": "MOTOCICLETA",
+    "clasicoAntiguo": "NO",
+    "clasificacion": "MOTO",
+    "color": "AZUL GRIS",
+    "diasMatriculado": "35",
+    "esRegrabadoChasis": "NO",
+    "esRegrabadoMotor": "NO",
+    "esRegrabadoSerie": "NO",
+    "esRegrabadoVin": "NO",
+    "estadoDelVehiculo": "ACTIVO",
+    "fechaExpedLTImportacion": null,
+    "fechaMatricula": "24/04/2026",
+    "fechaVenciLTImportacion": null,
+    "idTipoServicio": "1",
+    "linea": "HUNK 125 R",
+    "marca": "HERO",
+    "modelo": "2027",
+    "mostrarSolicitudes": "SI",
+    "noChasis": "9G5JAW468VVTC4508",
+    "noEjes": null,
+    "noIdentificacion": null,
+    "noLicenciaTransito": "10038633435",
+    "noMotor": "JA07AWS9M01879",
+    "noPlaca": "GMP82I",
+    "noSerie": null,
+    "noVin": "9G5JAW468VVTC4508",
+    "nombrePais": null,
+    "numRegraChasis": null,
+    "numRegraMotor": null,
+    "numRegraSerie": null,
+    "numRegraVin": null,
+    "organismoTransito": "STRIA TTOyTTE MCPAL SABANETA",
+    "pasajerosSentados": "2",
+    "pasajerosTotal": null,
+    "pesoBruto": null,
+    "prendas": "SI",
+    "puertas": null,
+    "repotenciado": "NO",
+    "seguridadEstado": "NO",
+    "subpartida": null,
+    "tarjetaServicio": "NO",
+    "tieneGravamenes": "NO",
+    "tieneLTImportacion": false,
+    "tipoCarroceria": "SIN CARROCERIA",
+    "tipoCombustible": "GASOLINA",
+    "tipoMaquinaria": null,
+    "tipoServicio": "Particular",
+    "validacionDIAN": "No Exitoso",
+    "vehiculoEnsenanza": "NO",
+    "verValidaDIAN": false
+  },
+  "limitacionPropiedad": [],
+  "normalizacionSaneamiento": [
+    {
+      "deficienciaMatriculaInicial": "NO",
+      "vehiculoNormalizado": "NO DISPONIBLE",
+      "fecha": null,
+      "numeroActoAdministrativo": null,
+      "descargaCertificado": null,
+      "solicitudNormalizacion": null
+    }
+  ],
+  "plate": "GMP82I",
+  "polizasResponsabilidadCivil": [],
+  "soat": [
+    {
+      "origen": "NACIONAL",
+      "tipoTarifa": "120",
+      "noPoliza": "4308007800112000",
+      "fechaExpedicion": "23/04/2026",
+      "fechaExpediSoat": "23/04/2026",
+      "fechaVigencia": "24/04/2026",
+      "fechaVencimiento": "23/04/2027",
+      "entidadExpideSoat": "LA PREVISORA S.A.COMPAÑIA DE SEGUROS",
+      "estado": "VIGENTE",
+      "estadoSoat": "EMITIDA",
+      "placa": null,
+      "nombrePais": null
+    }
+  ],
+  "solicitudes": [
+    {
+      "noSolicitud": "292581096",
+      "fechaSolicitud": "24/04/2026",
+      "estado": "AUTORIZADA",
+      "tramitesRealizados": "TRÁMITE MATRÍCULA INICIAL, TRÁMITE INSCRIPCIÓN ALERTA, ",
+      "entidad": "STRIA TTOyTTE MCPAL SABANETA"
+    },
+    {
+      "noSolicitud": "292540412",
+      "fechaSolicitud": "23/04/2026",
+      "estado": "APROBADA",
+      "tramitesRealizados": "TRÁMITE PREASIGNACIÓN PLACA CONTINGENCIA, ",
+      "entidad": "STRIA TTOyTTE MCPAL SABANETA"
+    }
+  ],
+  "tarjetaOperacion": {
+    "empresaAfiliadora": null,
+    "estado": null,
+    "fechaExpedicion": null,
+    "fechaFin": null,
+    "fechaInicio": null,
+    "modalidadTransporte": null,
+    "nroTarjetaOperacion": null,
+    "radioAccion": null,
+    "servicio": null
+  },
+  "tecnoMecanica": [],
+  "vin": "9G5JAW468VVTC4508"
+}

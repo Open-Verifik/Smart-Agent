@@ -1,0 +1,103 @@
+{
+  "absShow": "NO",
+  "airbags": "0",
+  "airconditioningShow": "SI",
+  "axles": "2",
+  "bcpp": "85400",
+  "brakes": "DISCO/TAMBOR",
+  "capacityLoad": "725",
+  "capacityPassengers": "2",
+  "category": "LIVIANO CARGA",
+  "class": "CAMIONETA REPAR",
+  "code": "01641006",
+  "country": "CHI",
+  "cylinderCapacity": "1206",
+  "doors": "5",
+  "electricChairs": "0",
+  "electricGlasses": "0",
+  "electricMirrors": "0",
+  "explorersShow": "NO",
+  "foodSystem": "NO APLICA",
+  "fuel": "GASOLINA",
+  "groupUpdate": "1",
+  "homoloCode": "01607011",
+  "importedShow": "SI",
+  "line1": "VAN N300",
+  "line2": "CARGO PLUS",
+  "line3": "MT 1200CC AA",
+  "long": "4005",
+  "marke": "CHEVROLET",
+  "novelty": "A",
+  "observation": "",
+  "plate": "TAX121",
+  "power": "81",
+  "rearSuspension": "NO APLICA",
+  "reverseCameraShow": "NO",
+  "segmentCylinder": "L",
+  "segmentSize": "B",
+  "sensorsShow": "NO",
+  "service": "PARTICULAR",
+  "sunroofShow": "NO",
+  "tachometer": "NO APLICA",
+  "traction": "TRASERA",
+  "transmission": "4X2",
+  "typeAddress": "HIDRÁULICA",
+  "typeAirConditioning": "MANUAL",
+  "typeBox": "MECANICA",
+  "typeHeadlights": "HALOGENO",
+  "typology": "VAN PANEL",
+  "upholsteryLeatherShow": "NO",
+  "valueModel": [
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2017",
+      "modeloId": "48",
+      "valor": "41800"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2016",
+      "modeloId": "47",
+      "valor": "39600"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2015",
+      "modeloId": "46",
+      "valor": "38100"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2014",
+      "modeloId": "45",
+      "valor": "35600"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2013",
+      "modeloId": "44",
+      "valor": "34400"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2012",
+      "modeloId": "43",
+      "valor": "33400"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2011",
+      "modeloId": "42",
+      "valor": "31100"
+    }
+  ],
+  "weight": "1125",
+  "year": "2013"
+}

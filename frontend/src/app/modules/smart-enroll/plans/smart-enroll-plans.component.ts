@@ -102,6 +102,7 @@ export class SmartEnrollPlansComponent implements OnInit {
     servicesByCountry: any;
     subscribingToPlan = false;
     showExtraBioInfo = false;
+    private _sessionConfirmHandled = false;
 
     planSettings = {
         plus: {
@@ -152,31 +153,94 @@ export class SmartEnrollPlansComponent implements OnInit {
 
     private _runPlansEntryAfterAuthGate(): void {
         const sessionId = this._activatedRoute.snapshot.queryParamMap.get('session_id')?.trim();
-        if (sessionId) {
+        if (sessionId && !this._sessionConfirmHandled) {
+            this._sessionConfirmHandled = true;
+            this._clearSessionIdFromUrl();
+
             this._subscriptionService.confirmCheckoutSession(sessionId).subscribe({
                 next: () => {
-                    this._router.navigate([], {
-                        queryParams: {},
-                        queryParamsHandling: 'merge',
-                        replaceUrl: true,
-                    });
+                    this._showSessionConfirmSuccessToast();
                     this._bootstrapPlansPage();
                 },
                 error: (error) => {
                     console.error('Error confirming Smart Enroll checkout session:', error);
-                    this._snackBar.open(
-                        this._translocoService.translate('subscriptionPlans.sessionConfirmError') ||
-                            'Could not confirm subscription. Please try again.',
-                        undefined,
-                        { duration: 5000 }
-                    );
-                    this._bootstrapPlansPage();
+                    this._handleSessionConfirmError(error);
                 },
             });
             return;
         }
 
         this._bootstrapPlansPage();
+    }
+
+    private _clearSessionIdFromUrl(): void {
+        void this._router.navigate([], {
+            queryParams: { session_id: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
+    }
+
+    private _showSessionConfirmSuccessToast(): void {
+        this._openSnackBar(
+            this._translocoService.translate('subscriptionPlans.sessionConfirmSuccess') ||
+                'Subscription activated successfully.',
+            'success'
+        );
+    }
+
+    private _showSessionConfirmErrorToast(): void {
+        this._openSnackBar(
+            this._translocoService.translate('subscriptionPlans.sessionConfirmError') ||
+                'Could not confirm subscription. Please try again.',
+            'error'
+        );
+    }
+
+    private _handleSessionConfirmError(error?: unknown): void {
+        const isWrongAccount = this._isSessionClientMismatchError(error);
+
+        this._enrollPlansService
+            .getClientEnrollPlans({
+                sort: 'startDate',
+                where_status: 'active',
+                populates: ['plan'],
+            })
+            .subscribe({
+                next: (response) => {
+                    const hasActive = Array.isArray(response?.data) && response.data.length > 0;
+                    if (hasActive) {
+                        this._showSessionConfirmSuccessToast();
+                    } else if (isWrongAccount) {
+                        this._showSessionConfirmWrongAccountToast();
+                    } else {
+                        this._showSessionConfirmErrorToast();
+                    }
+                    this._bootstrapPlansPage();
+                },
+                error: () => {
+                    if (isWrongAccount) {
+                        this._showSessionConfirmWrongAccountToast();
+                    } else {
+                        this._showSessionConfirmErrorToast();
+                    }
+                    this._bootstrapPlansPage();
+                },
+            });
+    }
+
+    private _isSessionClientMismatchError(error?: unknown): boolean {
+        const body = (error as { error?: { message?: string } })?.error;
+        return body?.message === 'session_client_mismatch';
+    }
+
+    private _showSessionConfirmWrongAccountToast(): void {
+        this._openSnackBar(
+            this._translocoService.translate('subscriptionPlans.sessionConfirmWrongAccount') ||
+                'This checkout belongs to a different account. Sign in with the account that started checkout, or start a new subscription.',
+            'error',
+            8000
+        );
     }
 
     private _bootstrapPlansPage(): void {

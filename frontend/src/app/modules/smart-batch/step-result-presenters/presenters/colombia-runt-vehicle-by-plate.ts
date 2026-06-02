@@ -5,7 +5,7 @@ import {
 import type { ReportTableModel } from '../../colombia-vehicle-report/colombia-vehicle-report.types';
 import {
     formatYesNo,
-    pickVigenteRtm,
+    pickRtmForReport,
     pickVigenteSoat,
 } from '../../colombia-vehicle-report/colombia-vehicle-report.utils';
 import type { StepResultPresenter } from '../registry';
@@ -67,9 +67,8 @@ export const presentColombiaRuntVehicleByPlate: StepResultPresenter = (data) => 
     const soat = pickVigenteSoat(o.soat as Record<string, unknown>[] | undefined) as
         | Record<string, unknown>
         | undefined;
-    const rtm = pickVigenteRtm(o.tecnoMecanica as Record<string, unknown>[] | undefined) as
-        | Record<string, unknown>
-        | undefined;
+    const rtmPick = pickRtmForReport(o.tecnoMecanica as Record<string, unknown>[] | undefined);
+    const rtm = rtmPick?.row;
 
     const rows: StepDisplayRow[] = [
         row('Placa', info.noPlaca ?? o.plate),
@@ -107,7 +106,7 @@ export const presentColombiaRuntVehicleByPlate: StepResultPresenter = (data) => 
         rows.push(
             row('RTM — Certificado', rtm.nroCertificado),
             row('RTM — Estado', rtm.estado),
-            row('RTM — Vigente', rtm.vigente),
+            row('RTM — Vigente', rtmPick?.isVigente ? 'Sí' : 'No (vencida o última registrada)'),
             row('RTM — Vencimiento', rtm.fechaVencimiento),
             row('RTM — CDA', rtm.cdaExpide)
         );

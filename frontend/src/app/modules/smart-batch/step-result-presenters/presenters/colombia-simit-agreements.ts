@@ -3,7 +3,10 @@ import {
     type StepDisplayRow,
 } from '../../step-result-display.util';
 import type { ReportTableModel } from '../../colombia-vehicle-report/colombia-vehicle-report.types';
-import { formatCop } from '../../colombia-vehicle-report/colombia-vehicle-report.utils';
+import {
+    formatCop,
+    getSimitAgreementsList,
+} from '../../colombia-vehicle-report/colombia-vehicle-report.utils';
 import type { StepResultPresenter } from '../registry';
 
 const row = (label: string, value: unknown): StepDisplayRow => ({
@@ -22,8 +25,8 @@ export const presentColombiaSimitAgreements: StepResultPresenter = (data) => {
         row('Total general', formatCop(o.totalGeneral)),
     ];
 
-    const acuerdos = o.acuerdosPago;
-    if (!Array.isArray(acuerdos) || acuerdos.length === 0) {
+    const acuerdos = getSimitAgreementsList(o);
+    if (acuerdos.length === 0) {
         rows.push(row('Acuerdos de pago', 'Sin acuerdos registrados'));
         return rows;
     }
@@ -46,9 +49,8 @@ export const presentColombiaSimitAgreements: StepResultPresenter = (data) => {
 };
 
 export const extractColombiaSimitAgreementsTables = (data: unknown): ReportTableModel[] => {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) return [];
-    const acuerdos = (data as Record<string, unknown>).acuerdosPago;
-    if (!Array.isArray(acuerdos) || acuerdos.length === 0) return [];
+    const acuerdos = getSimitAgreementsList(data);
+    if (acuerdos.length === 0) return [];
 
     return [
         {

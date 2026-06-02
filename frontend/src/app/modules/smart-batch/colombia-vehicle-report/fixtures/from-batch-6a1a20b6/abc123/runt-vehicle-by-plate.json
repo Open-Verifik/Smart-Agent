@@ -1,0 +1,284 @@
+{
+  "datosTecnicos": {
+    "alto": null,
+    "ancho": null,
+    "capacidadCarga": null,
+    "largo": null,
+    "noEjes": null,
+    "noLlantas": null,
+    "pasajerosSentados": null,
+    "pasajerosTotal": null,
+    "peso": null,
+    "pesoBrutoVehicular": null,
+    "rodaje": null
+  },
+  "documentNumber": "1234567890",
+  "documentType": "CC",
+  "garantiasFavorDe": [],
+  "garantiasMobiliarias": [],
+  "informacionBlindaje": {
+    "autorizacion": null,
+    "blindado": null,
+    "fechaBlindaje": null,
+    "fechaDesblindaje": null,
+    "fechaExpedicionCertificado": null,
+    "fechaExpedicionCertificadoFormatoWS": null,
+    "idDocumentoCertificadoBlindaje": null,
+    "nivelBlindaje": null,
+    "nivelBlindajeNumero": null,
+    "numeroResolucion": null,
+    "tipoBlindajeNombre": null
+  },
+  "informacionGeneral": {
+    "capacidadCarga": null,
+    "cilindraje": null,
+    "claseVehiculo": null,
+    "clasicoAntiguo": null,
+    "clasificacion": null,
+    "color": null,
+    "diasMatriculado": null,
+    "esRegrabadoChasis": null,
+    "esRegrabadoMotor": null,
+    "esRegrabadoSerie": null,
+    "esRegrabadoVin": null,
+    "estadoDelVehiculo": null,
+    "fechaExpedLTImportacion": null,
+    "fechaMatricula": null,
+    "fechaVenciLTImportacion": null,
+    "idTipoServicio": null,
+    "linea": null,
+    "marca": null,
+    "modelo": null,
+    "mostrarSolicitudes": null,
+    "noChasis": null,
+    "noEjes": null,
+    "noIdentificacion": null,
+    "noLicenciaTransito": null,
+    "noMotor": null,
+    "noPlaca": "ABC123",
+    "noSerie": null,
+    "noVin": null,
+    "nombrePais": null,
+    "numRegraChasis": null,
+    "numRegraMotor": null,
+    "numRegraSerie": null,
+    "numRegraVin": null,
+    "organismoTransito": null,
+    "pasajerosSentados": null,
+    "pasajerosTotal": null,
+    "pesoBruto": null,
+    "prendas": null,
+    "puertas": null,
+    "repotenciado": null,
+    "seguridadEstado": null,
+    "subpartida": null,
+    "tarjetaServicio": "NO",
+    "tieneGravamenes": null,
+    "tieneLTImportacion": true,
+    "tipoCarroceria": null,
+    "tipoCombustible": null,
+    "tipoMaquinaria": null,
+    "tipoServicio": null,
+    "validacionDIAN": "No Exitoso",
+    "vehiculoEnsenanza": null,
+    "verValidaDIAN": false
+  },
+  "limitacionPropiedad": [],
+  "normalizacionSaneamiento": [
+    {
+      "deficienciaMatriculaInicial": "NO",
+      "vehiculoNormalizado": "NO DISPONIBLE",
+      "fecha": null,
+      "numeroActoAdministrativo": null,
+      "descargaCertificado": null,
+      "solicitudNormalizacion": null
+    }
+  ],
+  "plate": "ABC123",
+  "polizasResponsabilidadCivil": [
+    {
+      "idPoliza": "407962",
+      "numeroPoliza": "03731101020829",
+      "fechaExpedicion": "22/12/2016",
+      "fechaInicioVigencia": "01/01/2017",
+      "fechaFinVigencia": "01/01/2018",
+      "entidadExpide": "SEGUROS DEL ESTADO S.A.",
+      "tipoPoliza": "Responsabilidad Civil Contractual",
+      "estado": "INACTIVA",
+      "tipoDocTomador": "NIT",
+      "nroDocTomador": "860531135",
+      "coberturas": [
+        {
+          "codigo": "01",
+          "descripcion": "MUERTE",
+          "monto": "60"
+        },
+        {
+          "codigo": "02",
+          "descripcion": "INCAPACIDAD PERMANENTE",
+          "monto": "60"
+        },
+        {
+          "codigo": "03",
+          "descripcion": "INCAPACIDAD TEMPORAL",
+          "monto": "60"
+        },
+        {
+          "codigo": "04",
+          "descripcion": "GASTOS MEDICOS",
+          "monto": "60"
+        },
+        {
+          "codigo": "05",
+          "descripcion": "MUERTE A TERCEROS",
+          "monto": "0"
+        },
+        {
+          "codigo": "06",
+          "descripcion": "DAÑOS A TERCEROS",
+          "monto": "0"
+        },
+        {
+          "codigo": "07",
+          "descripcion": "MUERTE O DAÑOS A MÁS DE DOS PERSONAS",
+          "monto": "0"
+        }
+      ]
+    }
+  ],
+  "soat": [
+    {
+      "origen": "NACIONAL",
+      "tipoTarifa": "112",
+      "noPoliza": "3039437000",
+      "fechaExpedicion": "24/08/2018",
+      "fechaExpediSoat": "24/08/2018",
+      "fechaVigencia": "25/08/2018",
+      "fechaVencimiento": "24/08/2019",
+      "entidadExpideSoat": "AXA COLPATRIA SEGUROS SA",
+      "estado": "NO VIGENTE",
+      "estadoSoat": "EMITIDA",
+      "placa": null,
+      "nombrePais": null
+    },
+    {
+      "origen": "NACIONAL",
+      "tipoTarifa": "130",
+      "noPoliza": "37215141",
+      "fechaExpedicion": "16/08/2017",
+      "fechaExpediSoat": "16/08/2017",
+      "fechaVigencia": "17/08/2017",
+      "fechaVencimiento": "16/08/2018",
+      "entidadExpideSoat": "SEGUROS DEL ESTADO S.A.",
+      "estado": "NO VIGENTE",
+      "estadoSoat": "EMITIDA",
+      "placa": null,
+      "nombrePais": null
+    },
+    {
+      "origen": "NACIONAL",
+      "tipoTarifa": "661",
+      "noPoliza": "3000080800",
+      "fechaExpedicion": "21/03/2017",
+      "fechaExpediSoat": "21/03/2017",
+      "fechaVigencia": "22/03/2017",
+      "fechaVencimiento": "21/03/2018",
+      "entidadExpideSoat": "AXA COLPATRIA SEGUROS SA",
+      "estado": "NO VIGENTE",
+      "estadoSoat": "EMITIDA",
+      "placa": null,
+      "nombrePais": null
+    },
+    {
+      "origen": "NACIONAL",
+      "tipoTarifa": "661",
+      "noPoliza": "8972899",
+      "fechaExpedicion": "28/02/2017",
+      "fechaExpediSoat": "28/02/2017",
+      "fechaVigencia": "01/03/2017",
+      "fechaVencimiento": "28/02/2018",
+      "entidadExpideSoat": "AXA COLPATRIA SEGUROS SA",
+      "estado": "NO VIGENTE",
+      "estadoSoat": "EMITIDA",
+      "placa": null,
+      "nombrePais": null
+    },
+    {
+      "origen": "NACIONAL",
+      "tipoTarifa": "222",
+      "noPoliza": "8924202",
+      "fechaExpedicion": "25/01/2017",
+      "fechaExpediSoat": "25/01/2017",
+      "fechaVigencia": "30/01/2017",
+      "fechaVencimiento": "29/01/2018",
+      "entidadExpideSoat": "AXA COLPATRIA SEGUROS SA",
+      "estado": "NO VIGENTE",
+      "estadoSoat": "EMITIDA",
+      "placa": null,
+      "nombrePais": null
+    }
+  ],
+  "solicitudes": [
+    {
+      "noSolicitud": "101962839",
+      "fechaSolicitud": "01/08/2017",
+      "estado": "RECHAZADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "CDA CONTROL AUTOS DE MOSQUERA"
+    },
+    {
+      "noSolicitud": "86473951",
+      "fechaSolicitud": "06/07/2016",
+      "estado": "RECHAZADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "CONTROL AUTOS DE CHINQUIQUIRA"
+    },
+    {
+      "noSolicitud": "86360115",
+      "fechaSolicitud": "01/07/2016",
+      "estado": "RECHAZADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "ACTIVAUTOS CENTRO DE DIAGNOSTICO AUTOMOTOR S A"
+    },
+    {
+      "noSolicitud": "24507509",
+      "fechaSolicitud": "19/04/2012",
+      "estado": "REGISTRADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "DIAGNOSTICENTRO LA DORADA LTDA"
+    },
+    {
+      "noSolicitud": "10352626",
+      "fechaSolicitud": "24/01/2011",
+      "estado": "REGISTRADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "CDA MORATO"
+    }
+  ],
+  "tarjetaOperacion": {
+    "empresaAfiliadora": null,
+    "estado": null,
+    "fechaExpedicion": null,
+    "fechaFin": null,
+    "fechaInicio": null,
+    "modalidadTransporte": null,
+    "nroTarjetaOperacion": null,
+    "radioAccion": null,
+    "servicio": null
+  },
+  "tecnoMecanica": [
+    {
+      "fechaExpedicion": "09/11/2009",
+      "fechaVencimiento": "09/11/2010",
+      "cdaExpide": "CENTRO DE DIAGNOSTICO AUTOMOTOR  ANDINO",
+      "estado": "APROBADA",
+      "tipoRevision": "REVISION TECNICO-MECANICO",
+      "vigente": "NO",
+      "nroCertificado": "101256683",
+      "numeroPlaca": "ABC123",
+      "informacionConsistente": "NO",
+      "url": null
+    }
+  ],
+  "vin": null
+}

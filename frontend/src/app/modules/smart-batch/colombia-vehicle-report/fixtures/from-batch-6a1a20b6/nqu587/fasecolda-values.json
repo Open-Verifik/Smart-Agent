@@ -1,0 +1,103 @@
+{
+  "absShow": "SI",
+  "airbags": "7",
+  "airconditioningShow": "SI",
+  "axles": "2",
+  "bcpp": "149900",
+  "brakes": "DISCO/DISCO",
+  "capacityLoad": "0",
+  "capacityPassengers": "5",
+  "category": "LIVIANO PASAJEROS",
+  "class": "CAMIONETA PASAJ.",
+  "code": "05635036",
+  "country": "MEX",
+  "cylinderCapacity": "1998",
+  "doors": "5",
+  "electricChairs": "0",
+  "electricGlasses": "4",
+  "electricMirrors": "2",
+  "explorersShow": "NO",
+  "foodSystem": "NO APLICA",
+  "fuel": "MHEV",
+  "groupUpdate": "2",
+  "homoloCode": "05606130",
+  "importedShow": "SI",
+  "line1": "CX30 [FL]",
+  "line2": "TOURING MHEV",
+  "line3": "TP 2000CC 7AB R18  4X2",
+  "long": "4395",
+  "marke": "MAZDA",
+  "novelty": "M",
+  "observation": "",
+  "plate": "NQU587",
+  "power": "160",
+  "rearSuspension": "NO APLICA",
+  "reverseCameraShow": "SI",
+  "segmentCylinder": "Y",
+  "segmentSize": "C",
+  "sensorsShow": "SI",
+  "service": "PARTICULAR",
+  "sunroofShow": "NO",
+  "tachometer": "NO APLICA",
+  "traction": "DELANTERA",
+  "transmission": "4X2",
+  "typeAddress": "ELÉCTRICA",
+  "typeAirConditioning": "AUTOMATICO",
+  "typeBox": "TIPTRONICA",
+  "typeHeadlights": "LED",
+  "typology": "UTILITARIO DEPORTIVO 4X2",
+  "upholsteryLeatherShow": "NO",
+  "valueModel": [
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2027",
+      "modeloId": "41010",
+      "valor": "112700"
+    },
+    {
+      "estado": "NUEVO",
+      "idEstado": "1",
+      "modelo": "2027",
+      "modeloId": "41010",
+      "valor": "119900"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2026",
+      "modeloId": "41009",
+      "valor": "113400"
+    },
+    {
+      "estado": "NUEVO",
+      "idEstado": "1",
+      "modelo": "2026",
+      "modeloId": "41009",
+      "valor": "119400"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2025",
+      "modeloId": "41008",
+      "valor": "113100"
+    },
+    {
+      "estado": "NUEVO",
+      "idEstado": "1",
+      "modelo": "2025",
+      "modeloId": "41008",
+      "valor": "119000"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2024",
+      "modeloId": "41007",
+      "valor": "107400"
+    }
+  ],
+  "weight": "1437",
+  "year": "2026"
+}

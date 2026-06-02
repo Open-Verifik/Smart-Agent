@@ -1004,29 +1004,96 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         this.selectedInterval = subscription.interval as 'month' | 'year';
     }
 
+    private _sessionConfirmHandled = false;
+
     private _confirmSessionIfPresent(): void {
-        const sessionId = this._route.snapshot.queryParamMap.get('session_id');
-        if (!sessionId?.trim()) return;
+        const sessionId = this._route.snapshot.queryParamMap.get('session_id')?.trim();
+        if (!sessionId || this._sessionConfirmHandled) return;
+
+        this._sessionConfirmHandled = true;
+        this._clearSessionIdFromUrl();
 
         this._subscriptionService.confirmCheckoutSession(sessionId).subscribe({
             next: () => {
-                this._router.navigate([], {
-                    queryParams: {},
-                    queryParamsHandling: 'merge',
-                    replaceUrl: true,
-                });
+                this._showSessionConfirmSuccessToast();
                 this._loadCurrentSubscription();
             },
             error: (error) => {
                 console.error('Error confirming checkout session:', error);
-                this._snackBar.open(
-                    this._translocoService.translate('subscriptionPlans.sessionConfirmError') ||
-                        'Could not confirm subscription. Please try again.',
-                    undefined,
-                    { duration: 5000 }
-                );
+                this._handleSessionConfirmError(error);
             },
         });
+    }
+
+    private _clearSessionIdFromUrl(): void {
+        void this._router.navigate([], {
+            queryParams: { session_id: null },
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
+    }
+
+    private _showSessionConfirmSuccessToast(): void {
+        this._snackBar.open(
+            this._translocoService.translate('subscriptionPlans.sessionConfirmSuccess') ||
+                'Subscription activated successfully.',
+            undefined,
+            { duration: 5000 }
+        );
+    }
+
+    private _showSessionConfirmErrorToast(): void {
+        this._snackBar.open(
+            this._translocoService.translate('subscriptionPlans.sessionConfirmError') ||
+                'Could not confirm subscription. Please try again.',
+            undefined,
+            { duration: 5000 }
+        );
+    }
+
+    private _handleSessionConfirmError(error?: unknown): void {
+        const isWrongAccount = this._isSessionClientMismatchError(error);
+
+        this._subscriptionService
+            .getMySubscription({ where_active: true, findOne: 1 })
+            .subscribe({
+                next: (response) => {
+                    if (response?.data) {
+                        this.currentSubscription = response.data;
+                        this._formatCurrentSubscription();
+                        this.currentView = 'current';
+                        this._loadMyListFeatures();
+                        this._showSessionConfirmSuccessToast();
+                        return;
+                    }
+                    if (isWrongAccount) {
+                        this._showSessionConfirmWrongAccountToast();
+                        return;
+                    }
+                    this._showSessionConfirmErrorToast();
+                },
+                error: () => {
+                    if (isWrongAccount) {
+                        this._showSessionConfirmWrongAccountToast();
+                        return;
+                    }
+                    this._showSessionConfirmErrorToast();
+                },
+            });
+    }
+
+    private _isSessionClientMismatchError(error?: unknown): boolean {
+        const body = (error as { error?: { message?: string } })?.error;
+        return body?.message === 'session_client_mismatch';
+    }
+
+    private _showSessionConfirmWrongAccountToast(): void {
+        this._snackBar.open(
+            this._translocoService.translate('subscriptionPlans.sessionConfirmWrongAccount') ||
+                'This checkout belongs to a different account. Sign in with the account that started checkout, or start a new subscription.',
+            undefined,
+            { duration: 8000 }
+        );
     }
 
     private _checkBillingSetup(): void {

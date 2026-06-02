@@ -187,6 +187,33 @@
                     >
                         <div class="billing-details__field md:col-span-2">
                             <label class="billing-details__label">
+                                {{ t('settings.billing.business_country') }}
+                                <span class="billing-details__required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="billing-details__input"
+                                [placeholder]="t('settings.billing.business_country_placeholder')"
+                                [matAutocomplete]="businessCountryAuto"
+                                formControlName="business_country"
+                                (blur)="onBillingCountryBlur('business')"
+                            />
+                            <mat-autocomplete
+                                #businessCountryAuto="matAutocomplete"
+                                [displayWith]="displayBillingCountryFn"
+                                (optionSelected)="onBillingCountrySelected($event, 'business')"
+                            >
+                                <mat-option
+                                    *ngFor="let country of filteredBusinessBillingCountries | async"
+                                    [value]="country"
+                                >
+                                    {{ country.name }}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </div>
+
+                        <div class="billing-details__field md:col-span-2">
+                            <label class="billing-details__label">
                                 {{ t('settings.billing.business_name') }}
                                 <span class="billing-details__required">*</span>
                             </label>
@@ -195,7 +222,11 @@
                                 class="billing-details__input"
                                 formControlName="business_name"
                                 [placeholder]="t('settings.billing.business_name_placeholder')"
+                                [class.billing-details__input--error]="businessNameError"
                             />
+                            <p *ngIf="businessNameError" class="billing-details__error">
+                                {{ businessNameError }}
+                            </p>
                         </div>
 
                         <div class="billing-details__field">
@@ -232,7 +263,20 @@
                                 type="text"
                                 class="billing-details__input"
                                 formControlName="business_documentNumber"
+                                [class.billing-details__input--error]="businessDocumentError"
                             />
+                            <p *ngIf="businessDocumentError" class="billing-details__error">
+                                {{ businessDocumentError }}
+                            </p>
+                            <p
+                                *ngIf="
+                                    payerForm.get('business_documentNumber')?.hasError('nitFormat') &&
+                                    payerForm.get('business_documentNumber')?.touched
+                                "
+                                class="billing-details__error"
+                            >
+                                {{ t('settings.billing.nit_format_invalid') }}
+                            </p>
                         </div>
 
                         <div class="billing-details__field">
@@ -306,6 +350,33 @@
                         *ngIf="isAPerson()"
                         class="grid grid-cols-1 gap-x-5 gap-y-4 md:grid-cols-2"
                     >
+                        <div class="billing-details__field md:col-span-2">
+                            <label class="billing-details__label">
+                                {{ t('settings.billing.business_country') }}
+                                <span class="billing-details__required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="billing-details__input"
+                                [placeholder]="t('settings.billing.business_country_placeholder')"
+                                [matAutocomplete]="personCountryAuto"
+                                formControlName="person_country"
+                                (blur)="onBillingCountryBlur('person')"
+                            />
+                            <mat-autocomplete
+                                #personCountryAuto="matAutocomplete"
+                                [displayWith]="displayBillingCountryFn"
+                                (optionSelected)="onBillingCountrySelected($event, 'person')"
+                            >
+                                <mat-option
+                                    *ngFor="let country of filteredPersonBillingCountries | async"
+                                    [value]="country"
+                                >
+                                    {{ country.name }}
+                                </mat-option>
+                            </mat-autocomplete>
+                        </div>
+
                         <div class="billing-details__field md:col-span-2">
                             <label class="billing-details__label">
                                 {{ t('settings.billing.full_name') }}

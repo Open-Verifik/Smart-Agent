@@ -1,0 +1,109 @@
+{
+  "acuerdosPago": [],
+  "cancelada": false,
+  "cantAcuerdosPagar": "0",
+  "cantMultasPagar": "0",
+  "comparendos": [],
+  "cursos": [],
+  "fechaDesdeCancelSuspen": null,
+  "fechaHastaSuspencion": null,
+  "mensajeValidacionPagoPlaca": "¿Está seguro que desea pagar?",
+  "multas": [
+    {
+      "cisa": "N",
+      "comparendo": false,
+      "comparendoElectronico": false,
+      "comparendosElectronicos": "N",
+      "consecutivoComparendo": null,
+      "contieneInfraccionesEmbriaguez": false,
+      "contieneInfraccionesHG": false,
+      "departamento": "Atlantico",
+      "estadoCartera": "Pendiente de pago",
+      "estadoComparendo": null,
+      "estadoPago": null,
+      "fechaCoactivo": null,
+      "fechaComparendo": "09/01/2026 00:00:00",
+      "fechaHasta": "01/01/1900 00:00:00",
+      "fechaNotificacion": null,
+      "fechaResolucion": "26/02/2026 00:00:00",
+      "idDepartamento": "120",
+      "idEstadoCartera": "1",
+      "idEstadoComparendo": "0",
+      "idOrganismoTransito": "666",
+      "idResolucion": "136705900",
+      "idTipoResolucion": "1",
+      "impreso": false,
+      "infracciones": [
+        {
+          "codigoInfraccion": "C11",
+          "descripcionInfraccion": "No portar el equipo de prevención y seguridad establecido en este código o en la reglamentación correspondiente.",
+          "valorInfraccion": "633105"
+        }
+      ],
+      "infractor": {
+        "apellido": "ARG*** RODR***** ",
+        "idTipoDocumento": "1",
+        "nombre": "NEL*** MIG*** ",
+        "numeroDocumento": "1140855659",
+        "tipoDocumento": "Cédula"
+      },
+      "liquidacionCoactivoParam18": true,
+      "liquidarIncumpApParam135": true,
+      "nroCoactivo": null,
+      "numeroComparendo": "08758000000053964594",
+      "numeroResolucion": "202697622",
+      "organismoTransito": "Soledad",
+      "permiteSuscribirAp": null,
+      "placa": "HXR704",
+      "polca": "N",
+      "porcentajeDescuentoCapital": "0",
+      "porcentajeDescuentoIntereses": "0",
+      "poseeCurso": null,
+      "proyeccion": [
+        {
+          "descripcion": "Generación de la resolución",
+          "dias": "0",
+          "fecha": "26/02/2026 00:00:00",
+          "instrucciones": null,
+          "valor": "633105"
+        },
+        {
+          "descripcion": "Fecha actual",
+          "dias": "0",
+          "fecha": "29/05/2026 19:54:55",
+          "instrucciones": null,
+          "valor": "828738.2294442963"
+        },
+        {
+          "descripcion": "Cobro coactivo",
+          "dias": "0",
+          "fecha": "26/02/2027 00:00:00",
+          "instrucciones": null,
+          "valor": "882656.6392022455"
+        }
+      ],
+      "referenciaPago": null,
+      "renuencia": false,
+      "tutor": "N",
+      "valor": "633105",
+      "valorDescuentoCapital": "0",
+      "valorDescuentoIntereses": null,
+      "valorDescuentoProntoPago": null,
+      "valorGestion": "177269",
+      "valorIntereses": "18364.229444296296",
+      "valorPagar": "828738"
+    }
+  ],
+  "organismoTransitoCancelSuspen": null,
+  "paramEntradaPlaca": true,
+  "pazSalvo": false,
+  "personasMismoDocumento": [],
+  "plate": "HXR704",
+  "resoluciones": [],
+  "suspendida": false,
+  "totalAcuerdosPagar": "0",
+  "totalAp": "0",
+  "totalGeneral": "828738",
+  "totalMultas": "828738",
+  "totalMultasPagar": "1"
+}

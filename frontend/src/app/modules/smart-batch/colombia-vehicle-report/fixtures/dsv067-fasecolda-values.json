@@ -1,0 +1,31 @@
+{
+  "absShow": "SI",
+  "airbags": "6",
+  "axles": "2",
+  "bcpp": "170400",
+  "brakes": "DISCO/DISCO",
+  "capacityPassengers": "5",
+  "category": "LIVIANO PASAJEROS",
+  "class": "CAMIONETA PASAJ.",
+  "code": "05635008",
+  "country": "JAP",
+  "cylinderCapacity": "1998",
+  "doors": "5",
+  "fuel": "GASOLINA",
+  "line1": "CX5 [FL]",
+  "line2": "TOURING",
+  "line3": "TP 2000CC CR",
+  "marke": "MAZDA",
+  "plate": "DSV067",
+  "service": "PARTICULAR",
+  "traction": "DELANTERA",
+  "transmission": "4X2",
+  "typology": "UTILITARIO DEPORTIVO 4X2",
+  "valueModel": [
+    { "estado": "USADO", "modelo": "2018", "valor": "83600" },
+    { "estado": "USADO", "modelo": "2017", "valor": "78000" },
+    { "estado": "USADO", "modelo": "2016", "valor": "72800" }
+  ],
+  "weight": "1455",
+  "year": "2018"
+}

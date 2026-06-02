@@ -1,0 +1,110 @@
+{
+  "absShow": "SI",
+  "airbags": "6",
+  "airconditioningShow": "SI",
+  "axles": "2",
+  "bcpp": "114100",
+  "brakes": "DISCO/TAMBOR",
+  "capacityLoad": "0",
+  "capacityPassengers": "5",
+  "category": "LIVIANO PASAJEROS",
+  "class": "AUTOMOVIL",
+  "code": "05632091",
+  "country": "MEX",
+  "cylinderCapacity": "1496",
+  "doors": "5",
+  "electricChairs": "0",
+  "electricGlasses": "4",
+  "electricMirrors": "2",
+  "explorersShow": "NO",
+  "foodSystem": "NO APLICA",
+  "fuel": "GASOLINA",
+  "groupUpdate": "2",
+  "homoloCode": "05601193",
+  "importedShow": "SI",
+  "line1": "2 [2] [FL]",
+  "line2": "GRAND TOURING LX",
+  "line3": "TP 1500CC 6AB TC CR",
+  "long": "1695",
+  "marke": "MAZDA",
+  "novelty": "M",
+  "observation": "",
+  "plate": "ABC123",
+  "power": "109",
+  "rearSuspension": "NO APLICA",
+  "reverseCameraShow": "SI",
+  "segmentCylinder": "Y",
+  "segmentSize": "M",
+  "sensorsShow": "SI",
+  "service": "PARTICULAR",
+  "sunroofShow": "NO",
+  "tachometer": "NO APLICA",
+  "traction": "DELANTERA",
+  "transmission": "4X2",
+  "typeAddress": "ELÉCTRICA",
+  "typeAirConditioning": "AUTOMATICO",
+  "typeBox": "TIPTRONICA",
+  "typeHeadlights": "LED",
+  "typology": "HATCHBACK",
+  "upholsteryLeatherShow": "SI",
+  "valueModel": [
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2026",
+      "modeloId": "41009",
+      "valor": "84900"
+    },
+    {
+      "estado": "NUEVO",
+      "idEstado": "1",
+      "modelo": "2026",
+      "modeloId": "41009",
+      "valor": "91300"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2025",
+      "modeloId": "41008",
+      "valor": "84600"
+    },
+    {
+      "estado": "NUEVO",
+      "idEstado": "1",
+      "modelo": "2025",
+      "modeloId": "41008",
+      "valor": "91000"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2024",
+      "modeloId": "41007",
+      "valor": "81800"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2023",
+      "modeloId": "41006",
+      "valor": "77300"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2022",
+      "modeloId": "41005",
+      "valor": "75300"
+    },
+    {
+      "estado": "USADO",
+      "idEstado": "1",
+      "modelo": "2021",
+      "modeloId": "31005",
+      "valor": "69200"
+    }
+  ],
+  "weight": "1073",
+  "year": "2026"
+}

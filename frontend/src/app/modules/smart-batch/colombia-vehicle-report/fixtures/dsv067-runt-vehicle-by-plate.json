@@ -1,0 +1,67 @@
+{
+  "documentNumber": "22468888",
+  "documentType": "CC",
+  "plate": "DSV067",
+  "garantiasFavorDe": [],
+  "informacionBlindaje": { "blindado": "NO" },
+  "informacionGeneral": {
+    "cilindraje": "1998",
+    "claseVehiculo": "CAMIONETA",
+    "clasificacion": "AUTOMOVIL",
+    "color": "GRIS METEORO",
+    "estadoDelVehiculo": "ACTIVO",
+    "fechaMatricula": "27/04/2017",
+    "linea": "CX-5",
+    "marca": "MAZDA",
+    "modelo": "2018",
+    "noChasis": "JM8KE2W72J0420517",
+    "noMotor": "PE10457391",
+    "noPlaca": "DSV067",
+    "noVin": "JM8KE2W72J0420517",
+    "organismoTransito": "STRIA DE TTOyTTE MEDELLIN",
+    "pasajerosSentados": "5",
+    "prendas": "NO",
+    "puertas": "5",
+    "tieneGravamenes": "NO",
+    "tipoCarroceria": "WAGON",
+    "tipoCombustible": "GASOLINA",
+    "tipoServicio": "Particular",
+    "validacionDIAN": "No Exitoso"
+  },
+  "soat": [
+    {
+      "noPoliza": "10564300822950",
+      "fechaVigencia": "20/06/2025",
+      "fechaVencimiento": "19/06/2026",
+      "entidadExpideSoat": "SEGUROS DEL ESTADO S.A.",
+      "estado": "VIGENTE"
+    }
+  ],
+  "solicitudes": [
+    {
+      "noSolicitud": "267310449",
+      "fechaSolicitud": "15/05/2025",
+      "estado": "APROBADA",
+      "tramitesRealizados": "Tramite revision tecnico mecanica, ",
+      "entidad": "CDA SUPERCARS"
+    },
+    {
+      "noSolicitud": "143596907",
+      "fechaSolicitud": "07/09/2020",
+      "estado": "AUTORIZADA",
+      "tramitesRealizados": "TRÁMITE LEVANTAMIENTO ALERTA, TRÁMITE TRASPASO, ",
+      "entidad": "STRIA DE TTOyTTE MEDELLIN"
+    }
+  ],
+  "tecnoMecanica": [
+    {
+      "fechaExpedicion": "15/05/2025",
+      "fechaVencimiento": "15/05/2026",
+      "cdaExpide": "CDA SUPERCARS",
+      "estado": "APROBADA",
+      "vigente": "NO",
+      "nroCertificado": "181223783"
+    }
+  ],
+  "vin": "JM8KE2W72J0420517"
+}

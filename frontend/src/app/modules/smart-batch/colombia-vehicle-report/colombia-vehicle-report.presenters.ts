@@ -20,7 +20,7 @@ import {
     presentColombiaSimitPlate,
 } from '../step-result-presenters/presenters/colombia-simit-plate';
 import type { ReportBlockId, ReportTableModel } from './colombia-vehicle-report.types';
-import { isBenignNoRecord } from './colombia-vehicle-report.utils';
+import { getSimitAgreementsList, isBenignNoRecord } from './colombia-vehicle-report.utils';
 
 type PresenterBundle = {
     displayRows: (data: unknown) => StepDisplayRow[] | null;
@@ -62,14 +62,25 @@ export const presentBlockData = (
     };
 };
 
-export const resolveBlockStatus = (data: unknown): 'ok' | 'empty' => {
+export const resolveBlockStatus = (blockId: ReportBlockId, data: unknown): 'ok' | 'empty' => {
     if (data == null) return 'empty';
     if (isBenignNoRecord(data)) return 'empty';
     if (typeof data !== 'object' || Array.isArray(data)) return 'ok';
     const o = data as Record<string, unknown>;
-    const sinister = o.sinister;
-    if (Array.isArray(sinister) && sinister.length === 0) return 'empty';
-    const acuerdos = o.acuerdosPago;
-    if (Array.isArray(acuerdos) && acuerdos.length === 0 && o.totalAp === '0') return 'empty';
+
+    if (blockId === 'fasecolda_sinister') {
+        const sinister = o.sinister;
+        if (Array.isArray(sinister) && sinister.length === 0) return 'empty';
+    }
+
+    if (blockId === 'simit_agreements') {
+        if (getSimitAgreementsList(o).length === 0) return 'empty';
+    }
+
+    if (blockId === 'simit_fines_by_plate') {
+        const multas = o.multas;
+        if (Array.isArray(multas) && multas.length === 0) return 'ok';
+    }
+
     return 'ok';
 };
