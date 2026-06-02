@@ -2239,6 +2239,7 @@
     "coming_soon": "近日公開",
     "coming_soon_title": "近日公開",
     "coming_soon_desc": "この機能は現在開発中です。更新情報については後で確認してください！",
+    "business_account_label": "ビジネスアカウント",
     "sections": {
       "account": "アカウント",
       "workspace": "ワークスペース",
@@ -2375,6 +2376,8 @@
     "billing": {
       "title": "請求情報",
       "subtitle": "請求および請求書情報を管理",
+      "sign_in_hint": "メールまたは電話でサインインして請求情報を管理してください。",
+      "connect_business_account": "ビジネスアカウントを接続",
       "payer_info": "支払者情報",
       "payer_info_desc": "この情報は請求書に使用されます",
       "address_title": "請求先住所",
@@ -2607,12 +2610,12 @@
     "credits": "クレジット",
     "agentWallet": "エージェントウォレット",
     "active": "アクティブ",
-    "connectWeb2Account": "Web2アカウントを接続",
-    "connectWeb2AccountDescription": "メールまたは電話をリンクしてクレジットにアクセス",
+    "connectWeb2Account": "ビジネスアカウントを接続",
+    "connectWeb2AccountDescription": "メールまたは電話でサインインしてクレジットと請求にアクセス",
     "connectWallet": "ウォレットを接続",
     "connectWalletDescription": "ウォレットをリンクしてWeb3機能とAVAX支払いにアクセス",
     "resetWallet": "ウォレットをリセット",
-    "signOutWeb2": "Web2アカウントからサインアウト",
+    "signOutWeb2": "ビジネスアカウントからサインアウト",
     "signOutWeb3": "ウォレットからサインアウト",
     "settings": "設定"
   },

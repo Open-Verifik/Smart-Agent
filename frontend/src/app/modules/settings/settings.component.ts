@@ -241,7 +241,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private _loadUserData(): void {
         const userStr = localStorage.getItem('verifik_account') || localStorage.getItem('user');
         this.user = userStr ? JSON.parse(userStr) : null;
-        this.isWeb2User = !!this.user;
+        this.isWeb2User = !!localStorage.getItem('verifik_account');
     }
 
     private _observeMediaChanges(): void {

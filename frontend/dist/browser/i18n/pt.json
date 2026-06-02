@@ -2239,6 +2239,7 @@
     "coming_soon": "Em breve",
     "coming_soon_title": "Em breve",
     "coming_soon_desc": "Este recurso está atualmente em desenvolvimento. Volte em breve para atualizações!",
+    "business_account_label": "Conta Empresarial",
     "sections": {
       "account": "Conta",
       "workspace": "Área de Trabalho",
@@ -2446,6 +2447,8 @@
     "billing": {
       "title": "Dados de Faturamento",
       "subtitle": "Gerencie suas informações de faturamento e faturas",
+      "sign_in_hint": "Entre com seu e-mail ou telefone para gerenciar seus dados de faturamento.",
+      "connect_business_account": "Conectar Conta Empresarial",
       "payer_info": "Informações do Pagador",
       "payer_info_desc": "Esta informação será usada para faturamento",
       "address_title": "Endereço de Faturamento",
@@ -2607,12 +2610,12 @@
     "credits": "Créditos",
     "agentWallet": "Carteira do Agente",
     "active": "Ativo",
-    "connectWeb2Account": "Conectar Conta Web2",
-    "connectWeb2AccountDescription": "Vincule seu e-mail ou telefone para acessar créditos",
+    "connectWeb2Account": "Conectar Conta Empresarial",
+    "connectWeb2AccountDescription": "Entre com seu e-mail ou telefone para acessar créditos e faturamento",
     "connectWallet": "Conectar Carteira",
     "connectWalletDescription": "Vincule uma carteira para acessar recursos Web3 e pagamentos AVAX",
     "resetWallet": "Redefinir Carteira",
-    "signOutWeb2": "Sair da Conta Web2",
+    "signOutWeb2": "Sair da Conta Empresarial",
     "signOutWeb3": "Sair da Carteira",
     "settings": "Configurações"
   },

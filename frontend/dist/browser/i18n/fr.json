@@ -2235,6 +2235,7 @@
     "coming_soon": "Bientôt",
     "coming_soon_title": "Bientôt disponible",
     "coming_soon_desc": "Cette fonctionnalité est en cours de développement. Revenez bientôt !",
+    "business_account_label": "Compte professionnel",
     "sections": {
       "account": "Compte",
       "workspace": "Espace de travail",
@@ -2438,6 +2439,8 @@
     "billing": {
       "title": "Détails de facturation",
       "subtitle": "Gérer vos informations de facturation et factures",
+      "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour gérer vos informations de facturation.",
+      "connect_business_account": "Connecter un compte professionnel",
       "payer_info": "Information du payeur",
       "payer_info_desc": "Cette information sera utilisée pour la facturation",
       "address_title": "Adresse de facturation",
@@ -2495,12 +2498,12 @@
     "credits": "Crédits",
     "agentWallet": "Portefeuille Agent",
     "active": "Actif",
-    "connectWeb2Account": "Connecter Compte Web2",
-    "connectWeb2AccountDescription": "Liez votre email ou téléphone pour accéder aux crédits",
+    "connectWeb2Account": "Connecter un compte professionnel",
+    "connectWeb2AccountDescription": "Connectez-vous avec votre e-mail ou téléphone pour accéder aux crédits et à la facturation",
     "connectWallet": "Connecter Portefeuille",
     "connectWalletDescription": "Liez un portefeuille pour accéder aux fonctionnalités Web3 et paiements AVAX",
     "resetWallet": "Réinitialiser Portefeuille",
-    "signOutWeb2": "Déconnecter Web2",
+    "signOutWeb2": "Déconnexion du compte professionnel",
     "signOutWeb3": "Déconnecter Portefeuille",
     "settings": "Paramètres"
   },

@@ -3,10 +3,15 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    EventEmitter,
     Input,
+    OnChanges,
     OnDestroy,
     OnInit,
+    Output,
+    SimpleChanges,
     ViewEncapsulation,
+    inject,
 } from '@angular/core';
 import {
     AbstractControl,
@@ -22,6 +27,7 @@ import {
     MatAutocompleteSelectedEvent,
 } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -31,6 +37,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
+import { AuthModalComponent } from 'app/layout/common/auth-modal/auth-modal.component';
 import { ClientSettings, SettingsService } from '../settings.service';
 
 interface CountryCodeOption {
@@ -73,6 +80,7 @@ const nitFormatValidator = (control: AbstractControl): ValidationErrors | null =
         FormsModule,
         ReactiveFormsModule,
         MatButtonModule,
+        MatDialogModule,
         MatIconModule,
         MatInputModule,
         MatAutocompleteModule,
@@ -86,9 +94,11 @@ const nitFormatValidator = (control: AbstractControl): ValidationErrors | null =
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BillingDetailsComponent implements OnInit, OnDestroy {
-    @Input() user: any;
+export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
+    @Input() user: unknown;
+    @Output() userChange = new EventEmitter<unknown>();
 
+    private _dialog = inject(MatDialog);
     private _unsubscribeAll = new Subject<void>();
     payerForm: FormGroup;
     addressForm: FormGroup;
@@ -170,11 +180,27 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         this._initDocumentTypes();
     }
 
+    get userClientId(): string | undefined {
+        const verifikAccount = this._getVerifikAccount();
+        if (verifikAccount?._id) {
+            return verifikAccount._id as string;
+        }
+
+        const rec = this.user as Record<string, unknown> | null;
+        return rec?.['_id'] as string | undefined;
+    }
+
     ngOnInit(): void {
-        this.loadBillingData();
         this._setupBillingFilters();
         this._setupDirtyTracking();
         this._updatePayerValidators();
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['user']) {
+            this.billingLoaded = false;
+            this.loadBillingData();
+        }
     }
 
     ngOnDestroy(): void {
@@ -239,11 +265,38 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         return this._allPersonDocumentTypes.filter((option) => option.value !== 'NIT');
     }
 
+    openAuthModal(): void {
+        this._dialog
+            .open(AuthModalComponent, {
+                panelClass: 'auth-modal-dialog',
+                width: '400px',
+                maxWidth: '100vw',
+            })
+            .afterClosed()
+            .subscribe(() => {
+                const linkedAccount = this._getVerifikAccount();
+                if (linkedAccount?._id) {
+                    this.userChange.emit(linkedAccount);
+                    this.billingLoaded = false;
+                    this.loadBillingData();
+                }
+                this._cdr.markForCheck();
+            });
+    }
+
     loadBillingData(): void {
-        if (!this.user?._id || this.billingLoaded) return;
+        const clientId = this.userClientId;
+
+        if (!clientId) {
+            this.billingLoaded = true;
+            this._cdr.markForCheck();
+            return;
+        }
+
+        if (this.billingLoaded) return;
 
         this._settingsService
-            .getBillingConfig(this.user._id)
+            .getBillingConfig(clientId)
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
                 next: (response) => {
@@ -325,7 +378,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         this.payerForm.markAllAsTouched();
         this.addressForm.markAllAsTouched();
 
-        if (this.payerForm.invalid || this.addressForm.invalid || !this.user?._id) {
+        const clientId = this.userClientId;
+
+        if (this.payerForm.invalid || this.addressForm.invalid || !clientId) {
             this._cdr.markForCheck();
             return;
         }
@@ -338,7 +393,7 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         const type = payerValue.type;
 
         const billingData: any = {
-            client: this.user._id,
+            client: clientId,
             invoiceSettings: {
                 type: type,
                 address: addressValue,
@@ -529,7 +584,10 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         }
     }
 
-    onBillingCountrySelected(event: MatAutocompleteSelectedEvent, type: 'business' | 'person'): void {
+    onBillingCountrySelected(
+        event: MatAutocompleteSelectedEvent,
+        type: 'business' | 'person'
+    ): void {
         this._applyBillingCountrySelection(type, event.option.value as CountryCodeOption);
     }
 
@@ -548,7 +606,11 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         codeControl?.setValue(country, { emitEvent: false });
         this._syncDocumentTypeForCountry(type);
 
-        if (type === 'business' && this._isColombia(country) && !this.payerForm.get('business_documentType')?.value) {
+        if (
+            type === 'business' &&
+            this._isColombia(country) &&
+            !this.payerForm.get('business_documentType')?.value
+        ) {
             this.payerForm.patchValue({ business_documentType: 'NIT' });
         }
 
@@ -558,7 +620,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
 
     private _syncDocumentTypeForCountry(type: 'business' | 'person'): void {
         const isBusiness = type === 'business';
-        const allowed = isBusiness ? this.getBusinessDocumentTypes() : this.getPersonDocumentTypes();
+        const allowed = isBusiness
+            ? this.getBusinessDocumentTypes()
+            : this.getPersonDocumentTypes();
         const controlName = isBusiness ? 'business_documentType' : 'person_documentType';
         const current = this.payerForm.get(controlName)?.value;
 
@@ -645,17 +709,20 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                 this._cdr.markForCheck();
             });
 
-        ['business_country', 'business_documentType', 'person_country', 'person_documentType'].forEach(
-            (field) => {
-                this.payerForm
-                    .get(field)
-                    ?.valueChanges.pipe(takeUntil(this._unsubscribeAll))
-                    .subscribe(() => {
-                        this._updatePayerValidators();
-                        this._cdr.markForCheck();
-                    });
-            }
-        );
+        [
+            'business_country',
+            'business_documentType',
+            'person_country',
+            'person_documentType',
+        ].forEach((field) => {
+            this.payerForm
+                .get(field)
+                ?.valueChanges.pipe(takeUntil(this._unsubscribeAll))
+                .subscribe(() => {
+                    this._updatePayerValidators();
+                    this._cdr.markForCheck();
+                });
+        });
     }
 
     private _updatePayerValidators(): void {
@@ -773,6 +840,15 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         this.businessDocumentError = '';
     }
 
+    private _getVerifikAccount(): Record<string, unknown> | null {
+        try {
+            const raw = localStorage.getItem('verifik_account');
+            return raw ? (JSON.parse(raw) as Record<string, unknown>) : null;
+        } catch {
+            return null;
+        }
+    }
+
     private _resolveSaveErrorMessage(error: any): {
         message: string;
         businessNameError: string;
@@ -784,7 +860,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
         switch (backendMessage) {
             case 'dian_nit_not_found':
                 return {
-                    message: this._translocoService.translate('settings.billing.dian_nit_not_found'),
+                    message: this._translocoService.translate(
+                        'settings.billing.dian_nit_not_found'
+                    ),
                     businessNameError: '',
                     businessDocumentError: this._translocoService.translate(
                         'settings.billing.dian_nit_not_found'
@@ -792,7 +870,9 @@ export class BillingDetailsComponent implements OnInit, OnDestroy {
                 };
             case 'dian_name_mismatch':
                 return {
-                    message: this._translocoService.translate('settings.billing.dian_name_mismatch'),
+                    message: this._translocoService.translate(
+                        'settings.billing.dian_name_mismatch'
+                    ),
                     businessNameError: this._translocoService.translate(
                         'settings.billing.dian_name_mismatch'
                     ),

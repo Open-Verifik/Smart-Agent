@@ -16,7 +16,7 @@
                             {{ t('settings.billing.title') }}
                         </h1>
 
-                        <ng-container *ngIf="billingLoaded">
+                        <ng-container *ngIf="userClientId && billingLoaded">
                             <span
                                 *ngIf="isComplete"
                                 class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300"
@@ -40,9 +40,33 @@
             </div>
         </header>
 
+        <!-- Empty (no business account) -->
+        <div
+            *ngIf="!userClientId"
+            class="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-stone-200 bg-white px-5 py-14 text-center dark:border-gray-800 dark:bg-gray-900/70"
+        >
+            <div
+                class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300"
+            >
+                <mat-icon>person_off</mat-icon>
+            </div>
+            <p class="max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                {{ t('settings.billing.sign_in_hint') }}
+            </p>
+            <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                class="min-h-11 rounded-xl px-5"
+                (click)="openAuthModal()"
+            >
+                {{ t('settings.billing.connect_business_account') }}
+            </button>
+        </div>
+
         <!-- Loading -->
         <div
-            *ngIf="!billingLoaded"
+            *ngIf="userClientId && !billingLoaded"
             class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-stone-200/90 bg-white px-5 py-14 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
         >
             <mat-spinner diameter="32"></mat-spinner>
@@ -51,7 +75,7 @@
             </p>
         </div>
 
-        <ng-container *ngIf="billingLoaded">
+        <ng-container *ngIf="userClientId && billingLoaded">
             <!-- Account type card -->
             <form [formGroup]="payerForm" class="flex flex-col gap-5">
                 <section

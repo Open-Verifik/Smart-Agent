@@ -2239,6 +2239,7 @@
     "coming_soon": "곧 출시",
     "coming_soon_title": "곧 출시",
     "coming_soon_desc": "이 기능은 현재 개발 중입니다. 업데이트를 위해 곧 다시 확인하세요!",
+    "business_account_label": "비즈니스 계정",
     "sections": {
       "account": "계정",
       "workspace": "작업 공간",
@@ -2375,6 +2376,8 @@
     "billing": {
       "title": "청구 정보",
       "subtitle": "청구 및 송장 정보 관리",
+      "sign_in_hint": "이메일 또는 전화로 로그인하여 청구 정보를 관리하세요.",
+      "connect_business_account": "비즈니스 계정 연결",
       "payer_info": "결제자 정보",
       "payer_info_desc": "이 정보는 송장에 사용됩니다",
       "address_title": "청구 주소",
@@ -2607,12 +2610,12 @@
     "credits": "크레딧",
     "agentWallet": "에이전트 지갑",
     "active": "활성",
-    "connectWeb2Account": "Web2 계정 연결",
-    "connectWeb2AccountDescription": "이메일 또는 전화를 연결하여 크레딧에 액세스",
+    "connectWeb2Account": "비즈니스 계정 연결",
+    "connectWeb2AccountDescription": "이메일 또는 전화로 로그인하여 크레딧 및 청구에 액세스",
     "connectWallet": "지갑 연결",
     "connectWalletDescription": "지갑을 연결하여 Web3 기능 및 AVAX 결제에 액세스",
     "resetWallet": "지갑 재설정",
-    "signOutWeb2": "Web2 계정 로그아웃",
+    "signOutWeb2": "비즈니스 계정 로그아웃",
     "signOutWeb3": "지갑 로그아웃",
     "settings": "설정"
   },

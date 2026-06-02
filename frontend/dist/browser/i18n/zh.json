@@ -2239,6 +2239,7 @@
     "coming_soon": "即将推出",
     "coming_soon_title": "即将推出",
     "coming_soon_desc": "此功能目前正在开发中。请稍后再来查看更新！",
+    "business_account_label": "企业账户",
     "sections": {
       "account": "账户",
       "workspace": "工作区",
@@ -2375,6 +2376,8 @@
     "billing": {
       "title": "账单信息",
       "subtitle": "管理您的账单和发票信息",
+      "sign_in_hint": "使用电子邮件或电话登录以管理账单信息。",
+      "connect_business_account": "连接企业账户",
       "payer_info": "付款人信息",
       "payer_info_desc": "此信息将用于开具发票",
       "address_title": "账单地址",
@@ -2607,12 +2610,12 @@
     "credits": "积分",
     "agentWallet": "代理钱包",
     "active": "活跃",
-    "connectWeb2Account": "连接Web2账户",
-    "connectWeb2AccountDescription": "链接您的电子邮件或电话以访问积分",
+    "connectWeb2Account": "连接企业账户",
+    "connectWeb2AccountDescription": "使用电子邮件或电话登录以访问积分和账单",
     "connectWallet": "连接钱包",
     "connectWalletDescription": "链接钱包以访问Web3功能和AVAX支付",
     "resetWallet": "重置钱包",
-    "signOutWeb2": "退出Web2账户",
+    "signOutWeb2": "退出企业账户",
     "signOutWeb3": "退出钱包",
     "settings": "设置"
   },

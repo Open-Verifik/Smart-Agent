@@ -76,7 +76,7 @@
                                 {{ user?.name || 'User' }}
                             </p>
                             <p class="text-xs text-gray-500 truncate">
-                                {{ user?.email || user?.phone || 'Web2 Account' }}
+                                {{ user?.email || user?.phone || ('settings.business_account_label' | transloco) }}
                             </p>
                         </div>
                     </div>
@@ -103,6 +103,7 @@
                 <app-billing-details
                     *ngIf="selectedPanel === 'billing_details'"
                     [user]="user"
+                    (userChange)="onUserChanged($event)"
                 ></app-billing-details>
 
                 <app-payment-history *ngIf="selectedPanel === 'payment_history'"></app-payment-history>
