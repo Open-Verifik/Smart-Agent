@@ -25,7 +25,11 @@ const GLOBAL_PATH_SEGMENTS = new Set(["dea", "fbi", "onu", "ofac", "europol", "i
 
 const USA_PATH_PREFIXES = ["usa", "passport/us"];
 
-const NON_LATAM_REGION_PREFIXES = new Set(["es", "ca"]);
+/** Country codes outside LATAM/USA that map to Global for pay-skills discovery. */
+const GLOBAL_REGION_CODES = new Set(["es", "ca"]);
+
+/** Cross-region utilities (OCR, comms, scheduling) — not tied to a single country code. */
+const GLOBAL_UTILITY_SEGMENTS = new Set(["ocr", "communication", "appointments", "credit-intents", "autodata"]);
 
 const LATAM_COUNTRY_CODES = new Set([
 	"ar",
@@ -75,15 +79,19 @@ const deriveOperationTags = (pathname, summary = "") => {
 		return [...BASE_DISCOVERY_TAGS, "USA"];
 	}
 
-	if (regionSegment && NON_LATAM_REGION_PREFIXES.has(regionSegment)) {
-		return [...BASE_DISCOVERY_TAGS];
+	if (regionSegment && GLOBAL_REGION_CODES.has(regionSegment)) {
+		return [...BASE_DISCOVERY_TAGS, "Global"];
+	}
+
+	if (regionSegment && GLOBAL_UTILITY_SEGMENTS.has(regionSegment)) {
+		return [...BASE_DISCOVERY_TAGS, "Global"];
 	}
 
 	if (regionSegment && LATAM_COUNTRY_CODES.has(regionSegment)) {
 		return [...BASE_DISCOVERY_TAGS, "LATAM"];
 	}
 
-	return [...BASE_DISCOVERY_TAGS];
+	return [...BASE_DISCOVERY_TAGS, "Global"];
 };
 
 /**
