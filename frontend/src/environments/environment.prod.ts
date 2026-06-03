@@ -1,23 +1,31 @@
-const isStaging = () =>
-    typeof window !== 'undefined' && window.location?.hostname === 'x402.on-forge.com';
+const STAGING_HOSTS = new Set(['staging.verifik.co', 'x402.on-forge.com']);
+
+const isStaging = (): boolean => {
+    if (typeof window === 'undefined') return false;
+
+    return STAGING_HOSTS.has(window.location.hostname);
+};
+
+const STAGING_API_URL = 'https://staging-api.verifik.co';
+const STAGING_APP_URL = 'https://staging.verifik.co';
 
 export const environment = {
     production: true,
     get baseUrl(): string {
-        return isStaging() ? 'https://x402.on-forge.com' : 'https://prod.verifik.co';
+        return isStaging() ? STAGING_API_URL : 'https://prod.verifik.co';
     },
     get smartAgentUrl(): string {
-        return isStaging() ? 'https://x402.on-forge.com' : 'https://ai.verifik.co';
+        return isStaging() ? STAGING_APP_URL : 'https://ai.verifik.co';
     },
     get apiUrl(): string {
-        return isStaging() ? 'https://staging-api.verifik.co' : 'https://prod.verifik.co';
+        return isStaging() ? STAGING_API_URL : 'https://prod.verifik.co';
     },
     get appUrl(): string {
-        return isStaging() ? 'https://x402.on-forge.com' : 'https://prod.verifik.co';
+        return isStaging() ? STAGING_APP_URL : 'https://prod.verifik.co';
     },
     /** SPA origin (matches dev `environment.thisUrl`); used for redirects / dev sample data. */
     get thisUrl(): string {
-        return isStaging() ? 'https://x402.on-forge.com' : 'https://ai.verifik.co';
+        return isStaging() ? STAGING_APP_URL : 'https://ai.verifik.co';
     },
     get projectId(): string {
         return isStaging() ? '6266193db77ccc8111730c90' : '6332941ccde4f719d9c00f9e';
@@ -26,7 +34,7 @@ export const environment = {
         return isStaging() ? '658ed28b0990f300134d7b78' : '6332941ccde4f719d9c00f9f';
     },
     get kycBaseUrl(): string {
-        return isStaging() ? 'https://access.app' : 'https://access.verifik.co';
+        return isStaging() ? 'https://staging-access.verifik.co' : 'https://access.verifik.co';
     },
     get documentationBaseUrl(): string {
         return 'https://docs.verifik.co';

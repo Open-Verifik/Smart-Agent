@@ -199,12 +199,14 @@ Key configuration options:
 | `smartAgentUrl` | Agent backend URL |
 | `baseUrl` | App base URL |
 
-For local development, `environment.ts` uses `https://verifik.app` as the API. For production builds, the app automatically uses `https://staging-api.verifik.co` when deployed at **x402.on-forge.com** (staging) and `https://prod.verifik.co` otherwise.
+For local development, `environment.ts` uses `https://verifik.app` as the API. For production builds, the app detects staging at runtime when the hostname is **`staging.verifik.co`** or **`x402.on-forge.com`** (legacy) and uses `https://staging-api.verifik.co` for API calls; otherwise it uses `https://prod.verifik.co`.
+
+**Staging deploy:** build locally (`npx ng build --configuration=production`), commit `frontend/dist/`, push, then on the server run `git pull` in `/home/forge/staging.verifik.co` (Forge serves `frontend/dist/browser`). Do not run `npm run build` on the server unless dependencies are intentionally managed there.
 
 ### Deployment
 
-- **Staging** (`x402.on-forge.com`): Uses `https://staging-api.verifik.co` for all API requests. The same production build detects the host at runtime.
-- **Production** (`x402-agent.verifik.co`): Uses `https://prod.verifik.co` for API requests.
+- **Staging** (`staging.verifik.co`, also `x402.on-forge.com`): SPA served from `staging.verifik.co`; `apiUrl` / `baseUrl` → `https://staging-api.verifik.co`; `smartAgentUrl` / `thisUrl` → `https://staging.verifik.co`. Same production build, host detected in the browser.
+- **Production** (`ai.verifik.co`): Uses `https://prod.verifik.co` for API requests.
 
 ## 📖 How It Works
 

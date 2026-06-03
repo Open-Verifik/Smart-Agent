@@ -12,10 +12,10 @@ export class AuthService {
     private _userService = inject(UserService);
 
     /**
-     * Joins API origin with path so `http://localhost:3006` + `v2/...` does not produce `3006v2`.
+     * Joins Verifik API origin with path so `https://host` + `v2/...` does not produce `hostv2`.
      */
     private resolveUrl(path: string): string {
-        const base = `${environment.baseUrl ?? ''}`.replace(/\/+$/, '');
+        const base = `${environment.apiUrl ?? ''}`.replace(/\/+$/, '');
         const segment = path.replace(/^\/+/, '');
         return `${base}/${segment}`;
     }
