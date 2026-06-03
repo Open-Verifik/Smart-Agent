@@ -195,10 +195,15 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['user']) {
-            this.billingLoaded = false;
-            this.loadBillingData();
-        }
+        if (!changes['user']) return;
+
+        const prevId = getBusinessUserClientId(changes['user'].previousValue);
+        const nextId = getBusinessUserClientId(changes['user'].currentValue);
+
+        if (prevId === nextId && this.billingLoaded) return;
+
+        this.billingLoaded = false;
+        this.loadBillingData();
     }
 
     ngOnDestroy(): void {

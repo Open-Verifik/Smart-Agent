@@ -74,6 +74,7 @@ export class NotificationSettingsComponent implements OnChanges, OnDestroy {
 
     onBusinessAccountLinked(account: unknown): void {
         this.userChange.emit(account);
+        this.prefsLoaded = false;
         this._maybeLoadSettings();
     }
 
@@ -114,6 +115,7 @@ export class NotificationSettingsComponent implements OnChanges, OnDestroy {
     notificationsForm: FormGroup;
     settingsId: string | null = null;
     loadingPrefs = false;
+    prefsLoaded = false;
     saving = false;
 
     /** Snapshot of the last successfully loaded/saved state — basis for the unsaved indicator. */
@@ -141,9 +143,15 @@ export class NotificationSettingsComponent implements OnChanges, OnDestroy {
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['user']) {
-            this._maybeLoadSettings();
-        }
+        if (!changes['user']) return;
+
+        const prevId = getBusinessUserClientId(changes['user'].previousValue);
+        const nextId = getBusinessUserClientId(changes['user'].currentValue);
+
+        if (prevId === nextId && this.prefsLoaded) return;
+
+        this.prefsLoaded = false;
+        this._maybeLoadSettings();
     }
 
     ngOnDestroy(): void {
@@ -320,9 +328,12 @@ export class NotificationSettingsComponent implements OnChanges, OnDestroy {
             this.settingsId = null;
             this._serverSnapshot = this._defaultSnapshot();
             this.notificationsForm.reset({ ...this._serverSnapshot });
+            this.prefsLoaded = true;
             this._cdr.markForCheck();
             return;
         }
+
+        if (this.prefsLoaded) return;
 
         this.loadingPrefs = true;
         this._cdr.markForCheck();
@@ -354,10 +365,12 @@ export class NotificationSettingsComponent implements OnChanges, OnDestroy {
                         this.notificationsForm.reset({ ...this._serverSnapshot });
                     }
                     this.loadingPrefs = false;
+                    this.prefsLoaded = true;
                     this._cdr.markForCheck();
                 },
                 error: () => {
                     this.loadingPrefs = false;
+                    this.prefsLoaded = true;
                     this._cdr.markForCheck();
                 },
             });

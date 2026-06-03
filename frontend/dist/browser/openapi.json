@@ -280,7 +280,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_agreements",
         "summary": "Colombia - SIMIT Payment Agreements",
@@ -350,7 +351,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_driver",
         "summary": "Colombia - Driver License Verification (RUNT)",
@@ -416,7 +418,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_registraduria_voting",
         "summary": "Colombia - Electoral Records Verification",
@@ -466,7 +469,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle",
         "summary": "Colombia - Basic Vehicle Information",
@@ -541,7 +545,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_suspensions",
         "summary": "Colombia - SIMIT License Suspensions",
@@ -611,7 +616,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_vehicle",
         "summary": "Chile - Vehicle Verification",
@@ -661,7 +667,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_vin",
         "summary": "Colombia - Complete Vehicle Report (By VIN)",
@@ -711,7 +718,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_identity_lookup",
         "summary": "Brazil - National ID Verification",
@@ -782,7 +790,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "communication_global_email_otp",
         "summary": "Email OTP",
@@ -840,7 +849,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup",
         "summary": "Colombia - National ID Verification",
@@ -904,7 +914,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_rethus",
         "summary": "Colombia - Health Records Verification",
@@ -966,7 +977,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_contraloria_certificate",
         "summary": "Colombia - Certificate of Fiscal Responsibility (Contraloría)",
@@ -1036,7 +1048,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "venezuela_api_identity_lookup",
         "summary": "Venezuela - National ID Verification",
@@ -1098,7 +1111,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "mexico_api_vehicle",
         "summary": "Mexico - Vehicle Verification",
@@ -1378,7 +1392,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "mexico_identity_lookup",
         "summary": "Mexico - National ID Verification",
@@ -1440,7 +1455,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_vehicle",
         "summary": "Peru - Vehicle Verification",
@@ -1490,7 +1506,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_vehicle_soat",
         "summary": "Peru - Vehicle Verification",
@@ -1540,7 +1557,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_criminal_history",
         "summary": "Colombia - Legal Background Check",
@@ -1604,7 +1622,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "costarica_api_identity_lookup",
         "summary": "Costa Rica - National ID Verification",
@@ -1666,7 +1685,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_transport_vehicle",
         "summary": "Chile - Public Transport Vehicle",
@@ -1716,7 +1736,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_business_lookup",
         "summary": "Chile - Company Lookup",
@@ -1778,7 +1799,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_vehicle_fines",
         "summary": "Ecuador - Vehicle Fines",
@@ -1828,7 +1850,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_subpoenas_details",
         "summary": "Colombia - SIMIT Subpoena Details",
@@ -1908,7 +1931,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_company_lookup",
         "summary": "Brazil - Company Lookup",
@@ -1970,7 +1994,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_dian_invoicer",
         "summary": "Colombia - DIAN Electronic Invoicer Status",
@@ -2032,7 +2057,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "api_colombia_contracts",
         "summary": "Colombia - Government Contracts Verification",
@@ -2104,7 +2130,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_police_rnmc",
         "summary": "Colombia - Police Records Check",
@@ -2178,7 +2205,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_dian",
         "summary": "Colombia - Tax Information Verification",
@@ -2240,7 +2268,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_judicial_process_details",
         "summary": "Colombia - Judicial Process Details",
@@ -2298,7 +2327,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_resolutions",
         "summary": "Colombia - SIMIT Resolutions",
@@ -2368,7 +2398,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_affiliations",
         "summary": "Colombia - Health & Social Security Affiliations",
@@ -2442,7 +2473,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_registraduria_certificate",
         "summary": "Colombia - Electoral Records Verification",
@@ -2513,7 +2545,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_delinquent_debtors",
         "summary": "Colombia - Delinquent Debtors (BDME)",
@@ -2581,7 +2614,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_identity_lookup",
         "summary": "Ecuador - National ID Verification",
@@ -2631,7 +2665,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_vehicle",
         "summary": "Ecuador - Vehicle Verification",
@@ -2681,7 +2716,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_complete",
         "summary": "Colombia - SIMIT Complete Transit History",
@@ -2863,7 +2899,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_judicial_processes",
         "summary": "Colombia - Judicial Processes",
@@ -2930,7 +2967,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "panama_api_identity_lookup",
         "summary": "Panama - National ID Verification",
@@ -3001,7 +3039,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "spain_api_identity_lookup",
         "summary": "Spain - National ID Verification",
@@ -3193,7 +3232,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_vehicle",
         "summary": "Brazil - Vehicle Verification",
@@ -3243,7 +3283,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "argentina_api_identity_lookup",
         "summary": "Argentina - National ID Verification",
@@ -3305,7 +3346,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "ecuador_api_company_lookup",
         "summary": "Ecuador - Company Lookup",
@@ -3367,7 +3409,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_military_situation",
         "summary": "Colombia - Military Service Records",
@@ -3548,7 +3591,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_sena",
         "summary": "Colombia - SENA Certificates",
@@ -3734,7 +3778,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_pico_placa",
         "summary": "Colombia - Pico y Placa Restrictions",
@@ -3784,7 +3829,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_identity_lookup",
         "summary": "Chile - National ID Verification",
@@ -3846,7 +3892,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_plate",
         "summary": "Colombia - Complete Vehicle Report (By Plate)",
@@ -3920,7 +3967,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_lawyers",
         "summary": "Colombia - Lawyers Verification",
@@ -3984,7 +4032,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "ip-lookup",
         "summary": "IP Geolocation Lookup",
@@ -4034,7 +4083,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "communication_messaging_sms",
         "summary": "SMS Messaging",
@@ -4153,7 +4203,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup_extra",
         "summary": "Colombia - National ID Verification",
@@ -4224,7 +4275,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_pep_lookup",
         "summary": "Colombia - Politically Exposed Persons (PEP) Lookup",
@@ -4286,7 +4338,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "bolivia_api_identity_lookup",
         "summary": "Bolivia - National ID Verification",
@@ -4357,7 +4410,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_driver_license",
         "summary": "Chile - Driver License",
@@ -4415,7 +4469,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_sisconmp",
         "summary": "Colombia - SISCONMP Transport Verification",
@@ -4478,7 +4533,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_plate_simplified",
         "summary": "Colombia - Simplified Vehicle Report",
@@ -4553,7 +4609,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "canada_api_driver_license_ontario",
         "summary": "Canada - Driver License",
@@ -4611,7 +4668,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "canada_api_driver_license_quebec",
         "summary": "Canada - Driver License",
@@ -4669,7 +4727,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "ocr_scan_gpt",
         "summary": "OCR Document Scan Prompt",
@@ -4735,7 +4794,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "el_salvador_api_identity_lookup",
         "summary": "El Salvador - National ID Verification",
@@ -4794,7 +4854,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "paraguay_api_identity_lookup",
         "summary": "Paraguay - National ID Verification",
@@ -4844,7 +4905,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "canada_api_driver_license_british-columbia",
         "summary": "Canada - Driver License",
@@ -4907,7 +4969,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_ce_foreigner_id",
         "summary": "Colombia - Immigration Status Verification",
@@ -4966,7 +5029,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_pep_foreigner_id",
         "summary": "Colombia - Immigration Status Verification",
@@ -5025,7 +5089,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "ocr_scan_studio",
         "summary": "OCR Document Scan Studio",
@@ -5091,7 +5156,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "canada_api_company",
         "summary": "Canada - Company Lookup",
@@ -5159,7 +5225,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "face_recognition_compare",
         "summary": "Face Comparison",
@@ -5227,7 +5294,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "face_recognition_compare_live",
         "summary": "Live Face Comparison",
@@ -5305,7 +5373,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "face_recognition_liveness",
         "summary": "Face Liveness Detection",
@@ -5368,7 +5437,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "face_recognition_detect",
         "summary": "Face Detection",
@@ -5444,7 +5514,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "face_recognition_search",
         "summary": "Face Search",
@@ -5520,7 +5591,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "mexico_api_company",
         "summary": "Mexico - Company Lookup",
@@ -5582,7 +5654,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_valores_fasecolda_by_plate",
         "summary": "Colombia - Fasecolda Vehicle Values (by Plate)",
@@ -5640,7 +5713,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_valores_fasecolda_by_code",
         "summary": "Colombia - Fasecolda Vehicle Values (by Code)",
@@ -5698,7 +5772,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_simit_plate",
         "summary": "Colombia - SIMIT Fines by Plate",
@@ -5748,7 +5823,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "argentina_api_vehicle",
         "summary": "Argentina - Vehicle Verification",
@@ -5849,7 +5925,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "USA"
         ],
         "operationId": "usa_api_driver_license_lookup_kansas",
         "summary": "CONSULTAR LICENCIA DE KANSAS",
@@ -5922,7 +5999,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_sinister_fasecolda_by_plate",
         "summary": "Colombia - Fasecolda Accident History",
@@ -5980,7 +6058,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "brasil_api_criminal_history",
         "summary": "brasil api criminal history",
@@ -6051,7 +6130,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "costa_rica_api_business_lookup",
         "summary": " - Company Lookup",
@@ -6113,7 +6193,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "argentina_api_company_lookup",
         "summary": "Argentina - Company Lookup",
@@ -6175,7 +6256,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "bolivia_api_business_lookup",
         "summary": "Bolivia - Company Lookup",
@@ -6237,7 +6319,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_accidentality_bogota",
         "summary": "Colombia - Bogota Vehicle Accidents",
@@ -6287,7 +6370,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_tax",
         "summary": "Colombia - Vehicle Tax Status",
@@ -6359,7 +6443,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_lawyers_certificate",
         "summary": "Colombia - Lawyers Verification",
@@ -6437,7 +6522,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_judicial_records",
         "summary": "Colombia - Judicial Records",
@@ -6526,7 +6612,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "paraguay_api_business_lookup",
         "summary": "Paraguay - Company Lookup",
@@ -6588,7 +6675,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_validate",
         "summary": "chile api validate",
@@ -6660,7 +6748,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "chile_api_taxpayer_lookup",
         "summary": "chile api taxpayer lookup",
@@ -6722,7 +6811,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "paraguay_api_vehicle",
         "summary": "Paraguay - Vehicle Verification",
@@ -6772,7 +6862,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "costa_rica_api_vehicle",
         "summary": " - Vehicle Verification",
@@ -6873,7 +6964,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "guatemala_api_identity_lookup",
         "summary": "Guatemala - National ID Verification",
@@ -6935,7 +7027,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_fines_medellin",
         "summary": "Colombia - Medellin Transit Fines",
@@ -6985,7 +7078,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_vehicle_fines_bogota",
         "summary": "Colombia - Bogota Transit Fines",
@@ -7035,7 +7129,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "honduras_api_identity_lookup",
         "summary": "Honduras - National ID Verification",
@@ -7097,7 +7192,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "republica_dominicana_api_citizen_lookup",
         "summary": "Dominican Republic - National ID Verification",
@@ -7159,7 +7255,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "venezuela_foreigner_api",
         "summary": "Venezuela - Immigration Status Verification",
@@ -7209,7 +7306,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "bolivia_api_vehicle",
         "summary": "Bolivia - Vehicle Verification",
@@ -7259,7 +7357,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "uruguay_api_identity_lookup",
         "summary": "Uruguay - National ID Verification",
@@ -7330,7 +7429,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "spain_api_company_lookup",
         "summary": "Spain - Company Lookup",
@@ -7392,7 +7492,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "panama_api_business_lookup",
         "summary": "Panama - Company Lookup",
@@ -7463,7 +7564,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_identity_ce_foreigner_id",
         "summary": "Peru - Immigration Status Verification",
@@ -7522,7 +7624,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_rues_full_v3",
         "summary": "Colombia - RUES Complete (v3)",
@@ -7603,7 +7706,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_rues_v3",
         "summary": "Colombia - RUES Summary (v3)",
@@ -7684,7 +7788,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_identity_extra_lookup_v3",
         "summary": "Peru - National ID Verification",
@@ -7746,7 +7851,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_identity_lookup_v3",
         "summary": "Peru - National ID Verification",
@@ -7808,7 +7914,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_ppt_foreigner_id",
         "summary": "Colombia - Immigration Status Verification",
@@ -7867,7 +7974,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_min_trabajo_v3",
         "summary": "Colombia - Work at Heights Certification",
@@ -7937,7 +8045,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_sisben_api_lookup",
         "summary": "Colombia - SISBEN Score Verification",
@@ -8003,7 +8112,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "face_recognition_detect_face",
         "summary": "Face Detection",
@@ -8061,7 +8171,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "peru_api_company_lookup_v3",
         "summary": "Peru - Company Lookup",
@@ -8123,7 +8234,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "document-liveness",
         "summary": "Document Liveness Detection",
@@ -8174,7 +8286,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "credit_intent",
         "summary": "Credit Purchase Intent",
@@ -8236,7 +8349,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "spain_api_vehicle_lookup",
         "summary": "Spain - Vehicle Verification",
@@ -8286,7 +8400,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_sigep_by_name",
         "summary": "Colombia - SIGEP Public Officials Search",
@@ -8344,7 +8459,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_sigep_by_number",
         "summary": "Colombia - SIGEP Official Lookup by Document",
@@ -8407,7 +8523,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_inpec_lookup",
         "summary": "Colombia - INPEC Penitentiary Records",
@@ -8478,7 +8595,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "zelf-proofs",
         "summary": "Zelf Proofs",
@@ -8529,7 +8647,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "zelf-proof-liveness-active-user",
         "summary": "Zelf Proof with Liveness (Active user)",
@@ -8580,7 +8699,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "guatemala_api_identity_extra_lookup",
         "summary": "Guatemala - Identity Verification full",
@@ -8642,7 +8762,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "india_api_epic_lookup",
         "summary": "CONSULTAR EPIC INDIA",
@@ -8708,7 +8829,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "india_api_epic_voting_lookup",
         "summary": "CONSULTAR VOTACION EPIC INDIA",
@@ -8774,7 +8896,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "co_bogota_taxi_plate",
         "summary": "Colombia - Bogotá Taxi Driver by Plate",
@@ -8834,7 +8957,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "co_bogota_taxi_driver_card",
         "summary": "Colombia - Bogotá Taxi Driver by Card",
@@ -8894,7 +9018,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup_premium",
         "summary": "Colombia - National ID Premium Verification",
@@ -8944,7 +9069,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "LATAM"
         ],
         "operationId": "colombia_api_runt_owners",
         "summary": "Colombia - Data Verification Service",
@@ -9081,7 +9207,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "api_proxy_get",
         "summary": "Proxy to Verifik (GET)",
@@ -9130,7 +9257,8 @@
         "tags": [
           "KYC",
           "KYB",
-          "Data"
+          "Data",
+          "Global"
         ],
         "operationId": "api_proxy_post",
         "summary": "Proxy to Verifik (POST)",

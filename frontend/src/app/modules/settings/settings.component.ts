@@ -76,6 +76,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     drawerOpened = true;
     selectedPanel = 'profile';
     user: any;
+    settingsUser: unknown = null;
     isWeb2User = false;
 
     sections: SettingsSection[] = [
@@ -211,6 +212,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.user = nextUser as typeof this.user;
         this.isWeb2User = true;
         this._persistAccount();
+        this._syncSettingsUser();
         this._cdr.markForCheck();
     }
 
@@ -234,8 +236,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
         return this.selectedPanel === panelId;
     }
 
-    get settingsUser(): unknown {
-        return getSettingsUser(this.user);
+    private _syncSettingsUser(): void {
+        this.settingsUser = getSettingsUser(this.user);
     }
 
     private _persistAccount(): void {
@@ -248,6 +250,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
         const userStr = localStorage.getItem('verifik_account') || localStorage.getItem('user');
         this.user = userStr ? JSON.parse(userStr) : null;
         this.isWeb2User = !!localStorage.getItem('verifik_account');
+        this._syncSettingsUser();
     }
 
     private _observeMediaChanges(): void {

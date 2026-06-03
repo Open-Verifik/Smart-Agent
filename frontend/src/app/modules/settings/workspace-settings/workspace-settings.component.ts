@@ -81,10 +81,15 @@ export class WorkspaceSettingsComponent implements OnInit, OnChanges, OnDestroy 
     }
 
     ngOnChanges(changes: SimpleChanges): void {
-        if (changes['user']) {
-            this.workspaceLoaded = false;
-            this.loadWorkspaceData();
-        }
+        if (!changes['user']) return;
+
+        const prevId = getBusinessUserClientId(changes['user'].previousValue);
+        const nextId = getBusinessUserClientId(changes['user'].currentValue);
+
+        if (prevId === nextId && this.workspaceLoaded) return;
+
+        this.workspaceLoaded = false;
+        this.loadWorkspaceData();
     }
 
     get userClientId(): string | undefined {
