@@ -549,7 +549,23 @@
   "accountEnv": {
     "verifyStrip": {
       "text": "Vérifiez votre compte pour accéder aux crédits gratuits initiaux et passer en Production.",
-      "cta": "Vérifier l'entreprise"
+      "cta": "Vérifier l'identité"
+    },
+    "identityVerificationModal": {
+      "title": "Vérifiez votre identité",
+      "subtitle": "Effectuez la vérification pour sécuriser votre compte et déverrouiller l'accès à la production.",
+      "reason1_title": "Responsable du compte",
+      "reason1_desc": "Identifier la personne principale responsable de la gestion de votre espace de travail Verifik.",
+      "reason2_title": "Registres de sécurité",
+      "reason2_desc": "Conserver des enregistrements sécurisés de liveness et de documents dans notre système pour référence future.",
+      "reason3_title": "Accès à la production",
+      "reason3_desc": "Déverrouillez le mode Production pour commencer à exécuter de réelles demandes de vérification d'API en direct.",
+      "reason4_title": "Crédits et recharge",
+      "reason4_desc": "Rechargez des crédits et payez votre utilisation de manière transparente après validation.",
+      "reason5_title": "Prévention de la fraude",
+      "reason5_desc": "Assurer un environnement sûr et prévenir toute utilisation non autorisée ou frauduleuse.",
+      "cta": "Vérifier l'identité",
+      "cancel": "Retour"
     },
     "sandboxStrip": {
       "text": "Vous êtes en mode Sandbox. Les vérifications réelles sont désactivées et les résultats sont simulés.",

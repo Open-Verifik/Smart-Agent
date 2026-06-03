@@ -550,7 +550,23 @@
   "accountEnv": {
     "verifyStrip": {
       "text": "계정을 인증하면 초기 무료 크레딧을 이용하고 프로덕션 모드로 전환할 수 있습니다.",
-      "cta": "회사 인증"
+      "cta": "신원 인증"
+    },
+    "identityVerificationModal": {
+      "title": "신원 인증 진행",
+      "subtitle": "신원 인증을 완료하여 계정을 보호하고 운영 환경 액세스 권한을 활성화하세요.",
+      "reason1_title": "계정 책임자 확인",
+      "reason1_desc": "Verifik 워크스페이스를 관리할 주 책임자를 식별합니다.",
+      "reason2_title": "보안 기록 보관",
+      "reason2_desc": "향후 감사 및 참조를 위해 생체 인식(Liveness) 및 신분증 기록을 안전하게 시스템에 저장합니다.",
+      "reason3_title": "운영 환경 액세스",
+      "reason3_desc": "운영 모드를 잠금 해제하여 실제 라이브 API 인증 요청을 시작합니다.",
+      "reason4_title": "크레딧 충전 및 결제",
+      "reason4_desc": "신원 인증 완료 후 크레딧을 충전하고 서비스 이용 요금을 원활하게 결제하세요.",
+      "reason5_title": "부정 사용 방지",
+      "reason5_desc": "안전한 플랫폼 환경을 보장하고 무단 사용 및 사기 행위를 방지합니다.",
+      "cta": "신원 인증하기",
+      "cancel": "돌아가기"
     },
     "sandboxStrip": {
       "text": "현재 샌드박스 모드입니다. 실제 검증은 비활성화되어 있으며 결과는 시뮬레이션됩니다.",

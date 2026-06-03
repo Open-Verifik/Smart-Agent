@@ -161,6 +161,23 @@ export class AccountEnvironmentService {
     }
 
     startCompanyVerification(): void {
+        import('../../layout/common/identity-verification-info-modal/identity-verification-info-modal.component').then(
+            ({ IdentityVerificationInfoModalComponent }) => {
+                const dialogRef = this._matDialog.open(IdentityVerificationInfoModalComponent, {
+                    panelClass: 'identity-verification-info-modal-dialog',
+                    maxWidth: '520px',
+                });
+
+                dialogRef.afterClosed().subscribe((result) => {
+                    if (result === 'verify') {
+                        this.executeCompanyVerification();
+                    }
+                });
+            }
+        );
+    }
+
+    executeCompanyVerification(): void {
         if (this.verifyCompanyLoading()) {
             return;
         }

@@ -550,7 +550,23 @@
   "accountEnv": {
     "verifyStrip": {
       "text": "验证您的账户即可获取初始免费积分并切换到正式环境。",
-      "cta": "验证企业"
+      "cta": "验证身份"
+    },
+    "identityVerificationModal": {
+      "title": "验证您的身份",
+      "subtitle": "完成身份验证以保障您的账户安全并解锁生产环境访问权限。",
+      "reason1_title": "账户负责人",
+      "reason1_desc": "确定负责管理您的 Verifik 工作区的主要人员。",
+      "reason2_title": "安全记录",
+      "reason2_desc": "在我们的系统中妥善保存活体检测和证件记录，以备日后参考。",
+      "reason3_title": "生产环境访问",
+      "reason3_desc": "解锁生产模式，开始执行真实的实时 API 验证请求。",
+      "reason4_title": "额度与充值",
+      "reason4_desc": "验证通过后即可轻松充值额度并支付使用费用。",
+      "reason5_title": "欺诈预防",
+      "reason5_desc": "确保环境安全，防止未经授权或欺诈性的使用行为。",
+      "cta": "验证身份",
+      "cancel": "返回"
     },
     "sandboxStrip": {
       "text": "当前为沙盒模式。真实核验已停用，结果为模拟数据。",

@@ -618,7 +618,23 @@
         "verifyStrip": {
             "text": "Verify your account to access the initial free credits and switch to Production.",
             "pendingText": "Your verification is under manual review. We'll notify you when it's complete.",
-            "cta": "Verify company"
+            "cta": "Verify identity"
+        },
+        "identityVerificationModal": {
+            "title": "Verify your identity",
+            "subtitle": "Complete verification to secure your account and unlock production access.",
+            "reason1_title": "Account Responsibility",
+            "reason1_desc": "Identify the primary person responsible for managing your Verifik workspace.",
+            "reason2_title": "Security Records",
+            "reason2_desc": "Keep secure liveness and document records in our system for future reference.",
+            "reason3_title": "Production Access",
+            "reason3_desc": "Unlock Production mode to start executing real, live API verification requests.",
+            "reason4_title": "Credits & Recharge",
+            "reason4_desc": "Recharge credits and pay for usage seamlessly after validation.",
+            "reason5_title": "Fraud Prevention",
+            "reason5_desc": "Ensure a safe environment and prevent unauthorized or fraudulent usage.",
+            "cta": "Verify identity",
+            "cancel": "Go back"
         },
         "sandboxStrip": {
             "text": "You're in Sandbox mode. Real verification checks are disabled and results are simulated.",
