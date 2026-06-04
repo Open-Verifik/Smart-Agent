@@ -326,6 +326,73 @@ $brand-gray-light: #f3f4f6;
     }
 }
 
+// Payment Method Card
+.payment-method-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    margin-bottom: 24px;
+
+    &.empty {
+        justify-content: center;
+        color: #6b7280;
+        font-weight: 500;
+        gap: 8px;
+        background: #f9fafb;
+
+        mat-icon {
+            color: #9ca3af;
+        }
+    }
+}
+
+.payment-card-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+}
+
+.payment-card-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 32px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 4px;
+    flex-shrink: 0;
+
+    .card-logo {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+}
+
+.payment-card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .card-number {
+        font-size: 14px;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .card-expiry {
+        font-size: 12px;
+        color: #6b7280;
+    }
+}
+
 // Features Grid
 .features-grid {
     display: grid;

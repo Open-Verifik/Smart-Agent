@@ -449,6 +449,83 @@
       "title": "AIエージェントのための信頼レイヤー",
       "subtitle": "自律エージェントの背後にある人と企業を検証。14以上の公式政府データベース連携とx402決済プロトコルで駆動。"
     },
+    "onboarding": {
+      "title": "開発者オンボーディングチェックリスト",
+      "subtitle": "これらのタスクを完了して、統合を確認し、APIをテストし、報酬を獲得してください。完了したタスクごとに$1.00 USDがアカウント残高に加算されます（最大$12.00 USD）。",
+      "progressBar": "進捗状況: {{completed}} / {{total}} タスク完了",
+      "pendingApproval": "（{{amount}} USD 承認待ち）",
+      "activated": "（{{amount}} USD 残高に反映済み）",
+      "verify": "確認する",
+      "verifying": "確認中...",
+      "completed": "完了",
+      "failedVerification": "検証に失敗しました。デモまたはアクションを完了したことを確認してから、もう一度お試しください。",
+      "support": "お困りですか？サポートに連絡",
+      "tasks": {
+        "test_smartcheck": "SmartCheckのいずれかのエンドポイントをテストする",
+        "test_collection_demo": "Smart Enrollコレクションの作成",
+        "test_add_person_demo": "Smart Enroll人物の追加",
+        "test_search_person_demo": "Smart Enroll人物の検索",
+        "test_liveness_demo": "Smart Enrollライブネスチェックの実行",
+        "test_humanauthn_creation": "HumanID証明の作成",
+        "test_humanauthn_decryption": "HumanID証明の復号",
+        "test_humanauthn_preview": "HumanID証明のプレビュー",
+        "subscribe_smart_access": "無料のSmart Accessプランを購読し、最初のプロジェクトを作成する",
+        "subscribe_smart_enroll": "無料のSmart Enrollプランを購読し、最初のプロジェクトを作成する",
+        "add_billing_details": "請求情報を追加する",
+        "complete_kyc": "KYC本人確認を完了する"
+      },
+      "completeTask": "タスクを完了する",
+      "explanations": {
+        "test_smartcheck": {
+          "description": "Postmanパネルから政府データベースエンドポイントにリクエストを送信し、統合状態を確認します。",
+          "requirement": "Postmanツールに移動し、いずれかのエンドポイント（例: コロンビア市民、メキシコINEなど）を選択し、パラメータを入力して「送信」をクリックします。"
+        },
+        "test_collection_demo": {
+          "description": "Smart Enrollバイオメトリクスモジュールで顔認識コレクションを作成します。",
+          "requirement": "Smart Enrollデモに移動し、「コレクションの作成」デモを選択し、コレクションの名前と説明を入力して「作成」をクリックします。"
+        },
+        "test_add_person_demo": {
+          "description": "作成したコレクションのいずれかに、顔バイオメトリクスを持つ新しい人物を登録します。",
+          "requirement": "Smart Enrollデモに移動し、「人物の追加」デモを選択し、コレクションを選択して人物の画像をアップロードして送信します。"
+        },
+        "test_search_person_demo": {
+          "description": "顔認識コレクション内の人物の顔を検索します。",
+          "requirement": "Smart Enrollデモに移動し、「人物の検索」デモを選択し、顔画像をアップロードしてバイオメトリック一致検索を実行します。"
+        },
+        "test_liveness_demo": {
+          "description": "本物の人間が存在することを確認するために、ドキュメントのライブネスまたはセルフィーの顔のライブネスチェックを実行します。",
+          "requirement": "Smart Enrollデモに移動し、ライブネスチェックデモを実行し、セルフィー写真をアップロードして、ライブネスの信頼度スコアを確認します。"
+        },
+        "test_humanauthn_creation": {
+          "description": "身元データと顔のバイオメトリクスを、暗号化された分散型HumanID証明にバインドします。",
+          "requirement": "Smart Enroll のデモに移動し、「HumanID証明の作成」デモを選択して証明を作成します。"
+        },
+        "test_humanauthn_decryption": {
+          "description": "一致するライブ顔を提示することにより、HumanID証明内のIDペイロードを復号化して検証します。",
+          "requirement": "Smart Enroll のデモに移動し、「HumanID証明の復号」デモを選択して復号キーを入力します。"
+        },
+        "test_humanauthn_preview": {
+          "description": "暗号化されたHumanID証明の公開設定の詳細とメタデータを表示します。",
+          "requirement": "Smart Enroll のデモに移動し、「HumanID証明のプレビュー」デモを選択してメタデータをプレビューします。"
+        },
+        "subscribe_smart_access": {
+          "description": "ユーザー向けの分散型パスワードレス認証ゲートウェイを設定します。",
+          "requirement": "セットアップを完了するには、次の手順を実行します：<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li><strong>Smart Access プロジェクト</strong> (<a href=\"/smart-access/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/projects</a>) に移動します。</li><li>サブスクリプションプランが必要であることを示すカードのプロンプトをクリックして、<strong>プラン</strong> ページ (<a href=\"/smart-access/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/plans</a>) に移動します。</li><li><strong>無料プラン</strong> (無料：<em>無料のソリューションをお試しください！200回のEメールログインを取得します。当社のサービスの実用的な機能をテストできる無料のソリューションをお試しください！無料プランを購入すると、EメールからアクセスできるEメールログインが200回取得できます。追加料金で製品의 다른 기능을 테스트할 수도 있습니다.</em>) に登録します。</li><li><strong>Smart Access プロジェクト</strong> に戻り、最初のアクティブなパスワードレス認証プロジェクトを構成します（プロジェクトのステータスが「ドラフト」ではなく「<strong>アクティブ</strong>」になっていることを確認してください）！</li></ol>"
+        },
+        "subscribe_smart_enroll": {
+          "description": "ユーザーオンボーディング用のバイオメトリックID登録フローを設定します。",
+          "requirement": "セットアップを完了するには、次の手順を実行します：<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li><strong>Smart Enroll プロジェクト</strong> (<a href=\"/smart-enroll/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/projects</a>) に移動します。</li><li>サブ引くプランが必要であることを示すカードのプロンプトをクリックして、<strong>プラン</strong> ページ (<a href=\"/smart-enroll/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/plans</a>) に移動します。</li><li><strong>無料プラン</strong> ($0/月、25回 smartEnrolls: <em>毎月25回の基本登録を永久に無料でご利用いただけます。追加料金で製品の他の機能をテストすることもできます。</em>) に登録します。</li><li><strong>Smart Enroll プロジェクト</strong> に戻り、最初のアクティブなカスタムプロジェクトを作成します（プロジェクトのステータスが「ドラフト」ではなく「<strong>アクティブ</strong>」になっていることを確認してください）！</li></ol>"
+        },
+        "add_billing_details": {
+          "description": "個人アカウントまたは法人アカウントを選択して、お支払い設定プロファイルを構成します。これは、請求書の発行、お支払いの検証、および規制遵守に必要です。",
+          "requirement": "「請求の詳細」セクションに移動し、アカウントの種類（個人または法人）を選択し、必要な請求情報（名前、書類番号、住所）を入力して、設定を保存します。"
+        },
+        "complete_kyc": {
+          "description": "開発者の身元を検証し、本番モードを有効にします。",
+          "requirement": "上部バナーの「本人確認」をクリックするか、KYC本人確認フォームを完了して、本番APIアクセスをロック解除します。"
+        }
+      }
+    },
     "stats": {
       "title": "統計",
       "loading": "読み込み中...",
@@ -4170,7 +4247,7 @@
       "selectPerson": "人を選択してください…",
       "selectCollection": "コレクションを選択してください…",
       "selectCollections": "コレクションを選択してください…",
-      "collectionsSelected": "{count, plural, one {# 件のコレクションが選択されています} other {# 件のコレクションが選択されています}}",
+      "collectionsSelected": "{{count}} 件のコレクションが選択されています",
       "removeItemAria": "{{label}}を削除",
       "loadingPeople": "人を読み込んでいます…",
       "loadingCollections": "コレクションを読み込み中…",
@@ -4195,7 +4272,8 @@
       "mustBeSignedIn": "このデモを実行するにはサインインする必要があります。",
       "creditsNotCharged": "このリクエストではクレジットは課金されませんでした（この期間ですでに課金済み、または課金対象外）。",
       "creditsChargedLabel": "課金されたクレジット",
-      "creditsUnit": "クレジット"
+      "creditsUnit": "クレジット",
+      "collectionSelected": "1 件のコレクションが選択されています"
     },
     "createCollection": {
       "metaTitle": "コレクションの作成",
@@ -5109,6 +5187,7 @@
       "defaultFail": "イメージはスプーフィング対策チェックに合格しませんでした。",
       "confidence": "自信",
       "verdict": "評決",
+      "cost": "コスト",
       "pass": "PASS",
       "fail": "FAIL",
       "tryAgain": "もう一度やり直してください",

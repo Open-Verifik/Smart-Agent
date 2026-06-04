@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoModule } from '@jsverse/transloco';
+import { NgClass } from '@angular/common';
 
 type Mode = 'json' | 'rows';
 type Row = { id: string; key: string; value: string };
@@ -66,7 +67,7 @@ const prettyStringify = (rec: Record<string, string>): string => JSON.stringify(
 @Component({
     selector: 'app-human-id-json-key-value-field',
     standalone: true,
-    imports: [FormsModule, TranslocoModule],
+    imports: [FormsModule, TranslocoModule, NgClass],
     templateUrl: './human-id-json-key-value-field.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })

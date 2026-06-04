@@ -10,25 +10,57 @@
 
     @if (!authChecked) {
         <div class="h-40 rounded-xl bg-surface-container-high animate-pulse"></div>
+    } @else if (result) {
+        <div class="space-y-5">
+            <app-search-person-result [result]="result" (reset)="reset()" />
+
+            <app-demo-result-actions
+                [secondaryLabel]="'smartEnrollDemos.searchPersonResult.reset' | transloco"
+                secondaryIcon="search"
+                [primaryLabel]="'smartEnrollDemos.personResult.backToDemos' | transloco"
+                [primaryRouterLink]="null"
+                (secondary)="reset()"
+                (primary)="backToDemos()"
+            />
+        </div>
     } @else {
         <div class="space-y-5">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">
-                        {{ 'smartEnrollDemos.searchPerson.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
-                    </label>
-                    <input type="range" min="0.2" max="1" step="0.01" [(ngModel)]="minScore" name="minScore" class="w-full" />
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchPerson.searchModeLabel' | transloco }}</label>
-                    <select [(ngModel)]="searchMode" name="searchMode" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface text-sm focus:outline-none focus:border-primary/60">
-                        <option value="FAST">FAST</option>
-                        <option value="ACCURATE">ACCURATE</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchPerson.collectionIdLabel' | transloco }}</label>
-                    <input type="text" [(ngModel)]="collectionId" name="collectionId" [placeholder]="'smartEnrollDemos.searchPerson.optionalPlaceholder' | transloco" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-3 py-2 text-on-surface placeholder-on-surface-variant/50 text-sm focus:outline-none focus:border-primary/60" />
+            <div class="bg-surface-container-low border border-outline-variant/15 rounded-2xl p-5 shadow-sm w-full">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="flex flex-col">
+                        <label class="block text-sm font-semibold text-on-surface mb-1.5">
+                            {{ 'smartEnrollDemos.searchPerson.minScoreLabel' | transloco: { score: minScore.toFixed(2) } }}
+                        </label>
+                        <div class="flex-1 flex items-center min-h-[46px]">
+                            <input type="range" min="0.2" max="1" step="0.01" [(ngModel)]="minScore" name="minScore" class="w-full accent-primary" />
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="block text-sm font-semibold text-on-surface mb-1.5">{{ 'smartEnrollDemos.searchPerson.searchModeLabel' | transloco }}</label>
+                        <select [(ngModel)]="searchMode" name="searchMode" class="w-full bg-surface-container-low border border-outline-variant/30 rounded-lg px-4 py-3 text-on-surface text-sm focus:outline-none focus:border-primary/60 transition-colors">
+                            <option value="FAST">FAST</option>
+                            <option value="ACCURATE">ACCURATE</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-col">
+                        <label class="block text-sm font-semibold text-on-surface mb-1.5" for="s-col">
+                            {{ 'smartEnrollDemos.searchPerson.collectionIdLabel' | transloco }}
+                        </label>
+                        @if (collectionsError) {
+                            <div class="mb-2 text-sm text-error flex items-center gap-1.5">
+                                <span class="material-symbols-outlined text-sm">error_outline</span>
+                                {{ collectionsError }}
+                            </div>
+                        }
+                        <app-collection-multi-select
+                            labelId="s-col"
+                            [items]="collectionItems"
+                            [selectedIds]="selectedCollectionIds"
+                            (selectedIdsChange)="selectedCollectionIds = $event"
+                            [loading]="collectionsLoading"
+                            [emptySlot]="noCollectionsEmptySlot"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -70,9 +102,6 @@
                 </div>
             }
 
-            @if (result) {
-                <app-search-person-result [result]="result" (reset)="reset()" />
-            }
         </div>
     }
 

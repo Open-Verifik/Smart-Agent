@@ -449,6 +449,83 @@
       "title": "AI 에이전트를 위한 신뢰 레이어",
       "subtitle": "자율 에이전트 뒤의 사람과 회사를 검증하세요. 14개 이상의 공식 정부 데이터베이스 통합과 x402 결제 프로토콜로 구동됩니다."
     },
+    "onboarding": {
+      "title": "개발자 온보딩 체크리스트",
+      "subtitle": "이러한 작업을 완료하여 연동을 확인하고, API를 테스트하고, 리워드를 받으세요. 완료된 작업당 $1.00 USD가 적립됩니다 (최대 $12.00 USD). 리워드는 계정 잔액으로 지급됩니다.",
+      "progressBar": "체크리스트 진행률: {{completed}} / {{total}} 작업 완료",
+      "pendingApproval": "({{amount}} USD 승인 대기 중)",
+      "activated": "({{amount}} USD 잔액 활성화됨)",
+      "verify": "인증하기",
+      "verifying": "확인 중...",
+      "completed": "완료됨",
+      "failedVerification": "검증에 실패했습니다. 데모나 작업을 완료했는지 확인한 후 다시 시도해 주세요.",
+      "support": "도움이 필요하신가요? 고객 지원 문의",
+      "tasks": {
+        "test_smartcheck": "SmartCheck의 아무 엔드포인트나 테스트하기",
+        "test_collection_demo": "Smart Enroll 컬렉션 생성하기",
+        "test_add_person_demo": "Smart Enroll 인물 추가하기",
+        "test_search_person_demo": "Smart Enroll 인물 검색하기",
+        "test_liveness_demo": "Smart Enroll 라이브니스 검증 실행하기",
+        "test_humanauthn_creation": "HumanID 증명 생성하기",
+        "test_humanauthn_decryption": "HumanID 증명 복호화하기",
+        "test_humanauthn_preview": "HumanID 증명 미리보기",
+        "subscribe_smart_access": "무료 Smart Access 플랜 구독 및 첫 프로젝트 생성하기",
+        "subscribe_smart_enroll": "무료 Smart Enroll 플랜 구독 및 첫 프로젝트 생성하기",
+        "add_billing_details": "결제 정보 추가하기",
+        "complete_kyc": "KYC 신원 인증 완료하기"
+      },
+      "completeTask": "작업 완료하기",
+      "explanations": {
+        "test_smartcheck": {
+          "description": "Postman 패널에서 임의의 정부 데이터베이스 엔드포인트로 요청을 전송하여 연동 상태를 확인합니다.",
+          "requirement": "Postman 도구로 이동하여 엔드포인트를 선택하고 파라미터를 채운 후 전송 버튼을 클릭합니다."
+        },
+        "test_collection_demo": {
+          "description": "Smart Enroll 바이오메트릭스 모듈에서 얼굴 인식 컬렉션을 생성합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 컬렉션 생성 데모를 선택하고, 컬렉션의 이름과 설명을 입력한 후 생성 버튼을 클릭합니다."
+        },
+        "test_add_person_demo": {
+          "description": "생성한 컬렉션에 얼굴 바이오메트릭 정보를 포함한 신규 인물을 등록합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 인물 추가 데모를 선택하고, 컬렉션을 지정한 후 인물의 사진을 업로드하여 제출합니다."
+        },
+        "test_search_person_demo": {
+          "description": "얼굴 인식 컬렉션 내에서 특정 인물의 얼굴을 검색합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 인물 검색 데모를 선택하고, 얼굴 사진을 업로드하여 일치하는 바이오메트릭 검색을 실행합니다."
+        },
+        "test_liveness_demo": {
+          "description": "실제 사람이 참여 중인지 확인하기 위해 신분증 라이브니스 또는 셀피 얼굴 라이브니스 검증을 수행합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 라이브니스 검증 데모를 실행하고 셀피 사진을 업로드한 후 결과를 확인합니다."
+        },
+        "test_humanauthn_creation": {
+          "description": "신원 정보와 얼굴 바이오메트릭 정보를 암호화된 분산형 HumanID 인증서에 연동합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 'HumanID 증명 생성' 데모를 선택하고 증명을 생성합니다."
+        },
+        "test_humanauthn_decryption": {
+          "description": "동일한 실물 얼굴 촬영을 통해 암호화된 HumanID 내의 신원 정보를 복호화하고 검증합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 'HumanID 증명 복호화' 데모를 선택하고 복호화 키를 입력합니다."
+        },
+        "test_humanauthn_preview": {
+          "description": "암호화된 HumanID 인증서의 공개 설정 및 메타데이터 정보를 확인합니다.",
+          "requirement": "Smart Enroll 데모로 이동하여 'HumanID 증명 미리보기' 데모를 선택하고 메타데이터를 미리 봅니다."
+        },
+        "subscribe_smart_access": {
+          "description": "사용자를 위한 분산형 패스워드리스 인증 게이트웨이를 설정합니다.",
+          "requirement": "설정을 완료하려면 다음 단계를 따르세요:<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li><strong>Smart Access Projects</strong> (<a href=\"/smart-access/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/projects</a>) 화면으로 이동합니다.</li><li>구독 플랜이 필요하다는 카드 프롬프트를 클릭하여 <strong>요금제</strong> 페이지 (<a href=\"/smart-access/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/plans</a>)로 이동합니다.</li><li><strong>무료 플랜</strong> (무료: <em>무료 솔루션을 사용해 보세요! 200회 이메일 로그인 제공. 저희 서비스의 기능을 테스트할 수 있는 무료 솔루션으로 실험해 보세요! 무료 요금제를 구매하면 이메일을 통해 로그인할 수 있는 이메일 로그인 200회를 드립니다. 소정의 추가 비용으로 제품의 추가 기능을 테스트할 수 있습니다.</em>)을 구독합니다.</li><li><strong>Smart Access Projects</strong> 화면으로 돌아와 첫 번째 활성(Active) 패스워드리스 인증 프로젝트를 구성합니다 (프로젝트 상태가 초안(Draft)이 아닌 <strong>활성(Active)</strong> 상태인지 확인하십시오)!</li></ol>"
+        },
+        "subscribe_smart_enroll": {
+          "description": "사용자를 위한 바이오메트릭 신원 등록 가입 플로우를 설정합니다.",
+          "requirement": "설정을 완료하려면 다음 단계를 따르세요:<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li><strong>Smart Enroll Projects</strong> (<a href=\"/smart-enroll/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/projects</a>) 화면으로 이동합니다.</li><li>구독 플랜이 필요하다는 카드 프롬프트를 클릭하여 <strong>요금제</strong> 페이지 (<a href=\"/smart-enroll/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/plans</a>)로 이동합니다.</li><li><strong>무료 플랜</strong> ($0/월, 25 smartEnrolls: <em>매월 25회의 기본 가입 등록이 영구 무료로 제공됩니다. 추가 요금을 지불하여 제품의 추가 기능을 테스트할 수 있습니다.</em>)을 구독합니다.</li><li><strong>Smart Enroll Projects</strong> 화면으로 돌아와 첫 번째 활성(Active) 맞춤형 프로젝트를 생성합니다 (프로젝트 상태가 초안(Draft)이 아닌 <strong>활성(Active)</strong> 상태인지 확인하십시오)!</li></ol>"
+        },
+        "add_billing_details": {
+          "description": "개인 또는 기업 계정 중에서 선택하여 결제 설정 프로필을 구성합니다. 이는 청구서 발행, 결제 검증 및 규정 준수를 위해 필요합니다.",
+          "requirement": "청구 상세 정보 섹션으로 이동하여 계정 유형(개인 또는 회사)을 선택하고, 필요한 청구 정보(이름, 문서 번호, 주소)를 입력한 후 설정을 저장합니다."
+        },
+        "complete_kyc": {
+          "description": "프로덕션 API 접근을 위해 개발자 신원 인증을 완료합니다.",
+          "requirement": "상단 배너의 '인증하기' 버튼을 누르거나 KYC 신원 인증 폼 작성을 완료하여 실거래 모드를 활성화합니다."
+        }
+      }
+    },
     "stats": {
       "title": "통계",
       "loading": "로딩 중...",
@@ -4170,7 +4247,7 @@
       "selectPerson": "사람을 선택하세요…",
       "selectCollection": "컬렉션을 선택하세요…",
       "selectCollections": "컬렉션 선택…",
-      "collectionsSelected": "{count, plural, one {# 컬렉션이 선택됨} other {# 컬렉션이 선택됨}}",
+      "collectionsSelected": "{{count}} 개의 컬렉션이 선택됨",
       "removeItemAria": "{{label}} 제거",
       "loadingPeople": "사용자 로드 중…",
       "loadingCollections": "컬렉션 로드 중…",
@@ -4195,7 +4272,8 @@
       "mustBeSignedIn": "이 데모를 실행하려면 로그인해야 합니다.",
       "creditsNotCharged": "이 요청에는 크레딧이 청구되지 않았습니다(이미 이 기간에 청구되었거나 청구 대상이 아님).",
       "creditsChargedLabel": "청구된 크레딧",
-      "creditsUnit": "크레딧"
+      "creditsUnit": "크레딧",
+      "collectionSelected": "1 개의 컬렉션이 선택됨"
     },
     "createCollection": {
       "metaTitle": "컬렉션 만들기",
@@ -5109,6 +5187,7 @@
       "defaultFail": "이미지가 스푸핑 방지 검사를 통과하지 못했습니다.",
       "confidence": "신뢰",
       "verdict": "평결",
+      "cost": "비용",
       "pass": "PASS",
       "fail": "FAIL",
       "tryAgain": "다시 시도",

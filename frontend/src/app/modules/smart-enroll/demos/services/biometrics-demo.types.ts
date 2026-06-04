@@ -15,6 +15,7 @@ export interface LivenessPayload {
     image: string;
     liveness_min_score?: number;
     collection_id?: string;
+    includeCost?: boolean;
 }
 
 export interface FaceComparisonPayload {
@@ -165,6 +166,7 @@ export interface CreateHumanIdPayload {
     referenceFaceBase64?: string;
     tolerance?: 'REGULAR' | 'REGULAR_HARD' | 'SOFT' | 'REGULAR_SOFT' | 'HARDENED';
     verifierKey?: string;
+    includeCost?: boolean;
 }
 
 export interface DecryptHumanIdPayload {
@@ -199,6 +201,7 @@ export interface LivenessParsed {
     livenessScore: number | null;
     minScore: number;
     message: string;
+    creditsCharged?: number | null;
 }
 
 export interface CompareWithLivenessParsed {

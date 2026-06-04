@@ -9,10 +9,12 @@ import {
     inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
+import type { ApiErrorResponse, FaceCollectionListItem } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import { fileToBase64 } from '../../services/biometrics-demo.util';
+import { CollectionMultiSelectComponent } from '../../shared/collection-multi-select.component';
 import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
@@ -22,6 +24,7 @@ import { DemoRelatedDocsSectionComponent } from '../../shared/demo-related-docs-
 import type { DemoRelatedDocItem } from '../../shared/demo-related-docs-section.types';
 import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
+import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { SearchPersonResultComponent } from '../../shared/search-person-result.component';
 
@@ -55,6 +58,8 @@ const RELATED_DOC_BADGE_MUTED = [true, false, false, false, false, false] as con
         DemoRasterImageComponent,
         FaceGuidedCameraComponent,
         SearchPersonResultComponent,
+        CollectionMultiSelectComponent,
+        DemoResultActionsComponent,
     ],
     templateUrl: './search-person-demo.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,13 +70,18 @@ export class SearchPersonDemoComponent implements OnInit {
     private _api = inject(BiometricsDemoApiService);
     private _transloco = inject(TranslocoService);
     private _cdr = inject(ChangeDetectorRef);
+    private _router = inject(Router);
 
     authChecked = false;
     images: string[] = [];
     previews: string[] = [];
     minScore = 0.75;
     searchMode: 'FAST' | 'ACCURATE' = 'FAST';
-    collectionId = '';
+    collectionItems: FaceCollectionListItem[] = [];
+    collectionsLoading = false;
+    collectionsError: string | null = null;
+    selectedCollectionIds: string[] = [];
+    noCollectionsEmptySlot = '';
     loading = false;
     result: Record<string, unknown> | null = null;
     error: string | null = null;
@@ -84,6 +94,8 @@ export class SearchPersonDemoComponent implements OnInit {
         }
         this.authChecked = true;
         this.relatedDocs = this.buildRelatedDocs();
+        this.noCollectionsEmptySlot = this.buildNoCollectionsEmptySlot();
+        this.loadCollections();
     }
 
     get showApiReference(): boolean {
@@ -126,12 +138,16 @@ export class SearchPersonDemoComponent implements OnInit {
         this.result = null;
         this._cdr.markForCheck();
 
+        const selectedId = this.selectedCollectionIds[0];
+        const selectedCollection = this.collectionItems.find((c) => c._id === selectedId);
+        const collectionCode = selectedCollection ? selectedCollection.code : undefined;
+
         this._api
             .searchPersons({
                 images: this.images,
                 min_score: this.minScore,
                 search_mode: this.searchMode,
-                collection_id: this.collectionId || undefined,
+                collection_id: collectionCode || undefined,
             })
             .subscribe({
                 next: (data) => {
@@ -150,9 +166,41 @@ export class SearchPersonDemoComponent implements OnInit {
     reset(): void {
         this.images = [];
         this.previews = [];
+        this.selectedCollectionIds = [];
         this.result = null;
         this.error = null;
         this._cdr.markForCheck();
+    }
+
+    backToDemos(): void {
+        void this._router.navigate(['/smart-enroll/demos']);
+    }
+
+    loadCollections(): void {
+        this.collectionsLoading = true;
+        this.collectionsError = null;
+        this._cdr.markForCheck();
+
+        this._api.listCollections().subscribe({
+            next: (items) => {
+                this.collectionItems = items;
+                this.collectionsLoading = false;
+                this._cdr.markForCheck();
+            },
+            error: (err: ApiErrorResponse) => {
+                this.collectionsError = err.error ?? err.message ?? 'Failed to load collections';
+                this.collectionItems = [];
+                this.collectionsLoading = false;
+                this._cdr.markForCheck();
+            },
+        });
+    }
+
+    private buildNoCollectionsEmptySlot(): string {
+        const lead = this._transloco.translate('smartEnrollDemos.createPerson.noCollectionsLead');
+        const cta = this._transloco.translate('smartEnrollDemos.createPerson.noCollectionsCta');
+        const tail = this._transloco.translate('smartEnrollDemos.createPerson.noCollectionsTail');
+        return `${lead} <a href="/smart-enroll/demos/create-collection" class="text-primary font-semibold underline underline-offset-2">${cta}</a> ${tail}`;
     }
 
     private buildRelatedDocs(): DemoRelatedDocItem[] {

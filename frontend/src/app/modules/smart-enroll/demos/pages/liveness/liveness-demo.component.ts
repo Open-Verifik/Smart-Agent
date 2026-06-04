@@ -48,7 +48,7 @@ export class LivenessDemoComponent {
     readonly defaultMinScore = DEFAULT_LIVENESS_STANDALONE_MIN_SCORE;
 
     step: Step = 'capture';
-    result: { isLive: boolean; confidence: number; message: string } | null = null;
+    result: { isLive: boolean; confidence: number; message: string; price?: number | null } | null = null;
     error: string | null = null;
     previewUrl: string | null = null;
     uploadReading = false;
@@ -123,7 +123,7 @@ export class LivenessDemoComponent {
         this.uploadReading = false;
         this._cdr.markForCheck();
 
-        this._api.detectLiveness({ os: getDemoOs(), image: base64Image }).subscribe({
+        this._api.detectLiveness({ os: getDemoOs(), image: base64Image, includeCost: true }).subscribe({
             next: (data) => {
                 const parsed = parseLivenessResult(data);
                 const score01 = parsed.livenessScore ?? 0;
@@ -135,6 +135,7 @@ export class LivenessDemoComponent {
                         this._transloco.translate(
                             parsed.passed ? 'smartEnrollDemos.liveness.defaultPass' : 'smartEnrollDemos.liveness.defaultFail'
                         ),
+                    price: parsed.creditsCharged,
                 };
                 this.step = 'result';
                 this._cdr.markForCheck();

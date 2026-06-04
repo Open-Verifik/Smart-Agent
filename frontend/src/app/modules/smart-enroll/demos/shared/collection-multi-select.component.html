@@ -1,23 +1,4 @@
 <div class="space-y-2" (mousedown)="$event.stopPropagation()">
-    <div class="flex flex-wrap gap-2 min-h-[2.25rem]">
-        @for (id of selectedIds; track id) {
-            <span
-                class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-primary/15 text-on-surface text-xs font-medium border border-primary/25"
-            >
-                <span class="max-w-[200px] truncate">{{ byId.get(id)?.name ?? id }}</span>
-                <button
-                    type="button"
-                    (click)="remove(id)"
-                    [disabled]="disabled"
-                    class="shrink-0 p-0.5 rounded hover:bg-primary/20 text-on-surface-variant disabled:opacity-50"
-                    [attr.aria-label]="'smartEnrollDemos.common.removeItemAria' | transloco: { label: byId.get(id)?.name ?? id }"
-                >
-                    <span class="material-symbols-outlined text-[16px]">close</span>
-                </button>
-            </span>
-        }
-    </div>
-
     <div class="relative">
         <button
             type="button"
@@ -33,6 +14,8 @@
                     {{ 'smartEnrollDemos.common.loadingCollections' | transloco }}
                 } @else if (selectedIds.length === 0) {
                     {{ 'smartEnrollDemos.common.selectCollections' | transloco }}
+                } @else if (selectedIds.length === 1) {
+                    {{ 'smartEnrollDemos.common.collectionSelected' | transloco }}
                 } @else {
                     {{ 'smartEnrollDemos.common.collectionsSelected' | transloco: { count: selectedIds.length } }}
                 }
@@ -103,4 +86,25 @@
             </div>
         }
     </div>
+
+    @if (selectedIds.length > 0) {
+        <div class="flex flex-wrap gap-2 pt-1">
+            @for (id of selectedIds; track id) {
+                <span
+                    class="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-lg bg-primary/15 text-on-surface text-xs font-medium border border-primary/25"
+                >
+                    <span class="max-w-[200px] truncate">{{ byId.get(id)?.name ?? id }}</span>
+                    <button
+                        type="button"
+                        (click)="remove(id)"
+                        [disabled]="disabled"
+                        class="shrink-0 p-0.5 rounded hover:bg-primary/20 text-on-surface-variant disabled:opacity-50"
+                        [attr.aria-label]="'smartEnrollDemos.common.removeItemAria' | transloco: { label: byId.get(id)?.name ?? id }"
+                    >
+                        <span class="material-symbols-outlined text-[16px]">close</span>
+                    </button>
+                </span>
+            }
+        </div>
+    }
 </div>

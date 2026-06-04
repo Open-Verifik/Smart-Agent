@@ -115,7 +115,11 @@ export const parseLivenessResult = (raw: unknown): LivenessParsed => {
         passed = livenessScore >= minScore;
     }
     const message = typeof doc['message'] === 'string' ? doc['message'] : '';
-    return { passed, livenessScore, minScore, message };
+
+    const root = raw as Record<string, unknown>;
+    const creditsCharged = typeof root['creditsCharged'] === 'number' ? root['creditsCharged'] : null;
+
+    return { passed, livenessScore, minScore, message, creditsCharged };
 };
 
 export const parseFaceCompareLiveResult = (data: unknown): FaceCompareLiveParsed => {

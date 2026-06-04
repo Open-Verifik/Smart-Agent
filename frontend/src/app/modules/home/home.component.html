@@ -13,6 +13,139 @@
         </p>
     </div>
 
+    <!-- Onboarding Checklist Widget -->
+    @if (isAuthenticated() && onboarding()) {
+        <section class="mb-8 p-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/30 dark:border-indigo-950/40 dark:from-indigo-950/20 dark:via-gray-950 dark:to-gray-950">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <mat-icon class="text-indigo-600 dark:text-indigo-400">task_alt</mat-icon>
+                        {{ 'home.onboarding.title' | transloco }}
+                    </h2>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl">
+                        {{ 'home.onboarding.subtitle' | transloco }}
+                    </p>
+                </div>
+                <!-- Reward Summary Badge -->
+                <div class="shrink-0 flex flex-col items-end">
+                    <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                        ${{ onboardingTotalRewarded() | number: '1.2-2' }} USD
+                    </span>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        @if (onboardingActivated()) {
+                            {{ 'home.onboarding.activated' | transloco: { amount: onboardingTotalRewarded() | number: '1.2-2' } }}
+                        } @else {
+                            {{ 'home.onboarding.pendingApproval' | transloco: { amount: onboardingTotalRewarded() | number: '1.2-2' } }}
+                        }
+                    </span>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-6 bg-slate-100 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200/50 dark:border-slate-800/35">
+                <div class="flex justify-between text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                    <span>{{ 'home.onboarding.progressBar' | transloco: { completed: completedTasksCount(), total: onboarding()?.tasks?.length } }}</span>
+                    <span>{{ onboardingProgressPercentage() | number: '1.0-0' }}%</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div class="bg-indigo-600 dark:bg-indigo-500 h-2.5 rounded-full transition-all duration-500" [style.width.%]="onboardingProgressPercentage()"></div>
+                </div>
+            </div>
+
+            <!-- Verification error banner if any -->
+            @if (verificationError()) {
+                <div class="mb-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 dark:bg-red-950/20 dark:border-red-900/50 dark:text-red-300 text-sm flex items-center gap-2">
+                    <mat-icon class="text-red-500">error</mat-icon>
+                    <span>{{ 'home.onboarding.failedVerification' | transloco }}</span>
+                </div>
+            }
+
+            <!-- Checklist Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @for (task of onboarding()?.tasks; track task.taskId) {
+                    <div class="flex flex-col justify-between p-4 rounded-xl border bg-white/70 dark:bg-slate-900/40 backdrop-blur-sm transition-all duration-300 hover:shadow-md"
+                         [ngClass]="{
+                             'border-emerald-200 dark:border-emerald-950/40 bg-emerald-50/10 dark:bg-emerald-950/5': task.status === 'COMPLETED',
+                             'border-indigo-100 dark:border-slate-800': task.status !== 'COMPLETED'
+                         }">
+                        <div>
+                            <!-- Title & Status Icon -->
+                            <div class="flex items-start gap-3">
+                                <div class="shrink-0 mt-0.5">
+                                    @if (task.status === 'COMPLETED') {
+                                        <mat-icon class="text-emerald-500 dark:text-emerald-400">check_circle</mat-icon>
+                                    } @else if (task.status === 'STUCK') {
+                                        <mat-icon class="text-amber-500">warning</mat-icon>
+                                    } @else if (task.status === 'STARTED' || task.status === 'VISITED') {
+                                        <mat-icon class="text-indigo-500 dark:text-indigo-400 animate-pulse">play_circle</mat-icon>
+                                    } @else {
+                                        <mat-icon class="text-slate-300 dark:text-slate-600">radio_button_unchecked</mat-icon>
+                                    }
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-start gap-1.5">
+                                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug">
+                                            {{ 'home.onboarding.tasks.' + task.taskId | transloco }}
+                                        </p>
+                                        <button type="button"
+                                                class="flex items-center justify-center shrink-0 w-5 h-5 rounded-full text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors -mt-0.5"
+                                                (click)="openTaskExplanation(task.taskId, task.status)"
+                                                title="Read more about this task">
+                                            <mat-icon class="icon-size-4 !w-4 !h-4 text-[16px]">help_outline</mat-icon>
+                                        </button>
+                                    </div>
+                                    <span class="inline-block text-[11px] font-bold mt-1 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded">
+                                        +$1.00 USD
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 dark:border-slate-800/50 pt-3">
+                            <!-- Left: Support or Status indicator -->
+                            <div class="text-xs">
+                                @if (task.status === 'STUCK') {
+                                    <a [routerLink]="['/home']" fragment="support" class="text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1">
+                                        {{ 'home.onboarding.support' | transloco }}
+                                    </a>
+                                } @else if (task.status === 'COMPLETED') {
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-0.5">
+                                        <mat-icon class="text-xs icon-size-3">done</mat-icon>
+                                        {{ 'home.onboarding.completed' | transloco }}
+                                    </span>
+                                } @else {
+                                    <span class="text-slate-400 dark:text-slate-500 capitalize">{{ task.status.toLowerCase().replace('_', ' ') }}</span>
+                                }
+                            </div>
+
+                            <!-- Right: Complete task Button -->
+                            <div class="flex items-center gap-2">
+                                @if (task.status !== 'COMPLETED') {
+                                    @if (task.taskId === 'complete_kyc') {
+                                        <button mat-flat-button color="primary"
+                                                type="button"
+                                                (click)="startKycVerification()"
+                                                class="!h-8 !px-3 !min-w-0 !text-xs !rounded-lg">
+                                            {{ 'home.onboarding.completeTask' | transloco }}
+                                        </button>
+                                    } @else {
+                                        <a mat-flat-button color="primary" 
+                                           [routerLink]="getTaskLink(task.taskId)"
+                                           class="!h-8 !px-3 !min-w-0 !text-xs !rounded-lg">
+                                            {{ 'home.onboarding.completeTask' | transloco }}
+                                        </a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
     @if (isAuthenticated() && showWeekOneUsd50PromoBanner()) {
         <section
             class="mb-8 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 px-5 py-6 dark:border-emerald-900/60 dark:from-emerald-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"

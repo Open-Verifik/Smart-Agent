@@ -129,6 +129,7 @@ export class HumanidCreateDemoComponent {
                 requireLiveness: this.requireLiveness,
                 tolerance: this.tolerance,
                 password: this.password || undefined,
+                includeCost: true,
             })
             .subscribe({
                 next: (data) => {

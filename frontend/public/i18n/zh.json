@@ -447,7 +447,84 @@
   "home": {
     "welcome": {
       "title": "AI 代理的信任层",
-      "subtitle": "验证自主代理背后的人员和公司。由 14+ 官方政府数据库集成和 x402 支付协议提供支持。"
+      "subtitle": "验证自主代理背后的人员和公司。由 14+ 官方政府数据库集成 and x402 支付协议提供支持。"
+    },
+    "onboarding": {
+      "title": "开发者入驻清单",
+      "subtitle": "完成这些任务以验证您的集成、测试我们的 API 并获得奖励。每完成一项任务可赚取 $1.00 USD（总计高达 $12.00 USD）。奖励将记入您的账户余额中。",
+      "progressBar": "清单进度：已完成 {{completed}} / {{total}} 项任务",
+      "pendingApproval": "（{{amount}} USD 待批准）",
+      "activated": "（{{amount}} USD 余额已激活）",
+      "verify": "验证",
+      "verifying": "正在检查...",
+      "completed": "已完成",
+      "failedVerification": "验证失败。请确保您已完成演示/操作，然后重试。",
+      "support": "遇到困难？联系支持",
+      "tasks": {
+        "test_smartcheck": "测试 SmartCheck 中的任意端点",
+        "test_collection_demo": "创建 Smart Enroll 人脸集合",
+        "test_add_person_demo": "添加 Smart Enroll 人员",
+        "test_search_person_demo": "搜索 Smart Enroll 人员",
+        "test_liveness_demo": "执行 Smart Enroll 活体检测",
+        "test_humanauthn_creation": "创建 HumanID 证明",
+        "test_humanauthn_decryption": "解密 HumanID 证明",
+        "test_humanauthn_preview": "预览 HumanID 证明",
+        "subscribe_smart_access": "订阅免费 the Smart Access 计划并创建第一个项目",
+        "subscribe_smart_enroll": "订阅免费 the Smart Enroll 计划并创建第一个项目",
+        "add_billing_details": "添加账单详情",
+        "complete_kyc": "完成 KYC 身份验证"
+      },
+      "completeTask": "完成任务",
+      "explanations": {
+        "test_smartcheck": {
+          "description": "从 Postman 面板向任何政府数据库端点发送请求，以检查集成运行状况。",
+          "requirement": "前往 Postman 工具，选择任意端点（如哥伦比亚公民、墨西哥 INE 等），填写参数并点击发送。"
+        },
+        "test_collection_demo": {
+          "description": "在 Smart Enroll 生物识别模块中创建一个面部识别集合。",
+          "requirement": "前往 Smart Enroll 演示，选择“创建集合”演示，输入集合的名称和描述，然后点击创建。"
+        },
+        "test_add_person_demo": {
+          "description": "在您的人脸集合中添加具有人脸生物识别信息的新人员。",
+          "requirement": "前往 Smart Enroll 演示，选择“添加人员”演示，选择一个集合，上传人员的人脸照片并提交。"
+        },
+        "test_search_person_demo": {
+          "description": "在您的人脸识别集合中搜索人员的人脸。",
+          "requirement": "前往 Smart Enroll 演示，选择“搜索人员”演示，上传一张人脸照片并执行生物识别比对搜索。"
+        },
+        "test_liveness_demo": {
+          "description": "执行身份证明活体检测或自拍人脸活体检测，以验证是否为真人在线操作。",
+          "requirement": "前往 Smart Enroll 演示，运行活体检测演示，上传一张自拍照片，并检查活体置信度得分。"
+        },
+        "test_humanauthn_creation": {
+          "description": "将身份数据和人脸生物识别绑定到加密的去中心化 HumanID 凭证中。",
+          "requirement": "前往 Smart Enroll 演示，选择“创建 HumanID 证明”演示，然后创建证明。"
+        },
+        "test_humanauthn_decryption": {
+          "description": "通过匹配真人人脸，解密并验证 HumanID 凭证内部 of 身份负载。",
+          "requirement": "前往 Smart Enroll 演示，选择“解密 HumanID 证明”演示，然后输入解密密钥。"
+        },
+        "test_humanauthn_preview": {
+          "description": "查看加密的 HumanID 凭证的公开配置细节和元数据。",
+          "requirement": "前往 Smart Enroll 演示，选择“预览 HumanID 证明”演示，然后预览证明元数据。"
+        },
+        "subscribe_smart_access": {
+          "description": "为您的用户设置去中心化无密码身份验证网关。",
+          "requirement": "请按照以下步骤完成设置：<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li>前往 <strong>Smart Access 项目</strong> (<a href=\"/smart-access/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/projects</a>)。</li><li>点击提示您需要订阅计划的卡片以跳转到 <strong>计划</strong> 页面 (<a href=\"/smart-access/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/plans</a>)。</li><li>订阅 <strong>免费计划</strong> (免费：<em>尝试免费方案！获得 200 次邮箱登录。使用免费方案体验我们可以测试我们服务的功能！购买免费计划并获得 200 次允许通过邮件登录的额度。您可以支付小额额外费用测试我们产品的其他功能。</em>)。</li><li>返回 <strong>Smart Access 项目</strong> 并配置您的第一个处于活跃状态的无密码身份验证项目（确保项目状态为 <strong>已启用 (Active)</strong>，而非草稿 (Draft)）！</li></ol>"
+        },
+        "subscribe_smart_enroll": {
+          "description": "为用户识别身份注册流程设置人脸识别。",
+          "requirement": "请按照以下步骤完成设置：<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li>前往 <strong>Smart Enroll 项目</strong> (<a href=\"/smart-enroll/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/projects</a>)。</li><li>点击提示您需要订阅计划的卡片以跳转到 <strong>计划</strong> 页面 (<a href=\"/smart-enroll/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/plans</a>)。</li><li>订阅 <strong>免费计划</strong> ($0/月, 25次 smartEnrolls：<em>每月永久免费获得 25 次基础注册。您可以支付额外费用测试我们产品的其他功能。</em>)。</li><li>返回 <strong>Smart Enroll 项目</strong> 并创建您的第一个处于活跃状态的自定义项目（确保项目状态为 <strong>已启用 (Active)</strong>，而非草稿 (Draft)）！</li></ol>"
+        },
+        "add_billing_details": {
+          "description": "配置您的账单设置个人资料以设置您的付款环境，在个人或公司账户之间进行选择。这是发票开具、付款验证和合规性所必需的。",
+          "requirement": "前往账单详情部分，选择您的账户类型（个人或公司），填写所需的账单信息（姓名、证件号码、地址），然后保存设置。"
+        },
+        "complete_kyc": {
+          "description": "验证您的开发者身份，以符合安全要求并启用生产模式。",
+          "requirement": "点击顶部横幅上的“验证身份”或完成 KYC 身份验证表单，以解锁真实的生产 API 访问权限。"
+        }
+      }
     },
     "stats": {
       "title": "您的统计",
@@ -4170,7 +4247,7 @@
       "selectPerson": "选择人员…",
       "selectCollection": "选择人脸库…",
       "selectCollections": "选择多个人脸库…",
-      "collectionsSelected": "{count, plural, one {已选择 # 个人脸库} other {已选择 # 个人脸库}}",
+      "collectionsSelected": "已选择 {{count}} 个人脸库",
       "removeItemAria": "移除 {{label}}",
       "loadingPeople": "正在加载人员…",
       "loadingCollections": "正在加载人脸库…",
@@ -4195,7 +4272,8 @@
       "mustBeSignedIn": "请先登录以运行此演示。",
       "creditsNotCharged": "此请求未扣减积分（本周期已计费或不可计费）。",
       "creditsChargedLabel": "已扣积分",
-      "creditsUnit": "积分"
+      "creditsUnit": "积分",
+      "collectionSelected": "已选择 1 个人脸库"
     },
     "createCollection": {
       "metaTitle": "创建人脸库",
@@ -5109,6 +5187,7 @@
       "defaultFail": "图像未通过防伪检查。",
       "confidence": "置信度",
       "verdict": "结论",
+      "cost": "费用",
       "pass": "通过",
       "fail": "未通过",
       "tryAgain": "重试",

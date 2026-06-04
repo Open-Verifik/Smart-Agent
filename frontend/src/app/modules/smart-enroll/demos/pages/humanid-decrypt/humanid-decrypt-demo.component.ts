@@ -1,4 +1,5 @@
 import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
@@ -44,6 +45,7 @@ type ProofMode = 'paste' | 'qr';
     standalone: true,
     imports: [
         FormsModule,
+        NgClass,
         TranslocoModule,
         DemoPageShellComponent,
         DemoRelatedDocsSectionComponent,

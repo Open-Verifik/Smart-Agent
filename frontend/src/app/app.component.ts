@@ -1,10 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { AuthService } from 'app/core/auth/auth.service';
 import { AuthApiService } from 'app/core/services/auth-api.service';
 import { SessionService } from 'app/core/services/session.service';
 import { UserService } from 'app/core/user/user.service';
+import { OnboardingService } from 'app/core/services/onboarding.service';
 
 @Component({
     selector: 'app-root',
@@ -18,6 +20,8 @@ export class AppComponent implements OnInit {
     private _userService = inject(UserService);
     private _sessionService = inject(SessionService);
     private _accountEnvironment = inject(AccountEnvironmentService);
+    private _router = inject(Router);
+    private _onboardingService = inject(OnboardingService);
 
     /**
      * Constructor
@@ -37,6 +41,14 @@ export class AppComponent implements OnInit {
          */
         this._captureTokenFromUrl();
         this._restoreSession();
+
+        this._router.events
+            .pipe(
+                filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+            )
+            .subscribe((event: NavigationEnd) => {
+                this._trackOnboardingVisited(event.urlAfterRedirects);
+            });
     }
 
     /**
@@ -152,5 +164,60 @@ export class AppComponent implements OnInit {
                 }
             },
         });
+    }
+
+    /**
+     * Sends background telemetry to onboarding tracker on specific route visits.
+     * @private
+     */
+    private _trackOnboardingVisited(url: string): void {
+        if (!this._sessionService.hasValidAuthentication()) {
+            return;
+        }
+
+        const path = url.split('?')[0].split('#')[0];
+
+        // 1. Visit Hubs / Primary Sections (VISITED & STARTED)
+        if (path === '/chat') {
+            this._onboardingService.updateTaskStatus('test_smartcheck', 'VISITED').subscribe();
+            this._onboardingService.updateTaskStatus('test_smartcheck', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos') {
+            this._onboardingService.updateTaskStatus('test_collection_demo', 'VISITED').subscribe();
+            this._onboardingService.updateTaskStatus('test_add_person_demo', 'VISITED').subscribe();
+            this._onboardingService.updateTaskStatus('test_search_person_demo', 'VISITED').subscribe();
+            this._onboardingService.updateTaskStatus('test_liveness_demo', 'VISITED').subscribe();
+        } else if (path === '/smart-access/projects') {
+            this._onboardingService.updateTaskStatus('test_humanauthn_creation', 'VISITED').subscribe();
+            this._onboardingService.updateTaskStatus('test_humanauthn_decryption', 'VISITED').subscribe();
+            this._onboardingService.updateTaskStatus('test_humanauthn_preview', 'VISITED').subscribe();
+        } else if (path === '/subscription-plans' || path === '/smart-enroll/plans' || path === '/smart-enroll/projects' || path === '/smart-access/plans' || path === '/smart-access/projects') {
+            if (path === '/subscription-plans' || path === '/smart-enroll/plans' || path === '/smart-enroll/projects') {
+                this._onboardingService.updateTaskStatus('subscribe_smart_enroll', 'VISITED').subscribe();
+            }
+            if (path === '/subscription-plans' || path === '/smart-access/plans' || path === '/smart-access/projects') {
+                this._onboardingService.updateTaskStatus('subscribe_smart_access', 'VISITED').subscribe();
+            }
+        } else if (path === '/settings/billing-details') {
+            this._onboardingService.updateTaskStatus('add_billing_details', 'VISITED').subscribe();
+        } else if (path === '/home') {
+            this._onboardingService.updateTaskStatus('complete_kyc', 'VISITED').subscribe();
+        }
+
+        // 2. Specific Action / Demo Pages (STARTED)
+        if (path === '/smart-enroll/demos/create-collection') {
+            this._onboardingService.updateTaskStatus('test_collection_demo', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos/create-person' || path === '/smart-enroll/demos/create-person-with-liveness') {
+            this._onboardingService.updateTaskStatus('test_add_person_demo', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos/search-person' || path === '/smart-enroll/demos/search-live-person' || path === '/smart-enroll/demos/search-active-user') {
+            this._onboardingService.updateTaskStatus('test_search_person_demo', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos/liveness' || path === '/smart-enroll/demos/face-comparison-liveness') {
+            this._onboardingService.updateTaskStatus('test_liveness_demo', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos/humanid-create' || path === '/smart-enroll/demos/humanid-create-qr') {
+            this._onboardingService.updateTaskStatus('test_humanauthn_creation', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos/humanid-decrypt') {
+            this._onboardingService.updateTaskStatus('test_humanauthn_decryption', 'STARTED').subscribe();
+        } else if (path === '/smart-enroll/demos/humanid-preview') {
+            this._onboardingService.updateTaskStatus('test_humanauthn_preview', 'STARTED').subscribe();
+        }
     }
 }

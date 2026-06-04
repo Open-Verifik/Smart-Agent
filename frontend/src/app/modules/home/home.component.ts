@@ -19,8 +19,11 @@ import { UserService } from '../../core/user/user.service';
 import { DashboardData, HomeService } from './home.service';
 import { QuickChatService } from '../../layout/common/quick-chat/quick-chat.service';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
+import { OnboardingExplanationModalComponent } from './onboarding-explanation-modal/onboarding-explanation-modal.component';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { HomeNotificationBannersComponent } from './home-notification-banners/home-notification-banners.component';
+import { OnboardingService, Onboarding, OnboardingTask } from 'app/core/services/onboarding.service';
+import { AccountEnvironmentService } from '../../core/account/account-environment.service';
 
 interface ChartTheme {
     tooltipTheme: 'light' | 'dark';
@@ -86,10 +89,35 @@ export class HomeComponent implements OnInit {
     private _appNotificationsService = inject(AppNotificationsService);
 
     private _schemeAutoListenerCleanup: (() => void) | null = null;
+    private _onboardingService = inject(OnboardingService);
+    private _accountEnv = inject(AccountEnvironmentService);
 
     isAuthenticated = signal(false);
     loading = this._homeService.loading;
     dashboardData = this._homeService.dashboardData;
+
+    onboarding = signal<Onboarding | null>(null);
+    verifyingTaskId = signal<string | null>(null);
+    verificationError = signal<string | null>(null);
+
+    completedTasksCount = computed(() => {
+        const tasks = this.onboarding()?.tasks ?? [];
+        return tasks.filter(t => t.status === 'COMPLETED').length;
+    });
+
+    onboardingProgressPercentage = computed(() => {
+        const tasks = this.onboarding()?.tasks ?? [];
+        if (tasks.length === 0) return 0;
+        return (tasks.filter(t => t.status === 'COMPLETED').length / tasks.length) * 100;
+    });
+
+    onboardingTotalRewarded = computed(() => {
+        return this.onboarding()?.totalRewardedAmount ?? 0;
+    });
+
+    onboardingActivated = computed(() => {
+        return this.onboarding()?.isActivated ?? false;
+    });
 
     chartWeeklyExpenses: ApexOptions | null = null;
     chartMonthlyExpenses: ApexOptions | null = null;
@@ -174,6 +202,17 @@ export class HomeComponent implements OnInit {
             this._appNotificationsService.syncInbox('smart_agent').subscribe();
             this._handleOpenNotificationsQueryParam();
 
+            this._onboardingService.verifyAllTasks().subscribe({
+                next: (res) => this.onboarding.set(res.data),
+                error: (err) => {
+                    console.error('Failed to auto-verify onboarding tasks:', err);
+                    this._onboardingService.getOnboarding().subscribe({
+                        next: (res) => this.onboarding.set(res.data),
+                        error: (e) => console.error('Failed to load onboarding progress:', e),
+                    });
+                }
+            });
+
             this._userService
                 .get()
                 .pipe(
@@ -197,6 +236,60 @@ export class HomeComponent implements OnInit {
 
     getTotals(): { total: number; ok: number; failed: number; credits: number } {
         return this._homeService.getAggregatedTotals();
+    }
+
+    verifyTask(taskId: string): void {
+        this.verifyingTaskId.set(taskId);
+        this.verificationError.set(null);
+        this._onboardingService.verifyTask(taskId).subscribe({
+            next: (res) => {
+                this.verifyingTaskId.set(null);
+                if (res.data?.success) {
+                    this.onboarding.set(res.data.onboarding);
+                } else {
+                    this.verificationError.set(taskId);
+                    setTimeout(() => {
+                        if (this.verificationError() === taskId) {
+                            this.verificationError.set(null);
+                        }
+                    }, 5000);
+                }
+            },
+            error: (err) => {
+                this.verifyingTaskId.set(null);
+                this.verificationError.set(taskId);
+                setTimeout(() => {
+                    if (this.verificationError() === taskId) {
+                        this.verificationError.set(null);
+                    }
+                }, 5000);
+                console.error('Failed to verify task:', err);
+            }
+        });
+    }
+
+    getTaskLink(taskId: string): string {
+        switch (taskId) {
+            case 'test_smartcheck': return '/postman';
+            case 'test_collection_demo': return '/smart-enroll/demos/create-collection';
+            case 'test_add_person_demo': return '/smart-enroll/demos/create-person';
+            case 'test_search_person_demo': return '/smart-enroll/demos/search-person';
+            case 'test_liveness_demo': return '/smart-enroll/demos/liveness';
+            case 'test_humanauthn_creation': return '/smart-enroll/demos/humanid-create-qr';
+            case 'test_humanauthn_decryption':
+                return '/smart-enroll/demos/humanid-decrypt';
+            case 'test_humanauthn_preview':
+                return '/smart-enroll/demos/humanid-preview';
+            case 'subscribe_smart_access': return '/smart-access/projects';
+            case 'subscribe_smart_enroll': return '/smart-enroll/projects';
+            case 'add_billing_details': return '/settings/billing-details';
+            case 'complete_kyc': return '/home';
+            default: return '/home';
+        }
+    }
+
+    startKycVerification(): void {
+        this._accountEnv.startCompanyVerification();
     }
 
     /** Display name for API code - uses appFeatures translation or falls back to code */
@@ -235,6 +328,15 @@ export class HomeComponent implements OnInit {
         this._matDialog.open(HomeTutorialModalComponent, {
             panelClass: 'tutorial-modal-dialog',
             maxWidth: '500px',
+        });
+    }
+
+    openTaskExplanation(taskId: string, status: string): void {
+        this._matDialog.open(OnboardingExplanationModalComponent, {
+            panelClass: 'onboarding-explanation-dialog',
+            width: '100%',
+            maxWidth: '512px',
+            data: { taskId, status },
         });
     }
 

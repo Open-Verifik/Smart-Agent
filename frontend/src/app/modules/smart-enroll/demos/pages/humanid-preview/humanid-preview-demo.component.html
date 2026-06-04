@@ -12,9 +12,25 @@
         <form class="space-y-5" (submit)="submit($event)">
             <div>
                 <p class="block text-sm font-semibold text-on-surface mb-2">{{ 'smartEnrollDemos.humanidPreview.humanIdModeLabel' | transloco }}</p>
-                <div class="flex rounded-lg border border-outline-variant/30 p-1 bg-surface-container-low gap-1">
-                    <button type="button" (click)="setProofMode('paste')" class="flex-1 py-2 text-sm font-semibold rounded-md transition-colors" [class.bg-primary]="proofMode === 'paste'" [class.text-on-primary-container]="proofMode === 'paste'" [class.text-on-surface-variant]="proofMode !== 'paste'">{{ 'smartEnrollDemos.humanidPreview.pasteString' | transloco }}</button>
-                    <button type="button" (click)="setProofMode('qr')" class="flex-1 py-2 text-sm font-semibold rounded-md transition-colors" [class.bg-primary]="proofMode === 'qr'" [class.text-on-primary-container]="proofMode === 'qr'" [class.text-on-surface-variant]="proofMode !== 'qr'">{{ 'smartEnrollDemos.humanidPreview.uploadQrImage' | transloco }}</button>
+                <div class="flex rounded-xl p-1 bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/60 dark:border-slate-800/60 gap-1.5">
+                    <button type="button" 
+                            (click)="setProofMode('paste')" 
+                            class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-150" 
+                            [ngClass]="{
+                                'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200/20': proofMode === 'paste',
+                                'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-transparent': proofMode !== 'paste'
+                            }">
+                        {{ 'smartEnrollDemos.humanidPreview.pasteString' | transloco }}
+                    </button>
+                    <button type="button" 
+                            (click)="setProofMode('qr')" 
+                            class="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-150" 
+                            [ngClass]="{
+                                'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 shadow-sm border border-slate-200/20': proofMode === 'qr',
+                                'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 bg-transparent': proofMode !== 'qr'
+                            }">
+                        {{ 'smartEnrollDemos.humanidPreview.uploadQrImage' | transloco }}
+                    </button>
                 </div>
             </div>
 

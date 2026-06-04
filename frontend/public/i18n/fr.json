@@ -449,6 +449,83 @@
       "title": "La couche de confiance pour les agents IA",
       "subtitle": "Vérifiez les humains et les entreprises derrière les agents autonomes. Plus de 14 intégrations officielles de bases de données gouvernementales et le protocole de paiement x402."
     },
+    "onboarding": {
+      "title": "Liste de contrôle d'intégration des développeurs",
+      "subtitle": "Effectuez ces tâches pour vérifier votre intégration, tester nos API et obtenir des récompenses. Gagnez 1,00 USD pour chaque tâche complétée (jusqu'à 12,00 USD au total). Les récompenses seront créditées sur le solde de votre compte.",
+      "progressBar": "Progression : {{completed}} / {{total}} tâches complétées",
+      "pendingApproval": "({{amount}} USD en attente d'approbation)",
+      "activated": "({{amount}} USD actif sur le solde)",
+      "verify": "Vérifier",
+      "verifying": "Vérification...",
+      "completed": "Complété",
+      "failedVerification": "Échec de la vérification. Veuillez vous assurer d'avoir terminé la démo/l'action, puis réessayez.",
+      "support": "Bloqué ? Contacter le support",
+      "tasks": {
+        "test_smartcheck": "Tester n'importe quel point de terminaison dans SmartCheck",
+        "test_collection_demo": "Créer une collection Smart Enroll",
+        "test_add_person_demo": "Ajouter une personne Smart Enroll",
+        "test_search_person_demo": "Rechercher une personne Smart Enroll",
+        "test_liveness_demo": "Exécuter un contrôle de présence",
+        "test_humanauthn_creation": "Créer une preuve HumanID",
+        "test_humanauthn_decryption": "Déchiffrer une preuve HumanID",
+        "test_humanauthn_preview": "Aperçu d'une preuve HumanID",
+        "subscribe_smart_access": "S'abonner au plan gratuit Smart Access et créer un premier projet",
+        "subscribe_smart_enroll": "S'abonner au plan gratuit Smart Enroll et créer un premier projet",
+        "add_billing_details": "Ajouter les détails de facturation",
+        "complete_kyc": "Compléter la vérification d'identité KYC"
+      },
+      "completeTask": "Compléter la tâche",
+      "explanations": {
+        "test_smartcheck": {
+          "description": "Envoyez une requête à n'importe quel point de terminaison de base de données gouvernementale depuis le panneau Postman pour vérifier la santé de l'intégration.",
+          "requirement": "Allez dans l'outil Postman, choisissez un point de terminaison, saisissez les paramètres et cliquez sur Envoyer."
+        },
+        "test_collection_demo": {
+          "description": "Créez une collection de reconnaissance faciale dans le module biométrique Smart Enroll.",
+          "requirement": "Allez dans les démos Smart Enroll, sélectionnez Créer collection, entrez un nom et cliquez sur Créer."
+        },
+        "test_add_person_demo": {
+          "description": "Enregistrez une nouvelle personne avec sa biométrie faciale dans l'une de vos collections.",
+          "requirement": "Allez dans les démos Smart Enroll, sélectionnez Ajouter personne, choisissez une collection, téléversez une photo et soumettez."
+        },
+        "test_search_person_demo": {
+          "description": "Recherchez le visage d'une personne dans vos collections de reconnaissance faciale.",
+          "requirement": "Allez dans les démos Smart Enroll, sélectionnez Rechercher personne, téléversez une photo de visage et lancez la recherche."
+        },
+        "test_liveness_demo": {
+          "description": "Effectuez un test de détection de présence (liveness) pour vérifier la présence d'un humain réel.",
+          "requirement": "Allez dans les démos Smart Enroll, lancez la démo Liveness, téléversez un selfie et vérifiez le score."
+        },
+        "test_humanauthn_creation": {
+          "description": "Associez des données d'identité et la biométrie faciale à une preuve HumanID chiffrée et décentralisée.",
+          "requirement": "Allez dans les démos Smart Enroll, sélectionnez la démo Créer une preuve HumanID et créez la preuve."
+        },
+        "test_humanauthn_decryption": {
+          "description": "Déchiffrez et vérifiez le contenu d'identité d'une preuve HumanID en présentant le visage correspondant.",
+          "requirement": "Allez dans les démos Smart Enroll, sélectionnez la démo Décrypter une preuve HumanID et saisissez la clé de décryptage."
+        },
+        "test_humanauthn_preview": {
+          "description": "Affichez les détails publics et les métadonnées d'une preuve HumanID chiffrée.",
+          "requirement": "Allez dans les démos Smart Enroll, sélectionnez la démo Prévisualiser une preuve HumanID et prévisualisez les métadonnées."
+        },
+        "subscribe_smart_access": {
+          "description": "Configurez une passerelle d'authentification décentralisée et sans mot de passe pour vos utilisateurs.",
+          "requirement": "Suivez ces étapes pour terminer la configuration:<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li>Allez dans <strong>Smart Access Projects</strong> (<a href=\"/smart-access/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/projects</a>).</li><li>Cliquez sur le message indiquant que vous avez besoin d'un forfait d'abonnement pour accéder aux <strong>Forfaits</strong> (<a href=\"/smart-access/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-access/plans</a>).</li><li>Abonnez-vous au <strong>Forfait Gratuit</strong> (Gratuit : <em>Essayez une solution gratuite ! Obtenez 200 CONNEXIONS PAR E-MAIL. Expérimentez avec une solution gratuite dans laquelle vous pouvez tester les fonctionnalités de notre service ! Achetez le forfait gratuit et obtenez 200 connexions par e-mail d'utilisateurs pouvant accéder à partir d'e-mails. Vous pouvez tester des fonctionnalités supplémentaires de nos produits moyennant des frais supplémentaires minimes.</em>).</li><li>Revenez à <strong>Smart Access Projects</strong> et configurez votre premier projet d'authentification sans mot de passe actif (assurez-vous que le statut du projet est <strong>Actif</strong>, pas Brouillon) !</li></ol>"
+        },
+        "subscribe_smart_enroll": {
+          "description": "Configurez un flux d'inscription biométrique pour vos utilisateurs.",
+          "requirement": "Suivez ces étapes pour terminer la configuration:<br><ol class=\"list-decimal pl-5 mt-2 space-y-2 text-slate-600 dark:text-slate-400\"><li>Allez dans <strong>Smart Enroll Projects</strong> (<a href=\"/smart-enroll/projects\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/projects</a>).</li><li>Cliquez sur le message indiquant que vous avez besoin d'un forfait d'abonnement pour accéder aux <strong>Forfaits</strong> (<a href=\"/smart-enroll/plans\" class=\"text-verifikBrand-600 dark:text-verifikBrand-400 underline font-semibold\">/smart-enroll/plans</a>).</li><li>Abonnez-vous au <strong>Forfait Gratuit</strong> (0 $/mois, 25 smartEnrolls : <em>Obtenez 25 inscriptions de base par mois, pour toujours. Vous pouvez tester des fonctionnalités supplémentaires de nos produits moyennant des frais supplémentaires.</em>).</li><li>Revenez à <strong>Smart Enroll Projects</strong> et créez votre premier projet personnalisé actif (assurez-vous que le statut du projet est <strong>Actif</strong>, pas Brouillon) !</li></ol>"
+        },
+        "add_billing_details": {
+          "description": "Configurez votre profil de facturation pour définir votre contexte de paiement, en choisissant entre un compte personnel ou d'entreprise. Cela est requis pour la facturation, la validation des paiements et la conformité réglementaire.",
+          "requirement": "Allez dans la section Détails de facturation, choisissez votre type de compte (Personnel ou Entreprise), remplissez les informations de facturation requises (Nom, Numéro de document, Adresse) et enregistrez les paramètres."
+        },
+        "complete_kyc": {
+          "description": "Vérifiez votre identité de développeur pour activer le mode production.",
+          "requirement": "Cliquez sur 'Vérifier l'identité' sur la bannière supérieure ou complétez le formulaire KYC pour activer la production."
+        }
+      }
+    },
     "stats": {
       "title": "Vos statistiques",
       "loading": "Chargement...",
@@ -3951,7 +4028,7 @@
       "selectPerson": "Sélectionnez une personne…",
       "selectCollection": "Sélectionnez une collection…",
       "selectCollections": "Sélectionnez des collections…",
-      "collectionsSelected": "{count, plural, one {# collection sélectionnée} other {# collections sélectionnées}}",
+      "collectionsSelected": "{{count}} collections sélectionnées",
       "removeItemAria": "Retirer {{label}}",
       "loadingPeople": "Chargement des personnes…",
       "loadingCollections": "Chargement des collections…",
@@ -3976,7 +4053,8 @@
       "mustBeSignedIn": "Vous devez être connecté pour exécuter cette démo.",
       "creditsNotCharged": "Aucun crédit facturé pour cette requête (déjà facturé cette période ou non facturable).",
       "creditsChargedLabel": "Crédits facturés",
-      "creditsUnit": "crédits"
+      "creditsUnit": "crédits",
+      "collectionSelected": "1 collection sélectionnée"
     },
     "createCollection": {
       "metaTitle": "Créer une collection",
@@ -4890,6 +4968,7 @@
       "defaultFail": "L'image n'a pas passé les contrôles anti-spoofing.",
       "confidence": "Confiance",
       "verdict": "Verdict",
+      "cost": "Coût",
       "pass": "PASS",
       "fail": "FAIL",
       "tryAgain": "Réessayer",
