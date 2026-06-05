@@ -14,8 +14,10 @@ export interface PublicProposal {
     monthlyVolume: number;
     selectedLineItems: Array<{
         serviceName?: string;
+        url?: string;
         category?: string;
         country?: string;
+        catalogUnitPrices?: Record<ProposalTier, number>;
         unitPrices?: Record<ProposalTier, number>;
         selected?: boolean;
     }>;
@@ -24,9 +26,13 @@ export interface PublicProposal {
     pricingSummary?: Record<
         ProposalTier,
         {
-            planSubscriptionFee?: number;
             avgUnitPrice?: number;
+            planSubscriptionFee?: number;
+            planQueryLimit?: number;
+            hasSmartCheckPlan?: boolean;
+            expectedQueries?: number;
             usageCost?: number;
+            quotedMonthlyTotal?: number;
             totalMonthlyEstimate: number;
         }
     >;

@@ -76,6 +76,47 @@ export class ProposalViewerComponent implements OnInit {
         return tier === this.getEffectiveTier();
     }
 
+    get displayTiers(): ProposalTier[] {
+        if (!this.proposal?.pricingSummary) {
+            return this.tiers;
+        }
+
+        const volume = this.proposal.monthlyVolume || 0;
+        const viable = this.tiers.filter((tier) => {
+            const limit = this.getSummaryValue(tier, 'planQueryLimit');
+
+            return limit != null && volume <= limit;
+        });
+
+        return viable.length ? viable : this.tiers;
+    }
+
+    getSelectedLineItems(): PublicProposal['selectedLineItems'] {
+        return (this.proposal?.selectedLineItems || []).filter((item) => item.selected !== false);
+    }
+
+    getSummaryValue(
+        tier: ProposalTier,
+        field:
+            | 'avgUnitPrice'
+            | 'planSubscriptionFee'
+            | 'planQueryLimit'
+            | 'expectedQueries'
+            | 'usageCost'
+            | 'quotedMonthlyTotal'
+            | 'totalMonthlyEstimate'
+    ): number | undefined {
+        const row = this.proposal?.pricingSummary?.[tier];
+
+        if (!row) return undefined;
+
+        if (field === 'quotedMonthlyTotal') {
+            return row.quotedMonthlyTotal ?? row.totalMonthlyEstimate;
+        }
+
+        return row[field];
+    }
+
     formatPrice(value?: number): string {
         if (value == null) return '—';
         return `$${value.toFixed(2)}`;

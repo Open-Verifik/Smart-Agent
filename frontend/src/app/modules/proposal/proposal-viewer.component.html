@@ -36,18 +36,19 @@
                         <thead class="border-b border-stone-200 bg-stone-100/80 text-xs uppercase text-stone-600 dark:border-zinc-800 dark:bg-zinc-900">
                             <tr>
                                 <th class="px-4 py-3">Service</th>
-                                <th class="px-4 py-3" *ngFor="let tier of tiers" [class.bg-stone-200]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-800': isTierRecommended(tier)}">
+                                <th class="px-4 py-3" *ngFor="let tier of displayTiers" [class.bg-stone-200]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-800': isTierRecommended(tier)}">
                                     {{ tier | titlecase }}
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let item of proposal.selectedLineItems" class="border-b border-stone-100 dark:border-zinc-800" [class.opacity-40]="item.selected === false">
+                            <tr *ngFor="let item of getSelectedLineItems()" class="border-b border-stone-100 dark:border-zinc-800">
                                 <td class="px-4 py-3">
                                     <p class="font-medium">{{ item.serviceName }}</p>
+                                    <p *ngIf="item.url" class="mt-0.5 truncate font-mono text-xs text-stone-400">{{ item.url }}</p>
                                     <p class="text-xs text-stone-500">{{ item.category }} · {{ item.country }}</p>
                                 </td>
-                                <ng-container *ngFor="let tier of tiers">
+                                <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-3 tabular-nums" [class.bg-stone-50]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-900/50': isTierRecommended(tier)}">
                                         {{ formatPrice(item.unitPrices?.[tier]) }}
                                     </td>
@@ -56,9 +57,33 @@
                         </tbody>
                         <tfoot *ngIf="proposal.pricingSummary" class="border-t bg-stone-50 text-xs dark:bg-zinc-900/40">
                             <tr>
-                                <td class="px-4 py-2 font-medium">Est. monthly total</td>
-                                <ng-container *ngFor="let tier of tiers">
-                                    <td class="px-4 py-2 font-semibold">{{ formatPrice(proposal.pricingSummary[tier]?.totalMonthlyEstimate) }}</td>
+                                <td class="px-4 py-2 font-medium text-stone-500">Plan minimum</td>
+                                <ng-container *ngFor="let tier of displayTiers">
+                                    <td class="px-4 py-2 tabular-nums text-stone-500" [class.bg-stone-100]="isTierRecommended(tier)">
+                                        {{ formatPrice(getSummaryValue(tier, 'planSubscriptionFee')) }}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-stone-500">
+                                    <span>Usage at avg. rate</span>
+                                    <span class="mt-0.5 block font-normal text-stone-400">{{ proposal.monthlyVolume | number }} queries × avg. unit price</span>
+                                </td>
+                                <ng-container *ngFor="let tier of displayTiers">
+                                    <td class="px-4 py-2 tabular-nums text-stone-500" [class.bg-stone-100]="isTierRecommended(tier)">
+                                        {{ formatPrice(getSummaryValue(tier, 'usageCost')) }}
+                                    </td>
+                                </ng-container>
+                            </tr>
+                            <tr>
+                                <td class="px-4 py-2 font-medium text-stone-900 dark:text-white">
+                                    <span>Quoted monthly total</span>
+                                    <span class="mt-0.5 block font-normal text-stone-400">Plan minimum or usage — whichever is higher</span>
+                                </td>
+                                <ng-container *ngFor="let tier of displayTiers">
+                                    <td class="px-4 py-2 text-sm font-semibold tabular-nums" [class.bg-stone-200]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-800': isTierRecommended(tier)}">
+                                        {{ formatPrice(getSummaryValue(tier, 'quotedMonthlyTotal')) }}
+                                    </td>
                                 </ng-container>
                             </tr>
                         </tfoot>
