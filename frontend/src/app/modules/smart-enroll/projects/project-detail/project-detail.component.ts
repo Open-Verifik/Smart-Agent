@@ -1,6 +1,7 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +11,7 @@ import { DateTime } from 'luxon';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
     EnrollClientRef,
@@ -67,12 +69,14 @@ interface SwatchEntry {
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
         RouterModule,
         ClipboardModule,
         MatButtonModule,
         MatIconModule,
         MatProgressSpinnerModule,
         TranslocoModule,
+        ProjectFlowOtpEmailEditorComponent,
     ],
     templateUrl: './project-detail.component.html',
 })
@@ -89,12 +93,15 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     loading = signal(true);
     errorKey = signal<string | null>(null);
     section = signal<string | null>(null);
+    showOtpEmailEditor = signal(false);
 
     flow = computed<EnrollProjectFlow | null>(() => {
         const flows = this.project()?.projectFlows;
         if (!flows?.length) return null;
-        const active = flows.find((f) => f.status && f.status !== 'draft');
-        return active ?? flows[0];
+        const onboardingFlows = flows.filter((f) => f.type === 'onboarding');
+        if (!onboardingFlows.length) return null;
+        const active = onboardingFlows.find((f) => f.status && f.status !== 'draft');
+        return active ?? onboardingFlows[0];
     });
 
     target = computed<'personal' | 'business'>(() => {
@@ -117,12 +124,20 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
 
     /** Section 1 — Sign-up form. */
     signUpPreview = computed(() => {
-        const sf = (this.flow()?.signUpForm ?? {}) as Record<string, unknown>;
-        const fullNameStyle = sf['fullNameStyle'] as 'separate' | 'together' | undefined;
+        const f = this.flow();
+        const sf = ((f?.signUpForm ?? (f?.onboardingSettings as any)?.signUpForm) ?? {}) as Record<string, unknown>;
+        let fullNameStyle = sf['fullNameStyle'] as 'separate' | 'together' | undefined;
+        if (!fullNameStyle) {
+            if (sf['firstName'] && sf['lastName']) {
+                fullNameStyle = 'separate';
+            } else if (sf['fullName']) {
+                fullNameStyle = 'together';
+            }
+        }
         const businessBasicInfoStyle = sf['businessBasicInfoStyle'] as 'name' | 'name_number' | undefined;
         return {
             target: this.target(),
-            fullName: !!sf['fullName'],
+            fullName: !!(sf['fullName'] || sf['firstName'] || sf['lastName']),
             fullNameStyle,
             businessBasicInfo: !!sf['businessBasicInfo'],
             businessBasicInfoStyle,
@@ -131,7 +146,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             phone: !!sf['phone'],
             phoneGateway: (sf['phoneGateway'] as string) ?? 'none',
             countryCode: (sf['countryCode'] as string) ?? '',
-            additionalFields: (sf['additionalFields'] as string[]) ?? [],
+            additionalFields: (sf['additionalFields'] ?? sf['extraFields'] ?? []) as string[],
             address: !!sf['address'],
             showTermsAndConditions: !!sf['showTermsAndConditions'],
             showPrivacyNotice: !!sf['showPrivacyNotice'],
@@ -142,17 +157,28 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     documentsPreview = computed<DocumentsPreview>(() => {
         const f = this.flow();
         const target = this.target();
-        const docs = ((target === 'business' ? f?.business : f?.documents) ?? {}) as Record<string, unknown>;
-        const documentTypes = (docs['documentTypes'] as Record<string, unknown>[]) ?? [];
-        return {
-            target,
-            attemptLimit: (docs['attemptLimit'] as number) ?? 3,
-            verificationMethods: (docs['verificationMethods'] as string[]) ?? [],
-            screening: !!docs['screening'],
-            informationVerification: !!docs['informationVerification'],
-            criminalHistoryVerification: !!docs['criminalHistoryVerification'],
-            criminalEndpoints: (docs['criminalHistoryVerificationEndpoints'] as string[]) ?? [],
-            countries: documentTypes.map((dt) => {
+        const docsV3 = target === 'business' ? f?.business : f?.documents;
+        const isV3 = !!docsV3 && Object.keys(docsV3).length > 0;
+
+        let attemptLimit = 3;
+        let verificationMethods: string[] = [];
+        let screening = false;
+        let informationVerification = false;
+        let criminalHistoryVerification = false;
+        let criminalEndpoints: string[] = [];
+        let countries: DocumentCountryPreview[] = [];
+
+        if (isV3) {
+            const docs = docsV3 ?? {};
+            attemptLimit = (docs['attemptLimit'] as number) ?? 3;
+            verificationMethods = (docs['verificationMethods'] as string[]) ?? [];
+            screening = !!docs['screening'];
+            informationVerification = !!docs['informationVerification'];
+            criminalHistoryVerification = !!docs['criminalHistoryVerification'];
+            criminalEndpoints = (docs['criminalHistoryVerificationEndpoints'] as string[]) ?? [];
+            
+            const documentTypes = (docs['documentTypes'] as Record<string, unknown>[]) ?? [];
+            countries = documentTypes.map((dt) => {
                 const configurations = (dt['configurations'] as Record<string, unknown>[]) ?? [];
                 return {
                     country: (dt['country'] as string) ?? '',
@@ -166,22 +192,93 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
                             };
                         }),
                 };
-            }),
+            });
+        } else {
+            const docV2 = ((f?.onboardingSettings as any)?.['document'] ?? {}) as Record<string, unknown>;
+            attemptLimit = (docV2['maxAttempts'] as number) ?? 3;
+            
+            const uploadAllowed = docV2['uploadDocumentAllowed'] !== false;
+            const scanAllowed = docV2['scanDocumentAllowed'] !== false;
+            if (uploadAllowed) verificationMethods.push('upload');
+            if (scanAllowed) verificationMethods.push('scan');
+
+            informationVerification = !!docV2['verifyNames'];
+            criminalHistoryVerification = !!docV2['verifyCriminalHistory'];
+            screening = informationVerification || criminalHistoryVerification;
+            criminalEndpoints = (docV2['criminalEndpoints'] as string[]) ?? [];
+
+            const activeCategories: { documentCategory: string; templates: number }[] = [];
+            if (!!docV2['useGovernmentID']) {
+                activeCategories.push({ documentCategory: 'government_id', templates: 0 });
+            }
+            if (!!docV2['usePassport']) {
+                activeCategories.push({ documentCategory: 'passport', templates: 0 });
+            }
+            if (!!docV2['useLicense']) {
+                activeCategories.push({ documentCategory: 'license', templates: 0 });
+            }
+
+            const countriesList = this.project()?.allowedCountries ?? [];
+            if (countriesList.length > 0) {
+                countries = countriesList.map((c) => ({
+                    country: c,
+                    activeCategories,
+                }));
+            } else {
+                countries = [
+                    {
+                        country: 'Global',
+                        activeCategories,
+                    }
+                ];
+            }
+        }
+
+        return {
+            target,
+            attemptLimit,
+            verificationMethods,
+            screening,
+            informationVerification,
+            criminalHistoryVerification,
+            criminalEndpoints,
+            countries,
         };
     });
 
     /** Section 3 — Liveness. */
     livenessPreview = computed(() => {
-        const liveness = (this.flow()?.liveness ?? {}) as Record<string, unknown>;
-        const pct = (v?: number) => (typeof v === 'number' ? Math.round(v * 100) : 0);
-        return {
-            kycType: (liveness['kycType'] as 'traditional' | 'zero_knowledge') ?? 'traditional',
-            attemptLimit: (liveness['attemptLimit'] as number) ?? 3,
-            minScore: pct(liveness['minScore'] as number | undefined),
-            compareMinScore: pct(liveness['compareMinScore'] as number | undefined),
-            searchMinScore: pct(liveness['searchMinScore'] as number | undefined),
-            searchMode: (liveness['searchMode'] as string) ?? 'FAST',
+        const f = this.flow();
+        const isV3 = !!f?.liveness;
+        const pct = (v?: number) => {
+            if (typeof v === 'number') {
+                return v > 1 ? Math.round(v) : Math.round(v * 100);
+            }
+            return 0;
         };
+
+        if (isV3) {
+            const liveness = (f?.liveness ?? {}) as Record<string, unknown>;
+            return {
+                kycType: (liveness['kycType'] as 'traditional' | 'zero_knowledge') ?? 'traditional',
+                attemptLimit: (liveness['attemptLimit'] as number) ?? 3,
+                minScore: pct(liveness['minScore'] as number | undefined),
+                compareMinScore: pct(liveness['compareMinScore'] as number | undefined),
+                searchMinScore: pct(liveness['searchMinScore'] as number | undefined),
+                searchMode: (liveness['searchMode'] as string) ?? 'FAST',
+            };
+        } else {
+            const livenessV2 = ((f?.onboardingSettings as any)?.['liveness'] ?? {}) as Record<string, unknown>;
+            const docV2 = ((f?.onboardingSettings as any)?.['document'] ?? {}) as Record<string, unknown>;
+            return {
+                kycType: 'traditional' as const,
+                attemptLimit: (livenessV2['maxAttempts'] as number) ?? 3,
+                minScore: pct(livenessV2['livenessMinScore'] as number | undefined),
+                compareMinScore: pct(docV2['compareMinScore'] as number | undefined),
+                searchMinScore: pct(livenessV2['searchMinScore'] as number | undefined),
+                searchMode: (livenessV2['searchMode'] as string) ?? 'FAST',
+            };
+        }
     });
 
     /** Section 3 (business) — Representatives. */
@@ -348,4 +445,30 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         };
         return map[value] ?? value;
     }
+
+    toggleOtpEmailEditor(): void {
+        this.showOtpEmailEditor.update((v) => !v);
+    }
+
+    closeOtpEmailEditor(): void {
+        this.showOtpEmailEditor.set(false);
+    }
+
+    onOtpEmailSaved(): void {
+        const id = this.project()?._id;
+        if (!id) return;
+        this._projectsService.getProject(id).subscribe({
+            next: (p) => this.project.set(p),
+        });
+    }
+
+    otpEmailBranding = computed(() => {
+        const b = this.brandingPreview();
+        return {
+            logo: b.logo,
+            name: this.project()?.name,
+            buttonColor: b.buttonColor,
+            buttonTextColor: b.buttonTextColor,
+        };
+    });
 }

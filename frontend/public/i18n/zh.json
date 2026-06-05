@@ -1281,6 +1281,7 @@
         "dpo": "数据保护官"
       },
       "signup": {
+        "notCollected": "未收集",
         "subtitle": "客户在扫描证件前需要填写的内容。",
         "fullName": {
           "separate": "名 + 姓",
@@ -1291,19 +1292,51 @@
           "name": "仅公司名"
         },
         "email": {
-          "mailgun": "邮箱 · 已验证",
-          "none": "邮箱 · 未验证"
+          "mailgun": "通过邮件验证码 (OTP) 验证",
+          "none": "仅收集 (不验证)"
         },
         "phone": {
-          "sms": "电话 · SMS",
-          "whatsapp": "电话 · WhatsApp",
-          "both": "电话 · WhatsApp + SMS",
-          "none": "电话 · 未验证"
+          "sms": "通过短信验证码 (OTP) 验证",
+          "whatsapp": "通过 WhatsApp 验证码 (OTP) 验证",
+          "both": "通过 WhatsApp 和短信验证码 (OTP) 验证",
+          "none": "仅收集 (不验证)"
         },
         "address": "公司地址",
         "terms": "显示条款",
         "privacy": "显示隐私通知",
         "additionalFields": "附加字段"
+      },
+      "emailTemplate": {
+        "title": "邮件模板",
+        "description": "自定义您的注册者将收到的 OTP 验证邮件。留空则使用默认文本。",
+        "subjectLabel": "邮件主题",
+        "subjectPlaceholder": "例如：验证码",
+        "messageLabel": "邮件正文",
+        "messagePlaceholder": "例如：请使用以下验证码来验证您的电子邮件地址：",
+        "doNotShareLabel": "切勿分享警告",
+        "doNotSharePlaceholder": "例如：请勿与任何人分享此验证码。",
+        "didNotRequestLabel": "非本人操作提示",
+        "didNotRequestPlaceholder": "例如：如果您没有请求此验证码，请忽略此邮件。",
+        "buttonTextLabel": "按钮文本",
+        "showButtonLabel": "在邮件中包含验证链接/按钮",
+        "buttonTextPlaceholder": "例如：立即验证",
+        "buttonColorLabel": "按钮颜色",
+        "buttonTxtColorLabel": "按钮文本颜色",
+        "save": "保存模板",
+        "cancel": "取消",
+        "preview": "实时预览",
+        "previewName": "张三",
+        "previewSincerely": "此致，",
+        "previewNote": "这只是预览。在不同的邮件客户端中，实际的邮件排版可能略有不同。",
+        "sendTestEmailLabel": "发送测试邮件",
+        "sendTestEmailPlaceholder": "例如：test@example.com",
+        "sendTestEmailButton": "发送测试",
+        "sendTestEmailSuccess": "测试邮件发送成功！",
+        "sendTestEmailError": "发送测试邮件失败，请检查配置。",
+        "defaultMessage": "请使用以下验证码来验证您的电子邮件地址：",
+        "defaultDoNotShare": "请勿与任何人分享此验证码。",
+        "defaultDidNotRequest": "如果您没有请求此验证码，您可以安全地忽略此邮件。",
+        "defaultButtonText": "立即验证"
       },
       "documents": {
         "subtitle": "如何接受和验证身份证件。",
@@ -1763,20 +1796,22 @@
           "postalCode": "Postal code"
         },
         "email": {
-          "title": "Email address",
-          "businessTitle": "Business email",
-          "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Validate",
-          "none": "Don't validate"
+          "title": "电子邮箱",
+          "businessTitle": "企业电子邮箱",
+          "subtitle": "收集并核验客户电子邮箱地址。",
+          "mailgun": "通过 OTP 验证",
+          "none": "仅收集 (不验证)"
         },
         "phone": {
-          "title": "Phone number",
-          "businessTitle": "Business phone",
-          "subtitle": "Capture and verify a customer phone number.",
-          "both": "WhatsApp + SMS",
-          "none": "Don't validate",
-          "countryCode": "Default country code",
-          "searchCountry": "Search countries..."
+          "title": "电话号码",
+          "businessTitle": "企业电话号码",
+          "subtitle": "收集并核验客户电话号码。",
+          "both": "通过 OTP 验证 (WhatsApp 和 短信)",
+          "whatsapp": "通过 OTP 验证 (WhatsApp)",
+          "sms": "通过 OTP 验证 (短信)",
+          "none": "仅收集 (不验证)",
+          "countryCode": "默认国家区号",
+          "searchCountry": "搜索国家/地区..."
         },
         "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {

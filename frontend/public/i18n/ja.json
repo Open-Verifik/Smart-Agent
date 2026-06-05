@@ -1281,6 +1281,7 @@
         "dpo": "データ保護責任者"
       },
       "signup": {
+        "notCollected": "収集なし",
         "subtitle": "顧客が書類スキャン前に入力する内容。",
         "fullName": {
           "separate": "名 + 姓",
@@ -1291,19 +1292,51 @@
           "name": "会社名のみ"
         },
         "email": {
-          "mailgun": "メール · 検証あり",
-          "none": "メール · 検証なし"
+          "mailgun": "OTPで検証 (メール)",
+          "none": "収集のみ (検証なし)"
         },
         "phone": {
-          "sms": "電話 · SMS",
-          "whatsapp": "電話 · WhatsApp",
-          "both": "電話 · WhatsApp + SMS",
-          "none": "電話 · 検証なし"
+          "sms": "OTPで検証 (SMS)",
+          "whatsapp": "OTPで検証 (WhatsApp)",
+          "both": "OTPで検証 (WhatsApp & SMS)",
+          "none": "収集のみ (検証なし)"
         },
         "address": "会社住所",
         "terms": "利用規約を表示",
         "privacy": "プライバシー通知を表示",
         "additionalFields": "追加フィールド"
+      },
+      "emailTemplate": {
+        "title": "メールテンプレート",
+        "description": "登録者が受信するOTP検証メールをカスタマイズします。フィールドを空のままにすると、デフォルトのテキストが使用されます。",
+        "subjectLabel": "メール件名",
+        "subjectPlaceholder": "例: 検証コード",
+        "messageLabel": "メッセージ本文",
+        "messagePlaceholder": "例: 以下のコードを使用してメールアドレスを検証してください。",
+        "doNotShareLabel": "共有禁止の警告",
+        "doNotSharePlaceholder": "例: このコードは誰にも共有しないでください。",
+        "didNotRequestLabel": "リクエストしていない場合の注意書き",
+        "didNotRequestPlaceholder": "例: このコードをリクエストした覚えがない場合は、このメールを無視してください。",
+        "buttonTextLabel": "ボタンのテキスト",
+        "showButtonLabel": "メール内に検証リンク/ボタンを含める",
+        "buttonTextPlaceholder": "例: 今すぐ検証",
+        "buttonColorLabel": "ボタンの色",
+        "buttonTxtColorLabel": "ボタンのテキスト色",
+        "save": "テンプレートを保存",
+        "cancel": "キャンセル",
+        "preview": "ライブプレビュー",
+        "previewName": "太郎",
+        "previewSincerely": "敬具",
+        "previewNote": "これはプレビューです。実際のメールはメールクライアントによって若干異なって見える場合があります。",
+        "sendTestEmailLabel": "テストメールを送信",
+        "sendTestEmailPlaceholder": "例: test@example.com",
+        "sendTestEmailButton": "テスト送信",
+        "sendTestEmailSuccess": "テストメールが正常に送信されました！",
+        "sendTestEmailError": "テストメールの送信に失敗しました。設定を確認してください。",
+        "defaultMessage": "以下のコードを使用してメールアドレスを検証してください。",
+        "defaultDoNotShare": "このコードは誰にも共有しないでください。",
+        "defaultDidNotRequest": "このコードをリクエストした覚えがない場合は、このメールを安全に無視してください。",
+        "defaultButtonText": "今すぐ検証"
       },
       "documents": {
         "subtitle": "本人確認書類の受付と検証方法。",
@@ -1763,20 +1796,22 @@
           "postalCode": "Postal code"
         },
         "email": {
-          "title": "Email address",
-          "businessTitle": "Business email",
-          "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Validate",
-          "none": "Don't validate"
+          "title": "メールアドレス",
+          "businessTitle": "ビジネスメール",
+          "subtitle": "顧客のメールアドレスを収集し、検証します。",
+          "mailgun": "OTPで検証",
+          "none": "収集のみ (検証なし)"
         },
         "phone": {
-          "title": "Phone number",
-          "businessTitle": "Business phone",
-          "subtitle": "Capture and verify a customer phone number.",
-          "both": "WhatsApp + SMS",
-          "none": "Don't validate",
-          "countryCode": "Default country code",
-          "searchCountry": "Search countries..."
+          "title": "電話番号",
+          "businessTitle": "ビジネス電話",
+          "subtitle": "顧客の電話番号を収集し、検証します。",
+          "both": "OTPで検証 (WhatsApp & SMS)",
+          "whatsapp": "OTPで検証 (WhatsApp)",
+          "sms": "OTPで検証 (SMS)",
+          "none": "収集のみ (検証なし)",
+          "countryCode": "デフォルトの国番号",
+          "searchCountry": "国を検索..."
         },
         "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {

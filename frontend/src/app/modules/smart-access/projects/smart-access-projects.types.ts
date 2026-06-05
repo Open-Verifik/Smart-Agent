@@ -35,6 +35,7 @@ export interface AccessProjectFlow {
     loginSettings?: SmartAccessLoginSettings;
     integrations?: SmartAccessFlowIntegrations;
     security?: SmartAccessSecurity;
+    emailTemplates?: Record<string, Record<string, unknown>>;
 }
 
 /** Project list row with at least one `login` v3 flow. */

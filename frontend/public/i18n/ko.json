@@ -1281,6 +1281,7 @@
         "dpo": "데이터 보호 책임자"
       },
       "signup": {
+        "notCollected": "수집하지 않음",
         "subtitle": "고객이 문서를 스캔하기 전에 입력하는 정보.",
         "fullName": {
           "separate": "이름 + 성",
@@ -1291,19 +1292,51 @@
           "name": "상호만"
         },
         "email": {
-          "mailgun": "이메일 · 검증됨",
-          "none": "이메일 · 검증 안 함"
+          "mailgun": "OTP로 검증 (이메일)",
+          "none": "수집만 함 (검증 없음)"
         },
         "phone": {
-          "sms": "전화 · SMS",
-          "whatsapp": "전화 · WhatsApp",
-          "both": "전화 · WhatsApp + SMS",
-          "none": "전화 · 검증 안 함"
+          "sms": "OTP로 검증 (SMS)",
+          "whatsapp": "OTP로 검증 (WhatsApp)",
+          "both": "OTP로 검증 (WhatsApp 및 SMS)",
+          "none": "수집만 함 (검증 없음)"
         },
         "address": "사업장 주소",
         "terms": "약관 표시",
         "privacy": "개인정보 고지 표시",
         "additionalFields": "추가 필드"
+      },
+      "emailTemplate": {
+        "title": "이메일 템플릿",
+        "description": "등록자가 수신할 OTP 인증 이메일을 맞춤 설정합니다. 기본 텍스트를 사용하려면 필드를 비워 두세요.",
+        "subjectLabel": "이메일 제목",
+        "subjectPlaceholder": "예: 인증 코드",
+        "messageLabel": "메시지 본문",
+        "messagePlaceholder": "예: 다음 코드를 사용하여 이메일 주소를 인증해 주세요.",
+        "doNotShareLabel": "공유 금지 경고",
+        "doNotSharePlaceholder": "예: 이 코드를 다른 사람과 공유하지 마세요.",
+        "didNotRequestLabel": "요청하지 않은 경우 안내",
+        "didNotRequestPlaceholder": "예: 이 코드를 요청하지 않은 경우 이 이메일을 무시하셔도 됩니다.",
+        "buttonTextLabel": "버튼 텍스트",
+        "showButtonLabel": "이메일 내에 인증 링크/버튼 포함",
+        "buttonTextPlaceholder": "예: 지금 인증하기",
+        "buttonColorLabel": "버튼 색상",
+        "buttonTxtColorLabel": "버튼 텍스트 색상",
+        "save": "템플릿 저장",
+        "cancel": "취소",
+        "preview": "실시간 미리보기",
+        "previewName": "길동",
+        "previewSincerely": "감사합니다.",
+        "previewNote": "이것은 미리보기입니다. 실제 이메일은 이메일 클라이언트에 따라 약간 다르게 보일 수 있습니다.",
+        "sendTestEmailLabel": "테스트 이메일 전송",
+        "sendTestEmailPlaceholder": "예: test@example.com",
+        "sendTestEmailButton": "테스트 전송",
+        "sendTestEmailSuccess": "테스트 이메일이 성공적으로 전송되었습니다!",
+        "sendTestEmailError": "테스트 이메일 전송에 실패했습니다. 설정을 확인해 주세요.",
+        "defaultMessage": "다음 코드를 사용하여 이메일 주소를 인증해 주세요.",
+        "defaultDoNotShare": "이 코드를 다른 사람과 공유하지 마세요.",
+        "defaultDidNotRequest": "이 코드를 요청하지 않은 경우 이 이메일을 무시하셔도 안전합니다.",
+        "defaultButtonText": "지금 인증하기"
       },
       "documents": {
         "subtitle": "신원 문서의 수락 및 검증 방식.",
@@ -1763,20 +1796,22 @@
           "postalCode": "Postal code"
         },
         "email": {
-          "title": "Email address",
-          "businessTitle": "Business email",
-          "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Validate",
-          "none": "Don't validate"
+          "title": "이메일 주소",
+          "businessTitle": "회사 이메일",
+          "subtitle": "고객 이메일 주소를 수집하고 검증합니다.",
+          "mailgun": "OTP로 검증",
+          "none": "수집만 함 (검증 없음)"
         },
         "phone": {
-          "title": "Phone number",
-          "businessTitle": "Business phone",
-          "subtitle": "Capture and verify a customer phone number.",
-          "both": "WhatsApp + SMS",
-          "none": "Don't validate",
-          "countryCode": "Default country code",
-          "searchCountry": "Search countries..."
+          "title": "전화번호",
+          "businessTitle": "회사 전화번호",
+          "subtitle": "고객 전화번호를 수집하고 검증합니다.",
+          "both": "OTP로 검증 (WhatsApp 및 SMS)",
+          "whatsapp": "OTP로 검증 (WhatsApp)",
+          "sms": "OTP로 검증 (SMS)",
+          "none": "수집만 함 (검증 없음)",
+          "countryCode": "기본 국가 코드",
+          "searchCountry": "국가 검색..."
         },
         "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {

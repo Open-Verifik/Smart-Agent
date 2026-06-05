@@ -1281,6 +1281,7 @@
         "dpo": "Encarregado de proteção de dados"
       },
       "signup": {
+        "notCollected": "Não coletado",
         "subtitle": "O que o cliente preenche antes de digitalizar um documento.",
         "fullName": {
           "separate": "Nome + apelidos",
@@ -1291,19 +1292,51 @@
           "name": "Apenas nome empresarial"
         },
         "email": {
-          "mailgun": "E-mail · validado",
-          "none": "E-mail · sem validar"
+          "mailgun": "Verificar com OTP (via e-mail)",
+          "none": "Apenas coletar (sem verificação)"
         },
         "phone": {
-          "sms": "Telefone · SMS",
-          "whatsapp": "Telefone · WhatsApp",
-          "both": "Telefone · WhatsApp + SMS",
-          "none": "Telefone · sem validar"
+          "sms": "Verificar com OTP (via SMS)",
+          "whatsapp": "Verificar com OTP (via WhatsApp)",
+          "both": "Verificar com OTP (via WhatsApp e SMS)",
+          "none": "Apenas coletar (sem verificação)"
         },
         "address": "Endereço da empresa",
         "terms": "Termos visíveis",
         "privacy": "Aviso de privacidade visível",
         "additionalFields": "Campos adicionais"
+      },
+      "emailTemplate": {
+        "title": "Modelo de e-mail",
+        "description": "Personalize o e-mail de verificação de OTP que os seus inscritos recebem. Deixe os campos vazios para usar o texto padrão.",
+        "subjectLabel": "Assunto do e-mail",
+        "subjectPlaceholder": "ex: Código de verificação",
+        "messageLabel": "Corpo da mensagem",
+        "messagePlaceholder": "ex: Use o seguinte código para verificar o seu endereço de e-mail:",
+        "doNotShareLabel": "Aviso para não partilhar",
+        "doNotSharePlaceholder": "ex: Não partilhe este código com ninguém.",
+        "didNotRequestLabel": "Aviso de não solicitação",
+        "didNotRequestPlaceholder": "ex: Se não solicitou este código, ignore este e-mail.",
+        "buttonTextLabel": "Texto do botão",
+        "showButtonLabel": "Incluir link/botão de verificação no e-mail",
+        "buttonTextPlaceholder": "ex: Verificar agora",
+        "buttonColorLabel": "Cor do botão",
+        "buttonTxtColorLabel": "Cor do texto do botão",
+        "save": "Guardar modelo",
+        "cancel": "Cancelar",
+        "preview": "Pré-visualização",
+        "previewName": "João",
+        "previewSincerely": "Atenciosamente,",
+        "previewNote": "Esta é uma pré-visualização. O e-mail real pode parecer ligeiramente diferente em alguns clientes de e-mail.",
+        "sendTestEmailLabel": "Enviar e-mail de teste",
+        "sendTestEmailPlaceholder": "ex: teste@example.com",
+        "sendTestEmailButton": "Enviar teste",
+        "sendTestEmailSuccess": "E-mail de teste enviado com sucesso!",
+        "sendTestEmailError": "Falha ao enviar e-mail de teste. Verifique a configuração.",
+        "defaultMessage": "Use o seguinte código para verificar o seu endereço de e-mail:",
+        "defaultDoNotShare": "Não partilhe este código com ninguém.",
+        "defaultDidNotRequest": "Se não solicitou este código, pode ignorar este e-mail com segurança.",
+        "defaultButtonText": "Verificar agora"
       },
       "documents": {
         "subtitle": "Como os documentos de identidade são aceites e verificados.",
@@ -1763,20 +1796,22 @@
           "postalCode": "Postal code"
         },
         "email": {
-          "title": "Email address",
-          "businessTitle": "Business email",
-          "subtitle": "Capture and verify a customer email address.",
-          "mailgun": "Validate",
-          "none": "Don't validate"
+          "title": "Endereço de e-mail",
+          "businessTitle": "E-mail da empresa",
+          "subtitle": "Recolha e verifique o endereço de e-mail do cliente.",
+          "mailgun": "Verificar com OTP",
+          "none": "Apenas recolher (sem verificação)"
         },
         "phone": {
-          "title": "Phone number",
-          "businessTitle": "Business phone",
-          "subtitle": "Capture and verify a customer phone number.",
-          "both": "WhatsApp + SMS",
-          "none": "Don't validate",
-          "countryCode": "Default country code",
-          "searchCountry": "Search countries..."
+          "title": "Número de telefone",
+          "businessTitle": "Telefone da empresa",
+          "subtitle": "Recolha e verifique o número de telefone do cliente.",
+          "both": "Verificar com OTP (WhatsApp e SMS)",
+          "whatsapp": "Verificar com OTP (WhatsApp)",
+          "sms": "Verificar com OTP (SMS)",
+          "none": "Apenas recolher (sem verificação)",
+          "countryCode": "Código de país predefinido",
+          "searchCountry": "Procurar países..."
         },
         "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
         "legal": {

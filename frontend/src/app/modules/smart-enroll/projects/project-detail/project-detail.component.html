@@ -344,10 +344,23 @@
                                             {{ t('smartEnrollProjects.detail.signup.subtitle') }}
                                         </p>
                                     </div>
-                                    <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(1)">
-                                        <mat-icon class="!h-4 !w-4">edit</mat-icon>
-                                        {{ t('smartEnrollProjects.detail.editSection') }}
-                                    </button>
+                                    <div class="flex flex-wrap gap-2">
+                                        @if (signUp.email && signUp.emailGateway === 'mailgun') {
+                                            <button
+                                                mat-stroked-button
+                                                type="button"
+                                                class="rounded-full"
+                                                (click)="toggleOtpEmailEditor()"
+                                            >
+                                                <mat-icon class="!h-4 !w-4">email</mat-icon>
+                                                {{ t('smartEnrollProjects.detail.emailTemplate.title') }}
+                                            </button>
+                                        }
+                                        <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(1)">
+                                            <mat-icon class="!h-4 !w-4">edit</mat-icon>
+                                            {{ t('smartEnrollProjects.detail.editSection') }}
+                                        </button>
+                                    </div>
                                 </header>
 
                                 <div class="flex flex-wrap gap-2">
@@ -412,6 +425,18 @@
                                             }
                                         </div>
                                     </div>
+                                }
+
+                                <!-- Email Template Editor Panel -->
+                                @if (showOtpEmailEditor() && flow()?._id) {
+                                    <project-flow-otp-email-editor
+                                        [flowId]="flow()!._id!"
+                                        [projectName]="project()?.name || 'Verifik'"
+                                        [branding]="otpEmailBranding()"
+                                        [emailTemplates]="$any(flow()?.emailTemplates)"
+                                        (closed)="closeOtpEmailEditor()"
+                                        (saved)="onOtpEmailSaved()"
+                                    />
                                 }
                             </section>
 

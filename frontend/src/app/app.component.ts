@@ -60,7 +60,7 @@ export class AppComponent implements OnInit {
         const path = window.location.pathname || '';
 
         // Bridge route owns exchange + final JWT flow (see BridgeComponent).
-        if (path.includes('/bridge')) {
+        if (path.includes('/bridge') || path.includes('/proposal')) {
             return;
         }
 
@@ -104,7 +104,7 @@ export class AppComponent implements OnInit {
         const path = window.location.pathname || '';
 
         // Avoid racing bridge handoff against a previous session snapshot.
-        if (path.includes('/bridge')) {
+        if (path.includes('/bridge') || path.includes('/proposal')) {
             return;
         }
 

@@ -297,6 +297,15 @@ export class SmartEnrollProjectsService {
         );
     }
 
+    sendTestEmail(flowId: string, payload: { email: string; language?: string; emailTemplate?: Record<string, unknown> }): Observable<{ data: { sent: boolean } }> {
+        return this._http.post<{ data: { sent: boolean } }>(
+            `${this.apiUrl}/v2/project-flows/${flowId}/test-email`,
+            payload,
+            { headers: this.authHeaders }
+        );
+    }
+
+
     getProjectMembers(projectId: string): Observable<EnrollProjectMember[]> {
         const params: Record<string, string | string[]> = {
             where_project: projectId,

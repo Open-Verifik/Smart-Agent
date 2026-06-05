@@ -195,10 +195,23 @@
                                         {{ t('smartAccessProjects.detail.channelsSubtitle') }}
                                     </p>
                                 </div>
-                                <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(1)">
-                                    <mat-icon class="!h-4 !w-4">edit</mat-icon>
-                                    {{ t('smartAccessProjects.detail.editSection') }}
-                                </button>
+                                <div class="flex flex-wrap gap-2">
+                                    @if (login.email && login.emailGateway === 'mailgun') {
+                                        <button
+                                            mat-stroked-button
+                                            type="button"
+                                            class="rounded-full"
+                                            (click)="toggleOtpEmailEditor()"
+                                        >
+                                            <mat-icon class="!h-4 !w-4">email</mat-icon>
+                                            {{ t('smartEnrollProjects.detail.emailTemplate.title') }}
+                                        </button>
+                                    }
+                                    <button mat-stroked-button type="button" class="rounded-full" (click)="openSetup(1)">
+                                        <mat-icon class="!h-4 !w-4">edit</mat-icon>
+                                        {{ t('smartAccessProjects.detail.editSection') }}
+                                    </button>
+                                </div>
                             </header>
 
                             <!-- Method chips -->
@@ -233,6 +246,19 @@
                                     </span>
                                 }
                             </div>
+
+                            @if (showOtpEmailEditor() && flow()?._id) {
+                                <div class="mt-5">
+                                    <project-flow-otp-email-editor
+                                        [flowId]="flow()!._id!"
+                                        [projectName]="project()?.name || 'Verifik'"
+                                        [branding]="otpEmailBranding()"
+                                        [emailTemplates]="flow()?.emailTemplates"
+                                        (closed)="closeOtpEmailEditor()"
+                                        (saved)="onOtpEmailSaved()"
+                                    />
+                                </div>
+                            }
 
                             <!-- Biometrics scores -->
                             @if (login.faceLiveness) {

@@ -9,6 +9,11 @@ export const appRoutes: Route[] = [
         loadChildren: () => import('app/modules/bridge/bridge.routes').then((m) => m.default),
     },
 
+    {
+        path: 'proposal',
+        loadChildren: () => import('app/modules/proposal/proposal.routes').then((m) => m.default),
+    },
+
     // Redirect empty path to '/home'
     { path: '', pathMatch: 'full', redirectTo: 'home' },
 

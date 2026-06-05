@@ -671,7 +671,7 @@
                                 <li>
                                     <span>{{ t("smartenroll.plans.extra_enrolls") }}</span>
                                     <span class="feature-price"
-                                        >{{ getPlan(selectedPlan)?.unitPrice | currency }} {{ t("smartenroll.plans.per_extra") }}</span
+                                        >{{ (getPlan(selectedPlan)?.meteredUnitPrice ?? getPlan(selectedPlan)?.unitPrice) | currency }} {{ t("smartenroll.plans.per_extra") }}</span
                                     >
                                 </li>
                                 <li>
@@ -704,7 +704,7 @@
                             <div class="extra-bio-costs">
                                 <div class="bio-cost-item">
                                     <span>{{ t("smartenroll.plans.extra_enrollment") }}</span>
-                                    <strong>{{ getPlan(selectedPlan)?.unitPrice | currency }} USD / {{ t("smartenroll.plans.enrollment") }}</strong>
+                                    <strong>{{ (getPlan(selectedPlan)?.meteredUnitPrice ?? getPlan(selectedPlan)?.unitPrice) | currency }} USD / {{ t("smartenroll.plans.enrollment") }}</strong>
                                 </div>
                             </div>
                         </div>

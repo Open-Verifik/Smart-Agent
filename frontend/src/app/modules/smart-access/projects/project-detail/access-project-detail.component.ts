@@ -13,6 +13,7 @@ import { smartAccessLoginFlow } from '../login-flow.util';
 import type { AccessProject, SmartAccessLoginSettings, SmartAccessSecurity, SmartAccessFlowIntegrations } from '../smart-access-projects.types';
 import { SmartAccessProjectsService } from '../smart-access-projects.service';
 import { AccessSignInPreviewComponent } from '../setup/preview/access-sign-in-preview.component';
+import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
 
 interface BrandingPreview {
     logo?: string;
@@ -56,6 +57,7 @@ interface LoginPreview {
         MatProgressSpinnerModule,
         TranslocoModule,
         AccessSignInPreviewComponent,
+        ProjectFlowOtpEmailEditorComponent,
     ],
     templateUrl: './access-project-detail.component.html',
     styleUrls: ['./access-project-detail.component.scss'],
@@ -73,6 +75,7 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
     project = signal<AccessProject | null>(null);
     loading = signal(true);
     errorKey = signal<string | null>(null);
+    showOtpEmailEditor = signal(false);
 
     /** Reactive form used only to drive the sign-in preview widget. */
     previewForm = signal<FormGroup | null>(null);
@@ -144,6 +147,16 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
         return { redirectUrl: i.redirectUrl ?? '', webhook: i.webhook ?? null };
     });
 
+    otpEmailBranding = computed(() => {
+        const b = this.brandingPreview();
+        return {
+            logo: b.logo,
+            name: this.project()?.name,
+            buttonColor: b.buttonColor,
+            buttonTextColor: b.buttonTextColor,
+        };
+    });
+
     ngOnInit(): void {
         this._paramSub = this._route.paramMap.subscribe((pm) => {
             const id = pm.get('projectId');
@@ -205,6 +218,22 @@ export class AccessProjectDetailComponent implements OnInit, OnDestroy {
     emptyOr(v: string | null | undefined): string {
         const s = `${v ?? ''}`.trim();
         return s || this._transloco.translate('smartAccessProjects.detail.noValue');
+    }
+
+    toggleOtpEmailEditor(): void {
+        this.showOtpEmailEditor.update((v) => !v);
+    }
+
+    closeOtpEmailEditor(): void {
+        this.showOtpEmailEditor.set(false);
+    }
+
+    onOtpEmailSaved(): void {
+        const id = this.project()?._id;
+        if (!id) return;
+        this._projectsService.getProject(id).subscribe({
+            next: (proj) => this.project.set(proj),
+        });
     }
 
     /**
