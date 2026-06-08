@@ -139,6 +139,13 @@ const COLOMBIA_INPEC_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBO
     })
 );
 
+const COLOMBIA_POLICE_RNMC_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile, index) => ({
+        ...profile,
+        fullName: `${profile.fullName} — ${index % 2 === 0 ? 'con medidas' : 'sin medidas'}`,
+    })
+);
+
 const COLOMBIA_DIAN_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
     (profile) => ({
         ...profile,
@@ -820,7 +827,7 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         showProfileMeta: false,
     },
     [COLOMBIA_POLICE_RNMC_ENDPOINT_CODE]: {
-        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_POLICE_RNMC_SANDBOX_PROFILES, {
             conflictProfiles: [
                 SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
                 SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
