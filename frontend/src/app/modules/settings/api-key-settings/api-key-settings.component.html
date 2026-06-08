@@ -1,258 +1,415 @@
-<!-- Panel Header -->
-<div class="mb-8">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-        {{ 'settings.api_key.title' | transloco }}
-    </h1>
-    <p class="mt-2 text-gray-600 dark:text-gray-400">
-        {{ 'settings.api_key.subtitle' | transloco }}
-    </p>
-</div>
+<ng-container *transloco="let t">
+    <app-api-key-help-modal
+        [isOpen]="!!activeHelp"
+        [content]="activeHelpContent"
+        (close)="closeHelp()"
+    ></app-api-key-help-modal>
 
-<app-settings-business-account-empty-state
-    *ngIf="!userClientId"
-    hintKey="settings.api_key.sign_in_hint"
-    (userChange)="onBusinessAccountLinked($event)"
-/>
-
-<ng-container *ngIf="userClientId">
-<!-- New Token Alert -->
-<div *ngIf="showNewTokenAlert" class="new-token-alert mb-6">
-    <div class="flex items-start gap-4">
-        <div class="alert-icon-success">
-            <mat-icon>check_circle</mat-icon>
-        </div>
-        <div class="flex-1">
-            <h3 class="font-semibold">
-                {{ 'settings.api_key.new_token_generated' | transloco }}
-            </h3>
-            <p class="text-sm mt-1">
-                {{ 'settings.api_key.copy_token_warning' | transloco }}
+    <div class="flex flex-col gap-6">
+        <header class="max-w-2xl">
+            <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                {{ t('settings.api_key.title') }}
+            </h1>
+            <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
+                {{ t('settings.api_key.subtitle') }}
             </p>
-        </div>
-        <button mat-icon-button (click)="dismissNewTokenAlert()" class="new-token-alert-dismiss">
-            <mat-icon>close</mat-icon>
-        </button>
-    </div>
-</div>
+        </header>
 
-<!-- Current Token Card -->
-<div class="content-card mb-6">
-    <div class="card-header">
-        <div class="flex items-center gap-3">
-            <div class="card-icon blue">
-                <mat-icon>vpn_key</mat-icon>
-            </div>
-            <div>
-                <h2 class="font-semibold text-gray-900 dark:text-white">
-                    {{ 'settings.api_key.current_token' | transloco }}
-                </h2>
-                <p class="text-gray-500 text-xs dark:text-gray-400">
-                    {{ 'settings.api_key.bearer_token_info' | transloco }}
-                </p>
-            </div>
-        </div>
-        <div class="token-status">
-            <span class="status-dot"></span>
-            {{ 'settings.api_key.active' | transloco }}
-        </div>
-    </div>
+        <app-settings-business-account-empty-state
+            *ngIf="!userClientId"
+            hintKey="settings.api_key.sign_in_hint"
+            (userChange)="onBusinessAccountLinked($event)"
+        />
 
-    <div class="card-body">
-        <div class="token-display-wrapper">
-            <div class="token-display" (click)="copyToken()">
-                <code class="token-text">
-                    {{ hidePassword ? getMaskedToken() : accessToken }}
-                </code>
-            </div>
-            <div class="token-actions">
-                <button
-                    mat-icon-button
-                    (click)="hidePassword = !hidePassword"
-                    [matTooltip]="
-                        hidePassword
-                            ? ('settings.api_key.show_token' | transloco)
-                            : ('settings.api_key.hide_token' | transloco)
-                    "
-                    class="action-btn"
-                >
-                    <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
-                </button>
-                <button
-                    mat-icon-button
-                    (click)="copyToken()"
-                    [matTooltip]="'settings.api_key.copy_token' | transloco"
-                    class="action-btn"
-                >
-                    <mat-icon>content_copy</mat-icon>
-                </button>
-            </div>
-        </div>
-
-        <p class="usage-hint">
-            <mat-icon class="inline-icon">info</mat-icon>
-            {{ 'settings.api_key.usage_hint' | transloco }}
-        </p>
-    </div>
-</div>
-
-<!-- Action Cards Grid -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <!-- Renew Token Card -->
-    <div class="action-card">
-        <div class="action-card-header">
-            <div class="action-icon renew">
-                <mat-icon>autorenew</mat-icon>
-            </div>
-            <h3 class="action-title">
-                {{ 'settings.api_key.renew_token' | transloco }}
-            </h3>
-        </div>
-        <p class="action-description">
-            {{ 'settings.api_key.renew_description' | transloco }}
-        </p>
-
-        <div *ngIf="!showRenewPanel" class="action-footer">
-            <button
-                mat-stroked-button
-                color="primary"
-                (click)="toggleRenewPanel()"
-                class="action-button"
+        <ng-container *ngIf="userClientId">
+            <div
+                *ngIf="showNewTokenAlert"
+                class="rounded-2xl border border-emerald-200/90 bg-emerald-50/90 p-5 shadow-sm dark:border-emerald-900/60 dark:bg-emerald-950/30 md:p-6"
             >
-                {{ 'settings.api_key.extend_validity' | transloco }}
-                <mat-icon>arrow_forward</mat-icon>
-            </button>
-        </div>
-
-        <!-- Renew Panel -->
-        <div *ngIf="showRenewPanel" class="expand-panel">
-            <div class="panel-content">
-                <label class="panel-label">
-                    {{ 'settings.api_key.select_expiration' | transloco }}
-                </label>
-                <div class="expiration-grid">
-                    <button
-                        *ngFor="let option of expirationOptions"
-                        (click)="selectedExpiration = option.value"
-                        [class.selected]="selectedExpiration === option.value"
-                        class="expiration-option"
+                <div class="flex items-start gap-4">
+                    <div
+                        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"
                     >
-                        {{ option.label }}
-                        <span class="expiration-unit">{{ 'settings.api_key.months' | transloco }}</span>
-                    </button>
-                </div>
-
-                <div class="panel-actions">
-                    <button mat-button (click)="toggleRenewPanel()" [disabled]="isRenewing">
-                        {{ 'settings.api_key.cancel' | transloco }}
-                    </button>
-                    <button
-                        mat-flat-button
-                        color="primary"
-                        (click)="renewToken()"
-                        [disabled]="isRenewing"
-                        class="confirm-btn"
-                    >
-                        <mat-spinner *ngIf="isRenewing" diameter="18" class="mr-2"></mat-spinner>
-                        {{
-                            isRenewing
-                                ? ('settings.api_key.renewing' | transloco)
-                                : ('settings.api_key.renew_now' | transloco)
-                        }}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Revoke & Generate New Card -->
-    <div class="action-card danger">
-        <div class="action-card-header">
-            <div class="action-icon revoke">
-                <mat-icon>sync_problem</mat-icon>
-            </div>
-            <h3 class="action-title">
-                {{ 'settings.api_key.revoke_generate' | transloco }}
-            </h3>
-        </div>
-        <p class="action-description">
-            {{ 'settings.api_key.revoke_description' | transloco }}
-        </p>
-
-        <div *ngIf="!showRevokeConfirm" class="action-footer">
-            <button
-                mat-stroked-button
-                color="warn"
-                (click)="toggleRevokeConfirm()"
-                class="action-button danger"
-            >
-                {{ 'settings.api_key.revoke_all' | transloco }}
-                <mat-icon>arrow_forward</mat-icon>
-            </button>
-        </div>
-
-        <!-- Revoke Confirmation Panel -->
-        <div *ngIf="showRevokeConfirm" class="expand-panel danger">
-            <div class="panel-content">
-                <div class="warning-box">
-                    <mat-icon class="warning-icon">warning</mat-icon>
-                    <div>
-                        <p class="warning-title">
-                            {{ 'settings.api_key.warning_title' | transloco }}
+                        <mat-icon>check_circle</mat-icon>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h3 class="text-base font-semibold text-emerald-950 dark:text-emerald-50">
+                            {{ t('settings.api_key.new_token_generated') }}
+                        </h3>
+                        <p class="mt-1 text-sm leading-6 text-emerald-900 dark:text-emerald-100">
+                            {{ t('settings.api_key.copy_token_warning') }}
                         </p>
-                        <p class="warning-text">
-                            {{ 'settings.api_key.warning_text' | transloco }}
+                    </div>
+                    <button
+                        type="button"
+                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-emerald-700 transition hover:bg-emerald-100 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+                        (click)="dismissNewTokenAlert()"
+                        [attr.aria-label]="t('settings.api_key.help_close')"
+                    >
+                        <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+                    </button>
+                </div>
+            </div>
+
+            <section class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                        >
+                            <mat-icon>lightbulb</mat-icon>
+                        </div>
+                        <div>
+                            <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                {{ t('settings.api_key.how_it_works_title') }}
+                            </h2>
+                            <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                {{ t('settings.api_key.how_it_works_subtitle') }}
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
+                        (click)="openHelp('overview')"
+                        [matTooltip]="t('settings.api_key.help_label')"
+                        [attr.aria-label]="t('settings.api_key.help_label')"
+                    >
+                        <mat-icon class="!h-4 !w-4 !text-base">help_outline</mat-icon>
+                    </button>
+                </div>
+
+                <div class="mt-5 grid gap-3 md:grid-cols-3">
+                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
+                        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
+                            01
+                        </span>
+                        <h3 class="mt-2 text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ t('settings.api_key.step1_title') }}
+                        </h3>
+                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                            {{ t('settings.api_key.step1_desc') }}
+                        </p>
+                    </div>
+                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
+                        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
+                            02
+                        </span>
+                        <h3 class="mt-2 text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ t('settings.api_key.step2_title') }}
+                        </h3>
+                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                            {{ t('settings.api_key.step2_desc') }}
+                        </p>
+                    </div>
+                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
+                        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
+                            03
+                        </span>
+                        <h3 class="mt-2 text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ t('settings.api_key.step3_title') }}
+                        </h3>
+                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                            {{ t('settings.api_key.step3_desc') }}
                         </p>
                     </div>
                 </div>
+            </section>
 
-                <div class="panel-actions">
-                    <button mat-button (click)="toggleRevokeConfirm()" [disabled]="isRevoking">
-                        {{ 'settings.api_key.cancel' | transloco }}
-                    </button>
-                    <button
-                        mat-flat-button
-                        color="warn"
-                        (click)="revokeAndGenerateNew()"
-                        [disabled]="isRevoking"
-                        class="confirm-btn danger"
+            <section class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                <div class="flex flex-col gap-4 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
+                        >
+                            <mat-icon>vpn_key</mat-icon>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                    {{ t('settings.api_key.current_token') }}
+                                </h2>
+                                <button
+                                    type="button"
+                                    class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
+                                    (click)="openHelp('token')"
+                                    [matTooltip]="t('settings.api_key.help_label')"
+                                    [attr.aria-label]="t('settings.api_key.help_label')"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-sm">help_outline</mat-icon>
+                                </button>
+                            </div>
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('settings.api_key.bearer_token_info') }}
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300"
                     >
-                        <mat-spinner *ngIf="isRevoking" diameter="18" class="mr-2"></mat-spinner>
-                        {{
-                            isRevoking
-                                ? ('settings.api_key.revoking' | transloco)
-                                : ('settings.api_key.confirm_revoke' | transloco)
-                        }}
-                    </button>
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        {{ t('settings.api_key.active') }}
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Documentation Link -->
-<div class="docs-card mt-6">
-    <div class="flex items-center gap-4">
-        <div class="docs-icon">
-            <mat-icon>menu_book</mat-icon>
-        </div>
-        <div class="flex-1">
-            <h3 class="font-medium text-gray-900 dark:text-white">
-                {{ 'settings.api_key.need_help' | transloco }}
-            </h3>
-            <p class="text-gray-500 text-sm dark:text-gray-400">
-                {{ 'settings.api_key.docs_description' | transloco }}
-            </p>
-        </div>
-        <a
-            href="https://docs.verifik.co/authentication/renew-your-token-jwt"
-            target="_blank"
-            rel="noopener noreferrer"
-            mat-stroked-button
-            class="docs-button"
-        >
-            {{ 'settings.api_key.view_docs' | transloco }}
-            <mat-icon>open_in_new</mat-icon>
-        </a>
+                <div class="p-5 md:p-6">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-stretch">
+                        <button
+                            type="button"
+                            class="min-w-0 flex-1 rounded-xl border border-stone-800 bg-stone-950 px-4 py-4 text-left transition hover:bg-stone-900 dark:border-gray-700 dark:bg-gray-950 dark:hover:bg-gray-900"
+                            (click)="copyToken()"
+                        >
+                            <code class="block break-all font-mono text-xs leading-relaxed text-stone-200 sm:text-sm">
+                                {{ hidePassword ? getMaskedToken() : accessToken }}
+                            </code>
+                        </button>
+                        <div class="flex gap-2 sm:flex-col">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800 sm:flex-none"
+                                (click)="hidePassword = !hidePassword"
+                                [matTooltip]="
+                                    hidePassword
+                                        ? t('settings.api_key.show_token')
+                                        : t('settings.api_key.hide_token')
+                                "
+                            >
+                                <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-stone-200 px-4 text-stone-700 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-200 dark:hover:bg-gray-800 sm:flex-none"
+                                (click)="copyToken()"
+                                [matTooltip]="t('settings.api_key.copy_token')"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p
+                        class="mt-4 flex items-start gap-2 rounded-xl border border-dashed border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-500 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-400"
+                    >
+                        <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-stone-400">info</mat-icon>
+                        <span>{{ t('settings.api_key.usage_hint') }}</span>
+                    </p>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <section class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300"
+                            >
+                                <mat-icon>autorenew</mat-icon>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-stone-950 dark:text-white">
+                                    {{ t('settings.api_key.renew_token') }}
+                                </h3>
+                                <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                    {{ t('settings.api_key.renew_description') }}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
+                            (click)="openHelp('extend')"
+                            [matTooltip]="t('settings.api_key.help_label')"
+                            [attr.aria-label]="t('settings.api_key.help_label')"
+                        >
+                            <mat-icon class="!h-3.5 !w-3.5 !text-sm">help_outline</mat-icon>
+                        </button>
+                    </div>
+
+                    <div *ngIf="!showRenewPanel" class="mt-5">
+                        <button
+                            type="button"
+                            class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                            (click)="toggleRenewPanel()"
+                        >
+                            <span>{{ t('settings.api_key.extend_validity') }}</span>
+                            <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                        </button>
+                    </div>
+
+                    <div *ngIf="showRenewPanel" class="mt-5 border-t border-stone-200/80 pt-5 dark:border-gray-800">
+                        <p
+                            class="mb-4 flex items-start gap-2 rounded-xl border border-blue-200/90 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100"
+                        >
+                            <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-blue-600 dark:text-blue-400"
+                                >info</mat-icon
+                            >
+                            <span>{{ t('settings.api_key.extend_new_token_notice') }}</span>
+                        </p>
+                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
+                            {{ t('settings.api_key.select_expiration') }}
+                        </p>
+                        <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                            <button
+                                *ngFor="let option of expirationOptions"
+                                type="button"
+                                (click)="selectedExpiration = option.value"
+                                class="flex flex-col items-center justify-center rounded-xl border px-2 py-3 text-sm font-semibold transition"
+                                [ngClass]="
+                                    selectedExpiration === option.value
+                                        ? 'border-stone-950 bg-stone-950 text-white dark:border-white dark:bg-white dark:text-gray-950'
+                                        : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200 dark:hover:bg-gray-800'
+                                "
+                            >
+                                <span class="text-lg leading-none">{{ option.label }}</span>
+                                <span class="mt-1 text-[10px] font-medium uppercase tracking-wide opacity-70">
+                                    {{ t('settings.api_key.months') }}
+                                </span>
+                            </button>
+                        </div>
+
+                        <div class="mt-5 flex flex-wrap justify-end gap-3">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-medium text-stone-600 transition hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-gray-800"
+                                (click)="toggleRenewPanel()"
+                                [disabled]="isRenewing"
+                            >
+                                {{ t('settings.api_key.cancel') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-stone-950 px-5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                (click)="renewToken()"
+                                [disabled]="isRenewing"
+                            >
+                                <mat-spinner *ngIf="isRenewing" diameter="18"></mat-spinner>
+                                <span>
+                                    {{
+                                        isRenewing
+                                            ? t('settings.api_key.renewing')
+                                            : t('settings.api_key.renew_now')
+                                    }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section
+                    class="rounded-2xl border border-red-200/80 bg-white p-5 shadow-sm dark:border-red-900/50 dark:bg-gray-900/70 md:p-6"
+                >
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            <div
+                                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+                            >
+                                <mat-icon>sync_problem</mat-icon>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-stone-950 dark:text-white">
+                                    {{ t('settings.api_key.revoke_generate') }}
+                                </h3>
+                                <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                    {{ t('settings.api_key.revoke_description') }}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
+                            (click)="openHelp('revoke')"
+                            [matTooltip]="t('settings.api_key.help_label')"
+                            [attr.aria-label]="t('settings.api_key.help_label')"
+                        >
+                            <mat-icon class="!h-3.5 !w-3.5 !text-sm">help_outline</mat-icon>
+                        </button>
+                    </div>
+
+                    <div *ngIf="!showRevokeConfirm" class="mt-5">
+                        <button
+                            type="button"
+                            class="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-4 text-sm font-medium text-red-700 transition hover:bg-red-50 dark:border-red-900/60 dark:text-red-300 dark:hover:bg-red-950/30"
+                            (click)="toggleRevokeConfirm()"
+                        >
+                            <span>{{ t('settings.api_key.revoke_all') }}</span>
+                            <mat-icon class="!h-4 !w-4 !text-base">arrow_forward</mat-icon>
+                        </button>
+                    </div>
+
+                    <div *ngIf="showRevokeConfirm" class="mt-5 border-t border-red-200/80 pt-5 dark:border-red-900/40">
+                        <div
+                            class="flex gap-3 rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-3 dark:border-amber-900/60 dark:bg-amber-950/30"
+                        >
+                            <mat-icon class="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400">warning</mat-icon>
+                            <div>
+                                <p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
+                                    {{ t('settings.api_key.warning_title') }}
+                                </p>
+                                <p class="mt-1 text-sm leading-6 text-amber-900 dark:text-amber-100">
+                                    {{ t('settings.api_key.warning_text') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 flex flex-wrap justify-end gap-3">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-medium text-stone-600 transition hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-gray-800"
+                                (click)="toggleRevokeConfirm()"
+                                [disabled]="isRevoking"
+                            >
+                                {{ t('settings.api_key.cancel') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                (click)="revokeAndGenerateNew()"
+                                [disabled]="isRevoking"
+                            >
+                                <mat-spinner *ngIf="isRevoking" diameter="18"></mat-spinner>
+                                <span>
+                                    {{
+                                        isRevoking
+                                            ? t('settings.api_key.revoking')
+                                            : t('settings.api_key.confirm_revoke')
+                                    }}
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section
+                class="rounded-2xl border border-sky-200/80 bg-gradient-to-br from-sky-50 via-white to-white p-5 shadow-sm dark:border-sky-900/50 dark:from-sky-950/20 dark:via-gray-900/70 dark:to-gray-900/70 md:p-6"
+            >
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div class="flex items-start gap-3">
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900/60 dark:bg-sky-950/30 dark:text-sky-300"
+                        >
+                            <mat-icon>menu_book</mat-icon>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-semibold text-stone-950 dark:text-white">
+                                {{ t('settings.api_key.need_help') }}
+                            </h3>
+                            <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                {{ t('settings.api_key.docs_description') }}
+                            </p>
+                        </div>
+                    </div>
+                    <a
+                        href="https://docs.verifik.co/authentication/renew-your-token-jwt"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                    >
+                        <span>{{ t('settings.api_key.view_docs') }}</span>
+                        <mat-icon class="!h-4 !w-4 !text-base">open_in_new</mat-icon>
+                    </a>
+                </div>
+            </section>
+        </ng-container>
     </div>
-</div>
 </ng-container>

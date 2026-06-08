@@ -1,0 +1,56 @@
+{
+  "settings": {
+    "api_key": {
+      "help_label": "Saiba mais",
+      "help_close": "Entendi",
+      "how_it_works_title": "Como funciona",
+      "how_it_works_subtitle": "Seu token de API é um JWT. Estender ou revogar sempre emite um JWT novo — copie e atualize suas integrações.",
+      "step1_title": "Um token ativo",
+      "step1_desc": "Sua conta tem um token de acesso API (JWT) exibido nesta página. Use-o para autenticar solicitações do servidor.",
+      "step2_title": "Envie como Bearer",
+      "step2_desc": "Inclua o token em cada solicitação: Authorization: Bearer <your_token>.",
+      "step3_title": "Estender ou revogar",
+      "step3_desc": "Estender Validade emite um JWT novo com a expiração selecionada. Revogar invalida todos os JWTs anteriores e emite um novo.",
+      "renew_description": "Emite um JWT novo com o período de expiração selecionado. Copie e atualize suas integrações — a string JWT existente não é estendida no lugar.",
+      "extend_new_token_notice": "Esta ação gera um JWT novo. Após confirmar, copie o novo token e atualize cada integração — a string do seu token atual não será modificada no lugar.",
+      "token_renewed_success": "Novo token gerado! Copie e atualize suas integrações.",
+      "help": {
+        "overview": {
+          "title": "Como funcionam os tokens de API",
+          "intro": "Seu token de API é uma credencial JWT que autentica suas solicitações de servidor para a Verifik.",
+          "point1": "O token exibido nesta página é um JWT assinado. Não pode ser editado no lugar — estender ou revogar sempre cria uma nova string JWT.",
+          "point2": "Todo JWT tem uma data de expiração. Quando expira, as solicitações API retornam erros de autenticação até você estender ou revogar para obter um novo.",
+          "point3": "Estender Validade emite um JWT novo com o período de expiração escolhido. Copie o novo token e atualize cada integração que chama a Verifik.",
+          "point4": "Revogar e Gerar Novo também emite um JWT novo, mas invalida imediatamente todos os tokens emitidos anteriormente para sua conta.",
+          "point5": "Vários servidores ou ambientes podem armazenar o JWT mais recente. Após estender ou revogar, certifique-se de que todos usem a nova string de token."
+        },
+        "token": {
+          "title": "Usando seu token de acesso",
+          "intro": "Seu token deve ser enviado em cada solicitação API como credencial Bearer.",
+          "point1": "Copie o token desta página e armazene-o com segurança no seu backend — nunca o exponha em apps cliente, apps móveis ou repositórios públicos.",
+          "point2": "Adicione-o ao cabeçalho Authorization em cada solicitação para api.verifik.co (ou sua URL base de sandbox).",
+          "point3": "Após estender ou revogar, a string do token nesta página muda. Atualize cada serviço que ainda usa o JWT anterior.",
+          "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+        },
+        "extend": {
+          "title": "Estendendo a validade do token",
+          "intro": "Estender Validade não modifica seu JWT atual. Emite um JWT totalmente novo com o período de expiração selecionado.",
+          "point1": "Escolha quantos meses (1–36). O novo JWT expira após esse período, contado a partir do momento em que você estende — não da criação do token anterior.",
+          "point2": "Você recebe uma nova string de token nesta página imediatamente. Copie e atualize cada serviço, script ou variável de ambiente que chama a API Verifik.",
+          "point3": "Diferente de revogar, estender não invalida imediatamente JWTs emitidos anteriormente — eles continuam válidos até sua própria expiração. Ainda assim, implante o novo token em todos os lugares.",
+          "point4": "Estenda antes do token atual expirar para evitar interrupções. Se já expirou, estenda ou revogue para obter um JWT válido.",
+          "note": "Não é possível adiantar a data de expiração de uma string JWT existente. Estender sempre gera um token novo."
+        },
+        "revoke": {
+          "title": "Revogar e gerar um novo token",
+          "intro": "Isso emite um JWT novo e invalida imediatamente todos os tokens emitidos anteriormente para sua conta.",
+          "point1": "Revogar invalida todos os JWTs anteriores imediatamente, incluindo tokens criados por ações de extensão anteriores.",
+          "point2": "Você recebe uma nova string de token imediatamente após confirmar. Copie e atualize cada integração que chama a API.",
+          "point3": "Aplicações que ainda usam um token antigo receberão erros 401 até serem atualizadas.",
+          "point4": "Use revogar apenas quando um token puder ter vazado, sido compartilhado de forma insegura ou você precisar forçar uma rotação completa de credenciais.",
+          "note": "Se você precisa de uma credencial com validade maior sem cortar imediatamente todos os tokens ativos, use Estender Validade — mas ainda deve implantar a nova string JWT."
+        }
+      }
+    }
+  }
+}

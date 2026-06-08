@@ -30,6 +30,13 @@ const normalizeLang = (lang: string): string =>
 const localePrefix = (lang: string): string =>
     lang === 'en' ? '' : `/verifik-${lang}`;
 
+const buildDocsHome = (locale: string): string => {
+    const base =
+        locale === 'en' ? DOCS_BASE : `${DOCS_BASE}/verifik-${locale}`;
+
+    return `${base}/intro/`;
+};
+
 /**
  * Locale-aware absolute URLs for Verifik docs home and legal pages.
  * Paths align with verifik-documentation Docusaurus plugins per locale.
@@ -40,7 +47,7 @@ export const getVerifikDocsUrls = (lang: string): VerifikDocsUrls => {
     if (locale === 'es') {
         const prefix = `${DOCS_BASE}/verifik-es`;
         return {
-            docsHome: `${prefix}/`,
+            docsHome: buildDocsHome(locale),
             privacyPolicy: `${prefix}${ES_LEGAL_PATHS.privacyPolicy}`,
             termsAndConditions: `${prefix}${ES_LEGAL_PATHS.termsAndConditions}`,
             serviceLevelAgreement: `${prefix}${ES_LEGAL_PATHS.serviceLevelAgreement}`,
@@ -51,7 +58,7 @@ export const getVerifikDocsUrls = (lang: string): VerifikDocsUrls => {
     const base = prefix ? `${DOCS_BASE}${prefix}` : DOCS_BASE;
 
     return {
-        docsHome: `${base}/`,
+        docsHome: buildDocsHome(locale),
         privacyPolicy: `${base}${EN_LEGAL_PATHS.privacyPolicy}`,
         termsAndConditions: `${base}${EN_LEGAL_PATHS.termsAndConditions}`,
         serviceLevelAgreement: `${base}${EN_LEGAL_PATHS.serviceLevelAgreement}`,

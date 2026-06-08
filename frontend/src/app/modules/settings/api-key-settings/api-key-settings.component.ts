@@ -20,9 +20,15 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
+import {
+    ApiKeyHelpModalComponent,
+    ApiKeyHelpModalContent,
+} from './api-key-help-modal.component';
 import { SettingsService } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
+
+type ApiKeyHelpTopic = 'overview' | 'token' | 'extend' | 'revoke';
 
 interface TokenExpiration {
     value: number;
@@ -42,6 +48,7 @@ interface TokenExpiration {
         TranslocoModule,
         ClipboardModule,
         SettingsBusinessAccountEmptyStateComponent,
+        ApiKeyHelpModalComponent,
     ],
     templateUrl: './api-key-settings.component.html',
     styleUrl: './api-key-settings.component.scss',
@@ -63,6 +70,7 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     selectedExpiration = 1;
     newlyGeneratedToken: string = null;
     showNewTokenAlert = false;
+    activeHelp: ApiKeyHelpTopic | null = null;
 
     expirationOptions: TokenExpiration[] = [
         { value: 1, label: '1' },
@@ -96,6 +104,33 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
         return getBusinessUserClientId(this.user);
     }
 
+    get activeHelpContent(): ApiKeyHelpModalContent | null {
+        if (!this.activeHelp) {
+            return null;
+        }
+
+        const topic = this.activeHelp;
+        const baseKey = `settings.api_key.help.${topic}`;
+        const points = this._getHelpPoints(topic);
+
+        const note = this._translateOptional(`${baseKey}.note`);
+
+        return {
+            icon: this._getHelpIcon(topic),
+            title: this._translocoService.translate(`${baseKey}.title`),
+            intro: this._translocoService.translate(`${baseKey}.intro`),
+            points,
+            codeExample: topic === 'token'
+                ? this._translocoService.translate(`${baseKey}.code`)
+                : undefined,
+            note: note || undefined,
+            docsUrl: topic === 'overview' || topic === 'token'
+                ? 'https://docs.verifik.co/authentication/renew-your-token-jwt'
+                : undefined,
+            docsLabel: this._translocoService.translate('settings.api_key.view_docs'),
+        };
+    }
+
     onBusinessAccountLinked(account: unknown): void {
         this.userChange.emit(account);
         this._loadAccessToken();
@@ -104,6 +139,16 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     ngOnDestroy(): void {
         this._destroy$.next();
         this._destroy$.complete();
+    }
+
+    openHelp(topic: ApiKeyHelpTopic): void {
+        this.activeHelp = topic;
+        this._cdr.markForCheck();
+    }
+
+    closeHelp(): void {
+        this.activeHelp = null;
+        this._cdr.markForCheck();
     }
 
     copyToken(): void {
@@ -221,5 +266,44 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     private _loadAccessToken(): void {
         this.accessToken = this.userClientId ? this._settingsService.accessToken : '';
         this._cdr.markForCheck();
+    }
+
+    private _getHelpIcon(topic: ApiKeyHelpTopic): string {
+        const icons: Record<ApiKeyHelpTopic, string> = {
+            overview: 'help_outline',
+            token: 'vpn_key',
+            extend: 'autorenew',
+            revoke: 'sync_problem',
+        };
+
+        return icons[topic];
+    }
+
+    private _getHelpPoints(topic: ApiKeyHelpTopic): string[] {
+        const baseKey = `settings.api_key.help.${topic}`;
+        const points: string[] = [];
+
+        for (let index = 1; index <= 6; index += 1) {
+            const key = `${baseKey}.point${index}`;
+            const value = this._translateOptional(key);
+
+            if (!value) {
+                break;
+            }
+
+            points.push(value);
+        }
+
+        return points;
+    }
+
+    private _translateOptional(key: string): string | null {
+        const value = this._translocoService.translate(key);
+
+        if (!value || value === key) {
+            return null;
+        }
+
+        return value;
     }
 }

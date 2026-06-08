@@ -64,8 +64,32 @@ export class TranslocoHttpLoader implements TranslocoLoader {
               map((featuresTranslations) =>
                 deepMergeTranslations(mainTranslations, featuresTranslations),
               ),
-              // If features file fails, just return main translations
-              catchError(() => of(mainTranslations)),
+              switchMap((mergedTranslations) =>
+                this._httpClient
+                  .get<Translation>(`./i18n/patches/${lang}.json`, {
+                    responseType: 'json',
+                    observe: 'body',
+                  })
+                  .pipe(
+                    map((patchTranslations) =>
+                      deepMergeTranslations(mergedTranslations, patchTranslations),
+                    ),
+                    catchError(() => of(mergedTranslations)),
+                  ),
+              ),
+              catchError(() =>
+                this._httpClient
+                  .get<Translation>(`./i18n/patches/${lang}.json`, {
+                    responseType: 'json',
+                    observe: 'body',
+                  })
+                  .pipe(
+                    map((patchTranslations) =>
+                      deepMergeTranslations(mainTranslations, patchTranslations),
+                    ),
+                    catchError(() => of(mainTranslations)),
+                  ),
+              ),
             );
         }),
         shareReplay(1),

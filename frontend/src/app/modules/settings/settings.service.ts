@@ -159,9 +159,9 @@ export class SettingsService {
     }
 
     /**
-     * Renew the current token with a new expiration period
+     * Issue a new JWT with the selected expiration period (does not modify the existing token string).
      *
-     * @param expiresIn - Number of months for token validity (1-120+)
+     * @param expiresIn - Number of months for the new JWT validity (1-36 in UI)
      * @returns Observable with the new access token
      *
      * API: GET /v2/auth/session?origin=refresh&expiresIn={months}
