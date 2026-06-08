@@ -106,7 +106,7 @@
                                     <mat-icon class="pointer-events-none absolute left-3 top-1/2 !h-4 !w-4 -translate-y-1/2 text-stone-400">search</mat-icon>
                                     <input
                                         type="text"
-                                        class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                        class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950"
                                         [placeholder]="t('smartEnrollUsageHistory.search')"
                                         [ngModel]="searchText"
                                         (ngModelChange)="onSearchInput($event)"
@@ -152,7 +152,7 @@
                                         {{ t('smartEnrollUsageHistory.filterService') }}
                                     </label>
                                     <select
-                                        class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                        class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950"
                                         [ngModel]="serviceFilter"
                                         (ngModelChange)="onServiceFilterChange($event)"
                                         [disabled]="loading()"

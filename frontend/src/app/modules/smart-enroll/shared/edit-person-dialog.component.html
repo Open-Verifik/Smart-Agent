@@ -120,7 +120,7 @@
                         <input
                             id="person-name"
                             type="text"
-                            class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                            class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950/50"
                             formControlName="name"
                         />
                         @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
@@ -137,7 +137,7 @@
                             <input
                                 id="person-dob"
                                 type="text"
-                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 pr-12 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 pr-12 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950/50"
                                 formControlName="date_of_birth"
                                 [matDatepicker]="dobPicker"
                                 [placeholder]="t('smartEnrollPeople.dateOfBirthPlaceholder')"
@@ -158,7 +158,7 @@
                             <input
                                 id="person-nationality"
                                 type="text"
-                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950/50"
                                 formControlName="nationality"
                                 [placeholder]="t('smartEnrollPeople.nationalityPlaceholder')"
                             />
@@ -172,7 +172,7 @@
                                 </label>
                                 <select
                                     id="person-gender"
-                                    class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                    class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50/80 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950/50"
                                     formControlName="gender"
                                 >
                                     <option value="M">{{ t('smartEnrollPeople.genderMale') }}</option>
@@ -190,7 +190,7 @@
                             <textarea
                                 id="person-notes"
                                 rows="3"
-                                class="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-gray-500"
+                                class="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-3 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950/50"
                                 formControlName="notes"
                                 [placeholder]="t('smartEnrollPeople.notesPlaceholder')"
                             ></textarea>
