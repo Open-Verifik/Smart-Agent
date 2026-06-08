@@ -33,6 +33,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { CountryService } from 'app/core/services/country.service';
 import { Observable, Subject, takeUntil } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
@@ -118,62 +119,22 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
     private _allPersonDocumentTypes: DocumentTypeOption[] = [];
 
-    billingCountryCodes: CountryCodeOption[] = [
-        { code: '+1', name: 'United States' },
-        { code: '+1', name: 'Canada' },
-        { code: '+52', name: 'Mexico' },
-        { code: '+57', name: 'Colombia' },
-        { code: '+54', name: 'Argentina' },
-        { code: '+56', name: 'Chile' },
-        { code: '+55', name: 'Brazil' },
-        { code: '+51', name: 'Peru' },
-        { code: '+58', name: 'Venezuela' },
-        { code: '+593', name: 'Ecuador' },
-        { code: '+591', name: 'Bolivia' },
-        { code: '+595', name: 'Paraguay' },
-        { code: '+598', name: 'Uruguay' },
-        { code: '+507', name: 'Panama' },
-        { code: '+506', name: 'Costa Rica' },
-        { code: '+505', name: 'Nicaragua' },
-        { code: '+504', name: 'Honduras' },
-        { code: '+503', name: 'El Salvador' },
-        { code: '+502', name: 'Guatemala' },
-        { code: '+44', name: 'United Kingdom' },
-        { code: '+33', name: 'France' },
-        { code: '+49', name: 'Germany' },
-        { code: '+39', name: 'Italy' },
-        { code: '+34', name: 'Spain' },
-        { code: '+351', name: 'Portugal' },
-        { code: '+31', name: 'Netherlands' },
-        { code: '+32', name: 'Belgium' },
-        { code: '+41', name: 'Switzerland' },
-        { code: '+43', name: 'Austria' },
-        { code: '+46', name: 'Sweden' },
-        { code: '+47', name: 'Norway' },
-        { code: '+45', name: 'Denmark' },
-        { code: '+358', name: 'Finland' },
-        { code: '+48', name: 'Poland' },
-        { code: '+81', name: 'Japan' },
-        { code: '+82', name: 'South Korea' },
-        { code: '+86', name: 'China' },
-        { code: '+91', name: 'India' },
-        { code: '+61', name: 'Australia' },
-        { code: '+64', name: 'New Zealand' },
-        { code: '+971', name: 'United Arab Emirates' },
-        { code: '+966', name: 'Saudi Arabia' },
-        { code: '+972', name: 'Israel' },
-        { code: '+90', name: 'Turkey' },
-    ];
+    billingCountryCodes: CountryCodeOption[] = [];
 
     constructor(
         private _formBuilder: FormBuilder,
         private _settingsService: SettingsService,
+        private _countryService: CountryService,
         private _cdr: ChangeDetectorRef,
         private _snackBar: MatSnackBar,
         private _translocoService: TranslocoService,
         private _route: ActivatedRoute,
         private _router: Router
     ) {
+        this.billingCountryCodes = this._countryService.countryDialCodes.map((country) => ({
+            code: country.dialCode,
+            name: country.name,
+        }));
         this._initBillingForms();
         this._initDocumentTypes();
     }

@@ -6167,6 +6167,9 @@
       "categories": "Categorías",
       "docsLink": "Ver documentación técnica"
     },
+    "categoryLabels": {
+      "apiRequest": "DB Screening"
+    },
     "commercial": {
       "monthlyOptionTitle": "Opción 1: Suscripción plan mensual",
       "monthlySubtitle": "Estas tarifas aplican para planes mensuales.",
@@ -6235,13 +6238,13 @@
       "availabilityTitle": "Disponibilidad de la plataforma",
       "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
       "availabilityRows": {
-        "smartCheck": ["SmartCheck", "90.0%", "Data API — depende de fuentes gubernamentales"],
+        "smartCheck": ["SmartCheck", "90.0%", "DB Screening — depende de fuentes gubernamentales"],
         "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
         "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
         "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
         "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
         "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
-        "smartEnrollDataApi": ["SmartEnroll (Data API)", "90.0%", "Data API — depende de fuentes gubernamentales"]
+        "smartEnrollDataApi": ["SmartEnroll (DB Screening)", "90.0%", "DB Screening — depende de fuentes gubernamentales"]
       },
       "definitionsTitle": "Definiciones",
       "definitions": [
@@ -6255,8 +6258,8 @@
       "compensationIntro": "La compensación en crédito adjudicado para el mes afectado se proporcionará en forma de un crédito equivalente al costo de la llamada inefectiva del servicio. Si la indisponibilidad del servicio es causada por problemas internos de Verifik (base de datos, servidores, problemas internos de las API) y no es solucionada efectivamente, Verifik compensará de la siguiente manera:",
       "compensationHeaders": ["Disponibilidad del servicio", "Compensación de crédito", "Producto"],
       "compensationRows": {
-        "dataApiHigh": ["Data API — 99.0% o mayor", "Sin crédito", "SmartCheck"],
-        "dataApiLow": ["Data API — 89.99% o menor", "Compensación", "SmartCheck"],
+        "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
+        "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
         "emailTelHigh": ["Email / Tel — 99.00% o mayor", "Sin crédito", "SmartAccess, SmartEnroll"],
         "emailTelLow": ["Email / Tel — 98.99% o menor", "Compensación", "SmartAccess, SmartEnroll"],
         "biometricsHigh": ["Biometrics — 99.00% o mayor", "Sin crédito", "SmartAccess, SmartEnroll"],
@@ -6264,7 +6267,7 @@
         "docScanHigh": ["Escaneo de documentos — 99.00% o mayor", "Sin crédito", "SmartAccess, SmartEnroll"],
         "docScanLow": ["Escaneo de documentos — 98.99% o menor", "Compensación", "SmartAccess, SmartEnroll"]
       },
-      "compensationDisclaimer": "Problemas internos del servicio de Data API (consulta de datos) excluye problemas considerados por fuerza mayor (casos fortuitos), ya sea por migración, desconexión o intervención externa de los gobiernos que custodian las bases de datos. Verifik es un intermediario y no posee la potestad ni el control de las bases de datos consultadas.",
+      "compensationDisclaimer": "Problemas internos del servicio de DB Screening (consulta de datos) excluye problemas considerados por fuerza mayor (casos fortuitos), ya sea por migración, desconexión o intervención externa de los gobiernos que custodian las bases de datos. Verifik es un intermediario y no posee la potestad ni el control de las bases de datos consultadas.",
       "billingTitle": "Esquema de cobro por servicio SmartCheck",
       "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
       "billingTableTitle": "Códigos HTTP facturables",

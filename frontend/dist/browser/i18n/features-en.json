@@ -269,7 +269,7 @@
             "description": "Provides reliable verification and validation services."
         },
         "ip-lookup": {
-            "title": "IP Geolocation Lookup",
+            "title": "🌐 IP Geolocation Lookup",
             "description": "Geolocate an IPv4 or IPv6 address via GET /v2/ip-lookup. Returns country, region, city, ISP/ASN, and coordinates."
         },
         "colombia_api_judicial_records": {
@@ -633,7 +633,7 @@
             "description": "SIMIT traffic citations and fines service"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT — Subpoena Details",
+            "title": "SIMIT - Subpoena Details",
             "description": "Get detailed information for a specific SIMIT traffic subpoena (comparendo) via GET /v2/co/simit/comparendo."
         },
         "colombia_api_simit_resolutions": {
@@ -677,7 +677,7 @@
             "description": "Bogotá vehicle fines service"
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Medellín — Transit Fines",
+            "title": "Medellín - Transit Fines",
             "description": "Query local traffic fines and subpoenas for vehicles registered in Medellín via GET /v2/co/medellin/vehicle/fines."
         },
         "guatemala_api_identity_lookup": {

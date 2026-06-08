@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
     Component,
+    DestroyRef,
     OnInit,
     ViewChild,
     ViewEncapsulation,
@@ -9,6 +10,7 @@ import {
     signal,
     effect,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -75,6 +77,7 @@ export class ScanListComponent implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _authGate = inject(AuthRequiredGateService);
+    private _destroyRef = inject(DestroyRef);
 
     viewMode = signal<'cards' | 'table'>('cards');
     scans = this._scanService.scans;
@@ -107,13 +110,18 @@ export class ScanListComponent implements OnInit {
     }
 
     private _initScanListFromRoute(): void {
-        this._route.queryParams.subscribe((params) => {
+        let hasLoaded = false;
+
+        this._route.queryParams.pipe(takeUntilDestroyed(this._destroyRef)).subscribe((params) => {
             const view = params['view'];
             const targetView = view === 'table' ? 'table' : 'cards';
             if (this.viewMode() !== targetView) {
                 this.viewMode.set(targetView);
             }
-            this.loadData();
+            if (!hasLoaded) {
+                hasLoaded = true;
+                this.loadData();
+            }
         });
     }
 
@@ -168,6 +176,9 @@ export class ScanListComponent implements OnInit {
     }
 
     onPaginatorEvent(event: PageEvent) {
+        if (event.pageIndex === this.pageIndex() && event.pageSize === this.pageSize()) {
+            return;
+        }
         this.pageIndex.set(event.pageIndex);
         this.pageSize.set(event.pageSize);
         this.loadData();

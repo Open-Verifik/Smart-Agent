@@ -1,1 +1,0 @@
-import"./chunk-WOXRZINP.js";var e=[{path:"",redirectTo:"smart-reduce",pathMatch:"full"},{path:"smart-reduce",loadComponent:()=>import("./chunk-CREEC6X3.js").then(t=>t.SmartReduceComponent)}];export{e as default};

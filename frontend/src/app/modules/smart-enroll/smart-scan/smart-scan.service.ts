@@ -17,6 +17,9 @@ import type {
 
 const SCAN_METHODS = ['SCAN_AGENT', 'SCAN_STUDIO', 'SCAN_PROMPT'];
 
+const SCAN_LIST_COLUMNS =
+    '_id url documentType documentNumber status validationMethod country createdAt OCRExtraction';
+
 @Injectable({
     providedIn: 'root',
 })
@@ -33,7 +36,7 @@ export class SmartScanService {
     scanResult = signal<ScanResult | null>(null);
     scanLoading = signal<boolean>(false);
 
-    pageSize = signal<number>(10);
+    pageSize = signal<number>(12);
     pageIndex = signal<number>(0);
 
     constructor(private _httpClient: HttpClient) {}
@@ -67,6 +70,8 @@ export class SmartScanService {
             limit: limit.toString(),
             sort: '-createdAt',
             in_validationMethod: SCAN_METHODS,
+            columns: SCAN_LIST_COLUMNS,
+            lean: 'true',
         };
 
         const whereKeys: (keyof NonNullable<typeof filters>)[] = [

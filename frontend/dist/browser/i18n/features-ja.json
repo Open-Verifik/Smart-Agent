@@ -165,8 +165,8 @@
             "description": "CC または NIT でコロンビアの裁判手続き一覧を照会します（Rama Judicial）。"
         },
         "colombia_api_vehicle": {
-            "title": "RUNT — 車両（基本登録）",
-            "description": "コロンビア RUNT でナンバーと名義人情報から車両の登録・基本情報を取得します。"
+            "title": "RUNT — SOAT・RTM 検証",
+            "description": "ナンバーと身分証で SOAT（任意保険）と RTM（車検）の状態を照会します。"
         },
         "colombia_api_pico_placa": {
             "title": "ボゴタ — ピコ・イ・プラカ",
@@ -217,8 +217,8 @@
             "description": "ナンバープレートでエクアドル車両の罰金・登録情報を照会します。"
         },
         "colombia_api_vehicle_complete_by_plate": {
-            "title": "RUNT — ナンバー別車両（フル）",
-            "description": "コロンビア RUNT でナンバーと名義人情報から車両の詳細履歴・技術情報を取得します。"
+            "title": "RUNT — 車両（プレート＋身分証のみ）",
+            "description": "ナンバーと身分証のみで RUNT 車両情報を照会します。"
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — VIN別車両",
@@ -269,8 +269,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "ip-lookup": {
-            "title": "IP ジオロケーション",
-            "description": "GET /v2/ip-lookup で IPv4/IPv6 の位置情報を照会します。"
+            "title": "🌐 IP ジオロケーション",
+            "description": "GET /v2/ip-lookup で IPv4/IPv6 アドレスをジオロケーションします。"
         },
         "colombia_api_judicial_records": {
             "title": "コロンビア — 司法記録（裁判所事件）",
@@ -369,8 +369,8 @@
             "description": "コロンビアの公共契約に関するバックグラウンド調査。"
         },
         "colombia_api_police_rnmc": {
-            "title": "コロンビア — 警察の是正措置遵守の確認",
-            "description": "コロンビアにおける是正措置の遵守状況（警察 RNMC）を照会します。"
+            "title": "コロンビア — 警察の是正措置遵守確認",
+            "description": "コロンビア RNMC で是正措置の遵守状況を照会します。"
         },
         "bolivia_api_identity_lookup": {
             "title": "ボリビア — 国民身分証",
@@ -449,8 +449,8 @@
             "description": "オンタリオ（カナダ）の運転免許を文書番号で検証します。"
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "RUNT — ナンバー別車両（簡易）",
-            "description": "コロンビア RUNT でナンバーと名義人の証番号から車両の要点情報を取得します。"
+            "title": "RUNT — ナンバー別車両（簡易・別名）",
+            "description": "ナンバーと名義人証番号から RUNT 車両の要点情報を取得します。"
         },
         "canada_api_driver_license_quebec": {
             "title": "ケベック — 運転免許",
@@ -534,11 +534,11 @@
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Fasecolda — ナンバー別車両価格",
-            "description": "コロンビア車両ナンバーで Fasecolda の商用価値・仕様・モデル年別価格を取得します。"
+            "description": "ナンバープレートで Fasecolda 車両価格・仕様情報を取得します。"
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
             "title": "Fasecolda — コード別車両価格",
-            "description": "Fasecolda の車両コードで商用価値・仕様・モデル年別価格を取得します。"
+            "description": "Fasecolda コードで車両価格・仕様情報を取得します。"
         },
         "usa_api_company": {
             "title": "アメリカ — 法人（SEC EDGAR）",
@@ -585,7 +585,7 @@
             "description": "Verifik の KYB API を使用してパラグアイ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "Fasecolda — 事故・保険金請求履歴",
+            "title": "Fasecolda — 保険請求・事故履歴",
             "description": "Fasecolda 公式データでコロンビア車両の保険事故・請求履歴を照会します。"
         },
         "colombia_api_vehicle_tax": {
@@ -633,7 +633,7 @@
             "description": "SIMIT 交通違反・反則金照会サービス。"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT — 違反切符詳細",
+            "title": "SIMIT - 違反切符詳細",
             "description": "GET /v2/co/simit/comparendo で単一 comparendo の詳細を取得します。"
         },
         "colombia_api_simit_resolutions": {
@@ -673,12 +673,12 @@
             "description": "Migración Colombia の CE を照会します。"
         },
         "colombia_api_vehicle_fines_bogota": {
-            "title": "ボゴタ — 車両反則金",
-            "description": "コロンビア・ボゴタの車両ナンバーで交通反則金・違反の照会。"
+            "title": "ボゴタ — 車両反則金照会",
+            "description": "ボゴタ登録車両のナンバーで交通反則金・違反を照会します。"
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "メデジン — 交通違反",
-            "description": "GET /v2/co/medellin/vehicle/fines でメデジンの車両違反を照会します。"
+            "title": "メデジン - 交通反則",
+            "description": "GET /v2/co/medellin/vehicle/fines でメデジン登録車両の地方交通反則と comparendo を照会します。"
         },
         "guatemala_api_identity_lookup": {
             "title": "グアテマラ - 国民ID検証",
@@ -741,8 +741,8 @@
             "description": "Migración Colombia の PPT 状態を照会します。"
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "コロンビア — 高所作業認証",
-            "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
+            "title": "コロンビア — 労働省証明書（v3）",
+            "description": "コロンビア労働省の証明書（高所作業 curso de alturas 等）を GET /v3/co/ministerio-de-trabajo/certificados で照会します。"
         },
         "peru_api_company_lookup_v3": {
             "title": "ペルー — 法人検証",

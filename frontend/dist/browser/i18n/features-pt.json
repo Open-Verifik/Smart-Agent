@@ -165,8 +165,8 @@
             "description": "Liste processos judiciais na Colômbia por CC ou NIT (Rama Judicial)."
         },
         "colombia_api_vehicle": {
-            "title": "RUNT — Veículo (registro básico)",
-            "description": "Consulta registro e características básicas do veículo no RUNT Colômbia com placa e documento do titular."
+            "title": "RUNT — SOAT e RTM por placa",
+            "description": "Verifique SOAT e revisão técnico-mecânica (RTM) de veículos colombianos em tempo real."
         },
         "colombia_api_pico_placa": {
             "title": "Bogotá — Pico y Placa",
@@ -217,8 +217,8 @@
             "description": "Serviço de validação de veículos equatorianos para recuperar multas e informações de registro pela placa."
         },
         "colombia_api_vehicle_complete_by_plate": {
-            "title": "RUNT — Veículo por placa (completo)",
-            "description": "Consulta histórico completo e ficha técnica do veículo no RUNT Colômbia com placa e documento do titular."
+            "title": "RUNT — Veículo por placa e documento",
+            "description": "Validação RUNT por placa e documento do proprietário."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — Veículo por VIN",
@@ -269,7 +269,7 @@
             "description": "Fornece serviços confiáveis de verificação e validação."
         },
         "ip-lookup": {
-            "title": "Geolocalização IP",
+            "title": "🌐 Geolocalização IP",
             "description": "Geolocalize um endereço IPv4/IPv6 via GET /v2/ip-lookup."
         },
         "colombia_api_judicial_records": {
@@ -337,8 +337,8 @@
             "description": "Consulta por placa no Brasil: atributos tipo cadastro (marca, modelo, anos, chassi/VIN, códigos FIPE quando aplicável) para frotas, seguros, garantias e marketplaces."
         },
         "argentina_api_identity_lookup": {
-            "title": "Argentina - Verificação de Identidade Nacional",
-            "description": "Fornece serviços confiáveis de verificação e validação."
+            "title": "Cidadão argentino (DNI)",
+            "description": "Valide a identidade de pessoas na Argentina com a API KYC da Verifik. Conecte-se a fontes oficiais e verifique dados pessoais em segundos."
         },
         "argentina_api_identity_lookup_extra": {
             "title": "Argentina - Verificação de identidade (estendida)",
@@ -369,8 +369,8 @@
             "description": "Lista de contratos públicos vinculados a pessoa ou empresa na Colômbia."
         },
         "colombia_api_police_rnmc": {
-            "title": "RNMC (medidas corretivas)",
-            "description": "Verificação de medidas corretivas pendentes na Polícia Nacional (RNMC)."
+            "title": "Conformidade com medidas corretivas (RNMC)",
+            "description": "Verifique medidas corretivas pendentes junto à polícia nacional (RNMC)."
         },
         "bolivia_api_identity_lookup": {
             "title": "Cidadão",
@@ -449,8 +449,8 @@
             "description": "Verificação de habilitação de motorista em Ontário (Canadá) pelo número do documento contra registros oficiais para KYC, conformidade e prevenção a fraudes."
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "RUNT — Veículo por placa (simplificado)",
-            "description": "Consulta dados essenciais do veículo no RUNT da Colômbia com placa e documento do titular."
+            "title": "RUNT — Veículo simplificado por placa",
+            "description": "Consulta RUNT simplificada com dados essenciais do veículo por placa."
         },
         "canada_api_driver_license_quebec": {
             "title": "Quebec — Carteira de motorista",
@@ -534,11 +534,11 @@
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
             "title": "Fasecolda — Valores por placa",
-            "description": "Consulte valores comerciais, ficha técnica e preços por ano via placa na Colômbia (Fasecolda)."
+            "description": "Valores comerciais e dados do veículo Fasecolda por placa."
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
             "title": "Fasecolda — Valores por código",
-            "description": "Consulte valores comerciais, ficha técnica e preços por ano via código Fasecolda."
+            "description": "Valores e ficha técnica do veículo Fasecolda por código."
         },
         "usa_api_company": {
             "title": "EUA — Empresa (SEC EDGAR)",
@@ -557,12 +557,12 @@
             "description": "Consulte a vigência do certificado de profissionais jurídicos na Colômbia (CC/CE, quality)."
         },
         "argentina_api_vehicle": {
-            "title": "Argentina - Verificação de Veículo",
-            "description": "Fornece serviços confiáveis de verificação e validação."
+            "title": "veículo",
+            "description": "Consulte informações de veículos na Argentina pela placa."
         },
         "argentina_api_company_lookup": {
-            "title": "Argentina - Consulta de Empresa",
-            "description": "Fornece serviços confiáveis de verificação e validação."
+            "title": "Empresa argentina (CUIT)",
+            "description": "Valide empresas argentinas com a API KYB da Verifik. Conecte-se a fontes oficiais e verifique dados empresariais em segundos."
         },
         "bolivia_api_vehicle": {
             "title": "Informações do veículo",
@@ -585,8 +585,8 @@
             "description": "Valide empresas paraguaias com a API KYB da Verifik. Conecte-se a fontes oficiais e verifique dados empresariais em segundos."
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "Fasecolda — Sinistros (seguro)",
-            "description": "Consulte histórico de sinistros e reclamações Fasecolda para veículos na Colômbia."
+            "title": "Fasecolda — Verificação de sinistros",
+            "description": "Verifique o histórico de sinistros e reclamações de seguro veicular via Fasecolda."
         },
         "colombia_api_vehicle_tax": {
             "title": "Bogotá — Imposto veículo",
@@ -633,7 +633,7 @@
             "description": "Serviço de autuações e multas de trânsito SIMIT"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT — Detalhes comparendo",
+            "title": "SIMIT - Detalhes comparendo",
             "description": "Detalhe de um comparendo SIMIT via GET /v2/co/simit/comparendo."
         },
         "colombia_api_simit_resolutions": {
@@ -673,12 +673,12 @@
             "description": "Consulte a CE junto à Migración Colombia."
         },
         "colombia_api_vehicle_fines_bogota": {
-            "title": "Bogotá — Multas de veículo",
-            "description": "Consulta multas e autuações de trânsito em Bogotá (Colômbia) pela placa."
+            "title": "Bogotá — Multas veiculares",
+            "description": "Consulte multas associadas a um veículo em Bogotá por placa."
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Medellín — Multas",
-            "description": "Multas locais Medellín via GET /v2/co/medellin/vehicle/fines."
+            "title": "Medellín - Multas de trânsito",
+            "description": "Consulte multas e comparendos locais para veículos em Medellín via GET /v2/co/medellin/vehicle/fines."
         },
         "guatemala_api_identity_lookup": {
             "title": "Guatemala - Verificação de Identidade Nacional",
@@ -741,8 +741,8 @@
             "description": "Consulte o Permiso de Protección Temporal (PPT) na Migración Colombia."
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "Colômbia - Certificação de Trabalho em Altura",
-            "description": "Serviço de verificação de certificados trabalhistas para Colombia. Fornece certificações relacionadas ao trabalho e informações de status trabalhista."
+            "title": "Certificados Ministério do Trabalho (v3)",
+            "description": "Certificados do Ministério do Trabalho colombiano, incluindo curso de alturas, via GET v3."
         },
         "peru_api_company_lookup_v3": {
             "title": "Verificação de empresas",

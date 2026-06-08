@@ -165,8 +165,8 @@
             "description": "CC 또는 NIT로 콜롬비아 법원 사건 목록을 조회합니다 (Rama Judicial)."
         },
         "colombia_api_vehicle": {
-            "title": "RUNT — 차량 확인(기본)",
-            "description": "콜롬비아 RUNT에서 번호판과 명의자 정보로 차량 등록·기본 특성을 조회합니다."
+            "title": "RUNT — SOAT·RTM 검증",
+            "description": "번호판과 신분증으로 SOAT 및 RTM(기술 검사) 상태를 조회합니다."
         },
         "colombia_api_pico_placa": {
             "title": "보고타 — 피코이플라카",
@@ -217,8 +217,8 @@
             "description": "번호판으로 에콰도르 차량의 벌금 및 등록 정보를 조회합니다."
         },
         "colombia_api_vehicle_complete_by_plate": {
-            "title": "RUNT — 차량 확인",
-            "description": "콜롬비아 RUNT에서 번호판과 소유자 정보로 차량 상세 이력·기술 정보를 조회합니다."
+            "title": "RUNT — 차량（번호판+신분증）",
+            "description": "번호판과 신분증만으로 RUNT 차량 정보를 조회합니다."
         },
         "colombia_api_vehicle_complete_by_vin": {
             "title": "RUNT — VIN 차량 확인",
@@ -269,8 +269,8 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "ip-lookup": {
-            "title": "IP 지리적 위치",
-            "description": "GET /v2/ip-lookup로 IPv4/IPv6 주소의 위치를 조회합니다."
+            "title": "🌐 IP 지리적 위치",
+            "description": "GET /v2/ip-lookup으로 IPv4/IPv6 주소의 지리적 위치를 조회합니다."
         },
         "colombia_api_judicial_records": {
             "title": "콜롬비아 — 사법 기록(재판부 사건)",
@@ -337,8 +337,8 @@
             "description": "브라질 번호판 조회: 제조사·모델·연식·VIN/차대·해당 시 FIPE 코드 등 등록형 차량 속성을 차량 운영, 보험, 담보, 마켓플레이스 검증에 제공합니다."
         },
         "argentina_api_identity_lookup": {
-            "title": "아르헨티나 - 국민ID 검증",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "아르헨티나 시민(DNI)",
+            "description": "Verifik KYC API로 아르헨티나 개인의 신원을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 개인 데이터를 확인합니다."
         },
         "argentina_api_identity_lookup_extra": {
             "title": "아르헨티나 - 신원 확인(확장)",
@@ -369,8 +369,8 @@
             "description": "콜롬비아 공공 계약 배경 조회."
         },
         "colombia_api_police_rnmc": {
-            "title": "콜롬비아 — 경찰 시정 조치 이행 확인",
-            "description": "콜롬비아 경찰의 시정 조치 이행 여부를 확인합니다."
+            "title": "콜롬비아 — 경찰 시정 조치 준수 확인",
+            "description": "콜롬비아 RNMC에서 시정 조치 준수 여부를 조회합니다."
         },
         "bolivia_api_identity_lookup": {
             "title": "볼리비아 — 국민 신분증",
@@ -449,8 +449,8 @@
             "description": "온타리오(캐나다) 운전면허 검증."
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
-            "title": "RUNT — 차량 확인(간편)",
-            "description": "콜롬비아 RUNT에서 번호판과 소유자 서류 정보로 핵심 차량 정보를 조회합니다."
+            "title": "RUNT — 번호판별 차량（간편·별칭）",
+            "description": "번호판과 명의인 신분증으로 RUNT 차량 핵심 정보를 조회합니다."
         },
         "canada_api_driver_license_quebec": {
             "title": "퀘벡 — 운전면허",
@@ -533,12 +533,12 @@
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
         "colombia_api_vehicle_valores_fasecolda_by_plate": {
-            "title": "Fasecolda — 번호판 차량 가치",
-            "description": "콜롬비아 번호판으로 Fasecolda 상업 가치·제원·연식별 가격을 조회합니다."
+            "title": "Fasecolda — 번호판별 차량 가치",
+            "description": "번호판으로 Fasecolda 차량 가치·사양 정보를 조회합니다."
         },
         "colombia_api_vehicle_valores_fasecolda_by_code": {
             "title": "Fasecolda — 코드별 차량 가치",
-            "description": "Fasecolda 차량 코드로 상업 가치·제원·연식별 가격을 조회합니다."
+            "description": "Fasecolda 코드로 차량 가치·사양 정보를 조회합니다."
         },
         "usa_api_company": {
             "title": "미국 - 기업 조회",
@@ -557,12 +557,12 @@
             "description": "콜롬비아 법률인의 등록·유효성을 documentType(CC/CE), documentNumber, quality로 조회합니다."
         },
         "argentina_api_vehicle": {
-            "title": "아르헨티나 - 차량 검증",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "아르헨티나 — 차량 정보",
+            "description": "번호판으로 아르헨티나 차량 정보를 조회합니다."
         },
         "argentina_api_company_lookup": {
-            "title": "아르헨티나 - 기업 조회",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "아르헨티나 기업(CUIT)",
+            "description": "Verifik KYB API로 아르헨티나 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
         },
         "bolivia_api_vehicle": {
             "title": "볼리비아 — 차량 정보",
@@ -585,8 +585,8 @@
             "description": "Verifik의 KYB API로 파라과이 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
-            "title": "Fasecolda — 사고·보험 청구 이력",
-            "description": "Fasecolda 데이터로 콜롬비아 차량의 보험 사고 및 청구 이력을 조회합니다."
+            "title": "Fasecolda — 보험 청구·사고 이력",
+            "description": "Fasecolda 공식 데이터로 콜롬비아 차량의 보험 사고·청구 이력을 조회합니다."
         },
         "colombia_api_vehicle_tax": {
             "title": "보고타 — 차량세",
@@ -633,7 +633,7 @@
             "description": "SIMIT 교통 위반 통고 및 과태료 서비스."
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT — 범칙금 상세",
+            "title": "SIMIT - 범칙금 상세",
             "description": "GET /v2/co/simit/comparendo로 단일 comparendo 상세를 조회합니다."
         },
         "colombia_api_simit_resolutions": {
@@ -673,12 +673,12 @@
             "description": "Migración Colombia CE(외국인 신분증) 상태를 조회합니다."
         },
         "colombia_api_vehicle_fines_bogota": {
-            "title": "보고타 — 차량 과태료",
-            "description": "보고타(콜롬비아) 차량 번호판으로 과태료·통고 내역을 조회합니다."
+            "title": "보고타 — 차량 과태료 조회",
+            "description": "보고타 등록 차량 번호판으로 교통 과태료 및 위반을 조회합니다."
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "메데인 — 교통 벌금",
-            "description": "GET /v2/co/medellin/vehicle/fines로 메데인 차량 벌금을 조회합니다."
+            "title": "메델린 - 교통 벌금",
+            "description": "GET /v2/co/medellin/vehicle/fines로 메델린 등록 차량의 지역 교통 벌금 및 고지서를 조회합니다."
         },
         "guatemala_api_identity_lookup": {
             "title": "과테말라 - 국민ID 검증",
@@ -741,8 +741,8 @@
             "description": "Migración Colombia PPT(임시 보호 허가) 상태를 조회합니다."
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "콜롬비아 — 고소 작업 인증",
-            "description": "Labor certificates verification service 를 위한 Colombia. 제공 work-related certifications and labor status information."
+            "title": "콜롬비아 — 노동부 증명서（v3）",
+            "description": "콜롬비아 노동부 증명서(고소 작업 curso de alturas 등)를 GET /v3/co/ministerio-de-trabajo/certificados로 조회합니다."
         },
         "peru_api_company_lookup_v3": {
             "title": "페루 기업 검증",

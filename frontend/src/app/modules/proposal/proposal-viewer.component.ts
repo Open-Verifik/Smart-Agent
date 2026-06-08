@@ -141,6 +141,23 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
         return buildScopeSummary(this.proposal);
     }
 
+    getCategoryLabel(category: string | undefined): string {
+        if (!category?.trim()) return '';
+
+        const key = `proposal.categoryLabels.${category.trim()}`;
+        const translated = this._translocoService.translate(key);
+
+        return translated !== key ? translated : category;
+    }
+
+    get formattedScopeCategories(): string {
+        const categories = this.scopeSummary?.categories || [];
+
+        if (!categories.length) return '—';
+
+        return categories.map((category) => this.getCategoryLabel(category)).join(', ');
+    }
+
     getRecipientCompany(): string {
         return this.proposal ? getRecipientCompany(this.proposal) : '';
     }

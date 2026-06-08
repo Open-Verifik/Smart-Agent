@@ -34,3 +34,11 @@
     border-radius: 1rem;
     overflow: hidden;
 }
+
+@media print {
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}

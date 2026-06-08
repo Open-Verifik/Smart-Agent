@@ -269,7 +269,7 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "ip-lookup": {
-            "title": "Consulta de Geoubicación IP",
+            "title": "🌐 Consulta de Geoubicación IP",
             "description": "Geolocaliza una dirección IPv4 o IPv6 mediante GET /v2/ip-lookup. Devuelve país, región, ciudad, ISP/ASN y coordenadas."
         },
         "colombia_api_judicial_records": {
@@ -633,7 +633,7 @@
             "description": "Servicio de comparendos y multas SIMIT"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT — Detalles de comparendo",
+            "title": "SIMIT - Detalles de comparendo",
             "description": "Obtén información detallada de un comparendo SIMIT específico mediante GET /v2/co/simit/comparendo."
         },
         "colombia_api_simit_resolutions": {
@@ -677,7 +677,7 @@
             "description": "Servicio de multas de vehículos de Bogotá"
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "Medellín — Multas de tránsito",
+            "title": "Medellín - Multas de tránsito",
             "description": "Consulta multas y comparendos locales de vehículos en Medellín mediante GET /v2/co/medellin/vehicle/fines."
         },
         "guatemala_api_identity_lookup": {

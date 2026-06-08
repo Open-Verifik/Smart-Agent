@@ -269,8 +269,8 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "ip-lookup": {
-            "title": "IP 地理定位",
-            "description": "通过 GET /v2/ip-lookup 查询 IPv4/IPv6 地址的地理位置。"
+            "title": "🌐 IP 地理定位",
+            "description": "通过 GET /v2/ip-lookup 对 IPv4/IPv6 地址进行地理定位。"
         },
         "colombia_api_judicial_records": {
             "title": "司法记录（法院案件）",
@@ -337,8 +337,8 @@
             "description": "巴西车牌查询：登记式车辆属性（品牌、型号、年份、VIN/底盘、适用时的 FIPE 代码），适用于车队、保险、担保与市场核验。"
         },
         "argentina_api_identity_lookup": {
-            "title": "阿根廷 - 国民身份证验证",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "阿根廷公民（DNI）",
+            "description": "使用 Verifik 的 KYC API 核验阿根廷个人身份。直接对接官方数据源，在数秒内完成个人数据核验。"
         },
         "argentina_api_identity_lookup_extra": {
             "title": "阿根廷 - 国民身份证验证（扩展）",
@@ -557,12 +557,12 @@
             "description": "查询哥伦比亚法律专业人士的注册与证明有效性（documentType 为 CC/CE，含 quality）。"
         },
         "argentina_api_vehicle": {
-            "title": "阿根廷 - 车辆验证",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "阿根廷 — 车辆信息",
+            "description": "通过车牌查询阿根廷车辆信息。"
         },
         "argentina_api_company_lookup": {
-            "title": "阿根廷 - 企业查询",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "阿根廷企业（CUIT）",
+            "description": "使用 Verifik 的 KYB API 核验阿根廷企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "bolivia_api_vehicle": {
             "title": "车辆信息",
@@ -633,8 +633,8 @@
             "description": "SIMIT 交通违章与罚款服务"
         },
         "colombia_api_simit_subpoenas_details": {
-            "title": "SIMIT — 罚单详情",
-            "description": "通过 GET /v2/co/simit/comparendo 查询单个 SIMIT comparendo 详情（非 comparendos 列表）。"
+            "title": "SIMIT - 罚单详情",
+            "description": "通过 GET /v2/co/simit/comparendo 查询单个 SIMIT comparendo 详情。"
         },
         "colombia_api_simit_resolutions": {
             "title": "SIMIT - 决议",
@@ -677,8 +677,8 @@
             "description": "通过车牌查询哥伦比亚波哥大车辆的交通罚单与处罚信息。"
         },
         "colombia_api_vehicle_fines_medellin": {
-            "title": "麦德林 — 交通罚单",
-            "description": "通过 GET /v2/co/medellin/vehicle/fines 查询麦德林本地车辆罚单。"
+            "title": "麦德林 - 交通罚款",
+            "description": "通过 GET /v2/co/medellin/vehicle/fines 查询麦德林注册车辆的本地交通罚款和传票。"
         },
         "guatemala_api_identity_lookup": {
             "title": "危地马拉 - 国民身份证验证",
@@ -741,8 +741,8 @@
             "description": "查询哥伦比亚 Migración Colombia 签发的 PPT 状态。"
         },
         "colombia_api_min_trabajo_v3": {
-            "title": "哥伦比亚 — 高空作业认证",
-            "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
+            "title": "劳动部证书（v3）",
+            "description": "通过 GET /v3/co/ministerio-de-trabajo/certificados 查询哥伦比亚劳动部证书及高空作业（curso de alturas）培训数据。"
         },
         "peru_api_company_lookup_v3": {
             "title": "秘鲁企业核验",

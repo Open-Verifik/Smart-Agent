@@ -64,11 +64,16 @@
             </mat-form-field>
         </div>
 
-        @if (loading()) {
-            <div class="flex items-center justify-center py-20">
-                <mat-spinner diameter="40"></mat-spinner>
-            </div>
-        } @else if (filteredScans.length === 0 && scans().length === 0) {
+        <div class="relative flex flex-col flex-auto min-h-[320px]">
+            @if (loading()) {
+                <div
+                    class="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/70 dark:bg-gray-950/70 backdrop-blur-[1px]"
+                >
+                    <mat-spinner diameter="40"></mat-spinner>
+                </div>
+            }
+
+            @if (!loading() && filteredScans.length === 0 && scans().length === 0) {
             <div class="flex flex-col items-center justify-center py-20 text-center">
                 <mat-icon
                     class="icon-size-16 mb-4 text-hint"
@@ -80,7 +85,7 @@
                     {{ 'smartScan.newScan' | transloco }}
                 </button>
             </div>
-        } @else if (filteredScans.length === 0 && quickSearch) {
+        } @else if (!loading() && filteredScans.length === 0 && quickSearch) {
             <div class="flex flex-col items-center justify-center py-20 text-center">
                 <mat-icon class="icon-size-16 mb-4 text-hint" [svgIcon]="'heroicons_outline:magnifying-glass'"></mat-icon>
                 <h3 class="text-xl font-semibold text-secondary">{{ 'smartScan.noResults' | transloco }}</h3>
@@ -232,5 +237,6 @@
                 </div>
             }
         }
+        </div>
     </div>
 </div>

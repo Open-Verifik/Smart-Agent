@@ -177,7 +177,7 @@
                     </div>
                     <div>
                         <p class="text-xs text-stone-500">{{ 'proposal.scope.categories' | transloco }}</p>
-                        <p class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ scope.categories.join(', ') || '—' }}</p>
+                        <p class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ formattedScopeCategories }}</p>
                     </div>
                 </div>
                 <div class="mt-4">
@@ -339,7 +339,7 @@
                                 <td class="px-4 py-3">
                                     <p class="font-medium">{{ item.serviceName }}</p>
                                     <p *ngIf="item.url" class="mt-0.5 truncate font-mono text-xs text-stone-400">{{ item.url }}</p>
-                                    <p class="text-xs text-stone-500">{{ item.category }} · {{ item.country }}</p>
+                                    <p class="text-xs text-stone-500">{{ getCategoryLabel(item.category) }} · {{ item.country }}</p>
                                 </td>
                                 <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-3" [class.bg-stone-50]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-900/50': isTierRecommended(tier)}">

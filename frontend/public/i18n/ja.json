@@ -5965,5 +5965,225 @@
     "addOneRecordTitle": "1件追加",
     "addOneRecordDesc": "必須項目を入力して、このバッチに1件追加します。",
     "appendFailed": "レコードを追加できませんでした。もう一度お試しください。"
+  },
+  "proposal": {
+    "loading": "提案を読み込んでいます…",
+    "error": "この提案リンクは無効か期限切れです。",
+    "brand": "Verifik",
+    "title": "商用提案",
+    "preparedFor": "宛先",
+    "volume": "想定月間クエリ数",
+    "recommendedPlan": "推奨プラン",
+    "table": {
+      "service": "サービス",
+      "planMinimum": "プラン最低料金",
+      "usageCost": "平均単価での利用料",
+      "usageCostHint": "{{volume}} クエリ × 平均単価",
+      "quotedTotal": "月額見積合計",
+      "quotedTotalHint": "プラン最低料金または利用料 — 高い方",
+      "original": "元の価格",
+      "ourOffer": "当社の提案",
+      "yourPrice": "ご希望価格"
+    },
+    "tiers": {
+      "starter": "Starter",
+      "basic": "Basic",
+      "plus": "Plus",
+      "business": "Business",
+      "enterprise": "Enterprise"
+    },
+    "banners": {
+      "acceptedTitle": "この提案を承認しました",
+      "acceptedOn": "（{{date}}）",
+      "acceptedHint": "承認を取り消すか、別の価格でカウンターオファーを送信できます。",
+      "counterTitle": "カウンターオファーを送信しました",
+      "counterOn": "（{{date}}）",
+      "counterHint": "必要に応じて修正したカウンターオファーを送信できます。"
+    },
+    "actions": {
+      "accept": "提案を承認",
+      "withdraw": "承認を取り消す",
+      "sendCounter": "カウンターオファーを送信",
+      "reviseCounter": "カウンターオファーを修正",
+      "downloadPdf": "PDFをダウンロード",
+      "printPdf": "印刷"
+    },
+    "counter": {
+      "title": "カウンターオファー",
+      "hint": "上の {{tier}} 列の価格を編集し、ご希望をお知らせください。",
+      "placeholder": "ご希望をお聞かせください…",
+      "cancel": "キャンセル",
+      "submit": "カウンターオファーを送信"
+    },
+    "language": "言語",
+    "expiration": {
+      "validUntil": "有効期限",
+      "noExpiration": "有効期限なし"
+    },
+    "revisions": {
+      "title": "価格改定",
+      "createdOn": "見積作成日: {{date}}",
+      "updatedDaysLater": "価格を {{days}} 日後（{{date}}）に更新"
+    },
+    "paymentOptions": {
+      "title": "お支払いオプション",
+      "basedOnMonthly": "{{tier}} の月額見積もりに基づく",
+      "plan": "プラン",
+      "period": "サービス期間",
+      "total": "お支払い総額",
+      "notes": "備考",
+      "months": "{{count}} か月",
+      "annualFreeMonths": "2 か月無料",
+      "annualQueries": "年間クエリ数 {{count}}",
+      "types": {
+        "monthly": "月額プラン",
+        "quarterly": "四半期プラン（3 か月）",
+        "semi_annual": "半年プラン（6 か月）",
+        "annual": "年間サブスクリプション"
+      }
+    },
+    "sections": {
+      "scope": "1. カタログソリューション",
+      "sla": "2. サービスレベル契約 (SLA)",
+      "commercial": "3. 商用提案",
+      "generalities": "4. 一般情報",
+      "validity": "5. 提案の有効期限"
+    },
+    "cover": {
+      "version": "バージョン",
+      "revised": "改訂",
+      "subject": "件名",
+      "defaultIntro": "Verifik は {{company}} 向けに以下の商用提案を提出します。",
+      "defaultIntroGeneric": "Verifik は以下の商用提案をご検討ください。"
+    },
+    "scope": {
+      "intro": "カタログは政府公開データのクエリを最適化する API ベースのソリューションを提供します。",
+      "sampleTitle": "カタログ範囲（サンプル）",
+      "implementationTitle": "実装：API",
+      "implementationBody": "API 経由で Verifik ソリューションをモジュール単位で実装・統合するプロセスです。{{company}} の技術チームがバックエンドおよびフロントエンド開発により、プロジェクト要件に応じてソリューションを運用するためのより大きな投入が必要です。",
+      "countries": "対象国",
+      "endpoints": "選択されたエンドポイント",
+      "categories": "カテゴリ",
+      "docsLink": "技術ドキュメントを見る"
+    },
+    "categoryLabels": {
+      "apiRequest": "DB Screening"
+    },
+    "commercial": {
+      "monthlyOptionTitle": "オプション 1：月額プラン",
+      "monthlySubtitle": "以下の料金は月額プランに適用されます。",
+      "monthlyNotes": [
+        "Verifik サービスはモジュール単位で提供され、必要に応じて API を追加・削除できます。",
+        "月額サブスクリプションは毎月同額で残高が更新されます。",
+        "すべての金額は米ドル表示です。",
+        "クレジットを使い切った場合、合意単価および有効プランに基づき最低 USD 100 のチャージが可能です。",
+        "請求期間内に未使用のクレジットは繰越されず、承認された月額プランに従って更新されます。"
+      ],
+      "annualOptionTitle": "オプション 2：年間プラン",
+      "annualSubtitle": "以下の料金は年間プランに適用されます。",
+      "annualNotes": [
+        "Verifik サービスはモジュール単位で提供され、必要に応じて API を追加・削除できます。",
+        "すべての金額は米ドル表示です。",
+        "年間プランは一括払いで、全額がクライアント口座に計上され、365 日間必要に応じてクレジットを使用できます。",
+        "クレジットを使い切った場合、合意単価および有効プランに基づき最低 USD 100 のチャージが可能です。",
+        "期限前にクレジットを使い切った場合、新たな年間交渉が可能です。",
+        "期間内にクレジットを使い切れない場合、残クレジット利用のため 1 か月の延長が付与される場合があります。"
+      ],
+      "additionalsTitle": "追加サービス",
+      "additionals": [
+        "Verifik 開発チーム支援による実装・統合費用：USD 30/時間、USD 2,000/週、USD 5,000/月。",
+        "実装期間は貴社技術チームの工数と Verifik から必要な支援により異なります。経験上、毎日相当の工数を投入すれば約 1 週間かかる場合があります。Code 統合（貴社が API を組み込む）か No-code（既存ツール利用）かをご検討ください。",
+        "営業時間内のサポート・コンサルティングは無料：月–金 8:00–17:00。",
+        "24/7 サポート・コンサルティング：USD 1,000/月。",
+        "ライセンス料は年間契約額の 10%（年間プランに適用）。"
+      ]
+    },
+    "generalities": {
+      "items": [
+        "Say Shannon Colombia SAS (Verifik) は ISO 27001 認証プロセスの最終段階にあります。",
+        "データ処理ポリシーが適用されます。",
+        "サービスレベル契約が適用されます。"
+      ]
+    },
+    "validitySection": {
+      "until": "本提案の有効期限",
+      "noExpiration": "本提案に有効期限はありません。"
+    },
+    "sla": {
+      "channelsTitle": "サポートチャネル",
+      "channels": [
+        "verifik.co チャット",
+        "メール：support@verifik.co",
+        "WhatsApp カスタマーサービス",
+        "Discord カスタマーサービス"
+      ],
+      "hoursTitle": "対応時間",
+      "hours": "月曜–金曜、コロンビア時間 8:00–17:00。",
+      "severityTitle": "重要度レベル",
+      "severities": [
+        "重大：サービス完全停止。",
+        "緊急：全ユースケースで特定機能の喪失。",
+        "中：特定ケースでの機能喪失。",
+        "通常：可用性に影響しない一般的な問い合わせ。"
+      ],
+      "responseTitle": "応答時間",
+      "responseHeaders": ["重要度", "受付", "初回応答", "エスカレーション", "解決"],
+      "responseRows": {
+        "critical": ["重大", "0.5 時間", "0.5 時間", "15 分", "48 時間"],
+        "urgent": ["緊急", "0.5 時間", "0.5 時間", "15 分", "48 時間"],
+        "medium": ["中", "1 時間", "1 時間", "0.5 時間", "96 時間"],
+        "normal": ["通常", "1 時間", "1 時間", "0.5 時間", "96 時間"]
+      },
+      "availabilityTitle": "プラットフォーム可用性",
+      "availabilityHeaders": ["製品", "可用性", "備考"],
+      "availabilityRows": {
+        "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 政府ソースに依存"],
+        "smartAccessComm": ["SmartAccess（メール/電話）", "99.0%", ""],
+        "smartAccessBio": ["SmartAccess（生体認証）", "98.0%", ""],
+        "smartEnrollComm": ["SmartEnroll（メール/電話）", "99.0%", ""],
+        "smartEnrollBio": ["SmartEnroll（生体認証）", "98.0%", ""],
+        "smartEnrollDoc": ["SmartEnroll（書類スキャン）", "98.0%", ""],
+        "smartEnrollDataApi": ["SmartEnroll（DB Screening）", "90.0%", "DB Screening — 政府ソースに依存"]
+      },
+      "definitionsTitle": "定義",
+      "definitions": [
+        "受付：リクエストから担当エージェント割り当てまでの時間。",
+        "初回応答：エージェント挨拶からリクエストへの最初の回答までの時間。",
+        "エスカレーション：エージェントによるエスカレーションから担当者による確認までの時間（必要な場合のみ）。",
+        "解決：エージェント挨拶から案件解決までの時間。"
+      ],
+      "responseNote": "注：48 時間は、インシデントの複雑さに応じて最大 48 時間かかる場合があることを意味します。応答時間はユーザーの最終メッセージからカウントされます。",
+      "compensationTitle": "ダウンタイム補償",
+      "compensationIntro": "影響を受けた月には、無効なサービス呼び出しコストに相当するクレジット補償が提供されます。Verifik 内部問題（DB、サーバー、内部 API）による不可用で有効に解決されない場合、以下のとおり補償します：",
+      "compensationHeaders": ["サービス可用性", "クレジット補償", "製品"],
+      "compensationRows": {
+        "dataApiHigh": ["DB Screening — 90.0% 以上", "補償なし", "SmartCheck"],
+        "dataApiLow": ["DB Screening — 89.99% 以下", "補償", "SmartCheck"],
+        "emailTelHigh": ["メール/電話 — 99.00% 以上", "補償なし", "SmartAccess, SmartEnroll"],
+        "emailTelLow": ["メール/電話 — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"],
+        "biometricsHigh": ["生体認証 — 99.00% 以上", "補償なし", "SmartAccess, SmartEnroll"],
+        "biometricsLow": ["生体認証 — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"],
+        "docScanHigh": ["書類スキャン — 99.00% 以上", "補償なし", "SmartAccess, SmartEnroll"],
+        "docScanLow": ["書類スキャン — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"]
+      },
+      "compensationDisclaimer": "DB Screening の内部問題には不可抗力（移行、切断、政府による外部介入）は含まれません。Verifik は仲介者であり、照会する政府データベースを管理・更新しません。",
+      "billingTitle": "SmartCheck 課金方式",
+      "billingIntro": "本方式は smartCHECK（政府 DB 照会）に適用されます。Verifik は各国政府 DB の所有者・管理者ではなく、応答時間、平均稼働率、データ精度を保証しません。",
+      "billingTableTitle": "課金対象/非対象 HTTP コード",
+      "billingHeaders": ["課金対象", "非課金"],
+      "billingRows": {
+        "codes": ["200, 404", "403, 409, 412, 422, 500"]
+      },
+      "maintenanceTitle": "計画メンテナンス",
+      "maintenance": "計画メンテナンスは夜間および週末に実施し、事前にメールで通知します。",
+      "adaptationsTitle": "適応または新規開発",
+      "adaptations": "API 統合システムの予期しない変更による新規適応の期間は変更内容により異なり、プラットフォームダウンタイムには含まれません。"
+    },
+    "footer": {
+      "tagline": "本人確認とデータサービス",
+      "legalEntity": "VERIFIK LLC — デジタル信頼を加速",
+      "email": "info@verifik.co",
+      "website": "verifik.co"
+    }
   }
 }

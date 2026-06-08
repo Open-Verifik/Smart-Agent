@@ -6161,6 +6161,9 @@
       "categories": "Categories",
       "docsLink": "View technical documentation"
     },
+    "categoryLabels": {
+      "apiRequest": "DB Screening"
+    },
     "commercial": {
       "monthlyOptionTitle": "Option 1: Monthly plan subscription",
       "monthlySubtitle": "These rates apply to monthly plans.",
@@ -6229,13 +6232,13 @@
       "availabilityTitle": "Platform availability",
       "availabilityHeaders": ["Product", "Availability", "Notes"],
       "availabilityRows": {
-        "smartCheck": ["SmartCheck", "90.0%", "Data API — depends on government sources"],
+        "smartCheck": ["SmartCheck", "90.0%", "DB Screening — depends on government sources"],
         "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
         "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
         "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
         "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
         "smartEnrollDoc": ["SmartEnroll (Doc scan)", "98.0%", ""],
-        "smartEnrollDataApi": ["SmartEnroll (Data API)", "90.0%", "Data API — depends on government sources"]
+        "smartEnrollDataApi": ["SmartEnroll (DB Screening)", "90.0%", "DB Screening — depends on government sources"]
       },
       "definitionsTitle": "Definitions",
       "definitions": [
@@ -6249,8 +6252,8 @@
       "compensationIntro": "Credit compensation for the affected month will be provided as a credit equivalent to the cost of the ineffective service call. If unavailability is caused by internal Verifik issues (database, servers, internal API problems) and not effectively resolved, Verifik will compensate as follows:",
       "compensationHeaders": ["Service availability", "Credit compensation", "Product"],
       "compensationRows": {
-        "dataApiHigh": ["Data API — 99.0% or higher", "No credit", "SmartCheck"],
-        "dataApiLow": ["Data API — 89.99% or lower", "Compensation", "SmartCheck"],
+        "dataApiHigh": ["DB Screening — 90.0% or higher", "No credit", "SmartCheck"],
+        "dataApiLow": ["DB Screening — 89.99% or lower", "Compensation", "SmartCheck"],
         "emailTelHigh": ["Email / Tel — 99.00% or higher", "No credit", "SmartAccess, SmartEnroll"],
         "emailTelLow": ["Email / Tel — 98.99% or lower", "Compensation", "SmartAccess, SmartEnroll"],
         "biometricsHigh": ["Biometrics — 99.00% or higher", "No credit", "SmartAccess, SmartEnroll"],
@@ -6258,7 +6261,7 @@
         "docScanHigh": ["Document scan — 99.00% or higher", "No credit", "SmartAccess, SmartEnroll"],
         "docScanLow": ["Document scan — 98.99% or lower", "Compensation", "SmartAccess, SmartEnroll"]
       },
-      "compensationDisclaimer": "Internal Data API service issues exclude force majeure (migration, disconnection, or external government intervention on custodied databases). Verifik is an intermediary and does not control or update the consulted government databases.",
+      "compensationDisclaimer": "Internal DB Screening service issues exclude force majeure (migration, disconnection, or external government intervention on custodied databases). Verifik is an intermediary and does not control or update the consulted government databases.",
       "billingTitle": "SmartCheck billing scheme",
       "billingIntro": "This billing scheme applies to smartCHECK, which allows querying government databases. Verifik is not the owner, manager, or responsible party for government databases in the countries we serve; therefore Verifik does not guarantee response time, average uptime, or data accuracy.",
       "billingTableTitle": "Billable vs non-billable HTTP codes",

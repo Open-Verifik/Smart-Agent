@@ -5965,5 +5965,225 @@
     "addOneRecordTitle": "添加一条记录",
     "addOneRecordDesc": "填写必填字段，向此批次追加一条记录。",
     "appendFailed": "无法添加该记录，请重试。"
+  },
+  "proposal": {
+    "loading": "正在加载您的提案…",
+    "error": "此提案链接无效或已过期。",
+    "brand": "Verifik",
+    "title": "商业提案",
+    "preparedFor": "为以下对象准备",
+    "volume": "预计月查询量",
+    "recommendedPlan": "推荐方案",
+    "table": {
+      "service": "服务",
+      "planMinimum": "方案最低费用",
+      "usageCost": "按平均单价的使用费",
+      "usageCostHint": "{{volume}} 次查询 × 平均单价",
+      "quotedTotal": "报价月总额",
+      "quotedTotalHint": "方案最低费用或使用费 — 取较高者",
+      "original": "原价",
+      "ourOffer": "我们的报价",
+      "yourPrice": "您的价格"
+    },
+    "tiers": {
+      "starter": "Starter",
+      "basic": "Basic",
+      "plus": "Plus",
+      "business": "Business",
+      "enterprise": "Enterprise"
+    },
+    "banners": {
+      "acceptedTitle": "您已接受此提案",
+      "acceptedOn": "于 {{date}}",
+      "acceptedHint": "您可以撤回接受或发送不同价格的还价。",
+      "counterTitle": "已提交还价",
+      "counterOn": "于 {{date}}",
+      "counterHint": "如有需要，您可以提交修订后的还价。"
+    },
+    "actions": {
+      "accept": "接受提案",
+      "withdraw": "撤回接受",
+      "sendCounter": "发送还价",
+      "reviseCounter": "修订还价",
+      "downloadPdf": "下载 PDF",
+      "printPdf": "打印"
+    },
+    "counter": {
+      "title": "您的还价",
+      "hint": "请编辑上方 {{tier}} 列中的价格，并告诉我们什么更合适。",
+      "placeholder": "告诉我们什么对您更合适…",
+      "cancel": "取消",
+      "submit": "提交还价"
+    },
+    "language": "语言",
+    "expiration": {
+      "validUntil": "有效期至",
+      "noExpiration": "无到期日"
+    },
+    "revisions": {
+      "title": "价格修订",
+      "createdOn": "报价创建于 {{date}}",
+      "updatedDaysLater": "价格于 {{days}} 天后更新，{{date}}"
+    },
+    "paymentOptions": {
+      "title": "付款选项",
+      "basedOnMonthly": "基于 {{tier}} 月度报价",
+      "plan": "方案",
+      "period": "服务周期",
+      "total": "应付总额",
+      "notes": "备注",
+      "months": "{{count}} 个月",
+      "annualFreeMonths": "赠送 2 个月",
+      "annualQueries": "年度查询量 {{count}}",
+      "types": {
+        "monthly": "月度方案",
+        "quarterly": "季度方案（3 个月）",
+        "semi_annual": "半年方案（6 个月）",
+        "annual": "年度订阅"
+      }
+    },
+    "sections": {
+      "scope": "1. 目录方案",
+      "sla": "2. 服务级别协议 (SLA)",
+      "commercial": "3. 商业提案",
+      "generalities": "4. 一般信息",
+      "validity": "5. 提案有效期"
+    },
+    "cover": {
+      "version": "版本",
+      "revised": "修订",
+      "subject": "主题",
+      "defaultIntro": "Verifik 向 {{company}} 提交以下商业提案。",
+      "defaultIntroGeneric": "Verifik 提交以下商业提案供您审阅。"
+    },
+    "scope": {
+      "intro": "目录提供基于 API 的解决方案，以优化政府公开数据查询。",
+      "sampleTitle": "目录范围（示例）",
+      "implementationTitle": "实施方式：API",
+      "implementationBody": "通过 API 以模块化方式实施和集成 Verifik 提供的解决方案。此选项需要 {{company}} 技术团队在前后端开发中投入更多精力，以根据项目需求运行相关解决方案。",
+      "countries": "覆盖国家",
+      "endpoints": "已选端点",
+      "categories": "类别",
+      "docsLink": "查看技术文档"
+    },
+    "categoryLabels": {
+      "apiRequest": "DB Screening"
+    },
+    "commercial": {
+      "monthlyOptionTitle": "选项 1：月度订阅方案",
+      "monthlySubtitle": "以下费率适用于月度方案。",
+      "monthlyNotes": [
+        "Verifik 服务可按模块灵活增减 API。",
+        "月度订阅每月按相同金额续费并刷新余额。",
+        "所有金额均以美元计价。",
+        "若额度用尽，可按约定单价及当前生效方案最低充值 100 美元。",
+        "账期内未使用的额度不可累计，将按已接受的月度方案续期。"
+      ],
+      "annualOptionTitle": "选项 2：年度方案",
+      "annualSubtitle": "以下费率适用于年度方案。",
+      "annualNotes": [
+        "Verifik 服务可按模块灵活增减 API。",
+        "所有金额均以美元计价。",
+        "年度方案一次性支付全年费用；全额计入客户账户，可在 365 天有效期内按需使用额度。",
+        "若额度用尽，可按约定单价及当前生效方案最低充值 100 美元。",
+        "若在到期前用尽额度，可重新协商年度方案。",
+        "若到期时仍有剩余额度，可额外赠送 1 个月使用期。"
+      ],
+      "additionalsTitle": "附加服务",
+      "additionals": [
+        "在 Verifik 开发团队支持下实施与集成的费用：30 美元/小时、2,000 美元/周、5,000 美元/月。",
+        "实施周期取决于贵方技术团队投入及所需 Verifik 支持。根据经验，若每日投入较多，约需一周。请考虑 Code 集成（由贵方团队对接 API）或 No-code（使用现成工具）。",
+        "办公时间内的支持与咨询免费：周一至周五 8:00–17:00。",
+        "7×24 支持与咨询：1,000 美元/月。",
+        "许可费用为年度合同金额的 10%（适用于年度方案）。"
+      ]
+    },
+    "generalities": {
+      "items": [
+        "Say Shannon Colombia SAS (Verifik) 正处于 ISO 27001 认证流程的最后阶段。",
+        "适用数据处理政策。",
+        "适用服务级别协议。"
+      ]
+    },
+    "validitySection": {
+      "until": "本提案有效期至",
+      "noExpiration": "本提案无过期日期。"
+    },
+    "sla": {
+      "channelsTitle": "支持渠道",
+      "channels": [
+        "verifik.co 在线聊天",
+        "邮箱：support@verifik.co",
+        "WhatsApp 客服",
+        "Discord 客服"
+      ],
+      "hoursTitle": "服务时间",
+      "hours": "周一至周五，哥伦比亚时间 8:00–17:00。",
+      "severityTitle": "严重级别",
+      "severities": [
+        "严重：服务完全不可用。",
+        "紧急：所有用例中特定功能失效。",
+        "中等：特定用例中功能失效。",
+        "一般：不影响服务可用性的一般咨询。"
+      ],
+      "responseTitle": "响应时间",
+      "responseHeaders": ["严重级别", "受理", "初审", "升级", "解决"],
+      "responseRows": {
+        "critical": ["严重", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
+        "urgent": ["紧急", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
+        "medium": ["中等", "1 小时", "1 小时", "0.5 小时", "96 小时"],
+        "normal": ["一般", "1 小时", "1 小时", "0.5 小时", "96 小时"]
+      },
+      "availabilityTitle": "平台可用性",
+      "availabilityHeaders": ["产品", "可用性", "备注"],
+      "availabilityRows": {
+        "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 依赖政府数据源"],
+        "smartAccessComm": ["SmartAccess（邮箱/电话）", "99.0%", ""],
+        "smartAccessBio": ["SmartAccess（生物识别）", "98.0%", ""],
+        "smartEnrollComm": ["SmartEnroll（邮箱/电话）", "99.0%", ""],
+        "smartEnrollBio": ["SmartEnroll（生物识别）", "98.0%", ""],
+        "smartEnrollDoc": ["SmartEnroll（文档扫描）", "98.0%", ""],
+        "smartEnrollDataApi": ["SmartEnroll（DB Screening）", "90.0%", "DB Screening — 依赖政府数据源"]
+      },
+      "definitionsTitle": "定义",
+      "definitions": [
+        "受理：从提交请求到分配客服专员的时间。",
+        "初审：从客服问候到首次针对请求的回复的时间。",
+        "升级：从客服升级案件到被升级人员审核的时间；仅在需要升级时适用。",
+        "解决：从客服问候到案件解决的时间。"
+      ],
+      "responseNote": "说明：48 小时表示我们可能根据事件复杂度，最多用 48 小时解决。响应时间从用户最后一条消息起算。",
+      "compensationTitle": "停机补偿",
+      "compensationIntro": "受影响月份将按无效服务调用成本提供等值额度补偿。若因 Verifik 内部问题（数据库、服务器、内部 API）导致不可用且未有效解决，Verifik 将按以下方式补偿：",
+      "compensationHeaders": ["服务可用性", "额度补偿", "产品"],
+      "compensationRows": {
+        "dataApiHigh": ["DB Screening — 90.0% 及以上", "无补偿", "SmartCheck"],
+        "dataApiLow": ["DB Screening — 89.99% 及以下", "补偿", "SmartCheck"],
+        "emailTelHigh": ["邮箱/电话 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+        "emailTelLow": ["邮箱/电话 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
+        "biometricsHigh": ["生物识别 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+        "biometricsLow": ["生物识别 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
+        "docScanHigh": ["文档扫描 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
+        "docScanLow": ["文档扫描 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"]
+      },
+      "compensationDisclaimer": "DB Screening 内部服务问题不包括不可抗力（迁移、断连或托管数据库政府外部干预）。Verifik 为中间方，不控制或更新所查询的政府数据库。",
+      "billingTitle": "SmartCheck 计费方案",
+      "billingIntro": "本计费方案适用于 smartCHECK 政府数据库查询服务。Verifik 并非所服务国家政府数据库的所有者、管理者或责任方；因此不保证响应时间、平均可用性或数据准确性。",
+      "billingTableTitle": "可计费与不可计费 HTTP 状态码",
+      "billingHeaders": ["可计费", "不可计费"],
+      "billingRows": {
+        "codes": ["200, 404", "403, 409, 412, 422, 500"]
+      },
+      "maintenanceTitle": "计划维护",
+      "maintenance": "计划维护在夜间及周末进行，并提前通过邮件通知用户。",
+      "adaptationsTitle": "适配或新开发",
+      "adaptations": "因用户通过 API 集成的系统发生意外变更而需新适配的开发时间，将依所需变更而定，不计入平台停机时间。"
+    },
+    "footer": {
+      "tagline": "身份验证与数据服务",
+      "legalEntity": "VERIFIK LLC — 加速数字信任",
+      "email": "info@verifik.co",
+      "website": "verifik.co"
+    }
   }
 }
