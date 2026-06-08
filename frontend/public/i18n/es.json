@@ -6066,5 +6066,222 @@
     },
     "emptySinister": "Sin historial de siniestros registrado",
     "emptyAgreements": "Sin acuerdos de pago registrados"
+  },
+  "proposal": {
+    "loading": "Cargando tu propuesta…",
+    "error": "Este enlace de propuesta no es válido o ha expirado.",
+    "brand": "Verifik",
+    "title": "Propuesta comercial",
+    "preparedFor": "Preparada para",
+    "volume": "Volumen mensual esperado",
+    "recommendedPlan": "Plan recomendado",
+    "table": {
+      "service": "Servicio",
+      "planMinimum": "Mínimo del plan",
+      "usageCost": "Uso a tarifa promedio",
+      "usageCostHint": "{{volume}} consultas × precio unitario promedio",
+      "quotedTotal": "Total mensual cotizado",
+      "quotedTotalHint": "Mínimo del plan o uso — el mayor",
+      "original": "Original",
+      "ourOffer": "Nuestra oferta",
+      "yourPrice": "Tu precio"
+    },
+    "tiers": {
+      "starter": "Starter",
+      "basic": "Basic",
+      "plus": "Plus",
+      "business": "Business",
+      "enterprise": "Enterprise"
+    },
+    "banners": {
+      "acceptedTitle": "Has aceptado esta propuesta",
+      "acceptedOn": " el {{date}}",
+      "acceptedHint": "Puedes retirar tu aceptación o enviar una contraoferta con precios diferentes.",
+      "counterTitle": "Contraoferta enviada",
+      "counterOn": " el {{date}}",
+      "counterHint": "Puedes enviar una contraoferta revisada si lo necesitas."
+    },
+    "actions": {
+      "accept": "Aceptar propuesta",
+      "withdraw": "Retirar aceptación",
+      "sendCounter": "Enviar contraoferta",
+      "reviseCounter": "Revisar contraoferta",
+      "downloadPdf": "Descargar PDF",
+      "printPdf": "Imprimir"
+    },
+    "counter": {
+      "title": "Tu contraoferta",
+      "hint": "Edita los precios en la columna {{tier}} arriba y cuéntanos qué te funcionaría mejor.",
+      "placeholder": "Cuéntanos qué te funcionaría mejor…",
+      "cancel": "Cancelar",
+      "submit": "Enviar contraoferta"
+    },
+    "language": "Idioma",
+    "expiration": {
+      "validUntil": "Válida hasta",
+      "noExpiration": "Sin fecha de vencimiento"
+    },
+    "revisions": {
+      "title": "Revisiones",
+      "createdOn": "Cotización creada el {{date}}",
+      "updatedDaysLater": "Precios modificados {{days}} días después, el {{date}}"
+    },
+    "paymentOptions": {
+      "title": "Opciones de pago",
+      "basedOnMonthly": "Basado en la cotización mensual del plan {{tier}}",
+      "plan": "Plan",
+      "period": "Periodo de servicio",
+      "total": "Total a pagar",
+      "notes": "Notas",
+      "months": "{{count}} meses",
+      "annualFreeMonths": "2 meses gratis",
+      "annualQueries": "{{count}} consultas anuales",
+      "types": {
+        "monthly": "Plan mensual",
+        "quarterly": "Plan trimestral (3 meses)",
+        "semi_annual": "Plan semestral (6 meses)",
+        "annual": "Suscripción anual"
+      }
+    },
+    "sections": {
+      "scope": "1. Solución de catálogo",
+      "sla": "2. Acuerdo de niveles de servicio (SLA)",
+      "commercial": "3. Propuesta comercial",
+      "generalities": "4. Generalidades",
+      "validity": "5. Vigencia de la propuesta"
+    },
+    "cover": {
+      "version": "Versión",
+      "revised": "Revisión",
+      "subject": "Asunto",
+      "defaultIntro": "Verifik presenta la siguiente propuesta comercial para {{company}}.",
+      "defaultIntroGeneric": "Verifik presenta la siguiente propuesta comercial para su consideración."
+    },
+    "scope": {
+      "intro": "El catálogo tiene como fin presentar las soluciones basadas en APIs que tiene Verifik para permitir a su empresa optimizar el flujo de consultas públicas gubernamentales.",
+      "sampleTitle": "Alcance de catálogo (Muestra)",
+      "implementationTitle": "Implementación: API",
+      "implementationBody": "Proceso de implementación e integración de las soluciones ofrecidas por Verifik de forma granular a través de APIs. Esta opción requiere de parte del equipo técnico de {{company}} una mayor dedicación en el proceso de desarrollo tanto en Backend como en Frontend para el funcionamiento de las soluciones de acuerdo con la necesidad del proyecto.",
+      "countries": "Países cubiertos",
+      "endpoints": "Endpoints seleccionados",
+      "categories": "Categorías",
+      "docsLink": "Ver documentación técnica"
+    },
+    "commercial": {
+      "monthlyOptionTitle": "Opción 1: Suscripción plan mensual",
+      "monthlySubtitle": "Estas tarifas aplican para planes mensuales.",
+      "monthlyNotes": [
+        "Los servicios que ofrece Verifik son de manera granular, por lo que ustedes pueden adicionar o depurar las APIs que deseen consumir.",
+        "La suscripción del plan mensual renueva el saldo cada mes por el mismo valor.",
+        "Todos los valores están expresados en dólares.",
+        "En caso de consumir todos los créditos, se podrá realizar una recarga mínima de 100 USD; los precios se regirán por el valor pactado en la oferta comercial y el plan actual activo.",
+        "En caso de no consumir los créditos en la vigencia, estos no serán acumulables y se renovarán según el plan aceptado mensual."
+      ],
+      "annualOptionTitle": "Opción 2: Plan anual",
+      "annualSubtitle": "Esta tarifa aplica para planes anuales.",
+      "annualNotes": [
+        "Los servicios que ofrece Verifik son de manera granular, por lo que ustedes pueden adicionar o depurar las APIs que deseen consumir.",
+        "Todos los valores están expresados en dólares.",
+        "Los planes anuales se suscriben con un único pago por el año; el total del plan se carga en su totalidad a la cuenta del cliente y hará uso de su bolsa de créditos de acuerdo con su necesidad durante los 365 días de vigencia del plan.",
+        "En caso de consumir todos los créditos, se podrá realizar una recarga mínima de 100 USD; los precios se regirán por el valor pactado en la oferta comercial y el plan actual activo.",
+        "En caso de consumir todos los créditos antes del vencimiento se podrá realizar una nueva negociación anual.",
+        "En caso de no consumir los créditos en la vigencia, se podrá otorgar un mes adicional al año para poder consumir los créditos."
+      ],
+      "additionalsTitle": "Adicionales",
+      "additionals": [
+        "Los costos de implementación e integración con el acompañamiento del equipo de desarrollo de Verifik son: USD 30/hora, USD 2.000/semana, USD 5.000/mes.",
+        "El tiempo de implementación dependerá del esfuerzo de su equipo técnico y el apoyo que requieran del equipo de Verifik. En nuestra experiencia, una implementación puede tardar alrededor de una semana dedicando gran parte de la jornada del día a día. También se debe tener en cuenta la solución que deseen implementar: si es Code, su equipo técnico deberá integrar las APIs que deseen consultar; si es No-code, pueden utilizar la herramienta ya diseñada.",
+        "Soporte y consultoría será gratuito en horarios de oficina: L–V 8:00 a 17:00.",
+        "Soporte y consultoría 24/7 tiene un costo de USD 1.000 mensuales.",
+        "El valor del licenciamiento es equivalente al 10% del contrato anual (aplica para planes anuales)."
+      ]
+    },
+    "generalities": {
+      "items": [
+        "Say Shannon Colombia SAS (Verifik) se encuentra en la última etapa del proceso para la certificación bajo la norma ISO 27001.",
+        "Aplica la política de tratamiento de datos.",
+        "Aplican los acuerdos de niveles de servicio."
+      ]
+    },
+    "validitySection": {
+      "until": "Esta propuesta es válida hasta",
+      "noExpiration": "Esta propuesta no tiene fecha de vencimiento."
+    },
+    "sla": {
+      "channelsTitle": "Canales de atención",
+      "channels": [
+        "Chat en verifik.co",
+        "Correo: support@verifik.co",
+        "WhatsApp de servicio al cliente",
+        "Discord de servicio al cliente"
+      ],
+      "hoursTitle": "Horarios de atención",
+      "hours": "Lunes a viernes, 8:00 AM – 5:00 PM hora Colombia.",
+      "severityTitle": "Niveles de criticidad",
+      "severities": [
+        "Crítico: Indisponibilidad total del servicio.",
+        "Urgente: Pérdida de funcionalidad específica para todos los casos de uso.",
+        "Medio: Pérdida de funcionalidad en casos específicos.",
+        "Normal: Solicitudes generales que no afectan la disponibilidad."
+      ],
+      "responseTitle": "Tiempos de respuesta",
+      "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
+      "responseRows": {
+        "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+        "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+        "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
+        "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
+      },
+      "availabilityTitle": "Disponibilidad de la plataforma",
+      "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
+      "availabilityRows": {
+        "smartCheck": ["SmartCheck", "90.0%", "Data API — depende de fuentes gubernamentales"],
+        "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
+        "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
+        "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
+        "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
+        "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
+        "smartEnrollDataApi": ["SmartEnroll (Data API)", "90.0%", "Data API — depende de fuentes gubernamentales"]
+      },
+      "definitionsTitle": "Definiciones",
+      "definitions": [
+        "Atención: Tiempo que transcurre entre la solicitud o requerimiento y la asignación de un agente de servicio.",
+        "Revisión: Tiempo que transcurre entre el saludo del agente y la primera respuesta con respecto a la solicitud o requerimiento.",
+        "Escalamiento: Tiempo que transcurre entre el escalamiento por parte del agente y la revisión del caso por parte de la persona a la cual fue escalado. Solo aplica cuando sea necesario escalar la solicitud.",
+        "Solución: Tiempo que transcurre entre el saludo del agente y el momento en el cual el caso queda resuelto."
+      ],
+      "responseNote": "Nota: 48 hrs refiere a que tomamos hasta 48 horas para solucionar el incidente dependiendo de la complejidad que presenta. Los tiempos de respuesta contarán a partir del último mensaje enviado por el usuario.",
+      "compensationTitle": "Compensación por tiempos de inactividad",
+      "compensationIntro": "La compensación en crédito adjudicado para el mes afectado se proporcionará en forma de un crédito equivalente al costo de la llamada inefectiva del servicio. Si la indisponibilidad del servicio es causada por problemas internos de Verifik (base de datos, servidores, problemas internos de las API) y no es solucionada efectivamente, Verifik compensará de la siguiente manera:",
+      "compensationHeaders": ["Disponibilidad del servicio", "Compensación de crédito", "Producto"],
+      "compensationRows": {
+        "dataApiHigh": ["Data API — 99.0% o mayor", "Sin crédito", "SmartCheck"],
+        "dataApiLow": ["Data API — 89.99% o menor", "Compensación", "SmartCheck"],
+        "emailTelHigh": ["Email / Tel — 99.00% o mayor", "Sin crédito", "SmartAccess, SmartEnroll"],
+        "emailTelLow": ["Email / Tel — 98.99% o menor", "Compensación", "SmartAccess, SmartEnroll"],
+        "biometricsHigh": ["Biometrics — 99.00% o mayor", "Sin crédito", "SmartAccess, SmartEnroll"],
+        "biometricsLow": ["Biometrics — 98.99% o menor", "Compensación", "SmartAccess, SmartEnroll"],
+        "docScanHigh": ["Escaneo de documentos — 99.00% o mayor", "Sin crédito", "SmartAccess, SmartEnroll"],
+        "docScanLow": ["Escaneo de documentos — 98.99% o menor", "Compensación", "SmartAccess, SmartEnroll"]
+      },
+      "compensationDisclaimer": "Problemas internos del servicio de Data API (consulta de datos) excluye problemas considerados por fuerza mayor (casos fortuitos), ya sea por migración, desconexión o intervención externa de los gobiernos que custodian las bases de datos. Verifik es un intermediario y no posee la potestad ni el control de las bases de datos consultadas.",
+      "billingTitle": "Esquema de cobro por servicio SmartCheck",
+      "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
+      "billingTableTitle": "Códigos HTTP facturables",
+      "billingHeaders": ["Cobro", "Ausente de cobro"],
+      "billingRows": {
+        "codes": ["200, 404", "403, 409, 412, 422, 500"]
+      },
+      "maintenanceTitle": "Mantenimiento programado",
+      "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",
+      "adaptationsTitle": "Adaptaciones o desarrollos nuevos",
+      "adaptations": "Los tiempos para el desarrollo de adaptaciones nuevas, por cambios inesperados por parte de los sistemas de los usuarios que se integran vía API con la plataforma, serán variables de acuerdo con los cambios requeridos por el usuario y no contarán como tiempos de inactividad de la plataforma."
+    },
+    "footer": {
+      "tagline": "Verificación de identidad y servicios de datos",
+      "legalEntity": "VERIFIK LLC — Acelerando confianza digital",
+      "email": "info@verifik.co",
+      "website": "verifik.co"
+    }
   }
 }

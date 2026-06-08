@@ -4,7 +4,17 @@ import { Observable } from 'rxjs';
 
 import { environment } from 'environments/environment';
 
+import { ProposalPaymentOption } from './proposal-payment.util';
+
 export type ProposalTier = 'starter' | 'basic' | 'plus' | 'business' | 'enterprise';
+
+export interface ProposalUnitPrices {
+    starter?: number;
+    basic?: number;
+    plus?: number;
+    business?: number;
+    enterprise?: number;
+}
 
 export interface PublicProposal {
     _id: string;
@@ -13,16 +23,19 @@ export interface PublicProposal {
     status: string;
     monthlyVolume: number;
     selectedLineItems: Array<{
+        appFeature?: string;
         serviceName?: string;
         url?: string;
         category?: string;
         country?: string;
-        catalogUnitPrices?: Record<ProposalTier, number>;
-        unitPrices?: Record<ProposalTier, number>;
+        catalogUnitPrices?: ProposalUnitPrices;
+        unitPrices?: ProposalUnitPrices;
         selected?: boolean;
     }>;
     recommendedTier: ProposalTier;
     salesOverrideTier?: ProposalTier;
+    enabledPaymentTypes?: Array<'monthly' | 'quarterly' | 'semi_annual' | 'annual'>;
+    paymentOptions?: ProposalPaymentOption[];
     pricingSummary?: Record<
         ProposalTier,
         {
@@ -36,7 +49,37 @@ export interface PublicProposal {
             totalMonthlyEstimate: number;
         }
     >;
-    counterOffer?: { message?: string; submittedAt?: string };
+    viewedAt?: string;
+    acceptedAt?: string;
+    createdAt?: string;
+    expirationPreset?: '1_week' | '2_weeks' | '3_weeks' | '1_month' | 'never';
+    expiresAt?: string | null;
+    pricingRevisions?: Array<{ revisedAt: string }>;
+    language?: string;
+    documentVersion?: string;
+    subject?: string;
+    coverMessage?: string;
+    includeScopeSection?: boolean;
+    includeSlaSection?: boolean;
+    includeGeneralitiesSection?: boolean;
+    includeCommercialNotes?: boolean;
+    counterOffer?: {
+        message?: string;
+        monthlyVolume?: number;
+        preferredTier?: ProposalTier;
+        lineItems?: Array<{
+            appFeature?: string;
+            unitPrices?: ProposalUnitPrices;
+        }>;
+        pricingSummary?: PublicProposal['pricingSummary'];
+        paymentOptions?: ProposalPaymentOption[];
+        submittedAt?: string;
+    };
+}
+
+export interface CounterOfferLineItem {
+    appFeature: string;
+    unitPrices: ProposalUnitPrices;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,18 +92,45 @@ export class ProposalPublicService {
         );
     }
 
+    calculatePreview(
+        token: string,
+        lineItems: CounterOfferLineItem[]
+    ): Observable<{
+        data: {
+            pricingSummary: PublicProposal['pricingSummary'];
+            recommendedTier: ProposalTier;
+            paymentOptions?: ProposalPaymentOption[];
+        };
+    }> {
+        return this._http.post<{
+            data: {
+                pricingSummary: PublicProposal['pricingSummary'];
+                recommendedTier: ProposalTier;
+                paymentOptions?: ProposalPaymentOption[];
+            };
+        }>(
+            `${environment.apiUrl}/v2/public/proposals/${token}/calculate`,
+            { lineItems }
+        );
+    }
+
     respond(
         token: string,
         body: {
-            action: 'accept' | 'counter_offer';
+            action: 'accept' | 'counter_offer' | 'revoke_acceptance';
             message?: string;
             monthlyVolume?: number;
             preferredTier?: string;
+            lineItems?: CounterOfferLineItem[];
         }
-    ): Observable<{ status: string; data: { status: string } }> {
-        return this._http.post<{ status: string; data: { status: string } }>(
+    ): Observable<{ status: string; data: Record<string, unknown> }> {
+        return this._http.post<{ status: string; data: Record<string, unknown> }>(
             `${environment.apiUrl}/v2/public/proposals/${token}/respond`,
             body
         );
+    }
+
+    getPdfUrl(token: string, lang: string): string {
+        return `${environment.apiUrl}/v2/public/proposals/${token}/pdf?lang=${encodeURIComponent(lang)}`;
     }
 }

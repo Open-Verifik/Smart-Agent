@@ -1,43 +1,336 @@
-<div class="min-h-screen bg-stone-50 dark:bg-zinc-950 px-4 py-10">
-    <div class="mx-auto max-w-5xl">
+<div class="min-h-screen bg-stone-50 px-4 py-10 print:m-0 print:p-0 dark:bg-zinc-950">
+    <div class="mx-auto max-w-5xl print:mx-0 print:max-w-none">
         <div *ngIf="loading" class="rounded-2xl border border-stone-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
-            <p class="text-sm text-stone-500">Loading your proposal…</p>
+            <p class="text-sm text-stone-500">{{ 'proposal.loading' | transloco }}</p>
         </div>
 
         <div *ngIf="error && !loading" class="rounded-2xl border border-stone-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-900/70">
-            <p class="text-sm text-stone-600">This proposal link is invalid or has expired.</p>
+            <p class="text-sm text-stone-600">{{ 'proposal.error' | transloco }}</p>
         </div>
 
         <ng-container *ngIf="proposal && !loading">
-            <header class="mb-8 text-center">
-                <p class="text-xs font-medium uppercase tracking-wider text-stone-500">Verifik</p>
-                <h1 class="mt-2 text-3xl font-semibold tracking-tight text-stone-900 dark:text-white">
-                    Commercial proposal
-                </h1>
-                <p *ngIf="getRecipientName()" class="mt-2 text-sm text-stone-500">
-                    Prepared for: {{ getRecipientName() }}
+            <article class="proposal-letterhead overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm print:overflow-visible print:rounded-none print:border-0 print:shadow-none dark:border-zinc-800 dark:bg-zinc-900/70">
+                <div class="proposal-letterhead__accent h-1 bg-gradient-to-r from-verifikBrand-600 to-verifikBrand-400 print:hidden" aria-hidden="true"></div>
+
+                <div class="px-5 py-6 sm:px-8 sm:py-8 print:p-0">
+                    <div class="proposal-letterhead__toolbar mb-6 flex flex-wrap items-center justify-end gap-3 print:hidden">
+                        <button
+                            type="button"
+                            class="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-700 dark:border-zinc-700 dark:text-zinc-200"
+                            (click)="printPdf()"
+                        >
+                            {{ 'proposal.actions.printPdf' | transloco }}
+                        </button>
+                        <button
+                            type="button"
+                            class="rounded-lg bg-stone-950 px-3 py-1.5 text-xs font-medium text-white dark:bg-white dark:text-zinc-950"
+                            (click)="downloadPdf()"
+                        >
+                            {{ 'proposal.actions.downloadPdf' | transloco }}
+                        </button>
+                        <label class="flex items-center gap-2 text-xs text-stone-500" for="proposal-language">
+                            <span>{{ 'proposal.language' | transloco }}</span>
+                            <select
+                                id="proposal-language"
+                                class="rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs text-stone-700 dark:border-zinc-700 dark:bg-zinc-900/70 dark:text-zinc-200"
+                                [value]="activeLang"
+                                (change)="setLanguage($any($event.target).value)"
+                            >
+                                <option *ngFor="let lang of availableLanguages" [value]="lang">
+                                    {{ languageLabels[lang] }}
+                                </option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="proposal-letterhead__print-banner hidden print:block">
+                        <div class="proposal-letterhead__accent proposal-letterhead__accent--print h-1" aria-hidden="true"></div>
+                        <div class="border-b border-stone-200 pb-3 pt-3 text-center">
+                            <img
+                                class="proposal-letterhead__print-logo mx-auto h-10 w-auto max-w-[160px]"
+                                src="/images/logo/logo_verifik_brand.svg"
+                                [alt]="'proposal.brand' | transloco"
+                            />
+                            <p class="mt-1.5 text-xs text-stone-500">
+                                {{ 'proposal.footer.legalEntity' | transloco }}
+                            </p>
+                            <p class="text-xs text-stone-500">
+                                {{ 'proposal.footer.email' | transloco }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <header class="proposal-letterhead__header mb-8 text-center print:mb-3 print:pt-3">
+                        <a
+                            class="proposal-letterhead__logo inline-flex justify-center transition-opacity hover:opacity-80 print:hidden"
+                            href="https://verifik.co"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <img
+                                class="proposal-letterhead__logo-light h-10 w-auto max-w-[160px] dark:hidden print:block"
+                                src="/images/logo/logo_verifik_brand.svg"
+                                [alt]="'proposal.brand' | transloco"
+                            />
+                            <img
+                                class="proposal-letterhead__logo-dark hidden h-10 w-auto max-w-[160px] dark:block print:hidden"
+                                src="/images/logo/logo_verifik_brand_on_dark.svg"
+                                [alt]="'proposal.brand' | transloco"
+                            />
+                        </a>
+                        <h1 class="mt-5 text-3xl font-semibold tracking-tight text-stone-900 print:mt-2 print:text-2xl dark:text-white">
+                            {{ 'proposal.title' | transloco }}
+                        </h1>
+
+                        <div
+                            *ngIf="proposal.documentVersion || getLatestRevisionDateValue() || getDocumentSubject()"
+                            class="proposal-letterhead__metadata mt-4 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-stone-500"
+                        >
+                            <span *ngIf="proposal.documentVersion">
+                                {{ 'proposal.cover.version' | transloco }}: {{ proposal.documentVersion }}
+                            </span>
+                            <span *ngIf="getLatestRevisionDateValue()">
+                                {{ 'proposal.cover.revised' | transloco }}: {{ formatDateTime(getLatestRevisionDateValue()) }}
+                            </span>
+                            <span *ngIf="getDocumentSubject()">
+                                {{ 'proposal.cover.subject' | transloco }}: {{ getDocumentSubject() }}
+                            </span>
+                        </div>
+                    </header>
+
+                    <section
+                        *ngIf="showAddresseeBlock() || getCoverMessage()"
+                        class="proposal-letterhead__cover-letter mb-8 text-left print:mb-4"
+                    >
+                        <div *ngIf="showAddresseeBlock()" class="proposal-letterhead__addressee">
+                            <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">
+                                {{ 'proposal.preparedFor' | transloco }}
+                            </p>
+                            <p
+                                *ngIf="getRecipientCompany()"
+                                class="mt-2 text-lg font-semibold leading-snug text-stone-900 dark:text-white"
+                            >
+                                {{ getRecipientCompany() }}
+                            </p>
+                            <p
+                                *ngIf="getRecipientContactLine()"
+                                class="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-300"
+                            >
+                                {{ getRecipientContactLine() }}
+                            </p>
+                        </div>
+
+                        <p
+                            *ngIf="getCoverMessage()"
+                            class="proposal-letterhead__cover-message text-sm leading-7 text-stone-600 dark:text-stone-300"
+                            [class.mt-5]="showAddresseeBlock()"
+                        >
+                            {{ getCoverMessage() }}
+                        </p>
+                    </section>
+
+            <section *ngIf="showRevisionHistory()" class="proposal-letterhead__revisions mb-6 rounded-2xl border border-stone-200/90 bg-white p-4 text-sm print:hidden dark:border-zinc-800 dark:bg-zinc-900/70">
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-stone-500">{{ 'proposal.revisions.title' | transloco }}</h2>
+                <ul class="mt-2 space-y-1 text-stone-600 dark:text-stone-300">
+                    <li *ngIf="proposal.createdAt">
+                        {{ 'proposal.revisions.createdOn' | transloco: { date: formatDateTime(proposal.createdAt) } }}
+                    </li>
+                    <li *ngFor="let revision of revisionTimeline">
+                        {{ 'proposal.revisions.updatedDaysLater' | transloco: {
+                            days: revision.daysSinceCreated,
+                            date: formatDateTime(revision.revisedAt)
+                        } }}
+                    </li>
+                </ul>
+            </section>
+
+            <div *ngIf="isAccepted()" class="proposal-letterhead__banner mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 print:hidden dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+                <p class="font-medium">
+                    {{ 'proposal.banners.acceptedTitle' | transloco }}<span *ngIf="proposal.acceptedAt">{{ 'proposal.banners.acceptedOn' | transloco: { date: formatDateTime(proposal.acceptedAt) } }}</span>.
                 </p>
-            </header>
+                <p class="mt-1 text-emerald-800 dark:text-emerald-300">{{ 'proposal.banners.acceptedHint' | transloco }}</p>
+            </div>
+
+            <div *ngIf="isCounterOfferSubmitted() && !showCounterForm" class="proposal-letterhead__banner mb-6 rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900 print:hidden dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-200">
+                <p class="font-medium">
+                    {{ 'proposal.banners.counterTitle' | transloco }}<span *ngIf="proposal.counterOffer?.submittedAt">{{ 'proposal.banners.counterOn' | transloco: { date: formatDateTime(proposal.counterOffer?.submittedAt) } }}</span>.
+                </p>
+                <p *ngIf="proposal.counterOffer?.message" class="mt-2 text-orange-800 dark:text-orange-100">{{ proposal.counterOffer?.message }}</p>
+                <p class="mt-2 text-orange-800 dark:text-orange-300">{{ 'proposal.banners.counterHint' | transloco }}</p>
+            </div>
+
+            <section
+                *ngIf="showScopeSection() && scopeSummary as scope"
+                class="proposal-letterhead__section proposal-letterhead__scope proposal-letterhead__section--print mb-6 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm print:mb-4 print:p-4 print:shadow-none dark:border-zinc-800 dark:bg-zinc-900/70"
+            >
+                <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">{{ 'proposal.sections.scope' | transloco }}</p>
+                <p class="mt-3 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{{ 'proposal.scope.intro' | transloco }}</p>
+                <h3 class="mt-4 text-sm font-semibold text-stone-900 dark:text-white">{{ 'proposal.scope.sampleTitle' | transloco }}</h3>
+                <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                    <div>
+                        <p class="text-xs text-stone-500">{{ 'proposal.scope.countries' | transloco }}</p>
+                        <p class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ scope.countries.join(', ') || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-stone-500">{{ 'proposal.scope.endpoints' | transloco }}</p>
+                        <p class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ scope.endpointCount | number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-stone-500">{{ 'proposal.scope.categories' | transloco }}</p>
+                        <p class="mt-1 text-sm font-medium text-stone-900 dark:text-white">{{ scope.categories.join(', ') || '—' }}</p>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h4 class="text-sm font-semibold text-stone-900 dark:text-white">{{ 'proposal.scope.implementationTitle' | transloco }}</h4>
+                    <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{{ getScopeImplementationBody() }}</p>
+                </div>
+                <a
+                    class="mt-4 inline-flex text-sm font-medium text-verifikBrand-600 hover:text-verifikBrand-700 print:hidden dark:text-verifikBrand-400"
+                    href="https://docs.verifik.co"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ 'proposal.scope.docsLink' | transloco }} →
+                </a>
+            </section>
+
+            <section
+                *ngIf="showSlaSection()"
+                class="proposal-letterhead__section proposal-letterhead__sla proposal-letterhead__section--breakable mb-6 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm print:mb-4 print:p-4 print:shadow-none dark:border-zinc-800 dark:bg-zinc-900/70"
+            >
+                <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">{{ 'proposal.sections.sla' | transloco }}</p>
+
+                <div class="mt-4 space-y-6 text-sm text-stone-600 dark:text-stone-300">
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.channelsTitle' | transloco }}</h3>
+                        <ul class="mt-2 list-disc space-y-1 pl-5">
+                            <li *ngFor="let channel of getTranslationArray('proposal.sla.channels')">{{ channel }}</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.hoursTitle' | transloco }}</h3>
+                        <p class="mt-2">{{ 'proposal.sla.hours' | transloco }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.severityTitle' | transloco }}</h3>
+                        <ul class="mt-2 list-disc space-y-1 pl-5">
+                            <li *ngFor="let severity of getTranslationArray('proposal.sla.severities')">{{ severity }}</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.responseTitle' | transloco }}</h3>
+                        <p class="mt-2 text-xs font-medium text-stone-500">{{ 'proposal.sla.definitionsTitle' | transloco }}</p>
+                        <ul class="mt-2 list-disc space-y-1 pl-5">
+                            <li *ngFor="let definition of getTranslationArray('proposal.sla.definitions')">{{ definition }}</li>
+                        </ul>
+                        <div class="proposal-letterhead__sla-table mt-4 overflow-x-auto">
+                            <table class="mt-2 min-w-full text-left text-xs">
+                                <thead class="border-b border-stone-200 bg-stone-50 text-stone-500 dark:border-zinc-800 dark:bg-zinc-900/40">
+                                    <tr>
+                                        <th *ngFor="let header of getTranslationArray('proposal.sla.responseHeaders')" class="px-3 py-2">{{ header }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let rowKey of slaResponseRowKeys" class="border-b border-stone-100 dark:border-zinc-800">
+                                        <td *ngFor="let cell of getSlaResponseRow(rowKey)" class="px-3 py-2">{{ cell }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="mt-3 text-sm text-stone-600 dark:text-stone-300">{{ 'proposal.sla.responseNote' | transloco }}</p>
+                    </div>
+
+                    <div class="proposal-letterhead__sla-table overflow-x-auto">
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.availabilityTitle' | transloco }}</h3>
+                        <table class="mt-2 min-w-full text-left text-xs">
+                            <thead class="border-b border-stone-200 bg-stone-50 text-stone-500 dark:border-zinc-800 dark:bg-zinc-900/40">
+                                <tr>
+                                    <th *ngFor="let header of getTranslationArray('proposal.sla.availabilityHeaders')" class="px-3 py-2">{{ header }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let rowKey of slaAvailabilityRowKeys" class="border-b border-stone-100 dark:border-zinc-800">
+                                    <td *ngFor="let cell of getSlaAvailabilityRow(rowKey)" class="px-3 py-2">{{ cell }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="proposal-letterhead__sla-table overflow-x-auto">
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.compensationTitle' | transloco }}</h3>
+                        <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">{{ 'proposal.sla.compensationIntro' | transloco }}</p>
+                        <table class="mt-3 min-w-full text-left text-xs">
+                            <thead class="border-b border-stone-200 bg-stone-50 text-stone-500 dark:border-zinc-800 dark:bg-zinc-900/40">
+                                <tr>
+                                    <th *ngFor="let header of getTranslationArray('proposal.sla.compensationHeaders')" class="px-3 py-2">{{ header }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let rowKey of slaCompensationRowKeys" class="border-b border-stone-100 dark:border-zinc-800">
+                                    <td *ngFor="let cell of getSlaCompensationRow(rowKey)" class="px-3 py-2">{{ cell }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="mt-3 text-sm text-stone-600 dark:text-stone-300">{{ 'proposal.sla.compensationDisclaimer' | transloco }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.billingTitle' | transloco }}</h3>
+                        <p class="mt-2 text-sm text-stone-600 dark:text-stone-300">{{ 'proposal.sla.billingIntro' | transloco }}</p>
+                        <div class="proposal-letterhead__sla-table mt-3 overflow-x-auto">
+                            <h4 class="text-sm font-medium text-stone-800 dark:text-stone-200">{{ 'proposal.sla.billingTableTitle' | transloco }}</h4>
+                            <table class="mt-2 min-w-full text-left text-xs">
+                                <thead class="border-b border-stone-200 bg-stone-50 text-stone-500 dark:border-zinc-800 dark:bg-zinc-900/40">
+                                    <tr>
+                                        <th *ngFor="let header of getTranslationArray('proposal.sla.billingHeaders')" class="px-3 py-2">{{ header }}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let rowKey of slaBillingRowKeys" class="border-b border-stone-100 dark:border-zinc-800">
+                                        <td *ngFor="let cell of getSlaBillingRow(rowKey)" class="px-3 py-2">{{ cell }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.maintenanceTitle' | transloco }}</h3>
+                        <p class="mt-2">{{ 'proposal.sla.maintenance' | transloco }}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold text-stone-900 dark:text-white">{{ 'proposal.sla.adaptationsTitle' | transloco }}</h3>
+                        <p class="mt-2">{{ 'proposal.sla.adaptations' | transloco }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="proposal-letterhead__section proposal-letterhead__commercial mb-6">
+                <p class="mb-4 text-xs font-semibold uppercase tracking-wide text-stone-500">{{ 'proposal.sections.commercial' | transloco }}</p>
 
             <div class="mb-6 grid gap-4 sm:grid-cols-2">
                 <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70">
-                    <p class="text-xs text-stone-500">Expected monthly volume</p>
+                    <p class="text-xs text-stone-500">{{ 'proposal.volume' | transloco }}</p>
                     <p class="text-2xl font-semibold text-stone-900 dark:text-white">{{ proposal.monthlyVolume | number }}</p>
                 </div>
                 <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm ring-1 ring-stone-300 dark:border-zinc-800 dark:bg-zinc-900/70 dark:ring-zinc-600">
-                    <p class="text-xs text-stone-500">Recommended plan</p>
-                    <p class="text-2xl font-semibold capitalize text-stone-900 dark:text-white">{{ getEffectiveTier() }}</p>
+                    <p class="text-xs text-stone-500">{{ 'proposal.recommendedPlan' | transloco }}</p>
+                    <p class="text-2xl font-semibold text-stone-900 dark:text-white">{{ getTierLabel(getEffectiveTier()) }}</p>
                 </div>
             </div>
 
-            <section class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70">
+            <div class="proposal-letterhead__pricing overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm print:overflow-visible print:shadow-none dark:border-zinc-800 dark:bg-zinc-900/70">
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-left text-sm">
                         <thead class="border-b border-stone-200 bg-stone-100/80 text-xs uppercase text-stone-600 dark:border-zinc-800 dark:bg-zinc-900">
                             <tr>
-                                <th class="px-4 py-3">Service</th>
+                                <th class="px-4 py-3">{{ 'proposal.table.service' | transloco }}</th>
                                 <th class="px-4 py-3" *ngFor="let tier of displayTiers" [class.bg-stone-200]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-800': isTierRecommended(tier)}">
-                                    {{ tier | titlecase }}
+                                    {{ getTierLabel(tier) }}
                                 </th>
                             </tr>
                         </thead>
@@ -49,15 +342,53 @@
                                     <p class="text-xs text-stone-500">{{ item.category }} · {{ item.country }}</p>
                                 </td>
                                 <ng-container *ngFor="let tier of displayTiers">
-                                    <td class="px-4 py-3 tabular-nums" [class.bg-stone-50]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-900/50': isTierRecommended(tier)}">
-                                        {{ formatPrice(item.unitPrices?.[tier]) }}
+                                    <td class="px-4 py-3" [class.bg-stone-50]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-900/50': isTierRecommended(tier)}">
+                                        <ng-container *ngIf="showCounterForm && isTierRecommended(tier); else readOnlyCell">
+                                            <p class="text-xs text-stone-400">
+                                                <span class="font-medium">{{ 'proposal.table.original' | transloco }}:</span>
+                                                {{ formatPrice(getOriginalPrice(item, tier)) }}
+                                            </p>
+                                            <p class="text-xs text-stone-500">
+                                                <span class="font-medium">{{ 'proposal.table.ourOffer' | transloco }}:</span>
+                                                {{ formatPrice(getOurOfferPrice(item, tier)) }}
+                                            </p>
+                                            <div class="mt-1 flex items-center gap-0.5">
+                                                <span class="text-xs text-stone-400">$</span>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    class="w-20 rounded-lg border border-stone-200 px-2 py-1 text-sm tabular-nums dark:border-zinc-700 dark:bg-zinc-900/50"
+                                                    [value]="getCounterInputValue(item)"
+                                                    (blur)="onCounterPriceBlur(item, $any($event.target).value)"
+                                                    (keydown.enter)="onCounterPriceBlur(item, $any($event.target).value)"
+                                                />
+                                            </div>
+                                            <p class="mt-0.5 text-xs text-stone-400">{{ 'proposal.table.yourPrice' | transloco }}</p>
+                                        </ng-container>
+                                        <ng-template #readOnlyCell>
+                                            <ng-container *ngIf="isCounterOfferSubmitted() && isTierRecommended(tier) && hasClientCounterPriceChange(item, tier); else simplePrice">
+                                                <p class="tabular-nums font-semibold text-orange-700 dark:text-orange-300">
+                                                    {{ formatPrice(getClientCounterPrice(item, tier)) }}
+                                                </p>
+                                                <p class="text-xs text-stone-400 line-through">
+                                                    {{ 'proposal.table.original' | transloco }}: {{ formatPrice(getOriginalPrice(item, tier)) }}
+                                                </p>
+                                                <p class="text-xs text-stone-500 line-through">
+                                                    {{ 'proposal.table.ourOffer' | transloco }}: {{ formatPrice(getOurOfferPrice(item, tier)) }}
+                                                </p>
+                                            </ng-container>
+                                            <ng-template #simplePrice>
+                                                <p class="tabular-nums">{{ formatPrice(getDisplayPrice(item, tier)) }}</p>
+                                            </ng-template>
+                                        </ng-template>
                                     </td>
                                 </ng-container>
                             </tr>
                         </tbody>
-                        <tfoot *ngIf="proposal.pricingSummary" class="border-t bg-stone-50 text-xs dark:bg-zinc-900/40">
+                        <tfoot *ngIf="activePricingSummary" class="border-t bg-stone-50 text-xs dark:bg-zinc-900/40">
                             <tr>
-                                <td class="px-4 py-2 font-medium text-stone-500">Plan minimum</td>
+                                <td class="px-4 py-2 font-medium text-stone-500">{{ 'proposal.table.planMinimum' | transloco }}</td>
                                 <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-2 tabular-nums text-stone-500" [class.bg-stone-100]="isTierRecommended(tier)">
                                         {{ formatPrice(getSummaryValue(tier, 'planSubscriptionFee')) }}
@@ -66,19 +397,20 @@
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 font-medium text-stone-500">
-                                    <span>Usage at avg. rate</span>
-                                    <span class="mt-0.5 block font-normal text-stone-400">{{ proposal.monthlyVolume | number }} queries × avg. unit price</span>
+                                    <span>{{ 'proposal.table.usageCost' | transloco }}</span>
+                                    <span class="mt-0.5 block font-normal text-stone-400">{{ 'proposal.table.usageCostHint' | transloco: { volume: (proposal.monthlyVolume | number) || '' } }}</span>
                                 </td>
                                 <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-2 tabular-nums text-stone-500" [class.bg-stone-100]="isTierRecommended(tier)">
                                         {{ formatPrice(getSummaryValue(tier, 'usageCost')) }}
+                                        <span *ngIf="calculating && isTierRecommended(tier)" class="ml-1 text-stone-400">…</span>
                                     </td>
                                 </ng-container>
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 font-medium text-stone-900 dark:text-white">
-                                    <span>Quoted monthly total</span>
-                                    <span class="mt-0.5 block font-normal text-stone-400">Plan minimum or usage — whichever is higher</span>
+                                    <span>{{ 'proposal.table.quotedTotal' | transloco }}</span>
+                                    <span class="mt-0.5 block font-normal text-stone-400">{{ 'proposal.table.quotedTotalHint' | transloco }}</span>
                                 </td>
                                 <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-2 text-sm font-semibold tabular-nums" [class.bg-stone-200]="isTierRecommended(tier)" [ngClass]="{'dark:bg-zinc-800': isTierRecommended(tier)}">
@@ -89,39 +421,162 @@
                         </tfoot>
                     </table>
                 </div>
-            </section>
-
-            <div *ngIf="responded" class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-                Thank you. Our team will follow up shortly.
             </div>
 
-            <div *ngIf="!responded && proposal.status !== 'accepted'" class="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div
+                *ngIf="activePaymentOptions.length"
+                class="proposal-letterhead__payment mt-6 overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-zinc-800 dark:bg-zinc-900/70"
+            >
+                <div class="border-b border-stone-200 px-5 py-4 dark:border-zinc-800">
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'proposal.paymentOptions.title' | transloco }}
+                    </h3>
+                    <p class="mt-1 text-xs text-stone-500">
+                        {{ 'proposal.paymentOptions.basedOnMonthly' | transloco: { tier: getTierLabel(getEffectiveTier()) } }}
+                    </p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-sm">
+                        <thead class="border-b border-stone-200 bg-stone-50 text-xs uppercase text-stone-500 dark:border-zinc-800 dark:bg-zinc-900/40">
+                            <tr>
+                                <th class="px-4 py-3">{{ 'proposal.paymentOptions.plan' | transloco }}</th>
+                                <th class="px-4 py-3">{{ 'proposal.paymentOptions.period' | transloco }}</th>
+                                <th class="px-4 py-3">{{ 'proposal.paymentOptions.total' | transloco }}</th>
+                                <th class="px-4 py-3">{{ 'proposal.paymentOptions.notes' | transloco }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let option of activePaymentOptions" class="border-b border-stone-100 dark:border-zinc-800">
+                                <td class="px-4 py-3 font-medium text-stone-900 dark:text-white">
+                                    {{ ('proposal.paymentOptions.types.' + option.type) | transloco }}
+                                </td>
+                                <td class="px-4 py-3 text-stone-600 dark:text-stone-300">
+                                    {{ 'proposal.paymentOptions.months' | transloco: { count: option.monthsInPeriod } }}
+                                </td>
+                                <td class="px-4 py-3 font-semibold tabular-nums text-stone-900 dark:text-white">
+                                    {{ formatPrice(option.totalAmount) }}
+                                </td>
+                                <td class="px-4 py-3 text-xs text-stone-500">
+                                    <span
+                                        *ngIf="isAnnualPaymentOption(option)"
+                                        class="inline-flex rounded-full bg-emerald-50 px-2 py-1 font-medium text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200"
+                                    >
+                                        {{ 'proposal.paymentOptions.annualFreeMonths' | transloco }}
+                                    </span>
+                                    <span *ngIf="option.annualQueryVolume" class="mt-1 block">
+                                        {{ 'proposal.paymentOptions.annualQueries' | transloco: { count: (option.annualQueryVolume | number) || '' } }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div
+                *ngIf="showCommercialNotes()"
+                class="proposal-letterhead__commercial-notes mt-6 space-y-6 text-sm text-stone-600 dark:text-stone-300"
+            >
+                <div>
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">{{ 'proposal.commercial.monthlyOptionTitle' | transloco }}</h3>
+                    <p class="mt-1 text-xs text-stone-500">{{ 'proposal.commercial.monthlySubtitle' | transloco }}</p>
+                    <ul class="mt-3 list-disc space-y-2 pl-5">
+                        <li *ngFor="let note of getTranslationArray('proposal.commercial.monthlyNotes')">{{ note }}</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">{{ 'proposal.commercial.annualOptionTitle' | transloco }}</h3>
+                    <p class="mt-1 text-xs text-stone-500">{{ 'proposal.commercial.annualSubtitle' | transloco }}</p>
+                    <ul class="mt-3 list-disc space-y-2 pl-5">
+                        <li *ngFor="let note of getTranslationArray('proposal.commercial.annualNotes')">{{ note }}</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-stone-900 dark:text-white">{{ 'proposal.commercial.additionalsTitle' | transloco }}</h3>
+                    <ul class="mt-3 list-disc space-y-2 pl-5">
+                        <li *ngFor="let item of getTranslationArray('proposal.commercial.additionals')">{{ item }}</li>
+                    </ul>
+                </div>
+            </div>
+            </section>
+
+            <section
+                *ngIf="showGeneralitiesSection()"
+                class="proposal-letterhead__section proposal-letterhead__generalities mb-6 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70"
+            >
+                <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">{{ 'proposal.sections.generalities' | transloco }}</p>
+                <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-stone-600 dark:text-stone-300">
+                    <li *ngFor="let item of getTranslationArray('proposal.generalities.items')">{{ item }}</li>
+                </ul>
+            </section>
+
+            <section
+                class="proposal-letterhead__section proposal-letterhead__validity mb-6 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/70"
+            >
+                <p class="text-xs font-semibold uppercase tracking-wide text-stone-500">{{ 'proposal.sections.validity' | transloco }}</p>
+                <p *ngIf="hasExpirationDate()" class="mt-3 text-sm text-stone-600 dark:text-stone-300">
+                    {{ 'proposal.validitySection.until' | transloco }} {{ formatDateTime(proposal.expiresAt!) }}.
+                </p>
+                <p *ngIf="isForeverExpiration()" class="mt-3 text-sm text-stone-600 dark:text-stone-300">
+                    {{ 'proposal.validitySection.noExpiration' | transloco }}
+                </p>
+            </section>
+
+            <div *ngIf="canRespond() && !showCounterForm" class="proposal-letterhead__actions mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center print:hidden">
                 <button
+                    *ngIf="!isAccepted() && !isCounterOfferSubmitted()"
                     type="button"
                     class="min-w-[160px] rounded-xl bg-stone-950 px-6 py-3 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-zinc-950"
                     [disabled]="responding"
                     (click)="accept()"
                 >
-                    Accept proposal
+                    {{ 'proposal.actions.accept' | transloco }}
+                </button>
+                <button
+                    *ngIf="isAccepted()"
+                    type="button"
+                    class="min-w-[160px] rounded-xl border border-stone-300 px-6 py-3 text-sm font-medium text-stone-800 disabled:opacity-50 dark:border-zinc-600 dark:text-zinc-200"
+                    [disabled]="responding"
+                    (click)="revokeAcceptance()"
+                >
+                    {{ 'proposal.actions.withdraw' | transloco }}
                 </button>
                 <button
                     type="button"
                     class="min-w-[160px] rounded-xl border border-stone-300 px-6 py-3 text-sm font-medium text-stone-800 dark:border-zinc-600 dark:text-zinc-200"
-                    (click)="showCounterForm = !showCounterForm"
+                    (click)="openCounterForm()"
                 >
-                    Send counter-offer
+                    {{ (isCounterOfferSubmitted() ? 'proposal.actions.reviseCounter' : 'proposal.actions.sendCounter') | transloco }}
                 </button>
             </div>
 
-            <form *ngIf="showCounterForm && !responded" [formGroup]="counterForm" class="mt-6 rounded-2xl border border-stone-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/70" (ngSubmit)="submitCounterOffer()">
-                <p class="text-sm font-medium text-stone-900 dark:text-white">Your counter-offer</p>
-                <textarea formControlName="message" rows="4" class="mt-3 w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900/50" placeholder="Tell us what would work better for you…"></textarea>
-                <div class="mt-4 flex justify-end">
+            <form *ngIf="showCounterForm" [formGroup]="counterForm" class="proposal-letterhead__counter-form mt-6 rounded-2xl border border-stone-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900/70 print:hidden" (ngSubmit)="submitCounterOffer()">
+                <p class="text-sm font-medium text-stone-900 dark:text-white">{{ 'proposal.counter.title' | transloco }}</p>
+                <p class="mt-1 text-xs text-stone-500">{{ 'proposal.counter.hint' | transloco: { tier: getTierLabel(getEffectiveTier()) } }}</p>
+                <textarea formControlName="message" rows="4" class="mt-3 w-full rounded-xl border border-stone-200 px-4 py-2.5 text-sm dark:border-zinc-700 dark:bg-zinc-900/50" [placeholder]="'proposal.counter.placeholder' | transloco"></textarea>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button type="button" class="rounded-xl border border-stone-300 px-4 py-2 text-sm text-stone-700 dark:border-zinc-600 dark:text-zinc-200" (click)="closeCounterForm()">
+                        {{ 'proposal.counter.cancel' | transloco }}
+                    </button>
                     <button type="submit" class="rounded-xl bg-stone-950 px-4 py-2 text-sm text-white disabled:opacity-50 dark:bg-white dark:text-zinc-950" [disabled]="responding || counterForm.invalid">
-                        Submit counter-offer
+                        {{ 'proposal.counter.submit' | transloco }}
                     </button>
                 </div>
             </form>
+
+                    <footer class="proposal-letterhead__footer mt-10 border-t border-stone-200 pt-6 text-center text-xs text-stone-500 dark:border-zinc-800">
+                        <p>{{ 'proposal.footer.tagline' | transloco }}</p>
+                        <a
+                            class="mt-1 inline-block font-medium text-verifikBrand-600 hover:text-verifikBrand-700 dark:text-verifikBrand-400 dark:hover:text-verifikBrand-300"
+                            href="https://verifik.co"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {{ 'proposal.footer.website' | transloco }}
+                        </a>
+                    </footer>
+                </div>
+            </article>
         </ng-container>
     </div>
 </div>

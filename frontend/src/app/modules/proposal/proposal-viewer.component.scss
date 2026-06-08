@@ -1,0 +1,195 @@
+.proposal-letterhead__scope,
+.proposal-letterhead__validity,
+.proposal-letterhead__generalities,
+.proposal-letterhead__commercial-notes {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.proposal-letterhead__sla,
+.proposal-letterhead__section--breakable {
+    break-inside: auto;
+    page-break-inside: auto;
+}
+
+.proposal-letterhead__sla-table tr,
+.proposal-letterhead__pricing tr,
+.proposal-letterhead__payment tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+.proposal-letterhead__print-banner {
+    display: none;
+}
+
+.proposal-letterhead__accent {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+.proposal-letterhead__cover-letter {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+@media print {
+    @page {
+        margin: 0 10mm 10mm;
+        size: auto;
+    }
+
+    :host {
+        display: block;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .min-h-screen,
+    .mx-auto.max-w-5xl {
+        min-height: auto !important;
+        max-width: none !important;
+        background: #fff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .proposal-letterhead {
+        border: none !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .proposal-letterhead__accent--print {
+        display: block !important;
+        height: 4px !important;
+        margin: 0 !important;
+        background: linear-gradient(to right, #2b3af0, #5b69ff) !important;
+    }
+
+    .proposal-letterhead__print-banner {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .proposal-letterhead__print-logo {
+        display: block !important;
+    }
+
+    .proposal-letterhead__logo-dark {
+        display: none !important;
+    }
+
+    .proposal-letterhead__logo-light {
+        display: none !important;
+    }
+
+    .proposal-letterhead__header {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        break-after: avoid;
+        page-break-after: avoid;
+        padding-top: 0 !important;
+    }
+
+    .proposal-letterhead__metadata {
+        margin-top: 0.5rem !important;
+    }
+
+    .proposal-letterhead__cover-letter {
+        margin-top: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .proposal-letterhead__section--print,
+    .proposal-letterhead__scope,
+    .proposal-letterhead__validity,
+    .proposal-letterhead__generalities,
+    .proposal-letterhead__commercial-notes {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .proposal-letterhead__sla,
+    .proposal-letterhead__section--breakable,
+    .proposal-letterhead__commercial {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    .proposal-letterhead__sla-table,
+    .proposal-letterhead__pricing,
+    .proposal-letterhead__payment {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+        overflow: visible !important;
+    }
+
+    .proposal-letterhead__sla-table h3,
+    .proposal-letterhead__section > p:first-child {
+        break-after: avoid;
+        page-break-after: avoid;
+    }
+
+    .proposal-letterhead__sla-table table,
+    .proposal-letterhead__pricing table,
+    .proposal-letterhead__payment table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+
+    .proposal-letterhead__sla-table thead,
+    .proposal-letterhead__pricing thead,
+    .proposal-letterhead__payment thead {
+        display: table-header-group;
+    }
+
+    .proposal-letterhead__sla-table tr,
+    .proposal-letterhead__pricing tr,
+    .proposal-letterhead__payment tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .proposal-letterhead__sla .space-y-6 > div {
+        break-inside: auto;
+        page-break-inside: auto;
+    }
+
+    .overflow-x-auto {
+        overflow: visible !important;
+    }
+
+    .dark\:bg-zinc-900\/70,
+    .dark\:bg-zinc-900,
+    .dark\:bg-zinc-950,
+    .dark\:text-white,
+    .dark\:text-stone-300,
+    .dark\:border-zinc-800 {
+        background: #fff !important;
+        color: #1c1917 !important;
+        border-color: #e7e5e4 !important;
+    }
+
+    .print\:hidden {
+        display: none !important;
+    }
+
+    .hidden.print\:block {
+        display: block !important;
+    }
+}
