@@ -114,7 +114,10 @@ export const resolvePostmanEndpointCopy = (
     const activeLocale = toDocLocale(locale ?? null);
     const activeDoc = pickActiveDocLang(endpoint.docs, locale);
     const enDoc = pickEnglishDocLang(endpoint.docs);
-    const isPartialLocale = activeLocale ? PARTIAL_DOC_LOCALES.has(activeLocale) : false;
+    const preferCatalogOverEnglish =
+        !!activeLocale &&
+        !activeDoc &&
+        (PARTIAL_DOC_LOCALES.has(activeLocale) || activeLocale === 'es');
 
     const customTitle = sanitizePostmanCopyText(endpoint.layoutDisplayName);
     const activeDocTitle = sanitizePostmanCopyText(activeDoc?.title);
@@ -127,7 +130,7 @@ export const resolvePostmanEndpointCopy = (
         rawTitle = customTitle;
     } else if (activeDocTitle) {
         rawTitle = activeDocTitle;
-    } else if (isPartialLocale && catalog) {
+    } else if (preferCatalogOverEnglish && catalog) {
         rawTitle = catalog;
     } else if (enDocTitle) {
         rawTitle = enDocTitle;
@@ -151,7 +154,7 @@ export const resolvePostmanEndpointCopy = (
     let description = '';
     if (activeDocDescription) {
         description = activeDocDescription;
-    } else if (isPartialLocale && catalogDesc) {
+    } else if (preferCatalogOverEnglish && catalogDesc) {
         description = catalogDesc;
     } else if (enDocDescription) {
         description = enDocDescription;

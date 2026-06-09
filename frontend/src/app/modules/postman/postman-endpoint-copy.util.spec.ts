@@ -109,6 +109,34 @@ describe('postman-endpoint-copy.util', () => {
             expect(result.title).toBe('My Custom Name');
         });
 
+        it('prefers Spanish i18n over English docs when locale is es and docs.es is missing', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'colombia_api_simit_suspensions',
+                    country: 'Colombia',
+                    label: 'Colombia - SIMIT - License suspensions',
+                    docs: {
+                        en: {
+                            title: 'SIMIT - License suspensions',
+                            description:
+                                'Query driver license suspension or cancellation records in Colombia’s SIMIT system by holder identification.',
+                            overview:
+                                'This service returns **SIMIT** information about **suspension or cancellation** of a **driver license**.',
+                        },
+                    },
+                },
+                catalogTitle: 'SIMIT — Suspensiones de licencia',
+                catalogDescription:
+                    'Consulta suspensiones o cancelaciones de licencia de conducción en SIMIT por documento del titular.',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('SIMIT — Suspensiones de licencia');
+            expect(result.description).toBe(
+                'Consulta suspensiones o cancelaciones de licencia de conducción en SIMIT por documento del titular.'
+            );
+        });
+
         it('prefers Chinese i18n over English docs when locale is zh', () => {
             const result = resolvePostmanEndpointCopy({
                 endpoint: {
