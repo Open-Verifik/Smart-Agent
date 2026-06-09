@@ -1,5 +1,6 @@
 import {
     resolvePostmanEndpointCopy,
+    resolveAboutOverview,
     overviewLeadParagraph,
     sanitizePostmanCopyText,
 } from './postman-endpoint-copy.util';
@@ -184,6 +185,90 @@ describe('postman-endpoint-copy.util', () => {
                     'Ecuador - \\U0001F1EA\\U0001F1E8 Ecuador - Vehicle Fines'
                 )
             ).toBe('Ecuador - Ecuador - Vehicle Fines');
+        });
+    });
+
+    describe('resolveAboutOverview', () => {
+        const enOverview =
+            "Verifik's Driver's License Validation API allows you to query official information registered in Colombia's RUNT.";
+
+        it('prefers docs.en.overview for English locale', () => {
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'colombia_api_driver',
+                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    docs: {
+                        en: { overview: enOverview },
+                    },
+                },
+                catalogDescription: 'Catalog description.',
+                locale: 'en',
+            });
+
+            expect(result).toBe(enOverview);
+        });
+
+        it('uses Spanish catalog instead of English OpenAPI when docs.es overview is empty', () => {
+            const catalogDescription =
+                'Valida licencias de conducción en Colombia mediante el número de cédula con la API de Verifik. Accede a datos oficiales del RUNT, incluyendo estado, categorías y vigencia.';
+
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'colombia_api_driver',
+                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    docs: {
+                        en: { overview: enOverview },
+                        es: {
+                            overview: '',
+                            params: [{ field: 'documentType', description: 'Tipo de Documento.' }],
+                        },
+                    },
+                },
+                catalogDescription,
+                locale: 'es',
+            });
+
+            expect(result).toBe(catalogDescription);
+            expect(result).not.toContain('Verify Colombian driver license');
+        });
+
+        it('uses docs.fr.overview for French locale', () => {
+            const frOverview =
+                'Interroge le **RUNT** pour le **permis de conduire** avec **`documentType`** et **`documentNumber`**.';
+
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'colombia_api_driver',
+                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    docs: {
+                        en: { overview: enOverview },
+                        fr: { overview: frOverview },
+                    },
+                },
+                catalogDescription: 'Vérifiez auprès du RUNT colombien le statut du permis.',
+                locale: 'fr',
+            });
+
+            expect(result).toBe(frOverview);
+        });
+
+        it('prefers docs.es.overview when populated after re-seed', () => {
+            const esOverview =
+                'La API de validación de licencias de Verifik permite consultar información oficial registrada en el RUNT de Colombia.';
+
+            const result = resolveAboutOverview({
+                endpoint: {
+                    code: 'colombia_api_driver',
+                    description: 'Verify Colombian driver license status and validity through the RUNT system.',
+                    docs: {
+                        es: { overview: esOverview },
+                    },
+                },
+                catalogDescription: 'Valida licencias de conducción en Colombia.',
+                locale: 'es',
+            });
+
+            expect(result).toBe(esOverview);
         });
     });
 });

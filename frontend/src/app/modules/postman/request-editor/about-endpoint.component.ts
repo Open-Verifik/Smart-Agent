@@ -22,6 +22,7 @@ import {
     EndpointDocResponse,
     EndpointDocs,
 } from '../postman.types';
+import { resolveAboutOverview } from '../postman-endpoint-copy.util';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
 /**
@@ -365,10 +366,16 @@ export class AboutEndpointComponent {
     readonly showFallbackBadge = computed(() => !!this.resolvedLocale()?.isFallback);
 
     readonly overview = computed(() => {
-        const fromDocs = this.activeDoc()?.overview;
-        if (fromDocs && fromDocs.trim()) return fromDocs.trim();
-        const desc = this._endpoint()?.description;
-        return desc && desc.trim() ? desc.trim() : '';
+        const ep = this._endpoint();
+        if (!ep) return '';
+        const catalogDescription = ep.code
+            ? this._transloco.translate(`appFeatures.${ep.code}.description`)
+            : '';
+        return resolveAboutOverview({
+            endpoint: ep,
+            catalogDescription,
+            locale: this._activeLang(),
+        });
     });
 
     readonly headers = computed(() => this.activeDoc()?.headers ?? []);

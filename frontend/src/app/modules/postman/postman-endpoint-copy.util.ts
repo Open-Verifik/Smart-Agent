@@ -38,6 +38,13 @@ export interface ResolvedPostmanEndpointCopy {
     fullTitle: string;
 }
 
+export interface ResolveAboutOverviewInput {
+    endpoint: Pick<ApiEndpoint, 'code' | 'description' | 'docs'>;
+    /** Resolved i18n catalog description (appFeatures.{code}.description). */
+    catalogDescription: string;
+    locale?: PostmanCopyLocale | null;
+}
+
 const DOC_LOCALES: EndpointDocLocale[] = ['en', 'es', 'fr', 'pt', 'ko', 'ja', 'zh'];
 
 /** Locales where i18n bundles are the primary fallback before English docs. */
@@ -175,4 +182,42 @@ export const resolvePostmanEndpointCopy = (
         description,
         fullTitle: rawTitle,
     };
+};
+
+/**
+ * Resolves the About-tab overview markdown from docs, i18n catalog, and OpenAPI fallback.
+ * Prefers active-locale content and avoids English OpenAPI text when a localized catalog exists.
+ */
+export const resolveAboutOverview = (input: ResolveAboutOverviewInput): string => {
+    const { endpoint, catalogDescription, locale } = input;
+    const activeDoc = pickActiveDocLang(endpoint.docs, locale);
+    const enDoc = pickEnglishDocLang(endpoint.docs);
+    const activeLocale = toDocLocale(locale ?? null);
+
+    const activeOverview = activeDoc?.overview?.trim();
+    if (activeOverview) return activeOverview;
+
+    const activeDocDescription = activeDoc?.description?.trim();
+    if (activeDocDescription) return activeDocDescription;
+
+    const catalogDesc = catalogDescription?.trim();
+    if (catalogDesc && !isGenericDescription(catalogDesc)) {
+        return catalogDesc;
+    }
+
+    if (!activeDoc) {
+        const enOverview = enDoc?.overview?.trim();
+        if (enOverview) return enOverview;
+        const enDocDescription = enDoc?.description?.trim();
+        if (enDocDescription) return enDocDescription;
+    }
+
+    const endpointDesc = endpoint.description?.trim();
+    if (activeLocale === 'en' && endpointDesc && !isGenericDescription(endpointDesc)) {
+        return endpointDesc;
+    }
+
+    if (catalogDesc) return catalogDesc;
+
+    return endpointDesc ?? '';
 };
