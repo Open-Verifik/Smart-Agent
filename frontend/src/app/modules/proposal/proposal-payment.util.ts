@@ -22,7 +22,6 @@ export interface ProposalPaymentOption {
     monthsInPeriod: number;
     monthsCharged: number;
     totalAmount: number;
-    annualQueryVolume?: number;
 }
 
 const PAYMENT_OPTION_CATALOG: Array<{
@@ -32,17 +31,26 @@ const PAYMENT_OPTION_CATALOG: Array<{
 }> = [
     { type: 'monthly', monthsInPeriod: 1, monthsCharged: 1 },
     { type: 'quarterly', monthsInPeriod: 3, monthsCharged: 3 },
-    { type: 'semi_annual', monthsInPeriod: 6, monthsCharged: 6 },
+    { type: 'semi_annual', monthsInPeriod: 6, monthsCharged: 5 },
     { type: 'annual', monthsInPeriod: 12, monthsCharged: 10 },
 ];
 
+export const getPromoDiscountAmount = (option: ProposalPaymentOption): number => {
+    const freeMonths = (option.monthsInPeriod || 0) - (option.monthsCharged || 0);
+
+    if (freeMonths <= 0 || !option.monthsCharged) return 0;
+
+    const monthlyRate = option.totalAmount / option.monthsCharged;
+
+    return Math.round(monthlyRate * freeMonths * 100) / 100;
+};
+
 export const buildPaymentOptionsFromMonthlyTotal = (
     monthlyTotal: number,
-    monthlyVolume: number,
+    _monthlyVolume: number,
     enabledTypes: ProposalPaymentOptionType[] = PAYMENT_OPTION_CATALOG.map((option) => option.type)
 ): ProposalPaymentOption[] => {
     const total = Math.max(0, Number(monthlyTotal) || 0);
-    const volume = Math.max(0, Number(monthlyVolume) || 0);
 
     return PAYMENT_OPTION_CATALOG.filter((option) => enabledTypes.includes(option.type)).map(
         (option) => ({
@@ -51,7 +59,6 @@ export const buildPaymentOptionsFromMonthlyTotal = (
             monthsInPeriod: option.monthsInPeriod,
             monthsCharged: option.monthsCharged,
             totalAmount: Math.round(total * option.monthsCharged * 100) / 100,
-            ...(option.type === 'annual' ? { annualQueryVolume: volume * 12 } : {}),
         })
     );
 };

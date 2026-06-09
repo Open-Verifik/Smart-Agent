@@ -4,10 +4,12 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import {
+    getPromoDiscountAmount,
     ProposalPaymentOption,
     roundUnitPrice,
     unitPricesDiffer,
 } from './proposal-payment.util';
+import { resolveClientDisplayTiers, resolveEffectiveTier } from './proposal-display.util';
 import {
     buildScopeSummary,
     getDocumentSubject,
@@ -288,7 +290,7 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
 
     getEffectiveTier(): ProposalTier {
         if (!this.proposal) return 'starter';
-        return this.proposal.salesOverrideTier || this.proposal.recommendedTier;
+        return resolveEffectiveTier(this.proposal);
     }
 
     getTierLabel(tier: ProposalTier): string {
@@ -304,14 +306,7 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
             return this.tiers;
         }
 
-        const volume = this.proposal.monthlyVolume || 0;
-        const viable = this.tiers.filter((tier) => {
-            const limit = this.getSummaryValue(tier, 'planQueryLimit');
-
-            return limit != null && volume <= limit;
-        });
-
-        return viable.length ? viable : this.tiers;
+        return resolveClientDisplayTiers(this.proposal, this.tiers);
     }
 
     getSelectedLineItems(): PublicProposal['selectedLineItems'] {
@@ -334,8 +329,8 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
         });
     }
 
-    isAnnualPaymentOption(option: ProposalPaymentOption): boolean {
-        return option.type === 'annual';
+    getPromoDiscount(option: ProposalPaymentOption): number {
+        return getPromoDiscountAmount(option);
     }
 
     getSummaryValue(

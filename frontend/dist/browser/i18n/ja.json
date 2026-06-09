@@ -6033,8 +6033,7 @@
       "total": "お支払い総額",
       "notes": "備考",
       "months": "{{count}} か月",
-      "annualFreeMonths": "2 か月無料",
-      "annualQueries": "年間クエリ数 {{count}}",
+      "promoOff": "{{amount}} OFF",
       "types": {
         "monthly": "月額プラン",
         "quarterly": "四半期プラン（3 か月）",

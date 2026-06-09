@@ -6134,8 +6134,7 @@
       "total": "Total a pagar",
       "notes": "Notas",
       "months": "{{count}} meses",
-      "annualFreeMonths": "2 meses gratis",
-      "annualQueries": "{{count}} consultas anuales",
+      "promoOff": "{{amount}} de descuento",
       "types": {
         "monthly": "Plan mensual",
         "quarterly": "Plan trimestral (3 meses)",

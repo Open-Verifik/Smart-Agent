@@ -34,6 +34,7 @@ export interface PublicProposal {
     }>;
     recommendedTier: ProposalTier;
     salesOverrideTier?: ProposalTier;
+    visibleTiers?: ProposalTier[] | null;
     enabledPaymentTypes?: Array<'monthly' | 'quarterly' | 'semi_annual' | 'annual'>;
     paymentOptions?: ProposalPaymentOption[];
     pricingSummary?: Record<

@@ -6128,8 +6128,7 @@
       "total": "Total due",
       "notes": "Notes",
       "months": "{{count}} months",
-      "annualFreeMonths": "2 months free",
-      "annualQueries": "{{count}} annual queries",
+      "promoOff": "{{amount}} OFF",
       "types": {
         "monthly": "Monthly plan",
         "quarterly": "Quarterly plan (3 months)",

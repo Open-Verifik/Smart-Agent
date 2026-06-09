@@ -6033,8 +6033,7 @@
       "total": "应付总额",
       "notes": "备注",
       "months": "{{count}} 个月",
-      "annualFreeMonths": "赠送 2 个月",
-      "annualQueries": "年度查询量 {{count}}",
+      "promoOff": "立减 {{amount}}",
       "types": {
         "monthly": "月度方案",
         "quarterly": "季度方案（3 个月）",

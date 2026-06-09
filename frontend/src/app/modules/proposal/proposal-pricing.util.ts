@@ -5,6 +5,7 @@ import {
     roundUnitPrice,
     unitPricesDiffer,
 } from './proposal-payment.util';
+import { resolveEffectiveTier } from './proposal-display.util';
 import { ProposalTier, PublicProposal } from './proposal.service';
 
 export type ProposalTierSummary = NonNullable<PublicProposal['pricingSummary']>[ProposalTier];
@@ -17,7 +18,7 @@ const DEFAULT_PAYMENT_TYPES: ProposalPaymentOptionType[] = [
 ];
 
 export const getEffectiveTier = (proposal: PublicProposal): ProposalTier => {
-    return proposal.salesOverrideTier || proposal.recommendedTier;
+    return resolveEffectiveTier(proposal);
 };
 
 export const getSelectedLineItems = (proposal: PublicProposal): PublicProposal['selectedLineItems'] => {

@@ -6033,8 +6033,7 @@
       "total": "Total devido",
       "notes": "Notas",
       "months": "{{count}} meses",
-      "annualFreeMonths": "2 meses grátis",
-      "annualQueries": "{{count}} consultas anuais",
+      "promoOff": "{{amount}} de desconto",
       "types": {
         "monthly": "Plano mensal",
         "quarterly": "Plano trimestral (3 meses)",

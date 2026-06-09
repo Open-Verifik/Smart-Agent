@@ -6033,8 +6033,7 @@
       "total": "총 결제 금액",
       "notes": "비고",
       "months": "{{count}}개월",
-      "annualFreeMonths": "2개월 무료",
-      "annualQueries": "연간 쿼리 {{count}}",
+      "promoOff": "{{amount}} 할인",
       "types": {
         "monthly": "월간 플랜",
         "quarterly": "분기 플랜 (3개월)",

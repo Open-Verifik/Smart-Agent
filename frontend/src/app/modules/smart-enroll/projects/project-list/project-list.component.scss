@@ -239,6 +239,122 @@
     .empty-hero-text {
         color: rgb(148 163 184);
     }
+
+    .hero-icon {
+        background: rgba(43, 58, 240, 0.15);
+        border-color: rgba(79, 90, 246, 0.28);
+        color: rgb(129 140 248);
+    }
+
+    .card {
+        border-color: rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, #11122a 0%, #161828 100%);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    .card:hover {
+        border-color: rgba(255, 255, 255, 0.16);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .logo-fallback {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgb(148 163 184);
+    }
+
+    .card-title {
+        color: #f8fafc;
+    }
+
+    .pill-on {
+        background: rgba(37, 99, 235, 0.2);
+        color: rgb(147 197 253);
+    }
+
+    .pill-on .pill-dot {
+        background: rgb(96 165 250);
+    }
+
+    .pill-off {
+        background: rgba(255, 255, 255, 0.06);
+        color: rgb(148 163 184);
+    }
+
+    .pill-off .pill-dot {
+        background: rgb(100 116 139);
+    }
+
+    .menu-btn {
+        color: rgb(148 163 184);
+        border-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+        box-shadow: none;
+    }
+
+    .menu-btn:hover {
+        color: #f8fafc;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .rows {
+        border-top-color: rgba(255, 255, 255, 0.06);
+    }
+
+    .row {
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+        color: #f8fafc;
+    }
+
+    .row:hover {
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .row-ic {
+        color: rgb(148 163 184);
+    }
+
+    .row-chev {
+        color: rgb(129 140 248);
+    }
+
+    .member-add {
+        border-color: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0.04);
+        color: rgb(129 140 248);
+    }
+
+    .member-add:hover {
+        border-color: rgb(96 165 250);
+        background: rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-live {
+        background: transparent;
+        border-color: rgb(96 165 250);
+        color: rgb(147 197 253);
+    }
+
+    .btn-live:hover {
+        background: rgba(37, 99, 235, 0.15);
+        border-color: rgb(129 140 248);
+        color: rgb(191 219 254);
+    }
+
+    .btn-live:active {
+        background: rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.04);
+        color: #f8fafc;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.16);
+    }
 }
 
 .grid {

@@ -69,7 +69,7 @@ export const authInterceptor = (
                     // Skip auto-logout for backend API calls with valid wallet-only auth
                     // This allows x402 (wallet-based) operations to continue even if Web2 token is expired
                     const isBackendApiCall =
-                        req.url.includes('x402-agent.verifik.co') ||
+                        req.url.includes('ai.verifik.co') ||
                         req.url.includes('api/') ||
                         req.url.includes('staging-api.verifik.co') ||
                         req.url.includes('api.verifik.co') ||
