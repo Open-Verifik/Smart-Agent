@@ -47,6 +47,7 @@ export interface ApiRequestDetail {
 }
 
 export interface UsageHistoryListParams {
+    in_group?: string;
     like_code?: string;
     limit?: number;
     page?: number;
@@ -74,7 +75,7 @@ export class SmartEnrollUsageHistoryService {
         const { like_code, where_code, ...rest } = params;
 
         const query: Record<string, unknown> = {
-            in_code: where_code ? undefined : [...FACE_RECOGNITION_CODES],
+            in_group: where_code ? undefined : 'faceRecognition',
             sort: '-createdAt',
             ...rest,
         };
