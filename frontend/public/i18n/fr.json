@@ -1109,6 +1109,7 @@
     "clearFilters": "Effacer les filtres",
     "tableTitle": "Journal des requêtes",
     "tableSubtitle": "{{count}} requêtes",
+    "tableSubtitlePageOnly": "Page {{page}}",
     "topEndpointsTitle": "Principaux endpoints",
     "filterStatusAll": "Tous",
     "filterStatusSuccess": "Succès",

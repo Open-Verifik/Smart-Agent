@@ -1110,6 +1110,7 @@
     "clearFilters": "清除筛选",
     "tableTitle": "请求日志",
     "tableSubtitle": "{{count}} 个请求",
+    "tableSubtitlePageOnly": "显示第 {{page}} 页",
     "topEndpointsTitle": "主要端点",
     "filterStatusAll": "全部",
     "filterStatusSuccess": "成功",

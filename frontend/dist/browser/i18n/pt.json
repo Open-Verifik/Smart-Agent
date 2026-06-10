@@ -1110,6 +1110,7 @@
     "clearFilters": "Limpar filtros",
     "tableTitle": "Registo de pedidos",
     "tableSubtitle": "{{count}} pedidos",
+    "tableSubtitlePageOnly": "Mostrando página {{page}}",
     "topEndpointsTitle": "Principais endpoints",
     "filterStatusAll": "Todos",
     "filterStatusSuccess": "Sucesso",

@@ -1178,6 +1178,7 @@
     "clearFilters": "Clear filters",
     "tableTitle": "Request log",
     "tableSubtitle": "{{count}} requests",
+    "tableSubtitlePageOnly": "Showing page {{page}}",
     "topEndpointsTitle": "Top endpoints",
     "filterStatusAll": "All",
     "filterStatusSuccess": "Success",

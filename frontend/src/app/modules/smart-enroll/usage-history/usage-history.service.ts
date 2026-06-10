@@ -20,11 +20,13 @@ export interface ApiRequestRow {
 
 export interface ApiRequestListResponse {
     data: ApiRequestRow[];
-    total: number;
+    total: number | null;
     limit?: number;
     page?: number;
-    pages?: number;
+    pages?: number | null;
 }
+
+export const USAGE_HISTORY_LIST_COLUMNS = '_id statusCode status code endpoint createdAt cost';
 
 export interface TopSalesRow {
     _id: string;
@@ -47,10 +49,13 @@ export interface ApiRequestDetail {
 }
 
 export interface UsageHistoryListParams {
+    columns?: string;
     in_group?: string;
+    lean?: boolean | number;
     like_code?: string;
     limit?: number;
     page?: number;
+    skipTotal?: boolean | number;
     sort?: string;
     where_code?: string;
     whereGTE_createdAt?: string;
@@ -75,7 +80,9 @@ export class SmartEnrollUsageHistoryService {
         const { like_code, where_code, ...rest } = params;
 
         const query: Record<string, unknown> = {
+            columns: USAGE_HISTORY_LIST_COLUMNS,
             in_group: where_code ? undefined : 'faceRecognition',
+            lean: true,
             sort: '-createdAt',
             ...rest,
         };

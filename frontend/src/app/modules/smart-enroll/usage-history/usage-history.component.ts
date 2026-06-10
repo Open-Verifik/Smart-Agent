@@ -78,7 +78,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     searchText = '';
     serviceFilter = '';
     statusFilter: StatusFilter = 'all';
-    total = signal(0);
+    total = signal<number | null>(null);
     pageIndex = signal(0);
     pageSize = signal(10);
     topEndpoints = signal<TopSalesRow[]>([]);
@@ -100,6 +100,18 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         this._destroy$.complete();
     }
 
+    get paginatorLength(): number {
+        const exact = this.total();
+
+        if (exact !== null && exact >= 0) return exact;
+
+        const page = this.pageIndex();
+        const size = this.pageSize();
+        const rows = this.dataSource.data.length;
+
+        return page * size + rows + (rows >= size ? 1 : 0);
+    }
+
     get disabledClearFilters(): boolean {
         return (
             !this.searchText &&
@@ -114,19 +126,20 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         const params: UsageHistoryListParams = {
             page: this.pageIndex() + 1,
             limit: this.pageSize(),
+            skipTotal: this.pageIndex() === 0 ? 1 : undefined,
             ...this._buildFilterParams(),
         };
 
         this._service.listRequests(params).subscribe({
             next: (res) => {
                 this.dataSource.data = res.data || [];
-                this.total.set(res.total || 0);
+                this.total.set(res.total ?? null);
                 this.loading.set(false);
                 this._cdr.markForCheck();
             },
             error: () => {
                 this.dataSource.data = [];
-                this.total.set(0);
+                this.total.set(null);
                 this.loading.set(false);
                 this._cdr.markForCheck();
             },

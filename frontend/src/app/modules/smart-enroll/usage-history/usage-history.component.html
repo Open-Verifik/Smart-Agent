@@ -215,7 +215,11 @@
                                         {{ t('smartEnrollUsageHistory.tableTitle') }}
                                     </h2>
                                     <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
-                                        {{ t('smartEnrollUsageHistory.tableSubtitle', { count: total() }) }}
+                                        @if (total() !== null && total()! >= 0) {
+                                            {{ t('smartEnrollUsageHistory.tableSubtitle', { count: total() }) }}
+                                        } @else {
+                                            {{ t('smartEnrollUsageHistory.tableSubtitlePageOnly', { page: pageIndex() + 1 }) }}
+                                        }
                                     </p>
                                 </div>
                             </div>
@@ -319,7 +323,7 @@
 
                                 <mat-paginator
                                     class="mt-4 !bg-transparent"
-                                    [length]="total()"
+                                    [length]="paginatorLength"
                                     [pageSize]="pageSize()"
                                     [pageIndex]="pageIndex()"
                                     [pageSizeOptions]="[10, 25, 50]"

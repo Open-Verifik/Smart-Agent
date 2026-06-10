@@ -1110,6 +1110,7 @@
     "clearFilters": "필터 지우기",
     "tableTitle": "요청 로그",
     "tableSubtitle": "{{count}}개 요청",
+    "tableSubtitlePageOnly": "{{page}}페이지 표시",
     "topEndpointsTitle": "주요 엔드포인트",
     "filterStatusAll": "전체",
     "filterStatusSuccess": "성공",

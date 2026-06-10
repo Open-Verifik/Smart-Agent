@@ -1178,6 +1178,7 @@
     "clearFilters": "Limpiar filtros",
     "tableTitle": "Registro de solicitudes",
     "tableSubtitle": "{{count}} solicitudes",
+    "tableSubtitlePageOnly": "Mostrando página {{page}}",
     "topEndpointsTitle": "Endpoints principales",
     "filterStatusAll": "Todos",
     "filterStatusSuccess": "Éxito",

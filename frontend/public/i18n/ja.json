@@ -1110,6 +1110,7 @@
     "clearFilters": "フィルターをクリア",
     "tableTitle": "リクエストログ",
     "tableSubtitle": "{{count}} 件のリクエスト",
+    "tableSubtitlePageOnly": "ページ {{page}} を表示",
     "topEndpointsTitle": "主要エンドポイント",
     "filterStatusAll": "すべて",
     "filterStatusSuccess": "成功",
