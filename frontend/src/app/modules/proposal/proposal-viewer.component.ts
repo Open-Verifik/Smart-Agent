@@ -22,7 +22,7 @@ import {
     showScopeSection as shouldShowScopeSection,
     showSlaSection as shouldShowSlaSection,
 } from './proposal-document.util';
-import { getActivePaymentOptions } from './proposal-pricing.util';
+import { getActivePaymentOptions, formatUsageCellHint, getSelectedLineItems } from './proposal-pricing.util';
 import { buildRevisionTimeline } from './proposal-revisions.util';
 import {
     CounterOfferLineItem,
@@ -358,6 +358,24 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
     formatPrice(value?: number): string {
         if (value == null) return '—';
         return `$${value.toFixed(2)}`;
+    }
+
+    getUsageCostLabelKey(): string {
+        return this.proposal?.usagePricingMode === 'combo'
+            ? 'proposal.table.usageCostCombo'
+            : 'proposal.table.usageCostAverage';
+    }
+
+    getUsageCellHint(tier: ProposalTier): string {
+        if (!this.proposal) return '';
+
+        return formatUsageCellHint(
+            getSelectedLineItems(this.proposal),
+            tier,
+            this.proposal.monthlyVolume || 0,
+            this.proposal.usagePricingMode === 'combo' ? 'combo' : 'average',
+            (price) => this.formatPrice(price) || ''
+        );
     }
 
     formatDateTime(value?: string): string {

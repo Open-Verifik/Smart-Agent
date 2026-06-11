@@ -387,7 +387,7 @@
                             </tr>
                         </tbody>
                         <tfoot *ngIf="activePricingSummary" class="border-t bg-stone-50 text-xs dark:bg-zinc-900/40">
-                            <tr>
+                            <tr *ngIf="proposal.includePlanMinimum !== false">
                                 <td class="px-4 py-2 font-medium text-stone-500">{{ 'proposal.table.planMinimum' | transloco }}</td>
                                 <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-2 tabular-nums text-stone-500" [class.bg-stone-100]="isTierRecommended(tier)">
@@ -397,12 +397,17 @@
                             </tr>
                             <tr>
                                 <td class="px-4 py-2 font-medium text-stone-500">
-                                    <span>{{ 'proposal.table.usageCost' | transloco }}</span>
-                                    <span class="mt-0.5 block font-normal text-stone-400">{{ 'proposal.table.usageCostHint' | transloco: { volume: (proposal.monthlyVolume | number) || '' } }}</span>
+                                    <span>{{ getUsageCostLabelKey() | transloco }}</span>
+                                    <span class="mt-0.5 block font-normal text-stone-400">{{
+                                        'proposal.table.usageCostVolumeHint' | transloco: { volume: (proposal.monthlyVolume | number) || '' }
+                                    }}</span>
                                 </td>
                                 <ng-container *ngFor="let tier of displayTiers">
                                     <td class="px-4 py-2 tabular-nums text-stone-500" [class.bg-stone-100]="isTierRecommended(tier)">
-                                        {{ formatPrice(getSummaryValue(tier, 'usageCost')) }}
+                                        <span>{{ formatPrice(getSummaryValue(tier, 'usageCost')) }}</span>
+                                        <span *ngIf="getUsageCellHint(tier)" class="mt-0.5 block font-normal normal-case tracking-normal text-stone-400">
+                                            {{ getUsageCellHint(tier) }}
+                                        </span>
                                         <span *ngIf="calculating && isTierRecommended(tier)" class="ml-1 text-stone-400">…</span>
                                     </td>
                                 </ng-container>

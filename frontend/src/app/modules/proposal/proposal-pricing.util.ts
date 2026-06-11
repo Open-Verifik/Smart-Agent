@@ -10,6 +10,69 @@ import { ProposalTier, PublicProposal } from './proposal.service';
 
 export type ProposalTierSummary = NonNullable<PublicProposal['pricingSummary']>[ProposalTier];
 
+const resolveUsageUnitPrice = (
+    prices: number[],
+    mode: 'average' | 'combo' = 'average'
+): { usageUnitPrice: number; avgUnitPrice: number } => {
+    if (!prices.length) {
+        return { usageUnitPrice: 0, avgUnitPrice: 0 };
+    }
+
+    const sum = prices.reduce((total, price) => total + price, 0);
+    const avgUnitPrice = Math.round((sum / prices.length) * 100) / 100;
+    const usageUnitPrice =
+        mode === 'combo'
+            ? Math.round(sum * 100) / 100
+            : avgUnitPrice;
+
+    return { usageUnitPrice, avgUnitPrice };
+};
+
+export type UsagePricingMode = 'average' | 'combo';
+
+export const getSelectedUnitPricesForTier = (
+    items: PublicProposal['selectedLineItems'],
+    tier: ProposalTier
+): number[] => {
+    return (items || [])
+        .filter((item) => item.selected !== false)
+        .map((item) => roundUnitPrice(item.unitPrices?.[tier]))
+        .filter((price): price is number => price != null && price > 0);
+};
+
+export const formatUsageRateBreakdown = (
+    prices: number[],
+    mode: UsagePricingMode,
+    formatPrice: (value: number) => string
+): string => {
+    if (!prices.length) return '';
+
+    const { usageUnitPrice } = resolveUsageUnitPrice(prices, mode);
+    const formattedPrices = prices.map(formatPrice);
+
+    if (mode === 'combo') {
+        return `${formattedPrices.join(' + ')} = ${formatPrice(usageUnitPrice)}`;
+    }
+
+    return `(${formattedPrices.join(' + ')}) ÷ ${prices.length} = ${formatPrice(usageUnitPrice)}`;
+};
+
+export const formatUsageCellHint = (
+    items: PublicProposal['selectedLineItems'],
+    tier: ProposalTier,
+    volume: number,
+    mode: UsagePricingMode,
+    formatPrice: (value: number) => string
+): string => {
+    const prices = getSelectedUnitPricesForTier(items, tier);
+
+    if (!prices.length || !volume) return '';
+
+    const breakdown = formatUsageRateBreakdown(prices, mode, formatPrice);
+
+    return `${breakdown} × ${volume.toLocaleString()}`;
+};
+
 const DEFAULT_PAYMENT_TYPES: ProposalPaymentOptionType[] = [
     'monthly',
     'quarterly',
@@ -95,14 +158,15 @@ const computeCounterTierSummary = (
 
     if (!prices.length) return null;
 
-    const avgUnitPrice =
-        Math.round((prices.reduce((sum, price) => sum + price, 0) / prices.length) * 100) / 100;
-    const usageCost = Math.round(volume * avgUnitPrice * 100) / 100;
+    const mode = proposal.usagePricingMode === 'combo' ? 'combo' : 'average';
+    const { usageUnitPrice, avgUnitPrice } = resolveUsageUnitPrice(prices, mode);
+    const usageCost = Math.round(volume * usageUnitPrice * 100) / 100;
     const quotedMonthlyTotal =
         Math.round(Math.max(planRow.planSubscriptionFee ?? 0, usageCost) * 100) / 100;
 
     return {
         avgUnitPrice,
+        usageUnitPrice,
         planSubscriptionFee: planRow.planSubscriptionFee,
         planQueryLimit: planRow.planQueryLimit,
         expectedQueries: volume,

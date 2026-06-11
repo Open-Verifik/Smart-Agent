@@ -41,6 +41,7 @@ export interface PublicProposal {
         ProposalTier,
         {
             avgUnitPrice?: number;
+            usageUnitPrice?: number;
             planSubscriptionFee?: number;
             planQueryLimit?: number;
             hasSmartCheckPlan?: boolean;
@@ -64,6 +65,8 @@ export interface PublicProposal {
     includeSlaSection?: boolean;
     includeGeneralitiesSection?: boolean;
     includeCommercialNotes?: boolean;
+    includePlanMinimum?: boolean;
+    usagePricingMode?: 'average' | 'combo';
     counterOffer?: {
         message?: string;
         monthlyVolume?: number;
