@@ -1213,7 +1213,31 @@
       "openLiveEnrollment": "Ouvrir l'inscription en direct",
       "copyLiveUrl": "Copier le lien d'inscription",
       "menuLiveEnrollment": "Ouvrir l'inscription en direct",
-      "neverLoggedIn": "Jamais connecté"
+      "neverLoggedIn": "Jamais connecté",
+      "demoMode": "Démo",
+      "menuSecurity": "Sécurité"
+    },
+    "securitySettings": {
+      "title": "Paramètres de sécurité",
+      "description": "Configurez les paramètres de sécurité de ce projet, y compris le mode démo et les paramètres OTP.",
+      "demoModeTitle": "Mode Démo",
+      "demoModeDescription": "Activez le mode démo pour utiliser un OTP fixe à des fins de test.",
+      "demoModeDisabledTitle": "Mode Démo Désactivé",
+      "demoModeDisabledDescription": "Lorsque le mode démo est désactivé, le projet utilisera la génération et validation OTP normale.",
+      "otpLabel": "OTP Démo",
+      "otpPlaceholderNew": "Entrez un OTP à 6 chiffres",
+      "otpPlaceholderExisting": "Entrez un nouvel OTP à 6 chiffres",
+      "otpHelperNew": "Entrez un nombre à 6 chiffres qui sera utilisé pour toutes les validations OTP en mode démo.",
+      "otpHelperExisting": "Entrez un nouveau nombre à 6 chiffres pour remplacer l'OTP démo existant.",
+      "otpRequired": "L'OTP est requis lorsque le mode démo est activé",
+      "otpInvalid": "L'OTP doit comporter exactement 6 chiffres",
+      "otpInfoTitle": "Informations Mode Démo",
+      "otpInfo1": "Cet OTP sera accepté pour les validations OTP par e-mail et téléphone",
+      "otpInfo2": "L'OTP est fixe et ne changera pas jusqu'à ce que vous le mettiez à jour",
+      "otpInfo3": "Ce paramètre n'affecte le projet que lorsque le mode démo est activé",
+      "validated": "OTP configuré",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
     },
     "staff": {
       "title": "Ajouter des membres au projet",

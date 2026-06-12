@@ -284,6 +284,10 @@
         background: rgb(100 116 139);
     }
 
+    .demo-badge {
+        color: rgb(148 163 184);
+    }
+
     .menu-btn {
         color: rgb(148 163 184);
         border-color: rgba(255, 255, 255, 0.1);
@@ -474,6 +478,13 @@
 
 .pill-off .pill-dot {
     background: rgb(156 163 175);
+}
+
+.demo-badge {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: rgb(107 114 128);
+    letter-spacing: 0.01em;
 }
 
 .menu-btn {

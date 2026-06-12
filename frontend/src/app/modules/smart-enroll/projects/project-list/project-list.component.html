@@ -89,6 +89,9 @@
                                                         : t('smartEnrollProjects.list.active')
                                                 }}
                                             </span>
+                                            @if (project.demoMode) {
+                                                <span class="demo-badge">({{ t('smartEnrollProjects.list.demoMode') }})</span>
+                                            }
                                             <mat-slide-toggle
                                                 color="primary"
                                                 [checked]="flowToggleChecked(flow)"
@@ -116,6 +119,10 @@
                                     <button mat-menu-item type="button" (click)="copyLiveEnrollmentUrl(project, $event)">
                                         <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:link"></mat-icon>
                                         <span>{{ t('smartEnrollProjects.list.copyLiveUrl') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="openSecurityModal(project, $event)">
+                                        <mat-icon class="menu-item-icon" svgIcon="heroicons_outline:shield-check"></mat-icon>
+                                        <span>{{ t('smartEnrollProjects.list.menuSecurity') }}</span>
                                     </button>
                                     <button mat-menu-item type="button" (click)="openProject(project, $event)">
                                         {{ t('smartEnrollProjects.list.menuEdit') }}

@@ -1,0 +1,164 @@
+<div
+    class="flex w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+    *transloco="let t"
+>
+    <header class="border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:p-6">
+        <h2 class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+            {{ t('smartEnrollProjects.securitySettings.title') }}
+        </h2>
+        <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400">
+            {{ t('smartEnrollProjects.securitySettings.description') }}
+        </p>
+    </header>
+
+    <mat-dialog-content class="!flex !max-h-[min(62vh,520px)] !flex-col !gap-5 !overflow-y-auto px-5 py-5 dark:text-stone-100 md:p-6">
+        <form [formGroup]="form" class="flex flex-col gap-5">
+            <!-- Demo mode toggle (auto-recharge pattern) -->
+            <div
+                class="flex items-center justify-between gap-4 rounded-xl border px-4 py-3 transition"
+                [ngClass]="
+                    isDemoModeEnabled
+                        ? 'border-indigo-400 bg-indigo-50/50 ring-2 ring-indigo-500/20 dark:border-indigo-400 dark:bg-indigo-950/20 dark:ring-indigo-400/20'
+                        : 'border-stone-200 bg-stone-50/50 dark:border-gray-700 dark:bg-gray-950/50'
+                "
+            >
+                <div class="min-w-0">
+                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                        {{ t('smartEnrollProjects.securitySettings.demoModeTitle') }}
+                    </p>
+                    <p class="mt-0.5 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                        {{ t('smartEnrollProjects.securitySettings.demoModeDescription') }}
+                    </p>
+                </div>
+                <label class="relative inline-flex shrink-0 cursor-pointer items-center">
+                    <input
+                        type="checkbox"
+                        class="peer sr-only"
+                        formControlName="demoMode"
+                        (change)="onDemoModeToggle()"
+                    />
+                    <span
+                        class="relative h-6 w-11 rounded-full bg-stone-300 transition peer-checked:bg-indigo-600 peer-focus-visible:ring-2 peer-focus-visible:ring-indigo-500/40 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-5 dark:bg-gray-600 dark:peer-checked:bg-indigo-500"
+                    ></span>
+                </label>
+            </div>
+
+            @if (isDemoModeEnabled) {
+                <section class="flex flex-col gap-3">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <label class="text-sm font-semibold text-stone-950 dark:text-white" for="demo-otp">
+                            {{ t('smartEnrollProjects.securitySettings.otpLabel') }}
+                        </label>
+                        @if (data.project?.demoOTP) {
+                            <span
+                                class="shrink-0 rounded-md bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                            >
+                                {{ t('smartEnrollProjects.securitySettings.validated') }}
+                            </span>
+                        }
+                    </div>
+
+                    <div
+                        class="flex items-center justify-center rounded-xl border border-stone-200 bg-stone-50/80 px-4 py-3 focus-within:border-indigo-400 focus-within:ring-2 focus-within:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:focus-within:border-indigo-400 dark:focus-within:ring-indigo-400/20"
+                    >
+                        <input
+                            id="demo-otp"
+                            type="text"
+                            inputmode="numeric"
+                            pattern="[0-9]*"
+                            maxlength="6"
+                            formControlName="demoOTP"
+                            [placeholder]="t(otpPlaceholder)"
+                            (input)="onOTPInput($event)"
+                            (blur)="onOTPBlur()"
+                            class="min-w-0 w-full border-0 bg-transparent text-center font-mono text-lg font-semibold text-stone-950 outline-none placeholder:text-sm placeholder:font-normal placeholder:tracking-normal placeholder:text-stone-400 dark:text-white dark:placeholder:text-stone-500"
+                            [class.tracking-[0.35em]]="!!form.get('demoOTP')?.value && form.get('demoOTP')?.value !== '******'"
+                        />
+                    </div>
+
+                    <p class="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                        @if (hasExistingOTP) {
+                            {{ t('smartEnrollProjects.securitySettings.otpHelperExisting') }}
+                        } @else {
+                            {{ t('smartEnrollProjects.securitySettings.otpHelperNew') }}
+                        }
+                    </p>
+
+                    @if (form.get('demoOTP')?.invalid && form.get('demoOTP')?.touched) {
+                        @if (form.get('demoOTP')?.hasError('required')) {
+                            <p class="text-xs text-red-600 dark:text-red-400">
+                                {{ t('smartEnrollProjects.securitySettings.otpRequired') }}
+                            </p>
+                        }
+                        @if (form.get('demoOTP')?.hasError('pattern')) {
+                            <p class="text-xs text-red-600 dark:text-red-400">
+                                {{ t('smartEnrollProjects.securitySettings.otpInvalid') }}
+                            </p>
+                        }
+                    }
+
+                    <div
+                        class="flex gap-3 rounded-xl border border-stone-200/90 bg-stone-50 px-4 py-3 text-sm dark:border-gray-700 dark:bg-gray-950/50"
+                    >
+                        <mat-icon
+                            class="shrink-0 text-stone-500 dark:text-stone-400"
+                            style="font-size: 20px; width: 20px; height: 20px"
+                        >info</mat-icon>
+                        <div class="min-w-0">
+                            <p class="m-0 text-sm font-semibold text-stone-950 dark:text-white">
+                                {{ t('smartEnrollProjects.securitySettings.otpInfoTitle') }}
+                            </p>
+                            <ul class="mt-2 space-y-1.5 text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+                                <li>{{ t('smartEnrollProjects.securitySettings.otpInfo1') }}</li>
+                                <li>{{ t('smartEnrollProjects.securitySettings.otpInfo2') }}</li>
+                                <li>{{ t('smartEnrollProjects.securitySettings.otpInfo3') }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            } @else {
+                <div
+                    class="flex gap-3 rounded-xl border border-dashed border-stone-200 px-4 py-4 dark:border-gray-700"
+                >
+                    <mat-icon
+                        class="shrink-0 text-stone-400 dark:text-stone-500"
+                        style="font-size: 20px; width: 20px; height: 20px"
+                    >lock</mat-icon>
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ t('smartEnrollProjects.securitySettings.demoModeDisabledTitle') }}
+                        </p>
+                        <p class="mt-1 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.securitySettings.demoModeDisabledDescription') }}
+                        </p>
+                    </div>
+                </div>
+            }
+        </form>
+    </mat-dialog-content>
+
+    <div class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
+        <button
+            mat-stroked-button
+            type="button"
+            class="!min-h-11 w-full !rounded-xl !border-stone-200 !font-medium sm:w-auto dark:!border-gray-700"
+            [disabled]="isUpdating"
+            (click)="onCancel()"
+        >
+            {{ t('smartEnrollProjects.securitySettings.cancel') }}
+        </button>
+        <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            class="flex !min-h-11 w-full shrink-0 items-center justify-center gap-2 !rounded-xl px-5 sm:w-auto"
+            [disabled]="!isFormValid || !hasChanges || isUpdating"
+            (click)="onSave()"
+        >
+            @if (isUpdating) {
+                <mat-spinner diameter="20" class="inline-block"></mat-spinner>
+            }
+            {{ t('smartEnrollProjects.securitySettings.save') }}
+        </button>
+    </div>
+</div>

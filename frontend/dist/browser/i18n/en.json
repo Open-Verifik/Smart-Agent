@@ -1282,7 +1282,31 @@
       "openLiveEnrollment": "Open live enrollment",
       "copyLiveUrl": "Copy enrollment link",
       "menuLiveEnrollment": "Open live enrollment",
-      "neverLoggedIn": "Never signed in"
+      "neverLoggedIn": "Never signed in",
+      "demoMode": "Demo",
+      "menuSecurity": "Security"
+    },
+    "securitySettings": {
+      "title": "Security Settings",
+      "description": "Configure security settings for this project including demo mode and OTP settings.",
+      "demoModeTitle": "Demo Mode",
+      "demoModeDescription": "Enable demo mode to use a fixed OTP for testing purposes.",
+      "demoModeDisabledTitle": "Demo Mode Disabled",
+      "demoModeDisabledDescription": "When demo mode is disabled, the project will use normal OTP generation and validation.",
+      "otpLabel": "Demo OTP",
+      "otpPlaceholderNew": "Enter 6-digit OTP",
+      "otpPlaceholderExisting": "Enter new 6-digit OTP",
+      "otpHelperNew": "Enter a 6-digit number that will be used for all OTP validations in demo mode.",
+      "otpHelperExisting": "Enter a new 6-digit number to replace the existing demo OTP.",
+      "otpRequired": "OTP is required when demo mode is enabled",
+      "otpInvalid": "OTP must be exactly 6 digits",
+      "otpInfoTitle": "Demo Mode Information",
+      "otpInfo1": "This OTP will be accepted for both email and phone OTP validations",
+      "otpInfo2": "The OTP is fixed and will not change until you update it",
+      "otpInfo3": "This setting only affects the project when demo mode is enabled",
+      "validated": "OTP configured",
+      "save": "Save",
+      "cancel": "Cancel"
     },
     "staff": {
       "title": "Add members to the project",

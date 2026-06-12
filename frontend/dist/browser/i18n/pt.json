@@ -1214,7 +1214,31 @@
       "openLiveEnrollment": "Abrir inscrição ao vivo",
       "copyLiveUrl": "Copiar link de inscrição",
       "menuLiveEnrollment": "Abrir inscrição ao vivo",
-      "neverLoggedIn": "Sem sessão"
+      "neverLoggedIn": "Sem sessão",
+      "demoMode": "Demo",
+      "menuSecurity": "Segurança"
+    },
+    "securitySettings": {
+      "title": "Configurações de segurança",
+      "description": "Configure as definições de segurança deste projeto, incluindo o modo demo e o OTP fixo.",
+      "demoModeTitle": "Modo Demo",
+      "demoModeDescription": "Ative o modo demo para usar um OTP fixo para fins de teste.",
+      "demoModeDisabledTitle": "Modo Demo Desabilitado",
+      "demoModeDisabledDescription": "Quando o modo demo está desabilitado, o projeto usará geração e validação normal de OTP.",
+      "otpLabel": "OTP Demo",
+      "otpPlaceholderNew": "Digite o OTP de 6 dígitos",
+      "otpPlaceholderExisting": "Digite um novo OTP de 6 dígitos",
+      "otpHelperNew": "Digite um número de 6 dígitos que será usado para todas as validações de OTP no modo demo.",
+      "otpHelperExisting": "Digite um novo número de 6 dígitos para substituir o OTP demo existente.",
+      "otpRequired": "O OTP é obrigatório quando o modo demo está ativado",
+      "otpInvalid": "O OTP deve ter exatamente 6 dígitos",
+      "otpInfoTitle": "Informações do Modo Demo",
+      "otpInfo1": "Este OTP será aceito para validações de OTP por e-mail e telefone",
+      "otpInfo2": "O OTP é fixo e não mudará até que você o atualize",
+      "otpInfo3": "Esta configuração só afeta o projeto quando o modo demo está ativado",
+      "validated": "OTP configurado",
+      "save": "Salvar",
+      "cancel": "Cancelar"
     },
     "staff": {
       "title": "Adicionar membros ao projeto",

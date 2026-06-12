@@ -1214,7 +1214,31 @@
       "openLiveEnrollment": "ライブ登録を開く",
       "copyLiveUrl": "登録リンクをコピー",
       "menuLiveEnrollment": "ライブ登録を開く",
-      "neverLoggedIn": "未ログイン"
+      "neverLoggedIn": "未ログイン",
+      "demoMode": "デモ",
+      "menuSecurity": "セキュリティ"
+    },
+    "securitySettings": {
+      "title": "セキュリティ設定",
+      "description": "デモモードやOTP設定を含むプロジェクトのセキュリティ設定を構成します。",
+      "demoModeTitle": "デモモード",
+      "demoModeDescription": "テスト目的で固定OTPを使用するデモモードを有効にします。",
+      "demoModeDisabledTitle": "デモモード無効",
+      "demoModeDisabledDescription": "デモモードが無効の場合、プロジェクトは通常のOTP生成と検証を使用します。",
+      "otpLabel": "デモOTP",
+      "otpPlaceholderNew": "6桁のOTPを入力",
+      "otpPlaceholderExisting": "新しい6桁のOTPを入力",
+      "otpHelperNew": "デモモードのすべてのOTP検証に使用される6桁の数字を入力してください。",
+      "otpHelperExisting": "既存のデモOTPを置き換える新しい6桁の数字を入力してください。",
+      "otpRequired": "デモモードが有効な場合はOTPが必要です",
+      "otpInvalid": "OTPは正確に6桁でなければなりません",
+      "otpInfoTitle": "デモモード情報",
+      "otpInfo1": "このOTPはメールと電話のOTP検証の両方で受け入れられます",
+      "otpInfo2": "OTPは固定されており、更新するまで変わりません",
+      "otpInfo3": "この設定はデモモードが有効な場合にのみプロジェクトに影響します",
+      "validated": "OTP設定済み",
+      "save": "保存",
+      "cancel": "キャンセル"
     },
     "staff": {
       "title": "プロジェクトにメンバーを追加",

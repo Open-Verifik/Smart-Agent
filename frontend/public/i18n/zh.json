@@ -1214,7 +1214,31 @@
       "openLiveEnrollment": "打开实时注册",
       "copyLiveUrl": "复制注册链接",
       "menuLiveEnrollment": "打开实时注册",
-      "neverLoggedIn": "从未登录"
+      "neverLoggedIn": "从未登录",
+      "demoMode": "演示",
+      "menuSecurity": "安全设置"
+    },
+    "securitySettings": {
+      "title": "安全设置",
+      "description": "配置此项目的安全设置，包括演示模式和 OTP 设置。",
+      "demoModeTitle": "演示模式",
+      "demoModeDescription": "启用演示模式以使用固定 OTP 进行测试。",
+      "demoModeDisabledTitle": "演示模式已禁用",
+      "demoModeDisabledDescription": "禁用演示模式后，项目将使用正常的 OTP 生成和验证。",
+      "otpLabel": "演示 OTP",
+      "otpPlaceholderNew": "输入 6 位 OTP",
+      "otpPlaceholderExisting": "输入新的 6 位 OTP",
+      "otpHelperNew": "输入一个 6 位数字，该数字将用于演示模式下的所有 OTP 验证。",
+      "otpHelperExisting": "输入一个新的 6 位数字以替换现有的演示 OTP。",
+      "otpRequired": "启用演示模式时需要 OTP",
+      "otpInvalid": "OTP 必须恰好为 6 位数字",
+      "otpInfoTitle": "演示模式信息",
+      "otpInfo1": "此 OTP 将被电子邮件和电话 OTP 验证接受",
+      "otpInfo2": "OTP 是固定的，在您更新之前不会更改",
+      "otpInfo3": "此设置仅在启用演示模式时影响项目",
+      "validated": "OTP 已配置",
+      "save": "保存",
+      "cancel": "取消"
     },
     "staff": {
       "title": "向项目添加成员",

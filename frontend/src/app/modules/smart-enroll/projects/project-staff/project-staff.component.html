@@ -1,44 +1,84 @@
 <ng-container *transloco="let t">
-    <div class="page">
-        <div class="inner">
-            <header class="hero">
-                <div>
-                    <h1 class="title">{{ t('smartEnrollProjects.staff.title') }}</h1>
-                    <p class="subtitle">{{ t('smartEnrollProjects.staff.subtitle') }}</p>
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <div class="mx-auto w-full max-w-4xl px-5 py-8 md:px-8 md:py-10">
+            <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
+                <div class="max-w-2xl">
+                    <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                        {{ t('smartEnrollProjects.staff.title') }}
+                    </h1>
+                    <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
+                        {{ t('smartEnrollProjects.staff.subtitle') }}
+                    </p>
                     @if (project()?.name) {
-                        <p class="project-name">{{ project()!.name }}</p>
+                        <p class="mt-2 text-sm font-semibold text-stone-700 dark:text-stone-300">
+                            {{ project()!.name }}
+                        </p>
                     }
                 </div>
-                <a class="doc-link" [href]="docUrl()" target="_blank" rel="noopener noreferrer">
+                <a
+                    class="inline-flex min-h-10 shrink-0 items-center text-sm font-medium text-indigo-600 transition hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                    [href]="docUrl()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
                     {{ t('smartEnrollProjects.staff.documentation') }}
                 </a>
             </header>
 
             @if (loadError()) {
-                <div class="banner-error">{{ loadError()! | transloco }}</div>
+                <div
+                    class="mb-4 flex gap-3 rounded-xl border border-red-200/80 bg-red-50 px-4 py-3 text-sm dark:border-red-900/50 dark:bg-red-950/30"
+                    role="alert"
+                >
+                    <mat-icon class="shrink-0 text-red-600 dark:text-red-400" style="width: 20px; height: 20px; font-size: 20px"
+                        >error_outline</mat-icon
+                    >
+                    <p class="m-0 flex-1 leading-relaxed text-red-950 dark:text-red-100">{{ loadError()! | transloco }}</p>
+                </div>
             }
 
             @if (loading() && !projectMembers().length && !staffs().length) {
-                <div class="state-loading">
+                <div class="flex justify-center py-16">
                     <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
                 </div>
             } @else if (project()) {
-                <section class="panel">
-                    <div class="table-head grid-row members-head">
-                        <span class="th">{{ t('smartEnrollProjects.staff.username') }}</span>
-                        <span class="th hide-sm">{{ t('smartEnrollProjects.staff.lastActive') }}</span>
-                        <span class="th">{{ t('smartEnrollProjects.staff.role') }}</span>
-                        <span class="th">{{ t('smartEnrollProjects.staff.invitation') }}</span>
-                        <span class="th th-actions"></span>
+                <!-- Current members -->
+                <section
+                    class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                >
+                    <div
+                        class="members-head hidden border-b border-stone-200/80 bg-stone-50/50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950/50 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:gap-3 md:px-5"
+                    >
+                        <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                            t('smartEnrollProjects.staff.username')
+                        }}</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                            t('smartEnrollProjects.staff.lastActive')
+                        }}</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                            t('smartEnrollProjects.staff.role')
+                        }}</span>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                            t('smartEnrollProjects.staff.invitation')
+                        }}</span>
+                        <span class="sr-only">{{ t('smartEnrollProjects.staff.removeFromProject') }}</span>
                     </div>
 
                     @for (member of sortedMembers(); track member._id) {
-                        <div class="grid-row data-row members-row">
-                            <div class="cell-user">
-                                <div class="avatar">{{ formatAcronym(member.staff?.name) }}</div>
-                                <div>
-                                    <div class="name">{{ member.staff?.name }}</div>
-                                    <div class="muted show-sm">
+                        <div
+                            class="members-row border-b border-stone-100 px-4 py-4 last:border-b-0 dark:border-gray-800 md:grid md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-center md:gap-3 md:px-5 md:py-3"
+                        >
+                            <div class="flex min-w-0 items-center gap-3">
+                                <div
+                                    class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 text-[0.65rem] font-bold text-white"
+                                >
+                                    {{ formatAcronym(member.staff?.name) }}
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="truncate text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ member.staff?.name }}
+                                    </div>
+                                    <div class="mt-0.5 text-xs text-stone-500 dark:text-stone-400 md:hidden">
                                         @if (member.lastActive) {
                                             {{ lastActiveDisplay(member.lastActive) }}
                                         } @else {
@@ -47,19 +87,21 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="cell-muted hide-sm">
+                            <div class="hidden text-sm text-stone-600 dark:text-stone-400 md:block">
                                 @if (member.lastActive) {
                                     {{ lastActiveDisplay(member.lastActive) }}
                                 } @else {
                                     {{ t('smartEnrollProjects.list.neverLoggedIn') }}
                                 }
                             </div>
-                            <div class="cell-role">
+                            <div class="mt-2 text-sm md:mt-0">
                                 @if (!canUpdateRole(member)) {
-                                    <span>{{ t('smartEnrollProjects.staff.roles.' + member.role) }}</span>
+                                    <span class="font-medium text-stone-800 dark:text-stone-200">{{
+                                        t('smartEnrollProjects.staff.roles.' + member.role)
+                                    }}</span>
                                 } @else {
                                     <select
-                                        class="role-select"
+                                        class="w-full max-w-full rounded-xl border border-stone-200 bg-stone-50/80 px-3 py-2 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20 md:w-auto"
                                         [value]="member.role"
                                         [disabled]="isUpdatingOrRemoving(member)"
                                         (change)="onMemberRoleChange(member, $event)"
@@ -70,18 +112,18 @@
                                     </select>
                                 }
                             </div>
-                            <div class="cell-invite">
+                            <div class="mt-1 text-sm text-stone-600 dark:text-stone-400 md:mt-0">
                                 @if (member.acceptedAt) {
                                     {{ t('smartEnrollProjects.staff.accepted') }}
                                 } @else {
                                     {{ t('smartEnrollProjects.staff.invited') }}
                                 }
                             </div>
-                            <div class="cell-actions">
+                            <div class="mt-2 flex justify-end md:mt-0">
                                 @if (canRemoveMember(member)) {
                                     <button
                                         type="button"
-                                        class="link-danger"
+                                        class="text-xs font-semibold text-red-600 underline underline-offset-2 transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300"
                                         [disabled]="isUpdatingOrRemoving(member)"
                                         (click)="removeMember(member)"
                                     >
@@ -93,55 +135,86 @@
                     }
 
                     @if (!sortedMembers().length && !loading()) {
-                        <div class="empty-block">
-                            <p class="empty-title">{{ t('smartEnrollProjects.staff.noMembers') }}</p>
-                            <p class="empty-sub">{{ t('smartEnrollProjects.staff.noMembersHint') }}</p>
+                        <div class="px-5 py-10 text-center">
+                            <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                {{ t('smartEnrollProjects.staff.noMembers') }}
+                            </p>
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.staff.noMembersHint') }}
+                            </p>
                         </div>
                     }
                 </section>
 
                 @if (canInvite()) {
-                    <h2 class="section-title">{{ t('smartEnrollProjects.staff.inviteTitle') }}</h2>
-                    <p class="section-sub">{{ t('smartEnrollProjects.staff.inviteSubtitle') }}</p>
+                    <div class="mt-8 mb-3">
+                        <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                            {{ t('smartEnrollProjects.staff.inviteTitle') }}
+                        </h2>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.staff.inviteSubtitle') }}
+                        </p>
+                    </div>
 
-                    <section class="panel">
-                        <div class="table-head grid-row invite-head">
+                    <section
+                        class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                    >
+                        <div
+                            class="invite-head hidden border-b border-stone-200/80 bg-stone-50/50 px-4 py-3 dark:border-gray-800 dark:bg-gray-950/50 md:grid md:grid-cols-[auto_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_auto] md:items-center md:gap-3 md:px-5"
+                        >
                             @if (staffs().length) {
                                 <mat-checkbox
-                                    class="chk"
                                     [checked]="isAllSelected"
                                     [disabled]="saving()"
                                     [indeterminate]="!isAllSelected && hasSelectedStaff"
                                     (change)="selectAll()"
                                 ></mat-checkbox>
                             } @else {
-                                <span class="chk-spacer"></span>
+                                <span class="w-10"></span>
                             }
-                            <span class="th">{{ t('smartEnrollProjects.staff.username') }}</span>
-                            <span class="th hide-sm">{{ t('smartEnrollProjects.staff.email') }}</span>
-                            <span class="th">{{ t('smartEnrollProjects.staff.role') }}</span>
-                            <span class="th th-actions"></span>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                                t('smartEnrollProjects.staff.username')
+                            }}</span>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                                t('smartEnrollProjects.staff.email')
+                            }}</span>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">{{
+                                t('smartEnrollProjects.staff.role')
+                            }}</span>
+                            <span class="sr-only">{{ t('smartEnrollProjects.staff.addToProject') }}</span>
                         </div>
 
                         @for (staff of paginatedStaff(); track staff._id) {
-                            <div class="grid-row invite-row" [class.selected]="staff.selected">
+                            <div
+                                class="invite-row border-b border-stone-100 px-4 py-4 last:border-b-0 dark:border-gray-800 md:grid md:grid-cols-[auto_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1fr)_auto] md:items-center md:gap-3 md:px-5 md:py-3"
+                                [class.is-selected]="staff.selected"
+                            >
                                 <mat-checkbox
-                                    class="chk"
                                     [checked]="staff.selected"
                                     [disabled]="isInviting(staff) || saving()"
                                     (change)="toggleSelection(staff)"
                                 ></mat-checkbox>
-                                <div class="cell-user">
-                                    <div class="avatar">{{ formatAcronym(staff.name) }}</div>
-                                    <div>
-                                        <div class="name">{{ staff.name }}</div>
-                                        <div class="muted show-sm">{{ staff.email }}</div>
+                                <div class="flex min-w-0 items-center gap-3">
+                                    <div
+                                        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 text-[0.65rem] font-bold text-white"
+                                    >
+                                        {{ formatAcronym(staff.name) }}
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="truncate text-sm font-semibold text-stone-950 dark:text-white">
+                                            {{ staff.name }}
+                                        </div>
+                                        <div class="mt-0.5 truncate text-xs text-stone-500 dark:text-stone-400 md:hidden">
+                                            {{ staff.email }}
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="cell-muted hide-sm">{{ staff.email }}</div>
-                                <div class="cell-role">
+                                <div class="hidden truncate text-sm text-stone-600 dark:text-stone-400 md:block">
+                                    {{ staff.email }}
+                                </div>
+                                <div class="mt-2 md:mt-0">
                                     <select
-                                        class="role-select"
+                                        class="w-full max-w-full rounded-xl border border-stone-200 bg-stone-50/80 px-3 py-2 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20 md:w-auto"
                                         [value]="staff.role || 'viewer'"
                                         [disabled]="isInviting(staff) || saving()"
                                         (change)="onInviteRoleChange(staff, $event)"
@@ -151,12 +224,12 @@
                                         }
                                     </select>
                                 </div>
-                                <div class="cell-actions end">
+                                <div class="mt-2 flex justify-end md:mt-0">
                                     <button
                                         mat-flat-button
                                         color="primary"
                                         type="button"
-                                        class="btn-add"
+                                        class="!min-h-10 !rounded-xl px-4"
                                         [disabled]="!canInvite() || isInviting(staff) || saving()"
                                         (click)="createMember(staff)"
                                     >
@@ -171,14 +244,23 @@
                         }
 
                         @if (totalPages > 1) {
-                            <div class="pager">
-                                <button mat-icon-button type="button" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
-                                    <mat-icon>chevron_left</mat-icon>
-                                </button>
-                                <span class="pager-label">{{ t('smartEnrollProjects.staff.page', { current: currentPage(), total: totalPages }) }}</span>
+                            <div class="flex items-center justify-center gap-2 border-t border-stone-100 px-4 py-3 dark:border-gray-800">
                                 <button
                                     mat-icon-button
                                     type="button"
+                                    class="!text-stone-600 dark:!text-stone-400"
+                                    [disabled]="currentPage() === 1"
+                                    (click)="changePage(currentPage() - 1)"
+                                >
+                                    <mat-icon>chevron_left</mat-icon>
+                                </button>
+                                <span class="text-sm text-stone-600 dark:text-stone-400">{{
+                                    t('smartEnrollProjects.staff.page', { current: currentPage(), total: totalPages })
+                                }}</span>
+                                <button
+                                    mat-icon-button
+                                    type="button"
+                                    class="!text-stone-600 dark:!text-stone-400"
                                     [disabled]="currentPage() === totalPages"
                                     (click)="changePage(currentPage() + 1)"
                                 >
@@ -189,30 +271,59 @@
 
                         @if (staffs().length === 0 && !loading()) {
                             @if (sortedMembers().length) {
-                                <div class="empty-block">
-                                    <p class="empty-title">{{ t('smartEnrollProjects.staff.noStaffAvailable') }}</p>
-                                    <p class="empty-sub">
+                                <div class="px-5 py-10 text-center">
+                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('smartEnrollProjects.staff.noStaffAvailable') }}
+                                    </p>
+                                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
                                         {{ t('smartEnrollProjects.staff.noStaffAvailableHintBefore') }}
-                                        <a routerLink="/settings/team" class="hint-here-link">{{
-                                            t('smartEnrollProjects.staff.noStaffAvailableHintLink')
-                                        }}</a>{{ t('smartEnrollProjects.staff.noStaffAvailableHintAfter') }}
+                                        <a
+                                            routerLink="/settings/team"
+                                            class="font-semibold text-indigo-600 underline underline-offset-2 dark:text-indigo-400"
+                                            >{{ t('smartEnrollProjects.staff.noStaffAvailableHintLink') }}</a
+                                        >{{ t('smartEnrollProjects.staff.noStaffAvailableHintAfter') }}
                                     </p>
                                 </div>
                             } @else {
-                                <div class="empty-block">
-                                    <p class="empty-title">{{ t('smartEnrollProjects.staff.noStaff') }}</p>
-                                    <p class="empty-sub">{{ t('smartEnrollProjects.staff.noStaffHint') }}</p>
+                                <div class="px-5 py-10 text-center">
+                                    <p class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('smartEnrollProjects.staff.noStaff') }}
+                                    </p>
+                                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                        {{ t('smartEnrollProjects.staff.noStaffHint') }}
+                                    </p>
                                 </div>
                             }
 
                             @if (canInvite() && canManageWorkspaceStaff() && workspaceStaffContextLoaded) {
                                 <div
-                                    class="workspace-limit-banner"
-                                    [class.banner-ok]="hasSubscription && canAddMoreWorkspaceStaff()"
-                                    [class.banner-warn]="hasSubscription && !canAddMoreWorkspaceStaff()"
-                                    [class.banner-bad]="!hasSubscription"
+                                    class="mx-4 mb-4 flex gap-3 rounded-xl border px-4 py-3 text-sm md:mx-5"
+                                    [ngClass]="{
+                                        'border-blue-200/90 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-950/30':
+                                            hasSubscription && canAddMoreWorkspaceStaff(),
+                                        'border-amber-200/90 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30':
+                                            hasSubscription && !canAddMoreWorkspaceStaff(),
+                                        'border-red-200/90 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30': !hasSubscription,
+                                    }"
                                 >
-                                    <p class="workspace-limit-text">
+                                    <mat-icon
+                                        class="mt-0.5 shrink-0"
+                                        [ngClass]="{
+                                            'text-blue-600 dark:text-blue-400': hasSubscription && canAddMoreWorkspaceStaff(),
+                                            'text-amber-600 dark:text-amber-400': hasSubscription && !canAddMoreWorkspaceStaff(),
+                                            'text-red-600 dark:text-red-400': !hasSubscription,
+                                        }"
+                                        style="width: 20px; height: 20px; font-size: 20px"
+                                        >info</mat-icon
+                                    >
+                                    <p
+                                        class="m-0 flex-1 leading-relaxed"
+                                        [ngClass]="{
+                                            'text-blue-950 dark:text-blue-100': hasSubscription && canAddMoreWorkspaceStaff(),
+                                            'text-amber-950 dark:text-amber-100': hasSubscription && !canAddMoreWorkspaceStaff(),
+                                            'text-red-950 dark:text-red-100': !hasSubscription,
+                                        }"
+                                    >
                                         @if (hasSubscription) {
                                             {{ t('settings.team.limit_info_1') }}
                                             <span class="font-semibold">{{
@@ -226,51 +337,93 @@
                                         } @else {
                                             {{ t('settings.team.no_plan_warning') }}
                                         }
-                                        <a routerLink="/subscription-plans" class="workspace-limit-plans">{{
-                                            t('settings.team.view_plans')
-                                        }}</a>
+                                        <a
+                                            routerLink="/subscription-plans"
+                                            class="ml-1 font-semibold underline underline-offset-2"
+                                            [ngClass]="{
+                                                'text-blue-700 dark:text-blue-300': hasSubscription && canAddMoreWorkspaceStaff(),
+                                                'text-amber-700 dark:text-amber-300': hasSubscription && !canAddMoreWorkspaceStaff(),
+                                                'text-red-700 dark:text-red-300': !hasSubscription,
+                                            }"
+                                            >{{ t('settings.team.view_plans') }}</a
+                                        >
                                     </p>
                                 </div>
 
-                                <div class="inline-workspace-form" [formGroup]="workspaceStaffForm">
-                                    <h3 class="inline-form-title">{{ t('smartEnrollProjects.staff.inlineWorkspaceTitle') }}</h3>
-                                    <p class="inline-form-sub">{{ t('smartEnrollProjects.staff.inlineWorkspaceSubtitle') }}</p>
+                                <div
+                                    class="mx-4 mb-5 rounded-xl border border-stone-200/90 bg-stone-50/50 p-4 dark:border-gray-700 dark:bg-gray-950/50 md:mx-5 md:p-5"
+                                    [formGroup]="workspaceStaffForm"
+                                >
+                                    <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ t('smartEnrollProjects.staff.inlineWorkspaceTitle') }}
+                                    </h3>
+                                    <p class="mt-1 text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                                        {{ t('smartEnrollProjects.staff.inlineWorkspaceSubtitle') }}
+                                    </p>
 
-                                    <label class="inline-label">{{ t('settings.team.full_name') }}</label>
-                                    <input class="inline-input" type="text" formControlName="name" />
+                                    <label class="mt-4 block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t('settings.team.full_name')
+                                    }}</label>
+                                    <input
+                                        class="mt-1.5 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20"
+                                        type="text"
+                                        formControlName="name"
+                                    />
 
-                                    <label class="inline-label">{{ t('settings.team.email') }}</label>
-                                    <input class="inline-input" type="email" formControlName="email" />
+                                    <label class="mt-4 block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t('settings.team.email')
+                                    }}</label>
+                                    <input
+                                        class="mt-1.5 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20"
+                                        type="email"
+                                        formControlName="email"
+                                    />
 
-                                    <div class="inline-grid-2">
+                                    <div class="mt-4 grid gap-4 sm:grid-cols-2">
                                         <div>
-                                            <label class="inline-label">{{ t('settings.team.country_code') }}</label>
-                                            <select class="inline-select" formControlName="countryCode">
+                                            <label class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                t('settings.team.country_code')
+                                            }}</label>
+                                            <select
+                                                class="mt-1.5 h-11 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20"
+                                                formControlName="countryCode"
+                                            >
                                                 @for (c of countryCodes; track c.dialCode + c.name) {
                                                     <option [value]="c.dialCode">{{ c.dialCode }} {{ c.name }}</option>
                                                 }
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="inline-label">{{ t('settings.team.phone') }}</label>
-                                            <input class="inline-input" type="tel" formControlName="phone" />
+                                            <label class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                                t('settings.team.phone')
+                                            }}</label>
+                                            <input
+                                                class="mt-1.5 h-11 w-full rounded-xl border border-stone-200 bg-white px-4 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20"
+                                                type="tel"
+                                                formControlName="phone"
+                                            />
                                         </div>
                                     </div>
 
-                                    <label class="inline-label">{{ t('settings.team.role') }}</label>
-                                    <select class="inline-select" formControlName="role">
+                                    <label class="mt-4 block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t('settings.team.role')
+                                    }}</label>
+                                    <select
+                                        class="mt-1.5 h-11 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm text-stone-950 outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:border-gray-700 dark:bg-gray-950/50 dark:text-stone-100 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20 sm:max-w-xs"
+                                        formControlName="role"
+                                    >
                                         <option value="empleado">{{ t('settings.team.role_empleado') }}</option>
                                         <option value="contabilidad">{{ t('settings.team.role_contabilidad') }}</option>
                                         <option value="desarrollador">{{ t('settings.team.role_desarrollador') }}</option>
                                         <option value="administrador">{{ t('settings.team.role_administrador') }}</option>
                                     </select>
 
-                                    <div class="inline-form-actions">
+                                    <div class="mt-5">
                                         <button
                                             mat-flat-button
                                             color="primary"
                                             type="button"
-                                            class="btn-submit-workspace"
+                                            class="!min-h-11 w-full !rounded-xl px-5 sm:w-auto"
                                             [disabled]="
                                                 isSavingWorkspaceStaff ||
                                                 workspaceStaffForm.invalid ||
@@ -291,8 +444,13 @@
                     </section>
                 }
 
-                <footer class="footer-actions">
-                    <button mat-stroked-button type="button" class="btn-outline" (click)="goBack()">
+                <footer class="mt-6 flex flex-wrap items-center justify-between gap-3">
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="!min-h-11 !rounded-xl !border-stone-200 !font-medium dark:!border-gray-700"
+                        (click)="goBack()"
+                    >
                         {{ t('smartEnrollProjects.staff.goBack') }}
                     </button>
                     @if (canInvite()) {
@@ -300,6 +458,7 @@
                             mat-flat-button
                             color="primary"
                             type="button"
+                            class="flex !min-h-11 !rounded-xl items-center justify-center gap-2 px-5"
                             [disabled]="isSavingDisabled"
                             (click)="createMembers()"
                         >

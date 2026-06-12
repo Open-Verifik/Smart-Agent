@@ -1214,7 +1214,31 @@
       "openLiveEnrollment": "라이브 등록 열기",
       "copyLiveUrl": "등록 링크 복사",
       "menuLiveEnrollment": "라이브 등록 열기",
-      "neverLoggedIn": "로그인 없음"
+      "neverLoggedIn": "로그인 없음",
+      "demoMode": "데모",
+      "menuSecurity": "보안"
+    },
+    "securitySettings": {
+      "title": "보안 설정",
+      "description": "데모 모드 및 OTP 설정을 포함한 이 프로젝트의 보안 설정을 구성합니다.",
+      "demoModeTitle": "데모 모드",
+      "demoModeDescription": "테스트 목적으로 고정 OTP를 사용하는 데모 모드를 활성화합니다.",
+      "demoModeDisabledTitle": "데모 모드 비활성화",
+      "demoModeDisabledDescription": "데모 모드가 비활성화되면 프로젝트는 일반 OTP 생성 및 검증을 사용합니다.",
+      "otpLabel": "데모 OTP",
+      "otpPlaceholderNew": "6자리 OTP 입력",
+      "otpPlaceholderExisting": "새 6자리 OTP 입력",
+      "otpHelperNew": "데모 모드의 모든 OTP 검증에 사용될 6자리 숫자를 입력하세요.",
+      "otpHelperExisting": "기존 데모 OTP를 대체할 새 6자리 숫자를 입력하세요.",
+      "otpRequired": "데모 모드가 활성화된 경우 OTP가 필요합니다",
+      "otpInvalid": "OTP는 정확히 6자리여야 합니다",
+      "otpInfoTitle": "데모 모드 정보",
+      "otpInfo1": "이 OTP는 이메일 및 전화 OTP 검증 모두에 허용됩니다",
+      "otpInfo2": "OTP는 고정되어 있으며 업데이트할 때까지 변경되지 않습니다",
+      "otpInfo3": "이 설정은 데모 모드가 활성화된 경우에만 프로젝트에 영향을 줍니다",
+      "validated": "OTP 구성됨",
+      "save": "저장",
+      "cancel": "취소"
     },
     "staff": {
       "title": "프로젝트에 멤버 추가",

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -13,6 +14,7 @@ import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type { EnrollProject, EnrollProjectFlow, EnrollProjectMember } from '../smart-enroll-projects.types';
+import { ProjectSecurityModalComponent, PROJECT_SECURITY_DIALOG_PANEL_CLASS } from '../project-security-modal/project-security-modal.component';
 
 @Component({
     selector: 'project-list',
@@ -22,6 +24,7 @@ import type { EnrollProject, EnrollProjectFlow, EnrollProjectMember } from '../s
         CommonModule,
         RouterModule,
         MatButtonModule,
+        MatDialogModule,
         MatIconModule,
         MatMenuModule,
         MatProgressSpinnerModule,
@@ -36,6 +39,7 @@ export class ProjectListComponent implements OnInit {
     private _projectsService = inject(SmartEnrollProjectsService);
     private _router = inject(Router);
     private _authGate = inject(AuthRequiredGateService);
+    private _dialog = inject(MatDialog);
     projects = signal<EnrollProject[]>([]);
     loading = signal(true);
     error = signal<string | null>(null);
@@ -98,6 +102,23 @@ export class ProjectListComponent implements OnInit {
     openStaff(project: EnrollProject, event?: Event): void {
         event?.stopPropagation();
         this._router.navigate(['/smart-enroll/projects', project._id, 'staff']);
+    }
+
+    openSecurityModal(project: EnrollProject, event?: Event): void {
+        event?.stopPropagation();
+        const ref = this._dialog.open(ProjectSecurityModalComponent, {
+            data: { project },
+            width: '600px',
+            maxWidth: '90vw',
+            disableClose: false,
+            panelClass: PROJECT_SECURITY_DIALOG_PANEL_CLASS,
+        });
+
+        ref.afterClosed().subscribe((saved: boolean) => {
+            if (saved) {
+                this._loadProjects();
+            }
+        });
     }
 
     /**

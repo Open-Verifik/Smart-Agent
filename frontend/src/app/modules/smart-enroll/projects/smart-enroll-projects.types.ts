@@ -80,6 +80,7 @@ export interface EnrollProject {
     name?: string;
     version?: number;
     demoMode?: boolean;
+    demoOTP?: string;
     allowedCountries?: string[];
     contactEmail?: string;
     privacyUrl?: string;

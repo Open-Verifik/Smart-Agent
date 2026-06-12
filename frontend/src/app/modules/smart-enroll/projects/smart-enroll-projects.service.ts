@@ -289,6 +289,16 @@ export class SmartEnrollProjectsService {
             );
     }
 
+    updateProject(id: string, payload: Record<string, unknown>): Observable<{ data: EnrollProject }> {
+        return this._http
+            .put<{ data: EnrollProject }>(
+                `${this.apiUrl}/v3/projects/${id}`,
+                payload,
+                { headers: this.authHeaders }
+            )
+            .pipe(catchError((err) => throwError(() => err)));
+    }
+
     updateProjectFlow(flowId: string, payload: Record<string, unknown>): Observable<{ data: EnrollProjectFlow }> {
         return this._http.put<{ data: EnrollProjectFlow }>(
             `${this.apiUrl}/v2/project-flows/${flowId}`,
