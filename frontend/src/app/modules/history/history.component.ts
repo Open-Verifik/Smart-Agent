@@ -16,6 +16,8 @@ import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/p
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { HistoryService, ApiRequest } from './history.service';
@@ -25,6 +27,10 @@ import {
   POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
   PostmanHistoryPrefillPayload,
 } from '../postman/postman-history-prefill';
+import {
+  getHistoryBillingTooltipParams,
+  isDynamicQueryPremiumAdjustment,
+} from '../postman/postman-billing.util';
 
 @Component({
   selector: 'history',
@@ -37,19 +43,24 @@ import {
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
+    MatSidenavModule,
+    MatProgressSpinnerModule,
     RouterLink,
     TranslocoModule,
   ],
   templateUrl: './history.component.html',
+  styleUrl: './history.component.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class HistoryComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  @ViewChild('detailDrawer') detailDrawer?: MatSidenav;
 
   // Key Properties
   displayedColumns: string[] = ['status', 'service', 'parameters', 'date', 'cost'];
   dataSource = new MatTableDataSource<any>([]);
+  selectedRequest = signal<ApiRequest | null>(null);
 
   // Inject Services
   private _historyService = inject(HistoryService);
@@ -206,10 +217,41 @@ export class HistoryComponent implements OnInit, AfterViewInit {
     return 'history.status.failed';
   }
 
+  getStatusIcon(statusCode?: number): string {
+    if (!statusCode) return 'check_circle';
+    if (statusCode >= 200 && statusCode < 300) return 'check_circle';
+    if (statusCode === 404) return 'search_off';
+    return 'error';
+  }
+
   formatCost(cost: number | string | undefined | null): string {
     const value = Number(cost);
     if (!Number.isFinite(value)) return '-';
     return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} credits`;
+  }
+
+  hasDynamicQueryBilling(request: ApiRequest): boolean {
+    return isDynamicQueryPremiumAdjustment(request);
+  }
+
+  getDynamicQueryTooltipKey(): string {
+    return 'history.dynamicQuery.tooltip';
+  }
+
+  getDynamicQueryTooltipParams(request: ApiRequest): { standard: string; charged: string } | null {
+    return getHistoryBillingTooltipParams(request);
+  }
+
+  openDetail(request: ApiRequest, event?: Event): void {
+    if (this.mode() !== 'credits') return;
+    event?.stopPropagation();
+    this.selectedRequest.set(request);
+    this.detailDrawer?.open();
+  }
+
+  closeDetail(): void {
+    this.detailDrawer?.close();
+    this.selectedRequest.set(null);
   }
 
   /**

@@ -13,6 +13,9 @@ export interface ApiRequest {
   status: string; // "ok", "failed", etc.
   statusCode: number; // 200, 400, 500, etc.
   cost?: number;
+  billingAdjustmentType?: string;
+  billingStandardCost?: number;
+  billingStandardCode?: string;
   duration: number; // in ms
   createdAt: string;
   client: string; // client id

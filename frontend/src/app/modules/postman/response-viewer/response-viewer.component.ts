@@ -9,6 +9,11 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { PostmanService } from '../postman.service';
 import { JsonTableComponent } from './json-table.component';
 import { environment } from '../../../../environments/environment';
+import {
+    COLOMBIA_CEDULA_SLA_URL,
+    formatCreditsForDisplay,
+    parseBillingFromResponse,
+} from '../postman-billing.util';
 
 /** Stable numeric string for endpoint price display (same idea as Postman request editor). */
 function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
@@ -94,6 +99,49 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
             <span class="text-slate-500 font-mono"
               >{{ 'postman.responseViewer.time' | transloco }}: {{ responseTime() ?? '--' }} ms
             </span>
+          </div>
+
+          <div
+            *ngIf="dynamicQueryBilling() as billingInfo"
+            class="mb-4 rounded-xl border border-amber-200/90 bg-amber-50/90 p-4 shadow-sm dark:border-amber-900/40 dark:bg-amber-950/30"
+          >
+            <div class="flex items-start gap-3">
+              <div
+                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300"
+              >
+                <mat-icon class="!h-5 !w-5">auto_awesome_motion</mat-icon>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold text-amber-950 dark:text-amber-100">
+                  {{ 'postman.dynamicQuery.postResponseTitle' | transloco }}
+                </h3>
+                <p class="mt-1 text-sm leading-relaxed text-amber-900/90 dark:text-amber-100/85">
+                  {{
+                    'postman.dynamicQuery.postResponseBody'
+                      | transloco
+                        : {
+                            standard: billingInfo.standard,
+                            charged: billingInfo.charged,
+                          }
+                  }}
+                </p>
+                <p
+                  *ngIf="billingInfo.featureCode"
+                  class="mt-2 font-mono text-xs text-amber-800/80 dark:text-amber-200/70"
+                >
+                  {{ 'postman.dynamicQuery.billedFeatureCode' | transloco }}:
+                  {{ billingInfo.featureCode }}
+                </p>
+                <a
+                  [href]="dynamicQuerySlaUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-2 inline-flex text-xs font-medium text-amber-900 underline-offset-2 hover:underline dark:text-amber-200"
+                >
+                  {{ 'postman.dynamicQuery.slaLink' | transloco }}
+                </a>
+              </div>
+            </div>
           </div>
 
           <!-- Proof Card (ERC8004) -->
@@ -477,6 +525,33 @@ export class ResponseViewerComponent {
   error = this._postmanService.error;
   selectedEndpoint = this._postmanService.selectedEndpoint;
   paymentMethod = this._postmanService.paymentMethod;
+  readonly dynamicQuerySlaUrl = COLOMBIA_CEDULA_SLA_URL;
+
+  dynamicQueryBilling = computed(() => {
+    if (this.paymentMethod() !== 'credits') {
+      return null;
+    }
+
+    const parsed = parseBillingFromResponse(this.parsedBody());
+    const billing = parsed?.billing;
+
+    if (!billing?.dynamicQueryApplied) {
+      return null;
+    }
+
+    const standard = formatCreditsForDisplay(
+      billing.standardCredits ?? parsed?.billing?.standardCredits
+    );
+    const charged = formatCreditsForDisplay(
+      billing.chargedCredits ?? parsed?.creditsCharged ?? null
+    );
+
+    return {
+      standard,
+      charged,
+      featureCode: parsed?.featureCode ?? billing.billedFeatureCode ?? null,
+    };
+  });
 
   httpError = computed(() => {
     const err = this.error();

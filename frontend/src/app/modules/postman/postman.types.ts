@@ -123,6 +123,9 @@ export interface ApiEndpoint {
     country?: string;
     documentationUrl?: string;
     estimatedCost?: number;
+    /** Upper bound when Dynamic Query may escalate pricing (e.g. Colombia cédula). */
+    estimatedPremiumCost?: number;
+    dynamicQueryPricing?: { premiumFeatureCode: string };
     /** Persisted Postman endpoint id when layout row exists */
     postmanEndpointId?: string;
     /** Target folder _id string, or null for Library */

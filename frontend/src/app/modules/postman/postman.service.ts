@@ -24,6 +24,7 @@ import {
     buildPostmanEffectiveUrl,
     getPostmanPathParamKeysForEndpoint,
 } from './postman-url.util';
+import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
 
 import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
@@ -181,7 +182,10 @@ export class PostmanService {
                     const dynamicEndpoints: ApiEndpoint[] = featureList.map((feature: any) =>
                         this._createEndpointFromFeature(feature, apiUrl)
                     );
-                    const mergedCatalog = this._mergeEndpoints(API_ENDPOINTS, dynamicEndpoints);
+                    const mergedCatalog = attachColombiaCedulaPremiumPricing(
+                        this._mergeEndpoints(API_ENDPOINTS, dynamicEndpoints),
+                        featureList
+                    );
                     const layoutData = layout?.data ?? null;
                     const rawFolders = layoutData?.folders ?? [];
                     const rawEndpoints = layoutData?.endpoints ?? [];
@@ -693,9 +697,16 @@ export class PostmanService {
             });
         }
 
+        if (!isX402) {
+            options.params.includeCost = 'true';
+        }
+
         let body = null;
         if (endpoint.method !== 'GET' && endpoint.method !== 'DELETE') {
-            body = endpoint.body;
+            body =
+                endpoint.body && typeof endpoint.body === 'object'
+                    ? { ...endpoint.body, includeCost: true }
+                    : { includeCost: true };
         }
 
         const startTime = Date.now();

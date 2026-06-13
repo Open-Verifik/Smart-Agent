@@ -1,0 +1,20 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.history-drawer-container {
+    width: 100%;
+    min-height: 100vh;
+
+    .mat-drawer-content {
+        width: 100%;
+        overflow: visible;
+    }
+
+    .history-drawer {
+        .mat-drawer-inner-container {
+            overflow: hidden;
+        }
+    }
+}

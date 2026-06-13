@@ -49,6 +49,10 @@ import { distinctUntilChanged, map, skip } from 'rxjs';
 import { AboutEndpointComponent } from './about-endpoint.component';
 import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
 import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
+import {
+    COLOMBIA_CEDULA_SLA_URL,
+    hasDynamicQueryPriceRange,
+} from '../postman-billing.util';
 
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
@@ -114,14 +118,14 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                 @if (priceDisplay(); as pd) {
                     <div
-                        class="mt-3 inline-flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
+                        class="mt-3 inline-flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200"
                     >
                         <div
-                            class="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-violet-600 shadow-sm dark:bg-slate-900 dark:text-violet-400"
+                            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-violet-600 shadow-sm dark:bg-slate-900 dark:text-violet-400"
                         >
                             <mat-icon class="icon-size-4">sell</mat-icon>
                         </div>
-                        <div class="leading-tight">
+                        <div class="min-w-0 leading-tight">
                             <div
                                 class="text-[11px] font-medium uppercase tracking-[0.14em] text-slate-400"
                             >
@@ -129,6 +133,16 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             </div>
                             <div class="text-sm font-semibold text-slate-700 dark:text-slate-100">
                                 @switch (pd.type) {
+                                    @case ('creditsRange') {
+                                        {{
+                                            'postman.dynamicQuery.priceRange'
+                                                | transloco
+                                                    : {
+                                                          standard: pd.standard,
+                                                          premium: pd.premium,
+                                                      }
+                                        }}
+                                    }
                                     @case ('credits') {
                                         {{ pd.value }}
                                         {{ 'postman.requestEditor.credits' | transloco }}
@@ -138,6 +152,20 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                     }
                                 }
                             </div>
+                            @if (pd.type === 'creditsRange') {
+                                <div class="mt-1 flex items-start gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                                    <mat-icon class="icon-size-3 mt-0.5 shrink-0">info</mat-icon>
+                                    <span>{{ 'postman.dynamicQuery.preRequestHint' | transloco }}</span>
+                                    <a
+                                        [href]="dynamicQuerySlaUrl"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="ml-1 shrink-0 font-medium text-violet-600 underline-offset-2 hover:underline dark:text-violet-400"
+                                    >
+                                        {{ 'postman.dynamicQuery.slaLink' | transloco }}
+                                    </a>
+                                </div>
+                            }
                         </div>
                     </div>
                 }
@@ -1295,8 +1323,21 @@ export class RequestEditorComponent {
         const sub = this.currentSubscription();
         const plan = sub?.subscriptionPlan;
         const effective = this.getEffectivePrice(basePrice, plan);
+        const premiumBase = ep.estimatedPremiumCost ?? basePrice;
+        const effectivePremium = this.getEffectivePrice(premiumBase, plan);
+
+        if (hasDynamicQueryPriceRange(ep)) {
+            return {
+                type: 'creditsRange' as const,
+                standard: formatPostmanPriceForDisplay(effective),
+                premium: formatPostmanPriceForDisplay(effectivePremium),
+            };
+        }
+
         return { type: 'credits' as const, value: formatPostmanPriceForDisplay(effective) };
     });
+
+    readonly dynamicQuerySlaUrl = COLOMBIA_CEDULA_SLA_URL;
 
     /** About tab is visible when the endpoint has structured docs or legacy markdown content. */
     showAboutTab = computed(() => {

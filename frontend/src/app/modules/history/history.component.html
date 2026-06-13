@@ -1,9 +1,134 @@
 <ng-container *transloco="let t">
-  <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+  <mat-drawer-container class="history-drawer-container min-h-screen w-full bg-stone-50 dark:bg-gray-950">
+    <mat-drawer
+      #detailDrawer
+      mode="over"
+      position="end"
+      class="history-drawer w-full max-w-lg border-l border-stone-200/90 dark:border-gray-800"
+    >
+      @if (selectedRequest(); as request) {
+        <div class="flex h-full flex-col overflow-hidden bg-white dark:bg-gray-900/70">
+          <header class="flex items-start justify-between gap-4 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:px-6">
+            <div class="flex min-w-0 items-start gap-3">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                <mat-icon class="!h-5 !w-5 !text-xl">receipt_long</mat-icon>
+              </div>
+              <div class="min-w-0">
+                <h2 class="truncate text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                  {{ t('history.dynamicQuery.detailTitle') }}
+                </h2>
+                <p class="mt-1 truncate text-sm leading-6 text-stone-500 dark:text-stone-400">
+                  {{ request.endpoint || request.code }}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+              (click)="closeDetail()"
+            >
+              <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+            </button>
+          </header>
+
+          <div class="flex flex-wrap gap-2 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800 md:px-6">
+            @if (request.statusCode) {
+              <span class="rounded-full px-2.5 py-1 text-xs font-semibold" [ngClass]="getStatusColor(request.statusCode)">
+                {{ t(getStatusLabelKey(request.statusCode)) }} ({{ request.statusCode }})
+              </span>
+            }
+            <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
+              {{ formatCost(request.cost) }}
+            </span>
+            @if (request.createdAt) {
+              <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
+                {{ formatDate(request.createdAt) }}
+              </span>
+            }
+          </div>
+
+          <div class="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-6 md:px-6">
+            <section class="flex flex-col gap-2">
+              <h3 class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
+                {{ t('history.table.parameters') }}
+              </h3>
+              <div class="flex flex-wrap gap-1.5" *ngIf="formatParams(request.params).length > 0">
+                <span
+                  *ngFor="let param of formatParams(request.params)"
+                  class="rounded-lg border border-stone-200 bg-stone-50 px-2 py-1 text-xs text-stone-600 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-300"
+                >
+                  <span class="font-semibold text-stone-800 dark:text-gray-100">{{ param.key }}:</span>
+                  {{ formatParamValue(param.value) }}
+                </span>
+              </div>
+              <span *ngIf="formatParams(request.params).length === 0" class="text-xs italic text-stone-400 dark:text-gray-500">
+                {{ t('history.table.noParams') }}
+              </span>
+              <span class="inline-flex w-fit rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-stone-600 dark:bg-gray-800 dark:text-gray-300">
+                {{ request.method || 'GET' }}
+              </span>
+            </section>
+
+            @if (hasDynamicQueryBilling(request) && getDynamicQueryTooltipParams(request); as billing) {
+              <section class="flex flex-col gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
+                <div class="flex items-center gap-2">
+                  <span class="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                    {{ t('history.dynamicQuery.badge') }}
+                  </span>
+                </div>
+                <p class="text-sm leading-6 text-stone-700 dark:text-stone-300">
+                  {{ t('history.dynamicQuery.detailExplanation') }}
+                </p>
+                <dl class="grid grid-cols-1 gap-3 text-sm">
+                  <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                      {{ t('history.dynamicQuery.standardCredits') }}
+                    </dt>
+                    <dd class="font-mono font-semibold text-stone-900 dark:text-white">{{ billing.standard }} credits</dd>
+                  </div>
+                  <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
+                    <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                      {{ t('history.dynamicQuery.chargedCredits') }}
+                    </dt>
+                    <dd class="font-mono font-semibold text-amber-800 dark:text-amber-200">{{ billing.charged }} credits</dd>
+                  </div>
+                  @if (request.billingStandardCode || request.code) {
+                    <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
+                      <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                        {{ t('history.dynamicQuery.featureCodes') }}
+                      </dt>
+                      <dd class="break-all font-mono text-xs text-stone-800 dark:text-stone-200">
+                        {{ request.billingStandardCode || '—' }} → {{ request.code || '—' }}
+                      </dd>
+                    </div>
+                  }
+                </dl>
+              </section>
+            }
+
+            <section class="mt-auto flex flex-wrap gap-2 border-t border-stone-100 pt-4 dark:border-gray-800">
+              <button
+                mat-stroked-button
+                type="button"
+                class="!rounded-xl"
+                [disabled]="!canRepeatRequest(request)"
+                (click)="repeatRequest(request)"
+              >
+                <mat-icon class="mr-1 !h-4 !w-4">replay</mat-icon>
+                {{ t('history.actions.repeat') }}
+              </button>
+            </section>
+          </div>
+        </div>
+      }
+    </mat-drawer>
+
+    <mat-drawer-content class="!w-full">
+  <div class="flex min-h-screen w-full min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
     <header
       class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
     >
-      <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+      <div class="flex w-full flex-col gap-5">
         <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
           <a
             routerLink="/home"
@@ -63,8 +188,8 @@
       </div>
     </header>
 
-    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
-      <div class="mx-auto flex w-full max-w-7xl flex-col gap-4">
+    <main class="flex w-full flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+      <div class="flex w-full flex-col gap-4">
         <div
           class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/80"
         >
@@ -84,25 +209,22 @@
           </div>
 
           <div class="overflow-x-auto">
-            <table mat-table [dataSource]="dataSource" class="w-full min-w-[980px] bg-transparent" matSort>
+            <table mat-table [dataSource]="dataSource" class="w-full bg-transparent" matSort>
               <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header class="pl-6">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-16 pl-6">
                   {{ t('history.table.status') }}
                 </th>
-                <td mat-cell *matCellDef="let request" class="pl-6 py-5">
+                <td mat-cell *matCellDef="let request" class="w-16 pl-6 py-5">
                   <span
-                    class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold"
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-full"
                     [ngClass]="getStatusColor(request.statusCode)"
-                    *ngIf="request.statusCode"
+                    [matTooltip]="
+                      request.statusCode
+                        ? t(getStatusLabelKey(request.statusCode)) + ' (' + request.statusCode + ')'
+                        : t('history.table.confirmed')
+                    "
                   >
-                    <span>{{ t(getStatusLabelKey(request.statusCode)) }}</span>
-                    <span class="font-mono font-normal opacity-90">({{ request.statusCode }})</span>
-                  </span>
-                  <span
-                    class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                    *ngIf="!request.statusCode"
-                  >
-                    {{ t('history.table.confirmed') }}
+                    <mat-icon class="!h-4 !w-4">{{ getStatusIcon(request.statusCode) }}</mat-icon>
                   </span>
                 </td>
               </ng-container>
@@ -113,10 +235,10 @@
                 </th>
                 <td mat-cell *matCellDef="let request" class="py-5">
                   <div class="flex min-w-0 flex-col gap-1">
-                    <span class="max-w-[280px] truncate text-sm font-semibold text-stone-950 dark:text-white">
+                    <span class="truncate text-sm font-semibold text-stone-950 dark:text-white">
                       {{ request.endpoint || request.code || request.serviceId }}
                     </span>
-                    <span class="max-w-[280px] truncate font-mono text-xs text-stone-400 dark:text-gray-500">
+                    <span class="truncate font-mono text-xs text-stone-400 dark:text-gray-500">
                       {{ request.code || request.project || request.serviceId }}
                     </span>
                   </div>
@@ -126,7 +248,7 @@
               <ng-container matColumnDef="parameters">
                 <th mat-header-cell *matHeaderCellDef>{{ t('history.table.parameters') }}</th>
                 <td mat-cell *matCellDef="let request" class="py-5">
-                  <div class="flex max-w-[360px] flex-col gap-2">
+                  <div class="flex min-w-0 flex-col gap-2">
                     <span
                       class="inline-flex w-fit rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-stone-600 dark:bg-gray-800 dark:text-gray-300"
                     >
@@ -198,28 +320,62 @@
                   {{ t('history.table.cost') }}
                 </th>
                 <td mat-cell *matCellDef="let request" class="whitespace-nowrap py-5">
-                  <span class="inline-flex rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-gray-200">
-                    {{ formatCost(request.cost) }}
-                  </span>
+                  <div class="inline-flex flex-col items-start gap-1">
+                    <span class="inline-flex items-center gap-2 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-gray-200">
+                      <span>{{ formatCost(request.cost) }}</span>
+                      <span
+                        *ngIf="hasDynamicQueryBilling(request)"
+                        class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                        [matTooltip]="
+                          t(getDynamicQueryTooltipKey(), getDynamicQueryTooltipParams(request) || {})
+                        "
+                      >
+                        {{ t('history.dynamicQuery.badge') }}
+                      </span>
+                    </span>
+                    <span
+                      *ngIf="hasDynamicQueryBilling(request) && getDynamicQueryTooltipParams(request) as billing"
+                      class="text-[11px] text-stone-500 dark:text-gray-400"
+                    >
+                      {{
+                        t('history.dynamicQuery.summary', {
+                          standard: billing.standard,
+                          charged: billing.charged,
+                        })
+                      }}
+                    </span>
+                  </div>
                 </td>
               </ng-container>
 
               <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="pr-6 text-right">
+                <th mat-header-cell *matHeaderCellDef class="w-28 pr-6 text-right">
                   {{ t('history.table.actions') }}
                 </th>
-                <td mat-cell *matCellDef="let request" class="pr-6 py-5 text-right">
-                  <button
-                    mat-stroked-button
-                    type="button"
-                    class="!rounded-xl"
-                    [disabled]="!canRepeatRequest(request)"
-                    [matTooltip]="canRepeatRequest(request) ? t('history.actions.repeatTooltip') : t('history.actions.repeatUnavailable')"
-                    (click)="repeatRequest(request)"
-                  >
-                    <mat-icon class="mr-1 !h-4 !w-4">replay</mat-icon>
-                    {{ t('history.actions.repeat') }}
-                  </button>
+                <td mat-cell *matCellDef="let request" class="w-28 pr-6 py-5 text-right">
+                  <div class="inline-flex items-center justify-end gap-0.5">
+                    @if (mode() === 'credits') {
+                      <button
+                        mat-icon-button
+                        type="button"
+                        class="!h-8 !w-8"
+                        [matTooltip]="t('history.actions.viewDetails')"
+                        (click)="openDetail(request, $event)"
+                      >
+                        <mat-icon class="!h-4 !w-4">visibility</mat-icon>
+                      </button>
+                    }
+                    <button
+                      mat-icon-button
+                      type="button"
+                      class="!h-8 !w-8"
+                      [disabled]="!canRepeatRequest(request)"
+                      [matTooltip]="canRepeatRequest(request) ? t('history.actions.repeatTooltip') : t('history.actions.repeatUnavailable')"
+                      (click)="repeatRequest(request); $event.stopPropagation()"
+                    >
+                      <mat-icon class="!h-4 !w-4">replay</mat-icon>
+                    </button>
+                  </div>
                 </td>
               </ng-container>
 
@@ -232,6 +388,8 @@
                 mat-row
                 *matRowDef="let row; columns: displayedColumns"
                 class="border-b border-stone-100 transition-colors hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
+                [class.cursor-pointer]="mode() === 'credits'"
+                (click)="mode() === 'credits' && openDetail(row)"
               ></tr>
 
               <tr *matNoDataRow>
@@ -262,4 +420,6 @@
       </div>
     </main>
   </div>
+    </mat-drawer-content>
+  </mat-drawer-container>
 </ng-container>
