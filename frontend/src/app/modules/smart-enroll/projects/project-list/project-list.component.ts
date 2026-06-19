@@ -1,20 +1,29 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
-import { DateTime } from 'luxon';
-import { environment } from 'environments/environment';
+import { requiresSmartEnrollSubscription } from 'app/core/client-settings/override-conditions';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { environment } from 'environments/environment';
+import { DateTime } from 'luxon';
+import { forkJoin } from 'rxjs';
+import {
+    PROJECT_SECURITY_DIALOG_PANEL_CLASS,
+    ProjectSecurityModalComponent,
+} from '../project-security-modal/project-security-modal.component';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
-import type { EnrollProject, EnrollProjectFlow, EnrollProjectMember } from '../smart-enroll-projects.types';
-import { ProjectSecurityModalComponent, PROJECT_SECURITY_DIALOG_PANEL_CLASS } from '../project-security-modal/project-security-modal.component';
+import type {
+    EnrollProject,
+    EnrollProjectFlow,
+    EnrollProjectMember,
+} from '../smart-enroll-projects.types';
 
 @Component({
     selector: 'project-list',
@@ -58,14 +67,19 @@ export class ProjectListComponent implements OnInit {
             this._loadProjects();
             return;
         }
-        this._projectsService.getActiveSmartEnrollPlans().subscribe({
-            next: (res) => {
-                const rows = res?.data ?? [];
-                if (!rows.length) {
+        forkJoin({
+            plans: this._projectsService.getActiveSmartEnrollPlans(),
+            settings: this._projectsService.getClientSettings(),
+        }).subscribe({
+            next: ({ plans, settings }) => {
+                const rows = plans?.data ?? [];
+
+                if (!rows.length && requiresSmartEnrollSubscription(settings?.data)) {
                     this.noActivePlan.set(true);
                     this.loading.set(false);
                     return;
                 }
+
                 this._loadProjects();
             },
             error: () => {

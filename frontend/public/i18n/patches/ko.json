@@ -52,5 +52,27 @@
         }
       }
     }
+  },
+  "home": {
+    "onboarding": {
+      "taskReward": "+$1.00 USD",
+      "statusLabels": {
+        "NOT_STARTED": "시작 전",
+        "VISITED": "방문함",
+        "STARTED": "진행 중",
+        "STUCK": "도움 필요",
+        "COMPLETED": "완료됨"
+      },
+      "explanationModal": {
+        "reward": "보상 +$1.00 USD",
+        "sectionDescription": "설명",
+        "sectionHowTo": "완료 방법",
+        "sectionApiReference": "기술 API 참조",
+        "close": "닫기",
+        "goToTask": "작업으로 이동",
+        "verifyIdentity": "신원 확인",
+        "helpTooltip": "이 작업에 대해 자세히 알아보기"
+      }
+    }
   }
 }

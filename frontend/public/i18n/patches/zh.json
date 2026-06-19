@@ -52,5 +52,27 @@
         }
       }
     }
+  },
+  "home": {
+    "onboarding": {
+      "taskReward": "+$1.00 USD",
+      "statusLabels": {
+        "NOT_STARTED": "未开始",
+        "VISITED": "已访问",
+        "STARTED": "进行中",
+        "STUCK": "需要帮助",
+        "COMPLETED": "已完成"
+      },
+      "explanationModal": {
+        "reward": "奖励 +$1.00 USD",
+        "sectionDescription": "说明",
+        "sectionHowTo": "如何完成",
+        "sectionApiReference": "技术 API 参考",
+        "close": "关闭",
+        "goToTask": "前往任务",
+        "verifyIdentity": "验证身份",
+        "helpTooltip": "了解此任务的更多信息"
+      }
+    }
   }
 }

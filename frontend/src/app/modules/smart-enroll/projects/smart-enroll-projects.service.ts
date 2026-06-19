@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
 import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
+import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
 import type {
     AppRegistrationDetail,
     AppRegistrationListFilters,
@@ -88,6 +89,21 @@ export class SmartEnrollProjectsService {
             .pipe(
                 catchError((err) => {
                     console.error('Error loading client smart enroll plans:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    /** Client settings for subscription override checks (JWT-scoped). */
+    getClientSettings(): Observable<{ data?: ClientSettingsOverrideSnapshot }> {
+        return this._http
+            .get<{ data?: ClientSettingsOverrideSnapshot }>(`${this.apiUrl}/v2/client-settings`, {
+                params: { findOne: 'true' },
+                headers: this.authHeaders,
+            })
+            .pipe(
+                catchError((err) => {
+                    console.error('Error loading client settings:', err);
                     return throwError(() => err);
                 })
             );

@@ -721,8 +721,8 @@
             "description": "秘鲁外国居民身份证核验服务，用于核实外国人身份证件。"
         },
         "colombia_api_rues_full_v3": {
-            "title": "RUES 企业完整核验 (v3)",
-            "description": "通过 NIT 与登记类别查询哥伦比亚 RUES 完整企业信息。GET /v3/co/rues-complete。"
+            "title": "RUES 完整企业登记 (v3)",
+            "description": "从 RUES 获取哥伦比亚完整企业登记档案。GET /v3/co/rues-complete。"
         },
         "colombia_api_rues_v3": {
             "title": "RUES 企业查询 (v3)",

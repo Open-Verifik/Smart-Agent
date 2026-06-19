@@ -193,8 +193,8 @@
             "description": "Provides reliable verification and validation services."
         },
         "chile_api_vehicle": {
-            "title": "Vehicle Information (Chile)",
-            "description": "Chile vehicle lookup by license plate: canonical API reference lives on the main Chile vehicle page."
+            "title": "Vehicle Information",
+            "description": "Chilean vehicle information service"
         },
         "panama_api_identity_lookup": {
             "title": "Panamanian Citizen",

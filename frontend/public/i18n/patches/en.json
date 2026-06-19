@@ -1,56 +1,78 @@
 {
-  "settings": {
-    "api_key": {
-      "help_label": "Learn more",
-      "help_close": "Got it",
-      "how_it_works_title": "How it works",
-      "how_it_works_subtitle": "Your API token is a JWT. Extending or revoking always issues a new JWT — you must copy it and update your integrations.",
-      "step1_title": "One active token",
-      "step1_desc": "Your account has one API access token (JWT) shown on this page. Use it to authenticate server-side requests.",
-      "step2_title": "Send it as Bearer",
-      "step2_desc": "Include the token in every request: Authorization: Bearer <your_token>.",
-      "step3_title": "Extend or revoke",
-      "step3_desc": "Extend Validity issues a new JWT with the expiration you select. Revoke invalidates every previous JWT and issues one new JWT.",
-      "renew_description": "Issues a new JWT with the expiration period you select. Copy it and update your integrations — the existing JWT string is not extended in place.",
-      "extend_new_token_notice": "This action generates a new JWT. After confirming, copy the new token and update every integration — your current token string will not be modified in place.",
-      "token_renewed_success": "New token generated! Copy it and update your integrations.",
-      "help": {
-        "overview": {
-          "title": "How API tokens work",
-          "intro": "Your API token is a JWT credential that authenticates your server-side requests to Verifik.",
-          "point1": "The token shown on this page is a signed JWT. It cannot be edited in place — extending or revoking always creates a new JWT string.",
-          "point2": "Every JWT has an expiration date. When it expires, API requests return authentication errors until you extend or revoke to get a new one.",
-          "point3": "Extend Validity issues a new JWT with the expiration period you choose. Copy the new token and update every integration that calls Verifik.",
-          "point4": "Revoke & Generate New also issues a new JWT, but immediately invalidates every previously issued token for your account.",
-          "point5": "Multiple servers or environments can each store the latest JWT. After extend or revoke, make sure they all use the new token string."
-        },
-        "token": {
-          "title": "Using your access token",
-          "intro": "Your token must be sent on every API request as a Bearer credential.",
-          "point1": "Copy the token from this page and store it securely in your backend — never expose it in client-side apps, mobile apps, or public repositories.",
-          "point2": "Add it to the Authorization header on every request to api.verifik.co (or your sandbox base URL).",
-          "point3": "After extend or revoke, the token string on this page changes. Update every service still using the previous JWT.",
-          "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
-        },
-        "extend": {
-          "title": "Extending token validity",
-          "intro": "Extend Validity does not modify your current JWT. It issues a brand-new JWT with the expiration period you select.",
-          "point1": "Choose how many months (1–36). The new JWT expires after that period, counted from the moment you extend — not from when the previous token was created.",
-          "point2": "You receive a new token string on this page immediately. Copy it and update every service, script, or environment variable that calls the Verifik API.",
-          "point3": "Unlike revoke, extend does not immediately invalidate previously issued JWTs — they keep working until their own expiration. Still, deploy the new token everywhere.",
-          "point4": "Extend before your current token expires to avoid downtime. If it already expired, extend or revoke to get a working JWT.",
-          "note": "You cannot push the expiration date forward on an existing JWT string. Extend always generates a new token."
-        },
-        "revoke": {
-          "title": "Revoking and generating a new token",
-          "intro": "This issues a new JWT and immediately invalidates every token previously issued for your account.",
-          "point1": "Revoke invalidates all previous JWTs right away, including tokens created by earlier extend actions.",
-          "point2": "You receive one new token string immediately after confirming. Copy it and update every integration that calls the API.",
-          "point3": "Applications still using an old token will receive 401 errors until updated.",
-          "point4": "Use revoke only when a token may have been leaked, shared insecurely, or you need to force a full credential rotation.",
-          "note": "If you need a longer-lived credential without cutting off every active token immediately, use Extend Validity — but you still must deploy the new JWT string."
+    "settings": {
+        "api_key": {
+            "help_label": "Learn more",
+            "help_close": "Got it",
+            "how_it_works_title": "How it works",
+            "how_it_works_subtitle": "Your API token is a JWT. Extending or revoking always issues a new JWT — you must copy it and update your integrations.",
+            "step1_title": "One active token",
+            "step1_desc": "Your account has one API access token (JWT) shown on this page. Use it to authenticate server-side requests.",
+            "step2_title": "Send it as Bearer",
+            "step2_desc": "Include the token in every request: Authorization: Bearer <your_token>.",
+            "step3_title": "Extend or revoke",
+            "step3_desc": "Extend Validity issues a new JWT with the expiration you select. Revoke invalidates every previous JWT and issues one new JWT.",
+            "renew_description": "Issues a new JWT with the expiration period you select. Copy it and update your integrations — the existing JWT string is not extended in place.",
+            "extend_new_token_notice": "This action generates a new JWT. After confirming, copy the new token and update every integration — your current token string will not be modified in place.",
+            "token_renewed_success": "New token generated! Copy it and update your integrations.",
+            "help": {
+                "overview": {
+                    "title": "How API tokens work",
+                    "intro": "Your API token is a JWT credential that authenticates your server-side requests to Verifik.",
+                    "point1": "The token shown on this page is a signed JWT. It cannot be edited in place — extending or revoking always creates a new JWT string.",
+                    "point2": "Every JWT has an expiration date. When it expires, API requests return authentication errors until you extend or revoke to get a new one.",
+                    "point3": "Extend Validity issues a new JWT with the expiration period you choose. Copy the new token and update every integration that calls Verifik.",
+                    "point4": "Revoke & Generate New also issues a new JWT, but immediately invalidates every previously issued token for your account.",
+                    "point5": "Multiple servers or environments can each store the latest JWT. After extend or revoke, make sure they all use the new token string."
+                },
+                "token": {
+                    "title": "Using your access token",
+                    "intro": "Your token must be sent on every API request as a Bearer credential.",
+                    "point1": "Copy the token from this page and store it securely in your backend — never expose it in client-side apps, mobile apps, or public repositories.",
+                    "point2": "Add it to the Authorization header on every request to api.verifik.co (or your sandbox base URL).",
+                    "point3": "After extend or revoke, the token string on this page changes. Update every service still using the previous JWT.",
+                    "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+                },
+                "extend": {
+                    "title": "Extending token validity",
+                    "intro": "Extend Validity does not modify your current JWT. It issues a brand-new JWT with the expiration period you select.",
+                    "point1": "Choose how many months (1–36). The new JWT expires after that period, counted from the moment you extend — not from when the previous token was created.",
+                    "point2": "You receive a new token string on this page immediately. Copy it and update every service, script, or environment variable that calls the Verifik API.",
+                    "point3": "Unlike revoke, extend does not immediately invalidate previously issued JWTs — they keep working until their own expiration. Still, deploy the new token everywhere.",
+                    "point4": "Extend before your current token expires to avoid downtime. If it already expired, extend or revoke to get a working JWT.",
+                    "note": "You cannot push the expiration date forward on an existing JWT string. Extend always generates a new token."
+                },
+                "revoke": {
+                    "title": "Revoking and generating a new token",
+                    "intro": "This issues a new JWT and immediately invalidates every token previously issued for your account.",
+                    "point1": "Revoke invalidates all previous JWTs right away, including tokens created by earlier extend actions.",
+                    "point2": "You receive one new token string immediately after confirming. Copy it and update every integration that calls the API.",
+                    "point3": "Applications still using an old token will receive 401 errors until updated.",
+                    "point4": "Use revoke only when a token may have been leaked, shared insecurely, or you need to force a full credential rotation.",
+                    "note": "If you need a longer-lived credential without cutting off every active token immediately, use Extend Validity — but you still must deploy the new JWT string."
+                }
+            }
         }
-      }
+    },
+    "home": {
+        "onboarding": {
+            "taskReward": "+$1.00 USD",
+            "statusLabels": {
+                "NOT_STARTED": "Not started",
+                "VISITED": "Visited",
+                "STARTED": "In progress",
+                "STUCK": "Needs help",
+                "COMPLETED": "Completed"
+            },
+            "explanationModal": {
+                "reward": "+$1.00 USD Reward",
+                "sectionDescription": "Description",
+                "sectionHowTo": "How to Complete",
+                "sectionApiReference": "Technical API Reference",
+                "close": "Close",
+                "goToTask": "Go to Task",
+                "verifyIdentity": "Verify Identity",
+                "helpTooltip": "Read more about this task"
+            }
+        }
     }
-  }
 }

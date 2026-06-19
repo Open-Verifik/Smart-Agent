@@ -52,9 +52,9 @@ interface TaskTechnicalInfo {
                 </h2>
                 <!-- Subtitle with Reward & Status -->
                 <p class="mt-2 text-xs text-slate-500 dark:text-slate-400 max-w-[340px] leading-relaxed flex items-center gap-1.5 justify-center">
-                    <span class="font-bold text-emerald-600 dark:text-emerald-400">+$1.00 USD Reward</span>
+                    <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ 'home.onboarding.explanationModal.reward' | transloco }}</span>
                     <span class="text-slate-300 dark:text-slate-700">•</span>
-                    <span class="capitalize">{{ data.status.toLowerCase().replace('_', ' ') }}</span>
+                    <span>{{ 'home.onboarding.statusLabels.' + data.status | transloco }}</span>
                 </p>
             </div>
 
@@ -67,7 +67,7 @@ interface TaskTechnicalInfo {
                     </div>
                     <div class="min-w-0">
                         <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                            Description
+                            {{ 'home.onboarding.explanationModal.sectionDescription' | transloco }}
                         </h3>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400 leading-normal"
                            [innerHTML]="'home.onboarding.explanations.' + data.taskId + '.description' | transloco">
@@ -82,7 +82,7 @@ interface TaskTechnicalInfo {
                     </div>
                     <div class="min-w-0">
                         <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                            How to Complete
+                            {{ 'home.onboarding.explanationModal.sectionHowTo' | transloco }}
                         </h3>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400 leading-normal"
                            [innerHTML]="'home.onboarding.explanations.' + data.taskId + '.requirement' | transloco">
@@ -98,7 +98,7 @@ interface TaskTechnicalInfo {
                         </div>
                         <div class="min-w-0 flex-1">
                             <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                Technical API Reference
+                                {{ 'home.onboarding.explanationModal.sectionApiReference' | transloco }}
                             </h3>
                             <div class="mt-1 flex items-center gap-1.5 font-mono text-[11px] text-slate-600 dark:text-slate-400 overflow-hidden">
                                 <span class="px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider shrink-0"
@@ -126,7 +126,7 @@ interface TaskTechnicalInfo {
                         class="w-full !rounded-xl !h-12 !text-sm !font-bold !bg-gradient-to-r !from-verifikBrand-600 !to-indigo-600 !text-white hover:opacity-95 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 shadow-md shadow-verifikBrand-500/20"
                         (click)="goToTask()"
                     >
-                        {{ data.taskId === 'complete_kyc' ? 'Verify Identity' : 'Go to Task' }}
+                        {{ (data.taskId === 'complete_kyc' ? 'home.onboarding.explanationModal.verifyIdentity' : 'home.onboarding.explanationModal.goToTask') | transloco }}
                     </button>
                 } @else {
                     <button
@@ -135,7 +135,7 @@ interface TaskTechnicalInfo {
                         class="w-full !rounded-xl !h-12 !text-sm !font-bold !bg-slate-200 dark:!bg-slate-800 !text-slate-800 dark:!text-slate-200 hover:opacity-95"
                         (click)="close()"
                     >
-                        Close
+                        {{ 'home.onboarding.explanationModal.close' | transloco }}
                     </button>
                 }
             </div>

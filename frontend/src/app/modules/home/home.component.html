@@ -91,12 +91,12 @@
                                         <button type="button"
                                                 class="flex items-center justify-center shrink-0 w-5 h-5 rounded-full text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors -mt-0.5"
                                                 (click)="openTaskExplanation(task.taskId, task.status)"
-                                                title="Read more about this task">
+                                                [title]="'home.onboarding.explanationModal.helpTooltip' | transloco">
                                             <mat-icon class="icon-size-4 !w-4 !h-4 text-[16px]">help_outline</mat-icon>
                                         </button>
                                     </div>
                                     <span class="inline-block text-[11px] font-bold mt-1 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded">
-                                        +$1.00 USD
+                                        {{ 'home.onboarding.taskReward' | transloco }}
                                     </span>
                                 </div>
                             </div>
@@ -116,7 +116,7 @@
                                         {{ 'home.onboarding.completed' | transloco }}
                                     </span>
                                 } @else {
-                                    <span class="text-slate-400 dark:text-slate-500 capitalize">{{ task.status.toLowerCase().replace('_', ' ') }}</span>
+                                    <span class="text-slate-400 dark:text-slate-500">{{ 'home.onboarding.statusLabels.' + task.status | transloco }}</span>
                                 }
                             </div>
 

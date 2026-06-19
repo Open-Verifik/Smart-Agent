@@ -10,6 +10,12 @@ export interface SmartAgentWeekOneUsd50Promotion {
 export interface ClientSettingsSnapshot {
     _id?: string;
     sandboxMode?: boolean;
+    overrideConditions?: OverrideConditionsSnapshot;
+}
+
+export interface OverrideConditionsSnapshot {
+    requiresSmartEnrollSubscription?: boolean;
+    requiresSmartAccessSubscription?: boolean;
 }
 
 export interface User {

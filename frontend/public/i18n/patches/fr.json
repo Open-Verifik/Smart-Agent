@@ -1,0 +1,24 @@
+{
+  "home": {
+    "onboarding": {
+      "taskReward": "+1,00 USD",
+      "statusLabels": {
+        "NOT_STARTED": "Non commencée",
+        "VISITED": "Visitée",
+        "STARTED": "En cours",
+        "STUCK": "Besoin d'aide",
+        "COMPLETED": "Complétée"
+      },
+      "explanationModal": {
+        "reward": "Récompense +1,00 USD",
+        "sectionDescription": "Description",
+        "sectionHowTo": "Comment compléter",
+        "sectionApiReference": "Référence technique de l'API",
+        "close": "Fermer",
+        "goToTask": "Aller à la tâche",
+        "verifyIdentity": "Vérifier l'identité",
+        "helpTooltip": "En savoir plus sur cette tâche"
+      }
+    }
+  }
+}

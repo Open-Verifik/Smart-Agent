@@ -329,11 +329,11 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "brasil_api_company_lookup": {
-            "title": "Brasil",
+            "title": "Brasil — Verificación empresarial (CNPJ)",
             "description": "Verificar empresas brasileñas usando CNPJ (Cadastro Nacional da Pessoa Jurídica)"
         },
         "brasil_api_vehicle": {
-            "title": "Brasil",
+            "title": "Brasil — Información de vehículos",
             "description": "Verificar información de vehículos brasileños usando placa de matrícula"
         },
         "argentina_api_identity_lookup": {

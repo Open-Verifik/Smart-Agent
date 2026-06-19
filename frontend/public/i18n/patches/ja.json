@@ -52,5 +52,27 @@
         }
       }
     }
+  },
+  "home": {
+    "onboarding": {
+      "taskReward": "+$1.00 USD",
+      "statusLabels": {
+        "NOT_STARTED": "未開始",
+        "VISITED": "閲覧済み",
+        "STARTED": "進行中",
+        "STUCK": "サポートが必要",
+        "COMPLETED": "完了"
+      },
+      "explanationModal": {
+        "reward": "報酬 +$1.00 USD",
+        "sectionDescription": "説明",
+        "sectionHowTo": "完了方法",
+        "sectionApiReference": "技術APIリファレンス",
+        "close": "閉じる",
+        "goToTask": "タスクへ移動",
+        "verifyIdentity": "本人確認",
+        "helpTooltip": "このタスクの詳細を見る"
+      }
+    }
   }
 }

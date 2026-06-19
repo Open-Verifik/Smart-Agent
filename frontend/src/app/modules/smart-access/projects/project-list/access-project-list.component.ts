@@ -9,8 +9,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleChange, MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslocoModule } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
+import { forkJoin } from 'rxjs';
 import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
+import { requiresSmartAccessSubscription } from 'app/core/client-settings/override-conditions';
 import { smartAccessLoginFlow } from '../login-flow.util';
 import type { AccessProject, AccessProjectFlow } from '../smart-access-projects.types';
 import type { EnrollProjectMember } from '../../../smart-enroll/projects/smart-enroll-projects.types';
@@ -56,10 +58,13 @@ export class AccessProjectListComponent implements OnInit {
             this._loadProjects();
             return;
         }
-        this._projectsService.getActiveSmartAccessPlans().subscribe({
-            next: (res) => {
-                const rows = res?.data ?? [];
-                if (!rows.length) {
+        forkJoin({
+            plans: this._projectsService.getActiveSmartAccessPlans(),
+            settings: this._projectsService.getClientSettings(),
+        }).subscribe({
+            next: ({ plans, settings }) => {
+                const rows = plans?.data ?? [];
+                if (!rows.length && requiresSmartAccessSubscription(settings?.data)) {
                     this.noActivePlan.set(true);
                     this.loading.set(false);
                     return;

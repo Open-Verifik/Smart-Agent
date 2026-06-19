@@ -52,5 +52,27 @@
         }
       }
     }
+  },
+  "home": {
+    "onboarding": {
+      "taskReward": "+$1,00 USD",
+      "statusLabels": {
+        "NOT_STARTED": "Não iniciada",
+        "VISITED": "Visitada",
+        "STARTED": "Em progresso",
+        "STUCK": "Precisa de ajuda",
+        "COMPLETED": "Concluída"
+      },
+      "explanationModal": {
+        "reward": "Recompensa +$1,00 USD",
+        "sectionDescription": "Descrição",
+        "sectionHowTo": "Como concluir",
+        "sectionApiReference": "Referência técnica da API",
+        "close": "Fechar",
+        "goToTask": "Ir para a tarefa",
+        "verifyIdentity": "Verificar identidade",
+        "helpTooltip": "Saiba mais sobre esta tarefa"
+      }
+    }
   }
 }
