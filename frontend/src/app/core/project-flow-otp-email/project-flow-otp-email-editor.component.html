@@ -7,7 +7,11 @@
                     {{ t('smartEnrollProjects.detail.emailTemplate.title') }}
                 </h3>
                 <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
-                    {{ t('smartEnrollProjects.detail.emailTemplate.description') }}
+                    @if (isCustomLayout()) {
+                        {{ t('smartEnrollProjects.detail.emailTemplate.layoutCustomDescription') }}
+                    } @else {
+                        {{ t('smartEnrollProjects.detail.emailTemplate.description') }}
+                    }
                 </p>
             </div>
             <button mat-icon-button type="button" (click)="close()" class="!text-stone-400 hover:!text-stone-600">
@@ -15,7 +19,33 @@
             </button>
         </div>
 
-        <div class="mb-5 flex flex-wrap gap-1 border-b border-stone-200 pb-3 dark:border-gray-800">
+        <div class="mb-5">
+            <span class="mb-2 block text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                {{ t('smartEnrollProjects.detail.emailTemplate.layoutToggleLabel') }}
+            </span>
+            <div class="inline-flex rounded-lg border border-stone-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-800">
+                @for (design of layoutOptions; track design) {
+                    <button
+                        type="button"
+                        class="rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200"
+                        [class]="selectedDesign() === design ? 'bg-indigo-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-gray-700/50'"
+                        (click)="selectDesign(design)"
+                    >
+                        @if (design === 'standard') {
+                            {{ t('smartEnrollProjects.detail.emailTemplate.layoutStandard') }}
+                        } @else {
+                            {{ t('smartEnrollProjects.detail.emailTemplate.layoutCustom') }}
+                        }
+                    </button>
+                }
+            </div>
+            <p class="mt-2 text-[11px] text-stone-400 dark:text-stone-500">
+                {{ t('smartEnrollProjects.detail.emailTemplate.layoutPreviewNote') }}
+            </p>
+        </div>
+
+        <div class="mb-5 flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-3 dark:border-gray-800">
+            <div class="flex flex-wrap gap-1">
             @for (lang of availableLanguages; track lang.code) {
                 <button
                     type="button"
@@ -26,6 +56,15 @@
                     {{ lang.label }}
                 </button>
             }
+            </div>
+            <button
+                mat-stroked-button
+                type="button"
+                class="!h-8 !px-3 !text-xs"
+                (click)="resetLanguageToDefaults()"
+            >
+                {{ t('smartEnrollProjects.detail.emailTemplate.resetLanguageDefaults') }}
+            </button>
         </div>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -43,9 +82,51 @@
                     />
                 </div>
 
+                <div class="inline-flex w-fit rounded-lg border border-stone-200 bg-white p-0.5 dark:border-gray-700 dark:bg-gray-800">
+                    <button
+                        type="button"
+                        class="rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200"
+                        [class]="editorTab() === 'copy' ? 'bg-indigo-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-gray-700/50'"
+                        (click)="setEditorTab('copy')"
+                    >
+                        {{ t('smartEnrollProjects.detail.emailTemplate.copyTab') }}
+                    </button>
+                    <button
+                        type="button"
+                        class="rounded-md px-3 py-1.5 text-xs font-medium transition-all duration-200"
+                        [class]="editorTab() === 'html' ? 'bg-indigo-600 text-white shadow-sm' : 'text-stone-600 hover:bg-stone-50 dark:text-stone-300 dark:hover:bg-gray-700/50'"
+                        (click)="setEditorTab('html')"
+                    >
+                        {{ t('smartEnrollProjects.detail.emailTemplate.htmlTab') }}
+                    </button>
+                </div>
+
+                @if (editorTab() === 'copy') {
+                @if (isCustomLayout()) {
+                    <div class="flex flex-col gap-1.5">
+                        <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.detail.emailTemplate.greetingLabel') }}
+                            @if (isSlotRemoved('greeting')) {
+                                <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                            }
+                        </label>
+                        <input
+                            type="text"
+                            class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 placeholder-stone-400 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-stone-100"
+                            [placeholder]="t('smartEnrollProjects.detail.emailTemplate.greetingPlaceholder')"
+                            [ngModel]="etForm.greeting"
+                            (ngModelChange)="updateOtpEmailField('greeting', $event)"
+                        />
+                        <p class="text-[11px] text-stone-400 dark:text-stone-500">{{ t('smartEnrollProjects.detail.emailTemplate.greetingHelp') }}</p>
+                    </div>
+                }
+
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                    <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
                         {{ t('smartEnrollProjects.detail.emailTemplate.messageLabel') }}
+                        @if (isSlotRemoved('message')) {
+                            <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                        }
                     </label>
                     <textarea
                         rows="3"
@@ -56,9 +137,30 @@
                     ></textarea>
                 </div>
 
+                @if (isCustomLayout()) {
+                    <div class="flex flex-col gap-1.5">
+                        <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.detail.emailTemplate.otpLabelLabel') }}
+                            @if (isSlotRemoved('otpLabel')) {
+                                <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                            }
+                        </label>
+                        <input
+                            type="text"
+                            class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-stone-100"
+                            [placeholder]="t('smartEnrollProjects.detail.emailTemplate.otpLabelPlaceholder')"
+                            [ngModel]="etForm.otpLabel"
+                            (ngModelChange)="updateOtpEmailField('otpLabel', $event)"
+                        />
+                    </div>
+                }
+
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                    <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
                         {{ t('smartEnrollProjects.detail.emailTemplate.doNotShareLabel') }}
+                        @if (isSlotRemoved('doNotShare')) {
+                            <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                        }
                     </label>
                     <input
                         type="text"
@@ -69,8 +171,11 @@
                 </div>
 
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                    <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
                         {{ t('smartEnrollProjects.detail.emailTemplate.didNotRequestLabel') }}
+                        @if (isSlotRemoved('didNotRequest')) {
+                            <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                        }
                     </label>
                     <input
                         type="text"
@@ -80,6 +185,41 @@
                     />
                 </div>
 
+                @if (isCustomLayout()) {
+                    <div class="flex flex-col gap-1.5">
+                        <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.detail.emailTemplate.signatureLabel') }}
+                            @if (isSlotRemoved('signature')) {
+                                <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                            }
+                        </label>
+                        <input
+                            type="text"
+                            class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-stone-100"
+                            [placeholder]="t('smartEnrollProjects.detail.emailTemplate.signaturePlaceholder')"
+                            [ngModel]="etForm.signature"
+                            (ngModelChange)="updateOtpEmailField('signature', $event)"
+                        />
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.detail.emailTemplate.footerNoteLabel') }}
+                            @if (isSlotRemoved('footerNote')) {
+                                <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                            }
+                        </label>
+                        <input
+                            type="text"
+                            class="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-800 dark:text-stone-100"
+                            [placeholder]="t('smartEnrollProjects.detail.emailTemplate.footerNotePlaceholder')"
+                            [ngModel]="etForm.footerNote"
+                            (ngModelChange)="updateOtpEmailField('footerNote', $event)"
+                        />
+                    </div>
+                }
+
+                @if (!isCustomLayout()) {
                 <div class="flex items-center gap-2 py-1">
                     <input
                         type="checkbox"
@@ -95,8 +235,11 @@
 
                 @if (etForm.showButton) {
                     <div class="flex flex-col gap-1.5">
-                        <label class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                        <label class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
                             {{ t('smartEnrollProjects.detail.emailTemplate.buttonTextLabel') }}
+                            @if (isSlotRemoved('buttonText')) {
+                                <span class="rounded bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold normal-case text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">{{ t('smartEnrollProjects.detail.emailTemplate.slotRemovedBadge') }}</span>
+                            }
                         </label>
                         <input
                             type="text"
@@ -125,6 +268,76 @@
                                 <input type="text" class="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-xs text-stone-800 outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-stone-100" [ngModel]="etForm.buttonTxtColor" (ngModelChange)="updateOtpEmailField('buttonTxtColor', $event)" />
                             </div>
                         </div>
+                    </div>
+                }
+                }
+                } @else {
+                    <div class="flex flex-col gap-3">
+                        <p class="text-[11px] text-stone-500 dark:text-stone-400">
+                            {{ t('smartEnrollProjects.detail.emailTemplate.htmlEditorHelp') }}
+                        </p>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            @if (isTccOtpEmailClient) {
+                                <button mat-stroked-button type="button" class="!h-8 !px-3 !text-xs" (click)="importTccDefault()">
+                                    {{ t('smartEnrollProjects.detail.emailTemplate.importTccDefault') }}
+                                </button>
+                            } @else {
+                                <button mat-stroked-button type="button" class="!h-8 !px-3 !text-xs" (click)="importDefaultLayout()">
+                                    {{ t('smartEnrollProjects.detail.emailTemplate.importDefaultLayout') }}
+                                </button>
+                            }
+                            <button mat-stroked-button type="button" class="!h-8 !px-3 !text-xs" (click)="resetContentHtml()">
+                                {{ t('smartEnrollProjects.detail.emailTemplate.clearHtml') }}
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col gap-1.5">
+                            <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                {{ t('smartEnrollProjects.detail.emailTemplate.insertVariable') }}
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                @for (variable of allowedVariables(); track variable.token) {
+                                    <button
+                                        type="button"
+                                        class="rounded border border-stone-300 bg-white px-2 py-1 font-mono text-[11px] text-stone-700 hover:bg-indigo-50 dark:border-gray-600 dark:bg-gray-800 dark:text-stone-200 dark:hover:bg-gray-700"
+                                        (click)="insertVariable(variable.token)"
+                                    >
+                                        {{ variable.token }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+
+                        <textarea
+                            rows="22"
+                            spellcheck="false"
+                            class="resize-y rounded-lg border border-stone-300 bg-white px-3 py-2 font-mono text-xs leading-relaxed text-stone-800 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-900 dark:text-stone-100"
+                            [placeholder]="t('smartEnrollProjects.detail.emailTemplate.htmlPlaceholder')"
+                            [ngModel]="etForm.contentHtml"
+                            (ngModelChange)="updateOtpEmailField('contentHtml', $event)"
+                        ></textarea>
+
+                        @if (htmlErrors().length) {
+                            <div class="rounded-lg border border-red-300 bg-red-50 p-3 dark:border-red-900/50 dark:bg-red-950/30">
+                                <p class="text-xs font-semibold text-red-700 dark:text-red-400">
+                                    {{ t('smartEnrollProjects.detail.emailTemplate.htmlErrorsTitle') }}
+                                </p>
+                                <ul class="mt-1 list-disc pl-4 text-[11px] text-red-600 dark:text-red-400">
+                                    @for (err of htmlErrors(); track $index) {
+                                        <li>
+                                            @if (err.code === 'unknown_variable') {
+                                                {{ t('smartEnrollProjects.detail.emailTemplate.htmlErrorUnknownVariable') }}: <code class="font-mono">{{ err.token }}</code>
+                                            } @else if (err.code === 'scriptlets_not_allowed') {
+                                                {{ t('smartEnrollProjects.detail.emailTemplate.htmlErrorScriptlets') }}
+                                            } @else {
+                                                {{ err.code }}@if (err.token) {: {{ err.token }}}
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
                     </div>
                 }
             </div>
@@ -186,8 +399,17 @@
             </div>
         </div>
 
-        <div class="mt-6 flex justify-end gap-2 border-t border-stone-200 pt-4 dark:border-gray-800">
-            <button mat-flat-button color="primary" type="button" class="rounded-xl" [disabled]="savingOtpEmail()" (click)="saveOtpEmail()">
+        <div class="mt-6 flex items-center justify-end gap-3 border-t border-stone-200 pt-4 dark:border-gray-800">
+            @if (htmlErrors().length) {
+                <span class="mr-auto text-xs text-red-600 dark:text-red-400">
+                    {{ t('smartEnrollProjects.detail.emailTemplate.htmlErrorsBlockSave') }}
+                </span>
+            } @else if (saveError()) {
+                <span class="mr-auto text-xs text-red-600 dark:text-red-400">
+                    {{ t('smartEnrollProjects.detail.emailTemplate.saveError') }}
+                </span>
+            }
+            <button mat-flat-button color="primary" type="button" class="rounded-xl" [disabled]="savingOtpEmail() || htmlErrors().length > 0" (click)="saveOtpEmail()">
                 @if (savingOtpEmail()) {
                     <span class="mr-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
                 }

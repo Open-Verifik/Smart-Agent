@@ -434,6 +434,8 @@
                                         [projectName]="project()?.name || 'Verifik'"
                                         [branding]="otpEmailBranding()"
                                         [emailTemplates]="$any(flow()?.emailTemplates)"
+                                        [emailTemplateDesign]="flow()?.emailTemplateDesign || 'standard'"
+                                        [isTccOtpEmailClient]="flow()?.isTccOtpEmailClient === true"
                                         (closed)="closeOtpEmailEditor()"
                                         (saved)="onOtpEmailSaved()"
                                     />

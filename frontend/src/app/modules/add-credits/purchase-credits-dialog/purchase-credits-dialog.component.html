@@ -70,7 +70,7 @@
                             class="min-w-0 flex-1 border-0 bg-transparent text-lg font-semibold text-stone-950 outline-none dark:text-white"
                             [(ngModel)]="customAmountValue"
                             (ngModelChange)="onCustomAmountChange($event)"
-                            placeholder="40"
+                            [attr.placeholder]="minPurchaseUsd"
                             [min]="minPurchaseUsd"
                             [max]="maxPurchaseUsd"
                             [disabled]="loading"

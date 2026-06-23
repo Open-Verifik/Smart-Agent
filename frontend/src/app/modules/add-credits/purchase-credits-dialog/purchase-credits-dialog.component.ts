@@ -67,7 +67,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     customAmountValue: number | null = null;
 
     /** Preset amounts; minimum purchasable USD is `MIN_CREDIT_PURCHASE_USD` (custom input included). */
-    creditAmounts = [50, 100, 150, 200, 250, 500];
+    creditAmounts = [49, 50, 100, 150, 200, 250, 500];
 
     // KYC Requirement support
     kycRequired = false;

@@ -36,6 +36,8 @@ export interface AccessProjectFlow {
     integrations?: SmartAccessFlowIntegrations;
     security?: SmartAccessSecurity;
     emailTemplates?: Record<string, Record<string, unknown>>;
+    emailTemplateDesign?: 'standard' | 'custom' | 'tcc';
+    isTccOtpEmailClient?: boolean;
 }
 
 /** Project list row with at least one `login` v3 flow. */

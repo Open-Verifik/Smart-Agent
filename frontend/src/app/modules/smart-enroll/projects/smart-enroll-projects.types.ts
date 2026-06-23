@@ -7,6 +7,9 @@ export interface EnrollProjectFlow {
     type?: string;
     version?: number;
     target?: 'personal' | 'business';
+    emailTemplateDesign?: 'standard' | 'custom' | 'tcc';
+    isTccOtpEmailClient?: boolean;
+    emailTemplates?: Record<string, Record<string, unknown>>;
     signUpForm?: Record<string, unknown>;
     documents?: Record<string, unknown>;
     business?: Record<string, unknown>;
