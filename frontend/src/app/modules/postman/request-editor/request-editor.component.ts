@@ -56,6 +56,7 @@ import {
 
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
+import { syncPostmanIncludeCostParam } from '../postman-include-cost.util';
 
 /**
  * Stable UI string for numeric prices (avoids float artifacts like 0.3000000005).
@@ -744,12 +745,14 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             <div class="flex gap-2 items-center">
                 <div
                     class="flex min-w-0 flex-1 items-center rounded-lg border border-slate-200 bg-slate-50 transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800"
+                    [class.opacity-70]="item.param.readonlyKey"
                 >
                     <input
                         class="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none dark:text-slate-100"
                         [ngModel]="item.param.key"
                         (ngModelChange)="item.param.key = $event; onRequestInputsChanged()"
                         [placeholder]="'postman.requestEditor.params.keyPlaceholder' | transloco"
+                        [attr.readonly]="item.param.readonlyKey ? '' : null"
                     />
                     @if (paramShowsRequiredKeyAsterisk(item.param)) {
                         <span
@@ -824,13 +827,21 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                         </p>
                     }
                 </div>
-                <input
-                    class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                    [(ngModel)]="item.param.description"
-                    [placeholder]="
-                        'postman.requestEditor.params.descriptionPlaceholder' | transloco
-                    "
-                />
+                @if (item.param.system === 'includeCost') {
+                    <p
+                        class="flex-1 min-w-0 px-3 py-2 text-xs text-slate-500 dark:text-slate-400 leading-snug"
+                    >
+                        {{ 'postman.requestEditor.params.includeCostDescription' | transloco }}
+                    </p>
+                } @else {
+                    <input
+                        class="flex-1 min-w-0 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg dark:bg-slate-800 dark:border-slate-700 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                        [(ngModel)]="item.param.description"
+                        [placeholder]="
+                            'postman.requestEditor.params.descriptionPlaceholder' | transloco
+                        "
+                    />
+                }
                 <button
                     mat-icon-button
                     (click)="onDeleteParamRow(item, xOrOptionRow)"
@@ -1420,6 +1431,22 @@ export class RequestEditorComponent {
                         header.value = '';
                     }
                 }
+            }
+        });
+
+        // Effect: sync the includeCost system param row when payment method changes.
+        let _lastPaymentMethodForCostSync: 'credits' | 'x402' | null = null;
+        effect(() => {
+            const method = this.paymentMethod();
+            if (method === _lastPaymentMethodForCostSync) return;
+            _lastPaymentMethodForCostSync = method;
+
+            const ep = this.endpoint();
+            if (!ep) return;
+
+            const updated = syncPostmanIncludeCostParam(ep, method);
+            if (updated !== ep) {
+                this._postmanService.selectedEndpoint.set(updated);
             }
         });
 

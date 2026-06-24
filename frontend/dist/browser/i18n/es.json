@@ -2964,7 +2964,8 @@
                 "descriptionPlaceholder": "Descripción",
                 "documentTypePlaceholder": "Selecciona el tipo de documento",
                 "otherParameters": "Otros parámetros",
-                "requiredFieldLegend": "* Campo obligatorio"
+                "requiredFieldLegend": "* Campo obligatorio",
+                "includeCostDescription": "Cuando es true, la respuesta incluye el bloque de créditos (credits, creditsCharged, charged, featureCode). Cambia a false o elimina esta fila para omitirlo."
             },
             "headers": {
                 "key": "Clave",

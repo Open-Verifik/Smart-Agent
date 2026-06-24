@@ -117,6 +117,10 @@ export interface ApiEndpoint {
         dependencyGroup?: string;
         requiredWhen?: { field: string; in?: string[] };
         dateFormat?: string;
+        /** Identifies a Verifik-managed system param (e.g. `'includeCost'`). */
+        system?: 'includeCost';
+        /** When true the key input is rendered as read-only in the Params tab. */
+        readonlyKey?: boolean;
     }[];
     body?: any;
     category?: string;

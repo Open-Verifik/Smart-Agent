@@ -25,6 +25,12 @@ import {
     getPostmanPathParamKeysForEndpoint,
 } from './postman-url.util';
 import { attachColombiaCedulaPremiumPricing } from './postman-billing.util';
+import {
+    ensurePostmanIncludeCostParam,
+    POSTMAN_INCLUDE_COST_KEY,
+    removePostmanIncludeCostParam,
+    resolvePostmanIncludeCostForSend,
+} from './postman-include-cost.util';
 
 import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
@@ -630,7 +636,12 @@ export class PostmanService {
             applyPostmanSandboxParamDefaults(endpointCopy);
         }
 
-        this.selectedEndpoint.set(endpointCopy);
+        const withCost =
+            this.paymentMethod() === 'credits'
+                ? ensurePostmanIncludeCostParam(endpointCopy)
+                : removePostmanIncludeCostParam(endpointCopy);
+
+        this.selectedEndpoint.set(withCost);
         this.response.set(null);
         this.error.set(null);
     }
@@ -693,20 +704,30 @@ export class PostmanService {
                 if (pathParamKeys?.includes(p.key)) {
                     return;
                 }
+                // The includeCost row is handled separately by resolvePostmanIncludeCostForSend.
+                if (p.key === POSTMAN_INCLUDE_COST_KEY) {
+                    return;
+                }
                 options.params[p.key] = p.value;
             });
-        }
-
-        if (!isX402) {
-            options.params.includeCost = 'true';
         }
 
         let body = null;
         if (endpoint.method !== 'GET' && endpoint.method !== 'DELETE') {
             body =
                 endpoint.body && typeof endpoint.body === 'object'
-                    ? { ...endpoint.body, includeCost: true }
-                    : { includeCost: true };
+                    ? { ...endpoint.body }
+                    : {};
+        }
+
+        if (!isX402) {
+            const costSend = resolvePostmanIncludeCostForSend(endpoint, endpoint.method);
+            if (costSend.query) {
+                options.params.includeCost = costSend.query;
+            }
+            if (costSend.body && body !== null) {
+                body = { ...body, includeCost: true };
+            }
         }
 
         const startTime = Date.now();

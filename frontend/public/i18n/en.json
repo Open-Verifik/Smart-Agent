@@ -2964,7 +2964,8 @@
                 "descriptionPlaceholder": "Description",
                 "documentTypePlaceholder": "Select document type",
                 "otherParameters": "Other parameters",
-                "requiredFieldLegend": "* Required field"
+                "requiredFieldLegend": "* Required field",
+                "includeCostDescription": "When true, the response includes a credits block (credits, creditsCharged, charged, featureCode). Set to false or delete this row to omit it."
             },
             "headers": {
                 "key": "Key",
