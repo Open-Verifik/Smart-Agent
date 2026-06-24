@@ -1,0 +1,10 @@
+{
+    "appFeatures": {
+        "ar_certificate_verify": {
+            "description": "GET /v2/ar/dnrec/antecedentes를 통해 PDF의 신청 코드(Solicitud)와 보안 코드(Cod. Segur.)로 아르헨티나 DNREC 범죄 경력 증명서를 확인합니다. 신원 정보와 공식 증명서에서 추출한 범죄 경력 진술을 반환합니다."
+        },
+        "cl_certificate_verify": {
+            "description": "GET /v2/cl/registro-civil/certificado를 통해 folio와 검증 코드(Código Verificador)로 칠레 Registro Civil(SRCEI) 증명서를 확인합니다. PDF 메타데이터와 유죄 판결 등록 세부 정보를 반환합니다."
+        }
+    }
+}

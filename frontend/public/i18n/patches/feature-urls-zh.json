@@ -1,0 +1,10 @@
+{
+    "appFeatures": {
+        "ar_certificate_verify": {
+            "description": "通过 GET /v2/ar/dnrec/antecedentes，使用 PDF 上的申请代码（Solicitud）和安全代码（Cod. Segur.）验证阿根廷 DNREC 犯罪记录证明。返回身份字段及从官方证明中提取的犯罪记录声明。"
+        },
+        "cl_certificate_verify": {
+            "description": "通过 GET /v2/cl/registro-civil/certificado，使用 folio 和验证码（Código Verificador）核验智利 Registro Civil（SRCEI）证明。返回 PDF 元数据及有罪判决登记详情（如有）。"
+        }
+    }
+}

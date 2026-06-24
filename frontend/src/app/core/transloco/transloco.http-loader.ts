@@ -29,6 +29,22 @@ function deepMergeTranslations(base: Translation, patch: Translation): Translati
   return out;
 }
 
+/** Optional patch files for AppFeature URL strings (avoids editing root-owned features-*.json). */
+const mergeFeatureUrlPatch = (
+  http: HttpClient,
+  lang: string,
+  merged: Translation,
+): Observable<Translation> =>
+  http
+    .get<Translation>(`./i18n/patches/feature-urls-${lang}.json`, {
+      responseType: 'json',
+      observe: 'body',
+    })
+    .pipe(
+      map((featureUrlPatch) => deepMergeTranslations(merged, featureUrlPatch)),
+      catchError(() => of(merged)),
+    );
+
 @Injectable({ providedIn: 'root' })
 export class TranslocoHttpLoader implements TranslocoLoader {
   private _httpClient = inject(HttpClient);
@@ -74,7 +90,8 @@ export class TranslocoHttpLoader implements TranslocoLoader {
                     map((patchTranslations) =>
                       deepMergeTranslations(mergedTranslations, patchTranslations),
                     ),
-                    catchError(() => of(mergedTranslations)),
+                    switchMap((withPatch) => mergeFeatureUrlPatch(this._httpClient, lang, withPatch)),
+                    catchError(() => mergeFeatureUrlPatch(this._httpClient, lang, mergedTranslations)),
                   ),
               ),
               catchError(() =>
@@ -87,7 +104,8 @@ export class TranslocoHttpLoader implements TranslocoLoader {
                     map((patchTranslations) =>
                       deepMergeTranslations(mainTranslations, patchTranslations),
                     ),
-                    catchError(() => of(mainTranslations)),
+                    switchMap((withPatch) => mergeFeatureUrlPatch(this._httpClient, lang, withPatch)),
+                    catchError(() => mergeFeatureUrlPatch(this._httpClient, lang, mainTranslations)),
                   ),
               ),
             );
