@@ -229,8 +229,8 @@
       "description": "Extended Peruvian identity lookup with additional personal fields. Provide documentType DNIPE and documentNumber; returns enriched identity data when available."
     },
     "peru_api_driver_license_lookup": {
-      "title": "Peru - Driver License",
-      "description": "Look up Peruvian driver licenses by DNI. Returns license category, status, expiration, restrictions, issuance center, and related procedures when available from official records."
+      "title": "Peru - Driver license",
+      "description": "Look up Peruvian driver licenses by DNI via GET /v2/pe/driver-license. Returns category, status, expiration, restrictions, and issuance details when available from official records."
     },
     "usa_api_driver_license_lookup": {
       "title": "United States - Florida Driver License",
@@ -247,6 +247,10 @@
     "argentina_api_identity_lookup": {
       "title": "Argentina - Argentine Citizen",
       "description": "Validate the identity of individuals in Argentina with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+    },
+    "ar_certificate_verify": {
+      "title": "Argentina - Criminal record certificate",
+      "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF via GET /v2/ar/certificate/verify. Returns identity fields and the criminal-record statement extracted from the official certificate."
     },
     "ecuador_api_company_lookup": {
       "title": "Ecuador - Ecuadorian Business Verification",
@@ -287,6 +291,10 @@
     "chile_api_identity_lookup": {
       "title": "Chile - Chilean Citizen",
       "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention."
+    },
+    "cl_certificate_verify": {
+      "title": "Chile - Civil registry certificate verification",
+      "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador) via GET /v2/cl/certificate/verify. Returns certificate PDF metadata and conviction-register details when available."
     },
     "colombia_api_vehicle_complete_by_plate": {
       "title": "Colombia - Vehicle Records by Plate",

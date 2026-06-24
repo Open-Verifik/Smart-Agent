@@ -40,6 +40,10 @@
             "title": "Peru - Consulta de Registro Empresarial",
             "description": "Serviço de verificação empresarial para Peru. Fornece detalhes de registro da empresa, status legal e informações comerciais."
         },
+        "peru_api_driver_license_lookup": {
+            "title": "Peru - Carteira de motorista",
+            "description": "Consulte carteiras de motorista peruanas por DNI via GET /v2/pe/driver-license. Retorna categoria, status, validade, restrições e detalhes de emissão quando disponíveis nos registros oficiais."
+        },
         "colombia_api_judicial_process_details": {
             "title": "Detalhe de processo judicial",
             "description": "Consulte detalhes de um processo na Colômbia pelo número (Rama Judicial)."
@@ -344,13 +348,17 @@
             "title": "Argentina - Verificação de identidade (estendida)",
             "description": "Verificação de identidade argentina ampliada para KYC e onboarding em mais profundidade."
         },
+        "ar_certificate_verify": {
+            "title": "Argentina - Certificado de antecedentes criminais",
+            "description": "Verifique um certificado DNREC de antecedentes criminais argentino com o código de solicitação (Solicitud) e código de segurança (Cod. Segur.) do PDF via GET /v2/ar/certificate/verify. Retorna dados de identidade e a declaração de antecedentes extraída do certificado oficial."
+        },
         "chile_api_transport_vehicle": {
             "title": "Transporte público",
             "description": "Registro RNT de transporte público no Chile via GET /v2/cl/transport-vehicle."
         },
         "cl_certificate_verify": {
-            "title": "Chile - Verificação de certificados",
-            "description": "Verificação de certidões civis e de registro emitidas no Chile."
+            "title": "Chile - Verificação de certificado do Registro Civil",
+            "description": "Verifique um certificado do Registro Civil do Chile (SRCEI) com folio e código verificador via GET /v2/cl/certificate/verify. Retorna metadados do PDF e antecedentes de registros de condenações quando disponíveis."
         },
         "ecuador_api_company_lookup": {
             "title": "Equador - Consulta de Empresa",

@@ -13,6 +13,7 @@ import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FusePlatformService } from '@fuse/services/platform';
 import { FUSE_VERSION } from '@fuse/version';
 import { Subject, combineLatest, filter, map, takeUntil } from 'rxjs';
+import { SupportWidgetService } from 'app/core/services/support-widget.service';
 import { SettingsComponent } from './common/settings/settings.component';
 import { EmptyLayoutComponent } from './layouts/empty/empty.component';
 import { CenteredLayoutComponent } from './layouts/horizontal/centered/centered.component';
@@ -63,7 +64,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _fuseConfigService: FuseConfigService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
-        private _fusePlatformService: FusePlatformService
+        private _fusePlatformService: FusePlatformService,
+        private _supportWidgetService: SupportWidgetService
     ) {}
 
     // -----------------------------------------------------------------------------------------------------
@@ -147,12 +149,16 @@ export class LayoutComponent implements OnInit, OnDestroy {
             this._document.body,
             this._fusePlatformService.osName
         );
+
+        this._supportWidgetService.mount();
     }
 
     /**
      * On destroy
      */
     ngOnDestroy(): void {
+        this._supportWidgetService.destroy();
+
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();

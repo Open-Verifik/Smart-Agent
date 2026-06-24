@@ -2464,6 +2464,7 @@
         "AntiSpoofing": "Anti-Spoofing",
         "faceVerification": "Face Verification",
         "autodata": "Auto Data",
+        "AUTODATA": "Auto Data",
         "data_sheet": "Data Sheet",
         "look_ups": "Lookups",
         "messaging": "Messaging",

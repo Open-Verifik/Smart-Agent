@@ -158,8 +158,7 @@ export class AppComponent implements OnInit {
             },
             error: (err) => {
                 console.error('[AppComponent] Background session sync failed', err);
-                // If the token is rejected by the server, purge it
-                if (err.status === 401 || err.status === 403) {
+                if (err.status === 401 || err.status === 403 || err.status === 404) {
                     this._purgeExpiredSession();
                 }
             },

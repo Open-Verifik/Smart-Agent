@@ -40,6 +40,10 @@
             "title": "Peru - 事業登録検索",
             "description": "Business verification service のPeru. 提供 company registration details, legal status, and business information."
         },
+        "peru_api_driver_license_lookup": {
+            "title": "ペルー - 運転免許",
+            "description": "GET /v2/pe/driver-license により DNI でペルーの運転免許を照会します。公式記録で利用可能な場合、区分、状態、有効期限、制限、発行情報を返します。"
+        },
         "colombia_api_judicial_process_details": {
             "title": "コロンビア — 司法手続きの詳細",
             "description": "手続き番号でコロンビアの特定事件の詳細（当事者・行為）を取得します（Rama Judicial）。"
@@ -344,13 +348,17 @@
             "title": "アルゼンチン - 本人確認（拡張）",
             "description": "より深いKYC向けの拡張アルゼンチン本人確認。"
         },
+        "ar_certificate_verify": {
+            "title": "アルゼンチン - 犯罪歴証明書",
+            "description": "GET /v2/ar/certificate/verify により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"
+        },
         "chile_api_transport_vehicle": {
             "title": "チリ — 公共交通車両",
             "description": "GET /v2/cl/transport-vehicle でチリ公共交通 RNT を照会します。"
         },
         "cl_certificate_verify": {
-            "title": "チリ - 証明書照合",
-            "description": "チリで発行された戸籍・登録系証明書の照合。"
+            "title": "チリ - Registro Civil 証明書照合",
+            "description": "GET /v2/cl/certificate/verify により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
         },
         "ecuador_api_company_lookup": {
             "title": "エクアドル — 法人検証",

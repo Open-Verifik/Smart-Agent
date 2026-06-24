@@ -40,6 +40,10 @@
             "title": "Pérou - Business Registration Lookup",
             "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
         },
+        "peru_api_driver_license_lookup": {
+            "title": "Pérou - Permis de conduire",
+            "description": "Consultez les permis de conduire péruviens par DNI via GET /v2/pe/driver-license. Retourne catégorie, statut, expiration, restrictions et détails d'émission lorsque disponibles dans les registres officiels."
+        },
         "colombia_api_judicial_process_details": {
             "title": "Détail d’un procès judiciaire",
             "description": "Obtenez le détail d’un dossier en Colombie à partir du numéro de procédure (Rama Judicial)."
@@ -344,13 +348,17 @@
             "title": "Argentine - Vérification d'identité (étendue)",
             "description": "Vérification d'identité argentine étendue pour un KYC et un onboarding approfondis."
         },
+        "ar_certificate_verify": {
+            "title": "Argentine - Certificat de casier judiciaire",
+            "description": "Vérifie un certificat DNREC de casier judiciaire argentin avec le code de demande (Solicitud) et le code de sécurité (Cod. Segur.) du PDF via GET /v2/ar/certificate/verify. Retourne les données d'identité et la déclaration d'antecedents extraite du certificat officiel."
+        },
         "chile_api_transport_vehicle": {
             "title": "Chili — Transport public",
             "description": "Registre RNT transport public au Chili via GET /v2/cl/transport-vehicle."
         },
         "cl_certificate_verify": {
-            "title": "Chili - Vérification de certificats",
-            "description": "Vérification des certificats civils et d'état civil délivrés au Chili."
+            "title": "Chili - Vérification de certificat du Registro Civil",
+            "description": "Vérifie un certificat du Registro Civil du Chili (SRCEI) avec folio et code de vérification (Código Verificador) via GET /v2/cl/certificate/verify. Retourne les métadonnées du PDF et les antécédents des registres de condamnations lorsque disponibles."
         },
         "ecuador_api_company_lookup": {
             "title": "Équateur - Recherche d'Entreprise",

@@ -40,6 +40,10 @@
             "title": "Peru - 企业注册查询",
             "description": "Business verification service 为 Peru. 提供 company registration details, legal status, and business information."
         },
+        "peru_api_driver_license_lookup": {
+            "title": "秘鲁 - 驾驶证",
+            "description": "通过 GET /v2/pe/driver-license 按 DNI 查询秘鲁驾驶证。返回官方记录中可用的类别、状态、有效期、限制及签发信息。"
+        },
         "colombia_api_judicial_process_details": {
             "title": "司法程序详情",
             "description": "使用程序编号查询哥伦比亚特定案件的详情（当事方、诉讼行为等）(Rama Judicial)。"
@@ -344,13 +348,17 @@
             "title": "阿根廷 - 国民身份证验证（扩展）",
             "description": "扩展的阿根廷国民身份验证，用于更深入的 KYC 与注册。"
         },
+        "ar_certificate_verify": {
+            "title": "阿根廷 - 犯罪记录证明",
+            "description": "通过 GET /v2/ar/certificate/verify，使用 PDF 上的申请代码（Solicitud）和安全代码（Cod. Segur.）验证阿根廷 DNREC 犯罪记录证明。返回身份字段及从官方证明中提取的犯罪记录声明。"
+        },
         "chile_api_transport_vehicle": {
             "title": "智利 — 公共交通车辆",
             "description": "通过 GET /v2/cl/transport-vehicle 按号牌查询智利公共交通 RNT 登记。"
         },
         "cl_certificate_verify": {
-            "title": "智利 - 证书核验",
-            "description": "核验智利签发的民事与登记证书。"
+            "title": "智利 - 民事登记处证明核验",
+            "description": "通过 GET /v2/cl/certificate/verify，使用 folio 和验证码（Código Verificador）核验智利 Registro Civil（SRCEI）证明。返回 PDF 元数据及有罪判决登记详情（如有）。"
         },
         "ecuador_api_company_lookup": {
             "title": "厄瓜多尔 - 企业查询",

@@ -40,6 +40,10 @@
             "title": "Peru - 사업자 등록 조회",
             "description": "Business verification service 를 위한 Peru. 제공 company registration details, legal status, and business information."
         },
+        "peru_api_driver_license_lookup": {
+            "title": "페루 - 운전면허",
+            "description": "GET /v2/pe/driver-license를 통해 DNI로 페루 운전면허를 조회합니다. 공식 기록에서 이용 가능한 경우 등급, 상태, 만료일, 제한 및 발급 정보를 반환합니다."
+        },
         "colombia_api_judicial_process_details": {
             "title": "콜롬비아 — 사법 절차 세부 정보",
             "description": "사법 절차 번호로 콜롬비아 특정 사건의 상세(당사자·조치)를 조회합니다 (Rama Judicial)."
@@ -344,13 +348,17 @@
             "title": "아르헨티나 - 신원 확인(확장)",
             "description": "심화 KYC를 위한 확장된 아르헨티나 신원 확인."
         },
+        "ar_certificate_verify": {
+            "title": "아르헨티나 - 범죄 경력 증명서",
+            "description": "GET /v2/ar/certificate/verify를 통해 PDF의 신청 코드(Solicitud)와 보안 코드(Cod. Segur.)로 아르헨티나 DNREC 범죄 경력 증명서를 확인합니다. 신원 정보와 공식 증명서에서 추출한 범죄 경력 진술을 반환합니다."
+        },
         "chile_api_transport_vehicle": {
             "title": "칠레 — 대중교통 차량",
             "description": "GET /v2/cl/transport-vehicle로 칠레 대중교통 RNT를 조회합니다."
         },
         "cl_certificate_verify": {
-            "title": "칠레 - 증명서 검증",
-            "description": "칠레에서 발급한 민·등기 증명서 검증."
+            "title": "칠레 - Registro Civil 증명서 검증",
+            "description": "GET /v2/cl/certificate/verify를 통해 folio와 검증 코드(Código Verificador)로 칠레 Registro Civil(SRCEI) 증명서를 확인합니다. PDF 메타데이터와 유죄 판결 등록 세부 정보를 반환합니다."
         },
         "ecuador_api_company_lookup": {
             "title": "에콰도르 - 기업 조회",

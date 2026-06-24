@@ -2396,6 +2396,7 @@
         "AntiSpoofing": "안티 스푸핑",
         "faceVerification": "얼굴 인증",
         "autodata": "차량 데이터",
+        "AUTODATA": "차량 데이터",
         "data_sheet": "데이터 시트",
         "look_ups": "조회",
         "messaging": "메시징",

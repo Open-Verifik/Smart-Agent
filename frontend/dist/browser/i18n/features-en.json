@@ -40,6 +40,10 @@
             "title": "Peru - Business Registration Lookup",
             "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
         },
+        "peru_api_driver_license_lookup": {
+            "title": "Peru - Driver license",
+            "description": "Look up Peruvian driver licenses by DNI via GET /v2/pe/driver-license. Returns category, status, expiration, restrictions, and issuance details when available from official records."
+        },
         "colombia_api_judicial_process_details": {
             "title": "Retrieve Details of a Legal Process by Number",
             "description": "Get comprehensive information about a specific legal process in Colombia using its process number (Rama Judicial)."
@@ -344,13 +348,17 @@
             "title": "Argentina - National ID verification (extended)",
             "description": "Extended Argentine national ID verification for deeper KYC and onboarding."
         },
+        "ar_certificate_verify": {
+            "title": "Argentina - Criminal record certificate",
+            "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF via GET /v2/ar/certificate/verify. Returns identity fields and the criminal-record statement extracted from the official certificate."
+        },
         "chile_api_transport_vehicle": {
             "title": "Public Transport Vehicle",
             "description": "Query Chile public transport vehicle registration (RNT) by license plate via GET /v2/cl/transport-vehicle."
         },
         "cl_certificate_verify": {
-            "title": "Chile - Certificate verification",
-            "description": "Verify civil and registry certificates issued in Chile."
+            "title": "Chile - Civil registry certificate verification",
+            "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador) via GET /v2/cl/certificate/verify. Returns certificate PDF metadata and conviction-register details when available."
         },
         "ecuador_api_company_lookup": {
             "title": "Ecuadorian Business Verification",

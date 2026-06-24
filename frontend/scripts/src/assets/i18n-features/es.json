@@ -229,8 +229,8 @@
       "description": "Consulta extendida de identidad peruana con campos personales adicionales. Indica documentType DNIPE y documentNumber; devuelve datos de identidad enriquecidos cuando estén disponibles."
     },
     "peru_api_driver_license_lookup": {
-      "title": "Peru - Licencia de Conducir",
-      "description": "Metodo encargado de consultar licencias de conducir en Peru. Indica documentType DNI y documentNumber; devuelve categoria, estado, vencimiento y restricciones cuando esten disponibles."
+      "title": "Perú - Licencia de conducir",
+      "description": "Consulta licencias de conducir peruanas por DNI mediante GET /v2/pe/driver-license. Devuelve categoría, estado, vencimiento, restricciones y datos de emisión cuando estén disponibles en registros oficiales."
     },
     "usa_api_driver_license_lookup": {
       "title": "United States - Validación de Licencia de Conducir de Florida",
@@ -247,6 +247,10 @@
     "argentina_api_identity_lookup": {
       "title": "Argentina - Ciudadano Argentino",
       "description": "Valida la identidad de personas en Argentina con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
+    },
+    "ar_certificate_verify": {
+      "title": "Argentina - Certificado de antecedentes penales",
+      "description": "Verifica un certificado DNREC de antecedentes penales con el código de solicitud y código de seguridad del PDF mediante GET /v2/ar/certificate/verify. Devuelve datos de identidad y la declaración de antecedentes extraída del certificado oficial."
     },
     "ecuador_api_company_lookup": {
       "title": "Ecuador - Ecuador",
@@ -287,6 +291,10 @@
     "chile_api_identity_lookup": {
       "title": "Chile - Ciudadano Chileno",
       "description": "Verifica identidad en Chile con RUN/RUT: datos nominales frente a fuentes del registro civil oficial para KYC, onboarding y prevención de fraude."
+    },
+    "cl_certificate_verify": {
+      "title": "Chile - Verificación de certificado del Registro Civil",
+      "description": "Verifica un certificado del Registro Civil de Chile (SRCEI) con folio y código verificador mediante GET /v2/cl/certificate/verify. Devuelve metadatos del PDF y antecedentes de registros de condenas cuando estén disponibles."
     },
     "colombia_api_vehicle_complete_by_plate": {
       "title": "Colombia - Registros de Vehículos por Placa",

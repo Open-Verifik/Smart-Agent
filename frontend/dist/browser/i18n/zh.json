@@ -2396,6 +2396,7 @@
         "AntiSpoofing": "活体检测",
         "faceVerification": "人脸验证",
         "autodata": "汽车数据",
+        "AUTODATA": "汽车数据",
         "data_sheet": "数据表",
         "look_ups": "查询",
         "messaging": "消息",
