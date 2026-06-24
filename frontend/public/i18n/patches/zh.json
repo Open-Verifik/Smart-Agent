@@ -74,5 +74,23 @@
         "helpTooltip": "了解此任务的更多信息"
       }
     }
+  },
+  "postman": {
+    "requestEditor": {
+      "sandboxProfiles": {
+        "title": "Sandbox 测试配置文件",
+        "description": "在 Sandbox 模式下，这些测试值会返回可预测的响应。选择一个配置文件以自动填充请求参数。",
+        "selectLabel": "测试配置文件",
+        "profileMeta": "{{gender}} · {{birthDate}}"
+      }
+    },
+    "responseViewer": {
+      "sandboxPdfDemo": {
+        "badge": "Sandbox",
+        "title": "演示文档预览",
+        "body": "这是模拟预览。Verifik 在沙盒模式下不会显示真实的证书 PDF 或个人数据。",
+        "footnote": "切换到生产模式即可从签发机构获取真实文档。"
+      }
+    }
   }
 }

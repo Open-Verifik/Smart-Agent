@@ -42,6 +42,9 @@ export class AccountEnvironmentService {
         () => this.isAuthenticated() && this._isSandboxModeActive()
     );
 
+    /** True when API calls should use sandbox fixtures (settings or JWT mode). */
+    readonly isSandboxModeActive = computed(() => this._isSandboxModeActive());
+
     /**
      * true = Production is ACTIVE (sandboxMode === false).
      * The slide-toggle `checked` represents "Production on", not "Sandbox on".

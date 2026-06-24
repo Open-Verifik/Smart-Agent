@@ -153,7 +153,26 @@ export const applyPostmanSandboxParamDefaults = (
         return;
     }
 
-    if (!docNumberParam || docNumberParam.value?.trim()) {
+    if (!docNumberParam) {
+        const allParamsEmpty = endpoint.params.every((param) => !param.value?.trim());
+
+        if (!allParamsEmpty) {
+            return;
+        }
+
+        const firstSuccessProfile =
+            config.profiles.find((profile) => profile.responseType !== 'error') ?? config.profiles[0];
+
+        if (firstSuccessProfile?.paramOverrides) {
+            Object.entries(firstSuccessProfile.paramOverrides).forEach(([key, value]) => {
+                applySandboxParamValue(endpoint.params, key, value);
+            });
+        }
+
+        return;
+    }
+
+    if (docNumberParam.value?.trim()) {
         return;
     }
 

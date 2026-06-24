@@ -74,5 +74,23 @@
         "helpTooltip": "이 작업에 대해 자세히 알아보기"
       }
     }
+  },
+  "postman": {
+    "requestEditor": {
+      "sandboxProfiles": {
+        "title": "Sandbox 테스트 프로필",
+        "description": "Sandbox 모드에서 이 테스트 값은 예측 가능한 응답을 반환합니다. 프로필을 선택하면 요청 매개변수가 자동으로 채워집니다.",
+        "selectLabel": "테스트 프로필",
+        "profileMeta": "{{gender}} · {{birthDate}}"
+      }
+    },
+    "responseViewer": {
+      "sandboxPdfDemo": {
+        "badge": "Sandbox",
+        "title": "데모 문서 미리보기",
+        "body": "이것은 시뮬레이션된 미리보기입니다. Verifik은 샌드박스 모드에서 실제 증명서 PDF나 개인 데이터를 표시하지 않습니다.",
+        "footnote": "발급 기관의 실제 문서를 받으려면 프로덕션 모드로 전환하세요."
+      }
+    }
   }
 }

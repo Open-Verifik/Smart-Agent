@@ -74,5 +74,15 @@
                 "helpTooltip": "Read more about this task"
             }
         }
+    },
+    "postman": {
+        "responseViewer": {
+            "sandboxPdfDemo": {
+                "badge": "Sandbox",
+                "title": "Demo document preview",
+                "body": "This is a simulated preview only. Verifik does not display real certificate PDFs or personal data in sandbox mode.",
+                "footnote": "Switch to Production mode to retrieve authentic documents from the issuing authority."
+            }
+        }
     }
 }

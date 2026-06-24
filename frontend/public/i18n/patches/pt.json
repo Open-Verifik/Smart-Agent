@@ -74,5 +74,23 @@
         "helpTooltip": "Saiba mais sobre esta tarefa"
       }
     }
+  },
+  "postman": {
+    "requestEditor": {
+      "sandboxProfiles": {
+        "title": "Perfis de teste Sandbox",
+        "description": "No modo Sandbox, estes valores de teste retornam respostas previsíveis. Escolha um perfil para preencher os parâmetros da requisição automaticamente.",
+        "selectLabel": "Perfil de teste",
+        "profileMeta": "{{gender}} · {{birthDate}}"
+      }
+    },
+    "responseViewer": {
+      "sandboxPdfDemo": {
+        "badge": "Sandbox",
+        "title": "Pré-visualização de documento de demonstração",
+        "body": "Esta é uma pré-visualização simulada. A Verifik não exibe PDFs reais nem dados pessoais no modo sandbox.",
+        "footnote": "Ative o modo Produção para obter documentos autênticos da entidade emissora."
+      }
+    }
   }
 }

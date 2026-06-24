@@ -19,6 +19,7 @@ export const PERU_VEHICLE_ENDPOINT_CODE = 'peru_api_vehicle';
 export const PERU_COMPANY_V3_ENDPOINT_CODE = 'peru_api_company_lookup_v3';
 export const PERU_CE_FOREIGNER_ENDPOINT_CODE = 'peru_api_identity_ce_foreigner_id';
 export const PERU_IDENTITY_EXTRA_V3_ENDPOINT_CODE = 'peru_identity_extra_lookup_v3';
+export const PERU_DRIVER_LICENSE_ENDPOINT_CODE = 'peru_api_driver_license_lookup';
 
 const PERU_COMPANY_DEMO_RUC = '20605980008';
 const PERU_CE_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
@@ -144,6 +145,16 @@ export const PERU_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoint
         defaultDocumentNumber: '10000001',
         documentTypeByCode: {
             [PERU_IDENTITY_EXTRA_V3_ENDPOINT_CODE]: 'DNI',
+        },
+        showProfileMeta: false,
+    },
+    [PERU_DRIVER_LICENSE_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(PERU_SANDBOX_PROFILES, {
+            conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER, PERU_CONFLICT_INVALID_DOCUMENT_TYPE],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [PERU_DRIVER_LICENSE_ENDPOINT_CODE]: 'DNI',
         },
         showProfileMeta: false,
     },

@@ -74,5 +74,15 @@
         "helpTooltip": "Más información sobre esta tarea"
       }
     }
+  },
+  "postman": {
+    "responseViewer": {
+      "sandboxPdfDemo": {
+        "badge": "Sandbox",
+        "title": "Vista previa de documento de demostración",
+        "body": "Esta es una vista previa simulada. Verifik no muestra PDFs reales ni datos personales en modo sandbox.",
+        "footnote": "Activa el modo Producción para obtener documentos auténticos de la entidad emisora."
+      }
+    }
   }
 }

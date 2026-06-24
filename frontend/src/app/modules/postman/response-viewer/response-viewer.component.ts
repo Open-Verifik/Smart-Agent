@@ -6,6 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { PostmanService } from '../postman.service';
 import { JsonTableComponent } from './json-table.component';
 import { environment } from '../../../../environments/environment';
@@ -226,35 +227,65 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
               >
                 {{ 'postman.responseViewer.pdfPreview' | transloco }}
               </div>
-              <iframe
-                [title]="'postman.responseViewer.pdfPreview' | transloco"
-                class="min-h-[360px] w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
-                [src]="sanitizePdfIframeSrc(pdfUrl)"
-              ></iframe>
-              <div class="flex flex-wrap gap-2 mt-3">
-                <button
-                  mat-stroked-button
-                  type="button"
-                  class="!text-xs"
-                  (click)="openPdfInNewTab(pdfUrl)"
+
+              <div
+                *ngIf="isSandboxModeActive(); else productionPdfPreview"
+                class="relative min-h-[360px] w-full rounded-xl border border-dashed border-amber-300/80 bg-gradient-to-b from-amber-50/80 to-white dark:from-amber-950/20 dark:to-slate-950 dark:border-amber-800/60 px-6 py-10 flex flex-col items-center justify-center text-center shadow-inner"
+                role="status"
+                [attr.aria-label]="'postman.responseViewer.sandboxPdfDemo.title' | transloco"
+              >
+                <span
+                  class="absolute top-3 right-3 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
                 >
-                  <span class="inline-flex items-center gap-2">
-                    <mat-icon class="!w-4 !h-4">open_in_new</mat-icon>
-                    {{ 'postman.responseViewer.openPdfInNewTab' | transloco }}
-                  </span>
-                </button>
-                <button
-                  mat-stroked-button
-                  type="button"
-                  class="!text-xs"
-                  (click)="downloadPdf(pdfUrl, postmanPdfDownloadFilename())"
+                  {{ 'postman.responseViewer.sandboxPdfDemo.badge' | transloco }}
+                </span>
+                <div
+                  class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-amber-200/80 dark:bg-slate-900 dark:ring-amber-900/60"
                 >
-                  <span class="inline-flex items-center gap-2">
-                    <mat-icon class="!w-4 !h-4">download</mat-icon>
-                    {{ 'postman.responseViewer.downloadPdf' | transloco }}
-                  </span>
-                </button>
+                  <mat-icon class="!h-8 !w-8 text-amber-600 dark:text-amber-300">description</mat-icon>
+                </div>
+                <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                  {{ 'postman.responseViewer.sandboxPdfDemo.title' | transloco }}
+                </h4>
+                <p class="mt-3 max-w-md text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                  {{ 'postman.responseViewer.sandboxPdfDemo.body' | transloco }}
+                </p>
+                <p class="mt-4 max-w-md text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                  {{ 'postman.responseViewer.sandboxPdfDemo.footnote' | transloco }}
+                </p>
               </div>
+
+              <ng-template #productionPdfPreview>
+                <iframe
+                  [title]="'postman.responseViewer.pdfPreview' | transloco"
+                  class="min-h-[360px] w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950"
+                  [src]="sanitizePdfIframeSrc(pdfUrl)"
+                ></iframe>
+                <div class="flex flex-wrap gap-2 mt-3">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="!text-xs"
+                    (click)="openPdfInNewTab(pdfUrl)"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <mat-icon class="!w-4 !h-4">open_in_new</mat-icon>
+                      {{ 'postman.responseViewer.openPdfInNewTab' | transloco }}
+                    </span>
+                  </button>
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="!text-xs"
+                    (click)="downloadPdf(pdfUrl, postmanPdfDownloadFilename())"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <mat-icon class="!w-4 !h-4">download</mat-icon>
+                      {{ 'postman.responseViewer.downloadPdf' | transloco }}
+                    </span>
+                  </button>
+                </div>
+              </ng-template>
             </div>
           </div>
         </div>
@@ -518,8 +549,10 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
 })
 export class ResponseViewerComponent {
   private _postmanService = inject(PostmanService);
+  private _accountEnvironment = inject(AccountEnvironmentService);
   private _sanitizer = inject(DomSanitizer);
   response = this._postmanService.response;
+  isSandboxModeActive = this._accountEnvironment.isSandboxModeActive;
   responseTime = this._postmanService.responseTime;
   isLoading = this._postmanService.isLoading;
   error = this._postmanService.error;

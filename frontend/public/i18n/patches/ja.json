@@ -74,5 +74,23 @@
         "helpTooltip": "このタスクの詳細を見る"
       }
     }
+  },
+  "postman": {
+    "requestEditor": {
+      "sandboxProfiles": {
+        "title": "Sandboxテストプロフィール",
+        "description": "Sandboxモードでは、これらのテスト値は予測可能なレスポンスを返します。プロフィールを選択すると、リクエストパラメータが自動入力されます。",
+        "selectLabel": "テストプロフィール",
+        "profileMeta": "{{gender}} · {{birthDate}}"
+      }
+    },
+    "responseViewer": {
+      "sandboxPdfDemo": {
+        "badge": "Sandbox",
+        "title": "デモ文書プレビュー",
+        "body": "これはシミュレーションされたプレビューです。Verifik はサンドボックスモードで実際の証明書 PDF や個人データを表示しません。",
+        "footnote": "発行機関の正式な文書を取得するには、本番モードに切り替えてください。"
+      }
+    }
   }
 }
