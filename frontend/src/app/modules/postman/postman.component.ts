@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslocoPipe } from '@jsverse/transloco';
 import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
@@ -37,24 +38,70 @@ import {
     ],
     template: `
         <div
-            class="flex h-full min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
+            class="flex min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
+            [class.h-full]="!isMobile()"
+            [class.h-dvh]="isMobile()"
         >
-            <!-- Sidebar -->
-            <div
-                class="flex-shrink-0 transition-all duration-300 ease-in-out h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-20"
-                [style.width.px]="sidebarWidth"
-            >
-                <postman-sidebar [collapsed]="sidebarCollapsed" (toggleCollapsed)="toggleSidebar()">
-                </postman-sidebar>
-            </div>
+            <!-- Sidebar (fixed column on desktop) -->
+            @if (!isMobile()) {
+                <div
+                    class="flex-shrink-0 transition-all duration-300 ease-in-out h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-20"
+                    [style.width.px]="sidebarWidth"
+                >
+                    <postman-sidebar
+                        [collapsed]="sidebarCollapsed"
+                        (toggleCollapsed)="toggleSidebar()"
+                    >
+                    </postman-sidebar>
+                </div>
+            }
+
+            <!-- Sidebar (slide-in drawer on mobile) -->
+            @if (isMobile()) {
+                <!-- Backdrop (above the shell header/footer which sit at z-49) -->
+                <div
+                    class="fixed inset-0 z-[55] bg-black/40 transition-opacity duration-300"
+                    [class.opacity-0]="!mobileSidebarOpen()"
+                    [class.pointer-events-none]="!mobileSidebarOpen()"
+                    [class.opacity-100]="mobileSidebarOpen()"
+                    (click)="mobileSidebarOpen.set(false)"
+                ></div>
+                <!-- Drawer -->
+                <div
+                    class="fixed inset-y-0 left-0 z-[60] w-[85%] max-w-[320px] h-dvh bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-300 ease-in-out"
+                    [class.-translate-x-full]="!mobileSidebarOpen()"
+                    [class.translate-x-0]="mobileSidebarOpen()"
+                >
+                    <postman-sidebar [collapsed]="false"> </postman-sidebar>
+                </div>
+            }
 
             <!-- Main Content Wrapper -->
             <div class="flex-1 flex flex-col h-full min-w-0 bg-[#f8fafc] dark:bg-[#0f172a]">
                 <!-- Toolbar / Header -->
-                <div class="h-16 flex items-center justify-between px-6 py-3 bg-transparent z-10">
+                <div
+                    class="h-16 flex items-center justify-between py-3 bg-transparent z-10"
+                    [class.px-6]="!isMobile()"
+                    [class.px-3]="isMobile()"
+                    [class.gap-2]="isMobile()"
+                >
+                    <!-- Hamburger (mobile only) -->
+                    @if (isMobile()) {
+                        <button
+                            type="button"
+                            mat-icon-button
+                            class="flex-shrink-0 text-slate-600 dark:text-slate-300"
+                            (click)="mobileSidebarOpen.set(true)"
+                            [matTooltip]="'postman.sidebar.title' | transloco"
+                        >
+                            <mat-icon>menu</mat-icon>
+                        </button>
+                    }
+
                     <!-- Country Filters (Pill Style) -->
                     <div
-                        class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide mask-gradient max-w-[60%] p-1"
+                        class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide mask-gradient p-1"
+                        [ngClass]="isMobile() ? 'flex-1 min-w-0' : 'max-w-[60%]'"
                     >
                         @for (country of countries(); track country.name) {
                             @let ui = countryFlagUi(country.name);
@@ -145,6 +192,7 @@ import {
 
                         <!-- Layout Toggles (Joined Segmented Control) -->
                         <div
+                            *ngIf="!isMobile()"
                             class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm"
                         >
                             <button
@@ -176,55 +224,109 @@ import {
                     </div>
                 </div>
 
-                <!-- Split Content Area -->
-                <div
-                    class="flex-1 flex min-w-0 min-h-0 p-4 pt-0 gap-4"
-                    [class.flex-row]="layout === 'horizontal'"
-                    [class.flex-col]="layout === 'vertical'"
-                    (mousemove)="onDrag($event)"
-                    (mouseup)="stopDrag()"
-                    (mouseleave)="stopDrag()"
-                >
-                    <!-- Request Editor Panel -->
+                <!-- Split Content Area (desktop: side-by-side / stacked with resizer) -->
+                @if (!isMobile()) {
                     <div
-                        [class.h-full]="layout === 'horizontal'"
-                        [class.w-full]="layout === 'vertical'"
-                        [style.width.%]="layout === 'horizontal' ? requestPanelSize : 100"
-                        [style.height.%]="layout === 'vertical' ? requestPanelSize : 100"
-                        class="min-w-0 min-h-0 relative overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                        class="flex-1 flex min-w-0 min-h-0 p-4 pt-0 gap-4"
+                        [class.flex-row]="layout === 'horizontal'"
+                        [class.flex-col]="layout === 'vertical'"
+                        (mousemove)="onDrag($event)"
+                        (mouseup)="stopDrag()"
+                        (mouseleave)="stopDrag()"
                     >
-                        <postman-request-editor></postman-request-editor>
-                    </div>
-
-                    <!-- Resizer Handle -->
-                    <div
-                        class="hover:bg-blue-500/20 active:bg-blue-500/40 transition-colors rounded-full flex-shrink-0 z-10 flex items-center justify-center"
-                        [class.w-4]="layout === 'horizontal'"
-                        [class.h-4]="layout === 'vertical'"
-                        [class.h-full]="layout === 'horizontal'"
-                        [class.w-full]="layout === 'vertical'"
-                        [class.cursor-col-resize]="layout === 'horizontal'"
-                        [class.cursor-row-resize]="layout === 'vertical'"
-                        (mousedown)="
-                            startDrag($event, layout === 'horizontal' ? 'horizontal' : 'vertical')
-                        "
-                    >
+                        <!-- Request Editor Panel -->
                         <div
-                            class="bg-slate-300 dark:bg-slate-700 rounded-full"
-                            [class.w-1]="layout === 'horizontal'"
-                            [class.h-8]="layout === 'horizontal'"
-                            [class.h-1]="layout === 'vertical'"
-                            [class.w-8]="layout === 'vertical'"
-                        ></div>
-                    </div>
+                            [class.h-full]="layout === 'horizontal'"
+                            [class.w-full]="layout === 'vertical'"
+                            [style.width.%]="layout === 'horizontal' ? requestPanelSize : 100"
+                            [style.height.%]="layout === 'vertical' ? requestPanelSize : 100"
+                            class="min-w-0 min-h-0 relative overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                        >
+                            <postman-request-editor></postman-request-editor>
+                        </div>
 
-                    <!-- Response Viewer Panel -->
-                    <div
-                        class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
-                    >
-                        <postman-response-viewer></postman-response-viewer>
+                        <!-- Resizer Handle -->
+                        <div
+                            class="hover:bg-blue-500/20 active:bg-blue-500/40 transition-colors rounded-full flex-shrink-0 z-10 flex items-center justify-center"
+                            [class.w-4]="layout === 'horizontal'"
+                            [class.h-4]="layout === 'vertical'"
+                            [class.h-full]="layout === 'horizontal'"
+                            [class.w-full]="layout === 'vertical'"
+                            [class.cursor-col-resize]="layout === 'horizontal'"
+                            [class.cursor-row-resize]="layout === 'vertical'"
+                            (mousedown)="
+                                startDrag(
+                                    $event,
+                                    layout === 'horizontal' ? 'horizontal' : 'vertical'
+                                )
+                            "
+                        >
+                            <div
+                                class="bg-slate-300 dark:bg-slate-700 rounded-full"
+                                [class.w-1]="layout === 'horizontal'"
+                                [class.h-8]="layout === 'horizontal'"
+                                [class.h-1]="layout === 'vertical'"
+                                [class.w-8]="layout === 'vertical'"
+                            ></div>
+                        </div>
+
+                        <!-- Response Viewer Panel -->
+                        <div
+                            class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                        >
+                            <postman-response-viewer></postman-response-viewer>
+                        </div>
                     </div>
-                </div>
+                }
+
+                <!-- Mobile Content Area (one panel at a time + segmented switch) -->
+                @if (isMobile()) {
+                    <div class="flex-1 flex flex-col min-w-0 min-h-0 px-3 pb-3 gap-3">
+                        <!-- Request | Response Switch -->
+                        <div
+                            class="flex items-center bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 shadow-sm flex-shrink-0"
+                        >
+                            <button
+                                type="button"
+                                class="flex-1 py-2 rounded-md transition-all text-sm font-medium text-slate-500"
+                                [class.bg-slate-100]="mobilePanel() === 'request'"
+                                [class.text-slate-900]="mobilePanel() === 'request'"
+                                [class.dark:bg-slate-700]="mobilePanel() === 'request'"
+                                [class.dark:text-white]="mobilePanel() === 'request'"
+                                (click)="mobilePanel.set('request')"
+                            >
+                                {{ 'postman.requestEditor.title' | transloco }}
+                            </button>
+                            <button
+                                type="button"
+                                class="flex-1 py-2 rounded-md transition-all text-sm font-medium text-slate-500"
+                                [class.bg-slate-100]="mobilePanel() === 'response'"
+                                [class.text-slate-900]="mobilePanel() === 'response'"
+                                [class.dark:bg-slate-700]="mobilePanel() === 'response'"
+                                [class.dark:text-white]="mobilePanel() === 'response'"
+                                (click)="mobilePanel.set('response')"
+                            >
+                                {{ 'postman.responseViewer.title' | transloco }}
+                            </button>
+                        </div>
+
+                        <!-- Single Full-Width Panel (both kept mounted to preserve state) -->
+                        <div class="flex-1 min-w-0 min-h-0 relative">
+                            <div
+                                class="absolute inset-0 overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                                [class.hidden]="mobilePanel() !== 'request'"
+                            >
+                                <postman-request-editor></postman-request-editor>
+                            </div>
+                            <div
+                                class="absolute inset-0 overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                                [class.hidden]="mobilePanel() !== 'response'"
+                            >
+                                <postman-response-viewer></postman-response-viewer>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     `,
@@ -245,9 +347,17 @@ export class PostmanComponent {
     private _postmanService = inject(PostmanService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _fuseMediaWatcherService = inject(FuseMediaWatcherService);
 
     sidebarCollapsed = false;
     sidebarWidth = 280; // Expanded width
+
+    // Responsive State (true when viewport is below the `md` breakpoint)
+    isMobile = signal(false);
+
+    // Mobile-only UI State
+    mobileSidebarOpen = signal(false);
+    mobilePanel = signal<'request' | 'response'>('request');
 
     // Layout State
     layout: 'horizontal' | 'vertical' = 'horizontal';
@@ -285,6 +395,10 @@ export class PostmanComponent {
     toggleCountry(country: string) {
         const next = this.selectedCountry() === country ? null : country;
         this.selectedCountry.set(next);
+
+        if (this.isMobile()) {
+            this.mobileSidebarOpen.set(false);
+        }
         const iso = next ? countryNameToIso(next) : null;
 
         const queryParams: Record<string, string | null> = { country: iso };
@@ -323,6 +437,17 @@ export class PostmanComponent {
     });
 
     constructor() {
+        // Track viewport size: anything below the `md` alias is treated as mobile.
+        this._fuseMediaWatcherService.onMediaChange$
+            .pipe(takeUntilDestroyed())
+            .subscribe(({ matchingAliases }) => {
+                const mobile = !matchingAliases.includes('md');
+                this.isMobile.set(mobile);
+                if (!mobile) {
+                    this.mobileSidebarOpen.set(false);
+                }
+            });
+
         // Effect: Sync URL code param -> Selected Endpoint (route is source of truth for code)
         effect(
             () => {
@@ -401,7 +526,54 @@ export class PostmanComponent {
 
             queueMicrotask(() => this.applyHistoryPrefill(selected));
         });
+
+        // Effect: On mobile, jump to the Response panel once a request finishes
+        // (loading transitions true -> false with a response or error present).
+        effect(() => {
+            const loading = this._postmanService.isLoading();
+            const hasResult =
+                this._postmanService.response() != null ||
+                this._postmanService.error() != null;
+            const wasLoading = this._wasLoading;
+            this._wasLoading = loading;
+
+            if (wasLoading && !loading && hasResult && this.isMobile()) {
+                this.mobilePanel.set('response');
+            }
+        });
+
+        // Effect: Drive the mobile drawer/panel from the selected endpoint.
+        // - No endpoint selected: open the drawer so the endpoint list is shown
+        //   first (instead of an empty Request panel).
+        // - Endpoint newly selected: close the drawer and land on the Request panel.
+        // Re-selecting the same endpoint (e.g. prefill copy) is a no-op so it does
+        // not fight the auto-jump-to-Response behavior.
+        effect(() => {
+            const code = this._postmanService.selectedEndpoint()?.code ?? null;
+            const mobile = this.isMobile();
+
+            if (!mobile) {
+                this._lastSelectedCodeForMobile = code;
+                return;
+            }
+
+            const changed = code !== this._lastSelectedCodeForMobile;
+            this._lastSelectedCodeForMobile = code;
+
+            if (!code) {
+                this.mobileSidebarOpen.set(true);
+                return;
+            }
+
+            if (changed) {
+                this.mobileSidebarOpen.set(false);
+                this.mobilePanel.set('request');
+            }
+        });
     }
+
+    private _wasLoading = false;
+    private _lastSelectedCodeForMobile: string | null = null;
 
     toggleSidebar() {
         this.sidebarCollapsed = !this.sidebarCollapsed;

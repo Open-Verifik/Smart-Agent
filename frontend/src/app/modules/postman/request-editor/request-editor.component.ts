@@ -173,22 +173,25 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
             <!-- Request Bar -->
             <div class="p-4 pt-2">
-                <div class="flex items-center gap-2">
+                <div class="flex flex-col md:flex-row md:items-center gap-2">
                     <div
-                        class="flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800 flex-1"
+                        class="flex min-w-0 items-center overflow-x-auto rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800 md:flex-1"
                     >
-                        <span class="mr-3 font-bold text-blue-600">{{ endpoint()?.method }}</span>
+                        <span class="mr-3 shrink-0 font-bold text-blue-600">{{
+                            endpoint()?.method
+                        }}</span>
                         <input
                             type="text"
                             readonly
                             [value]="effectiveRequestUrl()"
-                            class="w-full min-w-[300px] bg-transparent text-slate-700 outline-none dark:text-slate-200"
+                            class="w-full min-w-0 bg-transparent text-sm text-slate-700 outline-none dark:text-slate-200 md:text-base"
                         />
                     </div>
 
                     <button
                         mat-flat-button
                         color="primary"
+                        class="!w-full shrink-0 md:!w-auto"
                         (click)="sendRequest()"
                         [disabled]="isLoading() || !canSendRequest()"
                     >
