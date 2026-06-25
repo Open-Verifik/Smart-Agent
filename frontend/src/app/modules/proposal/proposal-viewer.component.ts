@@ -385,7 +385,7 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
         if (!this.proposal) return '';
 
         return formatUsageCellHint(
-            getSelectedLineItems(this.proposal),
+            getSortedSelectedLineItems(this.proposal),
             tier,
             this.proposal.monthlyVolume || 0,
             this.proposal.usagePricingMode === 'combo' ? 'combo' : 'average',
