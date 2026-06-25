@@ -8,6 +8,10 @@ import { ProposalPaymentOption } from './proposal-payment.util';
 
 export type ProposalTier = 'starter' | 'basic' | 'plus' | 'business' | 'enterprise';
 
+export type VolumeMode = 'global' | 'perEndpoint';
+
+export type VolumeDisplayPeriod = 'monthly' | 'yearly';
+
 export interface ProposalUnitPrices {
     starter?: number;
     basic?: number;
@@ -30,6 +34,8 @@ export interface PublicProposal {
         country?: string;
         catalogUnitPrices?: ProposalUnitPrices;
         unitPrices?: ProposalUnitPrices;
+        monthlyVolume?: number;
+        order?: number;
         selected?: boolean;
     }>;
     recommendedTier: ProposalTier;
@@ -67,6 +73,8 @@ export interface PublicProposal {
     includeCommercialNotes?: boolean;
     includePlanMinimum?: boolean;
     usagePricingMode?: 'average' | 'combo';
+    volumeMode?: VolumeMode;
+    volumeDisplayPeriod?: VolumeDisplayPeriod;
     counterOffer?: {
         message?: string;
         monthlyVolume?: number;

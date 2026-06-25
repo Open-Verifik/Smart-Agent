@@ -30,6 +30,59 @@ const resolveUsageUnitPrice = (
 
 export type UsagePricingMode = 'average' | 'combo';
 
+export type VolumeMode = 'global' | 'perEndpoint';
+
+export const getEndpointVolume = (
+    item: PublicProposal['selectedLineItems'][number]
+): number => {
+    return Math.max(0, Number(item.monthlyVolume) || 0);
+};
+
+export const computeTotalVolume = (
+    items: PublicProposal['selectedLineItems'],
+    mode: VolumeMode = 'global',
+    globalVolume = 0
+): number => {
+    if (mode === 'perEndpoint') {
+        return (items || [])
+            .filter((item) => item.selected !== false)
+            .reduce((total, item) => total + getEndpointVolume(item), 0);
+    }
+
+    return Math.max(0, Number(globalVolume) || 0);
+};
+
+export const formatPerEndpointUsageBreakdown = (
+    items: PublicProposal['selectedLineItems'],
+    tier: ProposalTier,
+    formatPrice: (value: number) => string
+): string => {
+    const parts = (items || [])
+        .filter((item) => item.selected !== false)
+        .map((item) => {
+            const volume = getEndpointVolume(item);
+            const price = roundUnitPrice(item.unitPrices?.[tier]);
+
+            if (!volume || price == null) return null;
+
+            return `(${volume.toLocaleString()} × ${formatPrice(price)})`;
+        })
+        .filter((part): part is string => Boolean(part));
+
+    if (!parts.length) return '';
+
+    const total = (items || [])
+        .filter((item) => item.selected !== false)
+        .reduce((sum, item) => {
+            const volume = getEndpointVolume(item);
+            const price = roundUnitPrice(item.unitPrices?.[tier]) ?? 0;
+
+            return sum + volume * price;
+        }, 0);
+
+    return `${parts.join(' + ')} = ${formatPrice(Math.round(total * 100) / 100)}`;
+};
+
 export const getSelectedUnitPricesForTier = (
     items: PublicProposal['selectedLineItems'],
     tier: ProposalTier
@@ -62,8 +115,13 @@ export const formatUsageCellHint = (
     tier: ProposalTier,
     volume: number,
     mode: UsagePricingMode,
-    formatPrice: (value: number) => string
+    formatPrice: (value: number) => string,
+    volumeMode: VolumeMode = 'global'
 ): string => {
+    if (volumeMode === 'perEndpoint') {
+        return formatPerEndpointUsageBreakdown(items, tier, formatPrice);
+    }
+
     const prices = getSelectedUnitPricesForTier(items, tier);
 
     if (!prices.length || !volume) return '';
@@ -84,8 +142,31 @@ export const getEffectiveTier = (proposal: PublicProposal): ProposalTier => {
     return resolveEffectiveTier(proposal);
 };
 
+export const sortLineItemsByOrder = (
+    items: PublicProposal['selectedLineItems']
+): PublicProposal['selectedLineItems'] => {
+    return [...(items || [])].sort((a, b) => {
+        const orderA = Number(a.order);
+        const orderB = Number(b.order);
+        const hasOrderA = Number.isFinite(orderA);
+        const hasOrderB = Number.isFinite(orderB);
+
+        if (hasOrderA && hasOrderB && orderA !== orderB) {
+            return orderA - orderB;
+        }
+
+        if (hasOrderA !== hasOrderB) {
+            return hasOrderA ? -1 : 1;
+        }
+
+        return String(a.serviceName || '').localeCompare(String(b.serviceName || ''));
+    });
+};
+
 export const getSelectedLineItems = (proposal: PublicProposal): PublicProposal['selectedLineItems'] => {
-    return (proposal.selectedLineItems || []).filter((item) => item.selected !== false);
+    const selected = (proposal.selectedLineItems || []).filter((item) => item.selected !== false);
+
+    return sortLineItemsByOrder(selected);
 };
 
 const hasStoredPaymentTotals = (options?: ProposalPaymentOption[]): boolean => {
@@ -158,7 +239,45 @@ const computeCounterTierSummary = (
 
     if (!prices.length) return null;
 
+    const volumeMode = proposal.volumeMode === 'perEndpoint' ? 'perEndpoint' : 'global';
     const mode = proposal.usagePricingMode === 'combo' ? 'combo' : 'average';
+
+    if (volumeMode === 'perEndpoint') {
+        const selected = getSelectedLineItems(proposal);
+        let usageCost = 0;
+
+        for (const item of selected) {
+            const counterPrices = counterByFeature.get(String(item.appFeature));
+            const clientPrice = roundUnitPrice(counterPrices?.[tier]);
+            const price =
+                clientPrice != null && clientPrice > 0
+                    ? clientPrice
+                    : roundUnitPrice(item.unitPrices?.[tier]);
+
+            if (price != null && price > 0) {
+                usageCost += getEndpointVolume(item) * price;
+            }
+        }
+
+        usageCost = Math.round(usageCost * 100) / 100;
+        const usageUnitPrice =
+            volume > 0 ? Math.round((usageCost / volume) * 100) / 100 : 0;
+        const avgUnitPrice = usageUnitPrice;
+        const quotedMonthlyTotal =
+            Math.round(Math.max(planRow.planSubscriptionFee ?? 0, usageCost) * 100) / 100;
+
+        return {
+            avgUnitPrice,
+            usageUnitPrice,
+            planSubscriptionFee: planRow.planSubscriptionFee,
+            planQueryLimit: planRow.planQueryLimit,
+            expectedQueries: volume,
+            usageCost,
+            quotedMonthlyTotal,
+            totalMonthlyEstimate: quotedMonthlyTotal,
+        };
+    }
+
     const { usageUnitPrice, avgUnitPrice } = resolveUsageUnitPrice(prices, mode);
     const usageCost = Math.round(volume * usageUnitPrice * 100) / 100;
     const quotedMonthlyTotal =

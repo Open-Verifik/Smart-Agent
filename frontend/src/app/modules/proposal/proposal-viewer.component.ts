@@ -9,7 +9,7 @@ import {
     roundUnitPrice,
     unitPricesDiffer,
 } from './proposal-payment.util';
-import { resolveClientDisplayTiers, resolveEffectiveTier } from './proposal-display.util';
+import { resolveClientDisplayTiers, resolveEffectiveTier, formatProposalCurrency } from './proposal-display.util';
 import {
     buildScopeSummary,
     getDocumentSubject,
@@ -22,7 +22,11 @@ import {
     showScopeSection as shouldShowScopeSection,
     showSlaSection as shouldShowSlaSection,
 } from './proposal-document.util';
-import { getActivePaymentOptions, formatUsageCellHint, getSelectedLineItems } from './proposal-pricing.util';
+import {
+    getActivePaymentOptions,
+    formatUsageCellHint,
+    getSelectedLineItems as getSortedSelectedLineItems,
+} from './proposal-pricing.util';
 import { buildRevisionTimeline } from './proposal-revisions.util';
 import {
     CounterOfferLineItem,
@@ -310,7 +314,11 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
     }
 
     getSelectedLineItems(): PublicProposal['selectedLineItems'] {
-        return (this.proposal?.selectedLineItems || []).filter((item) => item.selected !== false);
+        if (!this.proposal) {
+            return [];
+        }
+
+        return getSortedSelectedLineItems(this.proposal);
     }
 
     get activePricingSummary(): PublicProposal['pricingSummary'] {
@@ -356,14 +364,21 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
     }
 
     formatPrice(value?: number): string {
-        if (value == null) return '—';
-        return `$${value.toFixed(2)}`;
+        return formatProposalCurrency(value, this.proposal?.language || this.activeLang);
     }
 
     getUsageCostLabelKey(): string {
+        if (this.proposal?.volumeMode === 'perEndpoint') {
+            return 'proposal.table.usageCostPerEndpoint';
+        }
+
         return this.proposal?.usagePricingMode === 'combo'
             ? 'proposal.table.usageCostCombo'
             : 'proposal.table.usageCostAverage';
+    }
+
+    isPerEndpointVolume(): boolean {
+        return this.proposal?.volumeMode === 'perEndpoint';
     }
 
     getUsageCellHint(tier: ProposalTier): string {
@@ -374,7 +389,8 @@ export class ProposalViewerComponent implements OnInit, OnDestroy {
             tier,
             this.proposal.monthlyVolume || 0,
             this.proposal.usagePricingMode === 'combo' ? 'combo' : 'average',
-            (price) => this.formatPrice(price) || ''
+            (price) => this.formatPrice(price) || '',
+            this.proposal.volumeMode === 'perEndpoint' ? 'perEndpoint' : 'global'
         );
     }
 

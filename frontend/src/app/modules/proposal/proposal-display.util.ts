@@ -1,5 +1,29 @@
 import { PublicProposal, ProposalTier } from './proposal.service';
 
+const ROMANO_PRICE_LANGUAGES = new Set(['es', 'pt']);
+
+export const resolveProposalPriceLocale = (language?: string | null): string => {
+    if (language && ROMANO_PRICE_LANGUAGES.has(language)) {
+        return 'es-CO';
+    }
+
+    return 'en-US';
+};
+
+export const formatProposalCurrency = (
+    value?: number | null,
+    language?: string | null
+): string => {
+    if (value == null) return '—';
+
+    const formatted = new Intl.NumberFormat(resolveProposalPriceLocale(language), {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(value);
+
+    return `$${formatted}`;
+};
+
 export const PROPOSAL_TIERS: ProposalTier[] = [
     'starter',
     'basic',
