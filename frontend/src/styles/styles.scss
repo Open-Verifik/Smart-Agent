@@ -35,6 +35,12 @@
     overflow: hidden;
 }
 
+/* Verifik AI support bubble — anchor to bottom-left instead of bottom-right */
+iframe[title="Veri — Verifik AI"] {
+    right: auto !important;
+    left: 0 !important;
+}
+
 @media print {
     html,
     body {
