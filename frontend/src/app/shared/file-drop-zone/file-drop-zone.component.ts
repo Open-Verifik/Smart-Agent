@@ -36,6 +36,8 @@ export class FileDropZoneComponent {
     @Input() disabled = false;
     /** Smaller padding and min-height for inline composers (e.g. support ticket replies). */
     @Input() compact = false;
+    /** Renders only a small upload trigger for chat-style composers. */
+    @Input() triggerOnly = false;
 
     @Output() attachmentUploaded = new EventEmitter<{ attachment: Attachment }>();
     @Output() fileError = new EventEmitter<{ file: File; error: string }>();

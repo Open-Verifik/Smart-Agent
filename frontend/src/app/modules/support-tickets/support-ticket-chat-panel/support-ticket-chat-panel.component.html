@@ -397,26 +397,6 @@
                         class="border-divider flex flex-0 flex-col gap-2 border-t border-stone-200/90 bg-white p-3 dark:border-stone-800 dark:bg-stone-950/40"
                     >
                         <div class="flex flex-col gap-2">
-                            <div
-                                class="text-default flex flex-wrap items-center gap-2 text-xs font-medium"
-                            >
-                                <span>{{
-                                    'supportTickets.quickChat.newTicket.attachmentsLabel'
-                                        | transloco
-                                }}</span>
-                                @if (replyUploadedAttachments().length > 0) {
-                                    <span class="text-secondary font-normal">{{
-                                        'supportTickets.quickChat.newTicket.attachmentsCount'
-                                            | transloco
-                                                : { count: replyUploadedAttachments().length }
-                                    }}</span>
-                                }
-                            </div>
-                            <p class="text-secondary m-0 text-[11px] leading-snug">
-                                {{
-                                    'supportTickets.quickChat.newTicket.attachmentsHint' | transloco
-                                }}
-                            </p>
                             @if (replyUploadedAttachments().length >= replyMaxAttachments) {
                                 <p class="text-hint m-0 text-[11px]">
                                     {{
@@ -425,15 +405,6 @@
                                     }}
                                 </p>
                             }
-                            <file-drop-zone
-                                accept=".pdf,.jpg,.jpeg,.png"
-                                [compact]="true"
-                                [expirationDays]="1"
-                                source="support-ticket"
-                                [disabled]="replyAttachmentDropZoneDisabled()"
-                                (attachmentUploaded)="onReplyAttachmentUploaded($event)"
-                                (uploadingChange)="onReplyAttachmentUploadingChange($event)"
-                            ></file-drop-zone>
                             @if (replyUploadedAttachments().length > 0) {
                                 <ul
                                     class="border-divider m-0 flex list-none flex-col gap-1 rounded-xl border p-2"
@@ -472,6 +443,17 @@
                             }
                         </div>
                         <div class="flex flex-0 items-end gap-2">
+                            <file-drop-zone
+                                class="mb-0.5 shrink-0"
+                                accept=".pdf,.jpg,.jpeg,.png"
+                                [compact]="true"
+                                [triggerOnly]="true"
+                                [expirationDays]="1"
+                                source="support-ticket"
+                                [disabled]="replyAttachmentDropZoneDisabled()"
+                                (attachmentUploaded)="onReplyAttachmentUploaded($event)"
+                                (uploadingChange)="onReplyAttachmentUploadingChange($event)"
+                            ></file-drop-zone>
                             <mat-form-field
                                 class="fuse-mat-dense fuse-mat-rounded fuse-mat-bold w-full"
                                 [subscriptSizing]="'dynamic'"
