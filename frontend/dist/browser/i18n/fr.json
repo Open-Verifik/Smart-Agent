@@ -1444,6 +1444,7 @@
             "wrongProject": "Cet enregistrement n'appartient pas au projet sélectionné.",
             "stepsHeading": "Étapes",
             "step": {
+                "consent": "Consentement",
                 "information": "Informations",
                 "email": "E-mail",
                 "phone": "Téléphone",
@@ -1453,6 +1454,7 @@
                 "verdict": "Verdict"
             },
             "section": {
+                "consent": "Preuve de consentement",
                 "information": "Informations d'inscription",
                 "email": "Validation e-mail",
                 "phone": "Validation téléphone",
@@ -1488,6 +1490,7 @@
                 "apiHintArrayMore": "+ {{count}} de plus (même modèle GET)",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1506,6 +1509,9 @@
             },
             "boolYes": "Oui",
             "boolNo": "Non",
+            "consentAcceptedOn": "Accepté le {{date}}",
+            "consentPrivacyPolicy": "Politique de confidentialité",
+            "consentTermsAndConditions": "Conditions générales",
             "validated": "Validé",
             "frontScan": "Recto",
             "backScan": "Verso",
@@ -1534,6 +1540,7 @@
                 "openImage": "Voir en grand"
             },
             "empty": {
+                "consent": "Aucun consentement enregistré pour l'instant.",
                 "information": "Aucune information d'inscription.",
                 "documents": "Aucun document enregistré.",
                 "biometrics": "Aucune biométrie enregistrée.",

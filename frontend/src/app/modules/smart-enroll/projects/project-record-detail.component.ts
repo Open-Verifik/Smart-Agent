@@ -37,9 +37,10 @@ import {
 } from './app-registration-record.utils';
 import { ImagePreviewDialogComponent } from './image-preview-dialog.component';
 import { APP_REGISTRATION_DETAIL_POPULATES, SmartEnrollProjectsService } from './smart-enroll-projects.service';
-import type { AppRegistrationDetail, EnrollProject } from './smart-enroll-projects.types';
+import type { AppRegistrationDetail, ConsentSessionDetail, EnrollProject } from './smart-enroll-projects.types';
 
 const STEP_ORDER: StepId[] = [
+    'consent',
     'information',
     'email',
     'phone',
@@ -264,6 +265,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
 
         const nestedKeys = new Set<string>([
             'informationValidation',
+            'consentSession',
             'emailValidation',
             'phoneValidation',
             'documentValidation',
@@ -287,6 +289,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         const sections: { key: string; value: unknown }[] = [
             { key: 'record', value: recordSummary },
             { key: 'informationValidation', value: r.informationValidation ?? null },
+            { key: 'consentSession', value: r.consentSession ?? null },
             { key: 'emailValidation', value: r.emailValidation ?? null },
             { key: 'phoneValidation', value: r.phoneValidation ?? null },
             { key: 'documentValidation', value: r.documentValidation ?? null },
@@ -563,6 +566,59 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         const dt = DateTime.fromISO(iso);
         if (!dt.isValid) return iso;
         return short ? dt.toFormat('HH:mm') : dt.toFormat('MMM dd, yyyy HH:mm');
+    }
+
+    /** Consent card uses DD/MM/YYYY, HH:mm as specified in product spec */
+    formatConsentDate(iso?: string | null): string {
+        if (!iso) return '—';
+        const dt = DateTime.fromISO(iso);
+        if (!dt.isValid) return iso;
+        return dt.toFormat('dd/MM/yyyy, HH:mm');
+    }
+
+    /** Consent is recorded at app registration creation; prefer stored session, else createdAt. */
+    consentAcceptedAt(r: AppRegistrationDetail | null): string | null {
+        if (!r) return null;
+        const cs = this.consentSession(r);
+        if (cs?.acceptedAt) return cs.acceptedAt;
+        if (cs?.createdAt) return cs.createdAt;
+        return r.createdAt ?? null;
+    }
+
+    hasConsentProof(r: AppRegistrationDetail | null): boolean {
+        return this.consentAcceptedAt(r) != null;
+    }
+
+    consentSession(r: AppRegistrationDetail | null): ConsentSessionDetail | null {
+        const cs = r?.consentSession;
+        if (!cs || typeof cs !== 'object') return null;
+        return cs as ConsentSessionDetail;
+    }
+
+    hasConsentSession(r: AppRegistrationDetail | null): boolean {
+        return this.consentSession(r) != null;
+    }
+
+    showConsentStep(): boolean {
+        if (this.hasConsentProof(this.record())) return true;
+        const p = this.project();
+        return !!(p?.privacyUrl || p?.termsAndConditionsUrl);
+    }
+
+    visibleSteps(): StepId[] {
+        return STEP_ORDER.filter((step) => step !== 'consent' || this.showConsentStep());
+    }
+
+    consentPrivacyUrl(r: AppRegistrationDetail | null): string {
+        const cs = this.consentSession(r);
+        if (cs?.privacyPolicyUrl) return cs.privacyPolicyUrl;
+        return this.project()?.privacyUrl || '';
+    }
+
+    consentTermsUrl(r: AppRegistrationDetail | null): string {
+        const cs = this.consentSession(r);
+        if (cs?.termsAndConditionsUrl) return cs.termsAndConditionsUrl;
+        return this.project()?.termsAndConditionsUrl || '';
     }
 
     displayName(r: AppRegistrationDetail | null): string {
@@ -848,6 +904,8 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         if (!r) return 'pending';
 
         switch (step) {
+            case 'consent':
+                return this.hasConsentProof(r) ? 'ok' : 'pending';
             case 'information':
                 return r.informationValidation ? 'ok' : 'pending';
             case 'email': {
@@ -1149,7 +1207,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             { root: null, rootMargin: '-12% 0px -60% 0px', threshold: [0, 0.1, 0.25, 0.5, 1] }
         );
 
-        STEP_ORDER.forEach((step) => {
+        STEP_ORDER.filter((step) => step !== 'consent' || this.showConsentStep()).forEach((step) => {
             const el = document.getElementById(`step-${step}`);
             if (el) this._observer?.observe(el);
         });

@@ -1847,6 +1847,7 @@
             "wrongProject": "This record does not belong to the selected project.",
             "stepsHeading": "Steps",
             "step": {
+                "consent": "Consent",
                 "information": "Information",
                 "email": "Email",
                 "phone": "Phone",
@@ -1856,6 +1857,7 @@
                 "verdict": "Verdict"
             },
             "section": {
+                "consent": "Consent proof",
                 "information": "Signup information",
                 "email": "Email validation",
                 "phone": "Phone validation",
@@ -1891,6 +1893,7 @@
                 "apiHintArrayMore": "+ {{count}} more (same GET pattern)",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1909,6 +1912,9 @@
             },
             "boolYes": "Yes",
             "boolNo": "No",
+            "consentAcceptedOn": "Accepted on {{date}}",
+            "consentPrivacyPolicy": "Privacy Policy",
+            "consentTermsAndConditions": "Terms and Conditions",
             "validated": "Validated",
             "frontScan": "Front",
             "backScan": "Back",
@@ -1937,6 +1943,7 @@
                 "openImage": "View full size"
             },
             "empty": {
+                "consent": "No consent acceptance recorded yet.",
                 "information": "No signup information submitted yet.",
                 "documents": "No document on file.",
                 "biometrics": "No biometrics on file.",

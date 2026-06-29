@@ -1513,6 +1513,7 @@
             "wrongProject": "Este registro no pertenece al proyecto seleccionado.",
             "stepsHeading": "Pasos",
             "step": {
+                "consent": "Consentimiento",
                 "information": "Información",
                 "email": "Correo",
                 "phone": "Teléfono",
@@ -1522,6 +1523,7 @@
                 "verdict": "Resultado"
             },
             "section": {
+                "consent": "Prueba de consentimiento",
                 "information": "Datos del formulario",
                 "email": "Validación de correo",
                 "phone": "Validación de teléfono",
@@ -1557,6 +1559,7 @@
                 "apiHintArrayMore": "+ {{count}} más (mismo patrón GET)",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1575,6 +1578,9 @@
             },
             "boolYes": "Sí",
             "boolNo": "No",
+            "consentAcceptedOn": "Aceptado el {{date}}",
+            "consentPrivacyPolicy": "Política de Privacidad",
+            "consentTermsAndConditions": "Términos y Condiciones",
             "validated": "Validado",
             "frontScan": "Frente",
             "backScan": "Reverso",
@@ -1603,6 +1609,7 @@
                 "openImage": "Ver a tamaño completo"
             },
             "empty": {
+                "consent": "Aún no hay registro de consentimiento.",
                 "information": "Aún no hay datos del formulario.",
                 "documents": "No hay documento en el expediente.",
                 "biometrics": "No hay biometría en el expediente.",

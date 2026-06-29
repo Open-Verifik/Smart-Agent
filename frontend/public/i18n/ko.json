@@ -1445,6 +1445,7 @@
             "wrongProject": "이 기록은 선택한 프로젝트에 속하지 않습니다.",
             "stepsHeading": "단계",
             "step": {
+                "consent": "동의",
                 "information": "정보",
                 "email": "이메일",
                 "phone": "전화",
@@ -1454,6 +1455,7 @@
                 "verdict": "결과"
             },
             "section": {
+                "consent": "동의 증명",
                 "information": "가입 정보",
                 "email": "이메일 인증",
                 "phone": "전화 인증",
@@ -1489,6 +1491,7 @@
                 "apiHintArrayMore": "+ {{count}}개 더(동일 GET 패턴)",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1507,6 +1510,9 @@
             },
             "boolYes": "예",
             "boolNo": "아니오",
+            "consentAcceptedOn": "{{date}}에 동의",
+            "consentPrivacyPolicy": "개인정보 처리방침",
+            "consentTermsAndConditions": "이용 약관",
             "validated": "인증됨",
             "frontScan": "앞면",
             "backScan": "뒷면",
@@ -1535,6 +1541,7 @@
                 "openImage": "크게 보기"
             },
             "empty": {
+                "consent": "아직 동의 기록이 없습니다.",
                 "information": "가입 정보가 없습니다.",
                 "documents": "문서가 없습니다.",
                 "biometrics": "생체 인증 데이터가 없습니다.",

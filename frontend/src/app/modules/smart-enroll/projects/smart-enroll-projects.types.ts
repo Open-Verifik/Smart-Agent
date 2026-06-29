@@ -120,6 +120,18 @@ export interface AppRegistrationRow {
         face?: { base64?: string; url?: string } | null;
     };
     informationValidation?: Record<string, unknown> | null;
+    consentSession?: ConsentSessionDetail | null;
+}
+
+export interface ConsentSessionDetail {
+    _id?: string;
+    status?: 'accepted' | 'failed';
+    acceptedAt?: string;
+    privacyPolicyUrl?: string;
+    termsAndConditionsUrl?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    source?: 'signUpForm' | 'instructions' | 'kycInstructions';
 }
 
 /** Full app registration as returned by GET /v2/app-registrations/:id with deep populates */

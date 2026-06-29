@@ -3,7 +3,66 @@
     overflow-y: auto;
 }
 
-.blocking-modal-body :deep(a) {
-    color: rgb(13 148 136);
-    text-decoration: underline;
+.blocking-modal-body {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+
+    :deep(a) {
+        color: rgb(13 148 136);
+        font-weight: 500;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+    }
+
+    :deep(p),
+    :deep(li),
+    :deep(h1),
+    :deep(h2),
+    :deep(h3),
+    :deep(h4),
+    :deep(blockquote),
+    :deep(td),
+    :deep(th) {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+    }
+
+    :deep(pre),
+    :deep(table) {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    :deep(img),
+    :deep(video),
+    :deep(iframe) {
+        border-radius: 0.75rem;
+        display: block;
+        height: auto;
+        margin: 0.75rem 0;
+        max-width: 100%;
+    }
+
+    :deep(.ql-align-center) {
+        text-align: center;
+    }
+
+    :deep(.ql-align-right) {
+        text-align: right;
+    }
+
+    :deep(.ql-font-arial) {
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    :deep(.ql-font-georgia),
+    :deep(.ql-font-serif) {
+        font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    :deep(.ql-font-monospace) {
+        font-family: 'Courier New', Courier, monospace;
+    }
 }

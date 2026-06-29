@@ -214,6 +214,7 @@ export const showNameVerificationSection = (
 };
 
 export type StepId =
+    | 'consent'
     | 'information'
     | 'email'
     | 'phone'

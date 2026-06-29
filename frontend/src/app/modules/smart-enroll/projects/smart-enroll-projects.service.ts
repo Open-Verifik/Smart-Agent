@@ -22,6 +22,7 @@ export const APP_REGISTRATION_DETAIL_POPULATES: string[] = [
     'biometricValidation',
     'biometricValidation.face',
     'informationValidation',
+    'consentSession',
     'documentFace',
     'documentValidation',
     'documentValidation.documentLiveness',

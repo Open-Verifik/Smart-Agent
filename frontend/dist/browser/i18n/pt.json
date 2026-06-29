@@ -1445,6 +1445,7 @@
             "wrongProject": "Este registo não pertence ao projeto selecionado.",
             "stepsHeading": "Passos",
             "step": {
+                "consent": "Consentimento",
                 "information": "Informação",
                 "email": "E-mail",
                 "phone": "Telefone",
@@ -1454,6 +1455,7 @@
                 "verdict": "Resultado"
             },
             "section": {
+                "consent": "Prova de consentimento",
                 "information": "Dados do formulário",
                 "email": "Validação de e-mail",
                 "phone": "Validação de telefone",
@@ -1489,6 +1491,7 @@
                 "apiHintArrayMore": "+ {{count}} a mais (mesmo padrão GET)",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1507,6 +1510,9 @@
             },
             "boolYes": "Sim",
             "boolNo": "Não",
+            "consentAcceptedOn": "Aceite em {{date}}",
+            "consentPrivacyPolicy": "Política de Privacidade",
+            "consentTermsAndConditions": "Termos e Condições",
             "validated": "Validado",
             "frontScan": "Frente",
             "backScan": "Verso",
@@ -1535,6 +1541,7 @@
                 "openImage": "Ver em tamanho real"
             },
             "empty": {
+                "consent": "Ainda não há registo de consentimento.",
                 "information": "Sem dados do formulário.",
                 "documents": "Sem documento no processo.",
                 "biometrics": "Sem biometria no processo.",

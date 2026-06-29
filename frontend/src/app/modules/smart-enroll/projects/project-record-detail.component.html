@@ -244,7 +244,7 @@
                             {{ 'smartEnrollProjects.recordDetail.stepsHeading' | transloco }}
                         </p>
                         <nav class="flex flex-col gap-1">
-                            @for (step of ['information', 'email', 'phone', 'documents', 'biometrics', 'compare', 'verdict']; track step) {
+                            @for (step of visibleSteps(); track step) {
                                 <button
                                     type="button"
                                     class="record-stepper-btn"
@@ -271,6 +271,62 @@
                     </aside>
 
                     <div class="space-y-8 lg:col-span-9">
+                        <!-- Consent -->
+                        @if (showConsentStep()) {
+                            <section id="step-consent" class="scroll-mt-28">
+                                <div class="record-detail-panel">
+                                    <div class="record-detail-panel__header">
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.consent' | transloco }}
+                                        </h2>
+                                        @if (consentAcceptedAt(r); as consentAt) {
+                                            <span class="text-xs text-stone-500 dark:text-stone-400">{{
+                                                formatConsentDate(consentAt)
+                                            }}</span>
+                                        }
+                                    </div>
+                                    <div class="p-5 md:p-6">
+                                        @if (consentAcceptedAt(r); as consentAt) {
+                                            <p class="text-sm text-stone-600 dark:text-stone-400">
+                                                {{
+                                                    'smartEnrollProjects.recordDetail.consentAcceptedOn'
+                                                        | transloco: { date: formatConsentDate(consentAt) }
+                                                }}
+                                            </p>
+                                            <div class="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                                                @if (consentPrivacyUrl(r)) {
+                                                    <a
+                                                        class="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 underline-offset-4 hover:underline dark:text-indigo-400"
+                                                        [href]="consentPrivacyUrl(r)"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        <mat-icon class="icon-size-4">policy</mat-icon>
+                                                        {{ 'smartEnrollProjects.recordDetail.consentPrivacyPolicy' | transloco }}
+                                                    </a>
+                                                }
+                                                @if (consentTermsUrl(r)) {
+                                                    <a
+                                                        class="inline-flex items-center gap-1.5 text-sm font-medium text-indigo-600 underline-offset-4 hover:underline dark:text-indigo-400"
+                                                        [href]="consentTermsUrl(r)"
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        <mat-icon class="icon-size-4">gavel</mat-icon>
+                                                        {{ 'smartEnrollProjects.recordDetail.consentTermsAndConditions' | transloco }}
+                                                    </a>
+                                                }
+                                            </div>
+                                        } @else {
+                                            <p class="text-sm text-stone-500 dark:text-stone-400">
+                                                {{ 'smartEnrollProjects.recordDetail.empty.consent' | transloco }}
+                                            </p>
+                                        }
+                                    </div>
+                                </div>
+                            </section>
+                        }
+
                         <!-- Information -->
                         <section id="step-information" class="scroll-mt-28">
                             <div class="record-detail-panel">

@@ -1445,6 +1445,7 @@
             "wrongProject": "このレコードは選択中のプロジェクトに属していません。",
             "stepsHeading": "ステップ",
             "step": {
+                "consent": "同意",
                 "information": "情報",
                 "email": "メール",
                 "phone": "電話",
@@ -1454,6 +1455,7 @@
                 "verdict": "判定"
             },
             "section": {
+                "consent": "同意の記録",
                 "information": "サインアップ情報",
                 "email": "メール認証",
                 "phone": "電話認証",
@@ -1489,6 +1491,7 @@
                 "apiHintArrayMore": "+ あと {{count}} 件（同じ GET パターン）",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1507,6 +1510,9 @@
             },
             "boolYes": "はい",
             "boolNo": "いいえ",
+            "consentAcceptedOn": "{{date}} に同意",
+            "consentPrivacyPolicy": "プライバシーポリシー",
+            "consentTermsAndConditions": "利用規約",
             "validated": "認証済み",
             "frontScan": "表面",
             "backScan": "裏面",
@@ -1535,6 +1541,7 @@
                 "openImage": "拡大表示"
             },
             "empty": {
+                "consent": "同意の記録はまだありません。",
                 "information": "サインアップ情報はまだありません。",
                 "documents": "書類がありません。",
                 "biometrics": "生体認証データがありません。",

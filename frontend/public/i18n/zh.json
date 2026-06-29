@@ -1445,6 +1445,7 @@
             "wrongProject": "该记录不属于所选项目。",
             "stepsHeading": "步骤",
             "step": {
+                "consent": "同意",
                 "information": "信息",
                 "email": "邮箱",
                 "phone": "手机",
@@ -1454,6 +1455,7 @@
                 "verdict": "结论"
             },
             "section": {
+                "consent": "同意证明",
                 "information": "注册信息",
                 "email": "邮箱验证",
                 "phone": "手机验证",
@@ -1489,6 +1491,7 @@
                 "apiHintArrayMore": "+ 另有 {{count}} 条（相同 GET 模式）",
                 "section": {
                     "record": "AppRegistration",
+                    "consentSession": "consentSession",
                     "informationValidation": "informationValidation",
                     "emailValidation": "emailValidation",
                     "phoneValidation": "phoneValidation",
@@ -1507,6 +1510,9 @@
             },
             "boolYes": "是",
             "boolNo": "否",
+            "consentAcceptedOn": "于 {{date}} 同意",
+            "consentPrivacyPolicy": "隐私政策",
+            "consentTermsAndConditions": "条款与条件",
             "validated": "已验证",
             "frontScan": "正面",
             "backScan": "背面",
@@ -1535,6 +1541,7 @@
                 "openImage": "查看大图"
             },
             "empty": {
+                "consent": "尚无同意记录。",
                 "information": "暂无注册信息。",
                 "documents": "暂无证件。",
                 "biometrics": "暂无生物识别数据。",
