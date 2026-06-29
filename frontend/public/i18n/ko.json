@@ -108,6 +108,10 @@
         "validateOneRecordHintCitizen": "단일 시민의 세부 정보를 검증합니다.",
         "validateOneRecordHintCompany": "단일 기업의 세부 정보를 검증합니다.",
         "validateOneRecordHintVehicle": "단일 차량의 세부 정보를 검증합니다.",
+        "documentTypeCompatibilityTitle": "문서 유형 호환성",
+        "stepWillRun": "이 단계가 실행됩니다",
+        "stepWillSkip": "이 단계는 건너뜁니다",
+        "skipReasonDocumentType": "선택한 문서 유형은 이 단계와 호환되지 않습니다.",
         "quickValidateTitle": "빠른 검증",
         "singleRecordTab": "단일 검증",
         "batchUploadTab": "배치 업로드",
@@ -444,7 +448,70 @@
         "backHome": "홈으로",
         "closeAria": "닫기"
     },
+    "messagesHub": {
+        "railTitle": "메시지",
+        "headerTitle": "메시지",
+        "tabs": {
+            "notifications": "알림",
+            "support": "지원"
+        },
+        "fullscreenEnterAria": "메시지 패널 확장",
+        "fullscreenExitAria": "전체 화면 종료",
+        "closeAria": "메시지 닫기"
+    },
+    "appNotifications": {
+        "banners": {
+            "dismissAria": "배너 닫기"
+        },
+        "inbox": {
+            "guest": {
+                "title": "알림을 보려면 로그인하세요",
+                "body": "캠페인 업데이트와 계정 알림은 Verifik 계정으로 로그인한 후 여기에 표시됩니다.",
+                "signIn": "로그인"
+            },
+            "workspaceOnly": {
+                "title": "Verifik 계정 필요",
+                "body": "알림에는 Verifik 워크스페이스 세션이 필요합니다. 지갑 전용 로그인으로는 받은 편지함을 불러올 수 없습니다. Verifik 계정으로 로그인하세요.",
+                "signIn": "Verifik로 로그인"
+            },
+            "listHeading": "알림",
+            "detailHeading": "상세 정보",
+            "readLabel": "읽음",
+            "emptyList": "아직 알림이 없습니다",
+            "pendingOutsideInbox": {
+                "title": "대기 중인 알림이 있습니다",
+                "body": "이 업데이트는 홈 배너나 팝업으로 표시될 수 있습니다. 해당 영역을 확인하거나 이 목록을 새로고침하세요."
+            },
+            "backAria": "알림 목록으로 돌아가기",
+            "legalLink": "법적 문서 보기",
+            "legalVersion": "버전 {{version}}",
+            "legalAcceptCheckbox": "위 약관을 읽고 동의합니다",
+            "ctaDefault": "자세히 보기",
+            "categories": {
+                "system": "시스템",
+                "maintenance": "유지보수",
+                "billing": "청구",
+                "legal": "법무",
+                "product": "제품",
+                "security": "보안"
+            },
+            "actions": {
+                "dismiss": "닫기",
+                "markSeen": "읽음으로 표시",
+                "acknowledge": "확인",
+                "accept": "동의"
+            },
+            "errors": {
+                "loadList": "알림을 불러올 수 없습니다. 다시 시도하세요.",
+                "loadDetail": "이 알림을 불러올 수 없습니다.",
+                "action": "작업에 실패했습니다. 다시 시도하세요."
+            }
+        }
+    },
     "home": {
+        "notifications": {
+            "openFromEmail": "알림을 여는 중…"
+        },
         "welcome": {
             "title": "AI 에이전트를 위한 신뢰 레이어",
             "subtitle": "자율 에이전트 뒤의 사람과 회사를 검증하세요. 14개 이상의 공식 정부 데이터베이스 통합과 x402 결제 프로토콜로 구동됩니다."
@@ -627,7 +694,8 @@
     "accountEnv": {
         "verifyStrip": {
             "text": "계정을 인증하면 초기 무료 크레딧을 이용하고 프로덕션 모드로 전환할 수 있습니다.",
-            "cta": "신원 인증"
+            "cta": "신원 인증",
+            "pendingText": "계정 인증을 검토 중입니다."
         },
         "identityVerificationModal": {
             "title": "신원 인증 진행",
@@ -1141,11 +1209,11 @@
         "title": "프로젝트",
         "subtitle": "Smart Enroll 프로젝트를 보고 등록 기록을 엽니다.",
         "empty": "프로젝트가 없습니다.",
-        "emptyHeroTitle": "Create your first project",
-        "emptyHeroSubtitle": "Configure signup, documents, biometrics and branding step by step, then publish your live enrollment flow.",
-        "createProject": "Create project",
-        "emptyStaffTitle": "No projects assigned",
-        "emptyStaffSubtitle": "You don't have access to any Smart Enroll projects yet. Ask a workspace administrator to add you.",
+        "emptyHeroTitle": "첫 프로젝트 만들기",
+        "emptyHeroSubtitle": "가입, 문서, 라이브니스, 브랜드를 단계별로 설정한 뒤 라이브 등록 플로우를 게시하세요.",
+        "createProject": "프로젝트 만들기",
+        "emptyStaffTitle": "할당된 프로젝트 없음",
+        "emptyStaffSubtitle": "아직 Smart Enroll 프로젝트에 접근할 수 없습니다. 워크스페이스 관리자에게 추가를 요청하세요.",
         "updated": "업데이트",
         "loadError": "프로젝트를 불러올 수 없습니다. 다시 시도해 주세요.",
         "plansLoadError": "Smart Enroll 구독을 확인할 수 없습니다. 다시 시도해 주세요.",
@@ -1201,7 +1269,7 @@
             "active": "활성",
             "signupForm": "가입 양식",
             "documents": "문서",
-            "biometrics": "생체 인증",
+            "biometrics": "라이브니스",
             "apiIntegration": "API 연동",
             "members": "멤버",
             "addMember": "멤버 추가",
@@ -1281,7 +1349,7 @@
         "detail": {
             "sectionSignup": "가입 양식",
             "sectionDocuments": "문서",
-            "sectionLiveness": "생체 인증",
+            "sectionLiveness": "라이브니스",
             "sectionApi": "API 연동",
             "apiIntro": "Verifik API 연동 시 이 식별자를 사용하세요.",
             "projectId": "프로젝트 ID",
@@ -1422,18 +1490,18 @@
                 "editBrand": "브랜드 편집"
             },
             "summary": {
-                "edit": "Edit",
-                "basic": "{{ countries }} allowed countries",
-                "signup": "Email {{ email }} · Phone {{ phone }}",
-                "documents": "{{ count }} country configurations",
-                "business": "Business",
-                "representatives": "{{ min }}–{{ max }} representatives",
-                "liveness": "Min liveness {{ score }}%",
-                "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
-                "ui": "Logo {{ logo }} · Brand color {{ color }}",
+                "edit": "편집",
+                "basic": "허용 국가 {{ countries }}개",
+                "signup": "이메일 {{ email }} · 전화 {{ phone }}",
+                "documents": "국가 구성 {{ count }}개",
+                "business": "기업",
+                "representatives": "대리인 {{ min }}–{{ max }}명",
+                "liveness": "라이브니스 최소 {{ score }}%",
+                "integrations": "리디렉션 {{ redirect }} · Webhook {{ webhook }}",
+                "ui": "로고 {{ logo }} · 브랜드 색상 {{ color }}",
                 "target": {
-                    "personal": "Individual onboarding",
-                    "business": "Business onboarding"
+                    "personal": "개인 온보딩",
+                    "business": "기업 온보딩"
                 }
             }
         },
@@ -1461,8 +1529,8 @@
                 "phone": "전화 인증",
                 "document": "문서",
                 "documentFailed": "문서 시도",
-                "biometric": "생체 인증",
-                "biometricFailed": "생체 인증 시도",
+                "biometric": "라이브니스",
+                "biometricFailed": "라이브니스 시도",
                 "faceCompare": "얼굴 비교",
                 "nameMatch": "이름 일치",
                 "verdict": "전체 결과",
@@ -1690,8 +1758,8 @@
             "unsaved_changes_message": "저장하지 않고 이동하시겠습니까?",
             "exit_without_saving": "저장하지 않고 나가기",
             "stub": {
-                "title": "Step",
-                "placeholder": "This step is wired in upcoming phases of the wizard."
+                "title": "단계",
+                "placeholder": "이 단계는 마법사의 향후 단계에서 연결됩니다."
             },
             "steps": {
                 "basic_setup": "기본 설정",
@@ -1826,35 +1894,35 @@
             },
             "signupForm": {
                 "target": {
-                    "title": "Who are you onboarding?",
-                    "subtitle": "Choose between an individual or a business flow.",
-                    "personal": "Individual",
-                    "business": "Business"
+                    "title": "누구를 온보딩하시나요?",
+                    "subtitle": "개인 또는 기업 플로우 중 선택하세요.",
+                    "personal": "개인",
+                    "business": "기업"
                 },
                 "fullName": {
-                    "title": "Full name",
-                    "subtitle": "How customer name fields are presented.",
-                    "separate": "Two fields (first / last)",
-                    "together": "Single field"
+                    "title": "성명",
+                    "subtitle": "고객 이름 필드 표시 방식.",
+                    "separate": "두 필드(이름 / 성)",
+                    "together": "단일 필드"
                 },
                 "business": {
-                    "title": "Business basic info",
-                    "subtitle": "How company information is collected.",
-                    "addressTitle": "Business address",
-                    "addressSubtitle": "Ask for a business or premises address during sign-up.",
-                    "nameNumber": "Name + tax number",
-                    "nameOnly": "Company name only"
+                    "title": "기업 기본 정보",
+                    "subtitle": "회사 정보 수집 방식.",
+                    "addressTitle": "기업 주소",
+                    "addressSubtitle": "가입 시 사업장 또는 매장 주소를 요청합니다.",
+                    "nameNumber": "명칭 + 세금 번호",
+                    "nameOnly": "회사명만"
                 },
                 "additionalFields": {
-                    "title": "Additional information",
-                    "subtitle": "Optional extra fields on the enrollment form.",
-                    "error": "Select at least one field when this option is enabled.",
-                    "gender": "Gender",
-                    "country": "Country",
-                    "dateOfBirth": "Date of birth",
-                    "address": "Address",
-                    "age": "Age",
-                    "postalCode": "Postal code"
+                    "title": "추가 정보",
+                    "subtitle": "등록 양식의 선택적 추가 필드.",
+                    "error": "이 옵션을 사용할 때는 필드를 하나 이상 선택하세요.",
+                    "gender": "성별",
+                    "country": "국가",
+                    "dateOfBirth": "생년월일",
+                    "address": "주소",
+                    "age": "나이",
+                    "postalCode": "우편번호"
                 },
                 "email": {
                     "title": "이메일 주소",
@@ -1874,12 +1942,12 @@
                     "countryCode": "기본 국가 코드",
                     "searchCountry": "국가 검색..."
                 },
-                "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
+                "atLeastOneContactMethod": "연락 방법(이메일 또는 전화)을 하나 이상 필요로 합니다.",
                 "legal": {
-                    "title": "Legal disclosures",
-                    "subtitle": "Show consent links inside the enrollment flow.",
-                    "privacy": "Show privacy notice",
-                    "terms": "Show terms & conditions",
+                    "title": "법적 고지",
+                    "subtitle": "등록 플로우에 동의 링크를 표시합니다.",
+                    "privacy": "개인정보 처리방침 표시",
+                    "terms": "이용약관 표시",
                     "urlRequired": "URL이 필요합니다.",
                     "urlInvalid": "유효한 URL을 입력하세요 (https://...)."
                 }
@@ -1890,10 +1958,10 @@
                 "requirementHelp": "고객별로 생체인증을 필수, 선택 또는 건너뛸지 선택하세요.",
                 "actualScore": "현재 점수",
                 "kyc": {
-                    "title": "KYC 유형",
-                    "subtitle": "신원 증빙을 저장하고 공유하는 방식을 선택하세요.",
-                    "traditional": "전통적 KYC",
-                    "zeroKnowledge": "영지식 KYC",
+                    "title": "생체 인증 유형",
+                    "subtitle": "생체 인증 증명을 저장하고 공유하는 방식을 선택하세요.",
+                    "traditional": "기존 템플릿",
+                    "zeroKnowledge": "HumanAuthn(템플릿 없음)",
                     "traditionalDescription": "고객의 생체 템플릿을 신원 기록과 함께 저장하여 검증을 재실행하고 검색할 수 있습니다.",
                     "zeroKnowledgeDescription": "로컬에서 고객을 검증하고 프라이버시를 보존하는 증거만 저장합니다 — 생체 템플릿은 보관되지 않습니다."
                 },
@@ -1917,19 +1985,19 @@
                 }
             },
             "representatives": {
-                "title": "Legal representatives",
-                "subtitle": "Define who must enroll on behalf of the business.",
+                "title": "법정 대리인",
+                "subtitle": "기업을 대신해 등록해야 하는 사람을 정의합니다.",
                 "counts": {
-                    "title": "Number of representatives",
-                    "subtitle": "How many people must complete the representative flow.",
-                    "min": "Minimum",
-                    "max": "Maximum",
-                    "notification": "Notification channel"
+                    "title": "대리인 수",
+                    "subtitle": "대리인 플로우를 완료해야 하는 인원 수.",
+                    "min": "최소",
+                    "max": "최대",
+                    "notification": "알림 채널"
                 },
                 "tabs": {
-                    "information": "Information",
-                    "documents": "Documents",
-                    "liveness": "Liveness"
+                    "information": "정보",
+                    "documents": "문서",
+                    "liveness": "라이브니스"
                 }
             },
             "integrations": {
@@ -2581,6 +2649,8 @@
             "business": "기업",
             "business_name": "회사명",
             "business_name_placeholder": "회사명을 입력하세요",
+            "business_country": "회사 국가",
+            "business_country_placeholder": "회사 국가 선택",
             "document_type": "문서 유형",
             "select_document_type": "문서 유형 선택",
             "document_number": "문서 번호",
@@ -2625,6 +2695,10 @@
             "saved": "모든 변경 사항이 저장되었습니다",
             "status_complete": "설정 완료",
             "status_incomplete": "설정 미완료",
+            "dian_nit_not_found": "DIAN에서 이 NIT를 찾을 수 없습니다.",
+            "dian_name_mismatch": "회사명이 DIAN 등록 정보와 일치하지 않습니다.",
+            "missing_billing_field": "이 청구 필드를 입력하세요.",
+            "nit_format_invalid": "유효한 NIT를 입력하세요.",
             "type_desc": "청구서 형식에 사용됩니다. 저장 전에 변경할 수 있습니다.",
             "type_title": "누구에게 청구하시겠습니까?",
             "unsaved": "저장되지 않은 변경 사항이 있습니다"
@@ -2897,7 +2971,8 @@
                 "descriptionPlaceholder": "설명",
                 "documentTypePlaceholder": "문서 유형 선택",
                 "otherParameters": "기타 매개변수",
-                "requiredFieldLegend": "* 필수 항목"
+                "requiredFieldLegend": "* 필수 항목",
+                "includeCostDescription": "true이면 응답에 크레딧 정보 블록(credits, creditsCharged, charged, featureCode)이 포함됩니다. 생략하려면 false로 설정하거나 이 행을 삭제하세요."
             },
             "headers": {
                 "key": "키",
@@ -2945,6 +3020,12 @@
                 "invalidEnum": "\"{{field}}\"에 대해 \"{{value}}\"는 유효하지 않습니다. 허용: {{expected}}.",
                 "invalidJsonBody": "본문은 유효한 JSON이어야 합니다.",
                 "pathSegmentRequired": "URL 경로 세그먼트 \"{{segment}}\"는 필수입니다."
+            },
+            "sandboxProfiles": {
+                "title": "샌드박스 프로필",
+                "description": "테스트 데이터 프로필을 선택해 이 요청을 빠르게 채우세요.",
+                "selectLabel": "샌드박스 프로필",
+                "profileMeta": "{{country}} · {{documentType}}"
             }
         },
         "responseViewer": {
@@ -4218,7 +4299,7 @@
     },
     "smartEnrollDemos": {
         "hub": {
-            "title": "Demos",
+            "title": "데모",
             "metaTitle": "데모 대시보드",
             "metaDescription": "실제 사용자의 존재에 기반한 인증. 브라우저에서 Verifik의 실시간 생체 데모를 실행하세요—얼굴 매칭, 라이브니스, HumanID.",
             "heroEyebrow": "생체 인식 · 실시간 데모",
@@ -5385,11 +5466,11 @@
             "unlockLivenessOff": "꺼짐",
             "unlockToleranceTitle": "활동성 허용 오차",
             "unlockToleranceHint": "암호화 또는 복호화 시 실시간 얼굴이 필요할 때 스푸핑 방지(활동성) 검사의 엄격함.",
-            "toleranceRegularLabel": "Regular",
+            "toleranceRegularLabel": "일반",
             "toleranceRegularDescription": "더 관대함 — 고품질 사진이 «실시간»으로 통과할 수 있습니다. 정지 이미지를 차단하려면 Hardened를 권장합니다.",
-            "toleranceSoftLabel": "Soft",
+            "toleranceSoftLabel": "완화",
             "toleranceSoftDescription": "더 관대한 활동성 — 실패는 적지만 스푸핑 위험이 약간 높습니다.",
-            "toleranceHardenedLabel": "Hardened",
+            "toleranceHardenedLabel": "강화",
             "toleranceHardenedDescription": "가장 엄격한 활동성 — 최대 스푸핑 방지, 일부 정상 캡처를 거부할 수 있습니다.",
             "unlockPasswordTitle": "선택적 비밀번호",
             "unlockPasswordHint": "얼굴 외에 두 번째 인증 요소를 추가합니다. 얼굴만으로 복호화하려면 비워 두세요.",
@@ -5671,7 +5752,7 @@
             "updateAnother": "다른 업데이트",
             "anotherAction": "또 다른 행동",
             "backToDemos": "데모로 돌아가기",
-            "deleteCompleted": "Delete completed",
+            "deleteCompleted": "삭제 완료",
             "personUpdated": "사람이 업데이트되었습니다.",
             "personEnrolled": "등록된 사람",
             "subtitleDelete": "DELETE /persons/:id에서 반환된 최신 레코드입니다(예: 하나의 컬렉션에서 제거한 후).",
@@ -5917,7 +5998,10 @@
         "endpointRequiredFieldsLabel": "필수",
         "endpointConditionalFieldsLabel": "조건부",
         "endpointOptionalFieldsLabel": "선택",
-        "endpointNoFieldsRequired": "이 단계에 필수 열이 없습니다."
+        "endpointNoFieldsRequired": "이 단계에 필수 열이 없습니다.",
+        "stepIncompatibleTitle": "일부 행은 실행 시 단계를 건너뜁니다",
+        "stepIncompatibleWarning": "행 {{row}}: {{message}}",
+        "stepIncompatibleDetail": "{{field}}의 \"{{value}}\" 값은 {{step}}에서 지원되지 않습니다(허용: {{allowed}}). 배치 실행 시 이 단계는 건너뜁니다."
     },
     "batchTutorial": {
         "stepOf": "{{total}}단계 중 {{current}}단계",
@@ -6046,7 +6130,28 @@
         "uploadBatchAppendHint": "CSV를 업로드해 이 배치에 여러 행을 추가하세요.",
         "addOneRecordTitle": "레코드 1건 추가",
         "addOneRecordDesc": "필수 필드를 입력해 이 배치에 레코드 1건을 추가하세요.",
-        "appendFailed": "레코드를 추가할 수 없습니다. 다시 시도해 주세요."
+        "appendFailed": "레코드를 추가할 수 없습니다. 다시 시도해 주세요.",
+        "stepIncompatibleTitle": "일부 행은 실행 시 단계를 건너뜁니다",
+        "stepIncompatibleWarning": "행 {{row}}: {{message}}",
+        "stepIncompatibleDetail": "{{field}}의 \"{{value}}\" 값은 {{step}}에서 지원되지 않습니다(허용: {{allowed}}). 배치 실행 시 이 단계는 건너뜁니다."
+    },
+    "colombiaVehicleReport": {
+        "sections": {
+            "runtIdentity": "RUNT — 차량 식별 정보",
+            "runtCompliance": "RUNT — 준수 정보",
+            "runtSoat": "RUNT — SOAT",
+            "runtRtm": "RUNT — 기술 검사",
+            "runtLiens": "RUNT — 담보/저당",
+            "runtProcedures": "RUNT — 절차",
+            "simitSummary": "SIMIT — 요약",
+            "simitFines": "SIMIT — 벌금",
+            "simitAgreements": "SIMIT — 납부 약정",
+            "fasecoldaClaims": "Fasecolda — 사고 이력",
+            "fasecoldaCatalog": "Fasecolda — 카탈로그",
+            "fasecoldaValuation": "Fasecolda — 평가액"
+        },
+        "emptySinister": "등록된 사고 이력이 없습니다",
+        "emptyAgreements": "등록된 납부 약정이 없습니다"
     },
     "proposal": {
         "loading": "제안서를 불러오는 중…",
@@ -6060,7 +6165,13 @@
             "service": "서비스",
             "planMinimum": "플랜 최소 요금",
             "usageCost": "평균 단가 기준 사용료",
+            "usageCostAverage": "평균 단가 기준 사용료",
+            "usageCostCombo": "조합 단가 기준 사용료",
+            "usageCostPerEndpoint": "엔드포인트별 볼륨 기준 사용료",
+            "usageCostVolumeHint": "월 {{volume}}건 쿼리",
+            "endpointVolume": "월간 볼륨",
             "usageCostHint": "{{volume}} 쿼리 × 평균 단가",
+            "usageCostHintCombo": "{{volume}} 쿼리 × 선택한 엔드포인트 가격 합계",
             "quotedTotal": "월 견적 총액",
             "quotedTotalHint": "플랜 최소 요금 또는 사용료 — 높은 금액",
             "original": "원래 가격",

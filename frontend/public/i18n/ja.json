@@ -108,6 +108,10 @@
         "validateOneRecordHintCitizen": "単一の市民の詳細情報を検証します。",
         "validateOneRecordHintCompany": "単一の企業の詳細情報を検証します。",
         "validateOneRecordHintVehicle": "単一の車両の詳細情報を検証します。",
+        "documentTypeCompatibilityTitle": "書類タイプの互換性",
+        "stepWillRun": "このステップは実行されます",
+        "stepWillSkip": "このステップはスキップされます",
+        "skipReasonDocumentType": "選択した書類タイプはこのステップに対応していません。",
         "quickValidateTitle": "クイック検証",
         "singleRecordTab": "個別検証",
         "batchUploadTab": "バッチアップロード",
@@ -444,7 +448,70 @@
         "backHome": "ホームに戻る",
         "closeAria": "閉じる"
     },
+    "messagesHub": {
+        "railTitle": "メッセージ",
+        "headerTitle": "メッセージ",
+        "tabs": {
+            "notifications": "通知",
+            "support": "サポート"
+        },
+        "fullscreenEnterAria": "メッセージパネルを拡大",
+        "fullscreenExitAria": "全画面を終了",
+        "closeAria": "メッセージを閉じる"
+    },
+    "appNotifications": {
+        "banners": {
+            "dismissAria": "バナーを閉じる"
+        },
+        "inbox": {
+            "guest": {
+                "title": "通知を表示するにはサインインしてください",
+                "body": "キャンペーン更新とアカウント通知は、Verifik アカウントでサインインするとここに表示されます。",
+                "signIn": "サインイン"
+            },
+            "workspaceOnly": {
+                "title": "Verifik アカウントが必要です",
+                "body": "通知には Verifik ワークスペースセッションが必要です。ウォレットのみのサインインでは受信箱を読み込めません。Verifik アカウントでサインインしてください。",
+                "signIn": "Verifik でサインイン"
+            },
+            "listHeading": "通知",
+            "detailHeading": "詳細",
+            "readLabel": "既読",
+            "emptyList": "通知はまだありません",
+            "pendingOutsideInbox": {
+                "title": "保留中の通知があります",
+                "body": "この更新はホームのバナーまたはポップアップに表示される場合があります。該当箇所を確認するか、この一覧を更新してください。"
+            },
+            "backAria": "通知一覧に戻る",
+            "legalLink": "法的文書を表示",
+            "legalVersion": "バージョン {{version}}",
+            "legalAcceptCheckbox": "上記の条件を読み、同意します",
+            "ctaDefault": "詳細を見る",
+            "categories": {
+                "system": "システム",
+                "maintenance": "メンテナンス",
+                "billing": "請求",
+                "legal": "法務",
+                "product": "製品",
+                "security": "セキュリティ"
+            },
+            "actions": {
+                "dismiss": "閉じる",
+                "markSeen": "既読にする",
+                "acknowledge": "確認",
+                "accept": "同意"
+            },
+            "errors": {
+                "loadList": "通知を読み込めませんでした。もう一度お試しください。",
+                "loadDetail": "この通知を読み込めませんでした。",
+                "action": "操作に失敗しました。もう一度お試しください。"
+            }
+        }
+    },
     "home": {
+        "notifications": {
+            "openFromEmail": "通知を開いています…"
+        },
         "welcome": {
             "title": "AIエージェントのための信頼レイヤー",
             "subtitle": "自律エージェントの背後にある人と企業を検証。14以上の公式政府データベース連携とx402決済プロトコルで駆動。"
@@ -627,7 +694,8 @@
     "accountEnv": {
         "verifyStrip": {
             "text": "アカウントを認証すると、初回無料クレジットが利用でき、本番モードに切り替えられます。",
-            "cta": "本人確認を行う"
+            "cta": "本人確認を行う",
+            "pendingText": "アカウント認証を審査中です。"
         },
         "identityVerificationModal": {
             "title": "本人確認を行ってください",
@@ -1141,11 +1209,11 @@
         "title": "プロジェクト",
         "subtitle": "Smart Enroll プロジェクトを表示し、登録記録を開きます。",
         "empty": "プロジェクトが見つかりません。",
-        "emptyHeroTitle": "Create your first project",
-        "emptyHeroSubtitle": "Configure signup, documents, biometrics and branding step by step, then publish your live enrollment flow.",
-        "createProject": "Create project",
-        "emptyStaffTitle": "No projects assigned",
-        "emptyStaffSubtitle": "You don't have access to any Smart Enroll projects yet. Ask a workspace administrator to add you.",
+        "emptyHeroTitle": "最初のプロジェクトを作成",
+        "emptyHeroSubtitle": "登録、書類、ライブネス、ブランドを段階的に設定し、ライブ登録フローを公開します。",
+        "createProject": "プロジェクトを作成",
+        "emptyStaffTitle": "割り当てられたプロジェクトがありません",
+        "emptyStaffSubtitle": "Smart Enroll プロジェクトへのアクセスがありません。ワークスペース管理者に追加を依頼してください。",
         "updated": "更新",
         "loadError": "プロジェクトを読み込めませんでした。もう一度お試しください。",
         "plansLoadError": "Smart Enroll の契約状況を確認できませんでした。もう一度お試しください。",
@@ -1201,7 +1269,7 @@
             "active": "有効",
             "signupForm": "サインアップフォーム",
             "documents": "書類",
-            "biometrics": "生体認証",
+            "biometrics": "ライブネス",
             "apiIntegration": "API連携",
             "members": "メンバー",
             "addMember": "メンバーを追加",
@@ -1281,7 +1349,7 @@
         "detail": {
             "sectionSignup": "サインアップフォーム",
             "sectionDocuments": "書類",
-            "sectionLiveness": "生体認証",
+            "sectionLiveness": "ライブネス",
             "sectionApi": "API連携",
             "apiIntro": "Verifik API 連携にこれらの ID を使用します。",
             "projectId": "プロジェクト ID",
@@ -1422,18 +1490,18 @@
                 "editBrand": "ブランドを編集"
             },
             "summary": {
-                "edit": "Edit",
-                "basic": "{{ countries }} allowed countries",
-                "signup": "Email {{ email }} · Phone {{ phone }}",
-                "documents": "{{ count }} country configurations",
-                "business": "Business",
-                "representatives": "{{ min }}–{{ max }} representatives",
-                "liveness": "Min liveness {{ score }}%",
-                "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
-                "ui": "Logo {{ logo }} · Brand color {{ color }}",
+                "edit": "編集",
+                "basic": "許可国 {{ countries }} 件",
+                "signup": "メール {{ email }} · 電話 {{ phone }}",
+                "documents": "国設定 {{ count }} 件",
+                "business": "法人",
+                "representatives": "代表者 {{ min }}–{{ max }} 人",
+                "liveness": "ライブネス最小 {{ score }}%",
+                "integrations": "リダイレクト {{ redirect }} · Webhook {{ webhook }}",
+                "ui": "ロゴ {{ logo }} · ブランドカラー {{ color }}",
                 "target": {
-                    "personal": "Individual onboarding",
-                    "business": "Business onboarding"
+                    "personal": "個人オンボーディング",
+                    "business": "法人オンボーディング"
                 }
             }
         },
@@ -1461,8 +1529,8 @@
                 "phone": "電話認証",
                 "document": "書類",
                 "documentFailed": "書類の試行",
-                "biometric": "生体認証",
-                "biometricFailed": "生体認証の試行",
+                "biometric": "ライブネス",
+                "biometricFailed": "ライブネス試行",
                 "faceCompare": "顔の比較",
                 "nameMatch": "氏名の一致",
                 "verdict": "総合結果",
@@ -1690,8 +1758,8 @@
             "unsaved_changes_message": "保存せずに移動しますか？",
             "exit_without_saving": "保存せずに退出",
             "stub": {
-                "title": "Step",
-                "placeholder": "This step is wired in upcoming phases of the wizard."
+                "title": "ステップ",
+                "placeholder": "このステップはウィザードの今後のフェーズで接続されます。"
             },
             "steps": {
                 "basic_setup": "基本設定",
@@ -1826,35 +1894,35 @@
             },
             "signupForm": {
                 "target": {
-                    "title": "Who are you onboarding?",
-                    "subtitle": "Choose between an individual or a business flow.",
-                    "personal": "Individual",
-                    "business": "Business"
+                    "title": "誰をオンボーディングしますか？",
+                    "subtitle": "個人フローか法人フローかを選択してください。",
+                    "personal": "個人",
+                    "business": "法人"
                 },
                 "fullName": {
-                    "title": "Full name",
-                    "subtitle": "How customer name fields are presented.",
-                    "separate": "Two fields (first / last)",
-                    "together": "Single field"
+                    "title": "氏名",
+                    "subtitle": "顧客の名前フィールドの表示方法。",
+                    "separate": "2フィールド（名 / 姓）",
+                    "together": "単一フィールド"
                 },
                 "business": {
-                    "title": "Business basic info",
-                    "subtitle": "How company information is collected.",
-                    "addressTitle": "Business address",
-                    "addressSubtitle": "Ask for a business or premises address during sign-up.",
-                    "nameNumber": "Name + tax number",
-                    "nameOnly": "Company name only"
+                    "title": "法人基本情報",
+                    "subtitle": "会社情報の収集方法。",
+                    "addressTitle": "法人住所",
+                    "addressSubtitle": "登録時に事業所または店舗の住所を入力してもらう。",
+                    "nameNumber": "名称 + 税番号",
+                    "nameOnly": "会社名のみ"
                 },
                 "additionalFields": {
-                    "title": "Additional information",
-                    "subtitle": "Optional extra fields on the enrollment form.",
-                    "error": "Select at least one field when this option is enabled.",
-                    "gender": "Gender",
-                    "country": "Country",
-                    "dateOfBirth": "Date of birth",
-                    "address": "Address",
-                    "age": "Age",
-                    "postalCode": "Postal code"
+                    "title": "追加情報",
+                    "subtitle": "登録フォームの任意追加フィールド。",
+                    "error": "このオプションを有効にした場合は、少なくとも1つのフィールドを選択してください。",
+                    "gender": "性別",
+                    "country": "国",
+                    "dateOfBirth": "生年月日",
+                    "address": "住所",
+                    "age": "年齢",
+                    "postalCode": "郵便番号"
                 },
                 "email": {
                     "title": "メールアドレス",
@@ -1874,12 +1942,12 @@
                     "countryCode": "デフォルトの国番号",
                     "searchCountry": "国を検索..."
                 },
-                "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
+                "atLeastOneContactMethod": "連絡方法（メールまたは電話）を少なくとも1つ必要とします。",
                 "legal": {
-                    "title": "Legal disclosures",
-                    "subtitle": "Show consent links inside the enrollment flow.",
-                    "privacy": "Show privacy notice",
-                    "terms": "Show terms & conditions",
+                    "title": "法的表示",
+                    "subtitle": "登録フロー内に同意リンクを表示する。",
+                    "privacy": "プライバシー通知を表示",
+                    "terms": "利用規約を表示",
                     "urlRequired": "URLは必須です。",
                     "urlInvalid": "有効なURLを入力してください（https://...）。"
                 }
@@ -1890,10 +1958,10 @@
                 "requirementHelp": "顧客ごとにバイオメトリクスを必須、任意、またはスキップにするか選択します。",
                 "actualScore": "現在のスコア",
                 "kyc": {
-                    "title": "KYCの種類",
-                    "subtitle": "本人確認の証跡をどのように保存・共有するか選択します。",
-                    "traditional": "従来型KYC",
-                    "zeroKnowledge": "ゼロ知識KYC",
+                    "title": "生体認証タイプ",
+                    "subtitle": "生体認証証明の保存・共有方法を選択します。",
+                    "traditional": "従来テンプレート",
+                    "zeroKnowledge": "HumanAuthn（テンプレートなし）",
                     "traditionalDescription": "顧客のバイオメトリックテンプレートを本人情報とともに保存し、再検証や検索に利用できます。",
                     "zeroKnowledgeDescription": "顧客の検証をローカルで実行し、プライバシー保護用の証拠のみを保存します。バイオメトリックテンプレートは保存されません。"
                 },
@@ -1917,19 +1985,19 @@
                 }
             },
             "representatives": {
-                "title": "Legal representatives",
-                "subtitle": "Define who must enroll on behalf of the business.",
+                "title": "法定代理人",
+                "subtitle": "企業に代わって登録する必要がある人を定義します。",
                 "counts": {
-                    "title": "Number of representatives",
-                    "subtitle": "How many people must complete the representative flow.",
-                    "min": "Minimum",
-                    "max": "Maximum",
-                    "notification": "Notification channel"
+                    "title": "代理人の人数",
+                    "subtitle": "代理人フローを完了する必要がある人数。",
+                    "min": "最小",
+                    "max": "最大",
+                    "notification": "通知チャネル"
                 },
                 "tabs": {
-                    "information": "Information",
-                    "documents": "Documents",
-                    "liveness": "Liveness"
+                    "information": "情報",
+                    "documents": "書類",
+                    "liveness": "ライブネス"
                 }
             },
             "integrations": {
@@ -2581,6 +2649,8 @@
             "business": "法人",
             "business_name": "会社名",
             "business_name_placeholder": "会社名を入力",
+            "business_country": "会社の国",
+            "business_country_placeholder": "会社の国を選択",
             "document_type": "書類の種類",
             "select_document_type": "書類の種類を選択",
             "document_number": "書類番号",
@@ -2625,6 +2695,10 @@
             "saved": "すべての変更を保存しました",
             "status_complete": "設定完了",
             "status_incomplete": "設定未完了",
+            "dian_nit_not_found": "この NIT は DIAN で見つかりませんでした。",
+            "dian_name_mismatch": "会社名が DIAN の登録情報と一致しません。",
+            "missing_billing_field": "この請求項目を入力してください。",
+            "nit_format_invalid": "有効な NIT を入力してください。",
             "type_desc": "請求書の形式に使用します。保存前に変更できます。",
             "type_title": "請求先は誰ですか？",
             "unsaved": "未保存の変更があります"
@@ -2897,7 +2971,8 @@
                 "descriptionPlaceholder": "説明",
                 "documentTypePlaceholder": "書類の種類を選択",
                 "otherParameters": "その他のパラメータ",
-                "requiredFieldLegend": "* 必須項目"
+                "requiredFieldLegend": "* 必須項目",
+                "includeCostDescription": "true の場合、レスポンスにクレジット情報ブロック（credits, creditsCharged, charged, featureCode）が含まれます。省略するには false にするか、この行を削除してください。"
             },
             "headers": {
                 "key": "キー",
@@ -2945,6 +3020,12 @@
                 "invalidEnum": "「{{field}}」の値「{{value}}」は無効です。次が期待されます：{{expected}}。",
                 "invalidJsonBody": "本文は有効なJSONである必要があります。",
                 "pathSegmentRequired": "URLパスの「{{segment}}」セグメントが必須です。"
+            },
+            "sandboxProfiles": {
+                "title": "サンドボックスプロファイル",
+                "description": "テストデータのプロファイルを選択して、このリクエストをすばやく入力します。",
+                "selectLabel": "サンドボックスプロファイル",
+                "profileMeta": "{{country}} · {{documentType}}"
             }
         },
         "responseViewer": {
@@ -4218,7 +4299,7 @@
     },
     "smartEnrollDemos": {
         "hub": {
-            "title": "Demos",
+            "title": "デモ",
             "metaTitle": "デモダッシュボード",
             "metaDescription": "人の存在に根ざした認証。ブラウザでVerifikのライブ生体デモ—顔マッチ、ライブネス、HumanIDを実行。",
             "heroEyebrow": "生体認識 · ライブデモ",
@@ -5385,11 +5466,11 @@
             "unlockLivenessOff": "オフ",
             "unlockToleranceTitle": "ライブネス許容度",
             "unlockToleranceHint": "暗号化または復号時にライブ顔が必要な場合の、スプーフィング防止（ライブネス）チェックの厳しさ。",
-            "toleranceRegularLabel": "Regular",
+            "toleranceRegularLabel": "通常",
             "toleranceRegularDescription": "より寛容 — 高品質な写真が「ライブ」として通過する場合があります。静止画をブロックする場合は Hardened を推奨します。",
-            "toleranceSoftLabel": "Soft",
+            "toleranceSoftLabel": "ソフト",
             "toleranceSoftDescription": "より寛容なライブネス — 失敗は少ないが、スプーフィングリスクがやや高くなります。",
-            "toleranceHardenedLabel": "Hardened",
+            "toleranceHardenedLabel": "強化",
             "toleranceHardenedDescription": "最も厳格なライブネス — 最強のスプーフィング防止、一部の正当なキャプチャを拒否する場合があります。",
             "unlockPasswordTitle": "任意のパスワード",
             "unlockPasswordHint": "顔に加えて第二要素を追加します。顔のみで復号する場合は空欄のままにしてください。",
@@ -5671,7 +5752,7 @@
             "updateAnother": "別のを更新する",
             "anotherAction": "別のアクション",
             "backToDemos": "デモに戻る",
-            "deleteCompleted": "Delete completed",
+            "deleteCompleted": "削除が完了しました",
             "personUpdated": "人物を更新しました",
             "personEnrolled": "在籍者",
             "subtitleDelete": "DELETE /persons/:id から返された最新のレコード (例: 1 つのコレクションから削除した後)。",
@@ -5917,7 +5998,10 @@
         "endpointRequiredFieldsLabel": "必須",
         "endpointConditionalFieldsLabel": "条件付き",
         "endpointOptionalFieldsLabel": "任意",
-        "endpointNoFieldsRequired": "この手順に必須の列はありません。"
+        "endpointNoFieldsRequired": "この手順に必須の列はありません。",
+        "stepIncompatibleTitle": "一部の行は実行時にステップをスキップします",
+        "stepIncompatibleWarning": "行 {{row}}: {{message}}",
+        "stepIncompatibleDetail": "{{field}} の \"{{value}}\" は {{step}} でサポートされていません（許可: {{allowed}}）。バッチ実行時にこのステップはスキップされます。"
     },
     "batchTutorial": {
         "stepOf": "ステップ {{current}} / {{total}}",
@@ -6046,7 +6130,28 @@
         "uploadBatchAppendHint": "CSVをアップロードしてこのバッチに複数行を追加します。",
         "addOneRecordTitle": "1件追加",
         "addOneRecordDesc": "必須項目を入力して、このバッチに1件追加します。",
-        "appendFailed": "レコードを追加できませんでした。もう一度お試しください。"
+        "appendFailed": "レコードを追加できませんでした。もう一度お試しください。",
+        "stepIncompatibleTitle": "一部の行は実行時にステップをスキップします",
+        "stepIncompatibleWarning": "行 {{row}}: {{message}}",
+        "stepIncompatibleDetail": "{{field}} の \"{{value}}\" は {{step}} でサポートされていません（許可: {{allowed}}）。バッチ実行時にこのステップはスキップされます。"
+    },
+    "colombiaVehicleReport": {
+        "sections": {
+            "runtIdentity": "RUNT — 車両識別情報",
+            "runtCompliance": "RUNT — コンプライアンス",
+            "runtSoat": "RUNT — SOAT",
+            "runtRtm": "RUNT — 技術検査",
+            "runtLiens": "RUNT — 担保・差押情報",
+            "runtProcedures": "RUNT — 手続き",
+            "simitSummary": "SIMIT — 概要",
+            "simitFines": "SIMIT — 罰金",
+            "simitAgreements": "SIMIT — 支払い合意",
+            "fasecoldaClaims": "Fasecolda — 事故履歴",
+            "fasecoldaCatalog": "Fasecolda — カタログ",
+            "fasecoldaValuation": "Fasecolda — 評価額"
+        },
+        "emptySinister": "登録された事故履歴はありません",
+        "emptyAgreements": "登録された支払い合意はありません"
     },
     "proposal": {
         "loading": "提案を読み込んでいます…",
@@ -6060,7 +6165,13 @@
             "service": "サービス",
             "planMinimum": "プラン最低料金",
             "usageCost": "平均単価での利用料",
+            "usageCostAverage": "平均単価での利用料",
+            "usageCostCombo": "組み合わせ単価での利用料",
+            "usageCostPerEndpoint": "エンドポイント別月間量での利用料",
+            "usageCostVolumeHint": "月間 {{volume}} 件のクエリ",
+            "endpointVolume": "月間ボリューム",
             "usageCostHint": "{{volume}} クエリ × 平均単価",
+            "usageCostHintCombo": "{{volume}} クエリ × 選択したエンドポイント価格の合計",
             "quotedTotal": "月額見積合計",
             "quotedTotalHint": "プラン最低料金または利用料 — 高い方",
             "original": "元の価格",

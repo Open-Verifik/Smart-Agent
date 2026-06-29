@@ -108,6 +108,10 @@
         "validateOneRecordHintCitizen": "核验单个公民的详细信息。",
         "validateOneRecordHintCompany": "核验单个企业的详细信息。",
         "validateOneRecordHintVehicle": "核验单辆车的详细信息。",
+        "documentTypeCompatibilityTitle": "证件类型兼容性",
+        "stepWillRun": "此步骤将会执行",
+        "stepWillSkip": "此步骤将被跳过",
+        "skipReasonDocumentType": "所选证件类型与此步骤不兼容。",
         "quickValidateTitle": "快速核验",
         "singleRecordTab": "单条核验",
         "batchUploadTab": "批量上传",
@@ -444,7 +448,70 @@
         "backHome": "返回首页",
         "closeAria": "关闭"
     },
+    "messagesHub": {
+        "railTitle": "消息",
+        "headerTitle": "消息",
+        "tabs": {
+            "notifications": "通知",
+            "support": "支持"
+        },
+        "fullscreenEnterAria": "展开消息面板",
+        "fullscreenExitAria": "退出全屏",
+        "closeAria": "关闭消息"
+    },
+    "appNotifications": {
+        "banners": {
+            "dismissAria": "关闭横幅"
+        },
+        "inbox": {
+            "guest": {
+                "title": "登录后查看通知",
+                "body": "使用 Verifik 账号登录后，活动更新和账号通知会显示在这里。",
+                "signIn": "登录"
+            },
+            "workspaceOnly": {
+                "title": "需要 Verifik 账号",
+                "body": "通知需要 Verifik 工作区会话。仅使用钱包登录无法加载收件箱；请使用您的 Verifik 账号登录。",
+                "signIn": "使用 Verifik 登录"
+            },
+            "listHeading": "通知",
+            "detailHeading": "详情",
+            "readLabel": "已读",
+            "emptyList": "暂无通知",
+            "pendingOutsideInbox": {
+                "title": "您有一条待处理通知",
+                "body": "此更新可能显示为首页横幅或弹窗。请查看这些位置，或刷新此列表。"
+            },
+            "backAria": "返回通知列表",
+            "legalLink": "查看法律文件",
+            "legalVersion": "版本 {{version}}",
+            "legalAcceptCheckbox": "我已阅读并接受上述条款",
+            "ctaDefault": "了解更多",
+            "categories": {
+                "system": "系统",
+                "maintenance": "维护",
+                "billing": "账单",
+                "legal": "法律",
+                "product": "产品",
+                "security": "安全"
+            },
+            "actions": {
+                "dismiss": "关闭",
+                "markSeen": "标记为已读",
+                "acknowledge": "确认",
+                "accept": "接受"
+            },
+            "errors": {
+                "loadList": "无法加载通知。请重试。",
+                "loadDetail": "无法加载此通知。",
+                "action": "操作失败。请重试。"
+            }
+        }
+    },
     "home": {
+        "notifications": {
+            "openFromEmail": "正在打开您的通知…"
+        },
         "welcome": {
             "title": "AI 代理的信任层",
             "subtitle": "验证自主代理背后的人员和公司。由 14+ 官方政府数据库集成 and x402 支付协议提供支持。"
@@ -627,7 +694,8 @@
     "accountEnv": {
         "verifyStrip": {
             "text": "验证您的账户即可获取初始免费积分并切换到正式环境。",
-            "cta": "验证身份"
+            "cta": "验证身份",
+            "pendingText": "您的账户验证正在审核中。"
         },
         "identityVerificationModal": {
             "title": "验证您的身份",
@@ -1141,11 +1209,11 @@
         "title": "项目",
         "subtitle": "查看 Smart Enroll 项目并打开注册记录。",
         "empty": "未找到项目。",
-        "emptyHeroTitle": "Create your first project",
-        "emptyHeroSubtitle": "Configure signup, documents, biometrics and branding step by step, then publish your live enrollment flow.",
-        "createProject": "Create project",
-        "emptyStaffTitle": "No projects assigned",
-        "emptyStaffSubtitle": "You don't have access to any Smart Enroll projects yet. Ask a workspace administrator to add you.",
+        "emptyHeroTitle": "创建您的第一个项目",
+        "emptyHeroSubtitle": "逐步配置注册、文档、活体检测和品牌，然后发布您的实时注册流程。",
+        "createProject": "创建项目",
+        "emptyStaffTitle": "未分配项目",
+        "emptyStaffSubtitle": "您还没有 Smart Enroll 项目访问权限。请让工作区管理员将您添加进去。",
         "updated": "更新于",
         "loadError": "无法加载项目，请重试。",
         "plansLoadError": "无法验证您的 Smart Enroll 订阅，请重试。",
@@ -1201,7 +1269,7 @@
             "active": "启用",
             "signupForm": "注册表单",
             "documents": "文档",
-            "biometrics": "生物识别",
+            "biometrics": "活体检测",
             "apiIntegration": "API 集成",
             "members": "成员",
             "addMember": "添加成员",
@@ -1281,7 +1349,7 @@
         "detail": {
             "sectionSignup": "注册表单",
             "sectionDocuments": "文档",
-            "sectionLiveness": "生物识别",
+            "sectionLiveness": "活体检测",
             "sectionApi": "API 集成",
             "apiIntro": "集成 Verifik API 时请使用这些标识符。",
             "projectId": "项目 ID",
@@ -1422,18 +1490,18 @@
                 "editBrand": "编辑品牌"
             },
             "summary": {
-                "edit": "Edit",
-                "basic": "{{ countries }} allowed countries",
-                "signup": "Email {{ email }} · Phone {{ phone }}",
-                "documents": "{{ count }} country configurations",
-                "business": "Business",
-                "representatives": "{{ min }}–{{ max }} representatives",
-                "liveness": "Min liveness {{ score }}%",
-                "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
-                "ui": "Logo {{ logo }} · Brand color {{ color }}",
+                "edit": "编辑",
+                "basic": "允许 {{ countries }} 个国家",
+                "signup": "邮箱 {{ email }} · 电话 {{ phone }}",
+                "documents": "{{ count }} 项国家配置",
+                "business": "企业",
+                "representatives": "{{ min }}–{{ max }} 位代表",
+                "liveness": "活体检测最低 {{ score }}%",
+                "integrations": "重定向 {{ redirect }} · Webhook {{ webhook }}",
+                "ui": "Logo {{ logo }} · 品牌色 {{ color }}",
                 "target": {
-                    "personal": "Individual onboarding",
-                    "business": "Business onboarding"
+                    "personal": "个人注册",
+                    "business": "企业注册"
                 }
             }
         },
@@ -1461,8 +1529,8 @@
                 "phone": "手机验证",
                 "document": "证件",
                 "documentFailed": "证件尝试",
-                "biometric": "生物识别",
-                "biometricFailed": "生物识别尝试",
+                "biometric": "活体检测",
+                "biometricFailed": "活体检测尝试",
                 "faceCompare": "人脸比对",
                 "nameMatch": "姓名匹配",
                 "verdict": "总体结果",
@@ -1690,8 +1758,8 @@
             "unsaved_changes_message": "不保存就离开吗？",
             "exit_without_saving": "不保存离开",
             "stub": {
-                "title": "Step",
-                "placeholder": "This step is wired in upcoming phases of the wizard."
+                "title": "步骤",
+                "placeholder": "此步骤将在向导的后续阶段中接入。"
             },
             "steps": {
                 "basic_setup": "基本设置",
@@ -1826,35 +1894,35 @@
             },
             "signupForm": {
                 "target": {
-                    "title": "Who are you onboarding?",
-                    "subtitle": "Choose between an individual or a business flow.",
-                    "personal": "Individual",
-                    "business": "Business"
+                    "title": "您要为谁办理注册？",
+                    "subtitle": "选择个人或企业流程。",
+                    "personal": "个人",
+                    "business": "企业"
                 },
                 "fullName": {
-                    "title": "Full name",
-                    "subtitle": "How customer name fields are presented.",
-                    "separate": "Two fields (first / last)",
-                    "together": "Single field"
+                    "title": "全名",
+                    "subtitle": "客户姓名字段的展示方式。",
+                    "separate": "两个字段（名 / 姓）",
+                    "together": "单个字段"
                 },
                 "business": {
-                    "title": "Business basic info",
-                    "subtitle": "How company information is collected.",
-                    "addressTitle": "Business address",
-                    "addressSubtitle": "Ask for a business or premises address during sign-up.",
-                    "nameNumber": "Name + tax number",
-                    "nameOnly": "Company name only"
+                    "title": "企业基本信息",
+                    "subtitle": "企业信息的收集方式。",
+                    "addressTitle": "企业地址",
+                    "addressSubtitle": "注册时要求填写营业或门店地址。",
+                    "nameNumber": "名称 + 税号",
+                    "nameOnly": "仅公司名称"
                 },
                 "additionalFields": {
-                    "title": "Additional information",
-                    "subtitle": "Optional extra fields on the enrollment form.",
-                    "error": "Select at least one field when this option is enabled.",
-                    "gender": "Gender",
-                    "country": "Country",
-                    "dateOfBirth": "Date of birth",
-                    "address": "Address",
-                    "age": "Age",
-                    "postalCode": "Postal code"
+                    "title": "附加信息",
+                    "subtitle": "注册表单中的可选额外字段。",
+                    "error": "启用此选项时，请至少选择一个字段。",
+                    "gender": "性别",
+                    "country": "国家",
+                    "dateOfBirth": "出生日期",
+                    "address": "地址",
+                    "age": "年龄",
+                    "postalCode": "邮政编码"
                 },
                 "email": {
                     "title": "电子邮箱",
@@ -1874,12 +1942,12 @@
                     "countryCode": "默认国家区号",
                     "searchCountry": "搜索国家/地区..."
                 },
-                "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
+                "atLeastOneContactMethod": "至少需要一种联系方式（邮箱或电话）。",
                 "legal": {
-                    "title": "Legal disclosures",
-                    "subtitle": "Show consent links inside the enrollment flow.",
-                    "privacy": "Show privacy notice",
-                    "terms": "Show terms & conditions",
+                    "title": "法律披露",
+                    "subtitle": "在注册流程中显示同意链接。",
+                    "privacy": "显示隐私声明",
+                    "terms": "显示条款与条件",
                     "urlRequired": "需要填写 URL。",
                     "urlInvalid": "请输入有效的 URL（https://...）。"
                 }
@@ -1890,10 +1958,10 @@
                 "requirementHelp": "为每位客户选择是否必须、可选或跳过生物识别。",
                 "actualScore": "当前分数",
                 "kyc": {
-                    "title": "KYC 类型",
-                    "subtitle": "选择身份凭证的存储与共享方式。",
-                    "traditional": "传统 KYC",
-                    "zeroKnowledge": "零知识 KYC",
+                    "title": "生物识别类型",
+                    "subtitle": "选择生物识别证明的存储和共享方式。",
+                    "traditional": "传统模板",
+                    "zeroKnowledge": "HumanAuthn（无模板）",
                     "traditionalDescription": "将客户的生物特征模板与身份记录一同保存，可重新验证和搜索。",
                     "zeroKnowledgeDescription": "在本地验证客户，仅保存保护隐私的证明 — 不保留任何生物特征模板。"
                 },
@@ -1917,19 +1985,19 @@
                 }
             },
             "representatives": {
-                "title": "Legal representatives",
-                "subtitle": "Define who must enroll on behalf of the business.",
+                "title": "法定代表人",
+                "subtitle": "定义须代表企业完成注册的人员。",
                 "counts": {
-                    "title": "Number of representatives",
-                    "subtitle": "How many people must complete the representative flow.",
-                    "min": "Minimum",
-                    "max": "Maximum",
-                    "notification": "Notification channel"
+                    "title": "代表人数",
+                    "subtitle": "须完成代表流程的人数。",
+                    "min": "最少",
+                    "max": "最多",
+                    "notification": "通知渠道"
                 },
                 "tabs": {
-                    "information": "Information",
-                    "documents": "Documents",
-                    "liveness": "Liveness"
+                    "information": "信息",
+                    "documents": "文档",
+                    "liveness": "活体检测"
                 }
             },
             "integrations": {
@@ -2581,6 +2649,8 @@
             "business": "企业",
             "business_name": "公司名称",
             "business_name_placeholder": "输入您的公司名称",
+            "business_country": "公司所在国家",
+            "business_country_placeholder": "选择公司所在国家",
             "document_type": "证件类型",
             "select_document_type": "选择证件类型",
             "document_number": "证件号码",
@@ -2625,6 +2695,10 @@
             "saved": "所有更改已保存",
             "status_complete": "设置完成",
             "status_incomplete": "设置未完成",
+            "dian_nit_not_found": "未在 DIAN 中找到此 NIT。",
+            "dian_name_mismatch": "公司名称与 DIAN 登记信息不匹配。",
+            "missing_billing_field": "请填写此账单字段。",
+            "nit_format_invalid": "请输入有效的 NIT。",
             "type_desc": "用于正确格式化发票。保存前可更改。",
             "type_title": "开票对象是谁？",
             "unsaved": "您有未保存的更改"
@@ -2897,7 +2971,8 @@
                 "descriptionPlaceholder": "描述",
                 "documentTypePlaceholder": "选择证件类型",
                 "otherParameters": "其他参数",
-                "requiredFieldLegend": "* 必填字段"
+                "requiredFieldLegend": "* 必填字段",
+                "includeCostDescription": "为 true 时，响应会包含积分信息块（credits、creditsCharged、charged、featureCode）。设为 false 或删除此行即可省略。"
             },
             "headers": {
                 "key": "键",
@@ -2945,6 +3020,12 @@
                 "invalidEnum": "「{{field}}」的值「{{value}}」无效。应为：{{expected}}。",
                 "invalidJsonBody": "请求体必须是有效的 JSON。",
                 "pathSegmentRequired": "URL 路径段「{{segment}}」为必填。"
+            },
+            "sandboxProfiles": {
+                "title": "沙盒资料",
+                "description": "选择一个测试数据资料以快速填充此请求。",
+                "selectLabel": "沙盒资料",
+                "profileMeta": "{{country}} · {{documentType}}"
             }
         },
         "responseViewer": {
@@ -4218,7 +4299,7 @@
     },
     "smartEnrollDemos": {
         "hub": {
-            "title": "Demos",
+            "title": "演示",
             "metaTitle": "演示控制台",
             "metaDescription": "以真人在场为锚的身份认证。在浏览器中运行 Verifik 的实时生物识别演示：人脸匹配、活体与 HumanID。",
             "heroEyebrow": "生物识别 · 实时演示",
@@ -5385,11 +5466,11 @@
             "unlockLivenessOff": "关",
             "unlockToleranceTitle": "活体容差",
             "unlockToleranceHint": "在加密或解密需要实时人脸时，防欺骗（活体）检测的严格程度。",
-            "toleranceRegularLabel": "Regular",
+            "toleranceRegularLabel": "常规",
             "toleranceRegularDescription": "更宽松；高质量照片可能被视为「活体」。需要阻止静态图像时建议使用 Hardened。",
-            "toleranceSoftLabel": "Soft",
+            "toleranceSoftLabel": "宽松",
             "toleranceSoftDescription": "更宽松的活体检测 — 失败更少，欺骗风险略高。",
-            "toleranceHardenedLabel": "Hardened",
+            "toleranceHardenedLabel": "强化",
             "toleranceHardenedDescription": "最严格的活体检测 — 最强防欺骗，可能拒绝部分真实采集。",
             "unlockPasswordTitle": "可选密码",
             "unlockPasswordHint": "在人脸之外增加第二因素。留空则仅通过人脸解密。",
@@ -5917,7 +5998,10 @@
         "endpointRequiredFieldsLabel": "必填",
         "endpointConditionalFieldsLabel": "条件必填",
         "endpointOptionalFieldsLabel": "可选",
-        "endpointNoFieldsRequired": "此步骤无必填列。"
+        "endpointNoFieldsRequired": "此步骤无必填列。",
+        "stepIncompatibleTitle": "部分行将在运行时跳过步骤",
+        "stepIncompatibleWarning": "第 {{row}} 行：{{message}}",
+        "stepIncompatibleDetail": "{{field}} 的值 \"{{value}}\" 不受 {{step}} 支持（允许：{{allowed}}）。批次运行时将跳过该步骤。"
     },
     "batchTutorial": {
         "stepOf": "第 {{current}} 步，共 {{total}} 步",
@@ -6046,7 +6130,28 @@
         "uploadBatchAppendHint": "上传 CSV 以向此批次追加多行记录。",
         "addOneRecordTitle": "添加一条记录",
         "addOneRecordDesc": "填写必填字段，向此批次追加一条记录。",
-        "appendFailed": "无法添加该记录，请重试。"
+        "appendFailed": "无法添加该记录，请重试。",
+        "stepIncompatibleTitle": "部分行将在运行时跳过步骤",
+        "stepIncompatibleWarning": "第 {{row}} 行：{{message}}",
+        "stepIncompatibleDetail": "{{field}} 的值 \"{{value}}\" 不受 {{step}} 支持（允许：{{allowed}}）。批次运行时将跳过该步骤。"
+    },
+    "colombiaVehicleReport": {
+        "sections": {
+            "runtIdentity": "RUNT — 车辆身份",
+            "runtCompliance": "RUNT — 合规信息",
+            "runtSoat": "RUNT — SOAT",
+            "runtRtm": "RUNT — 技术检测",
+            "runtLiens": "RUNT — 留置/抵押",
+            "runtProcedures": "RUNT — 手续",
+            "simitSummary": "SIMIT — 摘要",
+            "simitFines": "SIMIT — 罚款",
+            "simitAgreements": "SIMIT — 付款协议",
+            "fasecoldaClaims": "Fasecolda — 理赔历史",
+            "fasecoldaCatalog": "Fasecolda — 目录",
+            "fasecoldaValuation": "Fasecolda — 估值"
+        },
+        "emptySinister": "暂无理赔历史记录",
+        "emptyAgreements": "暂无付款协议记录"
     },
     "proposal": {
         "loading": "正在加载您的提案…",
@@ -6060,7 +6165,13 @@
             "service": "服务",
             "planMinimum": "方案最低费用",
             "usageCost": "按平均单价的使用费",
+            "usageCostAverage": "按平均单价的使用费",
+            "usageCostCombo": "按组合单价的使用费",
+            "usageCostPerEndpoint": "按端点用量的使用费",
+            "usageCostVolumeHint": "每月 {{volume}} 次查询",
+            "endpointVolume": "月用量",
             "usageCostHint": "{{volume}} 次查询 × 平均单价",
+            "usageCostHintCombo": "{{volume}} 次查询 × 所选端点价格总和",
             "quotedTotal": "报价月总额",
             "quotedTotalHint": "方案最低费用或使用费 — 取较高者",
             "original": "原价",

@@ -108,6 +108,10 @@
         "validateOneRecordHintCitizen": "Valider les détails pour un seul citoyen.",
         "validateOneRecordHintCompany": "Valider les détails pour une seule entreprise.",
         "validateOneRecordHintVehicle": "Valider les détails pour un seul véhicule.",
+        "documentTypeCompatibilityTitle": "Compatibilité par type de document",
+        "stepWillRun": "Cette étape sera exécutée",
+        "stepWillSkip": "Cette étape sera ignorée",
+        "skipReasonDocumentType": "Le type de document sélectionné n'est pas compatible avec cette étape.",
         "quickValidateTitle": "Validation rapide",
         "singleRecordTab": "Validation unique",
         "batchUploadTab": "Chargement par lots",
@@ -444,7 +448,70 @@
         "backHome": "Retour à l'accueil",
         "closeAria": "Fermer"
     },
+    "messagesHub": {
+        "railTitle": "Messages",
+        "headerTitle": "Messages",
+        "tabs": {
+            "notifications": "Notifications",
+            "support": "Support"
+        },
+        "fullscreenEnterAria": "Agrandir le panneau de messages",
+        "fullscreenExitAria": "Quitter le plein écran",
+        "closeAria": "Fermer les messages"
+    },
+    "appNotifications": {
+        "banners": {
+            "dismissAria": "Fermer la bannière"
+        },
+        "inbox": {
+            "guest": {
+                "title": "Connectez-vous pour voir les notifications",
+                "body": "Les mises à jour de campagnes et les avis de compte apparaissent ici après connexion avec votre compte Verifik.",
+                "signIn": "Se connecter"
+            },
+            "workspaceOnly": {
+                "title": "Compte Verifik requis",
+                "body": "Les notifications nécessitent une session d'espace de travail Verifik. Une connexion uniquement par wallet ne peut pas charger la boîte de réception ; connectez-vous avec votre compte Verifik.",
+                "signIn": "Se connecter avec Verifik"
+            },
+            "listHeading": "Notifications",
+            "detailHeading": "Détails",
+            "readLabel": "Lu",
+            "emptyList": "Aucune notification pour le moment",
+            "pendingOutsideInbox": {
+                "title": "Vous avez une notification en attente",
+                "body": "Cette mise à jour peut apparaître comme bannière sur l'accueil ou dans une fenêtre contextuelle. Vérifiez ces surfaces ou actualisez cette liste."
+            },
+            "backAria": "Retour à la liste des notifications",
+            "legalLink": "Voir le document légal",
+            "legalVersion": "Version {{version}}",
+            "legalAcceptCheckbox": "J'ai lu et j'accepte les conditions ci-dessus",
+            "ctaDefault": "En savoir plus",
+            "categories": {
+                "system": "Système",
+                "maintenance": "Maintenance",
+                "billing": "Facturation",
+                "legal": "Juridique",
+                "product": "Produit",
+                "security": "Sécurité"
+            },
+            "actions": {
+                "dismiss": "Ignorer",
+                "markSeen": "Marquer comme vu",
+                "acknowledge": "Accuser réception",
+                "accept": "Accepter"
+            },
+            "errors": {
+                "loadList": "Impossible de charger les notifications. Réessayez.",
+                "loadDetail": "Impossible de charger cette notification.",
+                "action": "L'action a échoué. Réessayez."
+            }
+        }
+    },
     "home": {
+        "notifications": {
+            "openFromEmail": "Ouverture de vos notifications…"
+        },
         "welcome": {
             "title": "La couche de confiance pour les agents IA",
             "subtitle": "Vérifiez les humains et les entreprises derrière les agents autonomes. Plus de 14 intégrations officielles de bases de données gouvernementales et le protocole de paiement x402."
@@ -561,6 +628,7 @@
             "chat": "Chat",
             "supportTickets": "Tickets de support",
             "supportTicketsSubtitle": "Ouvrez un ticket et discutez avec notre équipe",
+            "smartAccess": "Smart Access",
             "postman": "Postman",
             "smartBatch": "Smart Batch",
             "history": "Historique",
@@ -626,7 +694,8 @@
     "accountEnv": {
         "verifyStrip": {
             "text": "Vérifiez votre compte pour accéder aux crédits gratuits initiaux et passer en Production.",
-            "cta": "Vérifier l'identité"
+            "cta": "Vérifier l'identité",
+            "pendingText": "La vérification de votre compte est en cours d'examen."
         },
         "identityVerificationModal": {
             "title": "Vérifiez votre identité",
@@ -1018,7 +1087,7 @@
         "warningCompleteRemovalDescription": "Les personnes suivantes seront entièrement supprimées du système car il s'agit de leur seule collection :",
         "warningCompleteRemovalConfirmation": "Voulez-vous vraiment continuer ? Cette action est irréversible.",
         "scopeFilterLabel": "Type",
-        "scopeFilterOnboarding": "Onboarding (SmartEnroll)",
+        "scopeFilterOnboarding": "Inscriptions (SmartEnroll)",
         "scopeFilterAll": "Toutes les collections du compte",
         "scopeFilterRemove": "Supprimer le filtre",
         "scopeFilterRestore": "Afficher SmartEnroll uniquement",
@@ -1066,7 +1135,7 @@
         "createMethodLabel": "Méthode de création",
         "createMethodLiveness": "Avec liveness",
         "createMethodLivenessHint": "Exécute liveness et recherche de doublons dans une collection ; utilise des crédits.",
-        "createMethodStandard": "Standard",
+        "createMethodStandard": "Standard classique",
         "createMethodStandardHint": "Téléversez une photo et assignez une ou plusieurs collections.",
         "dialogCreateSubtitle": "Choisissez comment inscrire cette personne.",
         "collectionRequired": "Sélectionnez une collection pour l'inscription.",
@@ -1141,7 +1210,7 @@
         "subtitle": "Consultez vos projets Smart Enroll et ouvrez les dossiers d'inscription.",
         "empty": "Aucun projet trouvé.",
         "emptyHeroTitle": "Créez votre premier projet",
-        "emptyHeroSubtitle": "Configurez l'inscription, les documents, la biométrie et l'image de marque étape par étape, puis publiez votre parcours d'inscription en direct.",
+        "emptyHeroSubtitle": "Configurez l'inscription, les documents, la vivacité et l'image de marque étape par étape, puis publiez votre parcours d'inscription en direct.",
         "createProject": "Créer un projet",
         "emptyStaffTitle": "Aucun projet assigné",
         "emptyStaffSubtitle": "Vous n'avez encore accès à aucun projet Smart Enroll. Demandez à un administrateur de l'espace de travail de vous ajouter.",
@@ -1200,7 +1269,7 @@
             "active": "Actif",
             "signupForm": "Formulaire d'inscription",
             "documents": "Documents",
-            "biometrics": "Biométrie",
+            "biometrics": "Vivacité",
             "apiIntegration": "Intégration API",
             "members": "Membres",
             "addMember": "Ajouter un membre",
@@ -1280,7 +1349,7 @@
         "detail": {
             "sectionSignup": "Formulaire d'inscription",
             "sectionDocuments": "Documents",
-            "sectionLiveness": "Biométrie",
+            "sectionLiveness": "Vivacité",
             "sectionApi": "Intégration API",
             "apiIntro": "Utilisez ces identifiants pour intégrer l'API Verifik.",
             "projectId": "ID projet",
@@ -1421,18 +1490,18 @@
                 "editBrand": "Modifier la marque"
             },
             "summary": {
-                "edit": "Edit",
-                "basic": "{{ countries }} allowed countries",
-                "signup": "Email {{ email }} · Phone {{ phone }}",
-                "documents": "{{ count }} country configurations",
-                "business": "Business",
-                "representatives": "{{ min }}–{{ max }} representatives",
-                "liveness": "Min liveness {{ score }}%",
-                "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
-                "ui": "Logo {{ logo }} · Brand color {{ color }}",
+                "edit": "Modifier",
+                "basic": "{{ countries }} pays autorisés",
+                "signup": "E-mail {{ email }} · Téléphone {{ phone }}",
+                "documents": "{{ count }} configurations pays",
+                "business": "Entreprise",
+                "representatives": "{{ min }}–{{ max }} représentants",
+                "liveness": "Vivacité min. {{ score }}%",
+                "integrations": "Redirection {{ redirect }} · Webhook {{ webhook }}",
+                "ui": "Logo {{ logo }} · Couleur de marque {{ color }}",
                 "target": {
-                    "personal": "Individual onboarding",
-                    "business": "Business onboarding"
+                    "personal": "Inscription individuelle",
+                    "business": "Inscription entreprise"
                 }
             }
         },
@@ -1449,7 +1518,7 @@
                 "email": "E-mail",
                 "phone": "Téléphone",
                 "documents": "Documents",
-                "biometrics": "Biométrie",
+                "biometrics": "Vivacité",
                 "compare": "Comparaison faciale",
                 "verdict": "Verdict"
             },
@@ -1460,8 +1529,8 @@
                 "phone": "Validation téléphone",
                 "document": "Document",
                 "documentFailed": "Tentative de document",
-                "biometric": "Biométrie",
-                "biometricFailed": "Tentative biométrique",
+                "biometric": "Vivacité",
+                "biometricFailed": "Tentative de vivacité",
                 "faceCompare": "Comparaison faciale",
                 "nameMatch": "Correspondance du nom",
                 "verdict": "Résultat global",
@@ -1683,14 +1752,17 @@
             "see_live_project": "Ouvrir le projet en direct",
             "go_back": "Retour",
             "continue": "Continuer",
+            "dev_quick_fill": "Remplir avec des données de test",
+            "dev_quick_fill_hint": "Environnement local uniquement : préremplit des champs valides pour avancer plus vite dans l'assistant.",
+            "dev_quick_fill_applied": "Données de test appliquées.",
             "setup_invalid": "Des champs obligatoires manquent. Vérifiez chaque étape.",
             "api_error": "Impossible d’enregistrer le projet. Réessayez.",
             "unsaved_changes": "Modifications non enregistrées",
             "unsaved_changes_message": "Quitter sans enregistrer ?",
             "exit_without_saving": "Quitter sans enregistrer",
             "stub": {
-                "title": "Step",
-                "placeholder": "This step is wired in upcoming phases of the wizard."
+                "title": "Étape",
+                "placeholder": "Cette étape sera connectée dans les phases futures de l'assistant."
             },
             "steps": {
                 "basic_setup": "Configuration de base",
@@ -1698,7 +1770,7 @@
                 "documents": "Documents",
                 "business": "Entreprise",
                 "representatives": "Représentants",
-                "liveness": "Liveness",
+                "liveness": "Vivacité",
                 "integrations": "Intégrations",
                 "user_interface": "Interface",
                 "steps_count": "Étape {{current}} sur {{total}}"
@@ -1825,35 +1897,35 @@
             },
             "signupForm": {
                 "target": {
-                    "title": "Who are you onboarding?",
-                    "subtitle": "Choose between an individual or a business flow.",
-                    "personal": "Individual",
-                    "business": "Business"
+                    "title": "Qui inscrivez-vous ?",
+                    "subtitle": "Choisissez entre un parcours individuel ou entreprise.",
+                    "personal": "Particulier",
+                    "business": "Entreprise"
                 },
                 "fullName": {
-                    "title": "Full name",
-                    "subtitle": "How customer name fields are presented.",
-                    "separate": "Two fields (first / last)",
-                    "together": "Single field"
+                    "title": "Nom complet",
+                    "subtitle": "Comment les champs de nom du client sont présentés.",
+                    "separate": "Deux champs (prénom / nom)",
+                    "together": "Champ unique"
                 },
                 "business": {
-                    "title": "Business basic info",
-                    "subtitle": "How company information is collected.",
-                    "addressTitle": "Business address",
-                    "addressSubtitle": "Ask for a business or premises address during sign-up.",
-                    "nameNumber": "Name + tax number",
-                    "nameOnly": "Company name only"
+                    "title": "Informations de base de l'entreprise",
+                    "subtitle": "Comment les informations de l'entreprise sont collectées.",
+                    "addressTitle": "Adresse de l'entreprise",
+                    "addressSubtitle": "Demander une adresse commerciale ou du local lors de l'inscription.",
+                    "nameNumber": "Nom + numéro fiscal",
+                    "nameOnly": "Raison sociale uniquement"
                 },
                 "additionalFields": {
-                    "title": "Additional information",
-                    "subtitle": "Optional extra fields on the enrollment form.",
-                    "error": "Select at least one field when this option is enabled.",
-                    "gender": "Gender",
-                    "country": "Country",
-                    "dateOfBirth": "Date of birth",
-                    "address": "Address",
-                    "age": "Age",
-                    "postalCode": "Postal code"
+                    "title": "Informations supplémentaires",
+                    "subtitle": "Champs supplémentaires optionnels sur le formulaire d'inscription.",
+                    "error": "Sélectionnez au moins un champ lorsque cette option est activée.",
+                    "gender": "Genre",
+                    "country": "Pays",
+                    "dateOfBirth": "Date de naissance",
+                    "address": "Adresse",
+                    "age": "Âge",
+                    "postalCode": "Code postal"
                 },
                 "email": {
                     "title": "Adresse e-mail",
@@ -1873,12 +1945,12 @@
                     "countryCode": "Code pays par défaut",
                     "searchCountry": "Rechercher des pays..."
                 },
-                "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
+                "atLeastOneContactMethod": "Au moins un moyen de contact (e-mail ou téléphone) est requis.",
                 "legal": {
-                    "title": "Legal disclosures",
-                    "subtitle": "Show consent links inside the enrollment flow.",
-                    "privacy": "Show privacy notice",
-                    "terms": "Show terms & conditions",
+                    "title": "Mentions légales",
+                    "subtitle": "Afficher les liens de consentement dans le parcours d'inscription.",
+                    "privacy": "Afficher l'avis de confidentialité",
+                    "terms": "Afficher les conditions générales",
                     "urlRequired": "L’URL est obligatoire.",
                     "urlInvalid": "Saisissez une URL valide (https://...)."
                 }
@@ -1889,10 +1961,10 @@
                 "requirementHelp": "Choisissez si la biométrie est obligatoire, optionnelle ou ignorée pour chaque client.",
                 "actualScore": "Score actuel",
                 "kyc": {
-                    "title": "Type de KYC",
-                    "subtitle": "Choisissez comment les preuves d’identité sont stockées et partagées.",
-                    "traditional": "KYC traditionnel",
-                    "zeroKnowledge": "KYC à divulgation nulle",
+                    "title": "Type de biométrie",
+                    "subtitle": "Choisissez comment les preuves biométriques sont stockées et partagées.",
+                    "traditional": "Modèle traditionnel",
+                    "zeroKnowledge": "HumanAuthn (sans modèles)",
                     "traditionalDescription": "Stocke le gabarit biométrique du client avec son dossier d’identité pour rejouer les vérifications et lancer des recherches.",
                     "zeroKnowledgeDescription": "Vérifie le client localement et ne conserve qu’une preuve respectueuse de la vie privée — aucun gabarit biométrique n’est conservé."
                 },
@@ -1916,19 +1988,19 @@
                 }
             },
             "representatives": {
-                "title": "Legal representatives",
-                "subtitle": "Define who must enroll on behalf of the business.",
+                "title": "Représentants légaux",
+                "subtitle": "Définissez qui doit s'inscrire au nom de l'entreprise.",
                 "counts": {
-                    "title": "Number of representatives",
-                    "subtitle": "How many people must complete the representative flow.",
+                    "title": "Nombre de représentants",
+                    "subtitle": "Combien de personnes doivent compléter le parcours représentant.",
                     "min": "Minimum",
                     "max": "Maximum",
-                    "notification": "Notification channel"
+                    "notification": "Canal de notification"
                 },
                 "tabs": {
-                    "information": "Information",
+                    "information": "Informations",
                     "documents": "Documents",
-                    "liveness": "Liveness"
+                    "liveness": "Vivacité"
                 }
             },
             "integrations": {
@@ -2438,6 +2510,8 @@
             "profile_desc": "Gérer vos informations personnelles",
             "security": "Sécurité",
             "security_desc": "Paramètres de mot de passe et d'authentification",
+            "notifications": "Notifications",
+            "notifications_desc": "Préférences de notifications par e-mail et dans le tableau de bord",
             "general": "Général",
             "general_desc": "Gérer les paramètres de votre espace de travail",
             "team": "Équipe",
@@ -2446,10 +2520,106 @@
             "billing_details_desc": "Gérer vos informations de facturation",
             "payment_history": "Historique des paiements",
             "payment_history_desc": "Consultez vos reçus, factures et historique des transactions",
+            "usage_history": "Historique d'utilisation",
+            "usage_history_desc": "Suivez votre consommation API et vos dépenses de crédits dans le temps",
             "api_key": "Clé API",
             "api_key_desc": "Gérer vos jetons d'accès API",
             "webhooks": "Webhooks",
             "webhooks_desc": "Configurer les points de terminaison webhook"
+        },
+        "notifications": {
+            "title": "Notifications",
+            "subtitle": "Choisissez les e-mails que nous vous envoyons. Mettez tout en pause en un clic ou ajustez chaque catégorie.",
+            "sign_in_hint": "Connectez-vous pour gérer vos préférences de notification.",
+            "loading": "Chargement de vos préférences…",
+            "status_active": "{{count}} sur {{total}} actives",
+            "status_none": "Aucune catégorie activée",
+            "status_paused": "Toutes les notifications sont en pause",
+            "general_title": "Général",
+            "general_desc": "Désactivez tous les e-mails de notification en une seule fois, ou gardez-les actifs et ajustez les catégories ci-dessous.",
+            "specific_title": "Catégories de notification",
+            "specific_desc": "Choisissez les e-mails que Verifik envoie dans votre boîte de réception. Réactiver une catégorie reprendra automatiquement les notifications.",
+            "stop_all_title": "Mettre toutes les notifications en pause",
+            "stop_all_desc": "Arrêtez de recevoir tous les e-mails de notification de Verifik. Vos préférences par catégorie sont conservées et reprendront lorsque vous désactiverez cette option.",
+            "toggle_on_label": "Activé",
+            "toggle_off_label": "Désactivé",
+            "tooltip_paused": "Les notifications sont en pause. Réactiver cette catégorie reprendra automatiquement les notifications.",
+            "enable_all": "Tout activer",
+            "unsaved": "Vous avez des modifications non enregistrées",
+            "saved": "Toutes les modifications sont enregistrées",
+            "discard": "Ignorer",
+            "payment_title": "Mises à jour de paiement",
+            "payment_desc": "Recevez une notification lorsqu'un paiement réussit, échoue ou nécessite votre attention.",
+            "credits_title": "Crédits arrivant à expiration",
+            "credits_desc": "Rappels avant que des crédits inutilisés expirent de votre solde.",
+            "balance_title": "Solde faible",
+            "balance_desc": "Alertes lorsque votre solde est faible afin de recharger avant interruption d'utilisation.",
+            "new_endpoints_title": "Nouveaux endpoints",
+            "new_endpoints_desc": "Soyez informé en premier lorsque nous publions de nouveaux endpoints API.",
+            "webhook_title": "Erreurs webhook",
+            "webhook_desc": "Recevez une alerte lorsqu'une livraison webhook vers votre serveur échoue afin de corriger rapidement.",
+            "save": "Enregistrer les modifications",
+            "saving": "Enregistrement…",
+            "save_success": "Préférences de notification enregistrées.",
+            "save_error": "Impossible d'enregistrer les préférences. Veuillez réessayer."
+        },
+        "usageHistory": {
+            "title": "Historique d'utilisation",
+            "subtitle": "Suivez votre consommation API et vos dépenses de crédits. Les coûts affichés excluent les taxes et certains frais de support.",
+            "sign_in_hint": "Connectez-vous avec votre e-mail ou téléphone pour voir l'historique d'utilisation.",
+            "view_toggle": "Changer de vue",
+            "simplified_view": "Résumé",
+            "detailed_view": "Détaillé",
+            "filter_products": "Produits",
+            "filter_products_placeholder": "Tous les produits",
+            "filter_products_search": "Rechercher des produits…",
+            "filter_products_selected": "{{count}} sélectionnés",
+            "filter_products_clear": "Effacer la sélection",
+            "filter_products_empty": "Aucun produit dans cette plage de dates",
+            "clear_filters": "Réinitialiser les filtres",
+            "enter_date_range": "Plage de dates",
+            "start_date": "Date de début",
+            "end_date": "Date de fin",
+            "download": "Télécharger",
+            "endpoint": "Endpoint API",
+            "quick_range_group": "Filtres de date rapides",
+            "quickRange": {
+                "today": "Aujourd'hui",
+                "yesterday": "Hier",
+                "this_week": "Cette semaine",
+                "last_week": "Semaine dernière",
+                "this_month": "Ce mois-ci",
+                "last_month": "Mois dernier"
+            },
+            "created_at": "Date",
+            "product": "Produit",
+            "category": "Catégorie",
+            "quantity": "Quantité",
+            "unit_price": "Prix unitaire",
+            "total": "Total",
+            "summary": "Résumé",
+            "detailed_strip": "Lignes détaillées",
+            "allRecords": "Tous les enregistrements",
+            "no_records": "Aucune utilisation dans cette plage",
+            "no_records_hint": "Essayez une plage de dates plus large ou effacez le filtre produit pour voir plus d'activité.",
+            "group": {
+                "apiRequest": "Requête API",
+                "apiRequestParent": "Requête API",
+                "biometrics": "Biométrie",
+                "communication": "Communication",
+                "credits": "Crédits",
+                "faceRecognition": "Reconnaissance faciale",
+                "OCR": "OCR",
+                "postPaid": "Postpayé",
+                "smartAccess": "SmartAccess",
+                "smartCheck": "SmartCheck",
+                "SmartEnroll": "SmartEnroll",
+                "smartEnroll": "SmartEnroll",
+                "special_case": "Cas particulier"
+            },
+            "products": {
+                "allRecords": "Tous les enregistrements"
+            }
         },
         "profile": {
             "title": "Paramètres de profil",
@@ -2681,7 +2851,24 @@
                 "RUT": "Rôle Unique Tributaire (RUT)",
                 "NO_TAX": "Pas d'ID Fiscal",
                 "INTERNATIONAL_TAX": "ID Fiscal International"
-            }
+            },
+            "subtitle_v2": "Indiquez à qui facturer et où envoyer les factures. Obligatoire pour les achats taxés et les abonnements.",
+            "person_desc": "Facturer une personne physique avec une pièce d'identité.",
+            "business_desc": "Facturer une entreprise avec un NIT ou un identifiant fiscal.",
+            "business_country": "Pays de l'entreprise",
+            "business_country_placeholder": "Sélectionnez le pays de l'entreprise",
+            "discard": "Ignorer",
+            "loading": "Chargement de vos informations de facturation…",
+            "saved": "Toutes les modifications sont enregistrées",
+            "status_complete": "Configuration complète",
+            "status_incomplete": "Configuration incomplète",
+            "type_desc": "Nous utilisons ceci pour formater correctement les factures. Vous pouvez le modifier avant d'enregistrer.",
+            "type_title": "À qui la facture est-elle destinée ?",
+            "unsaved": "Vous avez des modifications non enregistrées",
+            "dian_nit_not_found": "Ce NIT est introuvable dans la DIAN.",
+            "dian_name_mismatch": "Le nom de l'entreprise ne correspond pas au registre DIAN.",
+            "missing_billing_field": "Renseignez ce champ de facturation.",
+            "nit_format_invalid": "Saisissez un NIT valide."
         },
         "plans": "Plans"
     },
@@ -2784,7 +2971,8 @@
                 "descriptionPlaceholder": "Description",
                 "documentTypePlaceholder": "Sélectionner le type de document",
                 "otherParameters": "Autres paramètres",
-                "requiredFieldLegend": "* Champ obligatoire"
+                "requiredFieldLegend": "* Champ obligatoire",
+                "includeCostDescription": "Lorsque la valeur est true, la réponse inclut un bloc de crédits (credits, creditsCharged, charged, featureCode). Définissez false ou supprimez cette ligne pour l'omettre."
             },
             "headers": {
                 "key": "Clé",
@@ -2832,6 +3020,12 @@
                 "invalidEnum": "« {{value}} » n'est pas valide pour « {{field}} ». Valeurs attendues : {{expected}}.",
                 "invalidJsonBody": "Le corps doit être un JSON valide.",
                 "pathSegmentRequired": "Le segment d'URL « {{segment}} » est obligatoire."
+            },
+            "sandboxProfiles": {
+                "title": "Profils sandbox",
+                "description": "Choisissez un profil de données de test pour remplir rapidement cette requête.",
+                "selectLabel": "Profil sandbox",
+                "profileMeta": "{{country}} · {{documentType}}"
             }
         },
         "responseViewer": {
@@ -3242,7 +3436,14 @@
                 "contactSupport": "Si vous avez des questions, veuillez contacter le support.",
                 "stripeNotConfigured": "Le paiement n'a pas pu être finalisé. La vérification de carte n'est pas disponible. Réessayez ou contactez le support.",
                 "payment3dsFailed": "La vérification de la carte a échoué. Réessayez ou utilisez une autre carte.",
-                "paymentFailedImmediate": "Le paiement a été refusé. Essayez une autre carte ou contactez le support."
+                "paymentFailedImmediate": "Le paiement a été refusé. Essayez une autre carte ou contactez le support.",
+                "duplicate_credit_purchase_quick": "Un achat de crédits similaire vient d'être effectué. Patientez quelques minutes avant de réessayer.",
+                "duplicate_credit_purchase_same_day": "Un achat de crédits identique existe déjà aujourd'hui. Vérifiez votre solde ou contactez le support.",
+                "credit_purchase_invalid_amount": "Le montant de crédits sélectionné n'est pas valide.",
+                "kycVerificationStartFailed": "Impossible de démarrer la vérification KYC. Réessayez.",
+                "selectPaymentMethod": "Sélectionnez une méthode de paiement.",
+                "amountOutOfRange": "Le montant doit être compris dans la plage autorisée.",
+                "paymentPendingVerification": "Paiement en attente de vérification. Nous mettrons à jour votre solde dès confirmation."
             },
             "kyc": {
                 "title": "KYC requis",
@@ -3313,6 +3514,9 @@
         "customDesc": "Adapté à vos besoins",
         "billedAnnually": "facturé annuellement",
         "currentPlan": "Plan actuel",
+        "notOptimalForVolume": "Pas optimal pour votre volume",
+        "notOptimalHint": "Un autre palier correspond mieux à votre usage.",
+        "notOptimalCta": "Pas le meilleur choix",
         "addCredits": "Ajouter des crédits",
         "contactSales": "Contacter les ventes",
         "selectPlan": "Sélectionner le plan",
@@ -3334,7 +3538,7 @@
             "twoMonthsFree": "2 mois gratuits avec facturation annuelle",
             "whatsIncluded": "Ce qui est inclus",
             "orderSummary": "Résumé de la commande",
-            "planLabel": "plan",
+            "planLabel": "Forfait",
             "monthlyEquivalent": "Équivalent mensuel",
             "starts": "Débute le",
             "renews": "Renouvelle le",
@@ -3380,7 +3584,7 @@
             "button": "Comparer les prix des API",
             "title": "Prix des API par plan",
             "apiName": "API",
-            "basePrice": "Base $/req",
+            "basePrice": "Base $/requête",
             "backToPlans": "Retour aux plans",
             "empty": "Aucune API disponible.",
             "searchPlaceholder": "Rechercher par nom ou URL d'endpoint"
@@ -3533,6 +3737,12 @@
             "1000_credit_email_top_up": "1000 e-mails - recharge de crédits",
             "1000_metered_email_top_up": "1000 e-mails - recharge mesurée",
             "activate": "Activer le plan",
+            "activation_success": "Plan activé avec succès.",
+            "activation_checkout_failed": "Impossible d'ouvrir le checkout d'activation. Réessayez.",
+            "billing_required_title": "Coordonnées de facturation requises",
+            "billing_required_message": "Renseignez vos informations de facturation avant d'activer un plan Smart Access.",
+            "billing_required_go_settings": "Aller aux coordonnées de facturation",
+            "billing_required_cancel": "Annuler",
             "active_user": "Utilisateurs actifs",
             "active_user2": "utilisateurs actifs",
             "active_users_explained": "Utilisez des plans basés sur le nombre d'utilisateurs qui se connecteront et s'authentifieront constamment. De cette façon, vous avez un nombre défini d'utilisateurs qui peuvent accéder de manière illimitée.",
@@ -3997,9 +4207,99 @@
             }
         }
     },
+    "supportTickets": {
+        "quickChat": {
+            "headerTitle": "Tickets de support",
+            "guest": {
+                "title": "Connectez-vous pour contacter le support",
+                "body": "Ouvrez un ticket de support et discutez avec notre équipe depuis votre compte Verifik.",
+                "signIn": "Se connecter"
+            },
+            "workspaceOnly": {
+                "title": "Compte Verifik requis",
+                "body": "Les tickets de support nécessitent une session d'espace de travail Verifik (e-mail ou téléphone). Une connexion uniquement par wallet ne peut pas ouvrir de tickets ; connectez-vous avec votre compte Verifik.",
+                "signIn": "Se connecter avec Verifik"
+            },
+            "listHeading": "Tickets",
+            "emptyList": "Aucun ticket pour le moment.",
+            "newTicketCta": "Nouveau ticket",
+            "newTicketAria": "Créer un nouveau ticket de support",
+            "ticketPrefix": "#{{num}} —",
+            "noSelection": "Sélectionnez un ticket de support ou créez-en un nouveau.",
+            "fromSupport": "Support",
+            "fromYou": "Vous",
+            "replyPlaceholder": "Écrire une réponse…",
+            "sendAria": "Envoyer la réponse",
+            "backAria": "Retour à la liste des tickets",
+            "showTicketList": "Tickets",
+            "showTicketListAria": "Afficher la liste des tickets",
+            "metaCategory": "Catégorie",
+            "metaSubject": "Sujet",
+            "metaApi": "API",
+            "attachmentDownloadAria": "Télécharger {{name}}",
+            "fullscreenEnterAria": "Agrandir le panneau des tickets de support",
+            "fullscreenExitAria": "Quitter le plein écran",
+            "closeAria": "Fermer les tickets de support",
+            "status": {
+                "pending": "En attente",
+                "progress": "En cours",
+                "resolved": "Résolu",
+                "cancelled": "Annulé",
+                "closed": "Fermé"
+            },
+            "categories": {
+                "billing": "Facturation",
+                "integration": "Intégration",
+                "smartCheck": "SmartCheck",
+                "smartScan": "SmartScan",
+                "smartEnroll": "SmartEnroll",
+                "smartAccess": "SmartAccess",
+                "other": "Autre"
+            },
+            "newTicket": {
+                "heading": "Nouveau ticket de support",
+                "fieldTitle": "Titre",
+                "titleRequired": "Le titre est requis",
+                "ticketSubject": "Sujet",
+                "ticketSubjectRequired": "Le sujet est requis",
+                "apiRequired": "Choisissez l'API liée à votre problème.",
+                "category": "Catégorie",
+                "message": "Message",
+                "messageRequired": "Le message est requis",
+                "cancel": "Annuler",
+                "submit": "Créer le ticket",
+                "attachmentsLabel": "Pièces jointes",
+                "attachmentsHint": "Facultatif. PDF ou images (.pdf, .jpg, .jpeg, .png). Jusqu'à 10 fichiers, 10 Mo chacun maximum.",
+                "attachmentsCount": "{{count}} fichier(s) joint(s)",
+                "attachmentsMaxReached": "Vous avez atteint la limite de 10 fichiers. Supprimez-en un pour en ajouter un autre.",
+                "removeAttachmentAria": "Supprimer {{name}}"
+            },
+            "createDialog": {
+                "apiTypes": {
+                    "identity": "Identité",
+                    "vehicle": "Véhicule",
+                    "business": "Entreprise",
+                    "background": "Antécédents"
+                },
+                "api": {
+                    "label": "API",
+                    "selectHeading": "Sélectionner une API",
+                    "selectHint": "Parcourez et recherchez les endpoints",
+                    "searchPlaceholder": "Rechercher par nom ou endpoint",
+                    "clearSearch": "Effacer la recherche",
+                    "apisFound": "{{count}} API trouvée(s)"
+                }
+            },
+            "errors": {
+                "loadList": "Impossible de charger les tickets. Réessayez.",
+                "loadDetail": "Impossible de charger ce ticket.",
+                "sendReply": "Impossible d'envoyer votre réponse. Réessayez."
+            }
+        }
+    },
     "smartEnrollDemos": {
         "hub": {
-            "title": "Demos",
+            "title": "Démonstrations",
             "metaTitle": "Tableau de bord des démos",
             "metaDescription": "Authentification ancrée sur la présence humaine. Exécutez dans le navigateur les démos biométriques en direct de Verifik : correspondance faciale, vivacité et HumanID.",
             "heroEyebrow": "Biométrie · Démos en direct",
@@ -4090,7 +4390,7 @@
                     "description": "Vérifiez une image faciale contre une personne enrôlée précise par ID avec un seuil de similarité configurable."
                 },
                 "liveness": {
-                    "badge": "Anti-spoof",
+                    "badge": "Anti-usurpation",
                     "title": "Détection de vivacité",
                     "description": "Prouvez qu'une vraie personne est devant la caméra, pas une photo, un masque ou une relecture."
                 },
@@ -4135,7 +4435,7 @@
             "relatedDocsSubtitle": "Guides officiels sur docs.verifik.co",
             "tableHeader": "En-tête",
             "tableValue": "Valeur",
-            "tableParam": "Param",
+            "tableParam": "Paramètre",
             "tableReq": "Req.",
             "tableDescription": "Description",
             "yes": "Oui",
@@ -4474,12 +4774,12 @@
             "personHint": "Liste de GET /v2/face-recognition/persons — comme Mettre à jour une personne.",
             "noPeopleEmpty": "Aucune personne trouvée. Enrôlez d'abord quelqu'un via Créer une personne.",
             "loadingPersonCollections": "Chargement des collections de cette personne…",
-            "modeLegend": "Mode",
+            "modeLegend": "Mode de suppression",
             "modeFullTitle": "Suppression complète",
             "modeFullHint": "DELETE /persons/:id sans paramètres de requête.",
             "modeCollectionTitle": "Retirer d'une collection uniquement",
             "modeCollectionHint": "DELETE /persons/:id?collection=<code collection (UUID)>",
-            "collectionLabel": "Collection",
+            "collectionLabel": "Collection cible",
             "emptyPickerLoading": "Chargement…",
             "emptyPickerSelectPerson": "Sélectionnez d'abord une personne.",
             "emptyPickerNoMatch": "Aucune collection correspondante pour cette personne (vérifiez GET person ou la liste des collections).",
@@ -4904,7 +5204,7 @@
             "paramGalleryDesc": "Visage(s) de référence, base64 (sans préfixe data URL)",
             "paramProbeDesc": "Visage(s) à comparer, base64",
             "paramCompareMinDesc": "0,67 à 0,95. Défaut serveur 0,85 si omis",
-            "tableType": "Type",
+            "tableType": "Type de donnée",
             "bulletShortB64": "Les images doivent être de vraies charges base64. Les chaînes trop courtes sont rejetées (ex. 412:only_images_in_base64).",
             "bulletSlider": "Le curseur de score minimum définit compare_min_score sur la requête (0,67 à 0,95 ; départ sur la valeur par défaut du client API {{defaultScore}}).",
             "bulletResponseShape": "Les réponses incluent souvent id et un bloc signature avec data.",
@@ -4914,13 +5214,13 @@
             "fallbackMatch": "Les deux visages appartiennent à la même personne.",
             "fallbackNoMatch": "Les visages semblent être des personnes différentes.",
             "similarityMin": "Similarité (min. {{score}})",
-            "verdict": "Verdict",
+            "verdict": "Décision",
             "verdictMatch": "MATCH",
             "verdictDiff": "DIFF",
             "tryAgain": "Réessayer",
             "metaVerifik": "Verifik · Session sécurisée active",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
-            "support": "Support",
+            "support": "Prise en charge",
             "mustSignIn": "Vous devez être connecté pour exécuter cette démo."
         },
         "faceComparisonLiveness": {
@@ -4958,7 +5258,7 @@
             "cropErrorNoFace": "Impossible de détecter un visage à recadrer sur la photo Source (étape 1). Essayez une image plus nette ou désactivez le recadrage et réessayez.",
             "cropErrorGeneric": "Impossible de recadrer la photo Source. Essayez une autre image ou désactivez le recadrage.",
             "apiRefSummary": "Référence API : Compare with liveness",
-            "tableType": "Type",
+            "tableType": "Type de donnée",
             "apiRefOfficialLead": "Documentation officielle :",
             "apiRefEndpoint": "POST /v2/face-recognition/compare-with-liveness",
             "apiRefEndpointDesc": "Compare d'abord ; si le score atteint compare_min_score (ou est omis), la vivacité s'exécute sur la sonde contre liveness_min_score.",
@@ -4989,7 +5289,7 @@
             "tryAgain": "Réessayer",
             "metaVerifik": "Verifik · Session sécurisée active",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
-            "support": "Support",
+            "support": "Prise en charge",
             "mustSignIn": "Vous devez être connecté pour exécuter cette démo."
         },
         "verifyFace": {
@@ -5058,7 +5358,7 @@
             "headerTitle": "Détection de vivacité",
             "stepCapture": "Capture",
             "stepResult": "Résultat",
-            "tableType": "Type",
+            "tableType": "Type de donnée",
             "apiRefSummary": "Référence API : Liveness",
             "heroAnalysisComplete": "Analyse terminée",
             "heroLivenessDefault": "Détection de vivacité",
@@ -5084,7 +5384,7 @@
             "defaultPass": "Le sujet a réussi la vérification de vivacité Verifik.",
             "defaultFail": "L'image n'a pas passé les contrôles anti-spoofing.",
             "confidence": "Confiance",
-            "verdict": "Verdict",
+            "verdict": "Décision",
             "cost": "Coût",
             "pass": "PASS",
             "fail": "FAIL",
@@ -5422,7 +5722,7 @@
             "difficultyHeading": "Difficulté",
             "faceCropHeading": "Recadrage facial",
             "faceCropAlt": "Recadrage facial décodé depuis la preuve",
-            "sessionHeading": "Session",
+            "sessionHeading": "Session de déchiffrement",
             "chargedLabel": "Facturé",
             "livenessRequiredLabel": "Vivacité requise",
             "creditsHeading": "Crédits / utilisation",
@@ -5698,7 +5998,324 @@
         "endpointRequiredFieldsLabel": "Obligatoires",
         "endpointConditionalFieldsLabel": "Conditionnels",
         "endpointOptionalFieldsLabel": "Facultatifs",
-        "endpointNoFieldsRequired": "Aucune colonne obligatoire pour cette étape."
+        "endpointNoFieldsRequired": "Aucune colonne obligatoire pour cette étape.",
+        "stepIncompatibleTitle": "Certaines lignes ignoreront des étapes à l'exécution",
+        "stepIncompatibleWarning": "Ligne {{row}} : {{message}}",
+        "stepIncompatibleDetail": "« {{value}} » pour {{field}} n'est pas pris en charge par {{step}} (autorisés : {{allowed}}). Cette étape sera ignorée lors de l'exécution du lot."
+    },
+    "colombiaVehicleReport": {
+        "sections": {
+            "runtIdentity": "RUNT — Identité du véhicule",
+            "runtCompliance": "RUNT — Conformité",
+            "runtSoat": "RUNT — SOAT",
+            "runtRtm": "RUNT — Contrôle technique",
+            "runtLiens": "RUNT — Gages",
+            "runtProcedures": "RUNT — Procédures",
+            "simitSummary": "SIMIT — Résumé",
+            "simitFines": "SIMIT — Amendes",
+            "simitAgreements": "SIMIT — Accords de paiement",
+            "fasecoldaClaims": "Fasecolda — Historique des sinistres",
+            "fasecoldaCatalog": "Fasecolda — Catalogue",
+            "fasecoldaValuation": "Fasecolda — Valorisation"
+        },
+        "emptySinister": "Aucun historique de sinistre enregistré",
+        "emptyAgreements": "Aucun accord de paiement enregistré"
+    },
+    "proposal": {
+        "loading": "Chargement de votre proposition…",
+        "error": "Ce lien de proposition est invalide ou a expiré.",
+        "brand": "Verifik",
+        "title": "Proposition commerciale",
+        "preparedFor": "Préparée pour",
+        "volume": "Volume mensuel attendu",
+        "recommendedPlan": "Plan recommandé",
+        "table": {
+            "service": "Service",
+            "planMinimum": "Minimum du plan",
+            "usageCost": "Utilisation au tarif moyen",
+            "usageCostAverage": "Utilisation au tarif moyen",
+            "usageCostCombo": "Utilisation au tarif combiné",
+            "usageCostPerEndpoint": "Utilisation par volume d'endpoint",
+            "usageCostVolumeHint": "{{volume}} requêtes mensuelles",
+            "endpointVolume": "Volume mensuel",
+            "usageCostHint": "{{volume}} requêtes × prix unitaire moyen",
+            "usageCostHintCombo": "{{volume}} requêtes × somme des prix des endpoints sélectionnés",
+            "quotedTotal": "Total mensuel proposé",
+            "quotedTotalHint": "Minimum du plan ou utilisation — le plus élevé",
+            "original": "Original",
+            "ourOffer": "Notre offre",
+            "yourPrice": "Votre prix"
+        },
+        "tiers": {
+            "starter": "Starter",
+            "basic": "Basic",
+            "plus": "Plus",
+            "business": "Business",
+            "enterprise": "Enterprise"
+        },
+        "banners": {
+            "acceptedTitle": "Vous avez accepté cette proposition",
+            "acceptedOn": " le {{date}}",
+            "acceptedHint": "Vous pouvez retirer votre acceptation ou envoyer une contre-offre avec des prix différents.",
+            "counterTitle": "Contre-offre envoyée",
+            "counterOn": " le {{date}}",
+            "counterHint": "Vous pouvez envoyer une contre-offre révisée si nécessaire."
+        },
+        "actions": {
+            "accept": "Accepter la proposition",
+            "withdraw": "Retirer l'acceptation",
+            "sendCounter": "Envoyer une contre-offre",
+            "reviseCounter": "Réviser la contre-offre",
+            "downloadPdf": "Télécharger le PDF",
+            "printPdf": "Imprimer"
+        },
+        "counter": {
+            "title": "Votre contre-offre",
+            "hint": "Modifiez les prix dans la colonne {{tier}} ci-dessus, puis indiquez-nous ce qui vous conviendrait mieux.",
+            "placeholder": "Dites-nous ce qui vous conviendrait mieux…",
+            "cancel": "Annuler",
+            "submit": "Envoyer la contre-offre"
+        },
+        "language": "Langue",
+        "expiration": {
+            "validUntil": "Valable jusqu'au",
+            "noExpiration": "Aucune date d'expiration"
+        },
+        "revisions": {
+            "title": "Révisions de prix",
+            "createdOn": "Devis créé le {{date}}",
+            "updatedDaysLater": "Prix mis à jour {{days}} jours plus tard, le {{date}}"
+        },
+        "paymentOptions": {
+            "title": "Options de paiement",
+            "basedOnMonthly": "Basé sur le devis mensuel {{tier}}",
+            "plan": "Plan",
+            "period": "Période de service",
+            "total": "Total dû",
+            "notes": "Notes",
+            "months": "{{count}} mois",
+            "promoOff": "{{amount}} DE RÉDUCTION",
+            "types": {
+                "monthly": "Plan mensuel",
+                "quarterly": "Plan trimestriel (3 mois)",
+                "semi_annual": "Plan semestriel (6 mois)",
+                "annual": "Abonnement annuel"
+            }
+        },
+        "sections": {
+            "scope": "1. Solution du catalogue",
+            "sla": "2. Accord de niveau de service (SLA)",
+            "commercial": "3. Proposition commerciale",
+            "generalities": "4. Informations générales",
+            "validity": "5. Validité de la proposition"
+        },
+        "cover": {
+            "version": "Version",
+            "revised": "Révisé",
+            "subject": "Objet",
+            "defaultIntro": "Verifik présente la proposition commerciale suivante pour {{company}}.",
+            "defaultIntroGeneric": "Verifik présente la proposition commerciale suivante à votre considération."
+        },
+        "scope": {
+            "intro": "Le catalogue présente des solutions basées sur API pour optimiser les consultations de données gouvernementales publiques.",
+            "sampleTitle": "Portée du catalogue (exemple)",
+            "implementationTitle": "Implémentation : API",
+            "implementationBody": "Implémentation API et intégration des solutions Verifik proposées de manière granulaire via API. Cette option exige une plus grande implication de l'équipe technique de {{company}} en développement backend et frontend pour opérer les solutions selon les besoins du projet.",
+            "countries": "Pays couverts",
+            "endpoints": "Endpoints sélectionnés",
+            "categories": "Catégories",
+            "docsLink": "Voir la documentation technique"
+        },
+        "categoryLabels": {
+            "apiRequest": "Vérification DB"
+        },
+        "commercial": {
+            "monthlyOptionTitle": "Option 1 : abonnement mensuel",
+            "monthlySubtitle": "Ces tarifs s'appliquent aux plans mensuels.",
+            "monthlyNotes": [
+                "Les services Verifik sont proposés de manière granulaire — vous pouvez ajouter ou retirer des API selon vos besoins.",
+                "Les prix n'incluent pas les taxes applicables.",
+                "Les volumes non utilisés ne sont pas reportés au mois suivant."
+            ],
+            "annualOptionTitle": "Option 2 : abonnement annuel",
+            "annualSubtitle": "Ces tarifs s'appliquent aux engagements annuels.",
+            "annualNotes": [
+                "L'abonnement annuel peut inclure des remises sur volume.",
+                "La facturation est effectuée selon les conditions convenues dans la proposition.",
+                "Les changements de portée peuvent être révisés avec l'équipe commerciale."
+            ],
+            "additionalsTitle": "Coûts supplémentaires",
+            "additionals": [
+                "Les requêtes dépassant le volume convenu peuvent être facturées au tarif unitaire applicable.",
+                "Les intégrations ou développements sur mesure sont cotés séparément.",
+                "Les coûts de support premium, le cas échéant, sont indiqués dans la proposition."
+            ]
+        },
+        "generalities": {
+            "items": [
+                "Les valeurs de cette proposition sont exprimées en dollars américains (USD), sauf indication contraire.",
+                "Les taxes, retenues ou frais bancaires ne sont pas inclus, sauf mention explicite.",
+                "L'activation du service dépend de la complétion des exigences contractuelles, techniques et de facturation."
+            ]
+        },
+        "validitySection": {
+            "until": "Cette proposition est valable jusqu'au {{date}}.",
+            "noExpiration": "Cette proposition ne définit pas de date d'expiration."
+        },
+        "sla": {
+            "channelsTitle": "Canaux de support",
+            "channels": [
+                "E-mail et tickets de support",
+                "Canaux commerciaux ou techniques convenus avec le client"
+            ],
+            "hoursTitle": "Horaires de service",
+            "hours": [
+                "Support standard pendant les jours ouvrables.",
+                "Les incidents critiques sont priorisés selon la sévérité."
+            ],
+            "severityTitle": "Sévérités",
+            "severities": [
+                "Critique : indisponibilité totale d'un service de production.",
+                "Urgent : dégradation importante affectant les flux principaux.",
+                "Moyen : impact partiel ou contournement disponible.",
+                "Normal : demandes générales, questions ou améliorations."
+            ],
+            "responseTitle": "Temps de réponse",
+            "responseHeaders": [
+                "Sévérité",
+                "Temps de première réponse"
+            ],
+            "responseRows": {
+                "critical": [
+                    "Critique",
+                    "Jusqu'à 4 heures ouvrables"
+                ],
+                "urgent": [
+                    "Urgent",
+                    "Jusqu'à 8 heures ouvrables"
+                ],
+                "medium": [
+                    "Moyen",
+                    "Jusqu'à 2 jours ouvrables"
+                ],
+                "normal": [
+                    "Normal",
+                    "Jusqu'à 5 jours ouvrables"
+                ]
+            },
+            "availabilityTitle": "Disponibilité de référence",
+            "availabilityHeaders": [
+                "Service",
+                "Disponibilité cible"
+            ],
+            "availabilityRows": {
+                "smartCheck": [
+                    "SmartCheck / API de données",
+                    "99,5 %"
+                ],
+                "smartAccessComm": [
+                    "SmartAccess — communications",
+                    "99,0 %"
+                ],
+                "smartAccessBio": [
+                    "SmartAccess — biométrie",
+                    "99,0 %"
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll — communications",
+                    "99,0 %"
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll — biométrie",
+                    "99,0 %"
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll — documents",
+                    "99,0 %"
+                ],
+                "smartEnrollDataApi": [
+                    "SmartEnroll — DataAPI",
+                    "99,5 %"
+                ]
+            },
+            "definitionsTitle": "Définitions",
+            "definitions": [
+                "La disponibilité est mesurée sur les composants contrôlés par Verifik.",
+                "Les maintenances programmées, services tiers et causes de force majeure sont exclus.",
+                "Les temps de réponse commencent lorsque le ticket contient les informations nécessaires au diagnostic."
+            ],
+            "responseNote": "Les temps indiqués sont des objectifs de première réponse et ne garantissent pas le temps de résolution.",
+            "compensationTitle": "Compensation de service",
+            "compensationIntro": "Toute compensation applicable est évaluée selon l'impact, la durée et les conditions commerciales convenues.",
+            "compensationHeaders": [
+                "Service",
+                "Compensation"
+            ],
+            "compensationRows": {
+                "dataApiHigh": [
+                    "Data API — impact élevé",
+                    "Crédit de service à évaluer"
+                ],
+                "dataApiLow": [
+                    "Data API — impact faible",
+                    "Crédit de service à évaluer"
+                ],
+                "emailTelHigh": [
+                    "E-mail / téléphone — impact élevé",
+                    "Crédit de service à évaluer"
+                ],
+                "emailTelLow": [
+                    "E-mail / téléphone — impact faible",
+                    "Crédit de service à évaluer"
+                ],
+                "biometricsHigh": [
+                    "Biométrie — impact élevé",
+                    "Crédit de service à évaluer"
+                ],
+                "biometricsLow": [
+                    "Biométrie — impact faible",
+                    "Crédit de service à évaluer"
+                ],
+                "docScanHigh": [
+                    "Scan de documents — impact élevé",
+                    "Crédit de service à évaluer"
+                ],
+                "docScanLow": [
+                    "Scan de documents — impact faible",
+                    "Crédit de service à évaluer"
+                ]
+            },
+            "compensationDisclaimer": "Les compensations ne s'appliquent pas aux erreurs causées par le client, des intégrations tierces ou une mauvaise configuration.",
+            "billingTitle": "Facturation",
+            "billingIntro": "La facturation est réalisée selon les volumes, plans et prix indiqués dans la proposition commerciale.",
+            "billingTableTitle": "Concepts de facturation",
+            "billingHeaders": [
+                "Concept",
+                "Description"
+            ],
+            "billingRows": {
+                "codes": [
+                    "Codes / requêtes",
+                    "Facturés selon l'utilisation ou le plan sélectionné."
+                ]
+            },
+            "maintenanceTitle": "Maintenance",
+            "maintenance": [
+                "Les maintenances programmées seront communiquées avec un préavis raisonnable lorsque possible.",
+                "Les fenêtres de maintenance peuvent affecter temporairement certains services."
+            ],
+            "adaptationsTitle": "Adaptations",
+            "adaptations": [
+                "Toute adaptation non incluse dans la portée initiale peut être estimée séparément.",
+                "Les délais dépendent de la complexité technique et de la disponibilité des informations du client."
+            ]
+        },
+        "footer": {
+            "tagline": "Verifik — Infrastructure de confiance pour vos validations",
+            "legalEntity": "VERIFIK LLC — Accélérer la confiance numérique",
+            "email": "info@verifik.co",
+            "website": "verifik.co"
+        }
     },
     "batchTutorial": {
         "stepOf": "Étape {{current}} sur {{total}}",

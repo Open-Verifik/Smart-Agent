@@ -1087,7 +1087,7 @@
         "warningCompleteRemovalDescription": "Las siguientes personas se eliminarán completamente del sistema porque esta es su única colección:",
         "warningCompleteRemovalConfirmation": "¿Estás seguro de que quieres continuar? Esta acción no se puede deshacer.",
         "scopeFilterLabel": "Tipo",
-        "scopeFilterOnboarding": "Onboarding (SmartEnroll)",
+        "scopeFilterOnboarding": "Inscripciones (SmartEnroll)",
         "scopeFilterAll": "Todas las colecciones de la cuenta",
         "scopeFilterRemove": "Quitar filtro",
         "scopeFilterRestore": "Mostrar solo SmartEnroll",
@@ -1269,7 +1269,7 @@
             "active": "Activo",
             "signupForm": "Formulario de registro",
             "documents": "Documentos",
-            "biometrics": "Biometría",
+            "biometrics": "Vivacidad",
             "apiIntegration": "Integración API",
             "members": "Miembros",
             "addMember": "Añadir miembro",
@@ -1349,7 +1349,7 @@
         "detail": {
             "sectionSignup": "Formulario de registro",
             "sectionDocuments": "Documentos",
-            "sectionLiveness": "Biometría",
+            "sectionLiveness": "Vivacidad",
             "sectionApi": "Integración API",
             "apiIntro": "Usa estos identificadores al integrar la API de Verifik.",
             "projectId": "ID de proyecto",
@@ -1490,18 +1490,18 @@
                 "editBrand": "Editar marca"
             },
             "summary": {
-                "edit": "Edit",
-                "basic": "{{ countries }} allowed countries",
-                "signup": "Email {{ email }} · Phone {{ phone }}",
-                "documents": "{{ count }} country configurations",
-                "business": "Business",
-                "representatives": "{{ min }}–{{ max }} representatives",
-                "liveness": "Min liveness {{ score }}%",
-                "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
-                "ui": "Logo {{ logo }} · Brand color {{ color }}",
+                "edit": "Editar",
+                "basic": "{{ countries }} países permitidos",
+                "signup": "Correo {{ email }} · Teléfono {{ phone }}",
+                "documents": "{{ count }} configuraciones de país",
+                "business": "Empresa",
+                "representatives": "{{ min }}–{{ max }} representantes",
+                "liveness": "Vivacidad mín. {{ score }}%",
+                "integrations": "Redirección {{ redirect }} · Webhook {{ webhook }}",
+                "ui": "Logo {{ logo }} · Color de marca {{ color }}",
                 "target": {
-                    "personal": "Individual onboarding",
-                    "business": "Business onboarding"
+                    "personal": "Alta individual",
+                    "business": "Alta empresarial"
                 }
             }
         },
@@ -1518,7 +1518,7 @@
                 "email": "Correo",
                 "phone": "Teléfono",
                 "documents": "Documentos",
-                "biometrics": "Biometría",
+                "biometrics": "Vivacidad",
                 "compare": "Comparación facial",
                 "verdict": "Resultado"
             },
@@ -1529,8 +1529,8 @@
                 "phone": "Validación de teléfono",
                 "document": "Documento",
                 "documentFailed": "Intento de documento",
-                "biometric": "Biometría",
-                "biometricFailed": "Intento biométrico",
+                "biometric": "Vivacidad",
+                "biometricFailed": "Intento de vivacidad",
                 "faceCompare": "Comparación facial",
                 "nameMatch": "Coincidencia de nombre",
                 "verdict": "Resultado global",
@@ -1585,12 +1585,12 @@
             "frontScan": "Frente",
             "backScan": "Reverso",
             "documentFace": "Retrato del documento",
-            "documentLiveness": "Viveza del documento",
+            "documentLiveness": "Vivacidad del documento",
             "livenessPassed": "Aprobado",
             "livenessFailed": "Rechazado",
             "ocr": "Datos extraídos",
-            "livenessScore": "Puntuación de viveza",
-            "livenessMinimum": "Mínimo de viveza",
+            "livenessScore": "Puntuación de vivacidad",
+            "livenessMinimum": "Mínimo de vivacidad",
             "livenessSelfie": "Selfie del registro",
             "compareScore": "Similitud facial",
             "compareMinimum": "Mínimo requerido",
@@ -1667,7 +1667,7 @@
             "manualReason": {
                 "staleThreshold": "La comparación facial usó un umbral obsoleto (guardado {{stored}}%, configurado {{configured}}%).",
                 "faceCompareFailed": "Comparación facial por debajo del umbral ({{score}}%, requerido {{threshold}}%).",
-                "livenessFailed": "Viveza por debajo del umbral ({{score}}%, requerido {{threshold}}%).",
+                "livenessFailed": "Vivacidad por debajo del umbral ({{score}}%, requerido {{threshold}}%).",
                 "namesMismatch": "Baja coincidencia de nombre ({{score}}%; mínimo habitual 80%).",
                 "documentUnverified": "Estado del documento: {{status}}.",
                 "documentCategoryUnknown": "No se pudo determinar la categoría del documento.",
@@ -1761,8 +1761,8 @@
             "unsaved_changes_message": "¿Salir sin guardar los cambios?",
             "exit_without_saving": "Salir sin guardar",
             "stub": {
-                "title": "Step",
-                "placeholder": "This step is wired in upcoming phases of the wizard."
+                "title": "Paso",
+                "placeholder": "Este paso se conectará en fases futuras del asistente."
             },
             "steps": {
                 "basic_setup": "Configuración básica",
@@ -1770,7 +1770,7 @@
                 "documents": "Documentos",
                 "business": "Empresa",
                 "representatives": "Representantes",
-                "liveness": "Liveness",
+                "liveness": "Vivacidad",
                 "integrations": "Integraciones",
                 "user_interface": "Interfaz",
                 "steps_count": "Paso {{current}} de {{total}}"
@@ -1897,35 +1897,35 @@
             },
             "signupForm": {
                 "target": {
-                    "title": "Who are you onboarding?",
-                    "subtitle": "Choose between an individual or a business flow.",
-                    "personal": "Individual",
-                    "business": "Business"
+                    "title": "¿A quién estás dando de alta?",
+                    "subtitle": "Elige entre un flujo individual o empresarial.",
+                    "personal": "Persona física",
+                    "business": "Empresa"
                 },
                 "fullName": {
-                    "title": "Full name",
-                    "subtitle": "How customer name fields are presented.",
-                    "separate": "Two fields (first / last)",
-                    "together": "Single field"
+                    "title": "Nombre completo",
+                    "subtitle": "Cómo se presentan los campos de nombre del cliente.",
+                    "separate": "Dos campos (nombre / apellido)",
+                    "together": "Un solo campo"
                 },
                 "business": {
-                    "title": "Business basic info",
-                    "subtitle": "How company information is collected.",
-                    "addressTitle": "Business address",
-                    "addressSubtitle": "Ask for a business or premises address during sign-up.",
-                    "nameNumber": "Name + tax number",
-                    "nameOnly": "Company name only"
+                    "title": "Información básica de la empresa",
+                    "subtitle": "Cómo se recopila la información de la empresa.",
+                    "addressTitle": "Dirección de la empresa",
+                    "addressSubtitle": "Solicitar una dirección comercial o del local durante el registro.",
+                    "nameNumber": "Nombre + número fiscal",
+                    "nameOnly": "Solo razón social"
                 },
                 "additionalFields": {
-                    "title": "Additional information",
-                    "subtitle": "Optional extra fields on the enrollment form.",
-                    "error": "Select at least one field when this option is enabled.",
-                    "gender": "Gender",
-                    "country": "Country",
-                    "dateOfBirth": "Date of birth",
-                    "address": "Address",
-                    "age": "Age",
-                    "postalCode": "Postal code"
+                    "title": "Información adicional",
+                    "subtitle": "Campos extra opcionales en el formulario de inscripción.",
+                    "error": "Selecciona al menos un campo cuando esta opción esté activada.",
+                    "gender": "Género",
+                    "country": "País",
+                    "dateOfBirth": "Fecha de nacimiento",
+                    "address": "Dirección",
+                    "age": "Edad",
+                    "postalCode": "Código postal"
                 },
                 "email": {
                     "title": "Correo electrónico",
@@ -1945,12 +1945,12 @@
                     "countryCode": "Código de país predeterminado",
                     "searchCountry": "Buscar países..."
                 },
-                "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
+                "atLeastOneContactMethod": "Se requiere al menos un método de contacto (correo o teléfono).",
                 "legal": {
-                    "title": "Legal disclosures",
-                    "subtitle": "Show consent links inside the enrollment flow.",
-                    "privacy": "Show privacy notice",
-                    "terms": "Show terms & conditions",
+                    "title": "Avisos legales",
+                    "subtitle": "Mostrar enlaces de consentimiento dentro del flujo de inscripción.",
+                    "privacy": "Mostrar aviso de privacidad",
+                    "terms": "Mostrar términos y condiciones",
                     "urlRequired": "La URL es obligatoria.",
                     "urlInvalid": "Introduce una URL válida (https://...)."
                 }
@@ -1961,10 +1961,10 @@
                 "requirementHelp": "Decide si la biometría es obligatoria, opcional o se omite para cada cliente.",
                 "actualScore": "Puntuación actual",
                 "kyc": {
-                    "title": "Tipo de KYC",
-                    "subtitle": "Elige cómo se almacenan y comparten las pruebas de identidad.",
-                    "traditional": "KYC tradicional",
-                    "zeroKnowledge": "KYC de conocimiento cero",
+                    "title": "Tipo de biometría",
+                    "subtitle": "Elige cómo se almacenan y comparten las pruebas biométricas.",
+                    "traditional": "Plantilla tradicional",
+                    "zeroKnowledge": "HumanAuthn (sin plantillas)",
                     "traditionalDescription": "Almacena la plantilla biométrica del cliente junto a su identidad para volver a verificar y hacer búsquedas.",
                     "zeroKnowledgeDescription": "Verifica al cliente localmente y solo guarda una prueba que preserva la privacidad — no se conserva ninguna plantilla biométrica."
                 },
@@ -1975,7 +1975,7 @@
                     "searchMode": "Modo de búsqueda",
                     "fast": "Rápido",
                     "accurate": "Preciso",
-                    "minScore": "Puntuación mínima de viveza",
+                    "minScore": "Puntuación mínima de vivacidad",
                     "minScoreSubtitle": "Confianza mínima requerida para aceptar que el selfie sea de una persona viva.",
                     "minScoreHelp": "Valores más altos reducen el spoofing pero rechazan más usuarios reales.",
                     "compareMinScore": "Puntuación mínima de comparación facial",
@@ -1988,19 +1988,19 @@
                 }
             },
             "representatives": {
-                "title": "Legal representatives",
-                "subtitle": "Define who must enroll on behalf of the business.",
+                "title": "Representantes legales",
+                "subtitle": "Define quién debe inscribirse en nombre de la empresa.",
                 "counts": {
-                    "title": "Number of representatives",
-                    "subtitle": "How many people must complete the representative flow.",
-                    "min": "Minimum",
-                    "max": "Maximum",
-                    "notification": "Notification channel"
+                    "title": "Número de representantes",
+                    "subtitle": "Cuántas personas deben completar el flujo de representante.",
+                    "min": "Mínimo",
+                    "max": "Máximo",
+                    "notification": "Canal de notificación"
                 },
                 "tabs": {
-                    "information": "Information",
-                    "documents": "Documents",
-                    "liveness": "Liveness"
+                    "information": "Información",
+                    "documents": "Documentos",
+                    "liveness": "Vivacidad"
                 }
             },
             "integrations": {
@@ -3538,7 +3538,7 @@
             "twoMonthsFree": "2 meses gratis con facturación anual",
             "whatsIncluded": "Qué incluye",
             "orderSummary": "Resumen del pedido",
-            "planLabel": "plan",
+            "planLabel": "Plan",
             "monthlyEquivalent": "Equivalente mensual",
             "starts": "Inicia",
             "renews": "Renueva",
@@ -3584,7 +3584,7 @@
             "button": "Comparar precios de API",
             "title": "Precios de API por plan",
             "apiName": "API",
-            "basePrice": "Base $/req",
+            "basePrice": "Base $/solicitud",
             "backToPlans": "Volver a planes",
             "empty": "No hay APIs disponibles.",
             "searchPlaceholder": "Buscar por nombre o URL del endpoint"
@@ -4299,7 +4299,7 @@
     },
     "smartEnrollDemos": {
         "hub": {
-            "title": "Demos",
+            "title": "Demostraciones",
             "metaTitle": "Panel de demos",
             "metaDescription": "Autenticación anclada a la presencia humana. Ejecuta en el navegador las demos en vivo de Verifik para coincidencia facial, vida y HumanID.",
             "heroEyebrow": "Biometría · Demos en vivo",
@@ -5466,7 +5466,7 @@
             "unlockLivenessOff": "Desactivado",
             "unlockToleranceTitle": "Tolerancia de prueba de vida",
             "unlockToleranceHint": "Qué tan estrictas deben ser las comprobaciones anti-spoof (prueba de vida) cuando se requiere un rostro en vivo al cifrar o descifrar.",
-            "toleranceRegularLabel": "Regular",
+            "toleranceRegularLabel": "Normal",
             "toleranceRegularDescription": "Más permisivo; fotos de alta calidad pueden pasar como «en vivo». Prefiere Endurecido cuando necesites bloquear imágenes estáticas.",
             "toleranceSoftLabel": "Suave",
             "toleranceSoftDescription": "Prueba de vida más indulgente — menos fallos, ligeramente mayor riesgo de spoofing.",
@@ -6316,26 +6316,80 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
+            "responseHeaders": [
+                "Criticidad",
+                "Atención",
+                "Revisión",
+                "Escalamiento",
+                "Solución"
+            ],
             "responseRows": {
-                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
-                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
+                "critical": [
+                    "Crítico",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "urgent": [
+                    "Urgente",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "medium": [
+                    "Medio",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ],
+                "normal": [
+                    "Normal",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
+            "availabilityHeaders": [
+                "Producto",
+                "Disponibilidad",
+                "Notas"
+            ],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
+                "smartAccessComm": [
+                    "SmartAccess (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll (Escaneo de docs)",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -6358,8 +6412,16 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% o mayor",
+                    "Sin crédito",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% o menor",
+                    "Compensación",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -6395,9 +6457,15 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": ["Cobro", "Ausente de cobro"],
+            "billingHeaders": [
+                "Cobro",
+                "Ausente de cobro"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",

@@ -108,6 +108,10 @@
         "validateOneRecordHintCitizen": "Valide detalhes de um único cidadão.",
         "validateOneRecordHintCompany": "Valide detalhes de uma única empresa.",
         "validateOneRecordHintVehicle": "Valide detalhes de um único veículo.",
+        "documentTypeCompatibilityTitle": "Compatibilidade por tipo de documento",
+        "stepWillRun": "Esta etapa será executada",
+        "stepWillSkip": "Esta etapa será ignorada",
+        "skipReasonDocumentType": "O tipo de documento selecionado não é compatível com esta etapa.",
         "quickValidateTitle": "Validação rápida",
         "singleRecordTab": "Validação única",
         "batchUploadTab": "Upload em lote",
@@ -444,7 +448,70 @@
         "backHome": "Voltar ao início",
         "closeAria": "Fechar"
     },
+    "messagesHub": {
+        "railTitle": "Mensagens",
+        "headerTitle": "Mensagens",
+        "tabs": {
+            "notifications": "Notificações",
+            "support": "Suporte"
+        },
+        "fullscreenEnterAria": "Expandir painel de mensagens",
+        "fullscreenExitAria": "Sair do ecrã completo",
+        "closeAria": "Fechar mensagens"
+    },
+    "appNotifications": {
+        "banners": {
+            "dismissAria": "Dispensar banner"
+        },
+        "inbox": {
+            "guest": {
+                "title": "Inicie sessão para ver notificações",
+                "body": "Atualizações de campanhas e avisos da conta aparecem aqui depois de iniciar sessão com a sua conta Verifik.",
+                "signIn": "Iniciar sessão"
+            },
+            "workspaceOnly": {
+                "title": "Conta Verifik necessária",
+                "body": "As notificações exigem uma sessão de workspace Verifik. O início de sessão apenas com carteira não consegue carregar a caixa de entrada; inicie sessão com a sua conta Verifik.",
+                "signIn": "Iniciar sessão com Verifik"
+            },
+            "listHeading": "Notificações",
+            "detailHeading": "Detalhes",
+            "readLabel": "Lida",
+            "emptyList": "Ainda não há notificações",
+            "pendingOutsideInbox": {
+                "title": "Tem uma notificação pendente",
+                "body": "Esta atualização pode aparecer como banner na página inicial ou num popup. Verifique essas áreas ou atualize esta lista."
+            },
+            "backAria": "Voltar à lista de notificações",
+            "legalLink": "Ver documento legal",
+            "legalVersion": "Versão {{version}}",
+            "legalAcceptCheckbox": "Li e aceito os termos acima",
+            "ctaDefault": "Saber mais",
+            "categories": {
+                "system": "Sistema",
+                "maintenance": "Manutenção",
+                "billing": "Faturamento",
+                "legal": "Legal",
+                "product": "Produto",
+                "security": "Segurança"
+            },
+            "actions": {
+                "dismiss": "Dispensar",
+                "markSeen": "Marcar como vista",
+                "acknowledge": "Confirmar",
+                "accept": "Aceitar"
+            },
+            "errors": {
+                "loadList": "Não foi possível carregar as notificações. Tente novamente.",
+                "loadDetail": "Não foi possível carregar esta notificação.",
+                "action": "A ação falhou. Tente novamente."
+            }
+        }
+    },
     "home": {
+        "notifications": {
+            "openFromEmail": "A abrir as suas notificações…"
+        },
         "welcome": {
             "title": "A Camada de Confiança para Agentes de IA",
             "subtitle": "Verifique humanos e empresas por trás de agentes autônomos. Alimentado por mais de 14 integrações oficiais de bancos de dados governamentais e o protocolo de pagamento x402."
@@ -627,7 +694,8 @@
     "accountEnv": {
         "verifyStrip": {
             "text": "Verifique a sua conta para aceder aos créditos gratuitos iniciais e mudar para Produção.",
-            "cta": "Verificar identidade"
+            "cta": "Verificar identidade",
+            "pendingText": "A verificação da sua conta está em análise."
         },
         "identityVerificationModal": {
             "title": "Verifique sua identidade",
@@ -1019,7 +1087,7 @@
         "warningCompleteRemovalDescription": "As seguintes pessoas serão completamente removidas do sistema porque esta é a sua única coleção:",
         "warningCompleteRemovalConfirmation": "Tem a certeza de que deseja continuar? Esta ação não pode ser desfeita.",
         "scopeFilterLabel": "Tipo",
-        "scopeFilterOnboarding": "Onboarding (SmartEnroll)",
+        "scopeFilterOnboarding": "Inscrições (SmartEnroll)",
         "scopeFilterAll": "Todas as coleções da conta",
         "scopeFilterRemove": "Remover filtro",
         "scopeFilterRestore": "Mostrar apenas SmartEnroll",
@@ -1141,11 +1209,11 @@
         "title": "Projetos",
         "subtitle": "Veja os seus projetos Smart Enroll e abra os registos de inscrição.",
         "empty": "Nenhum projeto encontrado.",
-        "emptyHeroTitle": "Create your first project",
-        "emptyHeroSubtitle": "Configure signup, documents, biometrics and branding step by step, then publish your live enrollment flow.",
-        "createProject": "Create project",
-        "emptyStaffTitle": "No projects assigned",
-        "emptyStaffSubtitle": "You don't have access to any Smart Enroll projects yet. Ask a workspace administrator to add you.",
+        "emptyHeroTitle": "Crie o seu primeiro projeto",
+        "emptyHeroSubtitle": "Configure registo, documentos, vivacidade e marca passo a passo e publique o seu fluxo de inscrição em vivo.",
+        "createProject": "Criar projeto",
+        "emptyStaffTitle": "Sem projetos atribuídos",
+        "emptyStaffSubtitle": "Ainda não tem acesso a projetos Smart Enroll. Peça a um administrador do workspace para o adicionar.",
         "updated": "Atualizado",
         "loadError": "Não foi possível carregar os projetos. Tente novamente.",
         "plansLoadError": "Não foi possível verificar a sua subscrição Smart Enroll. Tente novamente.",
@@ -1173,7 +1241,7 @@
         "colEmail": "E-mail",
         "colPhone": "Telefone",
         "colCreated": "Criado",
-        "filterStatus": "Status",
+        "filterStatus": "Estado",
         "clearFilters": "Limpar filtros",
         "dateRange": "Intervalo de datas",
         "dateStart": "Data inicial",
@@ -1201,7 +1269,7 @@
             "active": "Ativo",
             "signupForm": "Formulário de registo",
             "documents": "Documentos",
-            "biometrics": "Biometria",
+            "biometrics": "Vivacidade",
             "apiIntegration": "Integração API",
             "members": "Membros",
             "addMember": "Adicionar membro",
@@ -1281,7 +1349,7 @@
         "detail": {
             "sectionSignup": "Formulário de registo",
             "sectionDocuments": "Documentos",
-            "sectionLiveness": "Biometria",
+            "sectionLiveness": "Vivacidade",
             "sectionApi": "Integração API",
             "apiIntro": "Usa estes identificadores ao integrar a API Verifik.",
             "projectId": "ID do projeto",
@@ -1422,18 +1490,18 @@
                 "editBrand": "Editar marca"
             },
             "summary": {
-                "edit": "Edit",
-                "basic": "{{ countries }} allowed countries",
-                "signup": "Email {{ email }} · Phone {{ phone }}",
-                "documents": "{{ count }} country configurations",
-                "business": "Business",
-                "representatives": "{{ min }}–{{ max }} representatives",
-                "liveness": "Min liveness {{ score }}%",
-                "integrations": "Redirect {{ redirect }} · Webhook {{ webhook }}",
-                "ui": "Logo {{ logo }} · Brand color {{ color }}",
+                "edit": "Editar",
+                "basic": "{{ countries }} países permitidos",
+                "signup": "E-mail {{ email }} · Telefone {{ phone }}",
+                "documents": "{{ count }} configurações de país",
+                "business": "Empresa",
+                "representatives": "{{ min }}–{{ max }} representantes",
+                "liveness": "Vivacidade mín. {{ score }}%",
+                "integrations": "Redirecionamento {{ redirect }} · Webhook {{ webhook }}",
+                "ui": "Logo {{ logo }} · Cor da marca {{ color }}",
                 "target": {
-                    "personal": "Individual onboarding",
-                    "business": "Business onboarding"
+                    "personal": "Registo individual",
+                    "business": "Registo empresarial"
                 }
             }
         },
@@ -1450,7 +1518,7 @@
                 "email": "E-mail",
                 "phone": "Telefone",
                 "documents": "Documentos",
-                "biometrics": "Biometria",
+                "biometrics": "Vivacidade",
                 "compare": "Comparação facial",
                 "verdict": "Resultado"
             },
@@ -1461,8 +1529,8 @@
                 "phone": "Validação de telefone",
                 "document": "Documento",
                 "documentFailed": "Tentativa de documento",
-                "biometric": "Biometria",
-                "biometricFailed": "Tentativa biométrica",
+                "biometric": "Vivacidade",
+                "biometricFailed": "Tentativa de vivacidade",
                 "faceCompare": "Comparação facial",
                 "nameMatch": "Correspondência de nome",
                 "verdict": "Resultado global",
@@ -1690,8 +1758,8 @@
             "unsaved_changes_message": "Sair sem salvar as alterações?",
             "exit_without_saving": "Sair sem salvar",
             "stub": {
-                "title": "Step",
-                "placeholder": "This step is wired in upcoming phases of the wizard."
+                "title": "Passo",
+                "placeholder": "Este passo será ligado em fases futuras do assistente."
             },
             "steps": {
                 "basic_setup": "Configuração básica",
@@ -1699,7 +1767,7 @@
                 "documents": "Documentos",
                 "business": "Empresa",
                 "representatives": "Representantes",
-                "liveness": "Liveness",
+                "liveness": "Vivacidade",
                 "integrations": "Integrações",
                 "user_interface": "Interface",
                 "steps_count": "Etapa {{current}} de {{total}}"
@@ -1826,35 +1894,35 @@
             },
             "signupForm": {
                 "target": {
-                    "title": "Who are you onboarding?",
-                    "subtitle": "Choose between an individual or a business flow.",
-                    "personal": "Individual",
-                    "business": "Business"
+                    "title": "Quem está a registar?",
+                    "subtitle": "Escolha entre um fluxo individual ou empresarial.",
+                    "personal": "Pessoa física",
+                    "business": "Empresa"
                 },
                 "fullName": {
-                    "title": "Full name",
-                    "subtitle": "How customer name fields are presented.",
-                    "separate": "Two fields (first / last)",
-                    "together": "Single field"
+                    "title": "Nome completo",
+                    "subtitle": "Como os campos de nome do cliente são apresentados.",
+                    "separate": "Dois campos (nome / apelido)",
+                    "together": "Campo único"
                 },
                 "business": {
-                    "title": "Business basic info",
-                    "subtitle": "How company information is collected.",
-                    "addressTitle": "Business address",
-                    "addressSubtitle": "Ask for a business or premises address during sign-up.",
-                    "nameNumber": "Name + tax number",
-                    "nameOnly": "Company name only"
+                    "title": "Informação básica da empresa",
+                    "subtitle": "Como a informação da empresa é recolhida.",
+                    "addressTitle": "Morada da empresa",
+                    "addressSubtitle": "Pedir uma morada comercial ou do estabelecimento durante o registo.",
+                    "nameNumber": "Nome + número fiscal",
+                    "nameOnly": "Apenas razão social"
                 },
                 "additionalFields": {
-                    "title": "Additional information",
-                    "subtitle": "Optional extra fields on the enrollment form.",
-                    "error": "Select at least one field when this option is enabled.",
-                    "gender": "Gender",
-                    "country": "Country",
-                    "dateOfBirth": "Date of birth",
-                    "address": "Address",
-                    "age": "Age",
-                    "postalCode": "Postal code"
+                    "title": "Informação adicional",
+                    "subtitle": "Campos extra opcionais no formulário de inscrição.",
+                    "error": "Selecione pelo menos um campo quando esta opção estiver ativa.",
+                    "gender": "Género",
+                    "country": "País",
+                    "dateOfBirth": "Data de nascimento",
+                    "address": "Morada",
+                    "age": "Idade",
+                    "postalCode": "Código postal"
                 },
                 "email": {
                     "title": "Endereço de e-mail",
@@ -1874,12 +1942,12 @@
                     "countryCode": "Código de país predefinido",
                     "searchCountry": "Procurar países..."
                 },
-                "atLeastOneContactMethod": "At least one contact method (email or phone) is required.",
+                "atLeastOneContactMethod": "É necessário pelo menos um método de contacto (e-mail ou telefone).",
                 "legal": {
-                    "title": "Legal disclosures",
-                    "subtitle": "Show consent links inside the enrollment flow.",
-                    "privacy": "Show privacy notice",
-                    "terms": "Show terms & conditions",
+                    "title": "Avisos legais",
+                    "subtitle": "Mostrar ligações de consentimento no fluxo de inscrição.",
+                    "privacy": "Mostrar aviso de privacidade",
+                    "terms": "Mostrar termos e condições",
                     "urlRequired": "A URL é obrigatória.",
                     "urlInvalid": "Introduza um URL válido (https://...)."
                 }
@@ -1890,10 +1958,10 @@
                 "requirementHelp": "Escolha se a biometria é obrigatória, opcional ou ignorada para cada cliente.",
                 "actualScore": "Pontuação atual",
                 "kyc": {
-                    "title": "Tipo de KYC",
-                    "subtitle": "Escolha como as provas de identidade são armazenadas e compartilhadas.",
-                    "traditional": "KYC tradicional",
-                    "zeroKnowledge": "KYC de conhecimento zero",
+                    "title": "Tipo de biometria",
+                    "subtitle": "Escolha como as provas biométricas são armazenadas e partilhadas.",
+                    "traditional": "Modelo tradicional",
+                    "zeroKnowledge": "HumanAuthn (sem modelos)",
                     "traditionalDescription": "Armazena o template biométrico do cliente junto ao registro de identidade para reexecutar verificações e fazer buscas.",
                     "zeroKnowledgeDescription": "Verifica o cliente localmente e mantém apenas uma prova que preserva a privacidade — nenhum template biométrico é retido."
                 },
@@ -1917,19 +1985,19 @@
                 }
             },
             "representatives": {
-                "title": "Legal representatives",
-                "subtitle": "Define who must enroll on behalf of the business.",
+                "title": "Representantes legais",
+                "subtitle": "Defina quem deve inscrever-se em nome da empresa.",
                 "counts": {
-                    "title": "Number of representatives",
-                    "subtitle": "How many people must complete the representative flow.",
-                    "min": "Minimum",
-                    "max": "Maximum",
-                    "notification": "Notification channel"
+                    "title": "Número de representantes",
+                    "subtitle": "Quantas pessoas devem completar o fluxo de representante.",
+                    "min": "Mínimo",
+                    "max": "Máximo",
+                    "notification": "Canal de notificação"
                 },
                 "tabs": {
-                    "information": "Information",
-                    "documents": "Documents",
-                    "liveness": "Liveness"
+                    "information": "Informação",
+                    "documents": "Documentos",
+                    "liveness": "Vivacidade"
                 }
             },
             "integrations": {
@@ -2654,6 +2722,8 @@
             "business": "Empresa",
             "business_name": "Nome da Empresa",
             "business_name_placeholder": "Digite o nome da sua empresa",
+            "business_country": "País da empresa",
+            "business_country_placeholder": "Selecione o país da empresa",
             "document_type": "Tipo de Documento",
             "select_document_type": "Selecione o tipo de documento",
             "document_number": "Número do Documento",
@@ -2698,6 +2768,10 @@
             "saved": "Todas as alterações salvas",
             "status_complete": "Configuração completa",
             "status_incomplete": "Configuração incompleta",
+            "dian_nit_not_found": "Não encontramos este NIT na DIAN.",
+            "dian_name_mismatch": "O nome da empresa não corresponde ao registro da DIAN.",
+            "missing_billing_field": "Preencha este campo de faturamento.",
+            "nit_format_invalid": "Digite um NIT válido.",
             "type_desc": "Usamos isso para formatar as faturas corretamente. Você pode alterar antes de salvar.",
             "type_title": "Para quem será a fatura?",
             "unsaved": "Você tem alterações não salvas"
@@ -2897,7 +2971,8 @@
                 "descriptionPlaceholder": "Descrição",
                 "documentTypePlaceholder": "Selecione o tipo de documento",
                 "otherParameters": "Outros parâmetros",
-                "requiredFieldLegend": "* Campo obrigatório"
+                "requiredFieldLegend": "* Campo obrigatório",
+                "includeCostDescription": "Quando verdadeiro, a resposta inclui um bloco de créditos (credits, creditsCharged, charged, featureCode). Defina como falso ou remova esta linha para omitir."
             },
             "headers": {
                 "key": "Chave",
@@ -2945,6 +3020,12 @@
                 "invalidEnum": "\"{{value}}\" não é válido para \"{{field}}\". Esperado: {{expected}}.",
                 "invalidJsonBody": "O corpo deve ser JSON válido.",
                 "pathSegmentRequired": "O segmento de caminho da URL \"{{segment}}\" é obrigatório."
+            },
+            "sandboxProfiles": {
+                "title": "Perfis de sandbox",
+                "description": "Escolha um perfil de dados de teste para preencher rapidamente esta solicitação.",
+                "selectLabel": "Perfil de sandbox",
+                "profileMeta": "{{country}} · {{documentType}}"
             }
         },
         "responseViewer": {
@@ -3503,7 +3584,7 @@
             "button": "Comparar preços de API",
             "title": "Preços de API por plano",
             "apiName": "API",
-            "basePrice": "Base $/req",
+            "basePrice": "Base $/pedido",
             "backToPlans": "Voltar aos planos",
             "empty": "Nenhuma API disponível.",
             "searchPlaceholder": "Pesquisar por nome ou URL do endpoint"
@@ -4218,7 +4299,7 @@
     },
     "smartEnrollDemos": {
         "hub": {
-            "title": "Demos",
+            "title": "Demonstrações",
             "metaTitle": "Painel de demos",
             "metaDescription": "Autenticação ancorada na presença humana. Execute as demos biométricas ao vivo da Verifik para correspondência facial, vivacidade e HumanID no navegador.",
             "heroEyebrow": "Biometria · Demos ao vivo",
@@ -4354,7 +4435,7 @@
             "relatedDocsSubtitle": "Guias oficiais em docs.verifik.co",
             "tableHeader": "Cabeçalho",
             "tableValue": "Valor",
-            "tableParam": "Param",
+            "tableParam": "Parâmetro",
             "tableReq": "Obrig.",
             "tableDescription": "Descrição",
             "yes": "Sim",
@@ -5320,7 +5401,7 @@
             "navVault": "Cofre",
             "navIdentity": "Identidade",
             "navSecurity": "Segurança",
-            "navLogs": "Logs"
+            "navLogs": "Registos"
         },
         "humanidCreate": {
             "headerTitle": "Criar HumanID",
@@ -5385,7 +5466,7 @@
             "unlockLivenessOff": "Desligado",
             "unlockToleranceTitle": "Tolerância de vivacidade",
             "unlockToleranceHint": "Quão rigorosas devem ser as verificações anti-spoof (vivacidade) quando um rosto ao vivo é exigido na criptografia ou descriptografia.",
-            "toleranceRegularLabel": "Regular",
+            "toleranceRegularLabel": "Normal",
             "toleranceRegularDescription": "Mais permissivo; fotos de alta qualidade podem passar como «ao vivo». Prefira Endurecido quando precisar bloquear imagens estáticas.",
             "toleranceSoftLabel": "Suave",
             "toleranceSoftDescription": "Vivacidade mais indulgente — menos falhas, risco de spoof ligeiramente maior.",
@@ -5917,7 +5998,10 @@
         "endpointRequiredFieldsLabel": "Obrigatórios",
         "endpointConditionalFieldsLabel": "Condicionais",
         "endpointOptionalFieldsLabel": "Opcionais",
-        "endpointNoFieldsRequired": "Nenhuma coluna obrigatória nesta etapa."
+        "endpointNoFieldsRequired": "Nenhuma coluna obrigatória nesta etapa.",
+        "stepIncompatibleTitle": "Algumas linhas ignorarão etapas em tempo de execução",
+        "stepIncompatibleWarning": "Linha {{row}}: {{message}}",
+        "stepIncompatibleDetail": "\"{{value}}\" para {{field}} não é compatível com {{step}} (permitidos: {{allowed}}). Essa etapa será ignorada quando o lote executar."
     },
     "batchTutorial": {
         "stepOf": "Passo {{current}} de {{total}}",
@@ -6046,7 +6130,28 @@
         "uploadBatchAppendHint": "Envie um CSV para adicionar várias linhas a este lote.",
         "addOneRecordTitle": "Adicionar um registro",
         "addOneRecordDesc": "Preencha os campos obrigatórios para adicionar um registro a este lote.",
-        "appendFailed": "Não foi possível adicionar o registro. Tente novamente."
+        "appendFailed": "Não foi possível adicionar o registro. Tente novamente.",
+        "stepIncompatibleTitle": "Algumas linhas ignorarão etapas em tempo de execução",
+        "stepIncompatibleWarning": "Linha {{row}}: {{message}}",
+        "stepIncompatibleDetail": "\"{{value}}\" para {{field}} não é compatível com {{step}} (permitidos: {{allowed}}). Essa etapa será ignorada quando o lote executar."
+    },
+    "colombiaVehicleReport": {
+        "sections": {
+            "runtIdentity": "RUNT — Identidade do veículo",
+            "runtCompliance": "RUNT — Conformidade",
+            "runtSoat": "RUNT — SOAT",
+            "runtRtm": "RUNT — Inspeção técnico-mecânica",
+            "runtLiens": "RUNT — Gravames",
+            "runtProcedures": "RUNT — Trâmites",
+            "simitSummary": "SIMIT — Resumo",
+            "simitFines": "SIMIT — Multas",
+            "simitAgreements": "SIMIT — Acordos de pagamento",
+            "fasecoldaClaims": "Fasecolda — Histórico de sinistros",
+            "fasecoldaCatalog": "Fasecolda — Catálogo",
+            "fasecoldaValuation": "Fasecolda — Avaliação"
+        },
+        "emptySinister": "Sem histórico de sinistros registrado",
+        "emptyAgreements": "Sem acordos de pagamento registrados"
     },
     "proposal": {
         "loading": "Carregando sua proposta…",
@@ -6060,7 +6165,13 @@
             "service": "Serviço",
             "planMinimum": "Mínimo do plano",
             "usageCost": "Uso à taxa média",
+            "usageCostAverage": "Uso à taxa média",
+            "usageCostCombo": "Uso à taxa combinada",
+            "usageCostPerEndpoint": "Uso por volume de endpoint",
+            "usageCostVolumeHint": "{{volume}} consultas mensais",
+            "endpointVolume": "Volume mensal",
             "usageCostHint": "{{volume}} consultas × preço unitário médio",
+            "usageCostHintCombo": "{{volume}} consultas × soma dos preços dos endpoints selecionados",
             "quotedTotal": "Total mensal cotado",
             "quotedTotalHint": "Mínimo do plano ou uso — o que for maior",
             "original": "Original",
