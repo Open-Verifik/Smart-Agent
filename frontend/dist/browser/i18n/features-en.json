@@ -356,6 +356,10 @@
             "title": "Public Transport Vehicle",
             "description": "Query Chile public transport vehicle registration (RNT) by license plate via GET /v2/cl/transport-vehicle."
         },
+        "chile_api_vehicle_soap": {
+            "title": "Chile - Vehicle SOAP",
+            "description": "Query Chile vehicular SOAP (Seguro Obligatorio de Accidentes Personales) certificate by license plate and policy number via GET /v2/cl/vehicle-soap."
+        },
         "cl_certificate_verify": {
             "title": "Chile - Civil registry certificate verification",
             "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador) via GET /v2/cl/certificate/verify. Returns certificate PDF metadata and conviction-register details when available."

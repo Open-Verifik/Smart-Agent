@@ -356,6 +356,10 @@
             "title": "チリ — 公共交通車両",
             "description": "GET /v2/cl/transport-vehicle でチリ公共交通 RNT を照会します。"
         },
+        "chile_api_vehicle_soap": {
+            "title": "チリ — 車両 SOAP",
+            "description": "GET /v2/cl/vehicle-soap でナンバープレートと保険証券番号によりチリ車両 SOAP（人身事故強制保険）証明書を照会します。"
+        },
         "cl_certificate_verify": {
             "title": "チリ - Registro Civil 証明書照合",
             "description": "GET /v2/cl/certificate/verify により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
