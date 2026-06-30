@@ -1,88 +1,88 @@
 {
-  "settings": {
-    "api_key": {
-      "help_label": "Más información",
-      "help_close": "Entendido",
-      "how_it_works_title": "Cómo funciona",
-      "how_it_works_subtitle": "Tu token de API es un JWT. Extender o revocar siempre emite un JWT nuevo — debes copiarlo y actualizar tus integraciones.",
-      "step1_title": "Un token activo",
-      "step1_desc": "Tu cuenta tiene un token de acceso API (JWT) que se muestra en esta página. Úsalo para autenticar solicitudes del servidor.",
-      "step2_title": "Envíalo como Bearer",
-      "step2_desc": "Incluye el token en cada solicitud: Authorization: Bearer <tu_token>.",
-      "step3_title": "Extender o revocar",
-      "step3_desc": "Extender Validez emite un JWT nuevo con la expiración que seleccionas. Revocar invalida todos los JWT anteriores y emite uno nuevo.",
-      "renew_description": "Emite un JWT nuevo con el período de expiración que seleccionas. Cópialo y actualiza tus integraciones — el JWT existente no se extiende in situ.",
-      "extend_new_token_notice": "Esta acción genera un JWT nuevo. Después de confirmar, copia el nuevo token y actualiza cada integración — la cadena de tu token actual no se modifica in situ.",
-      "token_renewed_success": "¡Nuevo token generado! Cópialo y actualiza tus integraciones.",
-      "help": {
-        "overview": {
-          "title": "Cómo funcionan los tokens de API",
-          "intro": "Tu token de API es una credencial JWT que autentica las solicitudes de tu servidor a Verifik.",
-          "point1": "El token mostrado en esta página es un JWT firmado. No se puede editar in situ — extender o revocar siempre crea una cadena JWT nueva.",
-          "point2": "Cada JWT tiene una fecha de expiración. Cuando expira, las solicitudes API devuelven errores de autenticación hasta que extiendas o revoques para obtener uno nuevo.",
-          "point3": "Extender Validez emite un JWT nuevo con el período de expiración que eliges. Copia el nuevo token y actualiza cada integración que llama a Verifik.",
-          "point4": "Revocar y Generar Nuevo también emite un JWT nuevo, pero invalida de inmediato todos los tokens emitidos previamente para tu cuenta.",
-          "point5": "Varios servidores o entornos pueden guardar el JWT más reciente. Después de extender o revocar, asegúrate de que todos usen la nueva cadena de token."
-        },
-        "token": {
-          "title": "Usar tu token de acceso",
-          "intro": "Tu token debe enviarse en cada solicitud API como credencial Bearer.",
-          "point1": "Copia el token de esta página y guárdalo de forma segura en tu backend — nunca lo expongas en apps cliente, móviles o repositorios públicos.",
-          "point2": "Agrégalo al encabezado Authorization en cada solicitud a api.verifik.co (o tu URL base de sandbox).",
-          "point3": "Después de extender o revocar, la cadena del token en esta página cambia. Actualiza cada servicio que siga usando el JWT anterior.",
-          "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer TU_TOKEN_AQUI\""
-        },
-        "extend": {
-          "title": "Extender la validez del token",
-          "intro": "Extender Validez no modifica tu JWT actual. Emite un JWT completamente nuevo con el período de expiración que seleccionas.",
-          "point1": "Elige cuántos meses (1–36). El nuevo JWT expira después de ese período, contado desde el momento en que extiendes — no desde la creación del token anterior.",
-          "point2": "Recibes una cadena de token nueva en esta página de inmediato. Cópiala y actualiza cada servicio, script o variable de entorno que llame a la API de Verifik.",
-          "point3": "A diferencia de revocar, extender no invalida de inmediato los JWT emitidos previamente — siguen funcionando hasta su propia expiración. Aun así, despliega el nuevo token en todos lados.",
-          "point4": "Extiende antes de que expire tu token actual para evitar interrupciones. Si ya expiró, extiende o revoca para obtener un JWT válido.",
-          "note": "No puedes adelantar la fecha de expiración de un JWT existente. Extender siempre genera un token nuevo."
-        },
-        "revoke": {
-          "title": "Revocar y generar un nuevo token",
-          "intro": "Esto emite un JWT nuevo e invalida de inmediato todos los tokens emitidos previamente para tu cuenta.",
-          "point1": "Revocar invalida todos los JWT anteriores de inmediato, incluidos los creados por acciones de extensión anteriores.",
-          "point2": "Recibes una cadena de token nueva inmediatamente después de confirmar. Cópiala y actualiza cada integración que llama a la API.",
-          "point3": "Las aplicaciones que sigan usando un token antiguo recibirán errores 401 hasta que se actualicen.",
-          "point4": "Usa revocar solo cuando un token pudo haberse filtrado, compartirse de forma insegura o necesites forzar una rotación completa de credenciales.",
-          "note": "Si necesitas una credencial con más tiempo sin cortar de inmediato todos los tokens activos, usa Extender Validez — pero igual debes desplegar la nueva cadena JWT."
+    "settings": {
+        "api_key": {
+            "help_label": "Más información",
+            "help_close": "Entendido",
+            "how_it_works_title": "Cómo funciona",
+            "how_it_works_subtitle": "Tu token de API es un JWT. Extender o revocar siempre emite un JWT nuevo — debes copiarlo y actualizar tus integraciones.",
+            "step1_title": "Un token activo",
+            "step1_desc": "Tu cuenta tiene un token de acceso API (JWT) que se muestra en esta página. Úsalo para autenticar solicitudes del servidor.",
+            "step2_title": "Envíalo como Bearer",
+            "step2_desc": "Incluye el token en cada solicitud: Authorization: Bearer <tu_token>.",
+            "step3_title": "Extender o revocar",
+            "step3_desc": "Extender Validez emite un JWT nuevo con la expiración que seleccionas. Revocar invalida todos los JWT anteriores y emite uno nuevo.",
+            "renew_description": "Emite un JWT nuevo con el período de expiración que seleccionas. Cópialo y actualiza tus integraciones — el JWT existente no se extiende in situ.",
+            "extend_new_token_notice": "Esta acción genera un JWT nuevo. Después de confirmar, copia el nuevo token y actualiza cada integración — la cadena de tu token actual no se modifica in situ.",
+            "token_renewed_success": "¡Nuevo token generado! Cópialo y actualiza tus integraciones.",
+            "help": {
+                "overview": {
+                    "title": "Cómo funcionan los tokens de API",
+                    "intro": "Tu token de API es una credencial JWT que autentica las solicitudes de tu servidor a Verifik.",
+                    "point1": "El token mostrado en esta página es un JWT firmado. No se puede editar in situ — extender o revocar siempre crea una cadena JWT nueva.",
+                    "point2": "Cada JWT tiene una fecha de expiración. Cuando expira, las solicitudes API devuelven errores de autenticación hasta que extiendas o revoques para obtener uno nuevo.",
+                    "point3": "Extender Validez emite un JWT nuevo con el período de expiración que eliges. Copia el nuevo token y actualiza cada integración que llama a Verifik.",
+                    "point4": "Revocar y Generar Nuevo también emite un JWT nuevo, pero invalida de inmediato todos los tokens emitidos previamente para tu cuenta.",
+                    "point5": "Varios servidores o entornos pueden guardar el JWT más reciente. Después de extender o revocar, asegúrate de que todos usen la nueva cadena de token."
+                },
+                "token": {
+                    "title": "Usar tu token de acceso",
+                    "intro": "Tu token debe enviarse en cada solicitud API como credencial Bearer.",
+                    "point1": "Copia el token de esta página y guárdalo de forma segura en tu backend — nunca lo expongas en apps cliente, móviles o repositorios públicos.",
+                    "point2": "Agrégalo al encabezado Authorization en cada solicitud a api.verifik.co (o tu URL base de sandbox).",
+                    "point3": "Después de extender o revocar, la cadena del token en esta página cambia. Actualiza cada servicio que siga usando el JWT anterior.",
+                    "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer TU_TOKEN_AQUI\""
+                },
+                "extend": {
+                    "title": "Extender la validez del token",
+                    "intro": "Extender Validez no modifica tu JWT actual. Emite un JWT completamente nuevo con el período de expiración que seleccionas.",
+                    "point1": "Elige cuántos meses (1–36). El nuevo JWT expira después de ese período, contado desde el momento en que extiendes — no desde la creación del token anterior.",
+                    "point2": "Recibes una cadena de token nueva en esta página de inmediato. Cópiala y actualiza cada servicio, script o variable de entorno que llame a la API de Verifik.",
+                    "point3": "A diferencia de revocar, extender no invalida de inmediato los JWT emitidos previamente — siguen funcionando hasta su propia expiración. Aun así, despliega el nuevo token en todos lados.",
+                    "point4": "Extiende antes de que expire tu token actual para evitar interrupciones. Si ya expiró, extiende o revoca para obtener un JWT válido.",
+                    "note": "No puedes adelantar la fecha de expiración de un JWT existente. Extender siempre genera un token nuevo."
+                },
+                "revoke": {
+                    "title": "Revocar y generar un nuevo token",
+                    "intro": "Esto emite un JWT nuevo e invalida de inmediato todos los tokens emitidos previamente para tu cuenta.",
+                    "point1": "Revocar invalida todos los JWT anteriores de inmediato, incluidos los creados por acciones de extensión anteriores.",
+                    "point2": "Recibes una cadena de token nueva inmediatamente después de confirmar. Cópiala y actualiza cada integración que llama a la API.",
+                    "point3": "Las aplicaciones que sigan usando un token antiguo recibirán errores 401 hasta que se actualicen.",
+                    "point4": "Usa revocar solo cuando un token pudo haberse filtrado, compartirse de forma insegura o necesites forzar una rotación completa de credenciales.",
+                    "note": "Si necesitas una credencial con más tiempo sin cortar de inmediato todos los tokens activos, usa Extender Validez — pero igual debes desplegar la nueva cadena JWT."
+                }
+            }
         }
-      }
+    },
+    "home": {
+        "onboarding": {
+            "taskReward": "+$1.00 USD",
+            "statusLabels": {
+                "NOT_STARTED": "No iniciada",
+                "VISITED": "Visitada",
+                "STARTED": "En progreso",
+                "STUCK": "Necesita ayuda",
+                "COMPLETED": "Completada"
+            },
+            "explanationModal": {
+                "reward": "Recompensa +$1.00 USD",
+                "sectionDescription": "Descripción",
+                "sectionHowTo": "Cómo completar",
+                "sectionApiReference": "Referencia técnica de la API",
+                "close": "Cerrar",
+                "goToTask": "Ir a la tarea",
+                "verifyIdentity": "Verificar identidad",
+                "helpTooltip": "Más información sobre esta tarea"
+            }
+        }
+    },
+    "postman": {
+        "responseViewer": {
+            "sandboxPdfDemo": {
+                "badge": "Sandbox",
+                "title": "Vista previa de documento de demostración",
+                "body": "Esta es una vista previa simulada. Verifik no muestra PDFs reales ni datos personales en modo sandbox.",
+                "footnote": "Activa el modo Producción para obtener documentos auténticos de la entidad emisora."
+            }
+        }
     }
-  },
-  "home": {
-    "onboarding": {
-      "taskReward": "+$1.00 USD",
-      "statusLabels": {
-        "NOT_STARTED": "No iniciada",
-        "VISITED": "Visitada",
-        "STARTED": "En progreso",
-        "STUCK": "Necesita ayuda",
-        "COMPLETED": "Completada"
-      },
-      "explanationModal": {
-        "reward": "Recompensa +$1.00 USD",
-        "sectionDescription": "Descripción",
-        "sectionHowTo": "Cómo completar",
-        "sectionApiReference": "Referencia técnica de la API",
-        "close": "Cerrar",
-        "goToTask": "Ir a la tarea",
-        "verifyIdentity": "Verificar identidad",
-        "helpTooltip": "Más información sobre esta tarea"
-      }
-    }
-  },
-  "postman": {
-    "responseViewer": {
-      "sandboxPdfDemo": {
-        "badge": "Sandbox",
-        "title": "Vista previa de documento de demostración",
-        "body": "Esta es una vista previa simulada. Verifik no muestra PDFs reales ni datos personales en modo sandbox.",
-        "footnote": "Activa el modo Producción para obtener documentos auténticos de la entidad emisora."
-      }
-    }
-  }
 }
