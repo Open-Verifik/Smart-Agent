@@ -45,6 +45,18 @@ export interface ResolveAboutOverviewInput {
     locale?: PostmanCopyLocale | null;
 }
 
+export interface AboutParamsColumnVisibilityInput {
+    conditionalHint?: string | null;
+    allowed?: readonly string[] | null;
+    dateFormat?: string | null;
+}
+
+export interface AboutParamsColumnVisibility {
+    showConditionalColumn: boolean;
+    showAllowedColumn: boolean;
+    showDateFormatColumn: boolean;
+}
+
 const DOC_LOCALES: EndpointDocLocale[] = ['en', 'es', 'fr', 'pt', 'ko', 'ja', 'zh'];
 
 /** Locales where i18n bundles are the primary fallback before English docs. */
@@ -110,6 +122,14 @@ export const overviewLeadParagraph = (
     if (sentence.length <= maxLen) return sentence;
     return `${sentence.slice(0, maxLen - 1).trim()}…`;
 };
+
+export const resolveAboutParamsColumnVisibility = (
+    rows: readonly AboutParamsColumnVisibilityInput[]
+): AboutParamsColumnVisibility => ({
+    showConditionalColumn: rows.some((row) => !!row.conditionalHint?.trim()),
+    showAllowedColumn: rows.some((row) => (row.allowed?.length ?? 0) > 0),
+    showDateFormatColumn: rows.some((row) => !!row.dateFormat?.trim()),
+});
 
 /**
  * Resolves Postman-visible title and subtitle from docs, custom labels, and i18n catalog.

@@ -1284,7 +1284,9 @@
             "menuLiveEnrollment": "ライブ登録を開く",
             "neverLoggedIn": "未ログイン",
             "demoMode": "デモ",
-            "menuSecurity": "セキュリティ"
+            "menuSecurity": "セキュリティ",
+            "newProjectTitle": "新しい Smart Enroll プロジェクト",
+            "newProjectSubtitle": "独自のサインアップ、書類、バイオメトリクス、ブランドを備えた別の登録フローを設定します。"
         },
         "securitySettings": {
             "title": "セキュリティ設定",

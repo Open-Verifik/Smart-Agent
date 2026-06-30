@@ -1293,7 +1293,9 @@
             "menuLiveEnrollment": "Open live enrollment",
             "neverLoggedIn": "Never signed in",
             "demoMode": "Demo",
-            "menuSecurity": "Security"
+            "menuSecurity": "Security",
+            "newProjectTitle": "New Smart Enroll project",
+            "newProjectSubtitle": "Set up another enrollment flow with its own signup, documents, biometrics and branding."
         },
         "securitySettings": {
             "title": "Security Settings",

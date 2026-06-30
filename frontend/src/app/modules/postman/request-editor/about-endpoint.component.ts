@@ -22,7 +22,10 @@ import {
     EndpointDocResponse,
     EndpointDocs,
 } from '../postman.types';
-import { resolveAboutOverview } from '../postman-endpoint-copy.util';
+import {
+    resolveAboutParamsColumnVisibility,
+    resolveAboutOverview,
+} from '../postman-endpoint-copy.util';
 import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
 /**
@@ -123,15 +126,21 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
                                             <th class="px-3 py-2 font-medium">
                                                 {{ 'postman.requestEditor.about.paramsColumns.required' | transloco }}
                                             </th>
-                                            <th class="px-3 py-2 font-medium">
-                                                {{ 'postman.requestEditor.about.paramsColumns.conditional' | transloco }}
-                                            </th>
-                                            <th class="px-3 py-2 font-medium">
-                                                {{ 'postman.requestEditor.about.paramsColumns.dateFormat' | transloco }}
-                                            </th>
-                                            <th class="px-3 py-2 font-medium">
-                                                {{ 'postman.requestEditor.about.paramsColumns.allowed' | transloco }}
-                                            </th>
+                                            @if (showConditionalColumn()) {
+                                                <th class="px-3 py-2 font-medium">
+                                                    {{ 'postman.requestEditor.about.paramsColumns.conditional' | transloco }}
+                                                </th>
+                                            }
+                                            @if (showDateFormatColumn()) {
+                                                <th class="px-3 py-2 font-medium">
+                                                    {{ 'postman.requestEditor.about.paramsColumns.dateFormat' | transloco }}
+                                                </th>
+                                            }
+                                            @if (showAllowedColumn()) {
+                                                <th class="px-3 py-2 font-medium">
+                                                    {{ 'postman.requestEditor.about.paramsColumns.allowed' | transloco }}
+                                                </th>
+                                            }
                                             <th class="px-3 py-2 font-medium">
                                                 {{ 'postman.requestEditor.about.paramsColumns.description' | transloco }}
                                             </th>
@@ -149,30 +158,36 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
                                                 <td class="px-3 py-2 text-slate-600 dark:text-slate-300">
                                                     {{ (row.required ? 'postman.requestEditor.about.yes' : 'postman.requestEditor.about.no') | transloco }}
                                                 </td>
-                                                <td class="px-3 py-2 text-slate-600 dark:text-slate-300 text-sm">
-                                                    @if (row.conditionalHint) {
-                                                        {{ row.conditionalHint }}
-                                                    } @else {
-                                                        <span class="text-slate-400">—</span>
-                                                    }
-                                                </td>
-                                                <td class="px-3 py-2 text-slate-600 dark:text-slate-300 font-mono text-xs">
-                                                    {{ row.dateFormat || '—' }}
-                                                </td>
-                                                <td class="px-3 py-2">
-                                                    @if (row.allowed?.length) {
-                                                        <div class="flex flex-wrap gap-1">
-                                                            @for (allowed of row.allowed; track allowed) {
-                                                                <span
-                                                                    class="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-xs text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
-                                                                    >{{ allowed }}</span
-                                                                >
-                                                            }
-                                                        </div>
-                                                    } @else {
-                                                        <span class="text-slate-400">—</span>
-                                                    }
-                                                </td>
+                                                @if (showConditionalColumn()) {
+                                                    <td class="px-3 py-2 text-slate-600 dark:text-slate-300 text-sm">
+                                                        @if (row.conditionalHint) {
+                                                            {{ row.conditionalHint }}
+                                                        } @else {
+                                                            <span class="text-slate-400">—</span>
+                                                        }
+                                                    </td>
+                                                }
+                                                @if (showDateFormatColumn()) {
+                                                    <td class="px-3 py-2 text-slate-600 dark:text-slate-300 font-mono text-xs">
+                                                        {{ row.dateFormat || '—' }}
+                                                    </td>
+                                                }
+                                                @if (showAllowedColumn()) {
+                                                    <td class="px-3 py-2">
+                                                        @if (row.allowed?.length) {
+                                                            <div class="flex flex-wrap gap-1">
+                                                                @for (allowed of row.allowed; track allowed) {
+                                                                    <span
+                                                                        class="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-1.5 py-0.5 font-mono text-xs text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+                                                                        >{{ allowed }}</span
+                                                                    >
+                                                                }
+                                                            </div>
+                                                        } @else {
+                                                            <span class="text-slate-400">—</span>
+                                                        }
+                                                    </td>
+                                                }
                                                 <td class="px-3 py-2 text-slate-600 dark:text-slate-300">
                                                     {{ row.description || '—' }}
                                                 </td>
@@ -383,7 +398,21 @@ export class AboutEndpointComponent {
     /** Rich params table merging doc-level descriptions with catalog-level metadata. */
     readonly paramsRows = computed(() => {
         const doc = this.activeDoc();
-        const catalog = this._endpoint()?.params ?? [];
+        const catalog = (this._endpoint()?.params ?? []).filter((p) => p.system !== 'includeCost');
+        const englishParamDescriptions = new Map(
+            (this._docs()?.en?.params ?? [])
+                .filter((row) => row.field?.trim() && row.description?.trim())
+                .map((row) => [row.field, row.description.trim()] as const),
+        );
+        const resolveDescription = (
+            field: string,
+            docDescription?: string,
+            catalogDescription?: string,
+        ): string =>
+            docDescription?.trim() ||
+            catalogDescription?.trim() ||
+            englishParamDescriptions.get(field) ||
+            '';
         const byField = new Map<
             string,
             {
@@ -392,6 +421,7 @@ export class AboutEndpointComponent {
                 allowed?: string[];
                 requiredWhen?: { field: string; in?: string[] };
                 dateFormat?: string;
+                description?: string;
             }
         >();
         for (const p of catalog) {
@@ -401,6 +431,7 @@ export class AboutEndpointComponent {
                 allowed: p.enum,
                 requiredWhen: p.requiredWhen,
                 dateFormat: p.dateFormat,
+                description: p.description,
             });
         }
         const conditionalHint = (rw?: { field: string; in?: string[] }): string | undefined => {
@@ -408,30 +439,50 @@ export class AboutEndpointComponent {
             return `${rw.field}: ${rw.in.join(', ')}`;
         };
         if (doc?.params?.length) {
-            return doc.params.map((row) => {
-                const extra = byField.get(row.field) || {};
-                byField.delete(row.field);
-                return {
-                    field: row.field,
-                    type: extra.type,
-                    required: !!extra.required,
-                    allowed: extra.allowed,
-                    description: row.description,
-                    conditionalHint: conditionalHint(extra.requiredWhen),
-                    dateFormat: extra.dateFormat,
-                };
-            });
+            return doc.params
+                .filter((row) => row.field?.trim())
+                .map((row) => {
+                    const extra = byField.get(row.field) || {};
+                    byField.delete(row.field);
+                    return {
+                        field: row.field,
+                        type: extra.type,
+                        required: !!extra.required,
+                        allowed: extra.allowed,
+                        description: resolveDescription(
+                            row.field,
+                            row.description,
+                            extra.description,
+                        ),
+                        conditionalHint: conditionalHint(extra.requiredWhen),
+                        dateFormat: extra.dateFormat,
+                    };
+                });
         }
         return catalog.map((p) => ({
             field: p.key,
             type: p.type,
             required: !!p.required,
             allowed: p.enum,
-            description: p.description || '',
+            description: resolveDescription(p.key, undefined, p.description),
             conditionalHint: conditionalHint(p.requiredWhen),
             dateFormat: p.dateFormat,
         }));
     });
+
+    readonly paramsColumnVisibility = computed(() =>
+        resolveAboutParamsColumnVisibility(this.paramsRows()),
+    );
+
+    readonly showConditionalColumn = computed(
+        () => this.paramsColumnVisibility().showConditionalColumn,
+    );
+
+    readonly showAllowedColumn = computed(() => this.paramsColumnVisibility().showAllowedColumn);
+
+    readonly showDateFormatColumn = computed(
+        () => this.paramsColumnVisibility().showDateFormatColumn,
+    );
 
     readonly requestExamples = computed<EndpointDocRequestExample[]>(
         () => this.activeDoc()?.requestExamples ?? [],

@@ -1284,7 +1284,9 @@
             "menuLiveEnrollment": "打开实时注册",
             "neverLoggedIn": "从未登录",
             "demoMode": "演示",
-            "menuSecurity": "安全设置"
+            "menuSecurity": "安全设置",
+            "newProjectTitle": "新建 Smart Enroll 项目",
+            "newProjectSubtitle": "设置另一个注册流程，包含独立的注册表单、文档、生物识别和品牌配置。"
         },
         "securitySettings": {
             "title": "安全设置",

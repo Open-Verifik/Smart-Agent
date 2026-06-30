@@ -393,6 +393,108 @@
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
+.card-create {
+    appearance: none;
+    background: linear-gradient(180deg, rgb(239 246 255) 0%, #ffffff 100%);
+    border-style: dashed;
+    border-color: rgb(191 219 254);
+    align-items: stretch;
+    text-align: left;
+    cursor: pointer;
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+.card-create:hover {
+    border-color: rgb(96 165 250);
+    background: linear-gradient(180deg, rgb(219 234 254) 0%, #ffffff 100%);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+    transform: translateY(-1px);
+}
+
+.card-create:focus-visible {
+    outline: none;
+    border-color: rgb(37 99 235);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.card-create-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 12px;
+    background: rgb(219 234 254);
+    color: rgb(37 99 235);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-create-icon mat-icon {
+    width: 1.85rem;
+    height: 1.85rem;
+    font-size: 1.85rem;
+}
+
+.card-create-copy {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.card-create-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    color: rgb(17 24 39);
+}
+
+.card-create-text {
+    margin: 0.35rem 0 0;
+    color: rgb(75 85 99);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.card-create-cta {
+    margin-top: auto;
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    background: rgb(37 99 235);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+:host-context(.dark) .card-create {
+    background: linear-gradient(180deg, rgba(37, 99, 235, 0.12) 0%, rgba(15, 15, 31, 0.6) 100%);
+    border-color: rgba(96, 165, 250, 0.35);
+}
+
+:host-context(.dark) .card-create:hover {
+    border-color: rgb(96 165 250);
+    background: linear-gradient(180deg, rgba(37, 99, 235, 0.2) 0%, rgba(15, 15, 31, 0.6) 100%);
+}
+
+:host-context(.dark) .card-create-icon {
+    background: rgba(37, 99, 235, 0.18);
+    color: rgb(147 197 253);
+}
+
+:host-context(.dark) .card-create-title {
+    color: #f8fafc;
+}
+
+:host-context(.dark) .card-create-text {
+    color: rgb(148 163 184);
+}
+
 .card-top {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;

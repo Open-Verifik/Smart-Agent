@@ -1284,7 +1284,9 @@
             "menuLiveEnrollment": "Ouvrir l'inscription en direct",
             "neverLoggedIn": "Jamais connecté",
             "demoMode": "Démo",
-            "menuSecurity": "Sécurité"
+            "menuSecurity": "Sécurité",
+            "newProjectTitle": "Nouveau projet Smart Enroll",
+            "newProjectSubtitle": "Configurez un autre flux d'inscription avec son propre formulaire, ses documents, sa biométrie et son branding."
         },
         "securitySettings": {
             "title": "Paramètres de sécurité",

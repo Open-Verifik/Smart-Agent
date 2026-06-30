@@ -1293,7 +1293,9 @@
             "menuLiveEnrollment": "Abrir registro en vivo",
             "neverLoggedIn": "Sin actividad",
             "demoMode": "Demo",
-            "menuSecurity": "Seguridad"
+            "menuSecurity": "Seguridad",
+            "newProjectTitle": "Nuevo proyecto Smart Enroll",
+            "newProjectSubtitle": "Configura otro flujo de registro con su propio formulario, documentos, biometría y branding."
         },
         "securitySettings": {
             "title": "Configuración de seguridad",

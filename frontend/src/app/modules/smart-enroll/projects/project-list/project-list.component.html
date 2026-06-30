@@ -61,6 +61,27 @@
                 </div>
             } @else {
                 <div class="grid">
+                    @if (!isWorkspaceStaff()) {
+                        <button
+                            type="button"
+                            class="card card-create"
+                            (click)="createProject()"
+                            [attr.aria-label]="t('smartEnrollProjects.createProject')"
+                        >
+                            <div class="card-create-icon">
+                                <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                            </div>
+                            <div class="card-create-copy">
+                                <h2 class="card-create-title">{{ t('smartEnrollProjects.list.newProjectTitle') }}</h2>
+                                <p class="card-create-text">{{ t('smartEnrollProjects.list.newProjectSubtitle') }}</p>
+                            </div>
+                            <span class="card-create-cta">
+                                {{ t('smartEnrollProjects.createProject') }}
+                                <span aria-hidden="true">›</span>
+                            </span>
+                        </button>
+                    }
+
                     @for (project of projects(); track project._id) {
                         <article class="card" (click)="openProject(project, $event)">
                             <div class="card-top">

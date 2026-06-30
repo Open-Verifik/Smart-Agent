@@ -1284,7 +1284,9 @@
             "menuLiveEnrollment": "라이브 등록 열기",
             "neverLoggedIn": "로그인 없음",
             "demoMode": "데모",
-            "menuSecurity": "보안"
+            "menuSecurity": "보안",
+            "newProjectTitle": "새 Smart Enroll 프로젝트",
+            "newProjectSubtitle": "자체 가입, 문서, 생체 인증 및 브랜딩을 갖춘 또 다른 등록 흐름을 설정합니다."
         },
         "securitySettings": {
             "title": "보안 설정",
