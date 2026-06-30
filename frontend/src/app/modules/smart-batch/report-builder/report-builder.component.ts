@@ -86,6 +86,7 @@ export class ReportBuilderComponent implements OnInit {
     isSaving = signal<boolean>(false);
     isSendingSample = signal(false);
     isDownloadingSample = signal(false);
+    isGeneratingAI = signal(false);
 
     // Logo
     logoUrl = signal<string | null>(null);
@@ -191,7 +192,9 @@ export class ReportBuilderComponent implements OnInit {
 
         this._route.params.subscribe((params) => {
             const routeConfigId = params['configId'] ?? null;
+
             this.configId.set(routeConfigId);
+
             this.templateId.set(params['templateId'] ?? null);
 
             if (routeConfigId) {
@@ -200,9 +203,11 @@ export class ReportBuilderComponent implements OnInit {
 
             if (this.templateId()) {
                 this._loadTemplate();
-            } else {
-                this._initDefaultSections();
+
+                return;
             }
+
+            this._initDefaultSections();
         });
     }
 
@@ -383,6 +388,43 @@ export class ReportBuilderComponent implements OnInit {
     // ============================================
     // SECTION MANAGEMENT
     // ============================================
+
+    generateLayoutWithAI(prompt: string): void {
+        const p = prompt.trim();
+        if (!p) return;
+
+        this.isGeneratingAI.set(true);
+        this._reportService.generateLayout(p, this.previewData()).subscribe({
+            next: (suggestedSections) => {
+                if (suggestedSections && suggestedSections.length > 0) {
+                    this.sections.set(suggestedSections);
+                    this.selectSection(suggestedSections[0]);
+                    this.templateForm.markAsDirty();
+                    this._snack.open(
+                        this._transloco.translate('smartReport.layoutGeneratedSuccess'),
+                        'Close',
+                        { duration: 3000 }
+                    );
+                } else {
+                    this._snack.open(
+                        this._transloco.translate('smartReport.layoutGeneratedEmpty'),
+                        'Close',
+                        { duration: 4000 }
+                    );
+                }
+                this.isGeneratingAI.set(false);
+            },
+            error: (err) => {
+                console.error('Failed to generate layout via AI:', err);
+                this._snack.open(
+                    this._transloco.translate('smartReport.layoutGeneratedFailed'),
+                    'Close',
+                    { duration: 4000 }
+                );
+                this.isGeneratingAI.set(false);
+            },
+        });
+    }
 
     addSection(type: string): void {
         const defaults: Record<string, Partial<ReportSection>> = {
@@ -700,9 +742,7 @@ export class ReportBuilderComponent implements OnInit {
                                 const errorMsg = await this._parseBlobError(blob);
                                 this._snack.open(
                                     errorMsg ||
-                                        this._transloco.translate(
-                                            'smartReport.invalidPdfReceived'
-                                        ),
+                                        this._transloco.translate('smartReport.invalidPdfReceived'),
                                     'Close',
                                     { duration: 4000 }
                                 );
