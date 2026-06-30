@@ -114,11 +114,7 @@ export function resolveCountryNameFromIso(
 
 /** Lowercase, accent-stripped token for fuzzy country prefix matching. */
 export function normalizeCountryToken(value: string): string {
-    return value
-        .normalize('NFD')
-        .replace(/\p{M}/gu, '')
-        .toLowerCase()
-        .trim();
+    return value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 }
 
 /**
