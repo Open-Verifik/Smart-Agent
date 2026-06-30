@@ -803,6 +803,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "危地马拉 - 身份额外查询",
             "description": "针对危地马拉公民的全面身份验证，包括额外的数据点。"
+        },
+        "chile_api_vehicle_v3": {
+            "title": "智利 - 车辆技术检验",
+            "description": "通过 GET /v3/cl/vehicle 按车牌查询智利车辆技术检验状态和历史。"
         }
     }
 }

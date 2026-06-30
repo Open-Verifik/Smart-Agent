@@ -670,6 +670,57 @@
         ]
       }
     },
+    "/api/v3/cl/vehicle": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "chile_api_vehicle_v3",
+        "summary": "Chile - Vehicle Technical Review",
+        "description": "Query Chile vehicle technical review status and inspection history by license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: plate"
+          }
+        ]
+      }
+    },
     "/api/co/runt/vehicle-by-vin": {
       "get": {
         "tags": [

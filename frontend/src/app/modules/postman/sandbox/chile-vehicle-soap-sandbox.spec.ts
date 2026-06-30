@@ -1,4 +1,9 @@
-import { CHILE_VEHICLE_SOAP_ENDPOINT_CODE, CHILE_POSTMAN_SANDBOX_BY_CODE } from './countries/chile.postman-sandbox';
+import {
+    CHILE_POSTMAN_SANDBOX_BY_CODE,
+    CHILE_VEHICLE_ENDPOINT_CODE,
+    CHILE_VEHICLE_SOAP_ENDPOINT_CODE,
+    CHILE_VEHICLE_V3_ENDPOINT_CODE,
+} from './countries/chile.postman-sandbox';
 import {
     applyPostmanSandboxParamDefaults,
     getPostmanSandboxProfiles,
@@ -63,5 +68,38 @@ describe('chile_api_vehicle_soap sandbox', () => {
 
         expect(params.find((param) => param.key === 'plate')?.value).toBe(SANDBOX_DEFAULT_SOAP_PLATE);
         expect(params.find((param) => param.key === 'policyNumber')?.value).toBe('94590001');
+    });
+});
+
+describe('Chile vehicle sandbox separation', () => {
+    it('registers v2, v3, and SOAP as distinct sandbox endpoints', () => {
+        expect(isPostmanSandboxEndpoint(CHILE_VEHICLE_ENDPOINT_CODE)).toBe(true);
+        expect(isPostmanSandboxEndpoint(CHILE_VEHICLE_V3_ENDPOINT_CODE)).toBe(true);
+        expect(isPostmanSandboxEndpoint(CHILE_VEHICLE_SOAP_ENDPOINT_CODE)).toBe(true);
+
+        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_ENDPOINT_CODE]?.defaultPlate).toBe('ABC10001');
+        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_V3_ENDPOINT_CODE]?.defaultPlate).toBe('XH6640');
+        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_SOAP_ENDPOINT_CODE]?.defaultPlate).toBe('AB1001');
+    });
+
+    it('uses v3-valid plates and includes the invalid-format example', () => {
+        const profiles = getPostmanSandboxProfiles(CHILE_VEHICLE_V3_ENDPOINT_CODE);
+        const successPlates = profiles
+            .filter((profile) => profile.responseType !== 'error')
+            .map((profile) => profile.plate);
+
+        expect(successPlates).toEqual(['XH6640', 'FHDJ31', 'DCCH18']);
+
+        const invalidProfile = profiles.find((profile) => profile.expectedStatus === 409);
+        expect(invalidProfile?.plate).toBe('BB985');
+        expect(invalidProfile?.fullName).toContain('Invalid plate format');
+    });
+
+    it('does not expose internal force params in sandbox profiles', () => {
+        for (const config of Object.values(CHILE_POSTMAN_SANDBOX_BY_CODE)) {
+            for (const profile of config.profiles) {
+                expect(profile.paramOverrides && 'force' in profile.paramOverrides).not.toBe(true);
+            }
+        }
     });
 });

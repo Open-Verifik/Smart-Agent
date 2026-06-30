@@ -21,6 +21,7 @@ import {
 
 export const CHILE_IDENTITY_ENDPOINT_CODE = 'chile_api_identity_lookup';
 export const CHILE_VEHICLE_ENDPOINT_CODE = 'chile_api_vehicle';
+export const CHILE_VEHICLE_V3_ENDPOINT_CODE = 'chile_api_vehicle_v3';
 export const CHILE_DRIVER_LICENSE_ENDPOINT_CODE = 'chile_api_driver_license';
 export const CHILE_BUSINESS_ENDPOINT_CODE = 'chile_api_business_lookup';
 export const CHILE_TAXPAYER_ENDPOINT_CODE = 'chile_api_taxpayer_lookup';
@@ -131,6 +132,32 @@ const CHILE_CERTIFICATE_CONFLICT_INVALID_FOLIO_LENGTH: PostmanSandboxProfile = {
     paramOverrides: { folio: '123', verificationCode: '2aacbb9a636a' },
 };
 
+const CHILE_VEHICLE_V3_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    {
+        plate: 'XH6640',
+        documentNumber: 'XH6640',
+        fullName: 'PEUGEOT PARTNER TOLE 1.9 — technical review approved',
+    },
+    {
+        plate: 'FHDJ31',
+        documentNumber: 'FHDJ31',
+        fullName: 'CHEVROLET SAIL — technical review approved',
+    },
+    {
+        plate: 'DCCH18',
+        documentNumber: 'DCCH18',
+        fullName: 'HYUNDAI ACCENT GL 1.6 — technical review approved',
+    },
+    {
+        profileKey: '409-invalid-v3-plate',
+        plate: 'BB985',
+        documentNumber: 'BB985',
+        fullName: '409 — Invalid plate format',
+        responseType: 'error',
+        expectedStatus: 409,
+    },
+];
+
 export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [CHILE_IDENTITY_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(CHILE_SANDBOX_PROFILES, {
@@ -149,6 +176,12 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
         profiles: appendVehiclePlateSandboxProfiles(),
         defaultPlate: SANDBOX_DEFAULT_PLATE,
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        showProfileMeta: false,
+    },
+    [CHILE_VEHICLE_V3_ENDPOINT_CODE]: {
+        profiles: CHILE_VEHICLE_V3_SANDBOX_PROFILES,
+        defaultPlate: 'XH6640',
+        defaultDocumentNumber: 'XH6640',
         showProfileMeta: false,
     },
     [CHILE_DRIVER_LICENSE_ENDPOINT_CODE]: {

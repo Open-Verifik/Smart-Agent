@@ -803,6 +803,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "グアテマラ - 身元追加検索",
             "description": "追加のデータポイントを含む、グアテマラ市民向けの包括的な身元確認。"
+        },
+        "chile_api_vehicle_v3": {
+            "title": "チリ - 車両技術検査",
+            "description": "GET /v3/cl/vehicle でナンバープレートからチリ車両の技術検査ステータスと履歴を照会します。"
         }
     }
 }

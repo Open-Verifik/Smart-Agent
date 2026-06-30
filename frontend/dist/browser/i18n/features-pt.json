@@ -803,6 +803,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "Guatemala - Consulta de Identidade Extra",
             "description": "Verificação abrangente de identidade para cidadãos da Guatemala, incluindo pontos de dados adicionais."
+        },
+        "chile_api_vehicle_v3": {
+            "title": "Chile - Revisão técnica veicular",
+            "description": "Consulte o estado e o histórico da revisão técnica de veículo chileno por placa via GET /v3/cl/vehicle."
         }
     }
 }

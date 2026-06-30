@@ -9,6 +9,7 @@
     "GET /api/co/runt/vehiculo",
     "POST /api/co/simit/suspensiones",
     "GET /api/cl/vehicle",
+    "GET /api/v3/cl/vehicle",
     "GET /api/co/runt/vehicle-by-vin",
     "GET /api/br/cedula",
     "POST /api/communication/email",

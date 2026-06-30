@@ -803,6 +803,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "Guatemala Extra",
             "description": "Valida la identidad de personas en Guatemala con detalles adicionales como fecha de nacimiento y género."
+        },
+        "chile_api_vehicle_v3": {
+            "title": "Chile - Revisión técnica vehicular",
+            "description": "Consulta estado e historial de revisión técnica vehicular chilena por patente mediante GET /v3/cl/vehicle."
         }
     }
 }

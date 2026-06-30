@@ -803,6 +803,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "과테말라 - 추가 신원 조회",
             "description": "추가 데이터 포인트를 포함한 과테말라 시민을 위한 포괄적 신원 확인."
+        },
+        "chile_api_vehicle_v3": {
+            "title": "칠레 - 차량 기술 검사",
+            "description": "GET /v3/cl/vehicle로 번호판을 통해 칠레 차량의 기술 검사 상태와 이력을 조회합니다."
         }
     }
 }

@@ -337,6 +337,29 @@
 			}
 		},
 		{
+			"id": "chile_api_vehicle_v3",
+			"name": "Chile - Vehicle Technical Review",
+			"category": "Chile - Vehicle Technical Review",
+			"url": "https://ai.verifik.co/api/v3/cl/vehicle",
+			"verifikPath": "/v3/cl/vehicle",
+			"method": "GET",
+			"description": "Query Chile vehicle technical review status and inspection history by license plate.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
 			"id": "colombia_api_vehicle_complete_by_vin",
 			"name": "Colombia - Vehicle Records by VIN",
 			"category": "Colombia - Vehicle Records by VIN",

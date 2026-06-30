@@ -803,6 +803,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "Guatemala Extra",
             "description": "Validate the identity of individuals in Guatemala with additional details such as birth date and gender."
+        },
+        "chile_api_vehicle_v3": {
+            "title": "Chile - Vehicle Technical Review",
+            "description": "Query Chile vehicle technical review status and inspection history by license plate via GET /v3/cl/vehicle."
         }
     }
 }
