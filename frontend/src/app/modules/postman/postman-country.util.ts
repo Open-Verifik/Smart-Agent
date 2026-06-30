@@ -34,6 +34,9 @@ export const POSTMAN_COUNTRY_ISO: Record<string, 'world' | string> = {
 
 /** Extra i18n title prefixes not covered by POSTMAN_COUNTRY_ISO keys alone. */
 const COUNTRY_TITLE_PREFIX_EXTRAS: Record<string, string[]> = {
+    Bolivia: ['玻利维亚'],
+    Brazil: ['Brasil', 'Brésil', 'ブラジル', '브라질', '巴西'],
+    Ecuador: ['厄瓜多尔'],
     'United States': ['USA'],
     Spain: ['España'],
     Mexico: ['México'],
@@ -161,7 +164,7 @@ export function stripCountryPrefixFromTitle(
         return trimmed ?? '';
     }
 
-    const match = trimmed.match(/^(.+?)\s*[-–—]\s+/);
+    const match = trimmed.match(/^(.+?)\s*(?:[-–—]\s+|:\s+)/);
     if (!match) {
         return trimmed;
     }
