@@ -120,6 +120,10 @@
       "title": "Chile - Vehículo de transporte público",
       "description": "Consulta registro RNT de vehículos de transporte público en Chile por placa: tipo de servicio, capacidad, marca/modelo, fechas de certificado y estado del operador."
     },
+    "chile_api_vehicle_soap": {
+      "title": "Chile - SOAP vehicular",
+      "description": "Consulta certificado SOAP vehicular chileno (Seguro Obligatorio de Accidentes Personales) por patente y número de póliza: estado, aseguradora, titular, vigencia y datos del vehículo."
+    },
     "panama_api_vehicle": {
       "title": "Panamá - Verificación de Vehículos",
       "description": "Consulta un vehículo panameño por placa. Devuelve marca, modelo, año y metadatos de registro para verificaciones de cumplimiento y suscripción."

@@ -439,7 +439,16 @@
         "paginatorLastPage": "Última página",
         "paginatorRange": "{{start}} – {{end}} de {{total}}",
         "paginatorRangeEmpty": "0 de 0",
-        "signatureImage": "Imagen de firma"
+        "signatureImage": "Imagen de firma",
+        "aiLayoutAssistant": "Asistente de Diseño de IA",
+        "aiLayoutAssistantHint": "Describe el diseño que deseas y la IA lo creará",
+        "generateLayout": "Generar Diseño",
+        "generatingLayout": "Generando...",
+        "useSamplePrompt": "Usar Prompt de Ejemplo",
+        "aiPromptPlaceholder": "ej., Un reporte limpio con un título en negrita arriba, una línea divisoria, el número de documento y nombre completo abajo, y una tabla de datos",
+        "layoutGeneratedSuccess": "¡Diseño generado por la IA con éxito!",
+        "layoutGeneratedEmpty": "La IA devolvió un diseño vacío. Intenta reformular tu prompt.",
+        "layoutGeneratedFailed": "No se pudo generar el diseño con IA. Por favor, inténtalo de nuevo."
     },
     "guestFeatureAuth": {
         "title": "Inicio de sesión obligatorio",

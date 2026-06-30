@@ -139,6 +139,24 @@ export const applyPostmanSandboxParamDefaults = (
         const resolvedPlate = documentNumber ?? config.defaultPlate ?? config.defaultDocumentNumber;
         plateParam.value = resolvedPlate;
         applySandboxParamValue(endpoint.params, 'state', config.defaultState);
+
+        const policyNumberParam = endpoint.params.find((p) => p.key === 'policyNumber');
+        if (policyNumberParam && !policyNumberParam.value?.trim()) {
+            const profile =
+                config.profiles.find(
+                    (p) =>
+                        p.paramOverrides?.plate === resolvedPlate ||
+                        p.plate === resolvedPlate ||
+                        p.documentNumber === resolvedPlate
+                ) ?? config.profiles.find((profile) => profile.responseType !== 'error') ?? config.profiles[0];
+
+            applySandboxParamValue(
+                endpoint.params,
+                'policyNumber',
+                profile?.paramOverrides?.policyNumber
+            );
+        }
+
         return;
     }
 

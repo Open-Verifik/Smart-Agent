@@ -120,6 +120,10 @@
       "title": "Chile - Public Transport Vehicle",
       "description": "Query Chile public transport vehicle registration (RNT) by license plate: service type, capacity, brand/model, certificate dates, and operator status."
     },
+    "chile_api_vehicle_soap": {
+      "title": "Chile - Vehicle SOAP",
+      "description": "Query Chile vehicular SOAP (Seguro Obligatorio de Accidentes Personales) certificate by license plate and policy number: status, insurer, owner, validity dates, and vehicle details."
+    },
     "panama_api_vehicle": {
       "title": "Panama - Vehicle Verification",
       "description": "Look up a Panamanian vehicle by license plate. Returns make, model, year, and registration metadata for compliance and underwriting checks."

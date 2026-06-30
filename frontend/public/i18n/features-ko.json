@@ -356,6 +356,10 @@
             "title": "칠레 — 대중교통 차량",
             "description": "GET /v2/cl/transport-vehicle로 칠레 대중교통 RNT를 조회합니다."
         },
+        "chile_api_vehicle_soap": {
+            "title": "칠레 — 차량 SOAP",
+            "description": "GET /v2/cl/vehicle-soap로 번호판과 보험증권 번호로 칠레 차량 SOAP(의무 개인상해 보험) 증명서를 조회합니다."
+        },
         "cl_certificate_verify": {
             "title": "칠레 - Registro Civil 증명서 검증",
             "description": "GET /v2/cl/certificate/verify를 통해 folio와 검증 코드(Código Verificador)로 칠레 Registro Civil(SRCEI) 증명서를 확인합니다. PDF 메타데이터와 유죄 판결 등록 세부 정보를 반환합니다."
