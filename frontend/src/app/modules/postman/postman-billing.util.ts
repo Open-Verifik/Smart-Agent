@@ -69,7 +69,9 @@ export const attachColombiaCedulaPremiumPricing = (
     endpoints: ApiEndpoint[],
     featureList: Array<{ code?: string; price?: number }>
 ): ApiEndpoint[] => {
-    const premiumFeature = featureList.find((feature) => feature.code === COLOMBIA_CEDULA_PREMIUM_CODE);
+    const premiumFeature = featureList.find(
+        (feature) => feature.code === COLOMBIA_CEDULA_PREMIUM_CODE
+    );
     const premiumPrice = parseNumeric(premiumFeature?.price);
 
     if (premiumPrice == null) {
@@ -138,7 +140,20 @@ export const formatCreditsForDisplay = (value: number | null | undefined): strin
     return parseFloat(numeric.toFixed(6)).toString();
 };
 
-export const getHistoryBillingTooltipParams = (request: BillingAwareRequest): {
+export const formatHistoryCostCredits = (value: number | string | null | undefined): string => {
+    const numeric = parseNumeric(value);
+    if (numeric == null) {
+        return '-';
+    }
+    return numeric.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4,
+    });
+};
+
+export const getHistoryBillingTooltipParams = (
+    request: BillingAwareRequest
+): {
     standard: string;
     charged: string;
 } | null => {
@@ -146,8 +161,8 @@ export const getHistoryBillingTooltipParams = (request: BillingAwareRequest): {
         return null;
     }
 
-    const standard = formatCreditsForDisplay(request.billingStandardCost);
-    const charged = formatCreditsForDisplay(request.cost);
+    const standard = formatHistoryCostCredits(request.billingStandardCost);
+    const charged = formatHistoryCostCredits(request.cost);
 
     return { standard, charged };
 };
