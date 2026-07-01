@@ -17,6 +17,12 @@ import {
 
 export const ARGENTINA_IDENTITY_ENDPOINT_CODE = 'argentina_api_identity_lookup';
 export const ARGENTINA_VEHICLE_ENDPOINT_CODE = 'argentina_api_vehicle';
+export const ARGENTINA_VEHICLE_V3_ENDPOINT_CODE = 'argentina_api_vehicle_v3';
+export const ARGENTINA_TRAFFIC_INFRACTIONS_ENDPOINT_CODE =
+    'argentina_api_buenos_aires_traffic_infractions';
+export const ARGENTINA_TECHNICAL_INSPECTION_ENDPOINT_CODE =
+    'argentina_api_buenos_aires_technical_inspection';
+export const ARGENTINA_RTO_ENDPOINT_CODE = 'argentina_api_rto';
 export const ARGENTINA_COMPANY_ENDPOINT_CODE = 'argentina_api_company_lookup';
 export const ARGENTINA_CERTIFICATE_VERIFY_ENDPOINT_CODE = 'ar_certificate_verify';
 
@@ -124,6 +130,13 @@ const ARGENTINA_CERTIFICATE_CONFLICT_MISSING_SECURITY_CODE: PostmanSandboxProfil
     paramOverrides: { requestCode: '02118499487', securityCode: '' },
 };
 
+const buildArgentinaVehicleServiceConfig = (): PostmanSandboxEndpointConfig => ({
+    profiles: appendVehiclePlateSandboxProfiles(),
+    defaultPlate: SANDBOX_DEFAULT_PLATE,
+    defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+    showProfileMeta: false,
+});
+
 export const ARGENTINA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [ARGENTINA_IDENTITY_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(ARGENTINA_SANDBOX_PROFILES, {
@@ -144,6 +157,10 @@ export const ARGENTINA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
         showProfileMeta: false,
     },
+    [ARGENTINA_VEHICLE_V3_ENDPOINT_CODE]: buildArgentinaVehicleServiceConfig(),
+    [ARGENTINA_TRAFFIC_INFRACTIONS_ENDPOINT_CODE]: buildArgentinaVehicleServiceConfig(),
+    [ARGENTINA_TECHNICAL_INSPECTION_ENDPOINT_CODE]: buildArgentinaVehicleServiceConfig(),
+    [ARGENTINA_RTO_ENDPOINT_CODE]: buildArgentinaVehicleServiceConfig(),
     [ARGENTINA_COMPANY_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(ARGENTINA_COMPANY_SANDBOX_PROFILES, {
             conflictProfiles: [

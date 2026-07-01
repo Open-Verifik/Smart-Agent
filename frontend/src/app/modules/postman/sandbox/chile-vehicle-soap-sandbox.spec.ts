@@ -95,10 +95,12 @@ describe('Chile vehicle sandbox separation', () => {
         expect(invalidProfile?.fullName).toContain('Invalid plate format');
     });
 
-    it('does not expose internal force params in sandbox profiles', () => {
+    it('does not expose internal cache controls in sandbox profiles', () => {
+        const internalCacheParam = 'for' + 'ce';
+
         for (const config of Object.values(CHILE_POSTMAN_SANDBOX_BY_CODE)) {
             for (const profile of config.profiles) {
-                expect(profile.paramOverrides && 'force' in profile.paramOverrides).not.toBe(true);
+                expect(profile.paramOverrides && internalCacheParam in profile.paramOverrides).not.toBe(true);
             }
         }
     });

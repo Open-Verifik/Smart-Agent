@@ -89,8 +89,8 @@
             "description": "Get comprehensive vehicle information for Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "Mexique",
-            "description": "Vérifier les informations véhicule au Mexique par plaque d'immatriculation"
+            "title": "Mexique — véhicule par plaque",
+            "description": "Vérifiez les informations d'un véhicule mexicain à partir de sa plaque d'immatriculation."
         },
         "feature_passwordless_solution": {
             "title": "Passwordless Authentication",
@@ -345,8 +345,8 @@
             "description": "Validez l'identité des personnes en Argentine avec l'API KYC de Verifik. Connectez-vous aux sources officielles et vérifiez les données personnelles en quelques secondes."
         },
         "argentina_api_identity_lookup_extra": {
-            "title": "Argentine - Vérification d'identité (étendue)",
-            "description": "Vérification d'identité argentine étendue pour un KYC et un onboarding approfondis."
+            "title": "Argentine - Citoyen argentin complet",
+            "description": "Vérification complète d'un citoyen argentin par DNI, avec champs d'identité étendus pour un KYC approfondi."
         },
         "ar_certificate_verify": {
             "title": "Argentine - Certificat de casier judiciaire",
@@ -365,8 +365,8 @@
             "description": "Vérifie un certificat du Registro Civil du Chili (SRCEI) avec folio et code de vérification (Código Verificador) via GET /v2/cl/certificate/verify. Retourne les métadonnées du PDF et les antécédents des registres de condamnations lorsque disponibles."
         },
         "ecuador_api_company_lookup": {
-            "title": "Équateur - Recherche d'Entreprise",
-            "description": "Fournit des services de vérification et de validation fiables."
+            "title": "Équateur — vérification d'entreprise",
+            "description": "Validez les entreprises équatoriennes par RUC avec l'API KYB de Verifik."
         },
         "usa_api_ssn": {
             "title": "États-Unis - SSN Verification",
@@ -501,16 +501,16 @@
             "description": "Fournit des services de vérification et de validation fiables."
         },
         "canada_api_company": {
-            "title": "Vérification d'entreprise au Canada",
-            "description": "Validez les entreprises canadiennes par nom et province (API KYB Verifik)."
+            "title": "Canada — vérification d'entreprise",
+            "description": "Validez les entreprises canadiennes par nom d'entreprise et province avec l'API KYB de Verifik."
         },
         "us_api_passport_entries": {
             "title": "us api passport entries",
             "description": "Fournit des services de vérification et de validation fiables."
         },
         "mexico_api_company": {
-            "title": "Vérification d'entreprise au Mexique",
-            "description": "Validez les entreprises mexicaines avec l'API KYB Verifik et les sources officielles."
+            "title": "Mexique — vérification d'entreprise",
+            "description": "Validez les entreprises mexicaines avec le FME et l'API KYB de Verifik."
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -553,8 +553,8 @@
             "description": "Valeurs et fiche technique véhicule Fasecolda par code."
         },
         "usa_api_company": {
-            "title": "États-Unis - Recherche d'Entreprise",
-            "description": "Fournit des services de vérification et de validation fiables."
+            "title": "États-Unis — vérification d'entreprise",
+            "description": "Validez les entreprises américaines par nom d'entreprise avec l'API KYB de Verifik."
         },
         "colombia_api_runt_owners": {
             "title": "Colombie - Propriétaires (RUNT)",
@@ -569,8 +569,32 @@
             "description": "Vérifiez la validité du certificat des professionnels du droit en Colombie (CC/CE, quality)."
         },
         "argentina_api_vehicle": {
-            "title": "Argentine — véhicule",
-            "description": "Consultez les informations de véhicules en Argentine à partir de la plaque d'immatriculation."
+            "title": "Argentine — informations véhicule",
+            "description": "Consultez les informations de véhicules argentins à partir de la plaque d'immatriculation."
+        },
+        "argentina_api_vehicle_v3": {
+            "title": "Argentine — véhicule v3",
+            "description": "Consultez les détails d'un véhicule argentin par plaque, y compris les identifiants, l'état de police et la fiche technique lorsqu'elle est disponible."
+        },
+        "argentina_api_buenos_aires_traffic_infractions": {
+            "title": "Buenos Aires — infractions routières",
+            "description": "Consultez les infractions routières de Buenos Aires par plaque d'immatriculation argentine."
+        },
+        "argentina_api_traffic_infractions": {
+            "title": "Buenos Aires — infractions routières",
+            "description": "Consultez les infractions routières de Buenos Aires par plaque d'immatriculation argentine."
+        },
+        "argentina_api_buenos_aires_technical_inspection": {
+            "title": "Buenos Aires — inspection technique",
+            "description": "Consultez l'historique d'inspection technique des véhicules de Buenos Aires par plaque argentine."
+        },
+        "argentina_api_technical_inspection": {
+            "title": "Buenos Aires — inspection technique",
+            "description": "Consultez l'historique d'inspection technique des véhicules de Buenos Aires par plaque argentine."
+        },
+        "argentina_api_rto": {
+            "title": "Argentine — RTO",
+            "description": "Consultez les registres d'inspection RTO argentins par plaque d'immatriculation."
         },
         "argentina_api_company_lookup": {
             "title": "Entreprise argentine (CUIT)",
@@ -585,8 +609,8 @@
             "description": "Vérification d'antécédents de personnes physiques brésiliennes via CPF."
         },
         "bolivia_api_business_lookup": {
-            "title": "Bolivie - Recherche d'Entreprise",
-            "description": "Fournit des services de vérification et de validation fiables."
+            "title": "Bolivie — vérification d'entreprise",
+            "description": "Validez les entreprises boliviennes par NIT avec l'API KYB de Verifik."
         },
         "costa_rica_api_business_lookup": {
             "title": "Entreprise costaricienne (NITE)",
@@ -594,7 +618,7 @@
         },
         "paraguay_api_business_lookup": {
             "title": "Entreprise paraguayenne (RUC)",
-            "description": "Vérifiez les entreprises au Paraguay avec l'API KYB Verifik (RUC). Sources officielles, données en temps réel."
+            "description": "Validez les entreprises paraguayennes par RUC avec l'API KYB de Verifik."
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Fasecolda — Vérification des sinistres",
@@ -741,8 +765,8 @@
             "description": "Interrogez le registre RUES colombien par NIT et catégorie via GET /v3/co/rues."
         },
         "peru_identity_lookup_v3": {
-            "title": "Pérou — Citoyen (DNI)",
-            "description": "Vérification d'identité au Pérou par DNI (v3/pe/cedula)."
+            "title": "Pérou — citoyen v3",
+            "description": "Vérifiez l'identité des citoyens péruviens par DNI avec l'API v3."
         },
         "peru_identity_extra_lookup_v3": {
             "title": "Pérou — DNI (données étendues)",
@@ -757,8 +781,8 @@
             "description": "Certificats du Ministère du Travail colombien, y compris formation en hauteur (*curso de alturas*), via GET v3."
         },
         "peru_api_company_lookup_v3": {
-            "title": "Pérou — Entreprise (RUC)",
-            "description": "Vérification d'entreprise au Pérou par RUC (v3/pe/company)."
+            "title": "Pérou — vérification d'entreprise v3",
+            "description": "Validez les entreprises péruviennes par RUC avec l'API KYB v3 de Verifik."
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
