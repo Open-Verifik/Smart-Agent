@@ -476,8 +476,8 @@
 		},
 		{
 			"id": "colombia_api_rethus",
-			"name": "Colombia — RETHUS (health professionals registry)",
-			"category": "Colombia — RETHUS (health professionals registry)",
+			"name": "Professional Healthcare Physicians Verification",
+			"category": "Professional Healthcare Physicians Verification",
 			"url": "https://ai.verifik.co/api/co/cedula/rethus",
 			"verifikPath": "/v2/co/cedula/rethus",
 			"method": "GET",
