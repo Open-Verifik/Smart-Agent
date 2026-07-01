@@ -25,8 +25,8 @@
             "description": "コロンビア市民証（CC）で兵役（situación militar）を照会します。"
         },
         "colombia_api_rethus": {
-            "title": "Colombia - 健康記録検証",
-            "description": "Access Colombian health records through Rethus system. 検証 medical history, health status, and healthcare provider information. 必要 document type (CC, CE, PPT) and document number."
+            "title": "医療専門医の検証",
+            "description": "GET /v2/co/cedula/rethus でコロンビアの RETHUS 医療専門家登録を照会します。"
         },
         "colombia_api_rues": {
             "title": "Colombia - RUES Business Lookup (v2, legacy)",

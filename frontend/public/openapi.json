@@ -977,7 +977,7 @@
           "LATAM"
         ],
         "operationId": "colombia_api_rethus",
-        "summary": "Colombia — RETHUS (health professionals registry)",
+        "summary": "Professional Healthcare Physicians Verification",
         "description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus.",
         "x-payment-info": {
           "price": {

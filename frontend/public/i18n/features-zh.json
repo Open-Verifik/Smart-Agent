@@ -25,8 +25,8 @@
             "description": "使用哥伦比亚公民身份证（CC）查询兵役（situación militar）状态。"
         },
         "colombia_api_rethus": {
-            "title": "Colombia - 健康记录验证",
-            "description": "Access Colombian health records through Rethus system. 验证 medical history, health status, and healthcare provider information. 需要 document type (CC, CE, PPT) and document number."
+            "title": "专业医疗保健人员验证",
+            "description": "通过 GET /v2/co/cedula/rethus 查询哥伦比亚 RETHUS 医疗保健专业人员注册信息。"
         },
         "colombia_api_rues": {
             "title": "RUES 企业查询 (v2，旧版)",

@@ -25,8 +25,8 @@
             "description": "콜롬비아 시민증(CC) 번호로 군 복무(situación militar) 상태를 조회합니다."
         },
         "colombia_api_rethus": {
-            "title": "Colombia - 건강 기록 확인",
-            "description": "Access Colombian health records through Rethus system. 확인 medical history, health status, and healthcare provider information. 필요 document type (CC, CE, PPT) and document number."
+            "title": "보건 전문의 검증",
+            "description": "GET /v2/co/cedula/rethus로 콜롬비아 RETHUS 보건 전문가 등록을 조회합니다."
         },
         "colombia_api_rues": {
             "title": "Colombia - RUES Business Lookup (v2, legacy)",

@@ -25,8 +25,8 @@
             "description": "Consultez la situation militaire en Colombie avec la cédula de ciudadanía (CC)."
         },
         "colombia_api_rethus": {
-            "title": "Colombie - Health Records Verification",
-            "description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number."
+            "title": "Vérification des Médecins Professionnels de la Santé",
+            "description": "Consultez le registre RETHUS des professionnels de santé en Colombie via GET /v2/co/cedula/rethus."
         },
         "colombia_api_rues": {
             "title": "Colombia - RUES Business Lookup (v2, legacy)",

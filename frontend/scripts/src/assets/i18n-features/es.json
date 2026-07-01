@@ -69,8 +69,8 @@
       "description": "Valida la identidad de personas en Colombia con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
     },
     "colombia_api_rethus": {
-      "title": "Colombia — RETHUS (registro de talento humano en salud)",
-      "description": "Consulta el registro RETHUS de Colombia mediante GET /v2/co/cedula/rethus."
+      "title": "Verificación de Médicos Profesionales de la Salud",
+      "description": "Consulta el registro RETHUS de talento humano en salud en Colombia mediante GET /v2/co/cedula/rethus."
     },
     "colombia_api_contraloria_certificate": {
       "title": "Colombia - Certificado de Contraloría",

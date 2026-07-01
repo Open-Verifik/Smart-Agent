@@ -25,8 +25,8 @@
             "description": "Query Colombian military service (situación militar) using a Cédula de Ciudadanía (CC). Returns status and related details from official sources."
         },
         "colombia_api_rethus": {
-            "title": "RETHUS (health professionals registry)",
-            "description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus."
+            "title": "Professional Healthcare Physicians Verification",
+            "description": "Query the Colombian RETHUS registry for health-sector professionals via GET /v2/co/cedula/rethus."
         },
         "colombia_api_rues": {
             "title": "RUES business lookup (v2, legacy)",

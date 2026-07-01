@@ -25,8 +25,8 @@
             "description": "Consulta la situación militar en Colombia con cédula de ciudadanía (CC). Datos oficiales vía Verifik."
         },
         "colombia_api_rethus": {
-            "title": "RETHUS (registro de talento humano en salud)",
-            "description": "Consulta el registro RETHUS de Colombia mediante GET /v2/co/cedula/rethus."
+            "title": "Verificación de Médicos Profesionales de la Salud",
+            "description": "Consulta el registro RETHUS de talento humano en salud en Colombia mediante GET /v2/co/cedula/rethus."
         },
         "colombia_api_rues": {
             "title": "Registro Empresarial RUES",
