@@ -1,6 +1,7 @@
 export interface OverrideConditionsSnapshot {
     requiresSmartEnrollSubscription?: boolean;
     requiresSmartAccessSubscription?: boolean;
+    staffSeatLimit?: number | null;
 }
 
 export interface ClientSettingsOverrideSnapshot {
