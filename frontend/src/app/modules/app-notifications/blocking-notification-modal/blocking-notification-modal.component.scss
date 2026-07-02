@@ -62,6 +62,14 @@
         font-family: Georgia, 'Times New Roman', serif;
     }
 
+    :deep(.ql-font-poppins) {
+        font-family: Poppins, Arial, Helvetica, sans-serif;
+    }
+
+    :deep(.ql-font-roboto) {
+        font-family: Roboto, Arial, Helvetica, sans-serif;
+    }
+
     :deep(.ql-font-monospace) {
         font-family: 'Courier New', Courier, monospace;
     }
