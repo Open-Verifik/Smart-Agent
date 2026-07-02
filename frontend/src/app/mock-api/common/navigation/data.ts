@@ -76,20 +76,20 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:document-magnifying-glass',
         children: [
             {
-                id: 'smart-scan',
-                title: 'nav.smart_scan',
-                subtitle: 'nav.scan_documents',
-                type: 'basic',
-                icon: 'heroicons_outline:document-text',
-                link: '/smart-enroll/smart-scan',
-            },
-            {
                 id: 'smart-enroll-projects',
                 title: 'nav.smart_enroll_projects',
                 subtitle: 'nav.smart_enroll_projects_subtitle',
                 type: 'basic',
                 icon: 'heroicons_outline:rectangle-stack',
                 link: '/smart-enroll/projects',
+            },
+            {
+                id: 'smart-scan',
+                title: 'nav.smart_scan',
+                subtitle: 'nav.scan_documents',
+                type: 'basic',
+                icon: 'heroicons_outline:document-text',
+                link: '/smart-enroll/smart-scan',
             },
             {
                 id: 'smart-enroll-collections',
@@ -306,20 +306,20 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         icon: 'heroicons_outline:document-magnifying-glass',
         children: [
             {
-                id: 'smart-scan',
-                title: 'nav.smart_scan',
-                subtitle: 'nav.scan_documents',
-                type: 'basic',
-                icon: 'heroicons_outline:document-text',
-                link: '/smart-enroll/smart-scan',
-            },
-            {
                 id: 'smart-enroll-projects',
                 title: 'nav.smart_enroll_projects',
                 subtitle: 'nav.smart_enroll_projects_subtitle',
                 type: 'basic',
                 icon: 'heroicons_outline:rectangle-stack',
                 link: '/smart-enroll/projects',
+            },
+            {
+                id: 'smart-scan',
+                title: 'nav.smart_scan',
+                subtitle: 'nav.scan_documents',
+                type: 'basic',
+                icon: 'heroicons_outline:document-text',
+                link: '/smart-enroll/smart-scan',
             },
             {
                 id: 'smart-enroll-collections',
