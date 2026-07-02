@@ -2897,6 +2897,35 @@
         "signOutWeb3": "Cerrar Sesión Billetera",
         "settings": "Configuración"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Tema",
+            "scheme": "Esquema",
+            "layout": "Diseño"
+        },
+        "scheme": {
+            "auto": "Automático",
+            "dark": "Oscuro",
+            "light": "Claro",
+            "autoTooltip": "Establece automáticamente el esquema según la preferencia de color del sistema operativo del usuario mediante la consulta de medios 'prefer-color-scheme'."
+        },
+        "layouts": {
+            "empty": "Vacío",
+            "classic": "Clásico",
+            "classy": "Elegante",
+            "compact": "Compacto",
+            "dense": "Denso",
+            "futuristic": "Futurista",
+            "thin": "Delgado",
+            "centered": "Centrado",
+            "enterprise": "Empresarial",
+            "material": "Material",
+            "modern": "Moderno"
+        },
+        "themes": {
+            "theme-default": "Predeterminado"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "División Vertical",

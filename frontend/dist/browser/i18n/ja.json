@@ -2888,6 +2888,35 @@
         "signOutWeb3": "ウォレットからサインアウト",
         "settings": "設定"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "テーマ",
+            "scheme": "スキーム",
+            "layout": "レイアウト"
+        },
+        "scheme": {
+            "auto": "自動",
+            "dark": "ダーク",
+            "light": "ライト",
+            "autoTooltip": "ユーザーのオペレーティングシステムのカラースキーム設定に基づき、'prefer-color-scheme' メディアクエリで自動的にスキームを設定します。"
+        },
+        "layouts": {
+            "empty": "空",
+            "classic": "クラシック",
+            "classy": "クラシー",
+            "compact": "コンパクト",
+            "dense": "密",
+            "futuristic": "未来的",
+            "thin": "スリム",
+            "centered": "中央",
+            "enterprise": "エンタープライズ",
+            "material": "マテリアル",
+            "modern": "モダン"
+        },
+        "themes": {
+            "theme-default": "デフォルト"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "垂直分割",

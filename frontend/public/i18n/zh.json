@@ -2888,6 +2888,35 @@
         "signOutWeb3": "退出钱包",
         "settings": "设置"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "主题",
+            "scheme": "配色方案",
+            "layout": "布局"
+        },
+        "scheme": {
+            "auto": "自动",
+            "dark": "深色",
+            "light": "浅色",
+            "autoTooltip": "根据用户操作系统的配色偏好，通过 'prefer-color-scheme' 媒体查询自动设置配色方案。"
+        },
+        "layouts": {
+            "empty": "空白",
+            "classic": "经典",
+            "classy": "优雅",
+            "compact": "紧凑",
+            "dense": "密集",
+            "futuristic": "未来",
+            "thin": "精简",
+            "centered": "居中",
+            "enterprise": "企业",
+            "material": "Material",
+            "modern": "现代"
+        },
+        "themes": {
+            "theme-default": "默认"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "垂直分割",

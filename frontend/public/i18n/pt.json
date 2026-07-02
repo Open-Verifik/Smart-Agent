@@ -2888,6 +2888,35 @@
         "signOutWeb3": "Sair da Carteira",
         "settings": "Configurações"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Tema",
+            "scheme": "Esquema",
+            "layout": "Layout"
+        },
+        "scheme": {
+            "auto": "Automático",
+            "dark": "Escuro",
+            "light": "Claro",
+            "autoTooltip": "Define automaticamente o esquema com base na preferência de cores do sistema operacional do usuário usando a consulta de mídia 'prefer-color-scheme'."
+        },
+        "layouts": {
+            "empty": "Vazio",
+            "classic": "Clássico",
+            "classy": "Elegante",
+            "compact": "Compacto",
+            "dense": "Denso",
+            "futuristic": "Futurista",
+            "thin": "Fino",
+            "centered": "Centralizado",
+            "enterprise": "Empresarial",
+            "material": "Material",
+            "modern": "Moderno"
+        },
+        "themes": {
+            "theme-default": "Padrão"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "Divisão Vertical",

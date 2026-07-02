@@ -2897,6 +2897,35 @@
         "signOutWeb3": "Sign Out Wallet",
         "settings": "Settings"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Theme",
+            "scheme": "Scheme",
+            "layout": "Layout"
+        },
+        "scheme": {
+            "auto": "Auto",
+            "dark": "Dark",
+            "light": "Light",
+            "autoTooltip": "Automatically sets the scheme based on user's operating system's color scheme preference using 'prefer-color-scheme' media query."
+        },
+        "layouts": {
+            "empty": "Empty",
+            "classic": "Classic",
+            "classy": "Classy",
+            "compact": "Compact",
+            "dense": "Dense",
+            "futuristic": "Futuristic",
+            "thin": "Thin",
+            "centered": "Centered",
+            "enterprise": "Enterprise",
+            "material": "Material",
+            "modern": "Modern"
+        },
+        "themes": {
+            "theme-default": "Default"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "Split Vertical",

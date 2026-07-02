@@ -2888,6 +2888,35 @@
         "signOutWeb3": "지갑 로그아웃",
         "settings": "설정"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "테마",
+            "scheme": "스킴",
+            "layout": "레이아웃"
+        },
+        "scheme": {
+            "auto": "자동",
+            "dark": "다크",
+            "light": "라이트",
+            "autoTooltip": "사용자 운영체제의 색 구성표 환경 설정에 따라 'prefer-color-scheme' 미디어 쿼리를 사용하여 자동으로 스킴을 설정합니다."
+        },
+        "layouts": {
+            "empty": "빈",
+            "classic": "클래식",
+            "classy": "클래시",
+            "compact": "콤팩트",
+            "dense": "밀집",
+            "futuristic": "미래형",
+            "thin": "슬림",
+            "centered": "중앙",
+            "enterprise": "엔터프라이즈",
+            "material": "머티리얼",
+            "modern": "모던"
+        },
+        "themes": {
+            "theme-default": "기본값"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "수직 분할",
