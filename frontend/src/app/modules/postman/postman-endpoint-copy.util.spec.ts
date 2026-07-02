@@ -1,11 +1,90 @@
 import {
     resolvePostmanEndpointCopy,
     resolveAboutOverview,
+    resolveAboutParamsColumnVisibility,
     overviewLeadParagraph,
     sanitizePostmanCopyText,
 } from './postman-endpoint-copy.util';
 
 describe('postman-endpoint-copy.util', () => {
+    describe('resolveAboutParamsColumnVisibility', () => {
+        it('hides optional columns for plate-only parameter rows', () => {
+            const result = resolveAboutParamsColumnVisibility([
+                {
+                    allowed: null,
+                    conditionalHint: undefined,
+                    dateFormat: null,
+                },
+            ]);
+
+            expect(result).toEqual({
+                showAllowedColumn: false,
+                showConditionalColumn: false,
+                showDateFormatColumn: false,
+            });
+        });
+
+        it('shows only the allowed column when enum values exist', () => {
+            const result = resolveAboutParamsColumnVisibility([
+                {
+                    allowed: ['CC', 'CE'],
+                },
+            ]);
+
+            expect(result).toEqual({
+                showAllowedColumn: true,
+                showConditionalColumn: false,
+                showDateFormatColumn: false,
+            });
+        });
+
+        it('shows only the date format column when a date format exists', () => {
+            const result = resolveAboutParamsColumnVisibility([
+                {
+                    dateFormat: 'dd/MM/yyyy',
+                },
+            ]);
+
+            expect(result).toEqual({
+                showAllowedColumn: false,
+                showConditionalColumn: false,
+                showDateFormatColumn: true,
+            });
+        });
+
+        it('shows only the conditional column when a conditional hint exists', () => {
+            const result = resolveAboutParamsColumnVisibility([
+                {
+                    conditionalHint: 'documentType: CE',
+                },
+            ]);
+
+            expect(result).toEqual({
+                showAllowedColumn: false,
+                showConditionalColumn: true,
+                showDateFormatColumn: false,
+            });
+        });
+
+        it('shows every optional column for mixed endpoint metadata', () => {
+            const result = resolveAboutParamsColumnVisibility([
+                {
+                    allowed: ['CC', 'CE'],
+                },
+                {
+                    conditionalHint: 'documentType: CE',
+                    dateFormat: 'dd/MM/yyyy',
+                },
+            ]);
+
+            expect(result).toEqual({
+                showAllowedColumn: true,
+                showConditionalColumn: true,
+                showDateFormatColumn: true,
+            });
+        });
+    });
+
     describe('overviewLeadParagraph', () => {
         it('returns first sentence from markdown overview', () => {
             const lead = overviewLeadParagraph(

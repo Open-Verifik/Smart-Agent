@@ -25,8 +25,8 @@
             "description": "使用哥伦比亚公民身份证（CC）查询兵役（situación militar）状态。"
         },
         "colombia_api_rethus": {
-            "title": "Colombia - 健康记录验证",
-            "description": "Access Colombian health records through Rethus system. 验证 medical history, health status, and healthcare provider information. 需要 document type (CC, CE, PPT) and document number."
+            "title": "专业医疗保健人员验证",
+            "description": "通过 GET /v2/co/cedula/rethus 查询哥伦比亚 RETHUS 医疗保健专业人员注册信息。"
         },
         "colombia_api_rues": {
             "title": "RUES 企业查询 (v2，旧版)",
@@ -89,8 +89,8 @@
             "description": "获取 comprehensive vehicle information 为 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "墨西哥",
-            "description": "通过车牌查询墨西哥车辆信息"
+            "title": "墨西哥 — 按车牌查车辆",
+            "description": "通过车牌查询墨西哥车辆信息。"
         },
         "feature_passwordless_solution": {
             "title": "Passwordless Authentication",
@@ -345,8 +345,8 @@
             "description": "使用 Verifik 的 KYC API 核验阿根廷个人身份。直接对接官方数据源，在数秒内完成个人数据核验。"
         },
         "argentina_api_identity_lookup_extra": {
-            "title": "阿根廷 - 国民身份证验证（扩展）",
-            "description": "扩展的阿根廷国民身份验证，用于更深入的 KYC 与注册。"
+            "title": "阿根廷 - 阿根廷公民完整核验",
+            "description": "使用 DNI 对阿根廷公民进行完整身份核验，包含更深入 KYC 所需的扩展身份字段。"
         },
         "ar_certificate_verify": {
             "title": "阿根廷 - 犯罪记录证明",
@@ -365,8 +365,8 @@
             "description": "通过 GET /v2/cl/certificate/verify，使用 folio 和验证码（Código Verificador）核验智利 Registro Civil（SRCEI）证明。返回 PDF 元数据及有罪判决登记详情（如有）。"
         },
         "ecuador_api_company_lookup": {
-            "title": "厄瓜多尔 - 企业查询",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "厄瓜多尔企业核验",
+            "description": "使用 Verifik KYB API 通过 RUC 核验厄瓜多尔企业。"
         },
         "usa_api_ssn": {
             "title": "美国 - SSN Verification",
@@ -502,7 +502,7 @@
         },
         "canada_api_company": {
             "title": "加拿大企业核验",
-            "description": "使用 Verifik 的 KYB API 核验加拿大企业。直接对接官方数据源，在数秒内完成企业数据核验。"
+            "description": "使用 Verifik KYB API 通过企业名称和省份核验加拿大企业。"
         },
         "us_api_passport_entries": {
             "title": "us api passport entries",
@@ -510,7 +510,7 @@
         },
         "mexico_api_company": {
             "title": "墨西哥企业核验",
-            "description": "使用 Verifik 的 KYB API 核验墨西哥企业。直接对接官方数据源，在数秒内完成企业数据核验。"
+            "description": "使用 Verifik KYB API 通过 FME 核验墨西哥企业。"
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -553,8 +553,8 @@
             "description": "通过 Fasecolda 车辆代码查询商业估值、技术参数与分年价格。"
         },
         "usa_api_company": {
-            "title": "美国 - 企业查询",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "美国企业核验",
+            "description": "使用 Verifik KYB API 通过企业名称核验美国企业。"
         },
         "colombia_api_runt_owners": {
             "title": "哥伦比亚 - 车辆所有者(RUNT)",
@@ -572,6 +572,30 @@
             "title": "阿根廷 — 车辆信息",
             "description": "通过车牌查询阿根廷车辆信息。"
         },
+        "argentina_api_vehicle_v3": {
+            "title": "阿根廷 — 车辆 v3",
+            "description": "通过车牌查询阿根廷车辆详情，包括车辆标识、保单状态以及可用的技术参数。"
+        },
+        "argentina_api_buenos_aires_traffic_infractions": {
+            "title": "布宜诺斯艾利斯 — 交通违章",
+            "description": "通过阿根廷车辆车牌查询布宜诺斯艾利斯交通违章记录。"
+        },
+        "argentina_api_traffic_infractions": {
+            "title": "布宜诺斯艾利斯 — 交通违章",
+            "description": "通过阿根廷车辆车牌查询布宜诺斯艾利斯交通违章记录。"
+        },
+        "argentina_api_buenos_aires_technical_inspection": {
+            "title": "布宜诺斯艾利斯 — 技术检验",
+            "description": "通过阿根廷车辆车牌查询布宜诺斯艾利斯车辆技术检验历史。"
+        },
+        "argentina_api_technical_inspection": {
+            "title": "布宜诺斯艾利斯 — 技术检验",
+            "description": "通过阿根廷车辆车牌查询布宜诺斯艾利斯车辆技术检验历史。"
+        },
+        "argentina_api_rto": {
+            "title": "阿根廷 — RTO",
+            "description": "通过车辆车牌查询阿根廷 RTO 检验记录。"
+        },
         "argentina_api_company_lookup": {
             "title": "阿根廷企业（CUIT）",
             "description": "使用 Verifik 的 KYB API 核验阿根廷企业。直接对接官方数据源，在数秒内完成企业数据核验。"
@@ -585,8 +609,8 @@
             "description": "使用 CPF 对巴西个人进行背景核查。"
         },
         "bolivia_api_business_lookup": {
-            "title": "玻利维亚 - 企业查询",
-            "description": "提供可靠的验证和验证服务。"
+            "title": "玻利维亚企业核验",
+            "description": "使用 Verifik KYB API 通过 NIT 核验玻利维亚企业。"
         },
         "costa_rica_api_business_lookup": {
             "title": "哥斯达黎加企业核验（NITE）",
@@ -594,7 +618,7 @@
         },
         "paraguay_api_business_lookup": {
             "title": "巴拉圭企业核验",
-            "description": "使用 Verifik 的 KYB API 核验巴拉圭企业。直接对接官方数据源，在数秒内完成企业数据核验。"
+            "description": "使用 Verifik KYB API 通过 RUC 核验巴拉圭企业。"
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Fasecolda — 理赔 / 事故记录",
@@ -741,8 +765,8 @@
             "description": "通过 NIT 与登记类别查询哥伦比亚 RUES 基础企业信息。GET /v3/co/rues。"
         },
         "peru_identity_lookup_v3": {
-            "title": "秘鲁",
-            "description": "通过 DNI v3 API 核验秘鲁公民身份"
+            "title": "秘鲁公民 v3",
+            "description": "使用 DNI 通过 v3 API 核验秘鲁公民身份。"
         },
         "peru_identity_extra_lookup_v3": {
             "title": "DNI（扩展信息）",
@@ -757,8 +781,8 @@
             "description": "通过 GET /v3/co/ministerio-de-trabajo/certificados 查询哥伦比亚劳动部证书及高空作业（curso de alturas）培训数据。"
         },
         "peru_api_company_lookup_v3": {
-            "title": "秘鲁企业核验",
-            "description": "使用 Verifik 的 KYB API 核验秘鲁企业。直接对接官方数据源，在数秒内完成企业数据核验。"
+            "title": "秘鲁企业核验 v3",
+            "description": "使用 Verifik KYB v3 API 通过 RUC 核验秘鲁企业。"
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -803,6 +827,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "危地马拉 - 身份额外查询",
             "description": "针对危地马拉公民的全面身份验证，包括额外的数据点。"
+        },
+        "chile_api_vehicle_v3": {
+            "title": "智利 - 车辆技术检验",
+            "description": "通过 GET /v3/cl/vehicle 按车牌查询智利车辆技术检验状态和历史。"
         }
     }
 }

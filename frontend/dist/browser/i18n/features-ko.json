@@ -25,8 +25,8 @@
             "description": "콜롬비아 시민증(CC) 번호로 군 복무(situación militar) 상태를 조회합니다."
         },
         "colombia_api_rethus": {
-            "title": "Colombia - 건강 기록 확인",
-            "description": "Access Colombian health records through Rethus system. 확인 medical history, health status, and healthcare provider information. 필요 document type (CC, CE, PPT) and document number."
+            "title": "보건 전문의 검증",
+            "description": "GET /v2/co/cedula/rethus로 콜롬비아 RETHUS 보건 전문가 등록을 조회합니다."
         },
         "colombia_api_rues": {
             "title": "Colombia - RUES Business Lookup (v2, legacy)",
@@ -89,7 +89,7 @@
             "description": "가져오기 comprehensive vehicle information 를 위한 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "멕시코",
+            "title": "멕시코 — 번호판 차량 조회",
             "description": "번호판으로 멕시코 차량 정보를 검증합니다."
         },
         "feature_passwordless_solution": {
@@ -345,8 +345,8 @@
             "description": "Verifik KYC API로 아르헨티나 개인의 신원을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 개인 데이터를 확인합니다."
         },
         "argentina_api_identity_lookup_extra": {
-            "title": "아르헨티나 - 신원 확인(확장)",
-            "description": "심화 KYC를 위한 확장된 아르헨티나 신원 확인."
+            "title": "아르헨티나 - 아르헨티나 시민 전체 확인",
+            "description": "DNI를 사용한 아르헨티나 시민 전체 신원 확인입니다. 심화 KYC용 확장 필드를 포함합니다."
         },
         "ar_certificate_verify": {
             "title": "아르헨티나 - 범죄 경력 증명서",
@@ -356,13 +356,17 @@
             "title": "칠레 — 대중교통 차량",
             "description": "GET /v2/cl/transport-vehicle로 칠레 대중교통 RNT를 조회합니다."
         },
+        "chile_api_vehicle_soap": {
+            "title": "칠레 — 차량 SOAP",
+            "description": "GET /v2/cl/vehicle-soap로 번호판과 보험증권 번호로 칠레 차량 SOAP(의무 개인상해 보험) 증명서를 조회합니다."
+        },
         "cl_certificate_verify": {
             "title": "칠레 - Registro Civil 증명서 검증",
             "description": "GET /v2/cl/certificate/verify를 통해 folio와 검증 코드(Código Verificador)로 칠레 Registro Civil(SRCEI) 증명서를 확인합니다. PDF 메타데이터와 유죄 판결 등록 세부 정보를 반환합니다."
         },
         "ecuador_api_company_lookup": {
-            "title": "에콰도르 - 기업 조회",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "에콰도르 기업 검증",
+            "description": "Verifik KYB API로 RUC를 사용해 에콰도르 기업을 검증합니다."
         },
         "usa_api_ssn": {
             "title": "미국 - SSN Verification",
@@ -498,7 +502,7 @@
         },
         "canada_api_company": {
             "title": "캐나다 기업 검증",
-            "description": "Verifik의 KYB API로 캐나다 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
+            "description": "Verifik KYB API로 기업명과 주를 사용해 캐나다 기업을 검증합니다."
         },
         "us_api_passport_entries": {
             "title": "us api passport entries",
@@ -506,7 +510,7 @@
         },
         "mexico_api_company": {
             "title": "멕시코 기업 검증",
-            "description": "Verifik의 KYB API로 멕시코 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
+            "description": "Verifik KYB API로 FME를 사용해 멕시코 기업을 검증합니다."
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -549,8 +553,8 @@
             "description": "Fasecolda 코드로 차량 가치·사양 정보를 조회합니다."
         },
         "usa_api_company": {
-            "title": "미국 - 기업 조회",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "미국 기업 검증",
+            "description": "Verifik KYB API로 기업명을 사용해 미국 기업을 검증합니다."
         },
         "colombia_api_runt_owners": {
             "title": "콜롬비아 - 차량 소유자(RUNT)",
@@ -568,6 +572,30 @@
             "title": "아르헨티나 — 차량 정보",
             "description": "번호판으로 아르헨티나 차량 정보를 조회합니다."
         },
+        "argentina_api_vehicle_v3": {
+            "title": "아르헨티나 — 차량 v3",
+            "description": "번호판으로 아르헨티나 차량 상세 정보를 조회합니다. 식별자, 보험 상태, 제공 가능한 기술 사양을 포함합니다."
+        },
+        "argentina_api_buenos_aires_traffic_infractions": {
+            "title": "부에노스아이레스 — 교통 위반",
+            "description": "아르헨티나 차량 번호판으로 부에노스아이레스 교통 위반 내역을 조회합니다."
+        },
+        "argentina_api_traffic_infractions": {
+            "title": "부에노스아이레스 — 교통 위반",
+            "description": "아르헨티나 차량 번호판으로 부에노스아이레스 교통 위반 내역을 조회합니다."
+        },
+        "argentina_api_buenos_aires_technical_inspection": {
+            "title": "부에노스아이레스 — 기술 검사",
+            "description": "아르헨티나 차량 번호판으로 부에노스아이레스 차량 기술 검사 이력을 조회합니다."
+        },
+        "argentina_api_technical_inspection": {
+            "title": "부에노스아이레스 — 기술 검사",
+            "description": "아르헨티나 차량 번호판으로 부에노스아이레스 차량 기술 검사 이력을 조회합니다."
+        },
+        "argentina_api_rto": {
+            "title": "아르헨티나 — RTO",
+            "description": "차량 번호판으로 아르헨티나 RTO 검사 기록을 조회합니다."
+        },
         "argentina_api_company_lookup": {
             "title": "아르헨티나 기업(CUIT)",
             "description": "Verifik KYB API로 아르헨티나 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
@@ -581,8 +609,8 @@
             "description": "CPF로 브라질 개인의 배경 조회를 수행합니다."
         },
         "bolivia_api_business_lookup": {
-            "title": "볼리비아 - 기업 조회",
-            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+            "title": "볼리비아 기업 검증",
+            "description": "Verifik KYB API로 NIT를 사용해 볼리비아 기업을 검증합니다."
         },
         "costa_rica_api_business_lookup": {
             "title": "코스타리카 기업 검증(NITE)",
@@ -590,7 +618,7 @@
         },
         "paraguay_api_business_lookup": {
             "title": "파라과이 기업 검증",
-            "description": "Verifik의 KYB API로 파라과이 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
+            "description": "Verifik KYB API로 RUC를 사용해 파라과이 기업을 검증합니다."
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Fasecolda — 보험 청구·사고 이력",
@@ -737,8 +765,8 @@
             "description": "NIT와 등록 구분으로 콜롬비아 RUES 기본 정보를 조회합니다. GET /v3/co/rues."
         },
         "peru_identity_lookup_v3": {
-            "title": "페루",
-            "description": "DNI v3 API로 페루 국민의 신원을 검증합니다."
+            "title": "페루 시민 v3",
+            "description": "DNI를 사용해 v3 API로 페루 시민의 신원을 검증합니다."
         },
         "peru_identity_extra_lookup_v3": {
             "title": "페루 — DNI(확장 정보)",
@@ -753,8 +781,8 @@
             "description": "콜롬비아 노동부 증명서(고소 작업 curso de alturas 등)를 GET /v3/co/ministerio-de-trabajo/certificados로 조회합니다."
         },
         "peru_api_company_lookup_v3": {
-            "title": "페루 기업 검증",
-            "description": "Verifik의 KYB API로 페루 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
+            "title": "페루 기업 검증 v3",
+            "description": "Verifik KYB v3 API로 RUC를 사용해 페루 기업을 검증합니다."
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -799,6 +827,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "과테말라 - 추가 신원 조회",
             "description": "추가 데이터 포인트를 포함한 과테말라 시민을 위한 포괄적 신원 확인."
+        },
+        "chile_api_vehicle_v3": {
+            "title": "칠레 - 차량 기술 검사",
+            "description": "GET /v3/cl/vehicle로 번호판을 통해 칠레 차량의 기술 검사 상태와 이력을 조회합니다."
         }
     }
 }

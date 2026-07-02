@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "批处理自动化",
         "history_subtitle": "查看过往请求和日志",
-        "subscription_plans": "订阅计划",
-        "manage_subscription": "管理您的订阅",
+        "subscription_plans": "订阅",
+        "manage_subscription": "管理计划",
         "add_credits": "添加积分",
         "purchase_credits": "购买额外积分",
         "status_check": "状态检查",
@@ -36,8 +36,6 @@
         "scan_documents": "扫描并提取文档数据",
         "smart_enroll_projects": "项目",
         "smart_enroll_projects_subtitle": "Smart Enroll 项目与注册记录",
-        "smart_enroll_plans": "套餐",
-        "smart_enroll_plans_subtitle": "Smart Enroll 订阅与结账",
         "collections": "集合",
         "collections_subtitle": "管理人脸识别集合",
         "people": "人员",
@@ -49,8 +47,6 @@
         "smart_access": "Smart Access",
         "smart_access_projects": "项目",
         "smart_access_projects_subtitle": "Smart Access 项目与登录记录",
-        "smart_access_plans": "套餐",
-        "smart_access_plans_subtitle": "Smart Access 订阅与结账",
         "demos": "演示",
         "demos_subtitle": "交互式生物识别演示"
     },
@@ -636,7 +632,7 @@
             "incidents": "事件",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "订阅计划",
+            "subscriptionPlans": "订阅",
             "addCredits": "添加积分",
             "smartAccess": "Smart Access"
         },
@@ -1284,7 +1280,9 @@
             "menuLiveEnrollment": "打开实时注册",
             "neverLoggedIn": "从未登录",
             "demoMode": "演示",
-            "menuSecurity": "安全设置"
+            "menuSecurity": "安全设置",
+            "newProjectTitle": "新建 Smart Enroll 项目",
+            "newProjectSubtitle": "设置另一个注册流程，包含独立的注册表单、文档、生物识别和品牌配置。"
         },
         "securitySettings": {
             "title": "安全设置",
@@ -2890,6 +2888,35 @@
         "signOutWeb3": "退出钱包",
         "settings": "设置"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "主题",
+            "scheme": "配色方案",
+            "layout": "布局"
+        },
+        "scheme": {
+            "auto": "自动",
+            "dark": "深色",
+            "light": "浅色",
+            "autoTooltip": "根据用户操作系统的配色偏好，通过 'prefer-color-scheme' 媒体查询自动设置配色方案。"
+        },
+        "layouts": {
+            "empty": "空白",
+            "classic": "经典",
+            "classy": "优雅",
+            "compact": "紧凑",
+            "dense": "密集",
+            "futuristic": "未来",
+            "thin": "精简",
+            "centered": "居中",
+            "enterprise": "企业",
+            "material": "Material",
+            "modern": "现代"
+        },
+        "themes": {
+            "theme-default": "默认"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "垂直分割",
@@ -3669,7 +3696,7 @@
             "whatsapp": "Whatsapp",
             "white_label": "White-label Solution",
             "worldwide_checks": "Worldwide Checks",
-            "manage_subscription": "Manage your subscription",
+            "manage_subscription": "管理计划",
             "month": "month",
             "choose_best_plan": "Choose the plan that best suits your needs",
             "most_popular": "Most Popular",
@@ -3832,7 +3859,7 @@
             "included": "Included",
             "learn_more": "Learn more",
             "liveness": "Biometrics",
-            "manage_plan": "Manage plan",
+            "manage_plan": "管理计划",
             "more_sessions": "+2,000 Biometrics sessions",
             "next_payment": "Next Payment",
             "no_data": "No data to present",
@@ -6319,22 +6346,80 @@
                 "一般：不影响服务可用性的一般咨询。"
             ],
             "responseTitle": "响应时间",
-            "responseHeaders": ["严重级别", "受理", "初审", "升级", "解决"],
+            "responseHeaders": [
+                "严重级别",
+                "受理",
+                "初审",
+                "升级",
+                "解决"
+            ],
             "responseRows": {
-                "critical": ["严重", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
-                "urgent": ["紧急", "0.5 小时", "0.5 小时", "15 分钟", "48 小时"],
-                "medium": ["中等", "1 小时", "1 小时", "0.5 小时", "96 小时"],
-                "normal": ["一般", "1 小时", "1 小时", "0.5 小时", "96 小时"]
+                "critical": [
+                    "严重",
+                    "0.5 小时",
+                    "0.5 小时",
+                    "15 分钟",
+                    "48 小时"
+                ],
+                "urgent": [
+                    "紧急",
+                    "0.5 小时",
+                    "0.5 小时",
+                    "15 分钟",
+                    "48 小时"
+                ],
+                "medium": [
+                    "中等",
+                    "1 小时",
+                    "1 小时",
+                    "0.5 小时",
+                    "96 小时"
+                ],
+                "normal": [
+                    "一般",
+                    "1 小时",
+                    "1 小时",
+                    "0.5 小时",
+                    "96 小时"
+                ]
             },
             "availabilityTitle": "平台可用性",
-            "availabilityHeaders": ["产品", "可用性", "备注"],
+            "availabilityHeaders": [
+                "产品",
+                "可用性",
+                "备注"
+            ],
             "availabilityRows": {
-                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 依赖政府数据源"],
-                "smartAccessComm": ["SmartAccess（邮箱/电话）", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess（生物识别）", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll（邮箱/电话）", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll（生物识别）", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll（文档扫描）", "98.0%", ""],
+                "smartCheck": [
+                    "SmartCheck",
+                    "90.0%",
+                    "DB Screening — 依赖政府数据源"
+                ],
+                "smartAccessComm": [
+                    "SmartAccess（邮箱/电话）",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess（生物识别）",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll（邮箱/电话）",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll（生物识别）",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll（文档扫描）",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll（DB Screening）",
                     "90.0%",
@@ -6351,28 +6436,66 @@
             "responseNote": "说明：48 小时表示我们可能根据事件复杂度，最多用 48 小时解决。响应时间从用户最后一条消息起算。",
             "compensationTitle": "停机补偿",
             "compensationIntro": "受影响月份将按无效服务调用成本提供等值额度补偿。若因 Verifik 内部问题（数据库、服务器、内部 API）导致不可用且未有效解决，Verifik 将按以下方式补偿：",
-            "compensationHeaders": ["服务可用性", "额度补偿", "产品"],
+            "compensationHeaders": [
+                "服务可用性",
+                "额度补偿",
+                "产品"
+            ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% 及以上", "无补偿", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% 及以下", "补偿", "SmartCheck"],
-                "emailTelHigh": ["邮箱/电话 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
-                "emailTelLow": ["邮箱/电话 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% 及以上",
+                    "无补偿",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% 及以下",
+                    "补偿",
+                    "SmartCheck"
+                ],
+                "emailTelHigh": [
+                    "邮箱/电话 — 99.00% 及以上",
+                    "无补偿",
+                    "SmartAccess, SmartEnroll"
+                ],
+                "emailTelLow": [
+                    "邮箱/电话 — 98.99% 及以下",
+                    "补偿",
+                    "SmartAccess, SmartEnroll"
+                ],
                 "biometricsHigh": [
                     "生物识别 — 99.00% 及以上",
                     "无补偿",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": ["生物识别 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"],
-                "docScanHigh": ["文档扫描 — 99.00% 及以上", "无补偿", "SmartAccess, SmartEnroll"],
-                "docScanLow": ["文档扫描 — 98.99% 及以下", "补偿", "SmartAccess, SmartEnroll"]
+                "biometricsLow": [
+                    "生物识别 — 98.99% 及以下",
+                    "补偿",
+                    "SmartAccess, SmartEnroll"
+                ],
+                "docScanHigh": [
+                    "文档扫描 — 99.00% 及以上",
+                    "无补偿",
+                    "SmartAccess, SmartEnroll"
+                ],
+                "docScanLow": [
+                    "文档扫描 — 98.99% 及以下",
+                    "补偿",
+                    "SmartAccess, SmartEnroll"
+                ]
             },
             "compensationDisclaimer": "DB Screening 内部服务问题不包括不可抗力（迁移、断连或托管数据库政府外部干预）。Verifik 为中间方，不控制或更新所查询的政府数据库。",
             "billingTitle": "SmartCheck 计费方案",
             "billingIntro": "本计费方案适用于 smartCHECK 政府数据库查询服务。Verifik 并非所服务国家政府数据库的所有者、管理者或责任方；因此不保证响应时间、平均可用性或数据准确性。",
             "billingTableTitle": "可计费与不可计费 HTTP 状态码",
-            "billingHeaders": ["可计费", "不可计费"],
+            "billingHeaders": [
+                "可计费",
+                "不可计费"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "计划维护",
             "maintenance": "计划维护在夜间及周末进行，并提前通过邮件通知用户。",

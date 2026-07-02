@@ -58,7 +58,7 @@
         ],
         "operationId": "world_api_dea",
         "summary": "Global - DEA Background Check",
-        "description": "Comprehensive background check service using DEA (Drug Enforcement Administration) databases. Search by full name OR document number with document type. Verify individuals against international drug enforcement records.",
+        "description": "DEA background check service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -172,8 +172,8 @@
           "USA"
         ],
         "operationId": "usa_api_vehicle",
-        "summary": "USA - Vehicle Verification",
-        "description": "Retrieve U.S. vehicle details by license plate and state (NHTSA-backed decode). Use plate and state as query parameters.",
+        "summary": "United States - Vehicle Information",
+        "description": "US vehicle validation service for retrieving vehicle information using license plate and state",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -284,8 +284,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_simit_agreements",
-        "summary": "Colombia - SIMIT Payment Agreements",
-        "description": "Verify active payment agreements for transit fines registered in SIMIT.",
+        "summary": "Colombia - SIMIT - Agreements",
+        "description": "SIMIT payment agreements for traffic violations service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -355,8 +355,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_driver",
-        "summary": "Colombia - Driver License Verification (RUNT)",
-        "description": "Verify Colombian driver license status and validity through the RUNT system.",
+        "summary": "Colombia - RUNT - Driver's License",
+        "description": "Verify driver''s licenses in Colombia using the document number with the Verifik API. Access official RUNT data, including license status, categories, and expiration dates.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -414,7 +414,7 @@
       }
     },
     "/api/co/registraduria/votacion": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -422,8 +422,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_registraduria_voting",
-        "summary": "Colombia - Electoral Records Verification",
-        "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information.",
+        "summary": "Colombia - Retrieve Voting Information for Colombian Citizens",
+        "description": "Retrieve voting information for Colombian citizens",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -451,17 +451,25 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/runt/vehiculo": {
@@ -473,8 +481,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle",
-        "summary": "Colombia - Basic Vehicle Information",
-        "description": "Retrieve general registration data and basic characteristics of a Colombian vehicle by its license plate.",
+        "summary": "Colombia - SOAT and RTM Validation in RUNT",
+        "description": "Verify the status of mandatory insurance (SOAT) and technical review (RTM) for vehicles in Colombia. Real-time API for traffic compliance.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -549,8 +557,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_simit_suspensions",
-        "summary": "Colombia - SIMIT License Suspensions",
-        "description": "Check for driver license suspensions or cancellations in the SIMIT system.",
+        "summary": "Colombia - SIMIT - License suspensions",
+        "description": "Query driver license suspension or cancellation records in Colombia’s SIMIT system by holder identification.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -620,8 +628,59 @@
           "LATAM"
         ],
         "operationId": "chile_api_vehicle",
-        "summary": "Chile - Vehicle Verification",
-        "description": "Query by license plate (plate, no spaces or dots). Typical fields include make, model, year, VIN/chassis, engine, color, vehicle type, fines summary, and owner RUT when the registry exposes them—use for fleet onboarding, collateral checks, and claims workflows.",
+        "summary": "Chile - Vehicle Information",
+        "description": "Chilean vehicle information service",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: plate"
+          }
+        ]
+      }
+    },
+    "/api/v3/cl/vehicle": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "chile_api_vehicle_v3",
+        "summary": "Chile - Vehicle Technical Review",
+        "description": "Query Chile vehicle technical review status and inspection history by license plate.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -671,8 +730,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_vin",
-        "summary": "Colombia - Complete Vehicle Report (By VIN)",
-        "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its Vehicle Identification Number (VIN).",
+        "summary": "Colombia - Vehicle Records by VIN",
+        "description": "Query vehicle information in Colombia using the VIN (Vehicle Identification Number). Connect to the RUNT and obtain complete official data.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -722,8 +781,8 @@
           "LATAM"
         ],
         "operationId": "brasil_api_identity_lookup",
-        "summary": "Brazil - National ID Verification",
-        "description": "Confirms a Brazilian natural person’s CPF against official sources. Provide CPF, date of birth in DD/MM/YYYY, and the document number with or without separators; when the data matches, the response returns normalized name parts and identifiers. Built for KYC, fraud prevention, and regulated onboarding.",
+        "summary": "Brazil - Brazilian Citizen",
+        "description": "Validate the identity of individuals in Brazil with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -853,8 +912,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup",
-        "summary": "Colombia - National ID Verification",
-        "description": "Verify Colombian national ID (cédula) information. Get full name, document status, and basic citizen verification data.",
+        "summary": "Colombia - Colombian Citizen",
+        "description": "Validate the identity of individuals in Colombia with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -918,8 +977,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_rethus",
-        "summary": "Colombia - Health Records Verification",
-        "description": "Access Colombian health records through Rethus system. Verify medical history, health status, and healthcare provider information. Requires document type (CC, CE, PPT) and document number.",
+        "summary": "Professional Healthcare Physicians Verification",
+        "description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -981,8 +1040,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_contraloria_certificate",
-        "summary": "Colombia - Certificate of Fiscal Responsibility (Contraloría)",
-        "description": "Certificate of fiscal responsibility from the Contraloría General de la República.",
+        "summary": "Colombia - Contraloría Certificate",
+        "description": "The service lets you verify the certificate of good conduct issued by the Contraloría General de Colombia by entering the document type and number, and returns the query date together with the certificate as a base64-encoded PDF.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1052,8 +1111,8 @@
           "LATAM"
         ],
         "operationId": "venezuela_api_identity_lookup",
-        "summary": "Venezuela - National ID Verification",
-        "description": "This route returns identity data for Venezuelan nationals using the CCVE (Cédula de Identidad) document class. Send the cédula number as documentNumber; the API resolves the record and returns structured name fields for KYC, onboarding, and fraud checks. For foreign residents, use GET /v2/ve/foreigner-id (CEVE) instead.",
+        "summary": "Venezuela - Venezuelan Citizen (CCVE)",
+        "description": "National identity lookup for Venezuela—verify cédula (CCVE) holders by document number via GET /v2/ve/cedula for KYC and fraud prevention.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1115,8 +1174,8 @@
           "LATAM"
         ],
         "operationId": "mexico_api_vehicle",
-        "summary": "Mexico - Vehicle Verification",
-        "description": "The Vehicle Information service provides detailed information about a vehicle in Mexico based on its license plate number. This service specifically returns information about a vehicle's make, model, year, VIN, and other related details. Pass the plate in the plate query parameter on a GET request; responses include registration-oriented fields when a match is found.",
+        "summary": "Mexico - Mexico",
+        "description": "Verify Mexican vehicle information using license plate",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1167,7 +1226,7 @@
         ],
         "operationId": "world_api_interpol",
         "summary": "Global - Interpol Background Check",
-        "description": "International background check using Interpol databases. Search by full name OR document number with document type. Verify individuals against international criminal records and wanted lists.",
+        "description": "This API endpoint allows you to search the criminal background of an individual or a company. To receive a successful response, it is necessary to provide the document type and document number. The response returns details such as document type, document number, first name, last name, full name, and name components for both natural and legal persons.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1281,8 +1340,8 @@
           "Global"
         ],
         "operationId": "world_api_ofac",
-        "summary": "Global - OFAC Sanctions Check",
-        "description": "Check individuals and entities against OFAC (Office of Foreign Assets Control) sanctions lists. Search by full name OR document number with document type. Verify compliance with US economic sanctions.",
+        "summary": "Global - OFAC Background Check",
+        "description": "OFAC background check service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1388,7 +1447,7 @@
       }
     },
     "/api/mx/curp": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -1396,8 +1455,8 @@
           "LATAM"
         ],
         "operationId": "mexico_identity_lookup",
-        "summary": "Mexico - National ID Verification",
-        "description": "This endpoint verifies a Mexican national’s CURP (Clave Única de Registro de Población) against official records. Send documentType and documentNumber on a GET request; a successful response confirms the identity record and returns validated name and biographical fields when the CURP is recognized.",
+        "summary": "Mexico - Mexican Citizen",
+        "description": "Validate the identity of individuals in Mexico using CURP with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1425,29 +1484,33 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CURP"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CURP"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/pe/vehiculo/placa": {
@@ -1459,8 +1522,8 @@
           "LATAM"
         ],
         "operationId": "peru_api_vehicle",
-        "summary": "Peru - Vehicle Verification",
-        "description": "The Peruvian Vehicle Information service provides detailed data about registered vehicles in Peru based on their license plate number. The response includes key details such as the vehicle's make, model, year, engine and chassis serial numbers, seating capacity, and usage type.",
+        "summary": "Peru - Vehicle Information",
+        "description": "The Peruvian Vehicle Information service provides detailed data about registered vehicles in Peru based on their license plate number. The response includes key details such as the vehicle''s make, model, year, engine and chassis serial numbers, seating capacity, and usage type.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1510,7 +1573,7 @@
           "LATAM"
         ],
         "operationId": "peru_api_vehicle_soat",
-        "summary": "Peru - Vehicle Verification",
+        "summary": "Peru - Vehicle Insurance",
         "description": "This service provides information on the insurance status of a vehicle in Peru. It returns details including the insurance company name, policy start and end dates, vehicle plate number, policy number, usage type, vehicle class, and policy status.",
         "x-payment-info": {
           "price": {
@@ -1552,17 +1615,17 @@
         ]
       }
     },
-    "/api/co/procuraduria/antecedentes": {
-      "get": {
+    "/api/co/simit/comparendos": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
           "Data",
           "LATAM"
         ],
-        "operationId": "colombia_api_criminal_history",
-        "summary": "Colombia - Legal Background Check",
-        "description": "Legal background verification service for Colombia citizens. Provides information about legal proceedings and judicial records.",
+        "operationId": "colombia_api_simit_subpoenas",
+        "summary": "Colombia - SIMIT - Fines",
+        "description": "SIMIT traffic citations and fines service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1590,31 +1653,106 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "CE",
-                "PEP"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "PA",
+                      "RC",
+                      "TI"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
+      }
+    },
+    "/api/co/procuraduria/antecedentes": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_criminal_history",
+        "summary": "Colombia - Disciplinary Records in Colombia (attorney's office)",
+        "description": "Disciplinary records in Colombia attorney's office",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "PEP"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "/api/cr/cedula": {
@@ -1626,8 +1764,8 @@
           "LATAM"
         ],
         "operationId": "costarica_api_identity_lookup",
-        "summary": "Costa Rica - National ID Verification",
-        "description": "This endpoint verifies the CCCR (Cédula de Identidad Costarricense) against official sources. Send documentType as CCCR and the documentNumber (cédula number without spaces) on a GET request; the response includes structured name fields for KYC, onboarding, and fraud checks.",
+        "summary": "Costa Rica - Costa Rican Citizen (CCCR)",
+        "description": "National ID (CCCR cédula) verification for Costa Rica via GET /v2/cr/cedula with documentType and documentNumber for KYC and fraud prevention.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1690,7 +1828,7 @@
         ],
         "operationId": "chile_api_transport_vehicle",
         "summary": "Chile - Public Transport Vehicle",
-        "description": "Provides reliable verification and validation services for Chile public transport vehicles.",
+        "description": "Query Chile public transport vehicle registration (RNT) by license plate: service type, capacity, brand/model, certificate dates, and operator status.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1731,6 +1869,66 @@
         ]
       }
     },
+    "/api/cl/vehicle-soap": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "chile_api_vehicle_soap",
+        "summary": "Chile - Vehicle SOAP",
+        "description": "Query Chile vehicular SOAP (Seguro Obligatorio de Accidentes Personales) certificate by license plate and policy number.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: plate"
+          },
+          {
+            "name": "policyNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: policyNumber"
+          }
+        ]
+      }
+    },
     "/api/cl/company": {
       "get": {
         "tags": [
@@ -1740,8 +1938,8 @@
           "LATAM"
         ],
         "operationId": "chile_api_business_lookup",
-        "summary": "Chile - Company Lookup",
-        "description": "This service allows you to retrieve information about a company in Chile by providing its document type and number. The service response will contain the name of the company, its business category, subcategory, and activity. Additionally, this service will provide you with a list of services for which the company is authorized to work.",
+        "summary": "Chile - Business Validation",
+        "description": "Look up Chilean companies by RUT: legal name, business category, activity, and authorized service lines from official registry data for KYB and vendor due diligence.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1804,7 +2002,7 @@
         ],
         "operationId": "ecuador_api_vehicle_fines",
         "summary": "Ecuador - Vehicle Fines",
-        "description": "Look up an Ecuadorian vehicle by plate (license plate). Returns registration details and outstanding fines for compliance, fleet, and risk checks.",
+        "description": "Ecuadorian vehicle validation service for retrieving vehicle fines and registration information by license plate",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1935,8 +2133,8 @@
           "LATAM"
         ],
         "operationId": "brasil_api_company_lookup",
-        "summary": "Brazil - Company Lookup",
-        "description": "Verifies a Brazilian legal entity against official CNPJ registers. Send documentType=CNPJ and a 14-digit documentNumber with no punctuation. Typical fields include registration status, address, legal nature, and primary and secondary economic activities. Use it for KYB, vendor due diligence, and compliance programs.",
+        "summary": "Brazil - Brazilian Business Verification",
+        "description": "Validate Brazilian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1998,8 +2196,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_dian_invoicer",
-        "summary": "Colombia - DIAN Electronic Invoicer Status",
-        "description": "Verify electronic invoicing (facturación electrónica) registration status with DIAN.",
+        "summary": "Colombia - Colombia Legal Invoicer Verification",
+        "description": "Validate legal invoicer registration in DIAN for Colombian companies with Verifik's KYB API.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2053,7 +2251,7 @@
       }
     },
     "/api/co/contracts": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -2061,8 +2259,8 @@
           "LATAM"
         ],
         "operationId": "api_colombia_contracts",
-        "summary": "Colombia - Government Contracts Verification",
-        "description": "Verify government contracts and procurement records in Colombia.",
+        "summary": "Colombia - Public Contracts",
+        "description": "Colombian public contracts background check",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2090,43 +2288,47 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "NIT",
-                "CC",
-                "CE",
-                "PA",
-                "RC",
-                "TI",
-                "PEP",
-                "CCVE",
-                "CURP",
-                "DNI",
-                "CCEC"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "NIT",
+                      "CC",
+                      "CE",
+                      "PA",
+                      "RC",
+                      "TI",
+                      "PEP",
+                      "CCVE",
+                      "CURP",
+                      "DNI",
+                      "CCEC"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/policia/rnmc": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -2134,8 +2336,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_police_rnmc",
-        "summary": "Colombia - Police Records Check",
-        "description": "Police records verification service for Colombia citizens. Provides information about police interactions and records.",
+        "summary": "Colombia - Verify Police Compliance with Corrective Measures",
+        "description": "Verify police compliance with corrective measures in Colombia",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2163,41 +2365,41 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "CE",
-                "TI",
-                "PA"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: date"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "TI",
+                      "PA"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Parameter: date"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber",
+                  "date"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/company/dian": {
@@ -2209,8 +2411,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_dian",
-        "summary": "Colombia - Tax Information Verification",
-        "description": "Verify tax information through Colombia's DIAN (Dirección de Impuestos y Aduanas Nacionales) system. Check tax status, obligations, and compliance records. Requires document type and document number.",
+        "summary": "Colombia - Colombia DIAN Verification",
+        "description": "Validate Colombian companies' DIAN status with Verifik's KYB API. Connect with official sources and verify tax authority data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2272,8 +2474,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_judicial_process_details",
-        "summary": "Colombia - Judicial Process Details",
-        "description": "Comprehensive details of a specific judicial process in Colombia using its process number.",
+        "summary": "Colombia - Retrieve Details of a Legal Process by Number",
+        "description": "Get comprehensive information about a specific legal process in Colombia using its process number (Rama Judicial).",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2331,8 +2533,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_simit_resolutions",
-        "summary": "Colombia - SIMIT Resolutions",
-        "description": "Access formal resolutions for traffic infractions that have reached the sanction stage.",
+        "summary": "Colombia - SIMIT - Resolutions",
+        "description": "SIMIT traffic violation resolutions service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2402,8 +2604,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_affiliations",
-        "summary": "Colombia - Health & Social Security Affiliations",
-        "description": "Verify health and social security affiliations for Colombia. Access EPS, ARL, and pension information.",
+        "summary": "Colombia — Health & social security affiliations",
+        "description": "Query Colombian EPS, ARL, pension (AP), compensation funds, and severance (cesantías) via GET /v2/co/afiliaciones.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2469,7 +2671,7 @@
       }
     },
     "/api/co/registraduria/certificado": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -2477,8 +2679,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_registraduria_certificate",
-        "summary": "Colombia - Electoral Records Verification",
-        "description": "Electoral records verification service for Colombia citizens. Provides voting status and electoral information.",
+        "summary": "Colombia — Registraduría ID validity certificate (CC)",
+        "description": "Obtain the official Registraduría certificate of validity for a Colombian cédula (CC) using document number and issue date via GET /v2/co/registraduria/certificado.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2506,38 +2708,38 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "date",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: date"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Parameter: date"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber",
+                  "date"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/deudoresmorosos": {
@@ -2549,8 +2751,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_delinquent_debtors",
-        "summary": "Colombia - Delinquent Debtors (BDME)",
-        "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry.",
+        "summary": "Colombia — Delinquent debtors (BDME)",
+        "description": "Query Colombia’s BDME (Base de Datos de Morosos) delinquent debtors registry via GET /v2/co/deudoresmorosos.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2618,8 +2820,8 @@
           "LATAM"
         ],
         "operationId": "ecuador_api_identity_lookup",
-        "summary": "Ecuador - National ID Verification",
-        "description": "Verify an Ecuadorian citizen using documentType CCEC and documentNumber. Returns identity fields from official records to support KYC and compliance.",
+        "summary": "Ecuador - Ecuadorian Citizen",
+        "description": "Validate the identity of individuals in Ecuador with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2670,7 +2872,7 @@
         ],
         "operationId": "ecuador_api_vehicle",
         "summary": "Ecuador - Vehicle Verification",
-        "description": "Query an Ecuadorian vehicle by plate (no spaces or periods). Use for verification, insurance, fleet, and compliance workflows.",
+        "description": "Look up Ecuadorian vehicle registration details by license plate",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2720,8 +2922,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_simit_complete",
-        "summary": "Colombia - SIMIT Complete Transit History",
-        "description": "Comprehensive transit background check including fines, agreements, and suspensions by ID.",
+        "summary": "Colombia - SIMIT - General query by identification document",
+        "description": "SIMIT comprehensive data by document service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2789,7 +2991,7 @@
         ],
         "operationId": "world_api_europol",
         "summary": "Global - Europol Background Check",
-        "description": "European background check using Europol databases. Search by full name OR document number with document type. Verify individuals against European criminal records and intelligence databases.",
+        "description": "The Europol background check service allows developers to perform real-time checks against Europol''s criminal records database. By providing a person''s document type and document number, or full name, users can verify whether the information matches any entry in Europol''s system.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2903,8 +3105,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_judicial_processes",
-        "summary": "Colombia - Judicial Processes",
-        "description": "Search for judicial processes using document number across Colombian courts.",
+        "summary": "Colombia — Judicial processes",
+        "description": "List judicial processes linked to a Colombian person or company (CC or NIT) via Rama Judicial.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -2971,8 +3173,8 @@
           "LATAM"
         ],
         "operationId": "panama_api_identity_lookup",
-        "summary": "Panama - National ID Verification",
-        "description": "Verify Panamanian CCPA (Cédula de Identidad Personal) data against official civil-registry sources. Send documentType (CCPA), a normalized documentNumber, and dateOfBirth in DD/MM/YYYY; the response confirms that the identity record is consistent for KYC, customer onboarding, and fraud controls.",
+        "summary": "Panama - Panamanian Citizen",
+        "description": "Verify Panamanian CCPA national ID data (document, name, date of birth) against official civil-registry sources for KYC and fraud prevention.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3043,8 +3245,8 @@
           "Global"
         ],
         "operationId": "spain_api_identity_lookup",
-        "summary": "Spain - National ID Verification",
-        "description": "Verifies a Spanish natural person’s identity against official sources using documentType (DNIES or NIE), documentNumber (no spaces), and date (expiry in DD/MM/YYYY). Use for KYC, fraud prevention, and regulated onboarding.",
+        "summary": "Spain - Spanish Citizen",
+        "description": "Validate the identity of individuals in Spain with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3107,17 +3309,17 @@
         ]
       }
     },
-    "/api/usa/florida/driver-license": {
-      "get": {
+    "/api/pe/driver-license": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
           "Data",
-          "USA"
+          "LATAM"
         ],
-        "operationId": "usa_api_driver_license_lookup",
-        "summary": "USA - Driver License Verification",
-        "description": "This service allows developers to validate the status, restrictions, endorsements, and designations of Florida driver licenses. By providing a valid Florida driver license number, the service response with the license status, expiration date, restrictions, endorsements, and designations.",
+        "operationId": "peru_api_driver_license_lookup",
+        "summary": "Peru - Driver License",
+        "description": "Look up Peruvian driver licenses by DNI. Returns license category, status, expiration, restrictions, issuance center, and related procedures when available from official records.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3145,17 +3347,222 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "DNI"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
+      }
+    },
+    "/api/ar/dnrec/antecedentes": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "ar_certificate_verify",
+        "summary": "Argentina - Criminal Record Certificate",
+        "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF. Returns identity fields and the criminal-record statement extracted from the official certificate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "requestCode": {
+                    "type": "string",
+                    "description": "Parameter: requestCode"
+                  },
+                  "securityCode": {
+                    "type": "string",
+                    "description": "Parameter: securityCode"
+                  }
+                },
+                "required": [
+                  "requestCode",
+                  "securityCode"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cl/registro-civil/certificado": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "cl_certificate_verify",
+        "summary": "Chile - Civil Registry Certificate",
+        "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Codigo Verificador). Returns certificate PDF metadata and conviction-register details when available.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "folio": {
+                    "type": "string",
+                    "description": "Parameter: folio",
+                    "minimum": 10,
+                    "maximum": 15
+                  },
+                  "verificationCode": {
+                    "type": "string",
+                    "description": "Parameter: verificationCode"
+                  }
+                },
+                "required": [
+                  "folio",
+                  "verificationCode"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usa/florida/driver-license": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "USA"
+        ],
+        "operationId": "usa_api_driver_license_lookup",
+        "summary": "United States - Florida Driver License",
+        "description": "Florida driver license validation service",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "/api/communication/whatsapp": {
@@ -3236,8 +3643,8 @@
           "LATAM"
         ],
         "operationId": "brasil_api_vehicle",
-        "summary": "Brazil - Vehicle Verification",
-        "description": "The Verifik API returns a normalized vehicle record for that plate, including plate, brand, model, model year and year of manufacture, chassis (VIN), engine, color, body type, fuel type, transmission, doors, manufacturer or plant, FIPE codes where they apply to the vehicle, and irregularity or restriction indicators when they exist for that registration. Use it to confirm the unit in front of you matches the official line before you continue.",
+        "summary": "Brazil - Vehicle information",
+        "description": "Brazilian plate lookup: registry-style vehicle attributes (make, model, years, VIN/chassis, FIPE codes when available) for fleet, insurance, collateral, and marketplace checks.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3287,8 +3694,8 @@
           "LATAM"
         ],
         "operationId": "argentina_api_identity_lookup",
-        "summary": "Argentina - National ID Verification",
-        "description": "Verify an Argentine identity using documentType DNIAR and documentNumber. Returns identity fields to support KYC and compliance.",
+        "summary": "Argentina - Argentine Citizen",
+        "description": "Validate the identity of individuals in Argentina with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3350,8 +3757,8 @@
           "LATAM"
         ],
         "operationId": "ecuador_api_company_lookup",
-        "summary": "Ecuador - Company Lookup",
-        "description": "Look up an Ecuadorian company using documentType RUCEC and documentNumber (13 digits, no separators). Returns registration-oriented fields to support KYB, vendor screening, and compliance.",
+        "summary": "Ecuador - Ecuadorian Business Verification",
+        "description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3413,8 +3820,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_military_situation",
-        "summary": "Colombia - Military Service Records",
-        "description": "Verify military service records through Colombia's military system. Check service status, military obligations, and service records. Requires Colombian ID (CC) and document number.",
+        "summary": "Colombia — Military service status",
+        "description": "Query Colombian military service (situación militar) using a Cédula de Ciudadanía (CC). Returns status and related details from official sources.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3480,8 +3887,8 @@
           "Global"
         ],
         "operationId": "world_api_onu",
-        "summary": "Global - UN Sanctions Check",
-        "description": "Check individuals and entities against United Nations sanctions lists. Search by full name OR document number with document type. Verify compliance with international sanctions regimes.",
+        "summary": "Global - ONU Background Check",
+        "description": "This API provides a simple and efficient way to verify whether a person or entity is listed on the United Nations sanctions list. By submitting identifying information such as document type and document number, users can quickly determine if an individual or organization is subject to international sanctions.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3668,7 +4075,7 @@
         ],
         "operationId": "world_api_fbi",
         "summary": "Global - FBI Background Check",
-        "description": "Comprehensive background check using FBI (Federal Bureau of Investigation) databases. Search by full name OR document number with document type. Verify individuals against federal criminal records.",
+        "description": "FBI background check service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3782,8 +4189,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_pico_placa",
-        "summary": "Colombia - Pico y Placa Restrictions",
-        "description": "Check current transit restrictions (Pico y Placa) for a specific vehicle across various Colombian cities.",
+        "summary": "Colombia - Pico y Placa",
+        "description": "Bogotá peak and plate restriction service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3833,7 +4240,7 @@
           "LATAM"
         ],
         "operationId": "chile_api_identity_lookup",
-        "summary": "Chile - National ID Verification",
+        "summary": "Chile - Chilean Citizen",
         "description": "Verify Chilean national ID (RUN/RUT): confirm name and identity fields against official civil-registry sources for KYC, onboarding, and fraud prevention.",
         "x-payment-info": {
           "price": {
@@ -3896,8 +4303,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_plate",
-        "summary": "Colombia - Complete Vehicle Report (By Plate)",
-        "description": "Get an exhaustive history and technical report of a vehicle in Colombia using its license plate number.",
+        "summary": "Colombia - Vehicle Records by Plate",
+        "description": "Validate vehicles in Colombia using their license plate number with the Verifik API. Connect to the RUNT and obtain official data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3971,8 +4378,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_lawyers",
-        "summary": "Colombia - Lawyers Verification",
-        "description": "Verify lawyer registration and professional status with the Colombian bar.",
+        "summary": "Colombia — Lawyer lookup",
+        "description": "Look up Colombian lawyers by document type and number (CC, CE, or NIT) via RAMA public registry data.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4156,8 +4563,8 @@
           "USA"
         ],
         "operationId": "usa_api_ssn",
-        "summary": "USA - SSN Verification",
-        "description": "Validate a U.S. Social Security Number (SSN). Pass the SSN as the documentNumber query parameter (formatted as on the document).",
+        "summary": "United States - United States SSN Verification",
+        "description": "Validate Social Security Numbers in the United States with Verifik's KYC API. Connect with official sources and verify SSN data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4207,8 +4614,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup_extra",
-        "summary": "Colombia - National ID Verification",
-        "description": "The same integration is available as POST with a JSON body containing the same fields. GET uses query parameters as shown below.",
+        "summary": "Colombia — National ID with extra data (CC)",
+        "description": "Verify Colombian Cédula de Ciudadanía with extended official fields via GET /v2/co/cedula/extra.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4279,8 +4686,8 @@
           "LATAM"
         ],
         "operationId": "colombia_pep_lookup",
-        "summary": "Colombia - Politically Exposed Persons (PEP) Lookup",
-        "description": "Check if a person is listed as politically exposed (PEP) for compliance purposes.",
+        "summary": "Colombia — Politically exposed persons (PEP) lookup",
+        "description": "AML PEP screening for Colombian natural persons (CC) and businesses (NIT) via GET /v2/co/politically-exposed-persons.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4342,8 +4749,8 @@
           "LATAM"
         ],
         "operationId": "bolivia_api_identity_lookup",
-        "summary": "Bolivia - National ID Verification",
-        "description": "Verify a Bolivian citizen using documentType CI, documentNumber, and dateOfBirth (DD/MM/YYYY). Returns identity fields to support KYC and compliance.",
+        "summary": "Bolivia - Bolivian Citizen",
+        "description": "Validate the identity of individuals in Bolivia with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4415,7 +4822,7 @@
         ],
         "operationId": "chile_api_driver_license",
         "summary": "Chile - Driver License",
-        "description": "Look up a Chilean driver license by its license number (query documentNumber): returned fields typically include RUT, license class, restrictions, control dates, municipality, and address, subject to registry availability—useful for fleet, workforce, and KYC checks where driving credentials matter.",
+        "description": "Look up a Chilean driver license by license number: class, restrictions, control dates, RUT, and address from official motor-vehicle records for fleet and workforce compliance.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4465,7 +4872,7 @@
       }
     },
     "/api/co/sisconmp/trainings": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -4473,8 +4880,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_sisconmp",
-        "summary": "Colombia - SISCONMP Transport Verification",
-        "description": "Verify transport and cargo operator registration in the SISCONMP system.",
+        "summary": "Colombia - SISCONMP Training Records",
+        "description": "SISCONMP training records service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4502,30 +4909,34 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "CE"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/runt/vehicle-by-plate-simplified": {
@@ -4537,8 +4948,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_complete_by_plate_simplified",
-        "summary": "Colombia - Simplified Vehicle Report",
-        "description": "A streamlined version of the vehicle background check focusing on essential legal and physical status markers.",
+        "summary": "Colombia - Simplified Vehicle Records by Plate in RUNT",
+        "description": "Retrieve essential vehicle details from RUNT Colombia using the license plate. Fast and efficient API for basic vehicle verification.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4613,8 +5024,8 @@
           "Global"
         ],
         "operationId": "canada_api_driver_license_ontario",
-        "summary": "Canada - Driver License",
-        "description": "Use this service to validate and verify the authenticity of Ontario driver's licenses efficiently. Whether you need to confirm the validity of a driver's license for identification or regulatory purposes, this service provides accurate and up-to-date license information.",
+        "summary": "Canada - Ontario Driver License",
+        "description": "Ontario driver license verification service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4672,8 +5083,8 @@
           "Global"
         ],
         "operationId": "canada_api_driver_license_quebec",
-        "summary": "Canada - Driver License",
-        "description": "Validate a Canadian (Quebec) driver license. Provide the license number and supporting fields; returns issuance, status, and identity metadata for KYC checks.",
+        "summary": "Canada - Quebec Driver License",
+        "description": "Verify Quebec (Canada) driver licenses by document number via Verifik's API.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4790,7 +5201,7 @@
       }
     },
     "/api/sv/dui": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -4798,8 +5209,8 @@
           "LATAM"
         ],
         "operationId": "el_salvador_api_identity_lookup",
-        "summary": "El Salvador - National ID Verification",
-        "description": "Verifik's Identity Verification API helps you authenticate Salvadoran citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
+        "summary": "El Salvador - Salvadoran Citizen",
+        "description": "Validate the identity of individuals in El Salvador with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4827,30 +5238,34 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "dateOfBirth",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: dateOfBirth"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "description": "Parameter: dateOfBirth"
+                  }
+                },
+                "required": [
+                  "documentNumber",
+                  "dateOfBirth"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/py/cic": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -4858,8 +5273,8 @@
           "LATAM"
         ],
         "operationId": "paraguay_api_identity_lookup",
-        "summary": "Paraguay - National ID Verification",
-        "description": "Verify a Paraguayan citizen using documentNumber (CIC). Returns identity fields to support KYC and compliance.",
+        "summary": "Paraguay - Paraguayan Citizen",
+        "description": "Validate the identity of individuals in Paraguay with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4887,17 +5302,25 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/ca/british-columbia/driver-license": {
@@ -4909,8 +5332,8 @@
           "Global"
         ],
         "operationId": "canada_api_driver_license_british-columbia",
-        "summary": "Canada - Driver License",
-        "description": "The British Columbia Driver License Verification service offers a straightforward method to verify the authenticity and validity of a driver's license in the province of British Columbia, Canada. By utilizing this service, you can quickly validate a driver's license based on the provided document number and last name.",
+        "summary": "Canada - British Columbia Driver License",
+        "description": "British Columbia driver license verification service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -4965,7 +5388,7 @@
       }
     },
     "/api/co/foreigner-id/ce": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -4973,8 +5396,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_identity_ce_foreigner_id",
-        "summary": "Colombia - Immigration Status Verification",
-        "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
+        "summary": "Colombia — CE (Cédula de Extranjería)",
+        "description": "Verify Cédula de Extranjería (CE) status with Migración Colombia via GET /v2/co/foreigner-id/ce.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5002,30 +5425,34 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "expeditionDate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: expeditionDate"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expeditionDate": {
+                    "type": "string",
+                    "description": "Parameter: expeditionDate"
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "expeditionDate",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/foreigner-id/pep": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -5033,8 +5460,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_identity_pep_foreigner_id",
-        "summary": "Colombia - Immigration Status Verification",
-        "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
+        "summary": "Colombia — PEP (Special Stay Permit)",
+        "description": "Verify Permiso Especial de Permanencia (PEP) status with Migración Colombia via GET /v2/co/foreigner-id/pep.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5062,26 +5489,30 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "expeditionDate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: expeditionDate"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expeditionDate": {
+                    "type": "string",
+                    "description": "Parameter: expeditionDate"
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "expeditionDate",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/ocr/scan-studio": {
@@ -5160,8 +5591,8 @@
           "Global"
         ],
         "operationId": "canada_api_company",
-        "summary": "Canada - Company Lookup",
-        "description": "Look up a Canadian legal entity in provincial business registries using business (company name) and province (two-letter code). Typical fields include business number, status, registry identifiers, and address. Use for KYB, vendor due diligence, and compliance.",
+        "summary": "Canada - Canadian Business Verification",
+        "description": "Validate Canadian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5229,8 +5660,8 @@
           "Global"
         ],
         "operationId": "face_recognition_compare",
-        "summary": "Face Comparison",
-        "description": "Compares a probe image against one or more gallery images and returns a similarity score. Use search_mode to balance speed and accuracy.",
+        "summary": "Global - Face Comparison",
+        "description": "1:1 face comparison to verify identity",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5298,8 +5729,8 @@
           "Global"
         ],
         "operationId": "face_recognition_compare_live",
-        "summary": "Live Face Comparison",
-        "description": "Compares a live probe image against a gallery and performs liveness validation on the probe. Both comparison and liveness thresholds are configurable.",
+        "summary": "Global - Face Comparison (Live)",
+        "description": "1:1 comparison with live probe and liveness threshold",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5377,8 +5808,8 @@
           "Global"
         ],
         "operationId": "face_recognition_liveness",
-        "summary": "Face Liveness Detection",
-        "description": "Detects whether a submitted face image comes from a live person or a spoof (photo, screen replay, printed copy). Returns a liveness score and a pass/fail outcome based on a minimum score threshold.",
+        "summary": "Global - Liveness Detection",
+        "description": "Detect if a face is live or from a static image/video",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5441,8 +5872,8 @@
           "Global"
         ],
         "operationId": "face_recognition_detect",
-        "summary": "Face Detection",
-        "description": "Detect human faces in an image. Returns bounding boxes and quality signals; commonly used as a pre-step before liveness or face-compare flows.",
+        "summary": "Global - Face Detection",
+        "description": "Detect and extract faces from images",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5518,8 +5949,8 @@
           "Global"
         ],
         "operationId": "face_recognition_search",
-        "summary": "Face Search",
-        "description": "Searches one or more images against a face collection and returns potential matches ranked by similarity.",
+        "summary": "Global - Face Search (1:N)",
+        "description": "Search for a face in a collection (1:N identification)",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5595,8 +6026,8 @@
           "LATAM"
         ],
         "operationId": "mexico_api_company",
-        "summary": "Mexico - Company Lookup",
-        "description": "This endpoint looks up a Mexican legal entity by its FME (Folio Mercantil Electrónico) identifier. Use GET with documentType=FME and documentNumber to retrieve official registration details such as legal business name and city from government commercial registry sources.",
+        "summary": "Mexico - Mexican Business Verification",
+        "description": "Validate Mexican companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5658,8 +6089,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_valores_fasecolda_by_plate",
-        "summary": "Colombia - Fasecolda Vehicle Values (by Plate)",
-        "description": "Get vehicle commercial values from Fasecolda by license plate.",
+        "summary": "Colombia - Vehicle Values by Plate",
+        "description": "Get Fasecolda vehicle values and information by license plate with Verifik's API. Access comprehensive vehicle data for Colombia.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5717,8 +6148,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_valores_fasecolda_by_code",
-        "summary": "Colombia - Fasecolda Vehicle Values (by Code)",
-        "description": "Get vehicle commercial values from Fasecolda by vehicle code.",
+        "summary": "Colombia - Vehicle Values by Code",
+        "description": "Get Fasecolda vehicle values and information by code with Verifik's API. Access comprehensive vehicle data for Colombia.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5776,8 +6207,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_simit_plate",
-        "summary": "Colombia - SIMIT Fines by Plate",
-        "description": "Look up traffic fines and sanctions directly associated with a specific vehicle license plate.",
+        "summary": "Colombia - SIMIT - General query by plate number",
+        "description": "SIMIT comprehensive data by plate service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5827,8 +6258,8 @@
           "LATAM"
         ],
         "operationId": "argentina_api_vehicle",
-        "summary": "Argentina - Vehicle Verification",
-        "description": "The Argentine Vehicle Information service provides detailed information about vehicles registered in Argentina using their license plate number. This service returns comprehensive vehicle data including make, model, year, engine specifications, and registration details.",
+        "summary": "Argentina - Argentina",
+        "description": "Verify Argentine vehicle information using license plate",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5878,8 +6309,8 @@
           "USA"
         ],
         "operationId": "usa_api_company",
-        "summary": "USA - Company Lookup",
-        "description": "Look up a U.S. company by full or partial business name using SEC EDGAR data. Send business in the JSON body of a POST request.",
+        "summary": "United States - United States Business Verification",
+        "description": "Validate US companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5929,8 +6360,8 @@
           "USA"
         ],
         "operationId": "usa_api_driver_license_lookup_kansas",
-        "summary": "CONSULTAR LICENCIA DE KANSAS",
-        "description": "Licencia de kansas.",
+        "summary": "United States - Kansas Driver License",
+        "description": "Kansas driver license verification service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -5995,7 +6426,7 @@
       }
     },
     "/api/co/fasecolda/sinister": {
-      "post": {
+      "get": {
         "tags": [
           "KYC",
           "KYB",
@@ -6003,8 +6434,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_sinister_fasecolda_by_plate",
-        "summary": "Colombia - Fasecolda Accident History",
-        "description": "Check vehicle accident and claim history from Fasecolda by plate.",
+        "summary": "Colombia - Claims Verification",
+        "description": "Fasecolda insurance claims history verification service. Check vehicle insurance claim history in Colombia with Verifik's API.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6032,25 +6463,17 @@
             "description": "Payment Required"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "plate": {
-                    "type": "string",
-                    "description": "Parameter: plate"
-                  }
-                },
-                "required": [
-                  "plate"
-                ]
-              }
-            }
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: plate"
           }
-        }
+        ]
       }
     },
     "/api/br/background-check": {
@@ -6062,8 +6485,8 @@
           "LATAM"
         ],
         "operationId": "brasil_api_criminal_history",
-        "summary": "brasil api criminal history",
-        "description": "Brazil individual background screening using CPF and date of birth. A successful response includes identity-related fields and, when the data provider supplies it, a base64-encoded PDF report. Intended for employment screening, due diligence, and compliance; handle the PDF and metadata under your own legal and retention rules.",
+        "summary": "Brazil - Brazil",
+        "description": "Conduct background checks on Brazilian individuals using CPF",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6134,8 +6557,8 @@
           "LATAM"
         ],
         "operationId": "costa_rica_api_business_lookup",
-        "summary": " - Company Lookup",
-        "description": "Use this endpoint to confirm NITE (Número de Identificación Tributaria de Empresas) records for Costa Rican legal entities. Pass documentType NITE and the company documentNumber; the response returns registered business identifiers and related fields for KYB and onboarding.",
+        "summary": "Costa Rica - Costa Rican Business Verification (NITE)",
+        "description": "KYB company lookup for Costa Rica via GET /v2/cr/company with documentType NITE and documentNumber for registration and compliance.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6197,8 +6620,8 @@
           "LATAM"
         ],
         "operationId": "argentina_api_company_lookup",
-        "summary": "Argentina - Company Lookup",
-        "description": "Look up an Argentine company using documentType CUIT and documentNumber. Returns registration fields to support KYB, vendor screening, and compliance.",
+        "summary": "Argentina - Argentine Business Verification",
+        "description": "Validate Argentine companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6260,8 +6683,8 @@
           "LATAM"
         ],
         "operationId": "bolivia_api_business_lookup",
-        "summary": "Bolivia - Company Lookup",
-        "description": "Look up a Bolivian company using documentType NIT and documentNumber. Returns registration fields to support KYB, vendor screening, and compliance.",
+        "summary": "Bolivia - Bolivian Business Verification",
+        "description": "Validate Bolivian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6323,8 +6746,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_accidentality_bogota",
-        "summary": "Colombia - Bogota Vehicle Accidents",
-        "description": "Look up accident records and traffic incidents registered specifically within the Bogota municipal transit database.",
+        "summary": "Colombia - Vehicle Accidentality",
+        "description": "Bogotá vehicle accident history service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6374,8 +6797,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_tax",
-        "summary": "Colombia - Vehicle Tax Status",
-        "description": "Check the payment status and history of annual vehicular taxes (Impuesto de Vehículos).",
+        "summary": "Colombia - Taxes in Bogotá",
+        "description": "Bogotá vehicle tax service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6439,7 +6862,7 @@
       }
     },
     "/api/co/rama/certificado/vigencia": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -6447,8 +6870,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_lawyers_certificate",
-        "summary": "Colombia - Lawyers Verification",
-        "description": "Obtain lawyer certification and professional status verification.",
+        "summary": "Colombia - Certificate of Validity for Legal Professionals",
+        "description": "Verify the current status and validity of legal professionals in Colombia",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6476,45 +6899,45 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "NIT",
-                "CE"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "quality",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "ABG",
-                "JUEZPAZ",
-                "LT"
-              ]
-            },
-            "description": "Parameter: quality"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "NIT",
+                      "CE"
+                    ]
+                  },
+                  "quality": {
+                    "type": "string",
+                    "description": "Parameter: quality",
+                    "enum": [
+                      "ABG",
+                      "JUEZPAZ",
+                      "LT"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "quality",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/co/rama/juzgado/expedientes": {
@@ -6526,8 +6949,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_judicial_records",
-        "summary": "Colombia - Judicial Records",
-        "description": "Access judicial background records and legal history for Colombian citizens.",
+        "summary": "Colombia — Judicial records (court files / expedientes)",
+        "description": "Query Colombian judicial court files (expedientes) by CC, city, and document number via Rama Judicial.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6616,8 +7039,8 @@
           "LATAM"
         ],
         "operationId": "paraguay_api_business_lookup",
-        "summary": "Paraguay - Company Lookup",
-        "description": "Look up a Paraguayan company using documentType RUC and documentNumber. Returns registration fields to support KYB, vendor screening, and compliance.",
+        "summary": "Paraguay - Paraguayan Business Verification",
+        "description": "Validate Paraguayan companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6679,8 +7102,8 @@
           "LATAM"
         ],
         "operationId": "chile_api_validate",
-        "summary": "chile api validate",
-        "description": "Submit RUN or RUT, document number, and printed serial to obtain a vigency-style status from civil or tax validation sources—use when the physical ID must be confirmed, not only the number.",
+        "summary": "Chile — Identity document validation",
+        "description": "Validate a Chilean RUN or RUT together with the document serial against civil or tax validation flows; returns a vigency-style status for physical ID checks.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6752,8 +7175,8 @@
           "LATAM"
         ],
         "operationId": "chile_api_taxpayer_lookup",
-        "summary": "chile api taxpayer lookup",
-        "description": "Returns name fields and identifiers aligned with tax registry usage—ideal for KYB, supplier onboarding, and invoice validation where the RUT must match registered taxpayer data.",
+        "summary": "Chile — Taxpayer (RUT) lookup",
+        "description": "Query Chilean taxpayer records by RUT: structured name fields from tax-oriented sources for KYB, invoicing, and vendor checks.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6815,8 +7238,8 @@
           "LATAM"
         ],
         "operationId": "paraguay_api_vehicle",
-        "summary": "Paraguay - Vehicle Verification",
-        "description": "Look up a vehicle by license plate (plate). Returns registration, owner, and vehicle details for verification and compliance.",
+        "summary": "Paraguay - Vehicle Information",
+        "description": "Paraguayan vehicle validation service for retrieving comprehensive vehicle information by license plate",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6866,8 +7289,8 @@
           "LATAM"
         ],
         "operationId": "costa_rica_api_vehicle",
-        "summary": " - Vehicle Verification",
-        "description": "Send a GET request with the plate query parameter (no spaces or punctuation). A successful response includes structured vehicle data, owner fields, and history arrays when available.",
+        "summary": "Costa Rica - Vehicle Information",
+        "description": "Costa Rican vehicle lookup by license plate via GET /v2/cr/vehicle with required plate; returns owner, specs, infractions, and owner history when available.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6917,8 +7340,8 @@
           "USA"
         ],
         "operationId": "usa_api_vehicle_lookup_by_vin",
-        "summary": "USA - Vehicle Lookup by VIN",
-        "description": "Decode a U.S. vehicle by VIN using the vin query parameter (exactly 17 characters).",
+        "summary": "United States - Vehicle by VIN",
+        "description": "US vehicle validation by 17-character VIN (NHTSA decode)",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6968,8 +7391,8 @@
           "LATAM"
         ],
         "operationId": "guatemala_api_identity_lookup",
-        "summary": "Guatemala - National ID Verification",
-        "description": "Verifik's Identity Verification API helps you authenticate Guatemalan citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
+        "summary": "Guatemala - Guatemalan Citizen",
+        "description": "Validate the identity of individuals in Guatemala with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7082,8 +7505,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_vehicle_fines_bogota",
-        "summary": "Colombia - Bogota Transit Fines",
-        "description": "Verify outstanding local traffic penalties and fines restricted to the city of Bogota.",
+        "summary": "Colombia - Vehicle Fines Check",
+        "description": "Bogotá vehicle fines service",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7133,8 +7556,8 @@
           "LATAM"
         ],
         "operationId": "honduras_api_identity_lookup",
-        "summary": "Honduras - National ID Verification",
-        "description": "Verifik's Identity Verification API helps you authenticate Honduran citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
+        "summary": "Honduras - Honduran Citizen",
+        "description": "Validate the identity of individuals in Honduras with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7196,8 +7619,8 @@
           "LATAM"
         ],
         "operationId": "republica_dominicana_api_citizen_lookup",
-        "summary": "Dominican Republic - National ID Verification",
-        "description": "Verifik's Identity Verification API helps you authenticate Dominican citizens using official government data. It's designed to streamline your KYC (Know Your Customer) processes, prevent fraud, and ensure you meet all regulatory requirements effortlessly.",
+        "summary": "República Dominicana - Dominican Citizen",
+        "description": "Validate the identity of individuals in the Dominican Republic with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7251,7 +7674,7 @@
       }
     },
     "/api/ve/foreigner-id": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -7259,8 +7682,8 @@
           "LATAM"
         ],
         "operationId": "venezuela_foreigner_api",
-        "summary": "Venezuela - Immigration Status Verification",
-        "description": "Immigration records verification service for Venezuela. Provides immigration status and foreigner registration information.",
+        "summary": "Venezuela - Foreigner ID (CEVE)",
+        "description": "Foreigner cédula (CEVE) verification in Venezuela—lookup by document number via GET /v2/ve/foreigner-id for KYC and compliance.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7288,17 +7711,25 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/bo/vehicle": {
@@ -7310,8 +7741,8 @@
           "LATAM"
         ],
         "operationId": "bolivia_api_vehicle",
-        "summary": "Bolivia - Vehicle Verification",
-        "description": "Look up a vehicle by license plate (plate). Returns registration and vehicle details for verification and compliance.",
+        "summary": "Bolivia - Vehicle Information",
+        "description": "Bolivian vehicle validation service for retrieving vehicle information by license plate",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7361,8 +7792,8 @@
           "Global"
         ],
         "operationId": "uruguay_api_identity_lookup",
-        "summary": "Uruguay - National ID Verification",
-        "description": "Verify Uruguayan identification by documentType=CCUY, documentNumber, and dateOfBirth.",
+        "summary": "Uruguay - Uruguayan Citizen",
+        "description": "Validate the identity of individuals in Uruguay with Verifik's KYC API. Connect with official sources and verify personal data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7433,8 +7864,8 @@
           "Global"
         ],
         "operationId": "spain_api_company_lookup",
-        "summary": "Spain - Company Lookup",
-        "description": "Look up a Spanish legal entity using documentNumber (company tax identifier, e.g. CIF). Returns core registration-oriented fields to support KYB, vendor screening, and compliance.",
+        "summary": "Spain - Spanish Business Verification",
+        "description": "Validate Spanish companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7496,8 +7927,8 @@
           "LATAM"
         ],
         "operationId": "panama_api_business_lookup",
-        "summary": "Panama - Company Lookup",
-        "description": "Query Panama’s RUC (Registro Único de Contribuyente) registry. Send documentType (RUC), the company documentNumber, and the dv (verification digit). Typical uses include KYB, vendor onboarding, and compliance reviews when you need legal name, status, representatives, and key commercial fields in one HTTPS response.",
+        "summary": "Panama - Panamanian Business Verification",
+        "description": "Look up Panamanian companies by RUC—legal name, status, representatives, and registry fields from official sources for KYB and due diligence.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7560,7 +7991,7 @@
       }
     },
     "/api/pe/foreigner-id/ce": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -7568,8 +7999,8 @@
           "LATAM"
         ],
         "operationId": "peru_api_identity_ce_foreigner_id",
-        "summary": "Peru - Immigration Status Verification",
-        "description": "Immigration records verification service for Peru. Provides immigration status and foreigner registration information.",
+        "summary": "Peru - Foreigner ID",
+        "description": "Peruvian foreigner resident ID validation service for verifying foreigner identity documents",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7597,26 +8028,30 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "dateOfBirth",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: dateOfBirth"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "description": "Parameter: dateOfBirth"
+                  }
+                },
+                "required": [
+                  "documentNumber",
+                  "dateOfBirth"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/v3/co/rues-complete": {
@@ -7628,8 +8063,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_rues_full_v3",
-        "summary": "Colombia - RUES Complete (v3)",
-        "description": "Retrieves complete Colombian business information from the RUES registry (NIT + category). Same parameters as GET /v3/co/rues, with commercial registry, economic activities, establishments, and legal representatives. Higher cost than the v3 summary endpoint due to full data aggregation.",
+        "summary": "Colombia - RUES Complete Business Validation (v3)",
+        "description": "Retrieve complete Colombian business information from RUES with Verifik's KYB API. Connect with official sources and verify comprehensive business data.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7702,7 +8137,7 @@
       }
     },
     "/api/v3/co/rues": {
-      "post": {
+      "get": {
         "tags": [
           "KYC",
           "KYB",
@@ -7710,8 +8145,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_rues_v3",
-        "summary": "Colombia - RUES Summary (v3)",
-        "description": "V3 basic RUES lookup by NIT and registry category (RM, PROP, RNT, ESAL, etc.). Returns a normalized category summary—not the full dossier. Lower cost; use colombia_api_rues_full_v3 for representatives, activities, and establishments.",
+        "summary": "Colombia — RUES business lookup (v3)",
+        "description": "Query Colombia’s RUES registry by NIT with category-specific basic data via GET /v3/co/rues.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7739,48 +8174,48 @@
             "description": "Payment Required"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentType": {
-                    "type": "string",
-                    "description": "Parameter: documentType",
-                    "enum": [
-                      "NIT"
-                    ]
-                  },
-                  "category": {
-                    "type": "string",
-                    "description": "Parameter: category",
-                    "enum": [
-                      "RM",
-                      "PROP",
-                      "RUNEOL",
-                      "RNT",
-                      "ESAL",
-                      "RESAL",
-                      "JUEGOS",
-                      "EXTRANJERAS"
-                    ]
-                  },
-                  "documentNumber": {
-                    "type": "string",
-                    "description": "Parameter: documentNumber"
-                  }
-                },
-                "required": [
-                  "documentType",
-                  "category",
-                  "documentNumber"
-                ]
-              }
-            }
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "NIT"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RM",
+                "PROP",
+                "RUNEOL",
+                "RNT",
+                "ESAL",
+                "RESAL",
+                "JUEGOS",
+                "EXTRANJERAS"
+              ]
+            },
+            "description": "Parameter: category"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
           }
-        }
+        ]
       }
     },
     "/api/v3/pe/cedula/extra": {
@@ -7792,8 +8227,8 @@
           "LATAM"
         ],
         "operationId": "peru_identity_extra_lookup_v3",
-        "summary": "Peru - National ID Verification",
-        "description": "Returns extended RENIEC DNI data for Peruvian citizens: full name, civil status, dates, photo (base64), address, ubigeo, and verification digit. Send documentType=DNI and the 8-digit documentNumber.",
+        "summary": "Peru - Full ID",
+        "description": "Extended Peruvian citizen identity verification with comprehensive DNI details using Verifik's KYC API. Connect with official sources and verify detailed identity data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7855,8 +8290,8 @@
           "LATAM"
         ],
         "operationId": "peru_identity_lookup_v3",
-        "summary": "Peru - National ID Verification",
-        "description": "Standard Peruvian DNI (v3) identity check against RENIEC: validates that the document number matches official records and returns core identity fields (name, dates, civil status, address, etc.). Use documentType=DNI and the 8-digit documentNumber.",
+        "summary": "Peru - Peru",
+        "description": "Verify identities of Peruvian citizens using DNI v3 API",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7910,7 +8345,7 @@
       }
     },
     "/api/co/foreigner-id/ppt": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -7918,8 +8353,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_identity_ppt_foreigner_id",
-        "summary": "Colombia - Immigration Status Verification",
-        "description": "Immigration records verification service for Colombia. Provides immigration status and foreigner registration information.",
+        "summary": "Colombia — PPT (Temporary Protection Permit)",
+        "description": "Verify Permiso de Protección Temporal (PPT) status with Migración Colombia via GET /v2/co/foreigner-id/ppt.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -7947,26 +8382,30 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "expeditionDate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: expeditionDate"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "expeditionDate": {
+                    "type": "string",
+                    "description": "Parameter: expeditionDate"
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "expeditionDate",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/v3/co/ministerio-de-trabajo/certificados": {
@@ -7978,8 +8417,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_min_trabajo_v3",
-        "summary": "Colombia - Work at Heights Certification",
-        "description": "Labor certificates verification service for Colombia. Provides work-related certifications and labor status information.",
+        "summary": "Colombia — Ministry of Labor certificates (v3)",
+        "description": "Labor and height-safety (“curso de alturas”) certificate data from Colombia’s Ministry of Labor via GET /v3/co/ministerio-de-trabajo/certificados.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8041,7 +8480,7 @@
       }
     },
     "/api/co/sisben": {
-      "get": {
+      "post": {
         "tags": [
           "KYC",
           "KYB",
@@ -8049,8 +8488,8 @@
           "LATAM"
         ],
         "operationId": "colombia_sisben_api_lookup",
-        "summary": "Colombia - SISBEN Score Verification",
-        "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios) score and classification.",
+        "summary": "Colombia — SISBEN score",
+        "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales) score and group classification for Colombian residents.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8078,33 +8517,37 @@
             "description": "Payment Required"
           }
         },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "CE",
-                "PEP",
-                "PPT",
-                "PA"
-              ]
-            },
-            "description": "Parameter: documentType"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "PEP",
+                      "PPT",
+                      "PA"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
           }
-        ]
+        }
       }
     },
     "/api/face-recognition/face-validation": {
@@ -8175,8 +8618,8 @@
           "LATAM"
         ],
         "operationId": "peru_api_company_lookup_v3",
-        "summary": "Peru - Company Lookup",
-        "description": "Look up a Peruvian company by RUC (documentType=RUC and the business documentNumber). Returns legal name, status, address, and taxpayer condition from official registries—useful for KYB, onboarding vendors, and due diligence.",
+        "summary": "Peru - Peruvian Business Verification",
+        "description": "Validate Peruvian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8353,8 +8796,8 @@
           "Global"
         ],
         "operationId": "spain_api_vehicle_lookup",
-        "summary": "Spain - Vehicle Verification",
-        "description": "Returns vehicle information for a Spanish registration plate, including fields such as make, model, year, and vehicle type when a match exists.",
+        "summary": "Spain - Spain",
+        "description": "Query Spanish vehicle registration data by license plate (matrícula) via Verifik.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8396,7 +8839,7 @@
       }
     },
     "/api/co/sigep/name": {
-      "post": {
+      "get": {
         "tags": [
           "KYC",
           "KYB",
@@ -8404,8 +8847,8 @@
           "LATAM"
         ],
         "operationId": "colombia_sigep_by_name",
-        "summary": "Colombia - SIGEP Public Officials Search",
-        "description": "Search Colombian public officials and government contractors by full name. Access contact information, positions, and organizational details from the SIGEP database.",
+        "summary": "Colombia — SIGEP lookup by full name",
+        "description": "Search Colombian public officials and government contractors by full name in the SIGEP directory.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8433,25 +8876,17 @@
             "description": "Payment Required"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "fullName": {
-                    "type": "string",
-                    "description": "Parameter: fullName"
-                  }
-                },
-                "required": [
-                  "fullName"
-                ]
-              }
-            }
+        "parameters": [
+          {
+            "name": "fullName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: fullName"
           }
-        }
+        ]
       }
     },
     "/api/co/sigep/number": {
@@ -8463,8 +8898,8 @@
           "LATAM"
         ],
         "operationId": "colombia_sigep_by_number",
-        "summary": "Colombia - SIGEP Official Lookup by Document",
-        "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT). Get complete professional information from SIGEP records.",
+        "summary": "Colombia — SIGEP lookup by document",
+        "description": "Look up Colombian public officials and government contractors using their ID number (CC or NIT) via SIGEP.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8519,7 +8954,7 @@
       }
     },
     "/api/co/inpec": {
-      "post": {
+      "get": {
         "tags": [
           "KYC",
           "KYB",
@@ -8527,8 +8962,8 @@
           "LATAM"
         ],
         "operationId": "colombia_inpec_lookup",
-        "summary": "Colombia - INPEC Penitentiary Records",
-        "description": "Look up penitentiary records and incarceration history.",
+        "summary": "Colombia - INPEC Prison Records Check",
+        "description": "Query the population deprived of liberty under the custody of INPEC (Colombian National Penitentiary and Prison Institute)",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8556,38 +8991,38 @@
             "description": "Payment Required"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentType": {
-                    "type": "string",
-                    "description": "Parameter: documentType",
-                    "enum": [
-                      "CC"
-                    ]
-                  },
-                  "documentNumber": {
-                    "type": "string",
-                    "description": "Parameter: documentNumber"
-                  },
-                  "firstSurname": {
-                    "type": "string",
-                    "description": "Parameter: firstSurname"
-                  }
-                },
-                "required": [
-                  "documentType",
-                  "documentNumber",
-                  "firstSurname"
-                ]
-              }
-            }
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CC"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
+          },
+          {
+            "name": "firstSurname",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: firstSurname"
           }
-        }
+        ]
       }
     },
     "/api/zelf-proof/encrypt": {
@@ -8599,8 +9034,8 @@
           "Global"
         ],
         "operationId": "zelf-proofs",
-        "summary": "Zelf Proofs",
-        "description": "Zelf Proofs service for identity verification and document validation. This service provides comprehensive proof generation capabilities for various identity documents and verification processes.",
+        "summary": "Global - Encrypt HumanID",
+        "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8703,8 +9138,8 @@
           "LATAM"
         ],
         "operationId": "guatemala_api_identity_extra_lookup",
-        "summary": "Guatemala - Identity Verification full",
-        "description": "Standard identity verification service for Guatemala citizens. Verifies personal information and document authenticity.",
+        "summary": "Guatemala - Guatemala Extra",
+        "description": "Validate the identity of individuals in Guatemala with additional details such as birth date and gender.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8758,7 +9193,7 @@
       }
     },
     "/api/in/epic": {
-      "post": {
+      "get": {
         "tags": [
           "KYC",
           "KYB",
@@ -8766,8 +9201,8 @@
           "Global"
         ],
         "operationId": "india_api_epic_lookup",
-        "summary": "CONSULTAR EPIC INDIA",
-        "description": "Metodo para consultar datos de un ciudadano en India usando EPIC (Voter ID)",
+        "summary": "India - India EPIC (Voter ID) — Person & Name Lookup | Verifik",
+        "description": "Retrieve voter name and related fields from the Electoral Commission of India (ECI) using a 10-character EPIC (Voter ID) via Verifik's API.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8795,33 +9230,29 @@
             "description": "Payment Required"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentType": {
-                    "type": "string",
-                    "description": "Parameter: documentType",
-                    "enum": [
-                      "EPIC"
-                    ]
-                  },
-                  "documentNumber": {
-                    "type": "string",
-                    "description": "Parameter: documentNumber"
-                  }
-                },
-                "required": [
-                  "documentType",
-                  "documentNumber"
-                ]
-              }
-            }
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EPIC"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
           }
-        }
+        ]
       }
     },
     "/api/in/epic/votacion": {
@@ -8833,8 +9264,8 @@
           "Global"
         ],
         "operationId": "india_api_epic_voting_lookup",
-        "summary": "CONSULTAR VOTACION EPIC INDIA",
-        "description": "Metodo para consultar informacion de votacion de un ciudadano en India usando EPIC (Voter ID)",
+        "summary": "India - India EPIC (Voter ID) — Polling & voting location | Verifik",
+        "description": "Retrieve assembly, part, and polling-place details for an Indian EPIC (Voter ID) from ECI-oriented sources via Verifik''s API.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -8900,8 +9331,8 @@
           "LATAM"
         ],
         "operationId": "co_bogota_taxi_plate",
-        "summary": "Colombia - Bogotá Taxi Driver by Plate",
-        "description": "Taxi driver and vehicle verification in Bogotá by plate number. Retrieves driver and vehicle-related data associated with the taxi plate.",
+        "summary": "Colombia - Bogotá Taxi Driver Information by Plate",
+        "description": "Retrieve taxi driver and operation card information in Bogotá by vehicle plate.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -9022,8 +9453,8 @@
           "LATAM"
         ],
         "operationId": "colombia_api_identity_lookup_premium",
-        "summary": "Colombia - National ID Premium Verification",
-        "description": "Premium Colombian citizen lookup (CC only). Resolves the expedition date automatically, then returns the same enriched fields as /v2/co/cedula/extra. Higher cost reflects chained upstream processing.",
+        "summary": "Colombia — National ID premium lookup (CC)",
+        "description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, Verifik finds the issue date for you, and you get the same rich identity record as cédula extra. Uses more credits than the basic cédula check.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",

@@ -10,7 +10,6 @@ import {
 
 import {
     appendVehiclePlateSandboxProfiles,
-    SANDBOX_DEFAULT_PLATE,
 } from '../vehicle-plate-profiles';
 
 export const BRAZIL_IDENTITY_ENDPOINT_CODE = 'brasil_api_identity_lookup';
@@ -66,6 +65,16 @@ const BRAZIL_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '00010000008', fullName: 'RICARDO JOSE MORALES SUAREZ — valid' },
     { documentNumber: '00010000009', fullName: 'PATRICIA CAROLINA DIAZ REYES — valid' },
     { documentNumber: '00010000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — valid' },
+];
+
+const BRAZIL_VEHICLE_DEFAULT_PLATE = 'PZY7H82';
+
+const BRAZIL_VEHICLE_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    { plate: 'PZY7H82', documentNumber: 'PZY7H82', fullName: 'HYUNDAI HB20 1.0M COMFOR — vehicle fixture' },
+    { plate: 'EDM4A46', documentNumber: 'EDM4A46', fullName: 'FORD FUSION — vehicle fixture' },
+    { plate: 'AAA2345', documentNumber: 'AAA2345', fullName: 'VOLKSWAGEN GOL 1000I — vehicle fixture' },
+    { plate: 'AAA2325', documentNumber: 'AAA2325', fullName: 'MERCEDES-BENZ LK 2325 — vehicle fixture' },
+    { plate: 'DSK4F82', documentNumber: 'DSK4F82', fullName: 'CHEVROLET CORSA HATCH MAXX — vehicle fixture' },
 ];
 
 const BRAZIL_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
@@ -156,9 +165,9 @@ export const BRAZIL_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
         showProfileMeta: false,
     },
     [BRAZIL_VEHICLE_ENDPOINT_CODE]: {
-        profiles: appendVehiclePlateSandboxProfiles(),
-        defaultPlate: SANDBOX_DEFAULT_PLATE,
-        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        profiles: appendVehiclePlateSandboxProfiles(BRAZIL_VEHICLE_SANDBOX_PROFILES),
+        defaultPlate: BRAZIL_VEHICLE_DEFAULT_PLATE,
+        defaultDocumentNumber: BRAZIL_VEHICLE_DEFAULT_PLATE,
         showProfileMeta: false,
     },
     [BRAZIL_COMPANY_ENDPOINT_CODE]: {

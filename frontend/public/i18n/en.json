@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "Batch processing automation",
         "history_subtitle": "View past requests and logs",
-        "subscription_plans": "Subscription Plans",
-        "manage_subscription": "Manage your subscription",
+        "subscription_plans": "Subscription",
+        "manage_subscription": "Manage Plan",
         "add_credits": "Add Credits",
         "purchase_credits": "Purchase additional credits",
         "status_check": "Status Check",
@@ -36,13 +36,9 @@
         "scan_documents": "Scan and extract document data",
         "smart_enroll_projects": "Projects",
         "smart_enroll_projects_subtitle": "Smart Enroll projects and enrollment records",
-        "smart_enroll_plans": "Plans",
-        "smart_enroll_plans_subtitle": "Smart Enroll subscription and checkout",
         "smart_access": "Smart Access",
         "smart_access_projects": "Projects",
         "smart_access_projects_subtitle": "Smart Access projects and login records",
-        "smart_access_plans": "Plans",
-        "smart_access_plans_subtitle": "Smart Access subscription and checkout",
         "collections": "Collections",
         "collections_subtitle": "Manage face recognition collections",
         "people": "People",
@@ -646,7 +642,7 @@
             "incidents": "Incidents",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "Subscription Plans",
+            "subscriptionPlans": "Subscription",
             "addCredits": "Add Credits"
         },
         "sandbox": {
@@ -1293,7 +1289,9 @@
             "menuLiveEnrollment": "Open live enrollment",
             "neverLoggedIn": "Never signed in",
             "demoMode": "Demo",
-            "menuSecurity": "Security"
+            "menuSecurity": "Security",
+            "newProjectTitle": "New Smart Enroll project",
+            "newProjectSubtitle": "Set up another enrollment flow with its own signup, documents, biometrics and branding."
         },
         "securitySettings": {
             "title": "Security Settings",
@@ -2899,6 +2897,35 @@
         "signOutWeb3": "Sign Out Wallet",
         "settings": "Settings"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Theme",
+            "scheme": "Scheme",
+            "layout": "Layout"
+        },
+        "scheme": {
+            "auto": "Auto",
+            "dark": "Dark",
+            "light": "Light",
+            "autoTooltip": "Automatically sets the scheme based on user's operating system's color scheme preference using 'prefer-color-scheme' media query."
+        },
+        "layouts": {
+            "empty": "Empty",
+            "classic": "Classic",
+            "classy": "Classy",
+            "compact": "Compact",
+            "dense": "Dense",
+            "futuristic": "Futuristic",
+            "thin": "Thin",
+            "centered": "Centered",
+            "enterprise": "Enterprise",
+            "material": "Material",
+            "modern": "Modern"
+        },
+        "themes": {
+            "theme-default": "Default"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "Split Vertical",
@@ -3678,7 +3705,7 @@
             "whatsapp": "Whatsapp",
             "white_label": "White-label Solution",
             "worldwide_checks": "Worldwide Checks",
-            "manage_subscription": "Manage your subscription",
+            "manage_subscription": "Manage Plan",
             "month": "month",
             "choose_best_plan": "Choose the plan that best suits your needs",
             "most_popular": "Most Popular",
@@ -3847,7 +3874,7 @@
             "included": "Included",
             "learn_more": "Learn more",
             "liveness": "Biometrics",
-            "manage_plan": "Manage plan",
+            "manage_plan": "Manage Plan",
             "more_sessions": "+2,000 Biometrics sessions",
             "next_payment": "Next Payment",
             "no_data": "No data to present",
@@ -6319,26 +6346,80 @@
                 "Normal: General inquiries that do not affect service availability."
             ],
             "responseTitle": "Response times",
-            "responseHeaders": ["Severity", "Attention", "Review", "Escalation", "Resolution"],
+            "responseHeaders": [
+                "Severity",
+                "Attention",
+                "Review",
+                "Escalation",
+                "Resolution"
+            ],
             "responseRows": {
-                "critical": ["Critical", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "urgent": ["Urgent", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
-                "medium": ["Medium", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
-                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
+                "critical": [
+                    "Critical",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "urgent": [
+                    "Urgent",
+                    "0.5 hr",
+                    "0.5 hr",
+                    "15 min",
+                    "48 hrs"
+                ],
+                "medium": [
+                    "Medium",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ],
+                "normal": [
+                    "Normal",
+                    "1 hr",
+                    "1 hr",
+                    "0.5 hr",
+                    "96 hrs"
+                ]
             },
             "availabilityTitle": "Platform availability",
-            "availabilityHeaders": ["Product", "Availability", "Notes"],
+            "availabilityHeaders": [
+                "Product",
+                "Availability",
+                "Notes"
+            ],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depends on government sources"
                 ],
-                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll (Doc scan)", "98.0%", ""],
+                "smartAccessComm": [
+                    "SmartAccess (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll (Email/Tel)",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll (Biometrics)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll (Doc scan)",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -6355,10 +6436,22 @@
             "responseNote": "Note: 48 hrs means we may take up to 48 hours to resolve the incident depending on its complexity. Response times count from the user's last message.",
             "compensationTitle": "Downtime compensation",
             "compensationIntro": "Credit compensation for the affected month will be provided as a credit equivalent to the cost of the ineffective service call. If unavailability is caused by internal Verifik issues (database, servers, internal API problems) and not effectively resolved, Verifik will compensate as follows:",
-            "compensationHeaders": ["Service availability", "Credit compensation", "Product"],
+            "compensationHeaders": [
+                "Service availability",
+                "Credit compensation",
+                "Product"
+            ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% or higher", "No credit", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% or lower", "Compensation", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% or higher",
+                    "No credit",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% or lower",
+                    "Compensation",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% or higher",
                     "No credit",
@@ -6394,9 +6487,15 @@
             "billingTitle": "SmartCheck billing scheme",
             "billingIntro": "This billing scheme applies to smartCHECK, which allows querying government databases. Verifik is not the owner, manager, or responsible party for government databases in the countries we serve; therefore Verifik does not guarantee response time, average uptime, or data accuracy.",
             "billingTableTitle": "Billable vs non-billable HTTP codes",
-            "billingHeaders": ["Billable", "Non-billable"],
+            "billingHeaders": [
+                "Billable",
+                "Non-billable"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "Scheduled maintenance",
             "maintenance": "Scheduled maintenance is performed at night and on weekends with prior email notice to users.",

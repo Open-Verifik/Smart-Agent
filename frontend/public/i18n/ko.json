@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "일괄 처리 자동화",
         "history_subtitle": "과거 요청 및 로그 보기",
-        "subscription_plans": "구독 플랜",
-        "manage_subscription": "구독 관리",
+        "subscription_plans": "구독",
+        "manage_subscription": "플랜 관리",
         "add_credits": "크레딧 추가",
         "purchase_credits": "추가 크레딧 구매",
         "status_check": "상태 확인",
@@ -36,8 +36,6 @@
         "scan_documents": "문서 스캔 및 데이터 추출",
         "smart_enroll_projects": "프로젝트",
         "smart_enroll_projects_subtitle": "Smart Enroll 프로젝트 및 등록 기록",
-        "smart_enroll_plans": "플랜",
-        "smart_enroll_plans_subtitle": "Smart Enroll 구독 및 결제",
         "collections": "컬렉션",
         "collections_subtitle": "얼굴 인식 컬렉션 관리",
         "people": "사람",
@@ -49,8 +47,6 @@
         "smart_access": "Smart Access",
         "smart_access_projects": "프로젝트",
         "smart_access_projects_subtitle": "Smart Access 프로젝트 및 로그인 기록",
-        "smart_access_plans": "플랜",
-        "smart_access_plans_subtitle": "Smart Access 구독 및 결제",
         "demos": "데모",
         "demos_subtitle": "대화형 생체 인증 데모"
     },
@@ -636,7 +632,7 @@
             "incidents": "사고",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "구독 플랜",
+            "subscriptionPlans": "구독",
             "addCredits": "크레딧 추가",
             "smartAccess": "Smart Access"
         },
@@ -1284,7 +1280,9 @@
             "menuLiveEnrollment": "라이브 등록 열기",
             "neverLoggedIn": "로그인 없음",
             "demoMode": "데모",
-            "menuSecurity": "보안"
+            "menuSecurity": "보안",
+            "newProjectTitle": "새 Smart Enroll 프로젝트",
+            "newProjectSubtitle": "자체 가입, 문서, 생체 인증 및 브랜딩을 갖춘 또 다른 등록 흐름을 설정합니다."
         },
         "securitySettings": {
             "title": "보안 설정",
@@ -2890,6 +2888,35 @@
         "signOutWeb3": "지갑 로그아웃",
         "settings": "설정"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "테마",
+            "scheme": "스킴",
+            "layout": "레이아웃"
+        },
+        "scheme": {
+            "auto": "자동",
+            "dark": "다크",
+            "light": "라이트",
+            "autoTooltip": "사용자 운영체제의 색 구성표 환경 설정에 따라 'prefer-color-scheme' 미디어 쿼리를 사용하여 자동으로 스킴을 설정합니다."
+        },
+        "layouts": {
+            "empty": "빈",
+            "classic": "클래식",
+            "classy": "클래시",
+            "compact": "콤팩트",
+            "dense": "밀집",
+            "futuristic": "미래형",
+            "thin": "슬림",
+            "centered": "중앙",
+            "enterprise": "엔터프라이즈",
+            "material": "머티리얼",
+            "modern": "모던"
+        },
+        "themes": {
+            "theme-default": "기본값"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "수직 분할",
@@ -3669,7 +3696,7 @@
             "whatsapp": "Whatsapp",
             "white_label": "White-label Solution",
             "worldwide_checks": "Worldwide Checks",
-            "manage_subscription": "Manage your subscription",
+            "manage_subscription": "플랜 관리",
             "month": "month",
             "choose_best_plan": "Choose the plan that best suits your needs",
             "most_popular": "Most Popular",
@@ -3832,7 +3859,7 @@
             "included": "Included",
             "learn_more": "Learn more",
             "liveness": "Biometrics",
-            "manage_plan": "Manage plan",
+            "manage_plan": "플랜 관리",
             "more_sessions": "+2,000 Biometrics sessions",
             "next_payment": "Next Payment",
             "no_data": "No data to present",
@@ -6319,22 +6346,80 @@
                 "일반: 가용성에 영향 없는 일반 문의."
             ],
             "responseTitle": "응답 시간",
-            "responseHeaders": ["심각도", "접수", "검토", "에스컬레이션", "해결"],
+            "responseHeaders": [
+                "심각도",
+                "접수",
+                "검토",
+                "에스컬레이션",
+                "해결"
+            ],
             "responseRows": {
-                "critical": ["치명", "0.5시간", "0.5시간", "15분", "48시간"],
-                "urgent": ["긴급", "0.5시간", "0.5시간", "15분", "48시간"],
-                "medium": ["중간", "1시간", "1시간", "0.5시간", "96시간"],
-                "normal": ["일반", "1시간", "1시간", "0.5시간", "96시간"]
+                "critical": [
+                    "치명",
+                    "0.5시간",
+                    "0.5시간",
+                    "15분",
+                    "48시간"
+                ],
+                "urgent": [
+                    "긴급",
+                    "0.5시간",
+                    "0.5시간",
+                    "15분",
+                    "48시간"
+                ],
+                "medium": [
+                    "중간",
+                    "1시간",
+                    "1시간",
+                    "0.5시간",
+                    "96시간"
+                ],
+                "normal": [
+                    "일반",
+                    "1시간",
+                    "1시간",
+                    "0.5시간",
+                    "96시간"
+                ]
             },
             "availabilityTitle": "플랫폼 가용성",
-            "availabilityHeaders": ["제품", "가용성", "비고"],
+            "availabilityHeaders": [
+                "제품",
+                "가용성",
+                "비고"
+            ],
             "availabilityRows": {
-                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 정부 소스에 의존"],
-                "smartAccessComm": ["SmartAccess(이메일/전화)", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess(생체인증)", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll(이메일/전화)", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll(생체인증)", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll(문서 스캔)", "98.0%", ""],
+                "smartCheck": [
+                    "SmartCheck",
+                    "90.0%",
+                    "DB Screening — 정부 소스에 의존"
+                ],
+                "smartAccessComm": [
+                    "SmartAccess(이메일/전화)",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess(생체인증)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll(이메일/전화)",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll(생체인증)",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll(문서 스캔)",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll(DB Screening)",
                     "90.0%",
@@ -6351,32 +6436,66 @@
             "responseNote": "참고: 48시간은 사건 복잡도에 따라 최대 48시간이 소요될 수 있음을 의미합니다. 응답 시간은 사용자의 마지막 메시지부터 계산됩니다.",
             "compensationTitle": "다운타임 보상",
             "compensationIntro": "영향을 받은 달에는 무효 서비스 호출 비용에 상응하는 크레딧 보상이 제공됩니다. Verifik 내부 문제(DB, 서버, 내부 API)로 인한 중단이 효과적으로 해결되지 않으면 다음과 같이 보상합니다:",
-            "compensationHeaders": ["서비스 가용성", "크레딧 보상", "제품"],
+            "compensationHeaders": [
+                "서비스 가용성",
+                "크레딧 보상",
+                "제품"
+            ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% 이상", "보상 없음", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% 이하", "보상", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% 이상",
+                    "보상 없음",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% 이하",
+                    "보상",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "이메일/전화 — 99.00% 이상",
                     "보상 없음",
                     "SmartAccess, SmartEnroll"
                 ],
-                "emailTelLow": ["이메일/전화 — 98.99% 이하", "보상", "SmartAccess, SmartEnroll"],
+                "emailTelLow": [
+                    "이메일/전화 — 98.99% 이하",
+                    "보상",
+                    "SmartAccess, SmartEnroll"
+                ],
                 "biometricsHigh": [
                     "생체인증 — 99.00% 이상",
                     "보상 없음",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": ["생체인증 — 98.99% 이하", "보상", "SmartAccess, SmartEnroll"],
-                "docScanHigh": ["문서 스캔 — 99.00% 이상", "보상 없음", "SmartAccess, SmartEnroll"],
-                "docScanLow": ["문서 스캔 — 98.99% 이하", "보상", "SmartAccess, SmartEnroll"]
+                "biometricsLow": [
+                    "생체인증 — 98.99% 이하",
+                    "보상",
+                    "SmartAccess, SmartEnroll"
+                ],
+                "docScanHigh": [
+                    "문서 스캔 — 99.00% 이상",
+                    "보상 없음",
+                    "SmartAccess, SmartEnroll"
+                ],
+                "docScanLow": [
+                    "문서 스캔 — 98.99% 이하",
+                    "보상",
+                    "SmartAccess, SmartEnroll"
+                ]
             },
             "compensationDisclaimer": "DB Screening 내부 문제에는 불가항력(마이그레이션, 연결 해제, 정부 외부 개입)이 포함되지 않습니다. Verifik는 중개자이며 조회하는 정부 DB를 통제·갱신하지 않습니다.",
             "billingTitle": "SmartCheck 과금 방식",
             "billingIntro": "본 방식은 smartCHECK(정부 DB 조회)에 적용됩니다. Verifik는 해당 국가 정부 DB의 소유·관리 주체가 아니며, 응답 시간·평균 가동률·데이터 정확성을 보장하지 않습니다.",
             "billingTableTitle": "과금/비과금 HTTP 코드",
-            "billingHeaders": ["과금", "비과금"],
+            "billingHeaders": [
+                "과금",
+                "비과금"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "예정 유지보수",
             "maintenance": "예정 유지보수는 야간 및 주말에 진행되며 사전 이메일로 안내됩니다.",

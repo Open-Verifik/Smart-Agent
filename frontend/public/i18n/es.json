@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "Automatización de procesamiento por lotes",
         "history_subtitle": "Ver solicitudes y registros anteriores",
-        "subscription_plans": "Planes de suscripción",
-        "manage_subscription": "Administra tu suscripción",
+        "subscription_plans": "Suscripción",
+        "manage_subscription": "Gestionar plan",
         "add_credits": "Agregar créditos",
         "purchase_credits": "Comprar créditos adicionales",
         "status_check": "Verificación de estado",
@@ -36,8 +36,6 @@
         "scan_documents": "Escanear y extraer datos de documentos",
         "smart_enroll_projects": "Proyectos",
         "smart_enroll_projects_subtitle": "Proyectos Smart Enroll y registros de inscripción",
-        "smart_enroll_plans": "Planes",
-        "smart_enroll_plans_subtitle": "Suscripción y pago de Smart Enroll",
         "collections": "Colecciones",
         "collections_subtitle": "Administrar colecciones de reconocimiento facial",
         "people": "Personas",
@@ -49,8 +47,6 @@
         "smart_access": "Smart Access",
         "smart_access_projects": "Proyectos",
         "smart_access_projects_subtitle": "Proyectos de Smart Access y registros de acceso",
-        "smart_access_plans": "Planes",
-        "smart_access_plans_subtitle": "Suscripción y pago de Smart Access",
         "demos": "Demos",
         "demos_subtitle": "Demos interactivos de biometría"
     },
@@ -646,7 +642,7 @@
             "incidents": "Incidentes",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "Planes de suscripción",
+            "subscriptionPlans": "Suscripción",
             "addCredits": "Agregar créditos"
         },
         "sandbox": {
@@ -1293,7 +1289,9 @@
             "menuLiveEnrollment": "Abrir registro en vivo",
             "neverLoggedIn": "Sin actividad",
             "demoMode": "Demo",
-            "menuSecurity": "Seguridad"
+            "menuSecurity": "Seguridad",
+            "newProjectTitle": "Nuevo proyecto Smart Enroll",
+            "newProjectSubtitle": "Configura otro flujo de registro con su propio formulario, documentos, biometría y branding."
         },
         "securitySettings": {
             "title": "Configuración de seguridad",
@@ -2899,6 +2897,35 @@
         "signOutWeb3": "Cerrar Sesión Billetera",
         "settings": "Configuración"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Tema",
+            "scheme": "Esquema",
+            "layout": "Diseño"
+        },
+        "scheme": {
+            "auto": "Automático",
+            "dark": "Oscuro",
+            "light": "Claro",
+            "autoTooltip": "Establece automáticamente el esquema según la preferencia de color del sistema operativo del usuario mediante la consulta de medios 'prefer-color-scheme'."
+        },
+        "layouts": {
+            "empty": "Vacío",
+            "classic": "Clásico",
+            "classy": "Elegante",
+            "compact": "Compacto",
+            "dense": "Denso",
+            "futuristic": "Futurista",
+            "thin": "Delgado",
+            "centered": "Centrado",
+            "enterprise": "Empresarial",
+            "material": "Material",
+            "modern": "Moderno"
+        },
+        "themes": {
+            "theme-default": "Predeterminado"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "División Vertical",
@@ -3678,7 +3705,7 @@
             "whatsapp": "WhatsApp",
             "white_label": "Solución White-label",
             "worldwide_checks": "Verificaciones Mundiales",
-            "manage_subscription": "Administra tu suscripción",
+            "manage_subscription": "Gestionar plan",
             "month": "mes",
             "choose_best_plan": "Elige el plan que mejor se adapte a tus necesidades",
             "most_popular": "Más Popular",

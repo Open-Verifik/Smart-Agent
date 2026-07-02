@@ -25,8 +25,8 @@
             "description": "Consulta la situación militar en Colombia con cédula de ciudadanía (CC). Datos oficiales vía Verifik."
         },
         "colombia_api_rethus": {
-            "title": "RETHUS (registro de talento humano en salud)",
-            "description": "Consulta el registro RETHUS de Colombia mediante GET /v2/co/cedula/rethus."
+            "title": "Verificación de Médicos Profesionales de la Salud",
+            "description": "Consulta el registro RETHUS de talento humano en salud en Colombia mediante GET /v2/co/cedula/rethus."
         },
         "colombia_api_rues": {
             "title": "Registro Empresarial RUES",
@@ -89,8 +89,8 @@
             "description": "Obtén información integral de vehículos colombianos. Incluye detalles de propiedad, especificaciones, estado legal y datos de registro."
         },
         "mexico_api_vehicle": {
-            "title": "México",
-            "description": "Verificar información de vehículos mexicanos usando placa de matrícula"
+            "title": "Vehículo Mexicano por Placa",
+            "description": "Verifica información de vehículos mexicanos usando placa de matrícula."
         },
         "feature_passwordless_solution": {
             "title": "Autenticación sin Contraseña",
@@ -345,8 +345,8 @@
             "description": "Valida la identidad de personas en Argentina con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
         },
         "argentina_api_identity_lookup_extra": {
-            "title": "Argentina - Verificación de identidad (extendida)",
-            "description": "Verificación de identidad argentina ampliada para KYC y onboarding más profundos."
+            "title": "Argentina - Ciudadano Argentino Completo",
+            "description": "Verificación completa de ciudadano argentino con DNI, incluyendo campos ampliados para KYC y onboarding más profundos."
         },
         "ar_certificate_verify": {
             "title": "Argentina - Certificado de antecedentes penales",
@@ -365,8 +365,8 @@
             "description": "Verifica un certificado del Registro Civil de Chile (SRCEI) con folio y código verificador mediante GET /v2/cl/certificate/verify. Devuelve metadatos del PDF y antecedentes de registros de condenas cuando estén disponibles."
         },
         "ecuador_api_company_lookup": {
-            "title": "Ecuador",
-            "description": "Validación empresarial ecuatoriana (RUCEC)"
+            "title": "Verificación Empresarial Ecuatoriana",
+            "description": "Valida empresas ecuatorianas por RUC con la API KYB de Verifik."
         },
         "usa_api_ssn": {
             "title": "Verificación de SSN en Estados Unidos",
@@ -501,16 +501,16 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "canada_api_company": {
-            "title": "Canadá",
-            "description": "Servicio de validación empresarial canadiense"
+            "title": "Verificación Empresarial Canadiense",
+            "description": "Valida empresas canadienses por nombre empresarial y provincia con la API KYB de Verifik."
         },
         "us_api_passport_entries": {
             "title": "Estados Unidos - Pasaporte y entradas/salidas a EE. UU.",
             "description": "Consulta de historial de viajes relacionado con pasaporte e ingresos/salidas a Estados Unidos"
         },
         "mexico_api_company": {
-            "title": "México",
-            "description": "Verificar empresas mexicanas usando FME (Folio Mercantil Electrónico)"
+            "title": "Verificación Empresarial Mexicana",
+            "description": "Valida empresas mexicanas usando FME (Folio Mercantil Electrónico)."
         },
         "face_recognition_compare": {
             "title": "Comparación Facial 1:1",
@@ -553,8 +553,8 @@
             "description": "Obtén valores e información de vehículos Fasecolda por código con la API de Verifik. Accede a datos completos de vehículos para Colombia."
         },
         "usa_api_company": {
-            "title": "Estados Unidos",
-            "description": "Verificar empresas estadounidenses usando búsqueda por nombre empresarial"
+            "title": "Verificación Empresarial de Estados Unidos",
+            "description": "Valida empresas estadounidenses usando búsqueda por nombre empresarial."
         },
         "colombia_api_runt_owners": {
             "title": "Colombia - Verificación de Propietarios de Vehículos (RUNT)",
@@ -569,8 +569,32 @@
             "description": "Verificar el estado actual y vigencia de profesionales legales en Colombia"
         },
         "argentina_api_vehicle": {
-            "title": "Argentina",
-            "description": "Verificar información de vehículos argentinos usando placa de matrícula"
+            "title": "Argentina - Información Vehicular",
+            "description": "Verifica información de vehículos argentinos usando placa de matrícula."
+        },
+        "argentina_api_vehicle_v3": {
+            "title": "Argentina - Vehículo v3",
+            "description": "Consulta detalles de vehículos argentinos por placa, incluyendo identificadores, estado de póliza y ficha técnica cuando esté disponible."
+        },
+        "argentina_api_buenos_aires_traffic_infractions": {
+            "title": "Infracciones de Tránsito Buenos Aires",
+            "description": "Consulta infracciones de tránsito de Buenos Aires por placa vehicular argentina."
+        },
+        "argentina_api_traffic_infractions": {
+            "title": "Infracciones de Tránsito Buenos Aires",
+            "description": "Consulta infracciones de tránsito de Buenos Aires por placa vehicular argentina."
+        },
+        "argentina_api_buenos_aires_technical_inspection": {
+            "title": "Inspección Técnica Buenos Aires",
+            "description": "Consulta el historial de inspección técnica vehicular de Buenos Aires por placa argentina."
+        },
+        "argentina_api_technical_inspection": {
+            "title": "Inspección Técnica Buenos Aires",
+            "description": "Consulta el historial de inspección técnica vehicular de Buenos Aires por placa argentina."
+        },
+        "argentina_api_rto": {
+            "title": "RTO Argentina",
+            "description": "Consulta registros de RTO argentinos por placa vehicular."
         },
         "argentina_api_company_lookup": {
             "title": "Verificación Empresarial Argentina",
@@ -585,16 +609,16 @@
             "description": "Realizar verificaciones de antecedentes en individuos brasileños usando CPF"
         },
         "bolivia_api_business_lookup": {
-            "title": "Bolivia",
-            "description": "Servicio de validación empresarial boliviano"
+            "title": "Verificación Empresarial Boliviana",
+            "description": "Valida empresas bolivianas por NIT con la API KYB de Verifik."
         },
         "costa_rica_api_business_lookup": {
             "title": "Verificación empresarial (NITE)",
             "description": "Consulta KYB en Costa Rica: GET /v2/cr/company con documentType NITE y documentNumber para registro y cumplimiento."
         },
         "paraguay_api_business_lookup": {
-            "title": "Paraguay",
-            "description": "Servicio de validación empresarial paraguayo"
+            "title": "Verificación Empresarial Paraguaya",
+            "description": "Valida empresas paraguayas por RUC con la API KYB de Verifik."
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Verificación de Siniestros",
@@ -741,8 +765,8 @@
             "description": "Consulta básica en RUES por NIT y categoría mediante GET /v3/co/rues."
         },
         "peru_identity_lookup_v3": {
-            "title": "Perú",
-            "description": "Verificar identidades de ciudadanos peruanos usando DNI API v3"
+            "title": "Ciudadano Peruano v3",
+            "description": "Verifica identidades de ciudadanos peruanos usando DNI con la API v3."
         },
         "peru_identity_extra_lookup_v3": {
             "title": "ID Completo",
@@ -757,8 +781,8 @@
             "description": "Certificados laborales y de curso de alturas vía GET /v3/co/ministerio-de-trabajo/certificados."
         },
         "peru_api_company_lookup_v3": {
-            "title": "Perú",
-            "description": "Servicio de validación empresarial peruano"
+            "title": "Verificación Empresarial Peruana v3",
+            "description": "Valida empresas peruanas por RUC con la API KYB v3 de Verifik."
         },
         "face_recognition_detect_face": {
             "title": "Detección Facial",
@@ -803,6 +827,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "Guatemala Extra",
             "description": "Valida la identidad de personas en Guatemala con detalles adicionales como fecha de nacimiento y género."
+        },
+        "chile_api_vehicle_v3": {
+            "title": "Chile - Revisión técnica vehicular",
+            "description": "Consulta estado e historial de revisión técnica vehicular chilena por patente mediante GET /v3/cl/vehicle."
         }
     }
 }

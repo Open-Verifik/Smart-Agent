@@ -25,8 +25,8 @@
             "description": "コロンビア市民証（CC）で兵役（situación militar）を照会します。"
         },
         "colombia_api_rethus": {
-            "title": "Colombia - 健康記録検証",
-            "description": "Access Colombian health records through Rethus system. 検証 medical history, health status, and healthcare provider information. 必要 document type (CC, CE, PPT) and document number."
+            "title": "医療専門医の検証",
+            "description": "GET /v2/co/cedula/rethus でコロンビアの RETHUS 医療専門家登録を照会します。"
         },
         "colombia_api_rues": {
             "title": "Colombia - RUES Business Lookup (v2, legacy)",
@@ -89,7 +89,7 @@
             "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "メキシコ",
+            "title": "メキシコ — ナンバー別車両",
             "description": "ナンバープレートでメキシコの車両情報を検証します。"
         },
         "feature_passwordless_solution": {
@@ -345,8 +345,8 @@
             "description": "Verifik の KYC API でアルゼンチンの個人の本人確認を行います。公式ソースに直接接続し、個人情報を数秒で検証できます。"
         },
         "argentina_api_identity_lookup_extra": {
-            "title": "アルゼンチン - 本人確認（拡張）",
-            "description": "より深いKYC向けの拡張アルゼンチン本人確認。"
+            "title": "アルゼンチン - アルゼンチン市民完全確認",
+            "description": "DNI を使用したアルゼンチン市民の完全な本人確認。より深い KYC 向けの拡張フィールドを含みます。"
         },
         "ar_certificate_verify": {
             "title": "アルゼンチン - 犯罪歴証明書",
@@ -356,13 +356,17 @@
             "title": "チリ — 公共交通車両",
             "description": "GET /v2/cl/transport-vehicle でチリ公共交通 RNT を照会します。"
         },
+        "chile_api_vehicle_soap": {
+            "title": "チリ — 車両 SOAP",
+            "description": "GET /v2/cl/vehicle-soap でナンバープレートと保険証券番号によりチリ車両 SOAP（人身事故強制保険）証明書を照会します。"
+        },
         "cl_certificate_verify": {
             "title": "チリ - Registro Civil 証明書照合",
             "description": "GET /v2/cl/certificate/verify により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
         },
         "ecuador_api_company_lookup": {
             "title": "エクアドル — 法人検証",
-            "description": "Verifik の KYB API を使用してエクアドル企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+            "description": "Verifik の KYB API を使用して RUC でエクアドル企業を検証します。"
         },
         "usa_api_ssn": {
             "title": "アメリカ合衆国 — SSN（社会保障番号）検証",
@@ -498,7 +502,7 @@
         },
         "canada_api_company": {
             "title": "カナダ — 法人検証",
-            "description": "Verifik の KYB API を使用してカナダ法人を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+            "description": "Verifik の KYB API を使用して法人名と州でカナダ法人を検証します。"
         },
         "us_api_passport_entries": {
             "title": "アメリカ — パスポート・米国入出国履歴",
@@ -506,7 +510,7 @@
         },
         "mexico_api_company": {
             "title": "メキシコ — 法人検証",
-            "description": "Verifik の KYB API を使用してメキシコ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+            "description": "Verifik の KYB API を使用して FME でメキシコ企業を検証します。"
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -549,8 +553,8 @@
             "description": "Fasecolda コードで車両価格・仕様情報を取得します。"
         },
         "usa_api_company": {
-            "title": "アメリカ — 法人（SEC EDGAR）",
-            "description": "SEC EDGAR を用いた米国企業の法人名検索・企業情報取得。POST /v2/usa/company。"
+            "title": "米国 — 法人検証",
+            "description": "Verifik の KYB API を使用して法人名で米国企業を検証します。"
         },
         "colombia_api_runt_owners": {
             "title": "コロンビア - 車両所有者(RUNT)",
@@ -568,6 +572,30 @@
             "title": "アルゼンチン — 車両情報",
             "description": "ナンバープレートを用いてアルゼンチンの車両情報を照会します。"
         },
+        "argentina_api_vehicle_v3": {
+            "title": "アルゼンチン — 車両 v3",
+            "description": "ナンバープレートでアルゼンチン車両の詳細を照会します。識別番号、保険状態、利用可能な場合は技術仕様も含まれます。"
+        },
+        "argentina_api_buenos_aires_traffic_infractions": {
+            "title": "ブエノスアイレス — 交通違反",
+            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの交通違反を照会します。"
+        },
+        "argentina_api_traffic_infractions": {
+            "title": "ブエノスアイレス — 交通違反",
+            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの交通違反を照会します。"
+        },
+        "argentina_api_buenos_aires_technical_inspection": {
+            "title": "ブエノスアイレス — 技術検査",
+            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
+        },
+        "argentina_api_technical_inspection": {
+            "title": "ブエノスアイレス — 技術検査",
+            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
+        },
+        "argentina_api_rto": {
+            "title": "アルゼンチン — RTO",
+            "description": "ナンバープレートでアルゼンチンの RTO 検査記録を照会します。"
+        },
         "argentina_api_company_lookup": {
             "title": "アルゼンチン — 法人検証",
             "description": "Verifik の KYB API を使用してアルゼンチン企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
@@ -582,7 +610,7 @@
         },
         "bolivia_api_business_lookup": {
             "title": "ボリビア — 法人検証",
-            "description": "Verifik の KYB API を使用してボリビア企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+            "description": "Verifik の KYB API を使用して NIT でボリビア企業を検証します。"
         },
         "costa_rica_api_business_lookup": {
             "title": "コスタリカ — 法人検証（NITE）",
@@ -590,7 +618,7 @@
         },
         "paraguay_api_business_lookup": {
             "title": "パラグアイ — 法人検証",
-            "description": "Verifik の KYB API を使用してパラグアイ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+            "description": "Verifik の KYB API を使用して RUC でパラグアイ企業を検証します。"
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Fasecolda — 保険請求・事故履歴",
@@ -737,8 +765,8 @@
             "description": "NIT と登録区分でコロンビア RUES の基本情報を照会します。GET /v3/co/rues。"
         },
         "peru_identity_lookup_v3": {
-            "title": "ペルー",
-            "description": "DNI v3 API を使用してペルー市民の本人確認を行います。"
+            "title": "ペルー — 市民 v3",
+            "description": "DNI を使用して v3 API でペルー市民の本人確認を行います。"
         },
         "peru_identity_extra_lookup_v3": {
             "title": "ペルー — DNI（拡張データ）",
@@ -753,8 +781,8 @@
             "description": "コロンビア労働省の証明書（高所作業 curso de alturas 等）を GET /v3/co/ministerio-de-trabajo/certificados で照会します。"
         },
         "peru_api_company_lookup_v3": {
-            "title": "ペルー — 法人検証",
-            "description": "Verifik の KYB API を使用してペルー企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+            "title": "ペルー — 法人検証 v3",
+            "description": "Verifik の KYB v3 API を使用して RUC でペルー企業を検証します。"
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -799,6 +827,10 @@
         "guatemala_api_identity_extra_lookup": {
             "title": "グアテマラ - 身元追加検索",
             "description": "追加のデータポイントを含む、グアテマラ市民向けの包括的な身元確認。"
+        },
+        "chile_api_vehicle_v3": {
+            "title": "チリ - 車両技術検査",
+            "description": "GET /v3/cl/vehicle でナンバープレートからチリ車両の技術検査ステータスと履歴を照会します。"
         }
     }
 }

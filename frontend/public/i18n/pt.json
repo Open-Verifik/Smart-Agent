@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "Automação de processamento em lote",
         "history_subtitle": "Ver solicitações e logs passados",
-        "subscription_plans": "Planos de assinatura",
-        "manage_subscription": "Gerencie sua assinatura",
+        "subscription_plans": "Assinatura",
+        "manage_subscription": "Gerenciar plano",
         "add_credits": "Adicionar créditos",
         "purchase_credits": "Comprar créditos adicionais",
         "status_check": "Verificação de status",
@@ -36,8 +36,6 @@
         "scan_documents": "Digitalizar e extrair dados de documentos",
         "smart_enroll_projects": "Projetos",
         "smart_enroll_projects_subtitle": "Projetos Smart Enroll e registos de inscrição",
-        "smart_enroll_plans": "Planos",
-        "smart_enroll_plans_subtitle": "Subscrição e pagamento Smart Enroll",
         "collections": "Coleções",
         "collections_subtitle": "Gerir coleções de reconhecimento facial",
         "people": "Pessoas",
@@ -49,8 +47,6 @@
         "smart_access": "Smart Access",
         "smart_access_projects": "Projetos",
         "smart_access_projects_subtitle": "Projetos Smart Access e registos de acesso",
-        "smart_access_plans": "Planos",
-        "smart_access_plans_subtitle": "Subscrição e pagamento Smart Access",
         "demos": "Demos",
         "demos_subtitle": "Demos interativos de biometria"
     },
@@ -636,7 +632,7 @@
             "incidents": "Incidentes",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "Planos de assinatura",
+            "subscriptionPlans": "Assinatura",
             "addCredits": "Adicionar créditos",
             "smartAccess": "Smart Access"
         },
@@ -1284,7 +1280,9 @@
             "menuLiveEnrollment": "Abrir inscrição ao vivo",
             "neverLoggedIn": "Sem sessão",
             "demoMode": "Demo",
-            "menuSecurity": "Segurança"
+            "menuSecurity": "Segurança",
+            "newProjectTitle": "Novo projeto Smart Enroll",
+            "newProjectSubtitle": "Configure outro fluxo de inscrição com o seu próprio formulário, documentos, biometria e marca."
         },
         "securitySettings": {
             "title": "Configurações de segurança",
@@ -2890,6 +2888,35 @@
         "signOutWeb3": "Sair da Carteira",
         "settings": "Configurações"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Tema",
+            "scheme": "Esquema",
+            "layout": "Layout"
+        },
+        "scheme": {
+            "auto": "Automático",
+            "dark": "Escuro",
+            "light": "Claro",
+            "autoTooltip": "Define automaticamente o esquema com base na preferência de cores do sistema operacional do usuário usando a consulta de mídia 'prefer-color-scheme'."
+        },
+        "layouts": {
+            "empty": "Vazio",
+            "classic": "Clássico",
+            "classy": "Elegante",
+            "compact": "Compacto",
+            "dense": "Denso",
+            "futuristic": "Futurista",
+            "thin": "Fino",
+            "centered": "Centralizado",
+            "enterprise": "Empresarial",
+            "material": "Material",
+            "modern": "Moderno"
+        },
+        "themes": {
+            "theme-default": "Padrão"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "Divisão Vertical",
@@ -3669,7 +3696,7 @@
             "whatsapp": "WhatsApp",
             "white_label": "Solução White-label",
             "worldwide_checks": "Verificações Mundiais",
-            "manage_subscription": "Gerencie sua assinatura",
+            "manage_subscription": "Gerenciar plano",
             "month": "mês",
             "choose_best_plan": "Escolha o plano que melhor atende às suas necessidades",
             "most_popular": "Mais Popular",
@@ -6327,24 +6354,72 @@
                 "Solução"
             ],
             "responseRows": {
-                "critical": ["Crítico", "0,5 h", "0,5 h", "15 min", "48 h"],
-                "urgent": ["Urgente", "0,5 h", "0,5 h", "15 min", "48 h"],
-                "medium": ["Médio", "1 h", "1 h", "0,5 h", "96 h"],
-                "normal": ["Normal", "1 h", "1 h", "0,5 h", "96 h"]
+                "critical": [
+                    "Crítico",
+                    "0,5 h",
+                    "0,5 h",
+                    "15 min",
+                    "48 h"
+                ],
+                "urgent": [
+                    "Urgente",
+                    "0,5 h",
+                    "0,5 h",
+                    "15 min",
+                    "48 h"
+                ],
+                "medium": [
+                    "Médio",
+                    "1 h",
+                    "1 h",
+                    "0,5 h",
+                    "96 h"
+                ],
+                "normal": [
+                    "Normal",
+                    "1 h",
+                    "1 h",
+                    "0,5 h",
+                    "96 h"
+                ]
             },
             "availabilityTitle": "Disponibilidade da plataforma",
-            "availabilityHeaders": ["Produto", "Disponibilidade", "Notas"],
+            "availabilityHeaders": [
+                "Produto",
+                "Disponibilidade",
+                "Notas"
+            ],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90,0%",
                     "DB Screening — depende de fontes governamentais"
                 ],
-                "smartAccessComm": ["SmartAccess (E-mail/Tel)", "99,0%", ""],
-                "smartAccessBio": ["SmartAccess (Biometria)", "98,0%", ""],
-                "smartEnrollComm": ["SmartEnroll (E-mail/Tel)", "99,0%", ""],
-                "smartEnrollBio": ["SmartEnroll (Biometria)", "98,0%", ""],
-                "smartEnrollDoc": ["SmartEnroll (Digitalização)", "98,0%", ""],
+                "smartAccessComm": [
+                    "SmartAccess (E-mail/Tel)",
+                    "99,0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess (Biometria)",
+                    "98,0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll (E-mail/Tel)",
+                    "99,0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll (Biometria)",
+                    "98,0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll (Digitalização)",
+                    "98,0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90,0%",
@@ -6367,8 +6442,16 @@
                 "Produto"
             ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90,0% ou superior", "Sem crédito", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89,99% ou inferior", "Compensação", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90,0% ou superior",
+                    "Sem crédito",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89,99% ou inferior",
+                    "Compensação",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "E-mail/Tel — 99,00% ou superior",
                     "Sem crédito",
@@ -6404,9 +6487,15 @@
             "billingTitle": "Esquema de cobrança SmartCheck",
             "billingIntro": "Este esquema aplica-se ao smartCHECK para consulta de bases governamentais. A Verifik não é proprietária nem responsável por essas bases; portanto não garante tempo de resposta, uptime médio ou precisão dos dados.",
             "billingTableTitle": "Códigos HTTP faturáveis e não faturáveis",
-            "billingHeaders": ["Faturável", "Não faturável"],
+            "billingHeaders": [
+                "Faturável",
+                "Não faturável"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "Manutenção programada",
             "maintenance": "A manutenção programada ocorre à noite e nos fins de semana, com aviso prévio por e-mail.",

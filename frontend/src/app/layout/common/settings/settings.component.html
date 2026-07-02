@@ -32,7 +32,7 @@
                 [svgIcon]="'heroicons_solid:cog-8-tooth'"
             ></mat-icon>
             <div class="ml-3 text-2xl font-semibold tracking-tight">
-                Settings
+                {{ 'nav.settings' | transloco }}
             </div>
             <button
                 class="ml-auto"
@@ -47,39 +47,16 @@
         </div>
 
         <div class="flex flex-col p-6">
-            <!-- Theme -->
-            <div class="text-secondary text-md font-semibold">THEME</div>
-            <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-                @for (theme of config.themes; track theme) {
-                    <div
-                        class="bg-hover flex cursor-pointer items-center justify-center rounded-full px-4 py-3 ring-inset ring-primary"
-                        [class.ring-2]="config.theme === theme.id"
-                        [ngClass]="theme.id"
-                        (click)="setTheme(theme.id)"
-                    >
-                        <div
-                            class="h-3 w-3 flex-0 rounded-full bg-primary"
-                        ></div>
-                        <div
-                            class="ml-2.5 truncate font-medium leading-5"
-                            [class.text-secondary]="config.theme !== theme.id"
-                        >
-                            {{ theme.name }}
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <hr class="my-8" />
-
             <!-- Scheme -->
-            <div class="text-secondary text-md font-semibold">SCHEME</div>
-            <div class="mt-6 grid grid-cols-3 justify-items-start gap-3">
+            <div class="text-secondary text-md font-semibold uppercase">
+                {{ 'layoutSettings.sections.scheme' | transloco }}
+            </div>
+            <div class="mt-6 flex flex-col gap-3">
                 <!-- Auto -->
                 <div
                     class="bg-hover flex cursor-pointer items-center rounded-full py-3 pl-5 pr-6 ring-inset ring-primary"
                     [class.ring-2]="config.scheme === 'auto'"
-                    matTooltip="Automatically sets the scheme based on user's operating system's color scheme preference using 'prefer-color-scheme' media query."
+                    [matTooltip]="'layoutSettings.scheme.autoTooltip' | transloco"
                     (click)="setScheme('auto')"
                 >
                     <div class="flex items-center overflow-hidden rounded-full">
@@ -92,7 +69,7 @@
                         class="ml-2 flex items-center font-medium leading-5"
                         [class.text-secondary]="config.scheme !== 'auto'"
                     >
-                        Auto
+                        {{ 'layoutSettings.scheme.auto' | transloco }}
                     </div>
                 </div>
                 <!-- Dark -->
@@ -111,7 +88,7 @@
                         class="ml-2 flex items-center font-medium leading-5"
                         [class.text-secondary]="config.scheme !== 'dark'"
                     >
-                        Dark
+                        {{ 'layoutSettings.scheme.dark' | transloco }}
                     </div>
                 </div>
                 <!-- Light -->
@@ -130,7 +107,7 @@
                         class="ml-2 flex items-center font-medium leading-5"
                         [class.text-secondary]="config.scheme !== 'light'"
                     >
-                        Light
+                        {{ 'layoutSettings.scheme.light' | transloco }}
                     </div>
                 </div>
             </div>
@@ -138,7 +115,9 @@
             <hr class="my-8" />
 
             <!-- Layout -->
-            <div class="text-secondary text-md font-semibold">LAYOUT</div>
+            <div class="text-secondary text-md font-semibold uppercase">
+                {{ 'layoutSettings.sections.layout' | transloco }}
+            </div>
             <div class="mt-6 grid grid-cols-3 gap-3">
                 <!-- Empty -->
                 <div
@@ -157,7 +136,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'empty'"
                     >
-                        Empty
+                        {{ 'layoutSettings.layouts.empty' | transloco }}
                     </div>
                 </div>
 
@@ -214,7 +193,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'classic'"
                     >
-                        Classic
+                        {{ 'layoutSettings.layouts.classic' | transloco }}
                     </div>
                 </div>
 
@@ -276,7 +255,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'classy'"
                     >
-                        Classy
+                        {{ 'layoutSettings.layouts.classy' | transloco }}
                     </div>
                 </div>
 
@@ -332,7 +311,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'compact'"
                     >
-                        Compact
+                        {{ 'layoutSettings.layouts.compact' | transloco }}
                     </div>
                 </div>
 
@@ -388,7 +367,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'dense'"
                     >
-                        Dense
+                        {{ 'layoutSettings.layouts.dense' | transloco }}
                     </div>
                 </div>
 
@@ -445,7 +424,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'futuristic'"
                     >
-                        Futuristic
+                        {{ 'layoutSettings.layouts.futuristic' | transloco }}
                     </div>
                 </div>
 
@@ -507,7 +486,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'thin'"
                     >
-                        Thin
+                        {{ 'layoutSettings.layouts.thin' | transloco }}
                     </div>
                 </div>
 
@@ -562,7 +541,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'centered'"
                     >
-                        Centered
+                        {{ 'layoutSettings.layouts.centered' | transloco }}
                     </div>
                 </div>
 
@@ -623,7 +602,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'enterprise'"
                     >
-                        Enterprise
+                        {{ 'layoutSettings.layouts.enterprise' | transloco }}
                     </div>
                 </div>
 
@@ -684,7 +663,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'material'"
                     >
-                        Material
+                        {{ 'layoutSettings.layouts.material' | transloco }}
                     </div>
                 </div>
 
@@ -735,7 +714,7 @@
                         class="text-secondary mt-2 text-center text-md font-medium"
                         [class.text-primary]="config.layout === 'modern'"
                     >
-                        Modern
+                        {{ 'layoutSettings.layouts.modern' | transloco }}
                     </div>
                 </div>
             </div>

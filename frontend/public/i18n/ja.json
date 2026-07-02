@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "バッチ処理の自動化",
         "history_subtitle": "過去のリクエストとログを表示",
-        "subscription_plans": "サブスクリプションプラン",
-        "manage_subscription": "サブスクリプションを管理",
+        "subscription_plans": "サブスクリプション",
+        "manage_subscription": "プランを管理",
         "add_credits": "クレジットを追加",
         "purchase_credits": "追加クレジットを購入",
         "status_check": "ステータスチェック",
@@ -36,8 +36,6 @@
         "scan_documents": "ドキュメントをスキャンしてデータを抽出",
         "smart_enroll_projects": "プロジェクト",
         "smart_enroll_projects_subtitle": "Smart Enroll プロジェクトと登録記録",
-        "smart_enroll_plans": "プラン",
-        "smart_enroll_plans_subtitle": "Smart Enroll の契約とお支払い",
         "collections": "コレクション",
         "collections_subtitle": "顔認識コレクションを管理",
         "people": "人物",
@@ -49,8 +47,6 @@
         "smart_access": "Smart Access",
         "smart_access_projects": "プロジェクト",
         "smart_access_projects_subtitle": "Smart Access プロジェクトとログイン記録",
-        "smart_access_plans": "プラン",
-        "smart_access_plans_subtitle": "Smart Access の契約とお支払い",
         "demos": "デモ",
         "demos_subtitle": "インタラクティブな生体認証デモ"
     },
@@ -636,7 +632,7 @@
             "incidents": "インシデント",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "サブスクリプションプラン",
+            "subscriptionPlans": "サブスクリプション",
             "addCredits": "クレジットを追加",
             "smartAccess": "Smart Access"
         },
@@ -1284,7 +1280,9 @@
             "menuLiveEnrollment": "ライブ登録を開く",
             "neverLoggedIn": "未ログイン",
             "demoMode": "デモ",
-            "menuSecurity": "セキュリティ"
+            "menuSecurity": "セキュリティ",
+            "newProjectTitle": "新しい Smart Enroll プロジェクト",
+            "newProjectSubtitle": "独自のサインアップ、書類、バイオメトリクス、ブランドを備えた別の登録フローを設定します。"
         },
         "securitySettings": {
             "title": "セキュリティ設定",
@@ -2890,6 +2888,35 @@
         "signOutWeb3": "ウォレットからサインアウト",
         "settings": "設定"
     },
+    "layoutSettings": {
+        "sections": {
+            "theme": "テーマ",
+            "scheme": "スキーム",
+            "layout": "レイアウト"
+        },
+        "scheme": {
+            "auto": "自動",
+            "dark": "ダーク",
+            "light": "ライト",
+            "autoTooltip": "ユーザーのオペレーティングシステムのカラースキーム設定に基づき、'prefer-color-scheme' メディアクエリで自動的にスキームを設定します。"
+        },
+        "layouts": {
+            "empty": "空",
+            "classic": "クラシック",
+            "classy": "クラシー",
+            "compact": "コンパクト",
+            "dense": "密",
+            "futuristic": "未来的",
+            "thin": "スリム",
+            "centered": "中央",
+            "enterprise": "エンタープライズ",
+            "material": "マテリアル",
+            "modern": "モダン"
+        },
+        "themes": {
+            "theme-default": "デフォルト"
+        }
+    },
     "postman": {
         "layout": {
             "splitVertical": "垂直分割",
@@ -3669,7 +3696,7 @@
             "whatsapp": "Whatsapp",
             "white_label": "White-label Solution",
             "worldwide_checks": "Worldwide Checks",
-            "manage_subscription": "Manage your subscription",
+            "manage_subscription": "プランを管理",
             "month": "month",
             "choose_best_plan": "Choose the plan that best suits your needs",
             "most_popular": "Most Popular",
@@ -3832,7 +3859,7 @@
             "included": "Included",
             "learn_more": "Learn more",
             "liveness": "Biometrics",
-            "manage_plan": "Manage plan",
+            "manage_plan": "プランを管理",
             "more_sessions": "+2,000 Biometrics sessions",
             "next_payment": "Next Payment",
             "no_data": "No data to present",
@@ -6319,22 +6346,80 @@
                 "通常：可用性に影響しない一般的な問い合わせ。"
             ],
             "responseTitle": "応答時間",
-            "responseHeaders": ["重要度", "受付", "初回応答", "エスカレーション", "解決"],
+            "responseHeaders": [
+                "重要度",
+                "受付",
+                "初回応答",
+                "エスカレーション",
+                "解決"
+            ],
             "responseRows": {
-                "critical": ["重大", "0.5 時間", "0.5 時間", "15 分", "48 時間"],
-                "urgent": ["緊急", "0.5 時間", "0.5 時間", "15 分", "48 時間"],
-                "medium": ["中", "1 時間", "1 時間", "0.5 時間", "96 時間"],
-                "normal": ["通常", "1 時間", "1 時間", "0.5 時間", "96 時間"]
+                "critical": [
+                    "重大",
+                    "0.5 時間",
+                    "0.5 時間",
+                    "15 分",
+                    "48 時間"
+                ],
+                "urgent": [
+                    "緊急",
+                    "0.5 時間",
+                    "0.5 時間",
+                    "15 分",
+                    "48 時間"
+                ],
+                "medium": [
+                    "中",
+                    "1 時間",
+                    "1 時間",
+                    "0.5 時間",
+                    "96 時間"
+                ],
+                "normal": [
+                    "通常",
+                    "1 時間",
+                    "1 時間",
+                    "0.5 時間",
+                    "96 時間"
+                ]
             },
             "availabilityTitle": "プラットフォーム可用性",
-            "availabilityHeaders": ["製品", "可用性", "備考"],
+            "availabilityHeaders": [
+                "製品",
+                "可用性",
+                "備考"
+            ],
             "availabilityRows": {
-                "smartCheck": ["SmartCheck", "90.0%", "DB Screening — 政府ソースに依存"],
-                "smartAccessComm": ["SmartAccess（メール/電話）", "99.0%", ""],
-                "smartAccessBio": ["SmartAccess（生体認証）", "98.0%", ""],
-                "smartEnrollComm": ["SmartEnroll（メール/電話）", "99.0%", ""],
-                "smartEnrollBio": ["SmartEnroll（生体認証）", "98.0%", ""],
-                "smartEnrollDoc": ["SmartEnroll（書類スキャン）", "98.0%", ""],
+                "smartCheck": [
+                    "SmartCheck",
+                    "90.0%",
+                    "DB Screening — 政府ソースに依存"
+                ],
+                "smartAccessComm": [
+                    "SmartAccess（メール/電話）",
+                    "99.0%",
+                    ""
+                ],
+                "smartAccessBio": [
+                    "SmartAccess（生体認証）",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollComm": [
+                    "SmartEnroll（メール/電話）",
+                    "99.0%",
+                    ""
+                ],
+                "smartEnrollBio": [
+                    "SmartEnroll（生体認証）",
+                    "98.0%",
+                    ""
+                ],
+                "smartEnrollDoc": [
+                    "SmartEnroll（書類スキャン）",
+                    "98.0%",
+                    ""
+                ],
                 "smartEnrollDataApi": [
                     "SmartEnroll（DB Screening）",
                     "90.0%",
@@ -6351,36 +6436,66 @@
             "responseNote": "注：48 時間は、インシデントの複雑さに応じて最大 48 時間かかる場合があることを意味します。応答時間はユーザーの最終メッセージからカウントされます。",
             "compensationTitle": "ダウンタイム補償",
             "compensationIntro": "影響を受けた月には、無効なサービス呼び出しコストに相当するクレジット補償が提供されます。Verifik 内部問題（DB、サーバー、内部 API）による不可用で有効に解決されない場合、以下のとおり補償します：",
-            "compensationHeaders": ["サービス可用性", "クレジット補償", "製品"],
+            "compensationHeaders": [
+                "サービス可用性",
+                "クレジット補償",
+                "製品"
+            ],
             "compensationRows": {
-                "dataApiHigh": ["DB Screening — 90.0% 以上", "補償なし", "SmartCheck"],
-                "dataApiLow": ["DB Screening — 89.99% 以下", "補償", "SmartCheck"],
+                "dataApiHigh": [
+                    "DB Screening — 90.0% 以上",
+                    "補償なし",
+                    "SmartCheck"
+                ],
+                "dataApiLow": [
+                    "DB Screening — 89.99% 以下",
+                    "補償",
+                    "SmartCheck"
+                ],
                 "emailTelHigh": [
                     "メール/電話 — 99.00% 以上",
                     "補償なし",
                     "SmartAccess, SmartEnroll"
                 ],
-                "emailTelLow": ["メール/電話 — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"],
+                "emailTelLow": [
+                    "メール/電話 — 98.99% 以下",
+                    "補償",
+                    "SmartAccess, SmartEnroll"
+                ],
                 "biometricsHigh": [
                     "生体認証 — 99.00% 以上",
                     "補償なし",
                     "SmartAccess, SmartEnroll"
                 ],
-                "biometricsLow": ["生体認証 — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"],
+                "biometricsLow": [
+                    "生体認証 — 98.99% 以下",
+                    "補償",
+                    "SmartAccess, SmartEnroll"
+                ],
                 "docScanHigh": [
                     "書類スキャン — 99.00% 以上",
                     "補償なし",
                     "SmartAccess, SmartEnroll"
                 ],
-                "docScanLow": ["書類スキャン — 98.99% 以下", "補償", "SmartAccess, SmartEnroll"]
+                "docScanLow": [
+                    "書類スキャン — 98.99% 以下",
+                    "補償",
+                    "SmartAccess, SmartEnroll"
+                ]
             },
             "compensationDisclaimer": "DB Screening の内部問題には不可抗力（移行、切断、政府による外部介入）は含まれません。Verifik は仲介者であり、照会する政府データベースを管理・更新しません。",
             "billingTitle": "SmartCheck 課金方式",
             "billingIntro": "本方式は smartCHECK（政府 DB 照会）に適用されます。Verifik は各国政府 DB の所有者・管理者ではなく、応答時間、平均稼働率、データ精度を保証しません。",
             "billingTableTitle": "課金対象/非対象 HTTP コード",
-            "billingHeaders": ["課金対象", "非課金"],
+            "billingHeaders": [
+                "課金対象",
+                "非課金"
+            ],
             "billingRows": {
-                "codes": ["200, 404", "403, 409, 412, 422, 500"]
+                "codes": [
+                    "200, 404",
+                    "403, 409, 412, 422, 500"
+                ]
             },
             "maintenanceTitle": "計画メンテナンス",
             "maintenance": "計画メンテナンスは夜間および週末に実施し、事前にメールで通知します。",

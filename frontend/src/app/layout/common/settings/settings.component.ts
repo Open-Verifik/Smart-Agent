@@ -1,16 +1,14 @@
-import { NgClass } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
+import { TranslocoModule } from '@jsverse/transloco';
 import { FuseDrawerComponent } from '@fuse/components/drawer';
 import {
     FuseConfig,
     FuseConfigService,
     Scheme,
-    Theme,
-    Themes,
 } from '@fuse/services/config';
 
 import { Subject, takeUntil } from 'rxjs';
@@ -39,16 +37,14 @@ import { Subject, takeUntil } from 'rxjs';
         MatIconModule,
         FuseDrawerComponent,
         MatButtonModule,
-        NgClass,
         MatTooltipModule,
+        TranslocoModule,
     ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
     config: FuseConfig;
     layout: string;
     scheme: 'dark' | 'light';
-    theme: string;
-    themes: Themes;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
     /**
@@ -116,14 +112,5 @@ export class SettingsComponent implements OnInit, OnDestroy {
      */
     setScheme(scheme: Scheme): void {
         this._fuseConfigService.config = { scheme };
-    }
-
-    /**
-     * Set the theme on the config
-     *
-     * @param theme
-     */
-    setTheme(theme: Theme): void {
-        this._fuseConfigService.config = { theme };
     }
 }

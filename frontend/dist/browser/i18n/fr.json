@@ -17,8 +17,8 @@
         "smart_batch": "SmartBatch",
         "batch_automation": "Automatisation des lots",
         "history_subtitle": "Voir les requêtes et journaux passés",
-        "subscription_plans": "Plans d'abonnement",
-        "manage_subscription": "Gérer votre abonnement",
+        "subscription_plans": "Abonnement",
+        "manage_subscription": "Gérer le plan",
         "add_credits": "Ajouter des crédits",
         "purchase_credits": "Acheter des crédits supplémentaires",
         "status_check": "Vérification du statut",
@@ -36,8 +36,6 @@
         "scan_documents": "Numériser et extraire les données des documents",
         "smart_enroll_projects": "Projets",
         "smart_enroll_projects_subtitle": "Projets Smart Enroll et dossiers d'inscription",
-        "smart_enroll_plans": "Forfaits",
-        "smart_enroll_plans_subtitle": "Abonnement et paiement Smart Enroll",
         "collections": "Collections",
         "collections_subtitle": "Gérer les collections de reconnaissance faciale",
         "people": "Personnes",
@@ -49,8 +47,6 @@
         "smart_access": "Smart Access",
         "smart_access_projects": "Projets",
         "smart_access_projects_subtitle": "Projets Smart Access et journaux de connexion",
-        "smart_access_plans": "Forfaits",
-        "smart_access_plans_subtitle": "Abonnement et paiement Smart Access",
         "demos": "Démos",
         "demos_subtitle": "Démos biométriques interactifs"
     },
@@ -637,7 +633,7 @@
             "incidents": "Incidents",
             "webhooks": "Webhooks",
             "smartReduce": "Smart Reduce",
-            "subscriptionPlans": "Plans d'abonnement",
+            "subscriptionPlans": "Abonnement",
             "addCredits": "Ajouter des crédits"
         },
         "sandbox": {
@@ -1284,7 +1280,9 @@
             "menuLiveEnrollment": "Ouvrir l'inscription en direct",
             "neverLoggedIn": "Jamais connecté",
             "demoMode": "Démo",
-            "menuSecurity": "Sécurité"
+            "menuSecurity": "Sécurité",
+            "newProjectTitle": "Nouveau projet Smart Enroll",
+            "newProjectSubtitle": "Configurez un autre flux d'inscription avec son propre formulaire, ses documents, sa biométrie et son branding."
         },
         "securitySettings": {
             "title": "Paramètres de sécurité",
@@ -3669,7 +3667,7 @@
             "whatsapp": "WhatsApp",
             "white_label": "Solution White-label",
             "worldwide_checks": "Vérifications Mondiales",
-            "manage_subscription": "Gérez votre abonnement",
+            "manage_subscription": "Gérer le plan",
             "month": "mois",
             "choose_best_plan": "Choisissez le plan qui correspond le mieux à vos besoins",
             "most_popular": "Le Plus Populaire",

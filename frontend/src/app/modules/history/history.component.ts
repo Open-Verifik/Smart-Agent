@@ -28,6 +28,7 @@ import {
   PostmanHistoryPrefillPayload,
 } from '../postman/postman-history-prefill';
 import {
+  formatHistoryCostCredits,
   getHistoryBillingTooltipParams,
   isDynamicQueryPremiumAdjustment,
 } from '../postman/postman-billing.util';
@@ -225,9 +226,9 @@ export class HistoryComponent implements OnInit, AfterViewInit {
   }
 
   formatCost(cost: number | string | undefined | null): string {
-    const value = Number(cost);
-    if (!Number.isFinite(value)) return '-';
-    return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })} credits`;
+    const formattedCost = formatHistoryCostCredits(cost);
+    if (formattedCost === '-') return '-';
+    return `${formattedCost} credits`;
   }
 
   hasDynamicQueryBilling(request: ApiRequest): boolean {

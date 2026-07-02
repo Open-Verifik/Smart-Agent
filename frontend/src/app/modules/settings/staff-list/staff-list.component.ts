@@ -28,10 +28,13 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
+import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
+import { resolveStaffSeatLimit } from 'app/core/client-settings/staff-seat-limit';
 import { forkJoin, of, Subject, takeUntil } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { SettingsService, StaffMember } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
+import { extractClientSettingsPayload } from '../utils/invoice-billing-complete';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 
 @Component({
@@ -57,8 +60,6 @@ import { getBusinessUserClientId } from '../utils/settings-business-user.util';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
-    private static readonly _ACCESS_ENROLL_STAFF_BONUS = 5;
-
     @Input() user: any;
     @Output() staffChanged = new EventEmitter<void>();
     @Output() userChange = new EventEmitter<unknown>();
@@ -81,6 +82,7 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     selectedSubscription: any = null;
     staffLimit = 0;
     hasSubscription = false;
+    private clientSettingsSnapshot: ClientSettingsOverrideSnapshot | null = null;
 
     @ViewChild('staffFormDialog') staffFormDialog: TemplateRef<any>;
     staffDialogRef: any;
@@ -196,44 +198,59 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             smartEnroll: this._settingsService
                 .getSmartEnrollPlan(clientId)
                 .pipe(catchError(() => empty)),
+            clientSettings: this._settingsService
+                .getBillingConfig(clientId)
+                .pipe(catchError(() => empty)),
         })
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe({
-                next: ({ smartCheck, smartAccess, smartEnroll }) => {
+                next: ({ smartCheck, smartAccess, smartEnroll, clientSettings }) => {
+                    this.clientSettingsSnapshot =
+                        (extractClientSettingsPayload(
+                            clientSettings
+                        ) as ClientSettingsOverrideSnapshot | null) ??
+                        this.user?.settings ??
+                        null;
                     this._applyTeamSubscriptionLimits(smartCheck, smartAccess, smartEnroll);
                 },
                 error: () => {
+                    this.clientSettingsSnapshot = this.user?.settings ?? null;
                     this._resetTeamSubscriptionState();
                 },
             });
     }
 
+    private _getClientSettingsSnapshot(): ClientSettingsOverrideSnapshot | null {
+        return this.clientSettingsSnapshot ?? this.user?.settings ?? null;
+    }
+
     /**
-     * SmartCheck chair count plus a one-time bonus when SmartAccess or SmartEnroll is active.
+     * SmartCheck chair count plus bonus and optional clientSettings override.
      */
     private _applyTeamSubscriptionLimits(smartCheckRes: any, accessRes: any, enrollRes: any): void {
-        const subscriptionPlan = smartCheckRes?.data?.subscriptionPlan;
-
-        const hasSmartCheck = !!subscriptionPlan;
-
-        let chairCount = 0;
-
-        if (subscriptionPlan) {
-            const chairsAddon = subscriptionPlan.changesInPrices?.find(
-                (addon: any) => addon?.addOn === 'chairs'
-            );
-            chairCount = chairsAddon?.count ?? 0;
-        }
-
+        const smartCheckData = smartCheckRes?.data;
+        const subscriptionPlan = smartCheckData?.subscriptionPlan;
         const accessData = accessRes?.data;
         const enrollData = enrollRes?.data;
+        const hasSmartCheck = !!subscriptionPlan;
         const hasAccess = !!accessData && accessData.status === 'active';
         const hasEnroll = !!enrollData && enrollData.status === 'active';
-        const accessEnrollBonus =
-            hasAccess || hasEnroll ? StaffListComponent._ACCESS_ENROLL_STAFF_BONUS : 0;
+        const { eligible, seatLimit } = resolveStaffSeatLimit(
+            {
+                clientSubscriptionPlan: smartCheckData
+                    ? {
+                          active: smartCheckData.active !== false,
+                          subscriptionPlan,
+                      }
+                    : null,
+                smartAccessPlan: accessData,
+                smartEnrollPlan: enrollData,
+            },
+            this._getClientSettingsSnapshot()
+        );
 
-        this.hasSubscription = hasSmartCheck || hasAccess || hasEnroll;
-        this.staffLimit = chairCount + accessEnrollBonus;
+        this.hasSubscription = eligible;
+        this.staffLimit = seatLimit;
 
         if (hasSmartCheck) {
             this.selectedSubscription = subscriptionPlan;
@@ -245,6 +262,8 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
             this.selectedSubscription = { name: accessData.name };
         } else if (hasEnroll) {
             this.selectedSubscription = { name: enrollData.name };
+        } else if (eligible && seatLimit > 0) {
+            this.selectedSubscription = { name: 'Override' };
         } else {
             this.selectedSubscription = { name: 'PAYG' };
         }
@@ -252,17 +271,19 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private _resetTeamSubscriptionState(): void {
-        this.selectedSubscription = { name: 'PAYG' };
-        this.hasSubscription = false;
-        this.staffLimit = 0;
+        const { eligible, seatLimit } = resolveStaffSeatLimit(null, this._getClientSettingsSnapshot());
+
+        this.selectedSubscription = eligible && seatLimit > 0 ? { name: 'Override' } : { name: 'PAYG' };
+        this.hasSubscription = eligible;
+        this.staffLimit = seatLimit;
         this._cdr.markForCheck();
     }
 
     canAddMoreStaff(): boolean {
-        if (!this.hasSubscription || this.staffLimit === 0) {
+        if (!this.hasSubscription || this.staffLimit <= 0) {
             return false;
         }
-        // Check if current count is less than limit
+
         return this.staffMembers.length < this.staffLimit;
     }
 
