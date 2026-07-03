@@ -444,7 +444,12 @@
         "aiPromptPlaceholder": "ej., Un reporte limpio con un título en negrita arriba, una línea divisoria, el número de documento y nombre completo abajo, y una tabla de datos",
         "layoutGeneratedSuccess": "¡Diseño generado por la IA con éxito!",
         "layoutGeneratedEmpty": "La IA devolvió un diseño vacío. Intenta reformular tu prompt.",
-        "layoutGeneratedFailed": "No se pudo generar el diseño con IA. Por favor, inténtalo de nuevo."
+        "layoutGeneratedFailed": "No se pudo generar el diseño con IA. Por favor, inténtalo de nuevo.",
+        "aiModeRebuild": "Reconstruir Todo",
+        "aiModeEditSection": "Editar Sección",
+        "aiModeAddSection": "Agregar Sección",
+        "sectionEditedSuccess": "¡Sección actualizada exitosamente con IA!",
+        "sectionsAppendedSuccess": "¡Nuevas secciones agregadas exitosamente!"
     },
     "guestFeatureAuth": {
         "title": "Inicio de sesión obligatorio",

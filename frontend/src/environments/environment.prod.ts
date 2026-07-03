@@ -8,17 +8,18 @@ const isStaging = (): boolean => {
 
 const STAGING_API_URL = 'https://staging-api.verifik.co';
 const STAGING_APP_URL = 'https://staging.verifik.co';
+const PRODUCTION_API_URL = 'https://api.verifik.co';
 
 export const environment = {
     production: true,
     get baseUrl(): string {
-        return isStaging() ? STAGING_API_URL : 'https://prod.verifik.co';
+        return isStaging() ? STAGING_API_URL : PRODUCTION_API_URL;
     },
     get smartAgentUrl(): string {
         return isStaging() ? STAGING_APP_URL : 'https://ai.verifik.co';
     },
     get apiUrl(): string {
-        return isStaging() ? STAGING_API_URL : 'https://prod.verifik.co';
+        return isStaging() ? STAGING_API_URL : PRODUCTION_API_URL;
     },
     get appUrl(): string {
         return isStaging() ? STAGING_APP_URL : 'https://prod.verifik.co';

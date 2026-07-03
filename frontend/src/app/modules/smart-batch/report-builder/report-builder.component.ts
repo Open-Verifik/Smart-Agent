@@ -87,6 +87,7 @@ export class ReportBuilderComponent implements OnInit {
     isSendingSample = signal(false);
     isDownloadingSample = signal(false);
     isGeneratingAI = signal(false);
+    aiMode = signal<'create' | 'edit' | 'append'>('create');
 
     // Logo
     logoUrl = signal<string | null>(null);
@@ -393,37 +394,91 @@ export class ReportBuilderComponent implements OnInit {
         const p = prompt.trim();
         if (!p) return;
 
+        const mode = this.aiMode();
+        const selected = this.currentSelectedSection();
+        if (mode === 'edit' && !selected) {
+            this._snack.open('Please select a section to edit first.', 'Close', { duration: 3000 });
+            return;
+        }
+
         this.isGeneratingAI.set(true);
-        this._reportService.generateLayout(p, this.previewData()).subscribe({
-            next: (suggestedSections) => {
-                if (suggestedSections && suggestedSections.length > 0) {
-                    this.sections.set(suggestedSections);
-                    this.selectSection(suggestedSections[0]);
-                    this.templateForm.markAsDirty();
+        this._reportService
+            .generateLayout({
+                prompt: p,
+                previewData: this.previewData(),
+                mode,
+                currentSections: this.sections(),
+                selectedSection: selected,
+            })
+            .subscribe({
+                next: (result) => {
+                    if (mode === 'edit') {
+                        if (result && typeof result === 'object' && result.id) {
+                            this.sections.update((list) =>
+                                list.map((s) => (s.id === result.id ? result : s))
+                            );
+                            this.selectSection(result);
+                            this.templateForm.markAsDirty();
+                            this._snack.open(
+                                this._transloco.translate('smartReport.sectionEditedSuccess') || 'Section updated successfully via AI',
+                                'Close',
+                                { duration: 3000 }
+                            );
+                        } else {
+                            this._snack.open(
+                                this._transloco.translate('smartReport.layoutGeneratedFailed'),
+                                'Close',
+                                { duration: 4000 }
+                            );
+                        }
+                    } else if (mode === 'append') {
+                        if (Array.isArray(result) && result.length > 0) {
+                            this.sections.update((list) => [...list, ...result]);
+                            this.selectSection(result[0]);
+                            this.templateForm.markAsDirty();
+                            this._snack.open(
+                                this._transloco.translate('smartReport.sectionsAppendedSuccess') || 'New sections appended successfully',
+                                'Close',
+                                { duration: 3000 }
+                            );
+                        } else {
+                            this._snack.open(
+                                this._transloco.translate('smartReport.layoutGeneratedEmpty'),
+                                'Close',
+                                { duration: 4000 }
+                            );
+                        }
+                    } else {
+                        // mode === 'create'
+                        if (Array.isArray(result) && result.length > 0) {
+                            this.sections.set(result);
+                            this.selectSection(result[0]);
+                            this.templateForm.markAsDirty();
+                            this._snack.open(
+                                this._transloco.translate('smartReport.layoutGeneratedSuccess'),
+                                'Close',
+                                { duration: 3000 }
+                            );
+                        } else {
+                            this._snack.open(
+                                this._transloco.translate('smartReport.layoutGeneratedEmpty'),
+                                'Close',
+                                { duration: 4000 }
+                            );
+                        }
+                    }
+                    this.isGeneratingAI.set(false);
+                },
+                error: (err) => {
+                    console.error('Failed to generate layout via AI:', err);
                     this._snack.open(
-                        this._transloco.translate('smartReport.layoutGeneratedSuccess'),
-                        'Close',
-                        { duration: 3000 }
-                    );
-                } else {
-                    this._snack.open(
-                        this._transloco.translate('smartReport.layoutGeneratedEmpty'),
+                        this._transloco.translate('smartReport.layoutGeneratedFailed'),
                         'Close',
                         { duration: 4000 }
                     );
-                }
-                this.isGeneratingAI.set(false);
-            },
-            error: (err) => {
-                console.error('Failed to generate layout via AI:', err);
-                this._snack.open(
-                    this._transloco.translate('smartReport.layoutGeneratedFailed'),
-                    'Close',
-                    { duration: 4000 }
-                );
-                this.isGeneratingAI.set(false);
-            },
-        });
+                    this.isGeneratingAI.set(false);
+                },
+            });
     }
 
     addSection(type: string): void {

@@ -246,17 +246,17 @@ export class SmartReportService {
             );
     }
 
-    generateLayout(
-        prompt: string,
-        previewData: any
-    ): Observable<ReportSection[]> {
+    generateLayout(options: {
+        prompt: string;
+        previewData: any;
+        mode: 'create' | 'edit' | 'append';
+        currentSections?: ReportSection[];
+        selectedSection?: ReportSection | null;
+    }): Observable<any> {
         return this._httpClient
             .post<{
-                data: ReportSection[];
-            }>(`${environment.apiUrl}/v2/smart-report-templates/generate-layout`, {
-                prompt,
-                previewData,
-            })
+                data: any;
+            }>(`${environment.apiUrl}/v2/smart-report-templates/generate-layout`, options)
             .pipe(map((res) => res.data));
     }
 

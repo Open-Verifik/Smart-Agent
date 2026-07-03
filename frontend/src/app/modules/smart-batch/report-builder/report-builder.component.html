@@ -718,60 +718,7 @@
                     }
                 </div>
 
-                <!-- AI Layout Assistant -->
-                <div class="rounded-2xl border border-indigo-100 bg-indigo-50/20 p-4 shadow-sm dark:border-indigo-950/30 dark:bg-indigo-950/10">
-                    <div class="mb-3 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none">
-                                <mat-icon class="!text-sm !w-4 !h-4">auto_awesome</mat-icon>
-                            </span>
-                            <div>
-                                <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
-                                    {{ 'smartReport.aiLayoutAssistant' | transloco }}
-                                </h3>
-                                <p class="text-[10px] text-stone-500 dark:text-stone-400">
-                                    {{ 'smartReport.aiLayoutAssistantHint' | transloco }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="space-y-3">
-                        <textarea
-                            #aiPromptInput
-                            class="w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs text-stone-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
-                            rows="3"
-                            [placeholder]="'smartReport.aiPromptPlaceholder' | transloco"
-                        ></textarea>
-
-                        <div class="flex items-center justify-between">
-                            <button
-                                type="button"
-                                (click)="aiPromptInput.value = 'Title at the top, divider, full name and document number fields, then results table'"
-                                class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
-                            >
-                                {{ 'smartReport.useSamplePrompt' | transloco }}
-                            </button>
-
-                            <button
-                                mat-flat-button
-                                (click)="generateLayoutWithAI(aiPromptInput.value)"
-                                [disabled]="isGeneratingAI() || !aiPromptInput.value.trim()"
-                                class="!rounded-xl !bg-indigo-600 !text-white"
-                            >
-                                <span class="inline-flex items-center gap-2">
-                                    @if (isGeneratingAI()) {
-                                        <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
-                                        {{ 'smartReport.generatingLayout' | transloco }}
-                                    } @else {
-                                        <mat-icon class="!text-lg">auto_awesome</mat-icon>
-                                        {{ 'smartReport.generateLayout' | transloco }}
-                                    }
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Add Sections toolbar -->
                 <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
@@ -923,6 +870,117 @@
                         <span class="text-xs text-stone-400 dark:text-stone-500">{{
                             'smartReport.livePreviewWithSample' | transloco
                         }}</span>
+                    </div>
+
+                    <!-- AI Layout Assistant (Relocated and Upgraded) -->
+                    <div class="mb-4 rounded-2xl border border-indigo-100 bg-indigo-50/20 p-4 shadow-sm dark:border-indigo-950/30 dark:bg-indigo-950/10">
+                        <div class="mb-3 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none">
+                                    <mat-icon class="!text-sm !w-4 !h-4">auto_awesome</mat-icon>
+                                </span>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ 'smartReport.aiLayoutAssistant' | transloco }}
+                                    </h3>
+                                    <p class="text-[10px] text-stone-500 dark:text-stone-400">
+                                        {{ 'smartReport.aiLayoutAssistantHint' | transloco }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Segmented Mode Control -->
+                            <div class="flex gap-1 rounded-xl bg-stone-100 p-1 dark:bg-gray-850">
+                                <button
+                                    type="button"
+                                    (click)="aiMode.set('create')"
+                                    class="flex-1 rounded-lg py-1 text-center text-xs font-medium transition-colors"
+                                    [ngClass]="aiMode() === 'create' ? 'bg-white text-stone-900 shadow-sm dark:bg-gray-900 dark:text-white' : 'text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-300'"
+                                >
+                                    Rebuild All
+                                </button>
+                                <button
+                                    type="button"
+                                    (click)="aiMode.set('edit')"
+                                    class="flex-1 rounded-lg py-1 text-center text-xs font-medium transition-colors"
+                                    [ngClass]="aiMode() === 'edit' ? 'bg-white text-stone-900 shadow-sm dark:bg-gray-900 dark:text-white' : 'text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-300'"
+                                >
+                                    Edit Section
+                                </button>
+                                <button
+                                    type="button"
+                                    (click)="aiMode.set('append')"
+                                    class="flex-1 rounded-lg py-1 text-center text-xs font-medium transition-colors"
+                                    [ngClass]="aiMode() === 'append' ? 'bg-white text-stone-900 shadow-sm dark:bg-gray-900 dark:text-white' : 'text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-300'"
+                                >
+                                    Add Section
+                                </button>
+                            </div>
+
+                            <!-- Selected Section Badge for Edit Mode -->
+                            @if (aiMode() === 'edit') {
+                                <div class="rounded-lg border px-3 py-2 text-xs"
+                                     [ngClass]="currentSelectedSection() ? 'border-indigo-100 bg-indigo-50/40 text-indigo-900 dark:border-indigo-950/20 dark:bg-indigo-950/20 dark:text-indigo-200' : 'border-amber-100 bg-amber-50/40 text-amber-900 dark:border-amber-950/20 dark:bg-amber-950/20 dark:text-amber-200'"
+                                >
+                                    @if (currentSelectedSection(); as sel) {
+                                        <span class="font-medium">Selected Section:</span> {{ getSectionLabel(sel.type) }} (Order: {{ sel.order + 1 }})
+                                    } @else {
+                                        <span class="font-medium">⚠️ No section selected:</span> Click on a section in the preview or left list to modify it.
+                                    }
+                                </div>
+                            }
+
+                            <textarea
+                                #aiPromptInput
+                                class="w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs text-stone-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
+                                rows="3"
+                                [placeholder]="
+                                    aiMode() === 'edit'
+                                        ? 'e.g., Center this header text and make it color #4F46E5'
+                                        : aiMode() === 'append'
+                                        ? 'e.g., Add a divider and a field section showing status'
+                                        : ('smartReport.aiPromptPlaceholder' | transloco)
+                                "
+                                [disabled]="aiMode() === 'edit' && !currentSelectedSection()"
+                            ></textarea>
+
+                            <div class="flex items-center justify-between">
+                                <button
+                                    type="button"
+                                    (click)="
+                                        aiPromptInput.value =
+                                            aiMode() === 'edit'
+                                                ? 'Center this text and make it color #4F46E5'
+                                                : aiMode() === 'append'
+                                                ? 'Add a divider line and a spacer'
+                                                : 'Title at the top, divider, plate number, and details'
+                                    "
+                                    [disabled]="aiMode() === 'edit' && !currentSelectedSection()"
+                                    class="text-xs text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 disabled:opacity-50"
+                                >
+                                    {{ 'smartReport.useSamplePrompt' | transloco }}
+                                </button>
+
+                                <button
+                                    mat-flat-button
+                                    (click)="generateLayoutWithAI(aiPromptInput.value)"
+                                    [disabled]="isGeneratingAI() || !aiPromptInput.value.trim() || (aiMode() === 'edit' && !currentSelectedSection())"
+                                    class="!rounded-xl !bg-indigo-600 !text-white"
+                                >
+                                    <span class="inline-flex items-center gap-2">
+                                        @if (isGeneratingAI()) {
+                                            <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
+                                            {{ 'smartReport.generatingLayout' | transloco }}
+                                        } @else {
+                                            <mat-icon class="!text-lg">auto_awesome</mat-icon>
+                                            {{ 'smartReport.generateLayout' | transloco }}
+                                        }
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Section Inspector (free-floating, draggable panel) -->
