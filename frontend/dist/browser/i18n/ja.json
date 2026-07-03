@@ -3037,6 +3037,8 @@
             "validation": {
                 "groupedModesTitle": "このリクエストの入力方法",
                 "groupedModesBody": "次のいずれか一方だけを使用してください：氏名全文での検索、または書類情報（種別・番号・その種別に必要な日付）による検索。同一リクエストで両方を混在させないでください。",
+                "documentFieldsGuidanceTitle": "このリクエストの入力方法",
+                "documentFieldsGuidanceBody": "書類の種別、書類番号、このエンドポイントで必須のその他の項目（生年月日など）を入力してください。",
                 "groupedModesDateLine": "日付フィールドがある場合は、次の形式を使用してください：{{format}}。",
                 "fixIssuesBeforeSend": "送信する前に次の項目を修正してください：",
                 "badgeRequired": "必須",

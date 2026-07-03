@@ -652,14 +652,29 @@ export const filterVisibleXorDocumentRows = (
     });
 };
 
-/** True when the editor should show grouped-request guidance (XOR modes, conditional dates, etc.). */
-export const endpointShowsGroupedRequestGuidance = (
+/** Guidance banner variant for dependency metadata on an endpoint. */
+export type PostmanDependencyGuidanceKind = 'xor' | 'documentFields' | null;
+
+/**
+ * Returns which guidance copy to show, or null when no banner is needed.
+ * XOR endpoints (name vs document) use different copy than document-only endpoints (e.g. Guatemala).
+ */
+export const getPostmanDependencyGuidanceKind = (
     endpoint: ApiEndpoint | null | undefined
-): boolean => {
-    if (!endpoint?.dependencies?.length) return false;
+): PostmanDependencyGuidanceKind => {
+    if (!endpoint?.dependencies?.length) return null;
     const deps = endpoint.dependencies.filter(
         (d) => d && typeof d.field === 'string' && isClientVisibleBatchDependencyField(d.field)
     );
-    if (getPostmanXorGroupMetadata(deps)) return true;
-    return deps.some((d) => (d.requiredWhen?.in?.length ?? 0) > 0 || !!d.dateFormat);
+    if (getPostmanXorGroupMetadata(deps)) return 'xor';
+    const needsDocumentGuidance = deps.some(
+        (d) => (d.requiredWhen?.in?.length ?? 0) > 0 || !!d.dateFormat
+    );
+    if (needsDocumentGuidance) return 'documentFields';
+    return null;
 };
+
+/** True when the editor should show grouped-request guidance (XOR modes, conditional dates, etc.). */
+export const endpointShowsGroupedRequestGuidance = (
+    endpoint: ApiEndpoint | null | undefined
+): boolean => getPostmanDependencyGuidanceKind(endpoint) != null;

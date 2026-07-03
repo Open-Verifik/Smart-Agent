@@ -3037,6 +3037,8 @@
             "validation": {
                 "groupedModesTitle": "如何填写此请求",
                 "groupedModesBody": "请只选择一种方式：按全名搜索，或按证件字段（类型、号码以及该类型所需的日期）搜索。请勿在同一请求中混用两种方式。",
+                "documentFieldsGuidanceTitle": "如何填写此请求",
+                "documentFieldsGuidanceBody": "请填写证件类型、证件号码以及此端点所需的其他字段（例如出生日期）。",
                 "groupedModesDateLine": "涉及日期字段时，请使用此格式：{{format}}。",
                 "fixIssuesBeforeSend": "发送前请修正以下问题：",
                 "badgeRequired": "必填",

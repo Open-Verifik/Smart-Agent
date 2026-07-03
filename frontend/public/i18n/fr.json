@@ -3008,6 +3008,8 @@
             "validation": {
                 "groupedModesTitle": "Comment remplir cette requête",
                 "groupedModesBody": "Utilisez une seule approche : recherche par nom complet, ou par les champs du document (type, numéro et dates requises pour ce type). Ne combinez pas les deux dans la même requête.",
+                "documentFieldsGuidanceTitle": "Comment remplir cette requête",
+                "documentFieldsGuidanceBody": "Indiquez le type de document, le numéro de document et les autres champs obligatoires pour ce point de terminaison (par exemple, la date de naissance).",
                 "groupedModesDateLine": "Lorsqu'un champ date s'applique, utilisez ce format : {{format}}.",
                 "fixIssuesBeforeSend": "Corrigez les éléments suivants avant d'envoyer :",
                 "badgeRequired": "Requis",

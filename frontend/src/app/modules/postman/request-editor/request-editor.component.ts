@@ -23,6 +23,7 @@ import { PostmanService } from '../postman.service';
 import { ApiEndpoint } from '../postman.types';
 import {
     endpointShowsGroupedRequestGuidance,
+    getPostmanDependencyGuidanceKind,
     filterVisibleXorDocumentRows,
     getPostmanRequestValidationIssues,
     getPostmanXorParamLayout,
@@ -356,18 +357,32 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                             <div
                                                 class="font-semibold text-amber-900 dark:text-amber-50"
                                             >
-                                                {{
-                                                    'postman.requestEditor.validation.groupedModesTitle'
-                                                        | transloco
-                                                }}
+                                                @if (dependencyGuidanceKind() === 'documentFields') {
+                                                    {{
+                                                        'postman.requestEditor.validation.documentFieldsGuidanceTitle'
+                                                            | transloco
+                                                    }}
+                                                } @else {
+                                                    {{
+                                                        'postman.requestEditor.validation.groupedModesTitle'
+                                                            | transloco
+                                                    }}
+                                                }
                                             </div>
                                             <p
                                                 class="leading-relaxed text-amber-900/90 dark:text-amber-100/90"
                                             >
-                                                {{
-                                                    'postman.requestEditor.validation.groupedModesBody'
-                                                        | transloco
-                                                }}
+                                                @if (dependencyGuidanceKind() === 'documentFields') {
+                                                    {{
+                                                        'postman.requestEditor.validation.documentFieldsGuidanceBody'
+                                                            | transloco
+                                                    }}
+                                                } @else {
+                                                    {{
+                                                        'postman.requestEditor.validation.groupedModesBody'
+                                                            | transloco
+                                                    }}
+                                                }
                                             </p>
                                             @if (endpointHasDateFormatDeps()) {
                                                 <p
@@ -1203,6 +1218,10 @@ export class RequestEditorComponent {
 
     readonly showDependencyGuidanceBanner = computed(() =>
         endpointShowsGroupedRequestGuidance(this.endpoint())
+    );
+
+    readonly dependencyGuidanceKind = computed(() =>
+        getPostmanDependencyGuidanceKind(this.endpoint())
     );
 
     readonly endpointHasDateFormatDeps = computed(() =>

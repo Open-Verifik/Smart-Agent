@@ -3057,6 +3057,8 @@
             "validation": {
                 "groupedModesTitle": "How to fill this request",
                 "groupedModesBody": "Use one approach only: search by full name, or by document fields (type, number, and any dates required for that document type). Do not mix both in the same request.",
+                "documentFieldsGuidanceTitle": "How to fill this request",
+                "documentFieldsGuidanceBody": "Provide the document type, document number, and any other required fields for this endpoint (such as date of birth).",
                 "groupedModesDateLine": "When a date field applies, use this format: {{format}}.",
                 "fixIssuesBeforeSend": "Fix these issues before sending:",
                 "badgeRequired": "Required",

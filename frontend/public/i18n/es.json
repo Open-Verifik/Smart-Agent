@@ -3057,6 +3057,8 @@
             "validation": {
                 "groupedModesTitle": "Cómo completar esta solicitud",
                 "groupedModesBody": "Usa un solo enfoque: búsqueda por nombre completo, o por datos del documento (tipo, número y fechas requeridas según el tipo). No mezcles ambos en la misma solicitud.",
+                "documentFieldsGuidanceTitle": "Cómo completar esta solicitud",
+                "documentFieldsGuidanceBody": "Indica el tipo de documento, el número de documento y los demás campos obligatorios de este endpoint (por ejemplo, la fecha de nacimiento).",
                 "groupedModesDateLine": "Cuando aplique un campo de fecha, usa este formato: {{format}}.",
                 "fixIssuesBeforeSend": "Corrige lo siguiente antes de enviar:",
                 "badgeRequired": "Obligatorio",

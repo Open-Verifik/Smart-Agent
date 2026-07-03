@@ -3037,6 +3037,8 @@
             "validation": {
                 "groupedModesTitle": "이 요청 작성 방법",
                 "groupedModesBody": "한 가지 방식만 사용하세요: 전체 이름으로 검색하거나, 문서 필드(유형·번호·해당 유형에 필요한 날짜)로 검색합니다. 같은 요청에서 두 가지를 섞지 마세요.",
+                "documentFieldsGuidanceTitle": "이 요청 작성 방법",
+                "documentFieldsGuidanceBody": "문서 유형, 문서 번호 및 이 엔드포인트에 필요한 기타 필드(예: 생년월일)를 입력하세요.",
                 "groupedModesDateLine": "날짜 필드가 있을 때는 다음 형식을 사용하세요: {{format}}.",
                 "fixIssuesBeforeSend": "보내기 전에 다음을 수정하세요:",
                 "badgeRequired": "필수",

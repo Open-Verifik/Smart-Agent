@@ -3037,6 +3037,8 @@
             "validation": {
                 "groupedModesTitle": "Como preencher esta solicitação",
                 "groupedModesBody": "Use apenas uma abordagem: busca por nome completo ou por dados do documento (tipo, número e datas exigidas para esse tipo). Não misture as duas na mesma solicitação.",
+                "documentFieldsGuidanceTitle": "Como preencher esta solicitação",
+                "documentFieldsGuidanceBody": "Informe o tipo de documento, o número do documento e os demais campos obrigatórios deste endpoint (como a data de nascimento).",
                 "groupedModesDateLine": "Quando houver campo de data, use este formato: {{format}}.",
                 "fixIssuesBeforeSend": "Corrija o seguinte antes de enviar:",
                 "badgeRequired": "Obrigatório",

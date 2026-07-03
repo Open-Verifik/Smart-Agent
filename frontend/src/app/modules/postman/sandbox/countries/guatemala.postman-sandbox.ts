@@ -77,9 +77,12 @@ export const GUATEMALA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEnd
             conflictProfiles: [
                 SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
                 GUATEMALA_CONFLICT_INVALID_DOCUMENT_TYPE,
+                GUATEMALA_CONFLICT_MISSING_DATE_OF_BIRTH,
+                GUATEMALA_CONFLICT_INVALID_DATE_OF_BIRTH,
             ],
         }),
         defaultDocumentNumber: '10000001',
+        defaultDateOfBirth: GUATEMALA_DEFAULT_DATE_OF_BIRTH,
         documentTypeByCode: {
             [GUATEMALA_IDENTITY_EXTRA_ENDPOINT_CODE]: 'CUI',
         },
