@@ -348,6 +348,10 @@
             "title": "Argentina - Complete Argentine Citizen",
             "description": "Complete Argentine citizen verification with DNI, including extended identity fields for deeper KYC and onboarding."
         },
+        "argentina_api_medical_professional": {
+            "title": "Argentina - Medical Professional",
+            "description": "Query medical professionals registered in Argentina via GET /v2/ar/cedula/medico-profesional using DNI (documentNumber). Returns SISA MSAL registration, matriculas, linked establishments, and signed response data."
+        },
         "ar_certificate_verify": {
             "title": "Argentina - Criminal record certificate",
             "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF via GET /v2/ar/certificate/verify. Returns identity fields and the criminal-record statement extracted from the official certificate."

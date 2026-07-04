@@ -348,6 +348,10 @@
             "title": "Argentine - Citoyen argentin complet",
             "description": "Vérification complète d'un citoyen argentin par DNI, avec champs d'identité étendus pour un KYC approfondi."
         },
+        "argentina_api_medical_professional": {
+            "title": "Argentine - Professionnel médical",
+            "description": "Consultez les professionnels de santé enregistrés en Argentine via GET /v2/ar/cedula/medico-profesional avec le DNI (documentNumber). Retourne matricule, établissements liés et données SISA MSAL."
+        },
         "ar_certificate_verify": {
             "title": "Argentine - Certificat de casier judiciaire",
             "description": "Vérifie un certificat DNREC de casier judiciaire argentin avec le code de demande (Solicitud) et le code de sécurité (Cod. Segur.) du PDF via GET /v2/ar/certificate/verify. Retourne les données d'identité et la déclaration d'antecedents extraite du certificat officiel."
