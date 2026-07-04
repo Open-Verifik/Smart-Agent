@@ -348,6 +348,10 @@
             "title": "アルゼンチン - アルゼンチン市民完全確認",
             "description": "DNI を使用したアルゼンチン市民の完全な本人確認。より深い KYC 向けの拡張フィールドを含みます。"
         },
+        "argentina_api_medical_professional": {
+            "title": "アルゼンチン - 医療専門家",
+            "description": "GET /v2/ar/cedula/medico-profesional と DNI（documentNumber）でアルゼンチンの登録医療専門家を照会します。SISA MSAL の免許、関連施設、登録データを返します。"
+        },
         "ar_certificate_verify": {
             "title": "アルゼンチン - 犯罪歴証明書",
             "description": "GET /v2/ar/certificate/verify により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"

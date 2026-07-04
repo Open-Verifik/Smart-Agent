@@ -348,6 +348,10 @@
             "title": "아르헨티나 - 아르헨티나 시민 전체 확인",
             "description": "DNI를 사용한 아르헨티나 시민 전체 신원 확인입니다. 심화 KYC용 확장 필드를 포함합니다."
         },
+        "argentina_api_medical_professional": {
+            "title": "아르헨티나 - 의료 전문가",
+            "description": "GET /v2/ar/cedula/medico-profesional 및 DNI(documentNumber)로 아르헨티나 등록 의료 전문가를 조회합니다. SISA MSAL 면허, 연계 의료기관 및 등록 데이터를 반환합니다."
+        },
         "ar_certificate_verify": {
             "title": "아르헨티나 - 범죄 경력 증명서",
             "description": "GET /v2/ar/certificate/verify를 통해 PDF의 신청 코드(Solicitud)와 보안 코드(Cod. Segur.)로 아르헨티나 DNREC 범죄 경력 증명서를 확인합니다. 신원 정보와 공식 증명서에서 추출한 범죄 경력 진술을 반환합니다."

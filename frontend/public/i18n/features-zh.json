@@ -348,6 +348,10 @@
             "title": "阿根廷 - 阿根廷公民完整核验",
             "description": "使用 DNI 对阿根廷公民进行完整身份核验，包含更深入 KYC 所需的扩展身份字段。"
         },
+        "argentina_api_medical_professional": {
+            "title": "阿根廷 - 医疗专业人员",
+            "description": "通过 GET /v2/ar/cedula/medico-profesional 及 DNI（documentNumber）查询阿根廷注册医疗专业人员。返回 SISA MSAL 执业许可、关联机构及注册数据。"
+        },
         "ar_certificate_verify": {
             "title": "阿根廷 - 犯罪记录证明",
             "description": "通过 GET /v2/ar/certificate/verify，使用 PDF 上的申请代码（Solicitud）和安全代码（Cod. Segur.）验证阿根廷 DNREC 犯罪记录证明。返回身份字段及从官方证明中提取的犯罪记录声明。"
