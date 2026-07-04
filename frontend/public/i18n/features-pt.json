@@ -835,6 +835,14 @@
         "chile_api_vehicle_v3": {
             "title": "Chile - Revisão técnica veicular",
             "description": "Consulte o estado e o histórico da revisão técnica de veículo chileno por placa via GET /v3/cl/vehicle."
+        },
+        "bolivia_api_vehicle_soat": {
+            "title": "Bolívia - SOAT de Veículo",
+            "description": "Consulte o SOAT obrigatório na Bolívia via GET /v2/bo/vehicle-soat com placa. Devolve validade, classificação, departamento, status e resposta assinada."
+        },
+        "bolivia_api_voting_location": {
+            "title": "Bolívia - Local de Votação",
+            "description": "Consulte o registro eleitoral OEP Yo Participo via GET /v2/bo/votacion com CI e data de nascimento. Devolve local, mesa, elegibilidade e resposta assinada."
         }
     }
 }

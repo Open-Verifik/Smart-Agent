@@ -835,6 +835,14 @@
         "chile_api_vehicle_v3": {
             "title": "칠레 - 차량 기술 검사",
             "description": "GET /v3/cl/vehicle로 번호판을 통해 칠레 차량의 기술 검사 상태와 이력을 조회합니다."
+        },
+        "bolivia_api_vehicle_soat": {
+            "title": "볼리비아 - 차량 SOAT",
+            "description": "GET /v2/bo/vehicle-soat로 볼리비아 의무 SOAT를 조회합니다. plate로 보험 유효기간, 차량 분류, 부서, 상태 및 서명된 응답을 반환합니다."
+        },
+        "bolivia_api_voting_location": {
+            "title": "볼리비아 - 투표 장소",
+            "description": "GET /v2/bo/votacion으로 OEP Yo Participo 선거 등록부를 CI와 생년월일로 조회합니다. 투표소, 테이블, 투표 자격 및 서명된 응답을 반환합니다."
         }
     }
 }

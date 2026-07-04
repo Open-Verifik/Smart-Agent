@@ -7441,15 +7441,6 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "dateOfBirth",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Date of birth in DD/MM/YYYY format."
           }
         ]
       }
@@ -9197,15 +9188,6 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "dateOfBirth",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Date of birth in DD/MM/YYYY format."
           }
         ]
       }

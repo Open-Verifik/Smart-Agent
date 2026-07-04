@@ -835,6 +835,14 @@
         "chile_api_vehicle_v3": {
             "title": "智利 - 车辆技术检验",
             "description": "通过 GET /v3/cl/vehicle 按车牌查询智利车辆技术检验状态和历史。"
+        },
+        "bolivia_api_vehicle_soat": {
+            "title": "玻利维亚 - 车辆SOAT",
+            "description": "通过 GET /v2/bo/vehicle-soat 按 plate 查询玻利维亚强制SOAT。返回有效期、车辆分类、部门、状态及签名响应。"
+        },
+        "bolivia_api_voting_location": {
+            "title": "玻利维亚 - 投票地点",
+            "description": "通过 GET /v2/bo/votacion 使用 CI 和出生日期查询 OEP Yo Participo 选举登记。返回投票站、桌号、投票资格及签名响应。"
         }
     }
 }

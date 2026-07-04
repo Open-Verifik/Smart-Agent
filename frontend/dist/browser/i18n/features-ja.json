@@ -614,7 +614,7 @@
         },
         "bolivia_api_business_lookup": {
             "title": "ボリビア — 法人検証",
-            "description": "Verifik の KYB API を使用して NIT でボリビア企業を検証します。"
+            "description": "Verifik の KYB API を使用してボリビア企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "costa_rica_api_business_lookup": {
             "title": "コスタリカ — 法人検証（NITE）",
@@ -835,6 +835,14 @@
         "chile_api_vehicle_v3": {
             "title": "チリ - 車両技術検査",
             "description": "GET /v3/cl/vehicle でナンバープレートからチリ車両の技術検査ステータスと履歴を照会します。"
+        },
+        "bolivia_api_vehicle_soat": {
+            "title": "ボリビア - 車両SOAT",
+            "description": "GET /v2/bo/vehicle-soatでボリビアの強制SOATをplateで照会。有効期間、車両分類、県、ステータス、署名付きレスポンスを返します。"
+        },
+        "bolivia_api_voting_location": {
+            "title": "ボリビア - 投票所",
+            "description": "GET /v2/bo/votacionでOEP Yo Participo選挙人名簿をCIと生年月日で照会。投票所、テーブル、投票資格、署名付きレスポンスを返します。"
         }
     }
 }

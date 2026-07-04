@@ -835,6 +835,14 @@
         "chile_api_vehicle_v3": {
             "title": "Chili - Contrôle technique véhicule",
             "description": "Consultez le statut et l’historique du contrôle technique d’un véhicule chilien par plaque via GET /v3/cl/vehicle."
+        },
+        "bolivia_api_vehicle_soat": {
+            "title": "Bolivie - SOAT véhicule",
+            "description": "Consultez le SOAT obligatoire en Bolivie via GET /v2/bo/vehicle-soat avec la plaque. Retourne validité, classification, département, statut et réponse signée."
+        },
+        "bolivia_api_voting_location": {
+            "title": "Bolivie - Lieu de vote",
+            "description": "Consultez le registre électoral OEP Yo Participo via GET /v2/bo/votacion avec CI et date de naissance. Retourne bureau de vote, table, éligibilité et réponse signée."
         }
     }
 }
