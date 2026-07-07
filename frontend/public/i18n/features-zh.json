@@ -364,6 +364,10 @@
             "title": "智利 — 车辆 SOAP",
             "description": "通过 GET /v2/cl/vehicle-soap 按号牌和保单号查询智利车辆 SOAP（强制人身意外保险）证书。"
         },
+        "chile_api_vehicle_soap_plate": {
+            "title": "Vehicle SOAP (by plate)",
+            "description": "Query Chile vehicular SOAP by license plate only. Returns nested soap and vehicle objects."
+        },
         "cl_certificate_verify": {
             "title": "智利 - 民事登记处证明核验",
             "description": "通过 GET /v2/cl/certificate/verify，使用 folio 和验证码（Código Verificador）核验智利 Registro Civil（SRCEI）证明。返回 PDF 元数据及有罪判决登记详情（如有）。"

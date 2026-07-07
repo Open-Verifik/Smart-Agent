@@ -18,6 +18,10 @@ import {
     appendVehicleSoapSandboxProfiles,
     SANDBOX_DEFAULT_SOAP_PLATE,
 } from '../vehicle-soap-profiles';
+import {
+    appendVehicleSoapPlateSandboxProfiles,
+    SANDBOX_DEFAULT_SOAP_PLATE_ONLY,
+} from '../vehicle-soap-plate-profiles';
 
 export const CHILE_IDENTITY_ENDPOINT_CODE = 'chile_api_identity_lookup';
 export const CHILE_VEHICLE_ENDPOINT_CODE = 'chile_api_vehicle';
@@ -28,6 +32,7 @@ export const CHILE_TAXPAYER_ENDPOINT_CODE = 'chile_api_taxpayer_lookup';
 export const CHILE_VALIDATE_ENDPOINT_CODE = 'chile_api_validate';
 export const CHILE_TRANSPORT_VEHICLE_ENDPOINT_CODE = 'chile_api_transport_vehicle';
 export const CHILE_VEHICLE_SOAP_ENDPOINT_CODE = 'chile_api_vehicle_soap';
+export const CHILE_VEHICLE_SOAP_PLATE_ENDPOINT_CODE = 'chile_api_vehicle_soap_plate';
 export const CHILE_CERTIFICATE_VERIFY_ENDPOINT_CODE = 'cl_certificate_verify';
 
 const CHILE_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
@@ -247,6 +252,12 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
         profiles: appendVehicleSoapSandboxProfiles(),
         defaultPlate: SANDBOX_DEFAULT_SOAP_PLATE,
         defaultDocumentNumber: SANDBOX_DEFAULT_SOAP_PLATE,
+        showProfileMeta: false,
+    },
+    [CHILE_VEHICLE_SOAP_PLATE_ENDPOINT_CODE]: {
+        profiles: appendVehicleSoapPlateSandboxProfiles(),
+        defaultPlate: SANDBOX_DEFAULT_SOAP_PLATE_ONLY,
+        defaultDocumentNumber: SANDBOX_DEFAULT_SOAP_PLATE_ONLY,
         showProfileMeta: false,
     },
     [CHILE_CERTIFICATE_VERIFY_ENDPOINT_CODE]: {

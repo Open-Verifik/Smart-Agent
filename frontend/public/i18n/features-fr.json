@@ -364,6 +364,10 @@
             "title": "Chili — SOAP véhicule",
             "description": "Consultez le certificat SOAP véhicule chilien (assurance obligatoire accidents corporels) par plaque et numéro de police via GET /v2/cl/vehicle-soap."
         },
+        "chile_api_vehicle_soap_plate": {
+            "title": "Chili — SOAP véhicule (par plaque)",
+            "description": "Consultez le SOAP véhicule chilien par plaque uniquement. Retourne des objets soap et vehicle imbriqués."
+        },
         "cl_certificate_verify": {
             "title": "Chili - Vérification de certificat du Registro Civil",
             "description": "Vérifie un certificat du Registro Civil du Chili (SRCEI) avec folio et code de vérification (Código Verificador) via GET /v2/cl/certificate/verify. Retourne les métadonnées du PDF et les antécédents des registres de condamnations lorsque disponibles."
