@@ -4,40 +4,45 @@
  */
 import { PostmanSandboxProfile } from './postman-sandbox.types';
 
-export const SANDBOX_DEFAULT_PLATE = 'ABC10001';
+const MERCOSUR_SANDBOX_PLATES = Array.from({ length: 10 }, (_, index) => `AA123B${String.fromCharCode(65 + index)}`);
 
-export const SANDBOX_DEFAULT_SIMIT_PLATE = 'AB1001';
+const CHILE_SIX_CHAR_SANDBOX_PLATES = Array.from({ length: 10 }, (_, index) => `BBCC${12 + index}`);
+
+const SANDBOX_PROFILE_NAMES = [
+    'MARIA ELENA LOPEZ GARCIA — valid',
+    'JOSE ANTONIO PEREZ RODRIGUEZ — valid',
+    'CARLA ISABEL MARTINEZ FERNANDEZ — valid',
+    'LUIS ALBERTO GONZALEZ HERRERA — valid',
+    'ANA SOFIA RAMIREZ TORRES — valid',
+    'DIEGO ALEJANDRO SILVA MENDOZA — valid',
+    'VALENTINA ANDREA CASTRO VARGAS — valid',
+    'RICARDO JOSE MORALES SUAREZ — valid',
+    'PATRICIA CAROLINA DIAZ REYES — valid',
+    'FERNANDO MIGUEL ROJAS DELGADO — valid',
+];
+
+export const SANDBOX_DEFAULT_PLATE = MERCOSUR_SANDBOX_PLATES[0];
+
+export const SANDBOX_DEFAULT_CHILE_VEHICLE_PLATE = CHILE_SIX_CHAR_SANDBOX_PLATES[0];
+
+export const SANDBOX_DEFAULT_SIMIT_PLATE = CHILE_SIX_CHAR_SANDBOX_PLATES[0];
 
 export const SANDBOX_ERROR_PLATE = 'ERR40401';
 
 export const SANDBOX_ERROR_PLATE_SHORT = 'ERR404';
 
-export const SANDBOX_VEHICLE_PLATE_PROFILES: PostmanSandboxProfile[] = [
-    { plate: 'ABC10001', documentNumber: 'ABC10001', fullName: 'MARIA ELENA LOPEZ GARCIA — valid' },
-    { plate: 'ABC10002', documentNumber: 'ABC10002', fullName: 'JOSE ANTONIO PEREZ RODRIGUEZ — valid' },
-    { plate: 'ABC10003', documentNumber: 'ABC10003', fullName: 'CARLA ISABEL MARTINEZ FERNANDEZ — valid' },
-    { plate: 'ABC10004', documentNumber: 'ABC10004', fullName: 'LUIS ALBERTO GONZALEZ HERRERA — valid' },
-    { plate: 'ABC10005', documentNumber: 'ABC10005', fullName: 'ANA SOFIA RAMIREZ TORRES — valid' },
-    { plate: 'ABC10006', documentNumber: 'ABC10006', fullName: 'DIEGO ALEJANDRO SILVA MENDOZA — valid' },
-    { plate: 'ABC10007', documentNumber: 'ABC10007', fullName: 'VALENTINA ANDREA CASTRO VARGAS — valid' },
-    { plate: 'ABC10008', documentNumber: 'ABC10008', fullName: 'RICARDO JOSE MORALES SUAREZ — valid' },
-    { plate: 'ABC10009', documentNumber: 'ABC10009', fullName: 'PATRICIA CAROLINA DIAZ REYES — valid' },
-    { plate: 'ABC10010', documentNumber: 'ABC10010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — valid' },
-];
+export const SANDBOX_VEHICLE_PLATE_PROFILES: PostmanSandboxProfile[] = MERCOSUR_SANDBOX_PLATES.map((plate, index) => ({
+    plate,
+    documentNumber: plate,
+    fullName: SANDBOX_PROFILE_NAMES[index],
+}));
 
-/** 6-char plates for SIMIT (middleware max 6). Same fixture keys as ABC10001–ABC10010. */
-export const SANDBOX_SIMIT_PLATE_PROFILES: PostmanSandboxProfile[] = [
-    { plate: 'AB1001', documentNumber: 'AB1001', fullName: 'MARIA ELENA LOPEZ GARCIA — valid' },
-    { plate: 'AB1002', documentNumber: 'AB1002', fullName: 'JOSE ANTONIO PEREZ RODRIGUEZ — valid' },
-    { plate: 'AB1003', documentNumber: 'AB1003', fullName: 'CARLA ISABEL MARTINEZ FERNANDEZ — valid' },
-    { plate: 'AB1004', documentNumber: 'AB1004', fullName: 'LUIS ALBERTO GONZALEZ HERRERA — valid' },
-    { plate: 'AB1005', documentNumber: 'AB1005', fullName: 'ANA SOFIA RAMIREZ TORRES — valid' },
-    { plate: 'AB1006', documentNumber: 'AB1006', fullName: 'DIEGO ALEJANDRO SILVA MENDOZA — valid' },
-    { plate: 'AB1007', documentNumber: 'AB1007', fullName: 'VALENTINA ANDREA CASTRO VARGAS — valid' },
-    { plate: 'AB1008', documentNumber: 'AB1008', fullName: 'RICARDO JOSE MORALES SUAREZ — valid' },
-    { plate: 'AB1009', documentNumber: 'AB1009', fullName: 'PATRICIA CAROLINA DIAZ REYES — valid' },
-    { plate: 'AB1010', documentNumber: 'AB1010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — valid' },
-];
+/** 6-char plates for SIMIT/SOAP (middleware max 6). Same fixture keys as AA123BA–AA123BJ. */
+export const SANDBOX_SIMIT_PLATE_PROFILES: PostmanSandboxProfile[] = CHILE_SIX_CHAR_SANDBOX_PLATES.map((plate, index) => ({
+    plate,
+    documentNumber: plate,
+    fullName: SANDBOX_PROFILE_NAMES[index],
+}));
 
 export const SANDBOX_ERROR_PROFILE_SIMIT_PLATE_404: PostmanSandboxProfile = {
     plate: SANDBOX_ERROR_PLATE_SHORT,

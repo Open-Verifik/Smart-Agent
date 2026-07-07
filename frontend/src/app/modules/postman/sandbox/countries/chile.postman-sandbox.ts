@@ -12,7 +12,7 @@ import {
 
 import {
     appendVehiclePlateSandboxProfiles,
-    SANDBOX_DEFAULT_PLATE,
+    SANDBOX_DEFAULT_CHILE_VEHICLE_PLATE,
 } from '../vehicle-plate-profiles';
 import {
     appendVehicleSoapSandboxProfiles,
@@ -179,8 +179,8 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
     },
     [CHILE_VEHICLE_ENDPOINT_CODE]: {
         profiles: appendVehiclePlateSandboxProfiles(),
-        defaultPlate: SANDBOX_DEFAULT_PLATE,
-        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        defaultPlate: SANDBOX_DEFAULT_CHILE_VEHICLE_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_CHILE_VEHICLE_PLATE,
         showProfileMeta: false,
     },
     [CHILE_VEHICLE_V3_ENDPOINT_CODE]: {
@@ -244,8 +244,8 @@ export const CHILE_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoin
     },
     [CHILE_TRANSPORT_VEHICLE_ENDPOINT_CODE]: {
         profiles: appendVehiclePlateSandboxProfiles(),
-        defaultPlate: SANDBOX_DEFAULT_PLATE,
-        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+        defaultPlate: SANDBOX_DEFAULT_CHILE_VEHICLE_PLATE,
+        defaultDocumentNumber: SANDBOX_DEFAULT_CHILE_VEHICLE_PLATE,
         showProfileMeta: false,
     },
     [CHILE_VEHICLE_SOAP_ENDPOINT_CODE]: {

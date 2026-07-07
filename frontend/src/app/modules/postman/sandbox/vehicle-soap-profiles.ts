@@ -1,32 +1,31 @@
 /**
  * Chile vehicular SOAP sandbox profiles (plate + policyNumber).
- * Plates must be 4–6 chars (SOAP middleware max). Use AB1001–AB1010, not ABC10001.
+ * Plates must be 4–6 chars (SOAP middleware max). Use BBCC12–BBCC21.
  * Source of truth: verifik-backend/Core/sandbox-plate-fixtures.helper.js (SANDBOX_SHORT_PLATE_BY_FIXTURE)
  */
 import { PostmanSandboxProfile } from './postman-sandbox.types';
 import { SANDBOX_ERROR_PLATE_SHORT, SANDBOX_SIMIT_PLATE_PROFILES } from './vehicle-plate-profiles';
 
-export const SANDBOX_DEFAULT_SOAP_PLATE = 'AB1001';
+export const SANDBOX_DEFAULT_SOAP_PLATE = 'BBCC12';
 export const SANDBOX_DEFAULT_POLICY_NUMBER = '94590001';
 
 const SOAP_FIXTURE_HINTS: Record<string, string> = {
-    AB1001: 'TOYOTA COROLLA — VIGENTE',
-    AB1002: 'NISSAN SENTRA — VIGENTE',
-    AB1003: 'MAZDA CX-5 — VIGENTE',
-    AB1004: 'HYUNDAI TUCSON — VENCIDO',
-    AB1005: 'KIA SPORTAGE — VIGENTE',
-    AB1006: 'CHEVROLET ONIX — VIGENTE',
-    AB1007: 'FORD RANGER — VIGENTE',
-    AB1008: 'SUZUKI GRAND VITARA — VIGENTE',
-    AB1009: 'MITSUBISHI L200 — VIGENTE',
-    AB1010: 'HONDA CR-V — VIGENTE',
+    BBCC12: 'TOYOTA COROLLA — VIGENTE',
+    BBCC13: 'NISSAN SENTRA — VIGENTE',
+    BBCC14: 'MAZDA CX-5 — VIGENTE',
+    BBCC15: 'HYUNDAI TUCSON — VENCIDO',
+    BBCC16: 'KIA SPORTAGE — VIGENTE',
+    BBCC17: 'CHEVROLET ONIX — VIGENTE',
+    BBCC18: 'FORD RANGER — VIGENTE',
+    BBCC19: 'SUZUKI GRAND VITARA — VIGENTE',
+    BBCC20: 'MITSUBISHI L200 — VIGENTE',
+    BBCC21: 'HONDA CR-V — VIGENTE',
 };
 
 const buildSoapFixtureProfiles = (): PostmanSandboxProfile[] =>
-    SANDBOX_SIMIT_PLATE_PROFILES.map((profile) => {
+    SANDBOX_SIMIT_PLATE_PROFILES.map((profile, index) => {
         const plate = profile.plate ?? profile.documentNumber;
-        const fixtureIndex = Number.parseInt(plate.slice(-4), 10) - 1000;
-        const policyNumber = `945900${String(fixtureIndex).padStart(2, '0')}`;
+        const policyNumber = `945900${String(index + 1).padStart(2, '0')}`;
 
         return {
             profileKey: `soap-${plate.toLowerCase()}`,

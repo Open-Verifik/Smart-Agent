@@ -35,9 +35,9 @@ describe('chile_api_vehicle_soap sandbox', () => {
         const profiles = getPostmanSandboxProfiles(CHILE_VEHICLE_SOAP_ENDPOINT_CODE);
         expect(profiles.length).toBeGreaterThanOrEqual(14);
 
-        const ab1004 = profiles.find((profile) => profile.paramOverrides?.plate === 'AB1004');
-        expect(ab1004?.paramOverrides?.policyNumber).toBe('94590004');
-        expect(ab1004?.fullName).toContain('VENCIDO');
+        const bbcc15 = profiles.find((profile) => profile.paramOverrides?.plate === 'BBCC15');
+        expect(bbcc15?.paramOverrides?.policyNumber).toBe('94590004');
+        expect(bbcc15?.fullName).toContain('VENCIDO');
 
         expect(profiles).toContainEqual(
             expect.objectContaining({
@@ -77,9 +77,9 @@ describe('Chile vehicle sandbox separation', () => {
         expect(isPostmanSandboxEndpoint(CHILE_VEHICLE_V3_ENDPOINT_CODE)).toBe(true);
         expect(isPostmanSandboxEndpoint(CHILE_VEHICLE_SOAP_ENDPOINT_CODE)).toBe(true);
 
-        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_ENDPOINT_CODE]?.defaultPlate).toBe('ABC10001');
+        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_ENDPOINT_CODE]?.defaultPlate).toBe('BBCC12');
         expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_V3_ENDPOINT_CODE]?.defaultPlate).toBe('XH6640');
-        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_SOAP_ENDPOINT_CODE]?.defaultPlate).toBe('AB1001');
+        expect(CHILE_POSTMAN_SANDBOX_BY_CODE[CHILE_VEHICLE_SOAP_ENDPOINT_CODE]?.defaultPlate).toBe('BBCC12');
     });
 
     it('uses v3-valid plates and includes the invalid-format example', () => {

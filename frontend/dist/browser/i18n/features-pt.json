@@ -364,6 +364,10 @@
             "title": "Chile - SOAP veicular",
             "description": "Consulta certificado SOAP veicular chileno (Seguro Obrigatório de Acidentes Pessoais) por placa e número da apólice via GET /v2/cl/vehicle-soap."
         },
+        "chile_api_vehicle_soap_plate": {
+            "title": "SOAP veicular (por placa)",
+            "description": "Consulte o SOAP veicular chileno apenas pela placa. Retorna objetos aninhados soap e vehicle."
+        },
         "cl_certificate_verify": {
             "title": "Chile - Verificação de certificado do Registro Civil",
             "description": "Verifique um certificado do Registro Civil do Chile (SRCEI) com folio e código verificador via GET /v2/cl/certificate/verify. Retorna metadados do PDF e antecedentes de registros de condenações quando disponíveis."
