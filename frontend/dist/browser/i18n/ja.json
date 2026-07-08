@@ -1518,7 +1518,8 @@
                 "documents": "書類",
                 "biometrics": "生体認証",
                 "compare": "顔照合",
-                "verdict": "判定"
+                "verdict": "判定",
+                "events": "イベント"
             },
             "section": {
                 "consent": "同意の記録",
@@ -1532,6 +1533,8 @@
                 "faceCompare": "顔の比較",
                 "nameMatch": "氏名の一致",
                 "verdict": "総合結果",
+                "events": "Webhookイベント",
+                "eventsHint": "この登録に対して送信されたすべてのWebhookを1か所で確認できます。",
                 "technicalMetadata": "セッション・技術情報",
                 "technicalMetadataHint": "IP、端末、関連ID、タイムスタンプ、検証スナップショットなど。"
             },
@@ -1672,6 +1675,46 @@
                 "validationTimeout": "検証がタイムアウトしました。",
                 "manualReviewRequested": "手動レビューが要求されました。",
                 "generic": "理由: {{reason}}。"
+            },
+            "overrideStatus": "ステータスを変更",
+            "triage": {
+                "markCompleted": "完了にする",
+                "markCompletedNoKyc": "KYCなしで完了にする",
+                "markFailed": "失敗にする"
+            },
+            "reviewHistory": {
+                "heading": "レビュー履歴",
+                "rowSummary": "{{status}} — {{reviewer}} が {{date}} に処理",
+                "unknownReviewer": "レビュー担当者"
+            },
+            "statusLabel": {
+                "STARTED": "開始済み",
+                "ONGOING": "進行中",
+                "COMPLETED": "完了",
+                "COMPLETED_WITHOUT_KYC": "KYCなしで完了",
+                "FAILED": "失敗",
+                "NEEDS_MANUAL_VERIFICATION": "手動レビューが必要",
+                "EXPIRED": "期限切れ"
+            },
+            "resolveDialog": {
+                "resolveTitle": "手動レビューを解決",
+                "resolveSubtitle": "このケースの処理方法を選択してください。確定すると、直ちにWebhookで連携先に通知されます。",
+                "overrideTitle": "ステータスを変更",
+                "overrideSubtitle": "この登録のステータスを手動で修正します。確実な場合のみ使用してください — 直ちに連携先に通知されます。",
+                "optionCompletedTitle": "完了",
+                "optionCompletedDescription": "完全に検証済みとして承認します — 最も強い結果です。",
+                "optionCompletedNoKycTitle": "KYCなしで完了",
+                "optionCompletedNoKycDescription": "完全な本人確認を行わずにユーザーを通過させます。",
+                "optionFailedTitle": "失敗",
+                "optionFailedDescription": "この登録を却下します。",
+                "noteLabel": "メモ（任意）",
+                "notePlaceholder": "確認方法など、チーム向けの補足を入力してください。",
+                "webhookNotice": "確定すると、直ちに {{type}} Webhookが連携先に送信され、自動的には取り消せません。",
+                "cancel": "キャンセル",
+                "confirm": "確定",
+                "close": "閉じる",
+                "genericError": "エラーが発生しました。もう一度お試しいただくか、権限をご確認ください。",
+                "success": "{{status}} としてマークしました。Webhookを送信しました。"
             },
             "field": {
                 "fullName": "氏名",

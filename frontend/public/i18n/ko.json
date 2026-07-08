@@ -1518,7 +1518,8 @@
                 "documents": "문서",
                 "biometrics": "생체 인증",
                 "compare": "얼굴 비교",
-                "verdict": "결과"
+                "verdict": "결과",
+                "events": "이벤트"
             },
             "section": {
                 "consent": "동의 증명",
@@ -1532,6 +1533,8 @@
                 "faceCompare": "얼굴 비교",
                 "nameMatch": "이름 일치",
                 "verdict": "전체 결과",
+                "events": "웹훅 이벤트",
+                "eventsHint": "이 등록에 대해 전송된 모든 웹훅을 한곳에서 확인하세요.",
                 "technicalMetadata": "세션 및 기술 정보",
                 "technicalMetadataHint": "IP, 기기, 연결된 ID, 타임스탬프, 검증 스냅샷 필드입니다."
             },
@@ -1672,6 +1675,46 @@
                 "validationTimeout": "검증 시간이 초과되었습니다.",
                 "manualReviewRequested": "수동 검토가 요청되었습니다.",
                 "generic": "사유: {{reason}}."
+            },
+            "overrideStatus": "상태 변경",
+            "triage": {
+                "markCompleted": "완료로 표시",
+                "markCompletedNoKyc": "KYC 없이 완료",
+                "markFailed": "실패로 표시"
+            },
+            "reviewHistory": {
+                "heading": "검토 기록",
+                "rowSummary": "{{status}} — {{reviewer}}님이 {{date}}에 처리",
+                "unknownReviewer": "검토자"
+            },
+            "statusLabel": {
+                "STARTED": "시작됨",
+                "ONGOING": "진행 중",
+                "COMPLETED": "완료",
+                "COMPLETED_WITHOUT_KYC": "KYC 없이 완료",
+                "FAILED": "실패",
+                "NEEDS_MANUAL_VERIFICATION": "수동 검토 필요",
+                "EXPIRED": "만료됨"
+            },
+            "resolveDialog": {
+                "resolveTitle": "수동 검토 해결",
+                "resolveSubtitle": "이 건을 어떻게 처리할지 선택하세요. 확정하면 즉시 웹훅으로 연동 시스템에 알립니다.",
+                "overrideTitle": "상태 변경",
+                "overrideSubtitle": "이 등록의 상태를 수동으로 수정합니다. 확실한 경우에만 사용하세요 — 즉시 연동 시스템에 알립니다.",
+                "optionCompletedTitle": "완료",
+                "optionCompletedDescription": "완전히 검증된 것으로 승인합니다 — 가장 강력한 결과입니다.",
+                "optionCompletedNoKycTitle": "KYC 없이 완료",
+                "optionCompletedNoKycDescription": "전체 신원 확인을 완료하지 않고 사용자를 통과시킵니다.",
+                "optionFailedTitle": "실패",
+                "optionFailedDescription": "이 등록을 거부합니다.",
+                "noteLabel": "메모 (선택 사항)",
+                "notePlaceholder": "예: 어떻게 확인했는지 팀을 위한 메모를 남기세요.",
+                "webhookNotice": "확정하면 즉시 {{type}} 웹훅이 연동 시스템으로 전송되며 자동으로 되돌릴 수 없습니다.",
+                "cancel": "취소",
+                "confirm": "확인",
+                "close": "닫기",
+                "genericError": "문제가 발생했습니다. 다시 시도하거나 권한을 확인하세요.",
+                "success": "{{status}}(으)로 표시되었습니다. 웹훅이 전송되었습니다."
             },
             "field": {
                 "fullName": "전체 이름",

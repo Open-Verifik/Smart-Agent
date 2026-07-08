@@ -48,24 +48,99 @@
     @apply text-stone-400 dark:text-stone-500;
 }
 
-.record-verdict--ok {
-    @apply border-emerald-200/90 bg-emerald-50/90 dark:border-emerald-900/40 dark:bg-emerald-950/30;
+/* Verdict card: a neutral white surface for every status — color lives only in the icon
+   badge and the title/subtitle copy, not as a full tinted background block. */
+.verdict-card {
+    @apply rounded-2xl border p-6 md:p-8;
 }
 
-.record-verdict--warn {
-    @apply border-amber-200/90 bg-amber-50/90 dark:border-amber-900/40 dark:bg-amber-950/30;
+.verdict-card--neutral {
+    @apply border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/40;
 }
 
-.record-verdict--error {
-    @apply border-red-200/90 bg-red-50/90 dark:border-red-900/40 dark:bg-red-950/30;
+.verdict-card--error {
+    @apply border-red-200/80 bg-white dark:border-red-900/40 dark:bg-gray-900/40;
 }
 
-.record-verdict--manual {
-    @apply border-orange-200/90 bg-orange-50/90 dark:border-orange-900/40 dark:bg-orange-950/30;
+.verdict-icon-badge {
+    @apply flex h-14 w-14 shrink-0 items-center justify-center rounded-full;
 }
 
-.record-verdict--pending {
-    @apply border-stone-200/90 bg-stone-50/90 dark:border-gray-700 dark:bg-gray-900/40;
+.verdict-icon-badge mat-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+    line-height: 28px;
+}
+
+.verdict-icon-badge--ok {
+    @apply bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400;
+}
+
+.verdict-icon-badge--warn {
+    @apply bg-amber-50 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400;
+}
+
+.verdict-icon-badge--error {
+    @apply bg-red-50 text-red-600 dark:bg-red-950/40 dark:text-red-400;
+}
+
+.verdict-icon-badge--manual {
+    @apply bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300;
+}
+
+.verdict-icon-badge--pending {
+    @apply bg-stone-100 text-stone-400 dark:bg-gray-800 dark:text-stone-500;
+}
+
+/* Manual-review reasons: neutral ink with a small dot marker instead of a saturated bullet list */
+.verdict-reasons {
+    @apply w-full max-w-lg space-y-1.5 pl-0 text-left text-sm text-stone-600 dark:text-stone-400;
+    list-style: none;
+}
+
+.verdict-reasons li {
+    @apply relative pl-4;
+}
+
+.verdict-reasons li::before {
+    content: '';
+    @apply absolute left-0 top-[0.55em] h-1.5 w-1.5 rounded-full bg-stone-400 dark:bg-stone-500;
+}
+
+/* Minimal, high-contrast triage actions: white surface + hairline border + a single accent
+   color per action (icon + label only), no saturated fills — mirrors the "Override status"
+   button already used elsewhere on this page. */
+.triage-btn {
+    @apply flex flex-1 items-center justify-center gap-2 rounded-xl border bg-white px-4 py-2.5 text-sm font-semibold transition-colors dark:bg-gray-900;
+}
+
+.triage-btn:focus-visible {
+    @apply outline-none ring-2 ring-offset-1 dark:ring-offset-gray-950;
+}
+
+.triage-btn--ok {
+    @apply border-stone-200 text-emerald-700 hover:border-emerald-200 hover:bg-emerald-50/80 dark:border-gray-700 dark:text-emerald-400 dark:hover:border-emerald-900/60 dark:hover:bg-emerald-950/20;
+}
+
+.triage-btn--ok:focus-visible {
+    @apply ring-emerald-300 dark:ring-emerald-800;
+}
+
+.triage-btn--warn {
+    @apply border-stone-200 text-amber-700 hover:border-amber-200 hover:bg-amber-50/80 dark:border-gray-700 dark:text-amber-400 dark:hover:border-amber-900/60 dark:hover:bg-amber-950/20;
+}
+
+.triage-btn--warn:focus-visible {
+    @apply ring-amber-300 dark:ring-amber-800;
+}
+
+.triage-btn--error {
+    @apply border-stone-200 text-red-700 hover:border-red-200 hover:bg-red-50/80 dark:border-gray-700 dark:text-red-400 dark:hover:border-red-900/60 dark:hover:bg-red-950/20;
+}
+
+.triage-btn--error:focus-visible {
+    @apply ring-red-300 dark:ring-red-800;
 }
 
 .record-doc-thumb {

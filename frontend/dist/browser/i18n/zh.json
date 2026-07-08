@@ -1518,7 +1518,8 @@
                 "documents": "证件",
                 "biometrics": "生物识别",
                 "compare": "人脸比对",
-                "verdict": "结论"
+                "verdict": "结论",
+                "events": "事件"
             },
             "section": {
                 "consent": "同意证明",
@@ -1532,6 +1533,8 @@
                 "faceCompare": "人脸比对",
                 "nameMatch": "姓名匹配",
                 "verdict": "总体结果",
+                "events": "Webhook 事件",
+                "eventsHint": "此注册发送的所有 webhook，集中显示在这里。",
                 "technicalMetadata": "会话与技术信息",
                 "technicalMetadataHint": "IP、设备、关联 ID、时间戳及验证快照等字段。"
             },
@@ -1672,6 +1675,46 @@
                 "validationTimeout": "验证超时。",
                 "manualReviewRequested": "已请求人工审核。",
                 "generic": "原因：{{reason}}。"
+            },
+            "overrideStatus": "更改状态",
+            "triage": {
+                "markCompleted": "标记为已完成",
+                "markCompletedNoKyc": "无 KYC 完成",
+                "markFailed": "标记为失败"
+            },
+            "reviewHistory": {
+                "heading": "审核记录",
+                "rowSummary": "{{status}} — 由 {{reviewer}} 于 {{date}} 处理",
+                "unknownReviewer": "审核人"
+            },
+            "statusLabel": {
+                "STARTED": "已开始",
+                "ONGOING": "进行中",
+                "COMPLETED": "已完成",
+                "COMPLETED_WITHOUT_KYC": "已完成（无 KYC）",
+                "FAILED": "失败",
+                "NEEDS_MANUAL_VERIFICATION": "需要人工审核",
+                "EXPIRED": "已过期"
+            },
+            "resolveDialog": {
+                "resolveTitle": "解决人工审核",
+                "resolveSubtitle": "选择如何结束此案例。确认后将立即通过 webhook 通知您的系统。",
+                "overrideTitle": "更改状态",
+                "overrideSubtitle": "手动更正此注册的状态。仅在确定时使用 — 会立即通知您的系统。",
+                "optionCompletedTitle": "已完成",
+                "optionCompletedDescription": "批准为完全已验证 — 最强的结果。",
+                "optionCompletedNoKycTitle": "已完成（无 KYC）",
+                "optionCompletedNoKycDescription": "在未完成完整身份验证的情况下允许用户通过。",
+                "optionFailedTitle": "失败",
+                "optionFailedDescription": "拒绝此注册。",
+                "noteLabel": "备注（可选）",
+                "notePlaceholder": "为团队添加说明，例如您是如何核实的。",
+                "webhookNotice": "确认后将立即向您的系统发送 {{type}} webhook，且无法自动撤销。",
+                "cancel": "取消",
+                "confirm": "确认",
+                "close": "关闭",
+                "genericError": "出现问题，请重试或检查您的权限。",
+                "success": "已标记为{{status}}。Webhook 已发送。"
             },
             "field": {
                 "fullName": "姓名",

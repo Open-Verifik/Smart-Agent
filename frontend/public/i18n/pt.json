@@ -1518,7 +1518,8 @@
                 "documents": "Documentos",
                 "biometrics": "Vivacidade",
                 "compare": "Comparação facial",
-                "verdict": "Resultado"
+                "verdict": "Resultado",
+                "events": "Eventos"
             },
             "section": {
                 "consent": "Prova de consentimento",
@@ -1532,6 +1533,8 @@
                 "faceCompare": "Comparação facial",
                 "nameMatch": "Correspondência de nome",
                 "verdict": "Resultado global",
+                "events": "Eventos de webhook",
+                "eventsHint": "Todos os webhooks enviados para esta inscrição, em um só lugar.",
                 "technicalMetadata": "Sessão e detalhes técnicos",
                 "technicalMetadataHint": "IP, dispositivo, IDs associados, carimbos de data/hora e campos de validação desta inscrição."
             },
@@ -1672,6 +1675,46 @@
                 "validationTimeout": "Tempo de validação esgotado.",
                 "manualReviewRequested": "Revisão manual solicitada.",
                 "generic": "Motivo: {{reason}}."
+            },
+            "overrideStatus": "Alterar status",
+            "triage": {
+                "markCompleted": "Marcar como concluído",
+                "markCompletedNoKyc": "Concluir sem KYC",
+                "markFailed": "Marcar como reprovado"
+            },
+            "reviewHistory": {
+                "heading": "Histórico de revisão",
+                "rowSummary": "{{status}} — por {{reviewer}} em {{date}}",
+                "unknownReviewer": "Um revisor"
+            },
+            "statusLabel": {
+                "STARTED": "Iniciado",
+                "ONGOING": "Em andamento",
+                "COMPLETED": "Concluído",
+                "COMPLETED_WITHOUT_KYC": "Concluído sem KYC",
+                "FAILED": "Reprovado",
+                "NEEDS_MANUAL_VERIFICATION": "Requer revisão manual",
+                "EXPIRED": "Expirado"
+            },
+            "resolveDialog": {
+                "resolveTitle": "Resolver revisão manual",
+                "resolveSubtitle": "Escolha como encerrar este caso. Isso notifica sua integração imediatamente por webhook.",
+                "overrideTitle": "Alterar status",
+                "overrideSubtitle": "Corrija manualmente o status desta inscrição. Use apenas quando tiver certeza — isso notifica sua integração imediatamente.",
+                "optionCompletedTitle": "Concluído",
+                "optionCompletedDescription": "Aprovar como totalmente verificado — o resultado mais forte.",
+                "optionCompletedNoKycTitle": "Concluído sem KYC",
+                "optionCompletedNoKycDescription": "Permitir o acesso do usuário sem concluir a verificação completa de identidade.",
+                "optionFailedTitle": "Reprovado",
+                "optionFailedDescription": "Rejeitar esta inscrição.",
+                "noteLabel": "Nota (opcional)",
+                "notePlaceholder": "Adicione contexto para sua equipe, por exemplo como você verificou isso.",
+                "webhookNotice": "Isso envia imediatamente um webhook {{type}} para sua integração e não pode ser revertido automaticamente.",
+                "cancel": "Cancelar",
+                "confirm": "Confirmar",
+                "close": "Fechar",
+                "genericError": "Algo deu errado. Tente novamente ou verifique suas permissões.",
+                "success": "Marcado como {{status}}. O webhook foi enviado."
             },
             "field": {
                 "fullName": "Nome completo",

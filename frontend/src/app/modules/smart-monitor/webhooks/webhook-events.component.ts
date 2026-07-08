@@ -111,6 +111,14 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
         return !!(this.webhookId || this.appRegistrationId);
     }
 
+    /** Reloads the current page of events — used by callers that just triggered a new event (e.g. a status override). */
+    refresh(): void {
+        if (!this._hasFilterId()) return;
+        this.eventSelected = undefined;
+        this.paginatorData.pageIndex = 0;
+        this._searchEvents();
+    }
+
     ngOnDestroy(): void {
         this._destroyed.next();
         this._destroyed.complete();

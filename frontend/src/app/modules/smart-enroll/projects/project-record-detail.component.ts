@@ -1,6 +1,6 @@
 import { Clipboard, ClipboardModule } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, inject, signal } from '@angular/core';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +23,11 @@ import {
     type EnrollResendLinkDialogResult,
 } from './enroll-resend-link-dialog.component';
 import {
+    ResolveStatusDialogComponent,
+    type ResolveStatusDialogData,
+    type ResolveStatusDialogResult,
+} from './resolve-status-dialog.component';
+import {
     buildManualVerificationReasons,
     cleanOcrExtraction,
     compareMinScoreDisplayPercent,
@@ -37,7 +42,13 @@ import {
 } from './app-registration-record.utils';
 import { ImagePreviewDialogComponent } from './image-preview-dialog.component';
 import { APP_REGISTRATION_DETAIL_POPULATES, SmartEnrollProjectsService } from './smart-enroll-projects.service';
-import type { AppRegistrationDetail, ConsentSessionDetail, EnrollProject } from './smart-enroll-projects.types';
+import type {
+    AppRegistrationDetail,
+    ConsentSessionDetail,
+    EnrollProject,
+    ManualReviewLogEntry,
+    ResolvableAppRegistrationStatus,
+} from './smart-enroll-projects.types';
 
 const STEP_ORDER: StepId[] = [
     'consent',
@@ -48,6 +59,7 @@ const STEP_ORDER: StepId[] = [
     'biometrics',
     'compare',
     'verdict',
+    'events',
 ];
 
 const SKIP_INFO_KEYS = new Set([
@@ -182,6 +194,8 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
 
     private readonly _resendForbiddenStatuses = new Set(['COMPLETED_WITHOUT_KYC', 'COMPLETED', 'FAILED']);
     readonly printSectionId = 'enrollment-print-section';
+
+    @ViewChild('eventsPanel') private _eventsPanel?: WebhookEventsComponent;
 
     private _sub: Subscription | null = null;
     private _observer: IntersectionObserver | null = null;
@@ -461,6 +475,67 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                     : 'smartEnrollProjects.recordDetail.resendSuccessCopied';
                 this._snackBar.open(this._transloco.translate(key), 'OK', { duration: 3000 });
             });
+    }
+
+    /**
+     * Opens the resolve/override dialog. `preselected` is set from the primary triage buttons
+     * (shown when the record needs manual verification); omitted, it opens as a generic
+     * "Override status" correction affordance available regardless of current status.
+     */
+    openResolveDialog(preselected?: ResolvableAppRegistrationStatus): void {
+        const r = this.record();
+        if (!r?._id) return;
+
+        this._dialog
+            .open(ResolveStatusDialogComponent, {
+                width: '520px',
+                maxWidth: '92vw',
+                maxHeight: '90vh',
+                data: { record: r, preselected } as ResolveStatusDialogData,
+            })
+            .afterClosed()
+            .subscribe((result: ResolveStatusDialogResult | undefined) => {
+                if (!result?.success) return;
+
+                if (result.record) {
+                    this.record.set(result.record);
+                    this._initOcr(result.record);
+                }
+                this._cdr.markForCheck();
+
+                this._snackBar.open(
+                    this._transloco.translate('smartEnrollProjects.recordDetail.resolveDialog.success', {
+                        status: this.statusLabel(result.status),
+                    }),
+                    'OK',
+                    { duration: 4000 }
+                );
+
+                this._eventsPanel?.refresh();
+            });
+    }
+
+    /** Reviewer-facing display name from a populated (or bare id) client/staff ref. */
+    private _reviewerDisplayName(entry: ManualReviewLogEntry): string {
+        const client = entry.reviewedByClient;
+        const staff = entry.reviewedByStaff;
+        const ref = (typeof staff === 'object' && staff) || (typeof client === 'object' && client) || null;
+        if (ref?.name) return ref.name;
+        if (ref?.email) return ref.email;
+        return this._transloco.translate('smartEnrollProjects.recordDetail.reviewHistory.unknownReviewer');
+    }
+
+    /** Formatted rows for the "Review history" list, most recent first. */
+    manualReviewRows(): { status: string; reviewer: string; date: string; note?: string }[] {
+        const entries = this.record()?.manualReviewLog ?? [];
+        return [...entries]
+            .reverse()
+            .map((entry) => ({
+                status: this.statusLabel(entry.newStatus),
+                reviewer: this._reviewerDisplayName(entry),
+                date: this.formatDate(entry.createdAt),
+                note: entry.note?.trim() || undefined,
+            }));
     }
 
     /**
@@ -892,6 +967,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     }
 
     stepIcon(step: StepId): string {
+        if (step === 'events') return 'bolt';
         const s = this.stepState(step);
         if (s === 'ok') return 'check_circle';
         if (s === 'error') return 'error';
@@ -946,6 +1022,15 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         }
     }
 
+    /** Human-readable label for a raw AppRegistration status enum value. */
+    statusLabel(status?: string): string {
+        if (!status) return '—';
+        const tk = `smartEnrollProjects.recordDetail.statusLabel.${status}`;
+        const translated = this._transloco.translate(tk);
+        if (!translated || translated === tk) return this._humanizeFieldKey(status);
+        return translated;
+    }
+
     statusPillClass(status?: string): string {
         switch (status) {
             case 'COMPLETED':
@@ -993,18 +1078,33 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Verdict card surface — a neutral white card with a thin hairline border for every status.
+     * Color is reserved for the icon badge only (see `verdictIconBadgeClass`), avoiding a
+     * full tinted-background panel.
+     */
     verdictPanelClass(status?: string): string {
         switch (status) {
-            case 'COMPLETED':
-                return 'record-verdict--ok';
-            case 'COMPLETED_WITHOUT_KYC':
-                return 'record-verdict--warn';
             case 'FAILED':
-                return 'record-verdict--error';
-            case 'NEEDS_MANUAL_VERIFICATION':
-                return 'record-verdict--manual';
+                return 'verdict-card--error';
             default:
-                return 'record-verdict--pending';
+                return 'verdict-card--neutral';
+        }
+    }
+
+    /** Small colored circle behind the verdict icon — the only spot of status color on the card. */
+    verdictIconBadgeClass(status?: string): string {
+        switch (status) {
+            case 'COMPLETED':
+                return 'verdict-icon-badge--ok';
+            case 'COMPLETED_WITHOUT_KYC':
+                return 'verdict-icon-badge--warn';
+            case 'FAILED':
+                return 'verdict-icon-badge--error';
+            case 'NEEDS_MANUAL_VERIFICATION':
+                return 'verdict-icon-badge--manual';
+            default:
+                return 'verdict-icon-badge--pending';
         }
     }
 

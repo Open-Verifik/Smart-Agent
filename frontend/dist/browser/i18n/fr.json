@@ -1518,7 +1518,8 @@
                 "documents": "Documents",
                 "biometrics": "Vivacité",
                 "compare": "Comparaison faciale",
-                "verdict": "Verdict"
+                "verdict": "Verdict",
+                "events": "Événements"
             },
             "section": {
                 "consent": "Preuve de consentement",
@@ -1532,6 +1533,8 @@
                 "faceCompare": "Comparaison faciale",
                 "nameMatch": "Correspondance du nom",
                 "verdict": "Résultat global",
+                "events": "Événements webhook",
+                "eventsHint": "Tous les webhooks envoyés pour cette inscription, au même endroit.",
                 "technicalMetadata": "Session et détails techniques",
                 "technicalMetadataHint": "IP, appareil, identifiants liés, horodatages et champs de validation pour cette inscription."
             },
@@ -1672,6 +1675,46 @@
                 "validationTimeout": "Délai de validation dépassé.",
                 "manualReviewRequested": "Revue manuelle demandée.",
                 "generic": "Motif : {{reason}}."
+            },
+            "overrideStatus": "Modifier le statut",
+            "triage": {
+                "markCompleted": "Marquer comme terminé",
+                "markCompletedNoKyc": "Terminer sans KYC",
+                "markFailed": "Marquer comme échoué"
+            },
+            "reviewHistory": {
+                "heading": "Historique de révision",
+                "rowSummary": "{{status}} — par {{reviewer}} le {{date}}",
+                "unknownReviewer": "Un opérateur"
+            },
+            "statusLabel": {
+                "STARTED": "Démarré",
+                "ONGOING": "En cours",
+                "COMPLETED": "Terminé",
+                "COMPLETED_WITHOUT_KYC": "Terminé sans KYC",
+                "FAILED": "Échoué",
+                "NEEDS_MANUAL_VERIFICATION": "Revue manuelle requise",
+                "EXPIRED": "Expiré"
+            },
+            "resolveDialog": {
+                "resolveTitle": "Résoudre la revue manuelle",
+                "resolveSubtitle": "Choisissez comment clôturer ce dossier. Cela notifie immédiatement votre intégration via webhook.",
+                "overrideTitle": "Modifier le statut",
+                "overrideSubtitle": "Corrigez manuellement le statut de cette inscription. À utiliser uniquement si vous êtes certain — cela notifie immédiatement votre intégration.",
+                "optionCompletedTitle": "Terminé",
+                "optionCompletedDescription": "Approuver comme entièrement vérifié — le résultat le plus solide.",
+                "optionCompletedNoKycTitle": "Terminé sans KYC",
+                "optionCompletedNoKycDescription": "Laisser entrer l'utilisateur sans vérification d'identité complète.",
+                "optionFailedTitle": "Échoué",
+                "optionFailedDescription": "Rejeter cette inscription.",
+                "noteLabel": "Note (facultative)",
+                "notePlaceholder": "Ajoutez du contexte pour votre équipe, par exemple comment vous avez vérifié ceci.",
+                "webhookNotice": "Cela envoie immédiatement un webhook {{type}} à votre intégration et ne peut pas être annulé automatiquement.",
+                "cancel": "Annuler",
+                "confirm": "Confirmer",
+                "close": "Fermer",
+                "genericError": "Une erreur s'est produite. Réessayez ou vérifiez vos droits.",
+                "success": "Marqué comme {{status}}. Le webhook a été envoyé."
             },
             "field": {
                 "fullName": "Nom complet",

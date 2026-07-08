@@ -154,6 +154,8 @@ export interface AppRegistrationDetail extends AppRegistrationRow {
     failedDocumentValidations?: Record<string, unknown>[] | null;
     failedBiometricValidations?: Record<string, unknown>[] | null;
     zelfKey?: Record<string, unknown> | null;
+    /** Audit trail of manual status overrides (backend `AppRegistrationModule.sync` "adminOverride" step) */
+    manualReviewLog?: ManualReviewLogEntry[] | null;
 }
 
 export type AppRegistrationStatus =
@@ -164,6 +166,18 @@ export type AppRegistrationStatus =
     | 'FAILED'
     | 'NEEDS_MANUAL_VERIFICATION'
     | 'EXPIRED';
+
+/** The subset of statuses the SmartEnroll UI lets a reviewer pick when resolving/overriding a record */
+export type ResolvableAppRegistrationStatus = 'COMPLETED' | 'COMPLETED_WITHOUT_KYC' | 'FAILED';
+
+export interface ManualReviewLogEntry {
+    previousStatus?: string;
+    newStatus: string;
+    note?: string;
+    reviewedByClient?: { _id: string; name?: string; email?: string } | string | null;
+    reviewedByStaff?: { _id: string; name?: string; email?: string } | string | null;
+    createdAt?: string;
+}
 
 export interface AppRegistrationListFilters {
     /** Free-text term applied as OR across name/email/phone */

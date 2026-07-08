@@ -213,10 +213,19 @@
                     </div>
                     @if (r.status) {
                         <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="statusPillClass(r.status)">
-                            {{ r.status }}
+                            {{ statusLabel(r.status) }}
                         </span>
                     }
                     <span class="text-sm text-stone-500 dark:text-stone-400">{{ formatDate(r.updatedAt || r.createdAt) }}</span>
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        class="no-print !rounded-xl"
+                        (click)="openResolveDialog()"
+                    >
+                        <mat-icon class="icon-size-4">tune</mat-icon>
+                        {{ 'smartEnrollProjects.recordDetail.overrideStatus' | transloco }}
+                    </button>
                 </div>
 
                 <div class="lg:grid lg:grid-cols-12 lg:gap-10">
@@ -967,19 +976,21 @@
                                     <span class="text-xs text-stone-500">{{ formatDate(r.updatedAt, true) }}</span>
                                 </div>
                                 <div class="p-6 md:p-8">
-                                    <div class="rounded-2xl border p-6 md:p-8" [ngClass]="verdictPanelClass(r.status)">
+                                    <div class="verdict-card" [ngClass]="verdictPanelClass(r.status)">
                                         <div class="flex flex-col items-center gap-4 text-center">
-                                            @if (r.status === 'COMPLETED') {
-                                                <mat-icon class="icon-size-10 text-emerald-600 dark:text-emerald-400">check_circle</mat-icon>
-                                            } @else if (r.status === 'COMPLETED_WITHOUT_KYC') {
-                                                <mat-icon class="icon-size-10 text-amber-600 dark:text-amber-400">warning</mat-icon>
-                                            } @else if (r.status === 'FAILED') {
-                                                <mat-icon class="icon-size-10 text-red-600 dark:text-red-400">cancel</mat-icon>
-                                            } @else if (r.status === 'NEEDS_MANUAL_VERIFICATION') {
-                                                <mat-icon class="icon-size-10 text-orange-600 dark:text-orange-400">person_search</mat-icon>
-                                            } @else {
-                                                <mat-icon class="icon-size-10 text-stone-400">hourglass_empty</mat-icon>
-                                            }
+                                            <span class="verdict-icon-badge" [ngClass]="verdictIconBadgeClass(r.status)">
+                                                @if (r.status === 'COMPLETED') {
+                                                    <mat-icon>check_circle</mat-icon>
+                                                } @else if (r.status === 'COMPLETED_WITHOUT_KYC') {
+                                                    <mat-icon>warning</mat-icon>
+                                                } @else if (r.status === 'FAILED') {
+                                                    <mat-icon>cancel</mat-icon>
+                                                } @else if (r.status === 'NEEDS_MANUAL_VERIFICATION') {
+                                                    <mat-icon>fact_check</mat-icon>
+                                                } @else {
+                                                    <mat-icon>hourglass_empty</mat-icon>
+                                                }
+                                            </span>
                                             <div>
                                                 <p class="text-xl font-semibold text-stone-900 dark:text-white">
                                                     {{ verdictTitleKey(r.status) | transloco }}
@@ -989,14 +1000,84 @@
                                                 </p>
                                             </div>
                                             @if (r.status === 'NEEDS_MANUAL_VERIFICATION' && manualReasons().length) {
-                                                <ul class="w-full max-w-lg list-disc space-y-1 pl-5 text-left text-sm text-orange-900 dark:text-orange-200">
+                                                <ul class="verdict-reasons">
                                                     @for (reason of manualReasons(); track reason.key) {
                                                         <li>{{ reason.key | transloco: reason.params }}</li>
                                                     }
                                                 </ul>
                                             }
+                                            @if (r.status === 'NEEDS_MANUAL_VERIFICATION') {
+                                                <div class="no-print mt-2 flex w-full max-w-lg flex-col gap-2 sm:flex-row">
+                                                    <button
+                                                        type="button"
+                                                        class="triage-btn triage-btn--ok"
+                                                        (click)="openResolveDialog('COMPLETED')"
+                                                    >
+                                                        <mat-icon class="icon-size-5">check_circle</mat-icon>
+                                                        {{ 'smartEnrollProjects.recordDetail.triage.markCompleted' | transloco }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="triage-btn triage-btn--warn"
+                                                        (click)="openResolveDialog('COMPLETED_WITHOUT_KYC')"
+                                                    >
+                                                        <mat-icon class="icon-size-5">warning</mat-icon>
+                                                        {{ 'smartEnrollProjects.recordDetail.triage.markCompletedNoKyc' | transloco }}
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="triage-btn triage-btn--error"
+                                                        (click)="openResolveDialog('FAILED')"
+                                                    >
+                                                        <mat-icon class="icon-size-5">cancel</mat-icon>
+                                                        {{ 'smartEnrollProjects.recordDetail.triage.markFailed' | transloco }}
+                                                    </button>
+                                                </div>
+                                            }
                                         </div>
                                     </div>
+
+                                    @if (manualReviewRows().length) {
+                                        <div class="mt-6 border-t border-stone-200/70 pt-5 dark:border-gray-800">
+                                            <p class="mb-3 text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                                                {{ 'smartEnrollProjects.recordDetail.reviewHistory.heading' | transloco }}
+                                            </p>
+                                            <ul class="flex flex-col gap-2.5">
+                                                @for (row of manualReviewRows(); track $index) {
+                                                    <li class="rounded-xl border border-stone-200/80 bg-stone-50/80 px-3.5 py-2.5 text-sm dark:border-gray-800 dark:bg-gray-900/40">
+                                                        <p class="text-stone-700 dark:text-stone-200">
+                                                            {{
+                                                                'smartEnrollProjects.recordDetail.reviewHistory.rowSummary'
+                                                                    | transloco: { status: row.status, reviewer: row.reviewer, date: row.date }
+                                                            }}
+                                                        </p>
+                                                        @if (row.note) {
+                                                            <p class="mt-1 text-xs italic text-stone-500 dark:text-stone-400">{{ row.note }}</p>
+                                                        }
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </section>
+
+                        <!-- Events -->
+                        <section id="step-events" class="scroll-mt-28">
+                            <div class="record-detail-panel overflow-hidden">
+                                <div class="record-detail-panel__header">
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-stone-900 dark:text-white">
+                                            {{ 'smartEnrollProjects.recordDetail.section.events' | transloco }}
+                                        </h2>
+                                        <p class="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
+                                            {{ 'smartEnrollProjects.recordDetail.section.eventsHint' | transloco }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="no-print p-4 md:p-6">
+                                    <webhook-events #eventsPanel [appRegistrationId]="r._id"></webhook-events>
                                 </div>
                             </div>
                         </section>
@@ -1058,7 +1139,7 @@
                         <img class="enrollment-resume__logo" [src]="projectLogo()" alt="" />
                     }
                     @if (r.status) {
-                        <span class="enrollment-resume__status">{{ r.status }}</span>
+                        <span class="enrollment-resume__status">{{ statusLabel(r.status) }}</span>
                     }
                     <span class="enrollment-resume__date">{{ formatDate(r.updatedAt || r.createdAt) }}</span>
                 </div>

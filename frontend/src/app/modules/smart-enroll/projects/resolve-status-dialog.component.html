@@ -1,0 +1,109 @@
+<div class="flex items-start justify-between gap-4">
+    <h2
+        mat-dialog-title
+        class="!m-0 !font-semibold !text-lg !leading-snug !tracking-tight text-stone-900 dark:text-white md:!text-xl"
+    >
+        {{
+            (isCorrectionMode
+                ? 'smartEnrollProjects.recordDetail.resolveDialog.overrideTitle'
+                : 'smartEnrollProjects.recordDetail.resolveDialog.resolveTitle'
+            ) | transloco
+        }}
+    </h2>
+    <button
+        mat-icon-button
+        type="button"
+        class="!text-stone-500 dark:!text-stone-400"
+        [disabled]="loading()"
+        (click)="close()"
+        [attr.aria-label]="'smartEnrollProjects.recordDetail.resolveDialog.close' | transloco"
+    >
+        <mat-icon>close</mat-icon>
+    </button>
+</div>
+
+<mat-dialog-content>
+    <p class="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+        {{
+            (isCorrectionMode
+                ? 'smartEnrollProjects.recordDetail.resolveDialog.overrideSubtitle'
+                : 'smartEnrollProjects.recordDetail.resolveDialog.resolveSubtitle'
+            ) | transloco
+        }}
+    </p>
+
+    <div class="mt-5 flex flex-col gap-3">
+        @for (option of options; track option.value) {
+            <button
+                type="button"
+                class="resolve-option"
+                [ngClass]="option.colorClass"
+                [class.resolve-option--selected]="selected() === option.value"
+                [disabled]="loading()"
+                (click)="select(option.value)"
+            >
+                <mat-icon class="resolve-option__icon">{{ option.icon }}</mat-icon>
+                <span class="resolve-option__text">
+                    <span class="resolve-option__title">{{ option.titleKey | transloco }}</span>
+                    <span class="resolve-option__description">{{ option.descriptionKey | transloco }}</span>
+                </span>
+                @if (selected() === option.value) {
+                    <mat-icon class="icon-size-5 resolve-option__check">radio_button_checked</mat-icon>
+                } @else {
+                    <mat-icon class="icon-size-5 resolve-option__check resolve-option__check--muted">radio_button_unchecked</mat-icon>
+                }
+            </button>
+        }
+    </div>
+
+    <div class="mt-5">
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+            {{ 'smartEnrollProjects.recordDetail.resolveDialog.noteLabel' | transloco }}
+        </label>
+        <textarea
+            class="w-full resize-none rounded-xl border border-stone-200/90 bg-white p-3 text-sm text-stone-800 shadow-sm focus:border-stone-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900/60 dark:text-stone-100"
+            rows="2"
+            [disabled]="loading()"
+            [ngModel]="note()"
+            (ngModelChange)="setNote($event)"
+            [placeholder]="'smartEnrollProjects.recordDetail.resolveDialog.notePlaceholder' | transloco"
+            maxlength="500"
+        ></textarea>
+    </div>
+
+    @if (selected()) {
+        <div class="mt-4 flex items-start gap-2.5 rounded-xl border border-amber-200/80 bg-amber-50/80 p-3.5 dark:border-amber-900/50 dark:bg-amber-950/30">
+            <mat-icon class="icon-size-5 shrink-0 !text-amber-600 dark:!text-amber-400">bolt</mat-icon>
+            <p class="text-xs leading-relaxed text-amber-900 dark:text-amber-200">
+                {{ 'smartEnrollProjects.recordDetail.resolveDialog.webhookNotice' | transloco: { type: webhookTypePreview() } }}
+            </p>
+        </div>
+    }
+
+    @if (errorMessage()) {
+        <div class="mt-4 rounded-xl border border-red-200/90 bg-red-50/90 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300">
+            {{ errorMessage() }}
+        </div>
+    }
+
+    <div class="mt-6 flex items-center justify-end gap-3">
+        <button mat-stroked-button type="button" class="!rounded-xl" [disabled]="loading()" (click)="close()">
+            {{ 'smartEnrollProjects.recordDetail.resolveDialog.cancel' | transloco }}
+        </button>
+        <button
+            mat-flat-button
+            type="button"
+            color="primary"
+            class="!rounded-xl"
+            [disabled]="loading() || !selected()"
+            (click)="confirm()"
+        >
+            @if (loading()) {
+                <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+                <mat-icon>done</mat-icon>
+            }
+            {{ 'smartEnrollProjects.recordDetail.resolveDialog.confirm' | transloco }}
+        </button>
+    </div>
+</mat-dialog-content>

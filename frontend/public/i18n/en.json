@@ -1866,7 +1866,8 @@
                 "documents": "Documents",
                 "biometrics": "Biometrics",
                 "compare": "Face compare",
-                "verdict": "Verdict"
+                "verdict": "Verdict",
+                "events": "Events"
             },
             "section": {
                 "consent": "Consent proof",
@@ -1880,6 +1881,8 @@
                 "faceCompare": "Face comparison",
                 "nameMatch": "Name match",
                 "verdict": "Overall result",
+                "events": "Webhook events",
+                "eventsHint": "Every webhook fired for this enrollment, in one place.",
                 "technicalMetadata": "Session & technical details",
                 "technicalMetadataHint": "IP, device, linked IDs, timestamps, and validation snapshot fields from this enrollment."
             },
@@ -2020,6 +2023,46 @@
                 "validationTimeout": "Validation timed out.",
                 "manualReviewRequested": "Manual review was requested.",
                 "generic": "Reason: {{reason}}."
+            },
+            "overrideStatus": "Override status",
+            "triage": {
+                "markCompleted": "Mark completed",
+                "markCompletedNoKyc": "Complete without KYC",
+                "markFailed": "Mark failed"
+            },
+            "reviewHistory": {
+                "heading": "Review history",
+                "rowSummary": "{{status}} — by {{reviewer}} on {{date}}",
+                "unknownReviewer": "A reviewer"
+            },
+            "statusLabel": {
+                "STARTED": "Started",
+                "ONGOING": "In progress",
+                "COMPLETED": "Completed",
+                "COMPLETED_WITHOUT_KYC": "Completed without KYC",
+                "FAILED": "Failed",
+                "NEEDS_MANUAL_VERIFICATION": "Needs manual review",
+                "EXPIRED": "Expired"
+            },
+            "resolveDialog": {
+                "resolveTitle": "Resolve manual review",
+                "resolveSubtitle": "Choose how to close out this case. This immediately notifies your integration by webhook.",
+                "overrideTitle": "Override status",
+                "overrideSubtitle": "Manually correct this enrollment's status. Use this only when you're sure — it notifies your integration right away.",
+                "optionCompletedTitle": "Completed",
+                "optionCompletedDescription": "Approve as fully verified — the strongest outcome.",
+                "optionCompletedNoKycTitle": "Completed without KYC",
+                "optionCompletedNoKycDescription": "Let the user in without completing full identity verification.",
+                "optionFailedTitle": "Failed",
+                "optionFailedDescription": "Reject this enrollment.",
+                "noteLabel": "Note (optional)",
+                "notePlaceholder": "Add context for your team, e.g. how you verified this.",
+                "webhookNotice": "This immediately sends a {{type}} webhook to your integration and can't be auto-reverted.",
+                "cancel": "Cancel",
+                "confirm": "Confirm",
+                "close": "Close",
+                "genericError": "Something went wrong. Try again or check your permissions.",
+                "success": "Marked as {{status}}. The webhook has been sent."
             },
             "field": {
                 "fullName": "Full name",

@@ -13,6 +13,7 @@ import type {
     EnrollStaffRef,
     PaginatedResponse,
     ProjectMemberLookupRow,
+    ResolvableAppRegistrationStatus,
 } from './smart-enroll-projects.types';
 
 /** Matches client-panel project-record getRecord() onboarding populates */
@@ -32,6 +33,8 @@ export const APP_REGISTRATION_DETAIL_POPULATES: string[] = [
     'projectFlow',
     'failedDocumentValidations',
     'failedBiometricValidations.face',
+    'manualReviewLog.reviewedByClient',
+    'manualReviewLog.reviewedByStaff',
 ];
 
 const ONBOARDING_TYPE = 'onboarding';
@@ -252,6 +255,31 @@ export class SmartEnrollProjectsService {
             .pipe(
                 catchError((err) => {
                     console.error('Error resending app registration link:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    /**
+     * Manually resolve/override an enrollment's status (Completed / Completed without KYC / Failed,
+     * or any other AppRegistration status for corrections). Reuses the backend's `adminOverride` sync
+     * step, which fires the same customer webhook as a natural completion and records a
+     * `manualReviewLog` audit entry (reviewer, previous/new status, optional note).
+     */
+    overrideAppRegistrationStatus(
+        id: string,
+        status: ResolvableAppRegistrationStatus,
+        note?: string
+    ): Observable<{ data: AppRegistrationDetail }> {
+        return this._http
+            .put<{ data: AppRegistrationDetail }>(
+                `${this.apiUrl}/v2/app-registrations/${id}/sync`,
+                { step: 'adminOverride', status, ...(note?.trim() ? { note: note.trim() } : {}) },
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error overriding app registration status:', err);
                     return throwError(() => err);
                 })
             );

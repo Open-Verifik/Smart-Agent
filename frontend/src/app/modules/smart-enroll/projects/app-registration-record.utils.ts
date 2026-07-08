@@ -221,6 +221,7 @@ export type StepId =
     | 'documents'
     | 'biometrics'
     | 'compare'
-    | 'verdict';
+    | 'verdict'
+    | 'events';
 
 export type StepState = 'pending' | 'ok' | 'warn' | 'error';

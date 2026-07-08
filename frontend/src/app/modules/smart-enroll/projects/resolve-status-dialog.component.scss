@@ -1,0 +1,92 @@
+/* Material caps `mat-dialog-content` at 65vh with its own scrollbar by default. This dialog's
+   content is short enough to fit without it on virtually any screen, so let it grow naturally —
+   the dialog surface itself (not this inner box) is what should ever scroll, on very small screens. */
+:host ::ng-deep .mat-mdc-dialog-content {
+    max-height: none;
+    overflow: visible;
+}
+
+:host ::ng-deep .mdc-dialog__content {
+    max-height: none;
+    overflow: visible;
+}
+
+.resolve-option {
+    @apply flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-colors;
+}
+
+.resolve-option:disabled {
+    @apply cursor-not-allowed opacity-60;
+}
+
+.resolve-option__icon {
+    @apply shrink-0;
+}
+
+.resolve-option__text {
+    @apply flex min-w-0 flex-1 flex-col gap-0.5;
+}
+
+.resolve-option__title {
+    @apply text-sm font-semibold text-stone-900 dark:text-white;
+}
+
+.resolve-option__description {
+    @apply text-xs leading-relaxed text-stone-600 dark:text-stone-400;
+}
+
+.resolve-option__check {
+    @apply shrink-0;
+}
+
+.resolve-option__check--muted {
+    @apply text-stone-300 dark:text-gray-600;
+}
+
+.resolve-option--ok {
+    @apply border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+.resolve-option--ok .resolve-option__icon {
+    @apply text-emerald-600 dark:text-emerald-400;
+}
+
+.resolve-option--ok.resolve-option--selected {
+    @apply border-emerald-300 bg-emerald-50/90 dark:border-emerald-800 dark:bg-emerald-950/30;
+}
+
+.resolve-option--ok.resolve-option--selected .resolve-option__check {
+    @apply text-emerald-600 dark:text-emerald-400;
+}
+
+.resolve-option--warn {
+    @apply border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+.resolve-option--warn .resolve-option__icon {
+    @apply text-amber-600 dark:text-amber-400;
+}
+
+.resolve-option--warn.resolve-option--selected {
+    @apply border-amber-300 bg-amber-50/90 dark:border-amber-800 dark:bg-amber-950/30;
+}
+
+.resolve-option--warn.resolve-option--selected .resolve-option__check {
+    @apply text-amber-600 dark:text-amber-400;
+}
+
+.resolve-option--error {
+    @apply border-stone-200/90 bg-white dark:border-gray-700 dark:bg-gray-900/40;
+}
+
+.resolve-option--error .resolve-option__icon {
+    @apply text-red-600 dark:text-red-400;
+}
+
+.resolve-option--error.resolve-option--selected {
+    @apply border-red-300 bg-red-50/90 dark:border-red-800 dark:bg-red-950/30;
+}
+
+.resolve-option--error.resolve-option--selected .resolve-option__check {
+    @apply text-red-600 dark:text-red-400;
+}
