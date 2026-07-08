@@ -468,6 +468,10 @@
             "title": "安大略 — 驾驶证",
             "description": "核验加拿大安大略省驾驶证。"
         },
+        "canada_api_ontario_plate": {
+            "title": "安大略 — 车牌到期",
+            "description": "通过车牌号和许可号查询安大略车牌贴纸到期日。"
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 按车牌查询车辆（简化）",
             "description": "通过哥伦比亚 RUNT 使用车牌与车主证件号查询核心车辆信息。"

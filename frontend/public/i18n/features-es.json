@@ -468,6 +468,10 @@
             "title": "Licencia de Conducir de Ontario",
             "description": "Valida licencias de conducir de Ontario, Canadá con la API KYC de Verifik"
         },
+        "canada_api_ontario_plate": {
+            "title": "Vencimiento de Placa Ontario",
+            "description": "Consulta de vencimiento de calcomanía de placa de Ontario por número de placa y permiso"
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "Validación Vehicular Simplificada por Placa en RUNT",
             "description": "Consulta detalles esenciales del vehículo en el RUNT Colombia usando la placa. API rápida y eficiente para verificación básica."

@@ -468,6 +468,10 @@
             "title": "온타리오 — 운전면허",
             "description": "온타리오(캐나다) 운전면허 검증."
         },
+        "canada_api_ontario_plate": {
+            "title": "온타리오 — 번호판 만료",
+            "description": "번호판과 허가 번호로 온타리오 스티커 만료일을 조회합니다."
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 번호판별 차량（간편·별칭）",
             "description": "번호판과 명의인 신분증으로 RUNT 차량 핵심 정보를 조회합니다."

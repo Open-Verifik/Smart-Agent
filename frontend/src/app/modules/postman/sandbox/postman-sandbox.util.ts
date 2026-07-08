@@ -157,6 +157,17 @@ export const applyPostmanSandboxParamDefaults = (
             );
         }
 
+        applySandboxParamValue(
+            endpoint.params,
+            'permitNumber',
+            config.profiles.find(
+                (p) =>
+                    p.paramOverrides?.plate === resolvedPlate ||
+                    p.plate === resolvedPlate ||
+                    p.documentNumber === resolvedPlate
+            )?.paramOverrides?.permitNumber ?? config.defaultPermitNumber
+        );
+
         return;
     }
 

@@ -2039,6 +2039,36 @@
       "description": "提供可靠的验证和验证服务。"
     }
   },
+  "canada_api_ontario_plate": {
+    "en": {
+      "title": "Ontario Plate Expiry",
+      "description": "Ontario plate sticker expiry check by plate number and permit number"
+    },
+    "es": {
+      "title": "Vencimiento de Placa Ontario",
+      "description": "Consulta de vencimiento de calcomanía de placa de Ontario por número de placa y permiso"
+    },
+    "fr": {
+      "title": "Ontario — Expiration de plaque",
+      "description": "Vérification de l'expiration de la vignette de plaque Ontario par plaque et numéro de permis."
+    },
+    "pt": {
+      "title": "Ontário — Vencimento da placa",
+      "description": "Consulta de vencimento da etiqueta de placa de Ontário por placa e número do permiso."
+    },
+    "ja": {
+      "title": "オンタリオ — ナンバー有効期限",
+      "description": "ナンバーと許可番号でオンタリオのステッカー有効期限を照会します。"
+    },
+    "ko": {
+      "title": "온타리오 — 번호판 만료",
+      "description": "번호판과 허가 번호로 온타리오 스티커 만료일을 조회합니다."
+    },
+    "zh": {
+      "title": "安大略 — 车牌到期",
+      "description": "通过车牌号和许可号查询安大略车牌贴纸到期日。"
+    }
+  },
   "canada_api_driver_license_quebec": {
     "en": {
       "title": "Canada - Driver License",

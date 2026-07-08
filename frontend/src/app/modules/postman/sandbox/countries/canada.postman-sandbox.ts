@@ -10,11 +10,46 @@ import {
 
 export const CANADA_COMPANY_ENDPOINT_CODE = 'canada_api_company';
 export const CANADA_ONTARIO_DRIVER_LICENSE_ENDPOINT_CODE = 'canada_api_driver_license_ontario';
+export const CANADA_ONTARIO_PLATE_ENDPOINT_CODE = 'canada_api_ontario_plate';
 export const CANADA_QUEBEC_DRIVER_LICENSE_ENDPOINT_CODE = 'canada_api_driver_license_quebec';
 export const CANADA_BC_DRIVER_LICENSE_ENDPOINT_CODE = 'canada_api_driver_license_british-columbia';
 
 const CANADA_COMPANY_DEFAULT_BUSINESS = 'BAI HENG PACKAGING SUPPLIES INC';
 const CANADA_COMPANY_DEFAULT_PROVINCE = 'ON';
+
+const CANADA_ONTARIO_PLATE_DEFAULT_PLATE = 'BKTR456';
+const CANADA_ONTARIO_PLATE_DEFAULT_PERMIT = 'N9166001';
+
+const CANADA_ONTARIO_PLATE_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    {
+        documentNumber: 'BKTR456',
+        fullName: 'BKTR456 — Ontario plate expiry (valid)',
+        plate: 'BKTR456',
+        paramOverrides: { plate: 'BKTR456', permitNumber: 'N9166001' },
+    },
+    {
+        documentNumber: 'CXKT789',
+        fullName: 'CXKT789 — Ontario plate expiry (valid)',
+        plate: 'CXKT789',
+        paramOverrides: { plate: 'CXKT789', permitNumber: 'N9166002' },
+    },
+    {
+        documentNumber: 'MNPL234',
+        fullName: 'MNPL234 — Ontario plate expiry (expired)',
+        plate: 'MNPL234',
+        paramOverrides: { plate: 'MNPL234', permitNumber: 'N9166003' },
+    },
+];
+
+const CANADA_ONTARIO_PLATE_ERROR_PROFILE_404: PostmanSandboxProfile = {
+    profileKey: '404-ontario-plate',
+    documentNumber: 'ERR40401',
+    fullName: '404 — Ontario plate not found',
+    responseType: 'error',
+    expectedStatus: 404,
+    plate: 'ERR40401',
+    paramOverrides: { plate: 'ERR40401', permitNumber: 'N9166001' },
+};
 
 const CANADA_ONTARIO_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000001', fullName: 'MARIA ELENA LOPEZ GARCIA — Ontario Valid' },
@@ -126,6 +161,13 @@ export const CANADA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpoi
             conflictProfiles: [SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER],
         }),
         defaultDocumentNumber: '10000001',
+        showProfileMeta: false,
+    },
+    [CANADA_ONTARIO_PLATE_ENDPOINT_CODE]: {
+        profiles: [...CANADA_ONTARIO_PLATE_SANDBOX_PROFILES, CANADA_ONTARIO_PLATE_ERROR_PROFILE_404],
+        defaultDocumentNumber: CANADA_ONTARIO_PLATE_DEFAULT_PLATE,
+        defaultPlate: CANADA_ONTARIO_PLATE_DEFAULT_PLATE,
+        defaultPermitNumber: CANADA_ONTARIO_PLATE_DEFAULT_PERMIT,
         showProfileMeta: false,
     },
     [CANADA_QUEBEC_DRIVER_LICENSE_ENDPOINT_CODE]: {

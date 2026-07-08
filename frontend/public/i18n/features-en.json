@@ -468,6 +468,10 @@
             "title": "Ontario Driver License",
             "description": "Ontario driver license verification service"
         },
+        "canada_api_ontario_plate": {
+            "title": "Ontario Plate Expiry",
+            "description": "Ontario plate sticker expiry check by plate number and permit number"
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "Simplified Vehicle Records by Plate in RUNT",
             "description": "Retrieve essential vehicle details from RUNT Colombia using the license plate. Fast and efficient API for basic vehicle verification."

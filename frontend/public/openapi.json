@@ -978,7 +978,7 @@
         ],
         "operationId": "colombia_api_rethus",
         "summary": "Professional Healthcare Physicians Verification",
-        "description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus.",
+        "description": "Query the Colombian RETHUS registry for health-sector professionals via GET /v2/co/cedula/rethus.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -1579,7 +1579,7 @@
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.6"
+            "amount": "0.3"
           },
           "protocols": [
             {
@@ -2133,7 +2133,7 @@
           "LATAM"
         ],
         "operationId": "brasil_api_company_lookup",
-        "summary": "Brazil - Brazilian Business Verification",
+        "summary": "Brazil - Business Verification (CNPJ)",
         "description": "Validate Brazilian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
         "x-payment-info": {
           "price": {
@@ -3643,7 +3643,7 @@
           "LATAM"
         ],
         "operationId": "brasil_api_vehicle",
-        "summary": "Brazil - Vehicle information",
+        "summary": "Brazil - Vehicle Information",
         "description": "Brazilian plate lookup: registry-style vehicle attributes (make, model, years, VIN/chassis, FIPE codes when available) for fleet, insurance, collateral, and marketplace checks.",
         "x-payment-info": {
           "price": {
@@ -5074,7 +5074,7 @@
         }
       }
     },
-    "/api/ca/quebec/driver-license": {
+    "/api/ca/ontario/plate": {
       "post": {
         "tags": [
           "KYC",
@@ -5082,14 +5082,14 @@
           "Data",
           "Global"
         ],
-        "operationId": "canada_api_driver_license_quebec",
-        "summary": "Canada - Quebec Driver License",
-        "description": "Verify Quebec (Canada) driver licenses by document number via Verifik's API.",
+        "operationId": "canada_api_ontario_plate",
+        "summary": "Canada - Ontario Plate Expiry",
+        "description": "Ontario plate sticker expiry check by plate number and permit number",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.4"
+            "amount": "0.3"
           },
           "protocols": [
             {
@@ -5119,13 +5119,18 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "documentNumber": {
+                  "plate": {
                     "type": "string",
-                    "description": "Parameter: documentNumber"
+                    "description": "Parameter: plate"
+                  },
+                  "permitNumber": {
+                    "type": "string",
+                    "description": "Parameter: permitNumber"
                   }
                 },
                 "required": [
-                  "documentNumber"
+                  "plate",
+                  "permitNumber"
                 ]
               }
             }
@@ -5316,70 +5321,6 @@
                 },
                 "required": [
                   "documentNumber"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ca/british-columbia/driver-license": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "Global"
-        ],
-        "operationId": "canada_api_driver_license_british-columbia",
-        "summary": "Canada - British Columbia Driver License",
-        "description": "British Columbia driver license verification service",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.4"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentNumber": {
-                    "type": "string",
-                    "description": "Parameter: documentNumber"
-                  },
-                  "lastName": {
-                    "type": "string",
-                    "description": "Parameter: lastName"
-                  }
-                },
-                "required": [
-                  "documentNumber",
-                  "lastName"
                 ]
               }
             }
@@ -6300,6 +6241,234 @@
         ]
       }
     },
+    "/api/v3/ar/vehicle": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "argentina_api_vehicle_v3",
+        "summary": "Argentina - Vehicle v3",
+        "description": "Retrieve Argentine vehicle details by license plate, including vehicle identifiers, policy status, and technical-sheet data when available.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate to query, without spaces or punctuation."
+          }
+        ]
+      }
+    },
+    "/api/ar/buenos-aires/traffic-infractions": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "argentina_api_buenos_aires_traffic_infractions",
+        "summary": "Argentina - Buenos Aires Traffic Infractions",
+        "description": "Check Buenos Aires traffic infractions by vehicle license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plate": {
+                    "type": "string",
+                    "description": "Vehicle license plate to query, without spaces or punctuation."
+                  }
+                },
+                "required": [
+                  "plate"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ar/buenos-aires/technical-inspection": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "argentina_api_buenos_aires_technical_inspection",
+        "summary": "Argentina - Buenos Aires Technical Inspection",
+        "description": "Check Buenos Aires vehicle technical inspection history by license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plate": {
+                    "type": "string",
+                    "description": "Vehicle license plate to query, without spaces or punctuation."
+                  }
+                },
+                "required": [
+                  "plate"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ar/rto": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "argentina_api_rto",
+        "summary": "Argentina - RTO",
+        "description": "Check Argentine RTO inspection records by vehicle license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plate": {
+                    "type": "string",
+                    "description": "Vehicle license plate to query, without spaces or punctuation."
+                  }
+                },
+                "required": [
+                  "plate"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/usa/company": {
       "get": {
         "tags": [
@@ -6477,7 +6646,7 @@
       }
     },
     "/api/br/background-check": {
-      "post": {
+      "get": {
         "tags": [
           "KYC",
           "KYB",
@@ -6485,8 +6654,8 @@
           "LATAM"
         ],
         "operationId": "brasil_api_criminal_history",
-        "summary": "Brazil - Brazil",
-        "description": "Conduct background checks on Brazilian individuals using CPF",
+        "summary": "Brazil - Background Check (CPF)",
+        "description": "Conduct background checks on Brazilian individuals using CPF.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -6514,38 +6683,38 @@
             "description": "Payment Required"
           }
         },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentType": {
-                    "type": "string",
-                    "description": "Parameter: documentType",
-                    "enum": [
-                      "CPF"
-                    ]
-                  },
-                  "documentNumber": {
-                    "type": "string",
-                    "description": "Parameter: documentNumber"
-                  },
-                  "dateOfBirth": {
-                    "type": "string",
-                    "description": "Parameter: dateOfBirth"
-                  }
-                },
-                "required": [
-                  "documentType",
-                  "documentNumber",
-                  "dateOfBirth"
-                ]
-              }
-            }
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CPF"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
+          },
+          {
+            "name": "dateOfBirth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: dateOfBirth"
           }
-        }
+        ]
       }
     },
     "/api/cr/company": {
@@ -6599,6 +6768,57 @@
             },
             "description": "Parameter: documentType"
           },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
+          }
+        ]
+      }
+    },
+    "/api/ar/cedula/medico-profesional": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "argentina_api_medical_professional",
+        "summary": "Argentina - Medical Professional",
+        "description": "Query medical professionals registered in Argentina using only the national ID document number (DNI). Returns professional registration and licensing data when available.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
           {
             "name": "documentNumber",
             "in": "query",
@@ -7441,6 +7661,15 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
+          },
+          {
+            "name": "dateOfBirth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Date of birth in DD/MM/YYYY format."
           }
         ]
       }
@@ -8233,7 +8462,7 @@
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.6"
+            "amount": "0.3"
           },
           "protocols": [
             {
@@ -9188,6 +9417,15 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
+          },
+          {
+            "name": "dateOfBirth",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Date of birth in DD/MM/YYYY format."
           }
         ]
       }
@@ -9495,7 +9733,7 @@
         ]
       }
     },
-    "/api/co/runt/propietarios": {
+    "/api/bo/vehicle-soat": {
       "get": {
         "tags": [
           "KYC",
@@ -9503,14 +9741,14 @@
           "Data",
           "LATAM"
         ],
-        "operationId": "colombia_api_runt_owners",
-        "summary": "Colombia - Data Verification Service",
-        "description": "General data verification service for Colombia. Provides reliable information verification and validation.",
+        "operationId": "bolivia_api_vehicle_soat",
+        "summary": "Bolivia - Vehicle SOAT",
+        "description": "Bolivian vehicle SOAT lookup service for retrieving mandatory insurance information by license plate.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.2"
+            "amount": "0.3"
           },
           "protocols": [
             {
@@ -9541,27 +9779,120 @@
             "schema": {
               "type": "string"
             },
-            "description": "Parameter: plate"
+            "description": "Vehicle license plate to consult, without spaces or special characters."
+          },
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "description": "When true, bypasses cached records and fetches fresh data from the source."
           }
         ]
       }
     },
-    "/api/passport/us/entries": {
+    "/api/bo/votacion": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "bolivia_api_voting_location",
+        "summary": "Bolivia - Voting Location",
+        "description": "Bolivian voting location lookup service for retrieving polling place, table, voting status, and residence details from the official OEP Yo Participo registry.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.6"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Document type. Allowed value: CI.",
+                    "enum": [
+                      "CI"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Bolivian identity document number without expedition code."
+                  },
+                  "dateOfBirth": {
+                    "type": "string",
+                    "description": "Date of birth in DD/MM/YYYY format."
+                  },
+                  "force": {
+                    "type": "string",
+                    "description": "When true, bypasses cached records and fetches fresh data from the source.",
+                    "enum": [
+                      "true",
+                      "false"
+                    ]
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber",
+                  "dateOfBirth"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cl/vehicle-soap-plate": {
       "get": {
         "tags": [
           "KYC",
           "KYB",
           "Data",
-          "USA"
+          "LATAM"
         ],
-        "operationId": "world_api_passport_entries",
-        "summary": "United States - Identity Verification",
-        "description": "Standard identity verification service for United States citizens. Verifies personal information and document authenticity.",
+        "operationId": "chile_api_vehicle_soap_plate",
+        "summary": "Chile - Vehicle SOAP (by plate)",
+        "description": "Query Chile vehicular SOAP certificate by license plate only. Returns nested soap and vehicle objects with coverage status, insurer, owner, and validity dates.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.5"
+            "amount": "0.3"
           },
           "protocols": [
             {
@@ -9586,49 +9917,26 @@
         },
         "parameters": [
           {
-            "name": "passportNumber",
+            "name": "plate",
             "in": "query",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "Parameter: passportNumber"
+            "description": "Chilean license plate (Patente), 4–6 alphanumeric characters."
           },
           {
-            "name": "passportCountry",
+            "name": "force",
             "in": "query",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
             },
-            "description": "Parameter: passportCountry"
-          },
-          {
-            "name": "firstName",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: firstName"
-          },
-          {
-            "name": "lastName",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: lastName"
-          },
-          {
-            "name": "dateOfBirth",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: dateOfBirth"
+            "description": "When true, bypasses cached records and fetches fresh data from the source."
           }
         ]
       }

@@ -468,6 +468,10 @@
             "title": "Ontário — Carteira de motorista",
             "description": "Verificação de habilitação de motorista em Ontário (Canadá) pelo número do documento contra registros oficiais para KYC, conformidade e prevenção a fraudes."
         },
+        "canada_api_ontario_plate": {
+            "title": "Ontário — Vencimento da placa",
+            "description": "Consulta de vencimento da etiqueta de placa de Ontário por placa e número do permiso."
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — Veículo simplificado por placa",
             "description": "Consulta RUNT simplificada com dados essenciais do veículo por placa."

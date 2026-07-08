@@ -468,6 +468,10 @@
             "title": "Ontario — Permis de conduire",
             "description": "Vérification du permis de conduire en Ontario (Canada)."
         },
+        "canada_api_ontario_plate": {
+            "title": "Ontario — Expiration de plaque",
+            "description": "Vérification de l'expiration de la vignette de plaque Ontario par plaque et numéro de permis."
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — Véhicule simplifié par plaque",
             "description": "Consultation RUNT allégée des informations essentielles du véhicule par plaque."

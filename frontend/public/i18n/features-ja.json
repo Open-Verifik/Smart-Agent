@@ -468,6 +468,10 @@
             "title": "オンタリオ — 運転免許",
             "description": "オンタリオ（カナダ）の運転免許を文書番号で検証します。"
         },
+        "canada_api_ontario_plate": {
+            "title": "オンタリオ — ナンバー有効期限",
+            "description": "ナンバーと許可番号でオンタリオのステッカー有効期限を照会します。"
+        },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — ナンバー別車両（簡易・別名）",
             "description": "ナンバーと名義人証番号から RUNT 車両の要点情報を取得します。"

@@ -27,6 +27,8 @@ export interface PostmanSandboxEndpointConfig {
     defaultProcessNumber?: string;
     /** Default plate when endpoint uses plate query/path param only. */
     defaultPlate?: string;
+    /** Default permit number when endpoint requires permitNumber (e.g. Ontario plate). */
+    defaultPermitNumber?: string;
     /** Default US state code when endpoint requires state (e.g. FL). */
     defaultState?: string;
     /** Default VIN when endpoint uses vin query/path param only. */

@@ -184,7 +184,10 @@ export class PostmanService {
         forkJoin({ features: features$, layout: layout$ })
             .pipe(
                 tap(({ features, layout }) => {
-                    const featureList = features?.data || [];
+                    const featureList = (features?.data || []).filter(
+                        (feature: { isAvailable?: boolean; deleted?: boolean }) =>
+                            feature?.isAvailable !== false && feature?.deleted !== true
+                    );
                     const dynamicEndpoints: ApiEndpoint[] = featureList.map((feature: any) =>
                         this._createEndpointFromFeature(feature, apiUrl)
                     );
