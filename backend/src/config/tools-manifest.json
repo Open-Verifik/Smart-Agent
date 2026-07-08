@@ -477,11 +477,11 @@
 		{
 			"id": "colombia_api_rethus",
 			"name": "Professional Healthcare Physicians Verification",
-			"category": "Professional Healthcare Physicians Verification",
+			"category": "Colombia - Professional Healthcare Physicians Verification",
 			"url": "https://ai.verifik.co/api/co/cedula/rethus",
 			"verifikPath": "/v2/co/cedula/rethus",
 			"method": "GET",
-			"description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus.",
+			"description": "Query the Colombian RETHUS registry for health-sector professionals via GET /v2/co/cedula/rethus.",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -787,7 +787,7 @@
 			"method": "GET",
 			"description": "This service provides information on the insurance status of a vehicle in Peru. It returns details including the insurance company name, policy start and end dates, vehicle plate number, policy number, usage type, vehicle class, and policy status.",
 			"country": "Peru",
-			"priceUsd": 0.6,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -1052,8 +1052,8 @@
 		},
 		{
 			"id": "brasil_api_company_lookup",
-			"name": "Brazil - Brazilian Business Verification",
-			"category": "Brazil - Brazilian Business Verification",
+			"name": "Brazil - Business Verification (CNPJ)",
+			"category": "Brazil - Business Verification (CNPJ)",
 			"url": "https://ai.verifik.co/api/br/company",
 			"verifikPath": "/v2/br/company",
 			"method": "GET",
@@ -1788,8 +1788,8 @@
 		},
 		{
 			"id": "brasil_api_vehicle",
-			"name": "Brazil - Vehicle information",
-			"category": "Brazil - Vehicle information",
+			"name": "Brazil - Vehicle Information",
+			"category": "Brazil - Vehicle Information",
 			"url": "https://ai.verifik.co/api/br/vehicle",
 			"verifikPath": "/v2/br/vehicle",
 			"method": "GET",
@@ -2495,25 +2495,30 @@
 			}
 		},
 		{
-			"id": "canada_api_driver_license_quebec",
-			"name": "Canada - Quebec Driver License",
-			"category": "Canada - Quebec Driver License",
-			"url": "https://ai.verifik.co/api/ca/quebec/driver-license",
-			"verifikPath": "/v2/ca/quebec/driver-license",
+			"id": "canada_api_ontario_plate",
+			"name": "Canada - Ontario Plate Expiry",
+			"category": "Canada - Ontario Plate Expiry",
+			"url": "https://ai.verifik.co/api/ca/ontario/plate",
+			"verifikPath": "/v2/ca/ontario/plate",
 			"method": "POST",
-			"description": "Verify Quebec (Canada) driver licenses by document number via Verifik's API.",
+			"description": "Ontario plate sticker expiry check by plate number and permit number",
 			"country": "Canada",
-			"priceUsd": 0.4,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"documentNumber": {
+					"plate": {
 						"type": "string",
-						"description": "Parameter: documentNumber"
+						"description": "Parameter: plate"
+					},
+					"permitNumber": {
+						"type": "string",
+						"description": "Parameter: permitNumber"
 					}
 				},
 				"required": [
-					"documentNumber"
+					"plate",
+					"permitNumber"
 				]
 			}
 		},
@@ -2596,34 +2601,6 @@
 				},
 				"required": [
 					"documentNumber"
-				]
-			}
-		},
-		{
-			"id": "canada_api_driver_license_british-columbia",
-			"name": "Canada - British Columbia Driver License",
-			"category": "Canada - British Columbia Driver License",
-			"url": "https://ai.verifik.co/api/ca/british-columbia/driver-license",
-			"verifikPath": "/v2/ca/british-columbia/driver-license",
-			"method": "POST",
-			"description": "British Columbia driver license verification service",
-			"country": "Canada",
-			"priceUsd": 0.4,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					},
-					"lastName": {
-						"type": "string",
-						"description": "Parameter: lastName"
-					}
-				},
-				"required": [
-					"documentNumber",
-					"lastName"
 				]
 			}
 		},
@@ -3061,6 +3038,98 @@
 			}
 		},
 		{
+			"id": "argentina_api_vehicle_v3",
+			"name": "Argentina - Vehicle v3",
+			"category": "Argentina - Vehicle v3",
+			"url": "https://ai.verifik.co/api/v3/ar/vehicle",
+			"verifikPath": "/v3/ar/vehicle",
+			"method": "GET",
+			"description": "Retrieve Argentine vehicle details by license plate, including vehicle identifiers, policy status, and technical-sheet data when available.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to query, without spaces or punctuation."
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_buenos_aires_traffic_infractions",
+			"name": "Argentina - Buenos Aires Traffic Infractions",
+			"category": "Argentina - Buenos Aires Traffic Infractions",
+			"url": "https://ai.verifik.co/api/ar/buenos-aires/traffic-infractions",
+			"verifikPath": "/v2/ar/buenos-aires/traffic-infractions",
+			"method": "POST",
+			"description": "Check Buenos Aires traffic infractions by vehicle license plate.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to query, without spaces or punctuation."
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_buenos_aires_technical_inspection",
+			"name": "Argentina - Buenos Aires Technical Inspection",
+			"category": "Argentina - Buenos Aires Technical Inspection",
+			"url": "https://ai.verifik.co/api/ar/buenos-aires/technical-inspection",
+			"verifikPath": "/v2/ar/buenos-aires/technical-inspection",
+			"method": "POST",
+			"description": "Check Buenos Aires vehicle technical inspection history by license plate.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to query, without spaces or punctuation."
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_rto",
+			"name": "Argentina - RTO",
+			"category": "Argentina - RTO",
+			"url": "https://ai.verifik.co/api/ar/rto",
+			"verifikPath": "/v2/ar/rto",
+			"method": "POST",
+			"description": "Check Argentine RTO inspection records by vehicle license plate.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to query, without spaces or punctuation."
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
 			"id": "usa_api_company",
 			"name": "United States - United States Business Verification",
 			"category": "United States - United States Business Verification",
@@ -3146,12 +3215,12 @@
 		},
 		{
 			"id": "brasil_api_criminal_history",
-			"name": "Brazil - Brazil",
-			"category": "Brazil - Brazil",
+			"name": "Brazil - Background Check (CPF)",
+			"category": "Brazil - Background Check (CPF)",
 			"url": "https://ai.verifik.co/api/br/background-check",
 			"verifikPath": "/v2/br/background-check",
-			"method": "POST",
-			"description": "Conduct background checks on Brazilian individuals using CPF",
+			"method": "GET",
+			"description": "Conduct background checks on Brazilian individuals using CPF.",
 			"country": "Brazil",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -3207,6 +3276,29 @@
 				},
 				"required": [
 					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "argentina_api_medical_professional",
+			"name": "Argentina - Medical Professional",
+			"category": "Argentina - Medical Professional",
+			"url": "https://ai.verifik.co/api/ar/cedula/medico-profesional",
+			"verifikPath": "/v2/ar/cedula/medico-profesional",
+			"method": "GET",
+			"description": "Query medical professionals registered in Argentina using only the national ID document number (DNI). Returns professional registration and licensing data when available.",
+			"country": "Argentina",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
 					"documentNumber"
 				]
 			}
@@ -3621,11 +3713,16 @@
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Date of birth in DD/MM/YYYY format."
 					}
 				},
 				"required": [
 					"documentType",
-					"documentNumber"
+					"documentNumber",
+					"dateOfBirth"
 				]
 			}
 		},
@@ -4015,7 +4112,7 @@
 			"method": "GET",
 			"description": "Extended Peruvian citizen identity verification with comprehensive DNI details using Verifik's KYC API. Connect with official sources and verify detailed identity data in seconds.",
 			"country": "Peru",
-			"priceUsd": 0.6,
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
@@ -4432,11 +4529,16 @@
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
+					},
+					"dateOfBirth": {
+						"type": "string",
+						"description": "Date of birth in DD/MM/YYYY format."
 					}
 				},
 				"required": [
 					"documentType",
-					"documentNumber"
+					"documentNumber",
+					"dateOfBirth"
 				]
 			}
 		},
@@ -4553,93 +4655,110 @@
 			}
 		},
 		{
-			"id": "colombia_api_identity_lookup_premium",
-			"name": "Colombia — National ID premium lookup (CC)",
-			"category": "Colombia — National ID premium lookup (CC)",
-			"url": "https://ai.verifik.co/api/co/cedula/premium",
-			"verifikPath": "/v2/co/cedula/premium",
+			"id": "bolivia_api_vehicle_soat",
+			"name": "Bolivia - Vehicle SOAT",
+			"category": "Bolivia - Vehicle SOAT",
+			"url": "https://ai.verifik.co/api/bo/vehicle-soat",
+			"verifikPath": "/v2/bo/vehicle-soat",
 			"method": "GET",
-			"description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, Verifik finds the issue date for you, and you get the same rich identity record as cédula extra. Uses more credits than the basic cédula check.",
-			"country": "Colombia",
-			"priceUsd": 2,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": [
-					"documentNumber"
-				]
-			}
-		},
-		{
-			"id": "colombia_api_runt_owners",
-			"name": "Colombia - Data Verification Service",
-			"url": "https://ai.verifik.co/api/co/runt/propietarios",
-			"method": "GET",
-			"description": "General data verification service for Colombia. Provides reliable information verification and validation.",
-			"country": "Colombia",
-			"priceUsd": 0.2,
+			"description": "Bolivian vehicle SOAT lookup service for retrieving mandatory insurance information by license plate.",
+			"country": "Bolivia",
+			"priceUsd": 0.3,
 			"parameters": {
 				"type": "object",
 				"properties": {
 					"plate": {
 						"type": "string",
-						"description": "Parameter: plate"
+						"description": "Vehicle license plate to consult, without spaces or special characters."
+					},
+					"force": {
+						"type": "string",
+						"description": "When true, bypasses cached records and fetches fresh data from the source.",
+						"enum": [
+							"true",
+							"false"
+						]
 					}
 				},
 				"required": [
 					"plate"
 				]
-			},
-			"category": "Colombia - Data Verification Service",
-			"verifikPath": "/v2/co/runt/propietarios"
+			}
 		},
 		{
-			"id": "world_api_passport_entries",
-			"name": "United States - Identity Verification",
-			"url": "https://ai.verifik.co/api/passport/us/entries",
-			"method": "GET",
-			"description": "Standard identity verification service for United States citizens. Verifies personal information and document authenticity.",
-			"country": "world",
-			"priceUsd": 0.5,
+			"id": "bolivia_api_voting_location",
+			"name": "Bolivia - Voting Location",
+			"category": "Bolivia - Voting Location",
+			"url": "https://ai.verifik.co/api/bo/votacion",
+			"verifikPath": "/v2/bo/votacion",
+			"method": "POST",
+			"description": "Bolivian voting location lookup service for retrieving polling place, table, voting status, and residence details from the official OEP Yo Participo registry.",
+			"country": "Bolivia",
+			"priceUsd": 0.6,
 			"parameters": {
 				"type": "object",
 				"properties": {
-					"passportNumber": {
+					"documentType": {
 						"type": "string",
-						"description": "Parameter: passportNumber"
+						"description": "Document type. Allowed value: CI.",
+						"enum": [
+							"CI"
+						]
 					},
-					"passportCountry": {
+					"documentNumber": {
 						"type": "string",
-						"description": "Parameter: passportCountry"
-					},
-					"firstName": {
-						"type": "string",
-						"description": "Parameter: firstName"
-					},
-					"lastName": {
-						"type": "string",
-						"description": "Parameter: lastName"
+						"description": "Bolivian identity document number without expedition code."
 					},
 					"dateOfBirth": {
 						"type": "string",
-						"description": "Parameter: dateOfBirth"
+						"description": "Date of birth in DD/MM/YYYY format."
+					},
+					"force": {
+						"type": "string",
+						"description": "When true, bypasses cached records and fetches fresh data from the source.",
+						"enum": [
+							"true",
+							"false"
+						]
 					}
 				},
 				"required": [
-					"passportNumber",
-					"passportCountry",
-					"firstName",
-					"lastName",
+					"documentType",
+					"documentNumber",
 					"dateOfBirth"
 				]
-			},
-			"category": "Global - United States - Identity Verification",
-			"verifikPath": "/v2/passport/us/entries"
+			}
+		},
+		{
+			"id": "chile_api_vehicle_soap_plate",
+			"name": "Chile - Vehicle SOAP (by plate)",
+			"category": "Chile - Vehicle SOAP (by plate)",
+			"url": "https://ai.verifik.co/api/cl/vehicle-soap-plate",
+			"verifikPath": "/v2/cl/vehicle-soap-plate",
+			"method": "GET",
+			"description": "Query Chile vehicular SOAP certificate by license plate only. Returns nested soap and vehicle objects with coverage status, insurer, owner, and validity dates.",
+			"country": "Chile",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Chilean license plate (Patente), 4–6 alphanumeric characters."
+					},
+					"force": {
+						"type": "string",
+						"description": "When true, bypasses cached records and fetches fresh data from the source.",
+						"enum": [
+							"true",
+							"false"
+						]
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
 		}
 	]
 }

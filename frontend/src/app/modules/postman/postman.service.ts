@@ -184,16 +184,19 @@ export class PostmanService {
         forkJoin({ features: features$, layout: layout$ })
             .pipe(
                 tap(({ features, layout }) => {
-                    const featureList = (features?.data || []).filter(
+                    const allFeatures = (features?.data || []).filter(
                         (feature: { isAvailable?: boolean; deleted?: boolean }) =>
                             feature?.isAvailable !== false && feature?.deleted !== true
                     );
-                    const dynamicEndpoints: ApiEndpoint[] = featureList.map((feature: any) =>
+                    const catalogFeatures = allFeatures.filter(
+                        (feature: { catalogHidden?: boolean }) => feature?.catalogHidden !== true
+                    );
+                    const dynamicEndpoints: ApiEndpoint[] = catalogFeatures.map((feature: any) =>
                         this._createEndpointFromFeature(feature, apiUrl)
                     );
                     const mergedCatalog = attachColombiaCedulaPremiumPricing(
                         this._mergeEndpoints(API_ENDPOINTS, dynamicEndpoints),
-                        featureList
+                        allFeatures
                     );
                     const layoutData = layout?.data ?? null;
                     const rawFolders = layoutData?.folders ?? [];

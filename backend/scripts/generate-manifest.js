@@ -425,7 +425,7 @@ const main = () => {
 	const existing = fs.existsSync(OUTPUT_PATH) ? loadJson(OUTPUT_PATH) : { endpoints: [] };
 
 	// `deleted` may be `false` or simply absent on legacy rows; treat both as "not deleted".
-	const active = features.filter((f) => f && f.isAvailable === true && !f.deleted && f.url);
+	const active = features.filter((f) => f && f.isAvailable === true && !f.catalogHidden && !f.deleted && f.url);
 	console.log(`Active features in source: ${active.length}`);
 
 	let tools = active.map(featureToTool).filter((t) => !isExcludedTool(t));

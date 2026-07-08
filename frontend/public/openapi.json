@@ -9682,57 +9682,6 @@
         }
       }
     },
-    "/api/co/cedula/premium": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_api_identity_lookup_premium",
-        "summary": "Colombia — National ID premium lookup (CC)",
-        "description": "Verify a Colombian national ID (CC) with a full profile: you type only the number, Verifik finds the issue date for you, and you get the same rich identity record as cédula extra. Uses more credits than the basic cédula check.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "2"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: documentNumber"
-          }
-        ]
-      }
-    },
     "/api/bo/vehicle-soat": {
       "get": {
         "tags": [
@@ -9968,7 +9917,7 @@
             "mode": "dynamic",
             "currency": "USD",
             "min": "0.01",
-            "max": "2"
+            "max": "1"
           },
           "protocols": [
             {
@@ -10029,7 +9978,7 @@
             "mode": "dynamic",
             "currency": "USD",
             "min": "0.01",
-            "max": "2"
+            "max": "1"
           },
           "protocols": [
             {
