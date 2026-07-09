@@ -21,6 +21,15 @@ import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.compo
 
 type Step = 'capture' | 'processing' | 'result';
 
+type LivenessDemoResult = {
+    isLive: boolean;
+    confidence: number | null;
+    message: string;
+    price?: number | null;
+    /** True when the API returned an ERR_* / quality failure instead of a scored verdict. */
+    isApiError?: boolean;
+};
+
 const LIVENESS_SAMPLE_IMAGES = [
     '/demos/assets/ppic1.jpg',
     '/demos/assets/ppic2.jpg',
@@ -54,7 +63,7 @@ export class LivenessDemoComponent {
     readonly defaultMinScore = DEFAULT_LIVENESS_STANDALONE_MIN_SCORE;
 
     step: Step = 'capture';
-    result: { isLive: boolean; confidence: number; message: string; price?: number | null } | null = null;
+    result: LivenessDemoResult | null = null;
     error: string | null = null;
     previewUrl: string | null = null;
     uploadReading = false;
@@ -126,29 +135,38 @@ export class LivenessDemoComponent {
 
         this.step = 'processing';
         this.error = null;
+        this.result = null;
         this.uploadReading = false;
         this._cdr.markForCheck();
 
         this._api.detectLiveness({ os: getDemoOs(), image: base64Image, includeCost: true }).subscribe({
             next: (data) => {
                 const parsed = parseLivenessResult(data);
-                const score01 = parsed.livenessScore ?? 0;
                 this.result = {
                     isLive: parsed.passed,
-                    confidence: score01,
+                    confidence: parsed.livenessScore,
                     message:
                         parsed.message ||
                         this._transloco.translate(
                             parsed.passed ? 'smartEnrollDemos.liveness.defaultPass' : 'smartEnrollDemos.liveness.defaultFail'
                         ),
                     price: parsed.creditsCharged,
+                    isApiError: false,
                 };
+                this.error = null;
                 this.step = 'result';
                 this._cdr.markForCheck();
             },
             error: (err) => {
-                this.error = translateLivenessApiError((key) => this._transloco.translate(key), err);
-                this.step = 'capture';
+                this.result = {
+                    isLive: false,
+                    confidence: null,
+                    message: translateLivenessApiError((key) => this._transloco.translate(key), err),
+                    price: typeof err?.creditsCharged === 'number' ? err.creditsCharged : null,
+                    isApiError: true,
+                };
+                this.error = null;
+                this.step = 'result';
                 this._cdr.markForCheck();
             },
         });

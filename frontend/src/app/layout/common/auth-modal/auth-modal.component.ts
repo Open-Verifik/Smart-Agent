@@ -166,12 +166,21 @@ export class AuthModalComponent {
   }
 
   setState(newState: AuthState) {
+    const previous = this.state();
     this.state.set(newState);
     this.otp.set('');
     this.otpArray.set(new Array(6).fill(''));
     this.error.set(null);
     this.errorKey.set(null);
-    this.passkeyExistsForContact.set(false);
+
+    // Only clear passkey CTA when leaving a contact-entry screen (not when staying to choose passkey vs OTP).
+    const contactStates: AuthState[] = ['EMAIL_INPUT', 'PHONE_INPUT', 'WHATSAPP_INPUT'];
+    if (!contactStates.includes(newState) || previous !== newState) {
+      if (!contactStates.includes(newState)) {
+        this.passkeyExistsForContact.set(false);
+      }
+    }
+
     if (newState === 'PHONE_INPUT' || newState === 'WHATSAPP_INPUT') {
       // Reset to default country when entering phone input
       const defaultCountry = this._countryService.countryDialCodes.find(
@@ -182,6 +191,11 @@ export class AuthModalComponent {
       }
       this.countrySearchTerm.set('');
       this.filteredCountries.set(this.countryDialCodes);
+      this.passkeyExistsForContact.set(false);
+    }
+
+    if (newState === 'EMAIL_INPUT' && previous !== 'EMAIL_INPUT') {
+      this.passkeyExistsForContact.set(false);
     }
   }
 
@@ -192,6 +206,92 @@ export class AuthModalComponent {
 
   get showPasskeyButton(): boolean {
     return this.passkeyExistsForContact();
+  }
+
+  /**
+   * Continue from email: check for an existing passkey first.
+   * If one exists, stay on this screen and surface the Passkey CTA (do not send OTP yet).
+   */
+  async continueWithEmail(): Promise<void> {
+    const emailValue = this.email().trim();
+
+    if (!emailValue) {
+      this.error.set('Please enter your email address');
+      return;
+    }
+
+    if (!this.isValidEmail(emailValue)) {
+      this.error.set('Please enter a valid email address');
+      return;
+    }
+
+    if (this.passkeyExistsForContact()) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.errorKey.set(null);
+
+    try {
+      const hasPasskey = await this._refreshPasskeyAvailability(emailValue);
+      if (hasPasskey) {
+        this.isLoading.set(false);
+        return;
+      }
+    } catch (e) {
+      console.warn('[Passkeys] Availability check failed; falling back to OTP', e);
+    }
+
+    this.isLoading.set(false);
+    await this.sendEmailOtp();
+  }
+
+  /**
+   * Continue from phone/WhatsApp: same passkey-first gate as email.
+   */
+  async continueWithPhone(): Promise<void> {
+    const phoneValue = this.phone().trim();
+    const country = this.selectedCountry();
+
+    if (!phoneValue) {
+      this.error.set('Please enter your phone number');
+      return;
+    }
+
+    if (!country) {
+      this.error.set('Please select a country');
+      return;
+    }
+
+    const phoneDigits = phoneValue.replace(/\D/g, '');
+    if (!this.isValidPhone(phoneDigits)) {
+      this.error.set('Please enter a valid phone number');
+      return;
+    }
+
+    if (this.passkeyExistsForContact()) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.errorKey.set(null);
+
+    const contact = this._normalizedPhoneContact();
+
+    try {
+      const hasPasskey = await this._refreshPasskeyAvailability(contact);
+      if (hasPasskey) {
+        this.isLoading.set(false);
+        return;
+      }
+    } catch (e) {
+      console.warn('[Passkeys] Availability check failed; falling back to OTP', e);
+    }
+
+    this.isLoading.set(false);
+    await this.sendPhoneOtp();
   }
 
   error = signal<string | null>(null);
@@ -842,12 +942,26 @@ export class AuthModalComponent {
 
     this._passkeyDebounceTimer = setTimeout(async () => {
       try {
-        const matches = await this._listPasskeysForContact(contact, false);
-        this.passkeyExistsForContact.set(matches.length > 0);
+        await this._refreshPasskeyAvailability(contact);
       } catch (e) {
         console.error('Failed to check passkey availability', e);
       }
     }, 500);
+  }
+
+  /**
+   * Immediate (non-debounced) passkey lookup used by Continue so we never race OTP send.
+   */
+  private async _refreshPasskeyAvailability(contact: string): Promise<boolean> {
+    if (!contact) {
+      this.passkeyExistsForContact.set(false);
+      return false;
+    }
+
+    const matches = await this._listPasskeysForContact(contact, false);
+    const exists = matches.length > 0;
+    this.passkeyExistsForContact.set(exists);
+    return exists;
   }
 
   private async _listPasskeysForContact(contact: string, fetchEncryptedContent = false): Promise<any[]> {

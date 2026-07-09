@@ -53,7 +53,8 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
     @Input() hideIdleExplainer = false;
     @Input() fillFrame = false;
     @Input() captureSuccessFeedbackMs = 700;
-    @Input() successFrames = DEFAULT_FACE_GUIDE.successFramesRequired;
+    /** How long the face must stay aligned before auto-capture (ms). */
+    @Input() holdStillMs = 500;
     @Input() tickMs = 160;
 
     @Output() captured = new EventEmitter<FaceGuidedCapturePayload>();
@@ -67,12 +68,14 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
     private rafRetryRef: number | null = null;
     private overlayRetryRef: number | null = null;
     private captureTimeoutRef: ReturnType<typeof setTimeout> | null = null;
+    private holdStillTimeoutRef: ReturnType<typeof setTimeout> | null = null;
     private resizeObserver: ResizeObserver | null = null;
-    private streak = 0;
     private capturing = false;
+    private tickInFlight = false;
     private overlayOk = false;
     private dimRetryCount = 0;
     private overlayRetryCount = 0;
+    private lastGoodFrame: HTMLCanvasElement | null = null;
 
     private readonly maxDimRetries = 90;
     private readonly maxOverlayRetries = 30;
@@ -127,7 +130,8 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
             video.setAttribute('playsinline', 'true');
             await video.play();
             this.streamActive = true;
-            this.streak = 0;
+            this.clearHoldStill();
+            this.lastGoodFrame = null;
 
             const startLoop = () => {
                 this.drawPlaceholderFromVideo();
@@ -159,6 +163,13 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
         }
     }
 
+    private clearHoldStill(): void {
+        if (this.holdStillTimeoutRef) {
+            clearTimeout(this.holdStillTimeoutRef);
+            this.holdStillTimeoutRef = null;
+        }
+    }
+
     private stopStream(): void {
         if (this.tickInterval) {
             clearInterval(this.tickInterval);
@@ -176,18 +187,73 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
             clearTimeout(this.captureTimeoutRef);
             this.captureTimeoutRef = null;
         }
+        this.clearHoldStill();
         this.disconnectResizeObserver();
         this.stream?.getTracks().forEach((t) => t.stop());
         this.stream = null;
         const video = this.videoRef?.nativeElement;
         if (video) video.srcObject = null;
         this.streamActive = false;
-        this.streak = 0;
         this.capturing = false;
+        this.tickInFlight = false;
         this.captureSuccess = false;
+        this.statusOk = false;
+        this.guideError = null;
         this.overlayOk = false;
+        this.lastGoodFrame = null;
         this.dimRetryCount = 0;
         this.overlayRetryCount = 0;
+    }
+
+    private beginCapture(): void {
+        if (this.capturing) return;
+        this.capturing = true;
+        this.captureSuccess = true;
+        this.clearHoldStill();
+        if (this.tickInterval) {
+            clearInterval(this.tickInterval);
+            this.tickInterval = null;
+        }
+        this._cdr.markForCheck();
+
+        const frame = this.lastGoodFrame;
+        const finalize = () => {
+            const video = this.videoRef?.nativeElement;
+            const w = frame?.width || video?.videoWidth || 0;
+            const h = frame?.height || video?.videoHeight || 0;
+            const out = document.createElement('canvas');
+            out.width = w;
+            out.height = h;
+            const ctx = out.getContext('2d');
+            if (frame) {
+                ctx?.drawImage(frame, 0, 0, w, h);
+            } else if (video) {
+                ctx?.drawImage(video, 0, 0, w, h);
+            }
+            const dataUrl = out.toDataURL('image/jpeg', 0.92);
+            const comma = dataUrl.indexOf(',');
+            const base64 = comma === -1 ? '' : dataUrl.slice(comma + 1);
+            this.stopStream();
+            this.captured.emit({ dataUrl, base64 });
+            this._cdr.markForCheck();
+        };
+
+        if (this.captureSuccessFeedbackMs > 0) {
+            this.captureTimeoutRef = setTimeout(() => {
+                this.captureTimeoutRef = null;
+                finalize();
+            }, this.captureSuccessFeedbackMs);
+        } else {
+            finalize();
+        }
+    }
+
+    private armHoldStill(): void {
+        if (this.holdStillTimeoutRef || this.capturing) return;
+        this.holdStillTimeoutRef = setTimeout(() => {
+            this.holdStillTimeoutRef = null;
+            this.beginCapture();
+        }, this.holdStillMs);
     }
 
     private drawPlaceholderFromVideo(): void {
@@ -262,7 +328,7 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
 
     private async runTick(): Promise<void> {
         const video = this.videoRef?.nativeElement;
-        if (!video || this.capturing || this.disabled) return;
+        if (!video || this.capturing || this.disabled || this.tickInFlight) return;
         const w = video.videoWidth;
         const h = video.videoHeight;
         if (!w || !h) {
@@ -276,6 +342,7 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
             return;
         }
         this.dimRetryCount = 0;
+        this.tickInFlight = true;
 
         const oval = getCenterAndRadius(h, w, DEFAULT_GUIDE_ASPECT_RATIO);
         const canvas = document.createElement('canvas');
@@ -285,12 +352,17 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
 
         try {
             await this._faceCrop.ensureTfReady();
+            if (this.capturing || this.disabled || !this.streamActive) return;
+
             const detections = await faceapi
                 .detectAllFaces(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: DEFAULT_FACE_GUIDE.ssdMinConfidence }))
                 .withFaceLandmarks();
 
+            if (this.capturing || this.disabled || !this.streamActive) return;
+
             if (!detections.length) {
-                this.streak = 0;
+                this.clearHoldStill();
+                this.lastGoodFrame = null;
                 this.guideError = { kind: 'no_face', title: 'No face detected', subtitle: 'Position your face in the frame' };
                 this.statusOk = false;
                 this.drawOverlay(w, h, false);
@@ -312,7 +384,8 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
             });
 
             if (ev.error) {
-                this.streak = 0;
+                this.clearHoldStill();
+                this.lastGoodFrame = null;
                 this.guideError = ev.error;
                 this.statusOk = false;
                 this.drawOverlay(w, h, false);
@@ -320,49 +393,21 @@ export class FaceGuidedCameraComponent implements OnInit, OnDestroy {
                 return;
             }
 
-            this.streak += 1;
+            this.lastGoodFrame = canvas;
             this.guideError = null;
             this.statusOk = true;
             this.drawOverlay(w, h, true);
-
-            if (this.streak >= this.successFrames) {
-                this.capturing = true;
-                this.captureSuccess = true;
-                if (this.tickInterval) {
-                    clearInterval(this.tickInterval);
-                    this.tickInterval = null;
-                }
-                this._cdr.markForCheck();
-
-                const finalize = () => {
-                    const out = document.createElement('canvas');
-                    out.width = w;
-                    out.height = h;
-                    out.getContext('2d')?.drawImage(video, 0, 0, w, h);
-                    const dataUrl = out.toDataURL('image/jpeg', 0.92);
-                    const comma = dataUrl.indexOf(',');
-                    const base64 = comma === -1 ? '' : dataUrl.slice(comma + 1);
-                    this.stopStream();
-                    this.captured.emit({ dataUrl, base64 });
-                    this._cdr.markForCheck();
-                };
-
-                if (this.captureSuccessFeedbackMs > 0) {
-                    this.captureTimeoutRef = setTimeout(() => {
-                        this.captureTimeoutRef = null;
-                        finalize();
-                    }, this.captureSuccessFeedbackMs);
-                } else {
-                    finalize();
-                }
-            }
+            this.armHoldStill();
             this._cdr.markForCheck();
-        } catch (error) {
-            this.streak = 0;
+        } catch {
+            this.clearHoldStill();
+            this.lastGoodFrame = null;
             this.statusOk = false;
             this.guideError = { kind: 'no_face', title: 'Face detection unavailable', subtitle: 'Reload the page or upload from gallery' };
             this.drawOverlay(w, h, false);
             this._cdr.markForCheck();
+        } finally {
+            this.tickInFlight = false;
         }
     }
 }

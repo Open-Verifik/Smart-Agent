@@ -3245,7 +3245,8 @@
             "enrollTitle": "Faster login",
             "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
             "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later"
+            "enrollSkip": "Maybe later",
+            "sendCodeInstead": "改为发送验证码"
         }
     },
     "chat": {
@@ -5304,6 +5305,7 @@
             "verdictMatch": "匹配",
             "verdictDiff": "不同",
             "tryAgain": "重试",
+            "errorResultTitle": "比对失败",
             "metaVerifik": "Verifik · 安全会话已激活",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "支持",
@@ -5373,6 +5375,7 @@
             "skipped": "已跳过",
             "na": "不适用",
             "tryAgain": "重试",
+            "errorResultTitle": "比对失败",
             "metaVerifik": "Verifik · 安全会话已激活",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "支持",
@@ -5467,6 +5470,7 @@
             "engineLine": "Verifik HumanAuthn 引擎 · 已启用",
             "liveTitle": "检测到真人",
             "spoofTitle": "检测到伪造",
+            "errorResultTitle": "活体检测失败",
             "defaultPass": "主体已通过 Verifik 活体验证。",
             "defaultFail": "图像未通过防伪检查。",
             "confidence": "置信度",

@@ -30,7 +30,9 @@
 
     <div class="mb-10">
         <h2 class="text-4xl md:text-5xl font-black tracking-tight text-on-surface mb-2">
-            @if (step === 'result') {
+            @if (step === 'result' && result?.isApiError) {
+                {{ 'smartEnrollDemos.liveness.errorResultTitle' | transloco }}
+            } @else if (step === 'result') {
                 {{ 'smartEnrollDemos.liveness.heroAnalysisComplete' | transloco }}
             } @else {
                 {{ 'smartEnrollDemos.liveness.heroLivenessDefault' | transloco }}
@@ -45,13 +47,23 @@
                     {{ 'smartEnrollDemos.liveness.heroProcessing' | transloco }}
                 }
                 @case ('result') {
-                    {{ 'smartEnrollDemos.liveness.heroResultComplete' | transloco }}
+                    @if (result?.isApiError) {
+                        {{ result.message }}
+                    } @else {
+                        {{ 'smartEnrollDemos.liveness.heroResultComplete' | transloco }}
+                    }
                 }
             }
         </p>
     </div>
 
     @if (step === 'capture') {
+        @if (error) {
+            <div class="mb-6 px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-start gap-3 max-w-3xl">
+                <span class="material-symbols-outlined text-error text-base shrink-0 mt-0.5">error_outline</span>
+                <span class="text-sm text-on-error-container leading-5">{{ error }}</span>
+            </div>
+        }
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div class="lg:col-span-7 bg-surface-container-low rounded-xl p-6 relative overflow-hidden">
                 <app-demo-choose-one-callout [extraClass]="'relative z-10 mb-4'" [description]="'smartEnrollDemos.liveness.chooseOneDescription' | transloco" />
@@ -114,7 +126,7 @@
         </div>
     }
 
-    @if (step === 'result' && result) {
+    @if (step === 'result' && result && !result.isApiError) {
         <div class="max-w-xl mx-auto w-full">
             <div
                 class="rounded-2xl border p-8 text-center shadow-sm"
@@ -142,7 +154,9 @@
                 <p class="text-sm leading-6 text-stone-500 dark:text-stone-400 mb-8">{{ result.message }}</p>
                 <div class="grid grid-cols-3 gap-3 mb-8">
                     <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <p class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">{{ (result.confidence * 100).toFixed(1) }}%</p>
+                        <p class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                            {{ result.confidence != null ? (result.confidence * 100).toFixed(1) + '%' : '—' }}
+                        </p>
                         <p class="mt-1 text-[11px] font-medium uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
                             {{ 'smartEnrollDemos.liveness.confidence' | transloco }}
                         </p>
@@ -176,10 +190,32 @@
         </div>
     }
 
-    @if (error) {
-        <div class="mt-6 px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-3 max-w-lg mx-auto">
-            <span class="material-symbols-outlined text-error text-sm">error_outline</span>
-            <span class="text-sm text-on-error-container">{{ error }}</span>
+    @if (step === 'result' && result?.isApiError && result) {
+        <div
+            class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[2px]"
+            role="dialog"
+            aria-modal="true"
+            [attr.aria-labelledby]="'liveness-api-error-title'"
+        >
+            <div class="w-full max-w-lg rounded-2xl border border-red-200/80 bg-white p-8 text-center shadow-xl shadow-black/30 dark:border-red-900/60 dark:bg-gray-900">
+                <div
+                    class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-red-200/90 bg-red-50 text-red-600 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+                >
+                    <span class="material-symbols-outlined text-4xl" [style.font-variation-settings]="'\'FILL\' 1'">error</span>
+                </div>
+                <h2 id="liveness-api-error-title" class="text-3xl font-semibold tracking-tight text-stone-950 dark:text-white mb-3">
+                    {{ 'smartEnrollDemos.liveness.errorResultTitle' | transloco }}
+                </h2>
+                <p class="text-base leading-7 text-stone-600 dark:text-stone-300 mb-8">{{ result.message }}</p>
+                <button
+                    type="button"
+                    (click)="reset()"
+                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-6 py-3.5 text-base font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98] dark:bg-white dark:text-stone-950"
+                >
+                    <span class="material-symbols-outlined text-xl">refresh</span>
+                    {{ 'smartEnrollDemos.liveness.tryAgain' | transloco }}
+                </button>
+            </div>
         </div>
     }
 </app-demo-page-shell>

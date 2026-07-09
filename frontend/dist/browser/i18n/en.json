@@ -3259,7 +3259,8 @@
             "enrollTitle": "Faster login",
             "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
             "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later"
+            "enrollSkip": "Maybe later",
+            "sendCodeInstead": "Send a code instead"
         }
     },
     "chat": {
@@ -5318,6 +5319,7 @@
             "verdictMatch": "MATCH",
             "verdictDiff": "DIFF",
             "tryAgain": "Try Again",
+            "errorResultTitle": "Comparison failed",
             "metaVerifik": "Verifik · Secure Session Active",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "Support",
@@ -5387,6 +5389,7 @@
             "skipped": "SKIPPED",
             "na": "N/A",
             "tryAgain": "Try Again",
+            "errorResultTitle": "Comparison failed",
             "metaVerifik": "Verifik · Secure Session Active",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "Support",
@@ -5481,6 +5484,7 @@
             "engineLine": "Verifik HumanAuthn Engine · Active",
             "liveTitle": "Live Person Detected",
             "spoofTitle": "Spoof Detected",
+            "errorResultTitle": "Liveness Check Failed",
             "defaultPass": "The subject passed Verifik liveness verification.",
             "defaultFail": "The image did not pass anti-spoofing checks.",
             "confidence": "Confidence",

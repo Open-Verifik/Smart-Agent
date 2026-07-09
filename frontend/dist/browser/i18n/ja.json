@@ -3245,7 +3245,8 @@
             "enrollTitle": "Faster login",
             "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
             "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later"
+            "enrollSkip": "Maybe later",
+            "sendCodeInstead": "代わりにコードを送信"
         }
     },
     "chat": {
@@ -5304,6 +5305,7 @@
             "verdictMatch": "MATCH",
             "verdictDiff": "DIFF",
             "tryAgain": "もう一度やり直してください",
+            "errorResultTitle": "比較に失敗しました",
             "metaVerifik": "Verifik · セキュア セッションがアクティブです",
             "engineBlock": "エンジン: HumanAuthn\nプロト: FACE_CMP\n認証: 保留中",
             "support": "サポート",
@@ -5373,6 +5375,7 @@
             "skipped": "SKIPPED",
             "na": "N/A",
             "tryAgain": "もう一度やり直してください",
+            "errorResultTitle": "比較に失敗しました",
             "metaVerifik": "Verifik · セキュア セッションがアクティブです",
             "engineBlock": "エンジン: HumanAuthn\nプロト: CWL_SEQ\n認証: 保留中",
             "support": "サポート",
@@ -5467,6 +5470,7 @@
             "engineLine": "Verifik HumanAuthn エンジン · アクティブ",
             "liveTitle": "生きている人物が検出されました",
             "spoofTitle": "スプーフィングが検出されました",
+            "errorResultTitle": "ライブネスチェックに失敗しました",
             "defaultPass": "対象者は Verifik の生存確認に合格しました。",
             "defaultFail": "イメージはスプーフィング対策チェックに合格しませんでした。",
             "confidence": "自信",

@@ -3245,7 +3245,8 @@
             "enrollTitle": "Login mais rápido",
             "enrollDescription": "Configure uma passkey para entrar da próxima vez com Face ID, Touch ID ou a impressão digital do seu dispositivo — sem esperar códigos.",
             "enrollConfirm": "Configurar passkey",
-            "enrollSkip": "Agora não"
+            "enrollSkip": "Agora não",
+            "sendCodeInstead": "Enviar um código em vez disso"
         }
     },
     "chat": {
@@ -5304,6 +5305,7 @@
             "verdictMatch": "MATCH",
             "verdictDiff": "DIFF",
             "tryAgain": "Tentar de novo",
+            "errorResultTitle": "A comparação falhou",
             "metaVerifik": "Verifik · Sessão segura ativa",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: FACE_CMP\nAUTH: PENDING",
             "support": "Suporte",
@@ -5373,6 +5375,7 @@
             "skipped": "SKIPPED",
             "na": "N/D",
             "tryAgain": "Tentar de novo",
+            "errorResultTitle": "A comparação falhou",
             "metaVerifik": "Verifik · Sessão segura ativa",
             "engineBlock": "ENGINE: HumanAuthn\nPROTO: CWL_SEQ\nAUTH: PENDING",
             "support": "Suporte",
@@ -5467,6 +5470,7 @@
             "engineLine": "Motor Verifik HumanAuthn · Ativo",
             "liveTitle": "Pessoa viva detectada",
             "spoofTitle": "Spoof detectado",
+            "errorResultTitle": "Falha na verificação de vivacidade",
             "defaultPass": "O sujeito passou na verificação de vivacidade Verifik.",
             "defaultFail": "A imagem não passou nas verificações anti-spoofing.",
             "confidence": "Confiança",

@@ -101,7 +101,16 @@
                 <app-demo-choose-one-callout [description]="'smartEnrollDemos.faceComparison.chooseOneDescription' | transloco" />
                 <app-demo-capture-option-heading label="A" [title]="'smartEnrollDemos.faceComparison.cameraTitle' | transloco" [subtitle]="'smartEnrollDemos.faceComparison.cameraSubtitle' | transloco" />
                 <app-demo-scanner-shell>
-                    <app-face-guided-camera [fillFrame]="true" (captured)="onCapture($event)" />
+                    <div class="flex min-h-0 flex-1 flex-col">
+                        @for (_ of [step]; track step) {
+                            <app-face-guided-camera
+                                [fillFrame]="true"
+                                [hideIdleExplainer]="true"
+                                [captureSuccessFeedbackMs]="750"
+                                (captured)="onCapture($event)"
+                            />
+                        }
+                    </div>
                 </app-demo-scanner-shell>
                 <app-demo-or-divider />
                 <app-demo-capture-option-heading label="B" [title]="'smartEnrollDemos.faceComparison.uploadTitle' | transloco" [subtitle]="'smartEnrollDemos.faceComparison.uploadSubtitle' | transloco" />
@@ -141,9 +150,19 @@
                         />
                     </div>
                 } @else if (error) {
-                    <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg flex items-center gap-3">
-                        <span class="material-symbols-outlined text-error text-sm">error_outline</span>
-                        <span class="text-sm text-on-error-container">{{ error }}</span>
+                    <div class="rounded-2xl border border-error/20 bg-error-container/10 p-8 text-center">
+                        <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-error/25 bg-error-container/30 text-error">
+                            <span class="material-symbols-outlined text-3xl">error</span>
+                        </div>
+                        <h2 class="text-2xl font-black tracking-tight mb-2">
+                            {{ 'smartEnrollDemos.faceComparison.errorResultTitle' | transloco }}
+                        </h2>
+                        <p class="text-on-surface-variant mb-8">{{ error }}</p>
+                        <app-demo-result-actions
+                            [secondaryLabel]="'smartEnrollDemos.faceComparison.tryAgain' | transloco"
+                            [primaryLabel]="'smartEnrollDemos.common.backToDemos' | transloco"
+                            (secondary)="reset()"
+                        />
                     </div>
                 }
             </div>

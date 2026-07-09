@@ -139,26 +139,23 @@
         type="email"
         [placeholder]="'authModal.emailInput.placeholder' | transloco"
         class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        (keyup.enter)="sendEmailOtp()"
+        (keyup.enter)="continueWithEmail()"
       />
     </div>
 
-    <button
-      mat-flat-button
-      color="primary"
-      class="w-full !h-11 !rounded-lg"
-      [disabled]="!isEmailValid || isLoading()"
-      (click)="sendEmailOtp()"
-    >
-      <span *ngIf="!isLoading()">{{ 'authModal.emailInput.continue' | transloco }}</span>
-      <mat-progress-spinner
-        *ngIf="isLoading()"
-        diameter="20"
-        mode="indeterminate"
-      ></mat-progress-spinner>
-    </button>
+    <!-- When a passkey exists: Passkey is primary; OTP is secondary -->
+    <ng-container *ngIf="showPasskeyButton; else emailOtpContinue">
+      <button
+        type="button"
+        class="w-full h-11 rounded-lg bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-60 transition-colors"
+        [disabled]="isLoading()"
+        (click)="signInWithPasskey()"
+      >
+        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
+        <span>{{ 'authModal.passkey.cta' | transloco }}</span>
+      </button>
+      <p class="text-xs text-center text-slate-500">{{ 'authModal.passkey.helper' | transloco }}</p>
 
-    <ng-container *ngIf="showPasskeyButton">
       <div class="relative py-1">
         <div class="absolute inset-0 flex items-center">
           <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
@@ -171,16 +168,36 @@
       </div>
 
       <button
-        type="button"
-        class="w-full h-11 rounded-lg bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-60 transition-colors"
+        mat-stroked-button
+        class="w-full !h-11 !rounded-lg"
         [disabled]="isLoading()"
-        (click)="signInWithPasskey()"
+        (click)="sendEmailOtp()"
       >
-        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
-        <span>{{ 'authModal.passkey.cta' | transloco }}</span>
+        <span *ngIf="!isLoading()">{{ 'authModal.passkey.sendCodeInstead' | transloco }}</span>
+        <mat-progress-spinner
+          *ngIf="isLoading()"
+          diameter="20"
+          mode="indeterminate"
+        ></mat-progress-spinner>
       </button>
-      <p class="text-xs text-center text-slate-500">{{ 'authModal.passkey.helper' | transloco }}</p>
     </ng-container>
+
+    <ng-template #emailOtpContinue>
+      <button
+        mat-flat-button
+        color="primary"
+        class="w-full !h-11 !rounded-lg"
+        [disabled]="!isEmailValid || isLoading()"
+        (click)="continueWithEmail()"
+      >
+        <span *ngIf="!isLoading()">{{ 'authModal.emailInput.continue' | transloco }}</span>
+        <mat-progress-spinner
+          *ngIf="isLoading()"
+          diameter="20"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+      </button>
+    </ng-template>
 
     <button mat-button class="w-full" (click)="setState('CHOICE')">
       {{ 'authModal.emailInput.back' | transloco }}
@@ -286,26 +303,22 @@
         type="tel"
         [placeholder]="'authModal.phoneInput.phonePlaceholder' | transloco"
         class="flex-1 px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        (keyup.enter)="sendPhoneOtp()"
+        (keyup.enter)="continueWithPhone()"
       />
     </div>
 
-    <button
-      mat-flat-button
-      color="primary"
-      class="w-full !h-11 !rounded-lg"
-      [disabled]="!phone() || !selectedCountry() || isLoading()"
-      (click)="sendPhoneOtp()"
-    >
-      <span *ngIf="!isLoading()">{{ 'authModal.phoneInput.continue' | transloco }}</span>
-      <mat-progress-spinner
-        *ngIf="isLoading()"
-        diameter="20"
-        mode="indeterminate"
-      ></mat-progress-spinner>
-    </button>
+    <ng-container *ngIf="showPasskeyButton; else phoneOtpContinue">
+      <button
+        type="button"
+        class="w-full h-11 rounded-lg bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-60 transition-colors"
+        [disabled]="isLoading()"
+        (click)="signInWithPasskey()"
+      >
+        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
+        <span>{{ 'authModal.passkey.cta' | transloco }}</span>
+      </button>
+      <p class="text-xs text-center text-slate-500">{{ 'authModal.passkey.helper' | transloco }}</p>
 
-    <ng-container *ngIf="showPasskeyButton">
       <div class="relative py-1">
         <div class="absolute inset-0 flex items-center">
           <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
@@ -318,16 +331,36 @@
       </div>
 
       <button
-        type="button"
-        class="w-full h-11 rounded-lg bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-60 transition-colors"
+        mat-stroked-button
+        class="w-full !h-11 !rounded-lg"
         [disabled]="isLoading()"
-        (click)="signInWithPasskey()"
+        (click)="sendPhoneOtp()"
       >
-        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
-        <span>{{ 'authModal.passkey.cta' | transloco }}</span>
+        <span *ngIf="!isLoading()">{{ 'authModal.passkey.sendCodeInstead' | transloco }}</span>
+        <mat-progress-spinner
+          *ngIf="isLoading()"
+          diameter="20"
+          mode="indeterminate"
+        ></mat-progress-spinner>
       </button>
-      <p class="text-xs text-center text-slate-500">{{ 'authModal.passkey.helper' | transloco }}</p>
     </ng-container>
+
+    <ng-template #phoneOtpContinue>
+      <button
+        mat-flat-button
+        color="primary"
+        class="w-full !h-11 !rounded-lg"
+        [disabled]="!phone() || !selectedCountry() || isLoading()"
+        (click)="continueWithPhone()"
+      >
+        <span *ngIf="!isLoading()">{{ 'authModal.phoneInput.continue' | transloco }}</span>
+        <mat-progress-spinner
+          *ngIf="isLoading()"
+          diameter="20"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+      </button>
+    </ng-template>
 
     <button mat-button class="w-full" (click)="setState('CHOICE')">
       {{ 'authModal.phoneInput.back' | transloco }}

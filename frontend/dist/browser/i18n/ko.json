@@ -3245,7 +3245,8 @@
             "enrollTitle": "Faster login",
             "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
             "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later"
+            "enrollSkip": "Maybe later",
+            "sendCodeInstead": "대신 코드 보내기"
         }
     },
     "chat": {
@@ -5304,6 +5305,7 @@
             "verdictMatch": "MATCH",
             "verdictDiff": "DIFF",
             "tryAgain": "다시 시도",
+            "errorResultTitle": "비교에 실패했습니다",
             "metaVerifik": "Verifik · 보안 세션 활성",
             "engineBlock": "엔진: HumanAuthn\n프로토: FACE_CMP\n인증: 보류 중",
             "support": "지원하다",
@@ -5373,6 +5375,7 @@
             "skipped": "SKIPPED",
             "na": "N/A",
             "tryAgain": "다시 시도",
+            "errorResultTitle": "비교에 실패했습니다",
             "metaVerifik": "Verifik · 보안 세션 활성",
             "engineBlock": "엔진: HumanAuthn\n프로토: CWL_SEQ\n인증: 보류 중",
             "support": "지원하다",
@@ -5467,6 +5470,7 @@
             "engineLine": "Verifik HumanAuthn 엔진 · 활성",
             "liveTitle": "살아있는 사람이 감지되었습니다",
             "spoofTitle": "스푸핑이 감지되었습니다",
+            "errorResultTitle": "라이브니스 검사 실패",
             "defaultPass": "대상이 Verifik 생체 검증을 통과했습니다.",
             "defaultFail": "이미지가 스푸핑 방지 검사를 통과하지 못했습니다.",
             "confidence": "신뢰",
