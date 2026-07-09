@@ -1038,12 +1038,25 @@ export class AuthModalComponent {
 
         if (passkey.encryptedContent) {
           ({ iv, ciphertext } = passkey.encryptedContent);
-        } else {
-          const encryptedFile = await fetch(passkey.url).then((res) => res.json());
+        } else if (passkey.url) {
+          const res = await fetch(passkey.url);
+          const contentType = `${res.headers.get('content-type') || ''}`.toLowerCase();
+          if (contentType.includes('image/')) {
+            continue;
+          }
+
+          const raw = (await res.text()).trim();
+          if (!raw || raw.charCodeAt(0) === 0x89 || raw.startsWith('PNG')) {
+            continue;
+          }
+
+          const encryptedFile = JSON.parse(raw);
           const payloadString = encryptedFile.encryptedToken || encryptedFile;
           ({ iv, ciphertext } =
             typeof payloadString === 'string' ? JSON.parse(payloadString) : payloadString);
           passkey.encryptedContent = { iv, ciphertext };
+        } else {
+          continue;
         }
 
         if (!iv || !ciphertext) continue;
