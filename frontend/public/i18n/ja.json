@@ -3238,14 +3238,14 @@
             "invalidPhone": "無効な電話番号"
         },
         "passkey": {
-            "cta": "Sign in with a passkey",
-            "helper": "Use Face ID / Touch ID — no codes to type",
-            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
-            "notFound": "No passkey found for this account",
-            "enrollTitle": "Faster login",
-            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
-            "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later",
+            "cta": "パスキーでサインイン",
+            "helper": "Face ID / Touch ID を使用 — コード入力は不要",
+            "failed": "パスキーでのサインインを完了できませんでした。もう一度お試しいただくか、コードをご利用ください。",
+            "notFound": "このアカウントのパスキーが見つかりません",
+            "enrollTitle": "より速いログイン",
+            "enrollDescription": "次回は Face ID、Touch ID、またはデバイスの指紋でサインインできるようパスキーを設定しましょう — コードを待つ必要はありません。",
+            "enrollConfirm": "パスキーを設定",
+            "enrollSkip": "後で",
             "sendCodeInstead": "代わりにコードを送信"
         }
     },

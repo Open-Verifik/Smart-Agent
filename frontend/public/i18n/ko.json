@@ -3238,14 +3238,14 @@
             "invalidPhone": "유효하지 않은 전화번호"
         },
         "passkey": {
-            "cta": "Sign in with a passkey",
-            "helper": "Use Face ID / Touch ID — no codes to type",
-            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
-            "notFound": "No passkey found for this account",
-            "enrollTitle": "Faster login",
-            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
-            "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later",
+            "cta": "패스키로 로그인",
+            "helper": "Face ID / Touch ID 사용 — 코드 입력 불필요",
+            "failed": "패스키 로그인을 완료할 수 없습니다. 다시 시도하거나 코드를 사용하세요.",
+            "notFound": "이 계정에 대한 패스키를 찾을 수 없습니다",
+            "enrollTitle": "더 빠른 로그인",
+            "enrollDescription": "다음에 Face ID, Touch ID 또는 기기 지문으로 로그인할 수 있도록 패스키를 설정하세요 — 코드를 기다릴 필요가 없습니다.",
+            "enrollConfirm": "패스키 설정",
+            "enrollSkip": "나중에",
             "sendCodeInstead": "대신 코드 보내기"
         }
     },

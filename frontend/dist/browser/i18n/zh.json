@@ -3238,14 +3238,14 @@
             "invalidPhone": "无效的电话号码"
         },
         "passkey": {
-            "cta": "Sign in with a passkey",
-            "helper": "Use Face ID / Touch ID — no codes to type",
-            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
-            "notFound": "No passkey found for this account",
-            "enrollTitle": "Faster login",
-            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
-            "enrollConfirm": "Setup passkey",
-            "enrollSkip": "Maybe later",
+            "cta": "使用通行密钥登录",
+            "helper": "使用 Face ID / Touch ID — 无需输入验证码",
+            "failed": "无法完成通行密钥登录。请重试或使用验证码。",
+            "notFound": "未找到此账户的通行密钥",
+            "enrollTitle": "更快登录",
+            "enrollDescription": "设置通行密钥，下次可用 Face ID、Touch ID 或设备指纹登录 — 无需等待验证码。",
+            "enrollConfirm": "设置通行密钥",
+            "enrollSkip": "稍后再说",
             "sendCodeInstead": "改为发送验证码"
         }
     },
