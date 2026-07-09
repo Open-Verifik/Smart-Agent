@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import type { ApiErrorResponse } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
-import { fileToBase64, getDemoOs, DEMO_HUMANID_PRIVATE_DATA_DEFAULT } from '../../services/biometrics-demo.util';
+import { fileToBase64, getDemoOs, DEMO_HUMANID_PRIVATE_DATA_DEFAULT, isLivenessApiErrorCode, translateLivenessApiError } from '../../services/biometrics-demo.util';
 import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
@@ -139,11 +139,15 @@ export class HumanidCreateDemoComponent {
                 },
                 error: (err: ApiErrorResponse) => {
                     this.errorCode = err.code ?? null;
-                    this.error = err.error ?? err.message ?? 'Request failed';
+                    this.error = translateLivenessApiError((key) => this._transloco.translate(key), err);
                     this.step = 'form';
                     this._cdr.markForCheck();
                 },
             });
+    }
+
+    isLivenessError(code: string | null): boolean {
+        return isLivenessApiErrorCode(code);
     }
 
     reset(): void {

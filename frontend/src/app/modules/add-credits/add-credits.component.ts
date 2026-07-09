@@ -9,7 +9,10 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
-import type { SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
+import type {
+    PendingWelcomeCredits,
+    SmartAgentWeekOneUsd50Promotion,
+} from '../../core/user/user.types';
 import { UserService } from '../../core/user/user.service';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import {
@@ -72,9 +75,17 @@ export class AddCreditsComponent implements OnInit {
     /** Session-driven first-week promotion (server-calculated eligibility). */
     weekOneUsd50Promotion = signal<SmartAgentWeekOneUsd50Promotion | undefined>(undefined);
 
+    /** Signup welcome credits locked until account approval. */
+    pendingWelcomeCredits = signal<PendingWelcomeCredits | undefined>(undefined);
+
     showWeekOneUsd50PromoBanner = computed(() =>
         Boolean(this.weekOneUsd50Promotion()?.eligible),
     );
+
+    showPendingWelcomeCreditsBanner = computed(() => {
+        const pending = this.pendingWelcomeCredits();
+        return Boolean(pending?.lockedUntilApproval && (pending.amount ?? 0) > 0);
+    });
 
     /** Comma-separated promo tier list for the wallet strip, e.g. "$50, $100, $150, $200". */
     weekOneUsd50PromoAmountsLabel = computed(() => {
@@ -216,6 +227,13 @@ export class AddCreditsComponent implements OnInit {
                 const promo = result.session?.promotion;
                 this.weekOneUsd50Promotion.set(
                     promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
+                );
+
+                const pending = result.session?.pendingWelcomeCredits;
+                this.pendingWelcomeCredits.set(
+                    pending?.lockedUntilApproval && (pending.amount ?? 0) > 0
+                        ? pending
+                        : undefined,
                 );
 
                 const rawPlans = result.pricing?.data?.plans ?? [];

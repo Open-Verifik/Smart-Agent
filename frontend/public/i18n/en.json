@@ -3250,6 +3250,16 @@
         "errors": {
             "invalidEmail": "Invalid email address",
             "invalidPhone": "Invalid phone number"
+        },
+        "passkey": {
+            "cta": "Sign in with a passkey",
+            "helper": "Use Face ID / Touch ID — no codes to type",
+            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
+            "notFound": "No passkey found for this account",
+            "enrollTitle": "Faster login",
+            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
+            "enrollConfirm": "Setup passkey",
+            "enrollSkip": "Maybe later"
         }
     },
     "chat": {
@@ -3433,6 +3443,10 @@
         "title": "Add Credits",
         "subtitle": "Manage your credits and payment methods",
         "availableCredits": "Available credits",
+        "pendingWelcome": {
+            "title": "{{amount}} welcome credits locked",
+            "body": "You'll receive these credits once your account is approved. They are not spendable until then."
+        },
         "purchaseCredits": "Purchase Credits",
         "addCard": "Add Card",
         "noCards": "No payment methods",
@@ -5476,6 +5490,15 @@
             "fail": "FAIL",
             "tryAgain": "Try Again",
             "sampleLoadError": "Could not load sample image.",
+            "errors": {
+                "ERR_LIVENESS_FACE_CLOSE_TO_BORDER": "Move a little farther from the camera so your whole face fits inside the frame with space around the edges.",
+                "ERR_LIVENESS_FACE_TOO_SMALL": "Move closer so your face fills more of the frame, then try again.",
+                "ERR_MULTIPLE_FACES_DETECTED": "Only one face should be visible. Make sure no one else is in the frame.",
+                "ERR_NO_FACE_DETECTED": "We could not detect a face. Center your face in the frame with good lighting.",
+                "LIVENESS_CHECK_FAILED": "Liveness verification failed. Use a live camera capture and try again.",
+                "ERR_LIVENESS_FAILED": "This image did not pass liveness verification. Use a live camera capture and try again.",
+                "fallback": "Liveness check failed. Please try again."
+            },
             "apiRefBody": "This demo calls POST /v2/face-recognition/liveness with os and image (base64). Pass/fail uses liveness_score against min_score (default {{defaultMin}} when liveness_min_score is omitted).",
             "apiRefEndpointDesc": "Returns a liveness score and passed when the score exceeds the minimum threshold.",
             "paramOsDesc": "DESKTOP, IOS, or ANDROID",

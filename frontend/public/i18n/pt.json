@@ -3236,6 +3236,16 @@
         "errors": {
             "invalidEmail": "Endereço de e-mail inválido",
             "invalidPhone": "Número de telefone inválido"
+        },
+        "passkey": {
+            "cta": "Entrar com uma passkey",
+            "helper": "Use Face ID / Touch ID — sem códigos para digitar",
+            "failed": "Não foi possível concluir o login com passkey. Tente novamente ou use um código.",
+            "notFound": "Nenhuma passkey encontrada para esta conta",
+            "enrollTitle": "Login mais rápido",
+            "enrollDescription": "Configure uma passkey para entrar da próxima vez com Face ID, Touch ID ou a impressão digital do seu dispositivo — sem esperar códigos.",
+            "enrollConfirm": "Configurar passkey",
+            "enrollSkip": "Agora não"
         }
     },
     "chat": {
@@ -3419,6 +3429,10 @@
         "title": "Adicionar Créditos",
         "subtitle": "Gerencie seus créditos e métodos de pagamento",
         "availableCredits": "Créditos disponíveis",
+        "pendingWelcome": {
+            "title": "{{amount}} créditos de boas-vindas bloqueados",
+            "body": "Você receberá esses créditos quando sua conta for aprovada. Eles não podem ser usados até lá."
+        },
         "purchaseCredits": "Comprar Créditos",
         "addCard": "Adicionar Cartão",
         "noCards": "Sem métodos de pagamento",
@@ -5462,6 +5476,15 @@
             "fail": "FAIL",
             "tryAgain": "Tentar de novo",
             "sampleLoadError": "Não foi possível carregar a imagem de amostra.",
+            "errors": {
+                "ERR_LIVENESS_FACE_CLOSE_TO_BORDER": "Afaste-se um pouco da câmera para que todo o rosto caiba no enquadramento com espaço nas bordas.",
+                "ERR_LIVENESS_FACE_TOO_SMALL": "Aproxime-se para que o rosto ocupe mais do enquadramento e tente novamente.",
+                "ERR_MULTIPLE_FACES_DETECTED": "Apenas um rosto deve aparecer. Certifique-se de que ninguém mais esteja no enquadramento.",
+                "ERR_NO_FACE_DETECTED": "Não detectamos um rosto. Centralize o rosto no enquadramento com boa iluminação.",
+                "LIVENESS_CHECK_FAILED": "A verificação de vivacidade falhou. Use uma captura com câmera ao vivo e tente novamente.",
+                "ERR_LIVENESS_FAILED": "Esta imagem não passou na verificação de vivacidade. Use uma captura com câmera ao vivo e tente novamente.",
+                "fallback": "A verificação de vivacidade falhou. Tente novamente."
+            },
             "apiRefBody": "Esta demo chama POST /v2/face-recognition/liveness com os e image (base64). Aprovação/reprovação usa liveness_score contra min_score (padrão {{defaultMin}} quando liveness_min_score é omitido).",
             "apiRefEndpointDesc": "Retorna pontuação de vivacidade e passed quando ultrapassa o limiar mínimo.",
             "paramOsDesc": "DESKTOP, IOS ou ANDROID",

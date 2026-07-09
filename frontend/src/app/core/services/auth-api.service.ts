@@ -101,10 +101,12 @@ export class AuthApiService {
   }
 
   /**
-   * Project Login to get real access token
+   * Project Login to get real access token.
+   * @param expiresIn Months until expiry (default backend unit). Use 12 for passkey vault JWTs.
    */
-  projectLogin(): Observable<AuthTokenResponse> {
-    return this._httpWrapper.sendRequest('post', `${this._apiUrl}/v2/auth/project-login`, {});
+  projectLogin(expiresIn?: number): Observable<AuthTokenResponse> {
+    const body = expiresIn && expiresIn > 0 ? { expiresIn } : {};
+    return this._httpWrapper.sendRequest('post', `${this._apiUrl}/v2/auth/project-login`, body);
   }
 
   /**

@@ -3236,6 +3236,16 @@
         "errors": {
             "invalidEmail": "유효하지 않은 이메일 주소",
             "invalidPhone": "유효하지 않은 전화번호"
+        },
+        "passkey": {
+            "cta": "Sign in with a passkey",
+            "helper": "Use Face ID / Touch ID — no codes to type",
+            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
+            "notFound": "No passkey found for this account",
+            "enrollTitle": "Faster login",
+            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
+            "enrollConfirm": "Setup passkey",
+            "enrollSkip": "Maybe later"
         }
     },
     "chat": {
@@ -3419,6 +3429,10 @@
         "title": "크레딧 추가",
         "subtitle": "크레딧 및 결제 수단 관리",
         "availableCredits": "사용 가능한 크레딧",
+        "pendingWelcome": {
+            "title": "{{amount}} 환영 크레딧이 잠겨 있음",
+            "body": "계정이 승인되면 이 크레딧을 받게 됩니다. 그 전에는 사용할 수 없습니다."
+        },
         "purchaseCredits": "크레딧 구매",
         "addCard": "카드 추가",
         "noCards": "결제 수단 없음",
@@ -5462,6 +5476,15 @@
             "fail": "FAIL",
             "tryAgain": "다시 시도",
             "sampleLoadError": "샘플 이미지를 로드할 수 없습니다.",
+            "errors": {
+                "ERR_LIVENESS_FACE_CLOSE_TO_BORDER": "얼굴 전체가 프레임 안에 들어오고 가장자리에 여유가 있도록 카메라에서 조금 더 멀리 떨어져 주세요.",
+                "ERR_LIVENESS_FACE_TOO_SMALL": "얼굴이 프레임을 더 채우도록 가까이 다가간 뒤 다시 시도하세요.",
+                "ERR_MULTIPLE_FACES_DETECTED": "얼굴은 하나만 보여야 합니다. 다른 사람이 프레임에 들어오지 않게 하세요.",
+                "ERR_NO_FACE_DETECTED": "얼굴을 감지하지 못했습니다. 밝은 조명에서 얼굴을 프레임 중앙에 맞춰 주세요.",
+                "LIVENESS_CHECK_FAILED": "라이브니스 검증에 실패했습니다. 실시간 카메라로 촬영한 뒤 다시 시도하세요.",
+                "ERR_LIVENESS_FAILED": "이 이미지는 라이브니스 검증을 통과하지 못했습니다. 실시간 카메라로 촬영한 뒤 다시 시도하세요.",
+                "fallback": "라이브니스 검사에 실패했습니다. 다시 시도해 주세요."
+            },
             "apiRefBody": "이 데모는 OS 및 이미지(base64)를 사용하여 POST /v2/face-recognition/liveness을 호출합니다. 통과/실패는 min_score에 대해 liveness_score를 사용합니다(liveness_min_score가 생략된 경우 기본값은 {{defaultMin}}).",
             "apiRefEndpointDesc": "활성 점수를 반환하고 점수가 최소 임계값을 초과하면 통과됩니다.",
             "paramOsDesc": "데스크탑, IOS 또는 안드로이드",

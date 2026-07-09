@@ -115,6 +115,29 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div
+                            *ngIf="showPendingWelcomeCreditsBanner()"
+                            class="mt-5 flex gap-3 rounded-xl border border-amber-200/90 bg-amber-50/90 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950/30"
+                        >
+                            <mat-icon class="mt-0.5 shrink-0 text-amber-700 dark:text-amber-400"
+                                >lock_clock</mat-icon
+                            >
+                            <div class="m-0 flex-1 space-y-1 leading-relaxed text-amber-950 dark:text-amber-100">
+                                <p class="m-0 font-semibold">
+                                    {{
+                                        t('addCredits.pendingWelcome.title', {
+                                            amount:
+                                                (pendingWelcomeCredits()?.amount || 0)
+                                                    | number: '1.0-2',
+                                        })
+                                    }}
+                                </p>
+                                <p class="m-0 text-amber-900/90 dark:text-amber-100/90">
+                                    {{ t('addCredits.pendingWelcome.body') }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">

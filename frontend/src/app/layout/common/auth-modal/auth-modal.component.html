@@ -135,7 +135,7 @@
       <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">mail</mat-icon>
       <input
         [ngModel]="email()"
-        (ngModelChange)="email.set($event)"
+        (ngModelChange)="onEmailChange($event)"
         type="email"
         [placeholder]="'authModal.emailInput.placeholder' | transloco"
         class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -157,6 +157,30 @@
         mode="indeterminate"
       ></mat-progress-spinner>
     </button>
+
+    <ng-container *ngIf="showPasskeyButton">
+      <div class="relative py-1">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-white dark:bg-slate-800 px-2 text-slate-500">{{
+            'authModal.choice.or' | transloco
+          }}</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="w-full h-11 rounded-lg bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-60 transition-colors"
+        [disabled]="isLoading()"
+        (click)="signInWithPasskey()"
+      >
+        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
+        <span>{{ 'authModal.passkey.cta' | transloco }}</span>
+      </button>
+      <p class="text-xs text-center text-slate-500">{{ 'authModal.passkey.helper' | transloco }}</p>
+    </ng-container>
 
     <button mat-button class="w-full" (click)="setState('CHOICE')">
       {{ 'authModal.emailInput.back' | transloco }}
@@ -281,6 +305,30 @@
       ></mat-progress-spinner>
     </button>
 
+    <ng-container *ngIf="showPasskeyButton">
+      <div class="relative py-1">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-white dark:bg-slate-800 px-2 text-slate-500">{{
+            'authModal.choice.or' | transloco
+          }}</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="w-full h-11 rounded-lg bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-slate-800 disabled:opacity-60 transition-colors"
+        [disabled]="isLoading()"
+        (click)="signInWithPasskey()"
+      >
+        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
+        <span>{{ 'authModal.passkey.cta' | transloco }}</span>
+      </button>
+      <p class="text-xs text-center text-slate-500">{{ 'authModal.passkey.helper' | transloco }}</p>
+    </ng-container>
+
     <button mat-button class="w-full" (click)="setState('CHOICE')">
       {{ 'authModal.phoneInput.back' | transloco }}
     </button>
@@ -340,6 +388,49 @@
 
     <button mat-button class="w-full" (click)="setState('CHOICE')">
       {{ 'authModal.otpVerify.back' | transloco }}
+    </button>
+  </div>
+
+  <!-- Passkey enroll (post-OTP) -->
+  <div *ngIf="state() === 'PASSKEY_ENROLL'" class="space-y-6">
+    <div class="flex flex-col items-center text-center gap-3">
+      <div
+        class="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 flex items-center justify-center"
+      >
+        <mat-icon class="text-blue-600 dark:text-blue-400 !w-8 !h-8 !text-[32px]">fingerprint</mat-icon>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+        {{ 'authModal.passkey.enrollTitle' | transloco }}
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed px-1">
+        {{ 'authModal.passkey.enrollDescription' | transloco }}
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="w-full h-12 rounded-xl bg-slate-900 text-white font-semibold flex items-center justify-center gap-2 hover:bg-black disabled:opacity-60 transition-colors"
+      [disabled]="isLoading()"
+      (click)="setupPasskeyEnroll()"
+    >
+      <ng-container *ngIf="!isLoading()">
+        <mat-icon class="!w-5 !h-5 !text-[20px]">fingerprint</mat-icon>
+        <span>{{ 'authModal.passkey.enrollConfirm' | transloco }}</span>
+      </ng-container>
+      <mat-progress-spinner
+        *ngIf="isLoading()"
+        diameter="22"
+        mode="indeterminate"
+      ></mat-progress-spinner>
+    </button>
+
+    <button
+      mat-button
+      class="w-full !text-slate-500"
+      [disabled]="isLoading()"
+      (click)="skipPasskeyEnroll()"
+    >
+      {{ 'authModal.passkey.enrollSkip' | transloco }}
     </button>
   </div>
 

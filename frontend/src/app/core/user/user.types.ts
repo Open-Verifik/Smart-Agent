@@ -7,6 +7,13 @@ export interface SmartAgentWeekOneUsd50Promotion {
     purchaseUsdAmounts: number[];
 }
 
+/** Signup welcome credits reserved until account approval (`canRecharge`). */
+export interface PendingWelcomeCredits {
+    amount: number;
+    lockedUntilApproval: boolean;
+    message?: string;
+}
+
 export interface ClientSettingsSnapshot {
     _id?: string;
     sandboxMode?: boolean;
@@ -29,6 +36,8 @@ export interface User {
     credits?: number;
     language?: string;
     promotion?: SmartAgentWeekOneUsd50Promotion;
+    /** Welcome credits reserved at signup; spendable only after approval. */
+    pendingWelcomeCredits?: PendingWelcomeCredits;
     /** Present on session user from Client Settings (see backend authentication.module). */
     settings?: ClientSettingsSnapshot;
     /** When false, recharge / verification gating may apply (see Client model). */

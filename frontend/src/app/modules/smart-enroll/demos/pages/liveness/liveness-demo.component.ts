@@ -3,7 +3,13 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DEFAULT_LIVENESS_STANDALONE_MIN_SCORE } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
-import { fileToBase64, getDemoOs, imageUrlToRawBase64, parseLivenessResult } from '../../services/biometrics-demo.util';
+import {
+    fileToBase64,
+    getDemoOs,
+    imageUrlToRawBase64,
+    parseLivenessResult,
+    translateLivenessApiError,
+} from '../../services/biometrics-demo.util';
 import { DemoCaptureOptionHeadingComponent } from '../../shared/demo-capture-option-heading.component';
 import { DemoChooseOneCalloutComponent } from '../../shared/demo-choose-one-callout.component';
 import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
@@ -141,7 +147,7 @@ export class LivenessDemoComponent {
                 this._cdr.markForCheck();
             },
             error: (err) => {
-                this.error = err.error ?? err.message ?? 'Request failed';
+                this.error = translateLivenessApiError((key) => this._transloco.translate(key), err);
                 this.step = 'capture';
                 this._cdr.markForCheck();
             },

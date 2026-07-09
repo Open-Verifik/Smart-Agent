@@ -3236,6 +3236,16 @@
         "errors": {
             "invalidEmail": "无效的电子邮件地址",
             "invalidPhone": "无效的电话号码"
+        },
+        "passkey": {
+            "cta": "Sign in with a passkey",
+            "helper": "Use Face ID / Touch ID — no codes to type",
+            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
+            "notFound": "No passkey found for this account",
+            "enrollTitle": "Faster login",
+            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
+            "enrollConfirm": "Setup passkey",
+            "enrollSkip": "Maybe later"
         }
     },
     "chat": {
@@ -3419,6 +3429,10 @@
         "title": "添加积分",
         "subtitle": "管理您的积分和支付方式",
         "availableCredits": "可用积分",
+        "pendingWelcome": {
+            "title": "{{amount}} 欢迎积分已锁定",
+            "body": "账户获批后您将收到这些积分。在此之前不可使用。"
+        },
         "purchaseCredits": "购买积分",
         "addCard": "添加卡片",
         "noCards": "无支付方式",
@@ -5462,6 +5476,15 @@
             "fail": "未通过",
             "tryAgain": "重试",
             "sampleLoadError": "无法加载样例图像。",
+            "errors": {
+                "ERR_LIVENESS_FACE_CLOSE_TO_BORDER": "请稍微远离摄像头，让整张脸都在画面内，并在边缘留出空间。",
+                "ERR_LIVENESS_FACE_TOO_SMALL": "请靠近一些，让脸部占据更多画面，然后重试。",
+                "ERR_MULTIPLE_FACES_DETECTED": "画面中只能有一张脸。请确保没有其他人入镜。",
+                "ERR_NO_FACE_DETECTED": "未检测到人脸。请在光线充足的环境下将脸部置于画面中央。",
+                "LIVENESS_CHECK_FAILED": "活体验证失败。请使用实时摄像头拍摄后重试。",
+                "ERR_LIVENESS_FAILED": "该图像未通过活体验证。请使用实时摄像头拍摄后重试。",
+                "fallback": "活体检测失败。请重试。"
+            },
             "apiRefBody": "本演示调用 POST /v2/face-recognition/liveness，传入 os 与 image（base64）。通过/未通过依据 liveness_score 与 min_score（省略 liveness_min_score 时默认 {{defaultMin}}）。",
             "apiRefEndpointDesc": "返回活体分数，超过最低阈值时为 passed。",
             "paramOsDesc": "DESKTOP、IOS 或 ANDROID",

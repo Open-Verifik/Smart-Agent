@@ -104,9 +104,9 @@
 
             @if (error) {
                 <div class="px-4 py-3 bg-error-container/20 border border-error/20 rounded-lg text-sm text-error">
-                    @if (errorCode === 'ERR_LIVENESS_FAILED') {
+                    @if (isLivenessError(errorCode)) {
                         <p class="font-semibold">{{ 'smartEnrollDemos.humanidCreate.errorLivenessFailedTitle' | transloco }}</p>
-                        <p>{{ 'smartEnrollDemos.humanidCreate.errorLivenessFailedBody' | transloco }}</p>
+                        <p>{{ error }}</p>
                     } @else {
                         {{ error }}
                     }

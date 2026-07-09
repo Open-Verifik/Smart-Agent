@@ -3236,6 +3236,16 @@
         "errors": {
             "invalidEmail": "無効なメールアドレス",
             "invalidPhone": "無効な電話番号"
+        },
+        "passkey": {
+            "cta": "Sign in with a passkey",
+            "helper": "Use Face ID / Touch ID — no codes to type",
+            "failed": "We couldn't complete passkey sign-in. Please try again or use a code.",
+            "notFound": "No passkey found for this account",
+            "enrollTitle": "Faster login",
+            "enrollDescription": "Set up a passkey to sign in next time with Face ID, Touch ID, or your device fingerprint — no codes to wait for.",
+            "enrollConfirm": "Setup passkey",
+            "enrollSkip": "Maybe later"
         }
     },
     "chat": {
@@ -3419,6 +3429,10 @@
         "title": "クレジットを追加",
         "subtitle": "クレジットと支払い方法を管理",
         "availableCredits": "利用可能なクレジット",
+        "pendingWelcome": {
+            "title": "{{amount}} ウェルカムクレジットがロック中",
+            "body": "アカウント承認後に付与されます。それまでは利用できません。"
+        },
         "purchaseCredits": "クレジットを購入",
         "addCard": "カードを追加",
         "noCards": "支払い方法がありません",
@@ -5462,6 +5476,15 @@
             "fail": "FAIL",
             "tryAgain": "もう一度やり直してください",
             "sampleLoadError": "サンプル画像を読み込めませんでした。",
+            "errors": {
+                "ERR_LIVENESS_FACE_CLOSE_TO_BORDER": "顔全体が枠内に収まり、端に余白ができるようにカメラから少し離れてください。",
+                "ERR_LIVENESS_FACE_TOO_SMALL": "顔が枠をもっと埋めるように近づいてから、もう一度お試しください。",
+                "ERR_MULTIPLE_FACES_DETECTED": "顔は1人だけ映るようにしてください。他の人が枠に入らないようにします。",
+                "ERR_NO_FACE_DETECTED": "顔を検出できませんでした。明るい場所で顔を枠の中央に合わせてください。",
+                "LIVENESS_CHECK_FAILED": "ライブネス検証に失敗しました。ライブカメラで撮影してから、もう一度お試しください。",
+                "ERR_LIVENESS_FAILED": "この画像はライブネス検証に合格しませんでした。ライブカメラで撮影してから、もう一度お試しください。",
+                "fallback": "ライブネスチェックに失敗しました。もう一度お試しください。"
+            },
             "apiRefBody": "このデモでは、OS とイメージ (base64) を使用して POST /v2/face-recognition/liveness を呼び出します。合格/不合格では、min_score に対して liveness_score が使用されます (liveness_min_score が省略された場合のデフォルトは {{defaultMin}})。",
             "apiRefEndpointDesc": "活性スコアを返し、スコアが最小しきい値を超えた場合に合格します。",
             "paramOsDesc": "デスクトップ、IOS、または ANDROID",

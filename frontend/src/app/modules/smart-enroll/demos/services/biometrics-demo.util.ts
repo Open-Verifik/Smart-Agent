@@ -258,3 +258,42 @@ export const getDemoOs = (): 'DESKTOP' | 'IOS' | 'ANDROID' => {
     if (/Android/i.test(ua)) return 'ANDROID';
     return 'DESKTOP';
 };
+
+/** Upstream / Verifik liveness error codes we map to demo i18n. */
+export const LIVENESS_API_ERROR_CODES = [
+    'ERR_LIVENESS_FACE_CLOSE_TO_BORDER',
+    'ERR_LIVENESS_FACE_TOO_SMALL',
+    'ERR_MULTIPLE_FACES_DETECTED',
+    'ERR_NO_FACE_DETECTED',
+    'LIVENESS_CHECK_FAILED',
+    'ERR_LIVENESS_FAILED',
+] as const;
+
+export type LivenessApiErrorCode = (typeof LIVENESS_API_ERROR_CODES)[number];
+
+const LIVENESS_API_ERROR_CODE_SET = new Set<string>(LIVENESS_API_ERROR_CODES);
+
+export const isLivenessApiErrorCode = (code: string | null | undefined): code is LivenessApiErrorCode =>
+    Boolean(code && LIVENESS_API_ERROR_CODE_SET.has(code));
+
+/**
+ * Maps API liveness error codes to `smartEnrollDemos.liveness.errors.*` copy.
+ * Falls back to the API message, then a generic translated string.
+ */
+export const translateLivenessApiError = (
+    translate: (key: string, params?: Record<string, unknown>) => string,
+    err: { code?: string | null; error?: string | null; message?: string | null } | null | undefined
+): string => {
+    const code = typeof err?.code === 'string' ? err.code.trim() : '';
+    if (isLivenessApiErrorCode(code)) {
+        return translate(`smartEnrollDemos.liveness.errors.${code}`);
+    }
+
+    const detail =
+        (typeof err?.error === 'string' && err.error.trim()) ||
+        (typeof err?.message === 'string' && err.message.trim()) ||
+        '';
+
+    if (detail) return detail;
+    return translate('smartEnrollDemos.liveness.errors.fallback');
+};

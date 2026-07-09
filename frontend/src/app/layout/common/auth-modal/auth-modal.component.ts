@@ -19,11 +19,15 @@ import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthService } from 'app/core/auth/auth.service';
+import { AuthUtils } from 'app/core/auth/auth.utils';
 import { AuthApiService } from 'app/core/services/auth-api.service';
+import { BiometricSecurityService } from 'app/core/services/biometric-security.service';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
+import { PasskeyZelfService } from 'app/core/services/passkey-zelf.service';
 import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
 import { environment } from 'environments/environment';
+import { firstValueFrom } from 'rxjs';
 
 // Extend Window interface for MetaMask
 declare global {
@@ -40,6 +44,7 @@ type AuthState =
   | 'OTP_VERIFY_EMAIL'
   | 'OTP_VERIFY_PHONE'
   | 'OTP_VERIFY_WHATSAPP'
+  | 'PASSKEY_ENROLL'
   | 'WALLET_CONNECT'
   | 'WALLET_ENCRYPT_CHOICE'
   | 'WALLET_ENCRYPT_PIN';
@@ -79,6 +84,12 @@ export class AuthModalComponent {
   tempWalletPrivateKey = signal<string | null>(null);
   passkeySupported = signal(false);
 
+  // Login passkey (ZelfKey / WebAuthn)
+  passkeyExistsForContact = signal(false);
+  lastPasskeyAttemptFound = signal(false);
+  pendingPasskeyToken = signal<string | null>(null);
+  private _passkeyDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
   // Existing auth state
   connectedWalletAddress = signal<string | null>(null);
   hasWeb2Auth = signal(false); // Track if user already has Web2 authentication
@@ -104,6 +115,8 @@ export class AuthModalComponent {
   private _router = inject(Router);
   private _countryService = inject(CountryService);
   private _encryptionService = inject(WalletEncryptionService);
+  private _biometricSecurity = inject(BiometricSecurityService);
+  private _passkeyZelf = inject(PasskeyZelfService);
   private _sessionService = inject(SessionService);
   private _dialogData = inject<{ startWithWallet?: boolean }>(MAT_DIALOG_DATA, { optional: true });
 
@@ -158,6 +171,7 @@ export class AuthModalComponent {
     this.otpArray.set(new Array(6).fill(''));
     this.error.set(null);
     this.errorKey.set(null);
+    this.passkeyExistsForContact.set(false);
     if (newState === 'PHONE_INPUT' || newState === 'WHATSAPP_INPUT') {
       // Reset to default country when entering phone input
       const defaultCountry = this._countryService.countryDialCodes.find(
@@ -169,6 +183,15 @@ export class AuthModalComponent {
       this.countrySearchTerm.set('');
       this.filteredCountries.set(this.countryDialCodes);
     }
+  }
+
+  onEmailChange(value: string): void {
+    this.email.set(value);
+    this._checkPasskeyAvailability(this.isValidEmail(value) ? value.trim() : '');
+  }
+
+  get showPasskeyButton(): boolean {
+    return this.passkeyExistsForContact();
   }
 
   error = signal<string | null>(null);
@@ -286,6 +309,7 @@ export class AuthModalComponent {
     value = value.replace(/[^\d\s\-()]/g, '');
 
     this.phone.set(value);
+    this._syncPhonePasskeyAvailability();
   }
 
   onCountrySearchChange(searchTerm: string) {
@@ -318,6 +342,7 @@ export class AuthModalComponent {
     this.filteredCountries.set(this.countryDialCodes);
     this.isCountryDropdownOpen.set(false);
     this.dropdownPosition.set(null);
+    this._syncPhonePasskeyAvailability();
   }
 
   async sendPhoneOtp() {
@@ -633,52 +658,366 @@ export class AuthModalComponent {
     // This is the temporary token from the validation endpoint
     const tempToken = data.token || data.accessToken;
 
-    if (tempToken) {
-      // 1. Set the temporary token so the interceptor uses it for the next call
-      this._authService.accessToken = tempToken;
-
-      // 2. Call project-login to get the real access token
-      this._authApiService.projectLogin().subscribe({
-        next: (loginRes: any) => {
-          const realToken = loginRes.data?.accessToken || loginRes.accessToken; // check logic
-          // Structure seems to be: { accessToken: "...", tokenType: "bearer", ... } based on module
-
-          if (realToken) {
-            // 3. Set the real token
-            this._authService.accessToken = realToken;
-            localStorage.setItem('accessToken', realToken);
-
-            // 4. Get the session data
-            this._authApiService.getSession().subscribe({
-              next: (sessionRes: any) => {
-                const userData = sessionRes.data?.user || sessionRes.user || sessionRes;
-                // Store account data
-                localStorage.setItem('verifik_account', JSON.stringify(userData));
-
-                this._dialogRef.close(true);
-                this._sessionService.resetReloadTracking(); // Reset tracking after successful login
-                this._sessionService.safeReload();
-              },
-              error: (err) => {
-                console.error('Session fetch failed', err);
-                this.error.set('Failed to fetch session');
-                this.isLoading.set(false);
-              },
-            });
-          } else {
-            this.error.set('Failed to obtain access token');
-            this.isLoading.set(false);
-          }
-        },
-        error: (err) => {
-          console.error('Project login failed', err);
-          this.error.set('Login failed');
-          this.isLoading.set(false);
-        },
-      });
-    } else {
+    if (!tempToken) {
       console.warn('No temp token found in response', res);
       this._dialogRef.close(true);
+      return;
+    }
+
+    void this._afterOtpSuccess(tempToken);
+  }
+
+  /**
+   * After OTP: skip enroll if a passkey already exists; otherwise offer Faster login.
+   */
+  private async _afterOtpSuccess(tempToken: string): Promise<void> {
+    this._authService.accessToken = tempToken;
+    this.pendingPasskeyToken.set(tempToken);
+
+    const contact = this._resolveContactForPasskey();
+
+    try {
+      const supported = await this._biometricSecurity.isPasskeySupported();
+      if (supported && contact) {
+        const existing = await this._listPasskeysForContact(contact, false);
+        if (existing.length === 0) {
+          this.isLoading.set(false);
+          this.state.set('PASSKEY_ENROLL');
+          return;
+        }
+        this.passkeyExistsForContact.set(true);
+      }
+    } catch (e) {
+      console.warn('[Passkeys] Could not check existing passkeys before enroll offer', e);
+    }
+
+    this._completeWeb2Login(tempToken);
+  }
+
+  skipPasskeyEnroll(): void {
+    const token = this.pendingPasskeyToken();
+    if (!token) {
+      this._dialogRef.close(true);
+      return;
+    }
+    this.isLoading.set(true);
+    this._completeWeb2Login(token);
+  }
+
+  async setupPasskeyEnroll(): Promise<void> {
+    const token = this.pendingPasskeyToken();
+    const contact = this._resolveContactForPasskey();
+    if (!token || !contact || this.isLoading()) return;
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.errorKey.set(null);
+
+    try {
+      await this._registerPasskey(token, contact);
+      this._completeWeb2Login(this._authService.accessToken || token);
+    } catch (error) {
+      console.error('[Passkeys] Enrollment failed', error);
+      this.isLoading.set(false);
+      this.errorKey.set('authModal.passkey.failed');
+      this.error.set(null);
+    }
+  }
+
+  async signInWithPasskey(): Promise<void> {
+    if (this.isLoading()) return;
+
+    const contact = this._resolveContactForPasskey();
+    if (!contact) {
+      this.errorKey.set(
+        this.state() === 'EMAIL_INPUT' ? 'authModal.errors.invalidEmail' : 'authModal.errors.invalidPhone'
+      );
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.error.set(null);
+    this.errorKey.set(null);
+
+    const loggedIn = await this._checkAndLoginWithPasskey(contact);
+
+    if (!loggedIn) {
+      this.isLoading.set(false);
+      this.errorKey.set(
+        this.lastPasskeyAttemptFound() ? 'authModal.passkey.failed' : 'authModal.passkey.notFound'
+      );
+      this.error.set(null);
+    }
+  }
+
+  private _completeWeb2Login(tempToken: string): void {
+    this._authService.accessToken = tempToken;
+
+    this._authApiService.projectLogin().subscribe({
+      next: (loginRes: any) => {
+        const realToken = loginRes.data?.accessToken || loginRes.accessToken;
+
+        if (realToken) {
+          this._authService.accessToken = realToken;
+          localStorage.setItem('accessToken', realToken);
+
+          this._authApiService.getSession().subscribe({
+            next: (sessionRes: any) => {
+              const userData = sessionRes.data?.user || sessionRes.user || sessionRes;
+              localStorage.setItem('verifik_account', JSON.stringify(userData));
+
+              this._dialogRef.close(true);
+              this._sessionService.resetReloadTracking();
+              this._sessionService.safeReload();
+            },
+            error: (err) => {
+              console.error('Session fetch failed', err);
+              this.error.set('Failed to fetch session');
+              this.isLoading.set(false);
+            },
+          });
+        } else {
+          this.error.set('Failed to obtain access token');
+          this.isLoading.set(false);
+        }
+      },
+      error: (err) => {
+        console.error('Project login failed', err);
+        this.error.set('Login failed');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private _completeSessionWithToken(token: string): void {
+    this._authService.accessToken = token;
+    localStorage.setItem('accessToken', token);
+
+    this._authApiService.getSession().subscribe({
+      next: (sessionRes: any) => {
+        const userData = sessionRes.data?.user || sessionRes.user || sessionRes;
+        localStorage.setItem('verifik_account', JSON.stringify(userData));
+
+        this._dialogRef.close(true);
+        this._sessionService.resetReloadTracking();
+        this._sessionService.safeReload();
+      },
+      error: (err) => {
+        console.error('Session fetch failed', err);
+        this.error.set('Failed to fetch session');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  private _resolveContactForPasskey(): string {
+    if (this.isValidEmail(this.email())) return this.email().trim();
+    return this._normalizedPhoneContact();
+  }
+
+  private _normalizedPhoneContact(): string {
+    const country = this.selectedCountry();
+    const phoneDigits = this.phone().replace(/\D/g, '');
+    if (!country || !this.isValidPhone(phoneDigits)) return '';
+
+    let finalPhone = phoneDigits;
+    const dialCodeDigits = country.dialCode.replace('+', '');
+    if (finalPhone.startsWith(dialCodeDigits)) {
+      finalPhone = finalPhone.substring(dialCodeDigits.length);
+    }
+
+    return `${country.dialCode}${finalPhone}`;
+  }
+
+  private _syncPhonePasskeyAvailability(): void {
+    this._checkPasskeyAvailability(this._normalizedPhoneContact());
+  }
+
+  private _checkPasskeyAvailability(contact: string): void {
+    if (this._passkeyDebounceTimer) clearTimeout(this._passkeyDebounceTimer);
+
+    this.passkeyExistsForContact.set(false);
+
+    if (!contact) return;
+
+    this._passkeyDebounceTimer = setTimeout(async () => {
+      try {
+        const matches = await this._listPasskeysForContact(contact, false);
+        this.passkeyExistsForContact.set(matches.length > 0);
+      } catch (e) {
+        console.error('Failed to check passkey availability', e);
+      }
+    }, 500);
+  }
+
+  private async _listPasskeysForContact(contact: string, fetchEncryptedContent = false): Promise<any[]> {
+    const isEmail = contact.includes('@');
+    const response = await this._passkeyZelf.listPasskeys(
+      isEmail ? { email: contact } : { phone: contact },
+      fetchEncryptedContent
+    );
+
+    return (response?.data || []).filter((f: any) => {
+      const type = f.publicData?.type;
+      const category = f.publicData?.category;
+      const isPasskey = type === 'passKeys' || `${category || ''}`.endsWith('_passKeys');
+      return isPasskey && category === `${this.projectId}_passKeys`;
+    });
+  }
+
+  private async _checkAndLoginWithPasskey(contact: string): Promise<boolean> {
+    this.lastPasskeyAttemptFound.set(false);
+
+    let matches: any[] = [];
+    try {
+      matches = await this._listPasskeysForContact(contact, true);
+    } catch (e) {
+      console.error('[Passkey Login] Failed to list passkeys', e);
+      return false;
+    }
+
+    if (!matches.length) return false;
+
+    this.lastPasskeyAttemptFound.set(true);
+
+    try {
+      const allowCredentials = matches
+        .map((m) => m.publicData?.credentialId)
+        .filter((id: unknown): id is string => Boolean(id));
+
+      const { credentialId: usedCredentialId } =
+        await this._biometricSecurity.authenticatePasskey(allowCredentials);
+
+      const ordered = [
+        ...matches.filter((m) => m.publicData?.credentialId === usedCredentialId),
+        ...matches.filter((m) => m.publicData?.credentialId !== usedCredentialId),
+      ];
+
+      const clientId =
+        `${ordered[0]?.publicData?.clientId || ''}`.trim() ||
+        `${`${ordered[0]?.publicData?.identifier || ''}`.replace(/_passKey$/, '')}`.trim();
+
+      if (!clientId) {
+        throw new Error('Passkey record is missing client id');
+      }
+
+      const encryptionKey = await this._biometricSecurity.deriveEncryptionKey(clientId);
+      const token = await this._decryptFirstAvailablePasskey(ordered, encryptionKey);
+
+      if (!token) {
+        throw new Error('Unable to decrypt any passkey record for this account');
+      }
+
+      this._completeSessionWithToken(token);
+      return true;
+    } catch (e) {
+      console.error('[Passkey Login] Authentication failed', e);
+      return false;
+    }
+  }
+
+  private async _decryptFirstAvailablePasskey(passkeys: any[], encryptionKey: CryptoKey): Promise<string | null> {
+    for (const passkey of passkeys) {
+      try {
+        let iv: string;
+        let ciphertext: string;
+
+        if (passkey.encryptedContent) {
+          ({ iv, ciphertext } = passkey.encryptedContent);
+        } else {
+          const encryptedFile = await fetch(passkey.url).then((res) => res.json());
+          const payloadString = encryptedFile.encryptedToken || encryptedFile;
+          ({ iv, ciphertext } =
+            typeof payloadString === 'string' ? JSON.parse(payloadString) : payloadString);
+          passkey.encryptedContent = { iv, ciphertext };
+        }
+
+        if (!iv || !ciphertext) continue;
+
+        return await this._biometricSecurity.decryptData(encryptionKey, ciphertext, iv);
+      } catch (e) {
+        console.warn('[Passkey Login] Could not decrypt a passkey record, trying the next one', e);
+      }
+    }
+
+    return null;
+  }
+
+  private async _registerPasskey(token: string, contact: string): Promise<void> {
+    localStorage.setItem('accessToken', token);
+    this._authService.accessToken = token;
+
+    let tokenForVault = token;
+    try {
+      const refreshResponse: any = await firstValueFrom(this._authApiService.projectLogin(12));
+      const refreshed = refreshResponse?.data?.accessToken || refreshResponse?.accessToken;
+      if (refreshed) {
+        tokenForVault = refreshed;
+        this._authService.accessToken = refreshed;
+        localStorage.setItem('accessToken', refreshed);
+        this.pendingPasskeyToken.set(refreshed);
+      }
+    } catch (e) {
+      console.warn('[Passkey Registration] Failed to refresh token for long-lived passkey', e);
+    }
+
+    const clientId = this._resolveClientIdFromToken(tokenForVault) || this._resolveClientIdFromToken(token);
+    if (!clientId) {
+      throw new Error('Unable to resolve client id for passkey registration');
+    }
+
+    const userId = new TextEncoder().encode(contact);
+    const { credentialId } = await this._biometricSecurity.registerPasskey(contact, userId);
+
+    const encryptionKey = await this._biometricSecurity.deriveEncryptionKey(clientId);
+    const { ciphertext, iv } = await this._biometricSecurity.encryptData(encryptionKey, tokenForVault);
+    const payloadString = JSON.stringify({
+      iv,
+      ciphertext,
+      tokenExp: this._getTokenExpiration(tokenForVault),
+    });
+
+    const identifier = `${clientId}_passKey`;
+    const isEmail = contact.includes('@');
+
+    await this._passkeyZelf.createPasskey({
+      publicData: {
+        identifier,
+        clientId,
+        project: this.projectId,
+        category: `${this.projectId}_passKeys`,
+        credentialId,
+        expiresAt: this._getTokenExpiration(tokenForVault),
+        email: isEmail ? contact : undefined,
+        phone: !isEmail ? contact : undefined,
+      },
+      identifier,
+      payload: payloadString,
+    });
+  }
+
+  private _resolveClientIdFromToken(token: string): string {
+    try {
+      const decoded = AuthUtils.getJwtPayload(token) || {};
+      return `${decoded['clientId'] || decoded['id'] || ''}`.trim();
+    } catch {
+      return '';
+    }
+  }
+
+  private _getTokenExpiration(token: string): number {
+    try {
+      const payload = AuthUtils.getJwtPayload(token) || {};
+      if (typeof payload['exp'] === 'number') return payload['exp'];
+
+      const expiresAt = payload['expiresAt'];
+      if (typeof expiresAt === 'number') {
+        return expiresAt > 1e12 ? Math.floor(expiresAt / 1000) : expiresAt;
+      }
+
+      return 0;
+    } catch {
+      return 0;
     }
   }
 
