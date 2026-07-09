@@ -1245,7 +1245,7 @@
                     </h2>
                     <div class="enrollment-resume__scores">
                         @if (livenessMinScorePercent() != null) {
-                            <div class="enrollment-resume__score" [style.--v]="livenessDisplayPercent()">
+                            <div class="enrollment-resume__score" [style]="scoreBarVars(livenessDisplayPercent())">
                                 <span class="enrollment-resume__score-label">
                                     {{ 'smartEnrollProjects.recordDetail.livenessScore' | transloco }}
                                 </span>
@@ -1256,7 +1256,7 @@
                             </div>
                         }
                         @if (compareMinScorePercent() != null) {
-                            <div class="enrollment-resume__score" [style.--v]="compareScore()">
+                            <div class="enrollment-resume__score" [style]="scoreBarVars(compareScore())">
                                 <span class="enrollment-resume__score-label">
                                     {{ 'smartEnrollProjects.recordDetail.compareScore' | transloco }}
                                 </span>

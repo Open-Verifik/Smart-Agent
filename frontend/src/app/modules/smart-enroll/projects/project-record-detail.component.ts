@@ -1240,6 +1240,15 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * CSS custom property for the resume score bar fill (`--v` is 0–100).
+     * Prefer a Record `[style]` binding over `[style.--v]` for broader template compiler compatibility.
+     */
+    scoreBarVars(percent: number): Record<string, string> {
+        const v = Number.isFinite(percent) ? Math.max(0, Math.min(100, percent)) : 0;
+        return { '--v': String(v) };
+    }
+
+    /**
      * Logo URL or data-uri suitable for an `<img src>`. Returns empty string when absent.
      */
     projectLogo(): string {
