@@ -192,6 +192,10 @@
             "title": "Costa Rican Citizen (CCCR)",
             "description": "National ID (CCCR cédula) verification for Costa Rica via GET /v2/cr/cedula with documentType and documentNumber for KYC and fraud prevention."
         },
+        "costarica_api_voting_location": {
+            "title": "Costa Rica - Voting Location",
+            "description": "Query official Costa Rican TSE Donde Votar registry via GET /v2/cr/votacion using CCCR (9–13 digits). Returns polling place, junta, province, canton, district, and signed response data."
+        },
         "ecuador_api_criminal_history": {
             "title": "Ecuador - Criminal History",
             "description": "Provides reliable verification and validation services."
@@ -735,6 +739,10 @@
         "honduras_api_identity_lookup": {
             "title": "Honduran Citizen",
             "description": "Validate the identity of individuals in Honduras with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
+        },
+        "honduras_api_voting_location": {
+            "title": "Honduras - Voting Location",
+            "description": "Query official Honduran electoral registry (Donde Me Toca Votar) via GET /v2/hn/votacion using DNIHN (13 digits). Returns polling place, JRV, voting eligibility, and signed response data."
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "Dominican Citizen",

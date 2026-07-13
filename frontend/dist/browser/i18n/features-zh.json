@@ -192,6 +192,10 @@
             "title": "哥斯达黎加公民（CCCR）",
             "description": "通过 GET /v2/cr/cedula 与 documentType、documentNumber 在哥斯达黎加进行 CCCR 国民身份证核验，适用于 KYC 与反欺诈。"
         },
+        "costarica_api_voting_location": {
+            "title": "哥斯达黎加 - 投票地点",
+            "description": "通过 GET /v2/cr/votacion 与 CCCR（9–13 位）查询官方 TSE Donde Votar 登记。返回投票站、junta、省、canton、区及签名响应。"
+        },
         "ecuador_api_criminal_history": {
             "title": "厄瓜多尔 - 犯罪记录",
             "description": "提供可靠的验证和验证服务。"
@@ -735,6 +739,10 @@
         "honduras_api_identity_lookup": {
             "title": "洪都拉斯 - 国民身份证验证",
             "description": "提供可靠的验证和验证服务。"
+        },
+        "honduras_api_voting_location": {
+            "title": "洪都拉斯 - 投票地点",
+            "description": "通过 GET /v2/hn/votacion 使用 DNIHN（13 位）查询洪都拉斯官方选举登记（Donde Me Toca Votar）。返回投票站、JRV、投票资格和签名响应。"
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "多米尼加共和国 - 国民身份证验证",

@@ -192,6 +192,10 @@
             "title": "Verificação de identidade na Costa Rica (CCCR)",
             "description": "Verificação de identidade nacional (cédula CCCR) na Costa Rica via GET /v2/cr/cedula com documentType e documentNumber para KYC e prevenção a fraudes."
         },
+        "costarica_api_voting_location": {
+            "title": "Costa Rica - Local de votação",
+            "description": "Consulte o registro oficial TSE Donde Votar via GET /v2/cr/votacion com CCCR (9 a 13 dígitos). Retorna local de votação, junta, província, cantão, distrito e resposta assinada."
+        },
         "ecuador_api_criminal_history": {
             "title": "Equador - Antecedentes Criminais",
             "description": "Fornece serviços confiáveis de verificação e validação."
@@ -735,6 +739,10 @@
         "honduras_api_identity_lookup": {
             "title": "Honduras - Verificação de Identidade Nacional",
             "description": "Fornece serviços confiáveis de verificação e validação."
+        },
+        "honduras_api_voting_location": {
+            "title": "Honduras - Local de votação",
+            "description": "Consulte o registro eleitoral hondurenho (Donde Me Toca Votar) via GET /v2/hn/votacion com DNIHN (13 dígitos). Retorna local de votação, JRV, elegibilidade e resposta assinada."
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "República Dominicana - Verificação de Identidade Nacional",

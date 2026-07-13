@@ -192,6 +192,10 @@
             "title": "コスタリカ — 国民身分証（CCCR）",
             "description": "GET /v2/cr/cedula を介し、documentType と documentNumber でコスタリカの国民 ID（CCCR cédula）を検証します。KYC や不正防止に活用できます。"
         },
+        "costarica_api_voting_location": {
+            "title": "コスタリカ — 投票所",
+            "description": "GET /v2/cr/votacion と CCCR（9〜13桁）で公式 TSE Donde Votar 登録を照会します。投票所、junta、州、canton、地区および署名付きレスポンスを返します。"
+        },
         "ecuador_api_criminal_history": {
             "title": "エクアドル - 犯罪歴",
             "description": "エクアドル国民の犯罪・前科照会（GET /v2/ec/cedula/antecedentes）。提供項目はソースに依存。"
@@ -735,6 +739,10 @@
         "honduras_api_identity_lookup": {
             "title": "ホンジュラス - 国民ID検証",
             "description": "信頼性の高い検証と検証サービスを提供します。"
+        },
+        "honduras_api_voting_location": {
+            "title": "ホンジュラス - 投票所",
+            "description": "GET /v2/hn/votacion で DNIHN（13桁）を使い、ホンジュラス公式選挙登録（Donde Me Toca Votar）を照会。投票所、JRV、投票資格、署名付きレスポンスを返します。"
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "ドミニカ共和国 - 国民ID検証",

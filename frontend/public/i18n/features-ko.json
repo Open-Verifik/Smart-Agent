@@ -192,6 +192,10 @@
             "title": "코스타리카 국민(CCCR)",
             "description": "코스타리카 국민 신분증(CCCR) 검증. GET /v2/cr/cedula에 documentType과 documentNumber를 전달해 KYC 및 사기 방지에 활용합니다."
         },
+        "costarica_api_voting_location": {
+            "title": "코스타리카 - 투표 장소",
+            "description": "GET /v2/cr/votacion과 CCCR(9~13자리)로 공식 TSE Donde Votar 등록부를 조회합니다. 투표소, junta, 주, canton, district 및 서명된 응답을 반환합니다."
+        },
         "ecuador_api_criminal_history": {
             "title": "에콰도르 - 범죄 이력",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
@@ -735,6 +739,10 @@
         "honduras_api_identity_lookup": {
             "title": "온두라스 - 국민ID 검증",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+        },
+        "honduras_api_voting_location": {
+            "title": "온두라스 - 투표 장소",
+            "description": "GET /v2/hn/votacion에서 DNIHN(13자리)로 온두라스 공식 선거 등록(Donde Me Toca Votar)을 조회합니다. 투표소, JRV, 투표 자격 및 서명된 응답을 반환합니다."
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "도미니카 공화국 - 국민ID 검증",

@@ -89,13 +89,14 @@ export const SANDBOX_CONFLICT_MISSING_PROCESS_NUMBER: PostmanSandboxProfile = {
 export const appendSandboxResponseProfiles = (
     successProfiles: PostmanSandboxProfile[],
     options: {
+        include404?: boolean;
         include500?: boolean;
         conflictProfiles?: PostmanSandboxProfile[];
     } = {}
 ): PostmanSandboxProfile[] => [
     ...successProfiles,
     ...(options.conflictProfiles ?? []),
-    SANDBOX_ERROR_PROFILE_404,
+    ...(options.include404 !== false ? [SANDBOX_ERROR_PROFILE_404] : []),
     ...(options.include500 ? [SANDBOX_ERROR_PROFILE_500] : []),
 ];
 

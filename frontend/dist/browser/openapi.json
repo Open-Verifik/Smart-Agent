@@ -1818,6 +1818,69 @@
         ]
       }
     },
+    "/api/cr/votacion": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "costarica_api_voting_location",
+        "summary": "Costa Rica - Voting Location",
+        "description": "Costa Rican voting location lookup service for retrieving polling place, junta, and residence details from the official TSE Donde Votar registry.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CCCR"
+              ]
+            },
+            "description": "Document type. Allowed value: CCCR."
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Costa Rican identity document number (9 to 13 digits)."
+          }
+        ]
+      }
+    },
     "/api/cl/transport-vehicle": {
       "get": {
         "tags": [
@@ -7835,6 +7898,71 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
+          }
+        ]
+      }
+    },
+    "/api/hn/votacion": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "honduras_api_voting_location",
+        "summary": "Honduras - Voting Location",
+        "description": "Honduran voting location lookup service for retrieving polling place, JRV, voting eligibility, and residence details from the Donde Me Toca Votar electoral registry.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "DNIHN"
+              ]
+            },
+            "description": "Document type. Allowed value: DNIHN."
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 13,
+              "maxLength": 13
+            },
+            "description": "Honduran identity document number (13 digits)."
           }
         ]
       }

@@ -14,8 +14,25 @@ import {
 } from '../vehicle-plate-profiles';
 
 export const COSTA_RICA_IDENTITY_ENDPOINT_CODE = 'costarica_api_identity_lookup';
+export const COSTA_RICA_VOTING_ENDPOINT_CODE = 'costarica_api_voting_location';
 export const COSTA_RICA_VEHICLE_ENDPOINT_CODE = 'costa_rica_api_vehicle';
 export const COSTA_RICA_BUSINESS_ENDPOINT_CODE = 'costa_rica_api_business_lookup';
+
+const COSTA_RICA_DNI_LENGTH = 9;
+
+const padCostaRicaDocumentNumber = (fixtureKey: number | string): string =>
+    String(fixtureKey).padStart(COSTA_RICA_DNI_LENGTH, '0');
+
+const toCostaRicaVotingProfile = (
+    documentNumber: string,
+    fullName: string,
+    options: Partial<PostmanSandboxProfile> = {}
+): PostmanSandboxProfile => ({
+    documentNumber,
+    fullName,
+    paramOverrides: { documentNumber },
+    ...options,
+});
 
 const COSTA_RICA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '010000001', fullName: 'MARIA ELENA LOPEZ GARCIA — valid' },
@@ -30,6 +47,10 @@ const COSTA_RICA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '010000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — valid' },
 ];
 
+const COSTA_RICA_VOTING_SANDBOX_PROFILES: PostmanSandboxProfile[] = COSTA_RICA_SANDBOX_PROFILES.map(
+    (profile) => toCostaRicaVotingProfile(profile.documentNumber, profile.fullName)
+);
+
 const COSTA_RICA_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     profileKey: '409-invalid-documentType',
     documentNumber: '90040902',
@@ -39,11 +60,40 @@ const COSTA_RICA_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     paramOverrides: { documentType: 'INVALID', documentNumber: '010000001' },
 };
 
+const COSTA_RICA_VOTING_CONFLICT_MISSING_DOCUMENT_NUMBER: PostmanSandboxProfile = {
+    profileKey: '409-missing-documentNumber-costa-rica-voting',
+    documentNumber: padCostaRicaDocumentNumber(90040901),
+    fullName: '409 — Missing documentNumber',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: { documentNumber: '' },
+};
+
+const COSTA_RICA_VOTING_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    profileKey: '409-invalid-documentType-costa-rica-voting',
+    documentNumber: padCostaRicaDocumentNumber(90040902),
+    fullName: '409 — Invalid documentType',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: { documentType: 'INVALID', documentNumber: '010000001' },
+};
+
+const COSTA_RICA_VOTING_ERROR_PROFILE_404: PostmanSandboxProfile = toCostaRicaVotingProfile(
+    '090040401',
+    '404 — Voting record not found',
+    {
+        profileKey: '404-costa-rica-voting',
+        responseType: 'error',
+        expectedStatus: 404,
+    }
+);
+
 const COSTA_RICA_ERROR_PROFILE_404: PostmanSandboxProfile = {
     documentNumber: '090040401',
     fullName: '404 — Record not found',
     responseType: 'error',
     expectedStatus: 404,
+    paramOverrides: { documentNumber: '090040401' },
 };
 
 export const COSTA_RICA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
@@ -57,6 +107,20 @@ export const COSTA_RICA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEn
         defaultDocumentNumber: '010000001',
         documentTypeByCode: {
             [COSTA_RICA_IDENTITY_ENDPOINT_CODE]: 'CCCR',
+        },
+        showProfileMeta: false,
+    },
+    [COSTA_RICA_VOTING_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COSTA_RICA_VOTING_SANDBOX_PROFILES, {
+            include404: false,
+            conflictProfiles: [
+                COSTA_RICA_VOTING_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COSTA_RICA_VOTING_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }).concat(COSTA_RICA_VOTING_ERROR_PROFILE_404),
+        defaultDocumentNumber: '010000001',
+        documentTypeByCode: {
+            [COSTA_RICA_VOTING_ENDPOINT_CODE]: 'CCCR',
         },
         showProfileMeta: false,
     },
