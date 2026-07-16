@@ -9,7 +9,7 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { loadStripe } from '@stripe/stripe-js';
 import { environment } from 'environments/environment';
 import { MAX_CREDIT_PURCHASE_USD, MIN_CREDIT_PURCHASE_USD } from '../add-credits.constants';
-import type { SmartAgentWeekOneUsd50Promotion } from 'app/core/user/user.types';
+import type { BringBackOffer, SmartAgentWeekOneUsd50Promotion } from 'app/core/user/user.types';
 import { PaymentCard } from '../services/credits.service';
 import {
     CreditPurchaseTransaction,
@@ -20,6 +20,7 @@ import {
 export interface PurchaseCreditsDialogData {
     card: PaymentCard;
     promotion?: SmartAgentWeekOneUsd50Promotion;
+    bringBackOffer?: BringBackOffer;
 }
 
 const PURCHASE_ERROR_KEYS = {
@@ -78,7 +79,30 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         }
     }
 
+    showBringBackCreditsHint(): boolean {
+        const offer = this.data?.bringBackOffer;
+
+        if (!offer?.eligible || this.loading) {
+            return false;
+        }
+
+        const active = this.isCustomAmount ? Number(this.customAmountValue) : this.selectedAmount;
+
+        return Number.isFinite(active) && active >= this.minPurchaseUsd;
+    }
+
+    bringBackReceivedAmount(): number {
+        const multiplier = this.data?.bringBackOffer?.multiplier ?? 2;
+        const active = this.isCustomAmount ? Number(this.customAmountValue) : this.selectedAmount;
+
+        return Math.round(active * multiplier);
+    }
+
     showWeekOneDoubleCreditsHint(): boolean {
+        if (this.showBringBackCreditsHint()) {
+            return false;
+        }
+
         const p = this.data?.promotion;
 
         if (!p?.eligible || this.loading) {

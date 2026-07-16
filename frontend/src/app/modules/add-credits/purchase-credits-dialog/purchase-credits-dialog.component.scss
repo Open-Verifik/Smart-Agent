@@ -12,15 +12,39 @@
         padding: 0 !important;
         overflow: hidden;
         border-radius: 1rem;
+        --mdc-dialog-container-color: #ffffff;
     }
 
     .mat-mdc-dialog-surface {
         border-radius: 1rem !important;
         overflow: hidden;
-        background: transparent !important;
+        background-color: #ffffff !important;
         box-shadow:
-            0 4px 6px -1px rgb(15 23 42 / 0.08),
-            0 2px 4px -2px rgb(15 23 42 / 0.08);
+            0 20px 25px -5px rgb(15 23 42 / 0.2),
+            0 8px 10px -6px rgb(15 23 42 / 0.2);
+    }
+
+    // Grow with content; only scroll on short viewports (Material defaults a low max-height).
+    .mat-mdc-dialog-content.purchase-credits-dialog-content {
+        max-height: none !important;
+        overflow-y: visible !important;
+    }
+}
+
+@media (max-height: 700px) {
+    .purchase-credits-dialog-panel .mat-mdc-dialog-content.purchase-credits-dialog-content {
+        max-height: calc(100dvh - 14rem) !important;
+        overflow-y: auto !important;
+    }
+}
+
+.dark .purchase-credits-dialog-panel {
+    .mat-mdc-dialog-container {
+        --mdc-dialog-container-color: #111827;
+    }
+
+    .mat-mdc-dialog-surface {
+        background-color: #111827 !important;
     }
 }
 

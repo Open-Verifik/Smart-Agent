@@ -526,6 +526,11 @@
             "title": "La capa de confianza para agentes de IA",
             "subtitle": "Verifica humanos y empresas detrás de agentes autónomos. Con más de 14 integraciones oficiales de bases de datos gubernamentales y el protocolo de pago x402."
         },
+        "bringBackModal": {
+            "maybeLater": "Quizás más tarde",
+            "okLetsDoIt": "OK, vamos",
+            "viewPlans": "Ver planes de suscripción"
+        },
         "onboarding": {
             "title": "Lista de Incorporación para Desarrolladores",
             "subtitle": "Completa estas tareas para verificar tu integración, probar nuestras APIs y recibir recompensas. Gana $1.00 USD por cada tarea completada (hasta $12.00 USD en total). Las recompensas se acreditarán al saldo de tu cuenta.",
@@ -3511,6 +3516,17 @@
                 "deadline": "Completa la compra calificadora antes del {{expiresAt}}",
                 "walletStrip": "Primera semana activa: elige {{amountUsd}} al comprar créditos; duplicamos el valor acreditado mientras aplique esta promo (ver banner).",
                 "dialogDouble": "Promo primera semana: pagas {{payUsd}} por esta recarga y recibes {{receivedUsd}} de valor total en créditos, incluyendo la bonificación."
+            },
+            "bringBack": {
+                "badge": "Oferta de regreso",
+                "title": "Tu próxima recarga es {{multiplier}}x créditos",
+                "body": "Pagas una vez y acreditamos {{multiplier}} veces ese monto. Ejemplo: recarga $50 y recibe ${{exampleReceived}}, o suscríbete y obtén {{multiplier}}x créditos en el primer pago del plan. Oferta de una sola vez.",
+                "bodyTriple": "Pagas una vez y acreditamos {{multiplier}} veces ese monto. Ejemplo: recarga $50 y recibe $150, o suscríbete y obtén {{multiplier}}x créditos en el primer pago del plan.",
+                "deadline": "La oferta vence el {{expiresAt}}",
+                "walletStrip": "Oferta activa: tu próxima compra de créditos o primer mes de suscripción se acredita a {{multiplier}}x (pagas $50 → recibes ${{exampleReceived}}).",
+                "dialogMultiplied": "Promo de regreso: pagas {{payUsd}} y recibes {{receivedUsd}} en créditos totales ({{multiplier}}x).",
+                "ctaRecharge": "Recargar ahora",
+                "ctaSubscribe": "Ver planes de suscripción"
             }
         },
         "purchaseDialog": {
@@ -3591,6 +3607,15 @@
         "subtitle": "Precios simples y transparentes que escalan con tu negocio.",
         "titleWithPlan": "Gestiona tu plan",
         "subtitleWithPlan": "Compara planes y mejora para desbloquear más beneficios.",
+        "promo": {
+            "bringBack": {
+                "badge": "Oferta de regreso",
+                "titleFirstMonth": "Primer pago de suscripción: {{multiplier}}x créditos",
+                "bodyFirstMonth": "Suscríbete a Basic, Plus o Business — el primer mes pagado se acredita a {{multiplier}}x (ej. plan de $400 → ${{example}} créditos).",
+                "deadline": "La oferta vence el {{expiresAt}}",
+                "planBadge": "{{multiplier}}x primer mes"
+            }
+        },
         "activePlan": "Plan Activo",
         "started": "Iniciado",
         "renews": "Renueva",
@@ -3659,7 +3684,12 @@
             "includedFallbackBullet1": "Acceso completo al catálogo de APIs y a tu espacio de trabajo Verifik",
             "includedFallbackBullet2": "Facturación por solicitud a la tarifa estándar de créditos (sin descuento del plan)",
             "compareDiscountedPlans": "Comparar planes con descuentos en APIs",
-            "compareDiscountedPlansShort": "Ver planes con descuentos API"
+            "compareDiscountedPlansShort": "Ver planes con descuentos API",
+            "bringBack": {
+                "badge": "{{multiplier}}x oferta de regreso",
+                "payReceive": "Pagas ${{payUsd}} → recibes ${{receiveUsd}} en créditos ({{multiplier}}x)",
+                "note": "Tu plan sigue costando ${{payUsd}} cada mes. Los créditos {{multiplier}}x son un bono solo en este primer pago; las renovaciones usan el mismo precio del plan con créditos normales (sin bono)."
+            }
         },
         "requestSlider": {
             "label": "Solicitudes estimadas por mes",

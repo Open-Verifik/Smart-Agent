@@ -1,5 +1,5 @@
 <div
-    class="flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+    class="flex w-full max-w-md flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900"
 >
     <!-- Normal Purchase Flow -->
     <ng-container *ngIf="!kycRequired">
@@ -12,7 +12,7 @@
             </p>
         </header>
 
-        <mat-dialog-content class="!flex !max-h-[min(62vh,480px)] !flex-col !gap-6 !overflow-y-auto px-5 py-6 dark:text-stone-100 md:p-6">
+        <mat-dialog-content class="purchase-credits-dialog-content !flex !flex-col !gap-6 px-5 py-6 dark:text-stone-100 md:p-6">
             <!-- Notice (payment guardrails, declines, etc.) -->
             <div
                 *ngIf="error"
@@ -83,6 +83,28 @@
                     {{ 'addCredits.purchaseDialog.maximum' | transloco }}
                     ${{ maxPurchaseUsd | number: '1.0-0' }}
                 </p>
+
+                <div
+                    *ngIf="showBringBackCreditsHint()"
+                    class="flex gap-3 rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950/40"
+                >
+                    <mat-icon
+                        class="shrink-0 text-amber-800 dark:text-amber-400"
+                        style="width: 22px; height: 22px; font-size: 22px"
+                        >celebration</mat-icon
+                    >
+                    <p class="m-0 flex-1 leading-relaxed text-amber-950 dark:text-amber-50">
+                        {{
+                            'addCredits.promo.bringBack.dialogMultiplied'
+                                | transloco
+                                    : {
+                                          payUsd: '$' + selectedAmount,
+                                          receivedUsd: '$' + bringBackReceivedAmount(),
+                                          multiplier: data?.bringBackOffer?.multiplier || 2,
+                                      }
+                        }}
+                    </p>
+                </div>
 
                 <div
                     *ngIf="showWeekOneDoubleCreditsHint()"

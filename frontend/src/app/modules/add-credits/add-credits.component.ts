@@ -10,6 +10,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/auth/auth.service';
 import type {
+    BringBackOffer,
     PendingWelcomeCredits,
     SmartAgentWeekOneUsd50Promotion,
 } from '../../core/user/user.types';
@@ -75,11 +76,16 @@ export class AddCreditsComponent implements OnInit {
     /** Session-driven first-week promotion (server-calculated eligibility). */
     weekOneUsd50Promotion = signal<SmartAgentWeekOneUsd50Promotion | undefined>(undefined);
 
+    /** Session-driven bring-back win-back offer. */
+    bringBackOffer = signal<BringBackOffer | undefined>(undefined);
+
     /** Signup welcome credits locked until account approval. */
     pendingWelcomeCredits = signal<PendingWelcomeCredits | undefined>(undefined);
 
-    showWeekOneUsd50PromoBanner = computed(() =>
-        Boolean(this.weekOneUsd50Promotion()?.eligible),
+    showBringBackPromoBanner = computed(() => Boolean(this.bringBackOffer()?.eligible));
+
+    showWeekOneUsd50PromoBanner = computed(
+        () => Boolean(this.weekOneUsd50Promotion()?.eligible) && !this.showBringBackPromoBanner(),
     );
 
     showPendingWelcomeCreditsBanner = computed(() => {
@@ -91,6 +97,11 @@ export class AddCreditsComponent implements OnInit {
     weekOneUsd50PromoAmountsLabel = computed(() => {
         const amounts = this.weekOneUsd50Promotion()?.purchaseUsdAmounts ?? [50];
         return amounts.map((a) => `$${a}`).join(', ');
+    });
+
+    bringBackExampleReceived = computed(() => {
+        const multiplier = this.bringBackOffer()?.multiplier ?? 2;
+        return 50 * multiplier;
     });
 
     /** `GET /v2/client-settings` resolved (success or failure). */
@@ -224,6 +235,11 @@ export class AddCreditsComponent implements OnInit {
                 ),
         }).subscribe({
             next: (result) => {
+                const bringBack = result.session?.bringBackOffer;
+                this.bringBackOffer.set(
+                    bringBack?.kind === 'bring_back' && bringBack.eligible ? bringBack : undefined,
+                );
+
                 const promo = result.session?.promotion;
                 this.weekOneUsd50Promotion.set(
                     promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
@@ -509,6 +525,7 @@ export class AddCreditsComponent implements OnInit {
             data: {
                 card: cardToUse,
                 promotion: this.weekOneUsd50Promotion(),
+                bringBackOffer: this.bringBackOffer(),
             },
         });
 

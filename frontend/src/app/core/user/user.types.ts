@@ -7,6 +7,16 @@ export interface SmartAgentWeekOneUsd50Promotion {
     purchaseUsdAmounts: number[];
 }
 
+/** Win-back offer: next recharge or first subscription payment grants multiplied credits. */
+export interface BringBackOffer {
+    kind: 'bring_back';
+    tier: 'double' | 'triple';
+    multiplier: 2 | 3;
+    eligible: boolean;
+    expiresAt: string;
+    proposedAt?: string;
+}
+
 /** Signup welcome credits reserved until account approval (`canRecharge`). */
 export interface PendingWelcomeCredits {
     amount: number;
@@ -36,6 +46,8 @@ export interface User {
     credits?: number;
     language?: string;
     promotion?: SmartAgentWeekOneUsd50Promotion;
+    /** Active bring-back win-back offer from session (proposed, not expired). */
+    bringBackOffer?: BringBackOffer;
     /** Welcome credits reserved at signup; spendable only after approval. */
     pendingWelcomeCredits?: PendingWelcomeCredits;
     /** Present on session user from Client Settings (see backend authentication.module). */

@@ -14,12 +14,17 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import { SessionService } from '../../core/services/session.service';
-import type { SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
+import type { BringBackOffer, SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
 import { UserService } from '../../core/user/user.service';
 import { DashboardData, HomeService } from './home.service';
 import { QuickChatService } from '../../layout/common/quick-chat/quick-chat.service';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 import { OnboardingExplanationModalComponent } from './onboarding-explanation-modal/onboarding-explanation-modal.component';
+import { BringBackOfferModalComponent } from './bring-back-offer-modal/bring-back-offer-modal.component';
+import {
+    dismissBringBackModal,
+    isBringBackModalDismissed,
+} from './bring-back-offer-modal/bring-back-offer-storage';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { HomeNotificationBannersComponent } from './home-notification-banners/home-notification-banners.component';
 import { OnboardingService, Onboarding, OnboardingTask } from 'app/core/services/onboarding.service';
@@ -129,7 +134,19 @@ export class HomeComponent implements OnInit {
     /** Session-driven first-week promotion (server-calculated eligibility). */
     weekOneUsd50Promotion = signal<SmartAgentWeekOneUsd50Promotion | undefined>(undefined);
 
-    showWeekOneUsd50PromoBanner = computed(() => Boolean(this.weekOneUsd50Promotion()?.eligible));
+    /** Session-driven bring-back win-back offer. */
+    bringBackOffer = signal<BringBackOffer | undefined>(undefined);
+
+    showBringBackPromoBanner = computed(() => Boolean(this.bringBackOffer()?.eligible));
+
+    showWeekOneUsd50PromoBanner = computed(
+        () => Boolean(this.weekOneUsd50Promotion()?.eligible) && !this.showBringBackPromoBanner(),
+    );
+
+    bringBackExampleReceived = computed(() => {
+        const multiplier = this.bringBackOffer()?.multiplier ?? 2;
+        return 50 * multiplier;
+    });
 
     /** Combined podium: dashboard.topCodes.overall enriched with `failed` from top-sales */
     podium = computed<PodiumEntry[]>(() => {
@@ -222,10 +239,23 @@ export class HomeComponent implements OnInit {
                     }),
                 )
                 .subscribe((user) => {
+                    const bringBack = user?.bringBackOffer;
+                    const activeBringBack =
+                        bringBack?.kind === 'bring_back' && bringBack.eligible ? bringBack : undefined;
+
+                    this.bringBackOffer.set(activeBringBack);
+
                     const promo = user?.promotion;
                     this.weekOneUsd50Promotion.set(
                         promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
                     );
+
+                    if (activeBringBack) {
+                        this._maybeOpenBringBackOfferModal(
+                            user?._id || user?.id || '',
+                            activeBringBack,
+                        );
+                    }
                 });
         }
 
@@ -321,6 +351,44 @@ export class HomeComponent implements OnInit {
         this._matDialog.open(AuthModalComponent, {
             panelClass: 'auth-modal-dialog',
             width: '400px',
+        });
+    }
+
+    /**
+     * Blocking welcome-back modal once per offer until dismissed (localStorage).
+     */
+    private _maybeOpenBringBackOfferModal(clientId: string, offer: BringBackOffer): void {
+        if (!clientId || !offer?.expiresAt) {
+            return;
+        }
+
+        if (isBringBackModalDismissed(clientId, offer.expiresAt)) {
+            return;
+        }
+
+        const dialogRef = this._matDialog.open(BringBackOfferModalComponent, {
+            data: { offer },
+            disableClose: true,
+            panelClass: 'bring-back-offer-modal-dialog',
+            width: '100%',
+            maxWidth: '520px',
+        });
+
+        dialogRef.afterClosed().subscribe((reason) => {
+            if (!reason) {
+                return;
+            }
+
+            dismissBringBackModal(clientId, offer.expiresAt, reason);
+
+            if (reason === 'accepted') {
+                void this._router.navigate(['/add-credits']);
+                return;
+            }
+
+            if (reason === 'view_plans') {
+                void this._router.navigate(['/subscription-plans']);
+            }
         });
     }
 

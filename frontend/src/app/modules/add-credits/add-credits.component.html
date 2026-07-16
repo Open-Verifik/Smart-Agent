@@ -40,6 +40,66 @@
         </header>
 
         <section
+            *ngIf="showBringBackPromoBanner()"
+            class="border-b border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-orange-50/80 px-5 py-6 dark:border-amber-900/60 dark:from-amber-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"
+        >
+            <div class="mx-auto flex w-full max-w-7xl">
+                <div class="flex min-w-0 flex-1 items-start gap-4">
+                    <div
+                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-600/15 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300"
+                    >
+                        <mat-icon style="transform: scale(1.08)">local_offer</mat-icon>
+                    </div>
+                    <div class="min-w-0 space-y-2">
+                        <p
+                            class="inline-flex rounded-full border border-amber-200/90 bg-amber-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-950 dark:border-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+                        >
+                            {{ t('addCredits.promo.bringBack.badge') }}
+                        </p>
+                        <h2 class="text-lg font-semibold leading-snug text-amber-950 dark:text-amber-50">
+                            {{
+                                t('addCredits.promo.bringBack.title', {
+                                    multiplier: bringBackOffer()?.multiplier || 2,
+                                })
+                            }}
+                        </h2>
+                        <p class="max-w-3xl text-sm leading-relaxed text-amber-950/95 dark:text-amber-100/95">
+                            <ng-container *ngIf="bringBackOffer()?.tier === 'triple'; else bringBackDoubleBody">
+                                {{
+                                    t('addCredits.promo.bringBack.bodyTriple', {
+                                        multiplier: bringBackOffer()?.multiplier || 3,
+                                    })
+                                }}
+                            </ng-container>
+                            <ng-template #bringBackDoubleBody>
+                                {{
+                                    t('addCredits.promo.bringBack.body', {
+                                        multiplier: bringBackOffer()?.multiplier || 2,
+                                        exampleReceived: bringBackExampleReceived(),
+                                    })
+                                }}
+                            </ng-template>
+                        </p>
+                        <p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
+                            {{
+                                t('addCredits.promo.bringBack.deadline', {
+                                    expiresAt: (bringBackOffer()?.expiresAt | date : 'medium') || '',
+                                })
+                            }}
+                        </p>
+                        <a
+                            routerLink="/subscription-plans"
+                            class="inline-flex items-center gap-1 text-sm font-semibold text-amber-900 underline-offset-4 hover:underline dark:text-amber-200"
+                        >
+                            <mat-icon class="!h-4 !w-4 !text-base">credit_card</mat-icon>
+                            {{ t('addCredits.promo.bringBack.ctaSubscribe') }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section
             *ngIf="showWeekOneUsd50PromoBanner()"
             class="border-b border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 px-5 py-6 dark:border-emerald-900/60 dark:from-emerald-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"
         >
@@ -82,6 +142,22 @@
             <div class="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
                 <section class="flex flex-col gap-6">
                     <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                        <div
+                            *ngIf="showBringBackPromoBanner()"
+                            class="mb-5 flex gap-3 rounded-xl border border-amber-200/90 bg-amber-50/90 px-4 py-3 text-sm dark:border-amber-800 dark:bg-amber-950/30"
+                        >
+                            <mat-icon class="mt-0.5 shrink-0 text-amber-800 dark:text-amber-400"
+                                >campaign</mat-icon
+                            >
+                            <p class="m-0 flex-1 leading-relaxed text-amber-950 dark:text-amber-100">
+                                {{
+                                    t('addCredits.promo.bringBack.walletStrip', {
+                                        multiplier: bringBackOffer()?.multiplier || 2,
+                                        exampleReceived: bringBackExampleReceived(),
+                                    })
+                                }}
+                            </p>
+                        </div>
                         <div
                             *ngIf="showWeekOneUsd50PromoBanner()"
                             class="mb-5 flex gap-3 rounded-xl border border-emerald-200/90 bg-emerald-50/90 px-4 py-3 text-sm dark:border-emerald-800 dark:bg-emerald-950/30"

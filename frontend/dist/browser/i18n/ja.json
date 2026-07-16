@@ -512,6 +512,11 @@
             "title": "AIエージェントのための信頼レイヤー",
             "subtitle": "自律エージェントの背後にある人と企業を検証。14以上の公式政府データベース連携とx402決済プロトコルで駆動。"
         },
+        "bringBackModal": {
+            "maybeLater": "あとで",
+            "okLetsDoIt": "OK、始めよう",
+            "viewPlans": "サブスクリプションプランを見る"
+        },
         "onboarding": {
             "title": "開発者オンボーディングチェックリスト",
             "subtitle": "これらのタスクを完了して、統合を確認し、APIをテストし、報酬を獲得してください。完了したタスクごとに$1.00 USDがアカウント残高に加算されます（最大$12.00 USD）。",
@@ -3497,6 +3502,17 @@
                 "deadline": "資格を満たす購入は {{expiresAt}} までに完了してください",
                 "walletStrip": "初週限定: {{amountUsd}} のいずれかを選んで購入すると、このプロモ適用中はクレジット価値が2倍になります（上記バナー参照）。",
                 "dialogDouble": "初週プロモ：{{payUsd}} をお支払いすると、総クレジット価値は {{receivedUsd}} になります（ボーナス込み）。"
+            },
+            "bringBack": {
+                "badge": "おかえりオファー",
+                "title": "次回のチャージは {{multiplier}}x クレジット",
+                "body": "一度のお支払いで、その金額の {{multiplier}} 倍をクレジットします。例：50ドルをチャージすると ${{exampleReceived}}、またはサブスク初回支払いが {{multiplier}}x クレジット。一度きりのオファーです。",
+                "bodyTriple": "一度のお支払いで、その金額の {{multiplier}} 倍をクレジットします。例：50ドルをチャージすると 150ドル、またはサブスク初回支払いが {{multiplier}}x クレジット。",
+                "deadline": "オファー有効期限：{{expiresAt}}",
+                "walletStrip": "オファー適用中：次回のクレジット購入またはサブスク初月が {{multiplier}}x でクレジットされます（50ドル支払い → ${{exampleReceived}} 受取）。",
+                "dialogMultiplied": "おかえりプロモ：{{payUsd}} をお支払いすると、合計 {{receivedUsd}} クレジット（{{multiplier}}x）。",
+                "ctaRecharge": "今すぐチャージ",
+                "ctaSubscribe": "サブスクリプションプランを見る"
             }
         },
         "purchaseDialog": {
@@ -3577,6 +3593,15 @@
         "subtitle": "ビジネスに合わせてスケールするシンプルで透明な料金体系。",
         "titleWithPlan": "プランを管理",
         "subtitleWithPlan": "プランを比較して、より多くの特典をアンロック。",
+        "promo": {
+            "bringBack": {
+                "badge": "おかえりオファー",
+                "titleFirstMonth": "初回サブスクリプション支払い：{{multiplier}}x クレジット",
+                "bodyFirstMonth": "Basic、Plus、または Business に登録 — 初月の有料期間は {{multiplier}}x でクレジットされます（例：400ドルのプラン → ${{example}} クレジット）。",
+                "deadline": "オファー有効期限：{{expiresAt}}",
+                "planBadge": "{{multiplier}}x 初月"
+            }
+        },
         "activePlan": "アクティブプラン",
         "started": "開始日",
         "renews": "更新日",
@@ -3645,7 +3670,12 @@
             "includedFallbackBullet1": "API カタログと Verifik ワークスペースへのフルアクセス",
             "includedFallbackBullet2": "標準クレジット単価での従量課金（プラン割引なし）",
             "compareDiscountedPlans": "API 割引付きプランを比較",
-            "compareDiscountedPlansShort": "API割引のあるプランを見る"
+            "compareDiscountedPlansShort": "API割引のあるプランを見る",
+            "bringBack": {
+                "badge": "{{multiplier}}x おかえりオファー",
+                "payReceive": "お支払い ${{payUsd}} → 受取クレジット ${{receiveUsd}}（{{multiplier}}x）",
+                "note": "プラン料金は毎月 ${{payUsd}} のままです。{{multiplier}}x ボーナスクレジットはこの初回支払いのみ — 更新時も同じプラン料金で、通常クレジット（ボーナスなし）が付与されます。"
+            }
         },
         "requestSlider": {
             "label": "月間の推定リクエスト数",

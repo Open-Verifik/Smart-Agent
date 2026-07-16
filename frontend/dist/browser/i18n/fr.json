@@ -512,6 +512,11 @@
             "title": "La couche de confiance pour les agents IA",
             "subtitle": "Vérifiez les humains et les entreprises derrière les agents autonomes. Plus de 14 intégrations officielles de bases de données gouvernementales et le protocole de paiement x402."
         },
+        "bringBackModal": {
+            "maybeLater": "Plus tard",
+            "okLetsDoIt": "OK, c'est parti",
+            "viewPlans": "Voir les plans d'abonnement"
+        },
         "onboarding": {
             "title": "Liste de contrôle d'intégration des développeurs",
             "subtitle": "Effectuez ces tâches pour vérifier votre intégration, tester nos API et obtenir des récompenses. Gagnez 1,00 USD pour chaque tâche complétée (jusqu'à 12,00 USD au total). Les récompenses seront créditées sur le solde de votre compte.",
@@ -3468,6 +3473,17 @@
                 "deadline": "Finalisez l’achat éligible avant le {{expiresAt}}",
                 "walletStrip": "Première semaine : choisissez {{amountUsd}} lors de l'achat — nous doublons la valeur en crédits tant que l'offre est active (voir la bannière ci-dessus).",
                 "dialogDouble": "Offre première semaine : vous payez {{payUsd}} pour cette recharge et recevez {{receivedUsd}} de valeur totale en crédits, bonus inclus."
+            },
+            "bringBack": {
+                "badge": "Offre de retour",
+                "title": "Votre prochaine recharge vaut {{multiplier}}x crédits",
+                "body": "Payez une fois et nous créditions {{multiplier}} fois ce montant. Exemple : rechargez 50 $ et recevez ${{exampleReceived}}, ou abonnez-vous et obtenez {{multiplier}}x crédits sur le premier paiement du plan. Offre unique.",
+                "bodyTriple": "Payez une fois et nous créditions {{multiplier}} fois ce montant. Exemple : rechargez 50 $ et recevez 150 $, ou abonnez-vous et obtenez {{multiplier}}x crédits sur le premier paiement du plan.",
+                "deadline": "L'offre expire le {{expiresAt}}",
+                "walletStrip": "Offre active : votre prochain achat de crédits ou premier mois d'abonnement est crédité à {{multiplier}}x (payez 50 $ → recevez ${{exampleReceived}}).",
+                "dialogMultiplied": "Promo de retour : vous payez {{payUsd}} et recevez {{receivedUsd}} en crédits totaux ({{multiplier}}x).",
+                "ctaRecharge": "Recharger maintenant",
+                "ctaSubscribe": "Voir les plans d'abonnement"
             }
         },
         "purchaseDialog": {
@@ -3548,6 +3564,15 @@
         "subtitle": "Tarification simple et transparente qui évolue avec votre entreprise.",
         "titleWithPlan": "Gérer votre plan",
         "subtitleWithPlan": "Comparez les plans et mettez à niveau pour débloquer plus d'avantages.",
+        "promo": {
+            "bringBack": {
+                "badge": "Offre de retour",
+                "titleFirstMonth": "Premier paiement d'abonnement : {{multiplier}}x crédits",
+                "bodyFirstMonth": "Abonnez-vous à Basic, Plus ou Business — le premier mois payé est crédité à {{multiplier}}x (ex. plan à 400 $ → ${{example}} crédits).",
+                "deadline": "L'offre expire le {{expiresAt}}",
+                "planBadge": "{{multiplier}}x premier mois"
+            }
+        },
         "activePlan": "Plan actif",
         "started": "Commencé le",
         "renews": "Renouvelle le",
@@ -3616,7 +3641,12 @@
             "includedFallbackBullet1": "Accès complet au catalogue d'API et à votre espace Verifik",
             "includedFallbackBullet2": "Facturation à la requête au tarif crédit standard (sans remise forfaitaire)",
             "compareDiscountedPlans": "Comparer les forfaits avec remises API",
-            "compareDiscountedPlansShort": "Voir les offres avec remises API"
+            "compareDiscountedPlansShort": "Voir les offres avec remises API",
+            "bringBack": {
+                "badge": "{{multiplier}}x offre de retour",
+                "payReceive": "Vous payez ${{payUsd}} → vous recevez ${{receiveUsd}} en crédits ({{multiplier}}x)",
+                "note": "Votre forfait reste à ${{payUsd}} chaque mois. Les crédits bonus {{multiplier}}x s'appliquent uniquement à ce premier paiement — les renouvellements utilisent le même prix du forfait avec des crédits standards (sans bonus)."
+            }
         },
         "requestSlider": {
             "label": "Requêtes estimées par mois",

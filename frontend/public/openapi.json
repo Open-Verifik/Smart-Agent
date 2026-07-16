@@ -1513,6 +1513,168 @@
         }
       }
     },
+    "/api/mx/ine": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "mexico_api_ine_validate",
+        "summary": "Mexico - INE Validation",
+        "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector identifiers.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.4"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "INE"
+              ]
+            },
+            "description": "Document type. Allowed value: INE."
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Primary INE identifier: CIC (9 digits), OCR (13 digits), or clave de elector (18 characters)."
+          },
+          {
+            "name": "citizenIdentifier",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional citizen identifier from the back of the credential."
+          },
+          {
+            "name": "emissionNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional emission number."
+          },
+          {
+            "name": "ocr",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional 13-digit OCR number when documentNumber is CIC."
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional INE model letter (C–H)."
+          }
+        ]
+      }
+    },
+    "/api/mx/ine/ocr": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "mexico_api_ine_ocr",
+        "summary": "Mexico - INE OCR",
+        "description": "Extract INE fields with Verifik Gemini OCR from front/back images, then validate electoral status with numbers only in one request.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.4"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "front": {
+                    "type": "string",
+                    "description": "Front image of the INE as a public URL or base64 string."
+                  },
+                  "back": {
+                    "type": "string",
+                    "description": "Optional back image as a public URL or base64 string."
+                  }
+                },
+                "required": [
+                  "front"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/pe/vehiculo/placa": {
       "get": {
         "tags": [

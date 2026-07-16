@@ -198,6 +198,50 @@
                     {{ 'subscriptionPlans.dialog.usageNote' | transloco }}
                 </p>
 
+                <div
+                    *ngIf="showBringBackPromo"
+                    class="mt-4 rounded-xl border border-amber-200/90 bg-gradient-to-br from-amber-50 via-white to-orange-50/80 p-3.5 dark:border-amber-900/60 dark:from-amber-950/40 dark:via-gray-950 dark:to-gray-950"
+                >
+                    <div class="flex items-start gap-2.5">
+                        <div
+                            class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-600/15 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300"
+                        >
+                            <mat-icon class="!h-4 !w-4 !text-base">local_offer</mat-icon>
+                        </div>
+                        <div class="min-w-0 space-y-1.5">
+                            <p
+                                class="inline-flex rounded-full border border-amber-200/90 bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-950 dark:border-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+                            >
+                                {{
+                                    'subscriptionPlans.dialog.bringBack.badge'
+                                        | transloco: { multiplier: bringBackMultiplier }
+                                }}
+                            </p>
+                            <p class="text-sm font-semibold leading-snug text-amber-950 dark:text-amber-50">
+                                {{
+                                    'subscriptionPlans.dialog.bringBack.payReceive'
+                                        | transloco
+                                            : {
+                                                  payUsd: bringBackPayUsd,
+                                                  receiveUsd: bringBackReceiveUsd,
+                                                  multiplier: bringBackMultiplier,
+                                              }
+                                }}
+                            </p>
+                            <p class="text-xs leading-relaxed text-amber-900/90 dark:text-amber-100/85">
+                                {{
+                                    'subscriptionPlans.dialog.bringBack.note'
+                                        | transloco
+                                            : {
+                                                  multiplier: bringBackMultiplier,
+                                                  payUsd: bringBackPayUsd,
+                                              }
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Dates -->
                 <div
                     class="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-stone-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900/60"

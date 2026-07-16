@@ -512,6 +512,11 @@
             "title": "AI 에이전트를 위한 신뢰 레이어",
             "subtitle": "자율 에이전트 뒤의 사람과 회사를 검증하세요. 14개 이상의 공식 정부 데이터베이스 통합과 x402 결제 프로토콜로 구동됩니다."
         },
+        "bringBackModal": {
+            "maybeLater": "나중에",
+            "okLetsDoIt": "좋아요, 시작할게요",
+            "viewPlans": "구독 플랜 보기"
+        },
         "onboarding": {
             "title": "개발자 온보딩 체크리스트",
             "subtitle": "이러한 작업을 완료하여 연동을 확인하고, API를 테스트하고, 리워드를 받으세요. 완료된 작업당 $1.00 USD가 적립됩니다 (최대 $12.00 USD). 리워드는 계정 잔액으로 지급됩니다.",
@@ -3497,6 +3502,17 @@
                 "deadline": "조건을 충족하는 구매를 {{expiresAt}} 전까지 완료하세요",
                 "walletStrip": "첫 주 한정: {{amountUsd}} 중 하나를 선택해 결제하면 해당 프로모션이 활성화된 동안 적립 크레딧 가치를 두 배로 드립니다 (위 배너 참조).",
                 "dialogDouble": "첫 주 프로모: {{payUsd}} 결제 시 총 크레딧 가치는 {{receivedUsd}}입니다(보너스 포함)."
+            },
+            "bringBack": {
+                "badge": "웰컴백 오퍼",
+                "title": "다음 충전은 {{multiplier}}x 크레딧",
+                "body": "한 번 결제하면 해당 금액의 {{multiplier}}배를 적립합니다. 예: $50 충전 시 ${{exampleReceived}} 수령, 또는 구독 첫 결제가 {{multiplier}}x 크레딧. 일회성 오퍼입니다.",
+                "bodyTriple": "한 번 결제하면 해당 금액의 {{multiplier}}배를 적립합니다. 예: $50 충전 시 $150 수령, 또는 구독 첫 결제가 {{multiplier}}x 크레딧.",
+                "deadline": "오퍼 만료: {{expiresAt}}",
+                "walletStrip": "오퍼 적용 중: 다음 크레딧 구매 또는 구독 첫 달은 {{multiplier}}x로 적립됩니다($50 결제 → ${{exampleReceived}} 수령).",
+                "dialogMultiplied": "웰컴백 프로모: {{payUsd}} 결제 시 총 {{receivedUsd}} 크레딧({{multiplier}}x).",
+                "ctaRecharge": "지금 충전",
+                "ctaSubscribe": "구독 플랜 보기"
             }
         },
         "purchaseDialog": {
@@ -3577,6 +3593,15 @@
         "subtitle": "비즈니스에 맞춰 확장되는 간단하고 투명한 가격.",
         "titleWithPlan": "플랜 관리",
         "subtitleWithPlan": "플랜을 비교하고 업그레이드하여 더 많은 혜택을 잠금 해제하세요.",
+        "promo": {
+            "bringBack": {
+                "badge": "웰컴백 오퍼",
+                "titleFirstMonth": "첫 구독 결제: {{multiplier}}x 크레딧",
+                "bodyFirstMonth": "Basic, Plus 또는 Business에 가입하세요 — 첫 유료 달은 {{multiplier}}x로 적립됩니다(예: $400 플랜 → ${{example}} 크레딧).",
+                "deadline": "오퍼 만료: {{expiresAt}}",
+                "planBadge": "{{multiplier}}x 첫 달"
+            }
+        },
         "activePlan": "활성 플랜",
         "started": "시작일",
         "renews": "갱신일",
@@ -3645,7 +3670,12 @@
             "includedFallbackBullet1": "API 카탈로그 및 Verifik 워크스페이스 전체 액세스",
             "includedFallbackBullet2": "표준 크레딧 요율로 요청당 과금(플랜 할인 없음)",
             "compareDiscountedPlans": "API 할인이 있는 플랜 비교",
-            "compareDiscountedPlansShort": "API 할인 플랜 보기"
+            "compareDiscountedPlansShort": "API 할인 플랜 보기",
+            "bringBack": {
+                "badge": "{{multiplier}}x 웰컴백",
+                "payReceive": "${{payUsd}} 결제 → ${{receiveUsd}} 크레딧 수령 ({{multiplier}}x)",
+                "note": "플랜 요금은 매월 ${{payUsd}}입니다. {{multiplier}}x 보너스 크레딧은 이번 첫 결제에만 적용되며 — 갱신 시에도 같은 플랜 요금과 일반 크레딧(보너스 없음)이 적용됩니다."
+            }
         },
         "requestSlider": {
             "label": "월 예상 요청 수",

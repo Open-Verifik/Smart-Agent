@@ -11,6 +11,7 @@
     [newPlan]="selectedPlanForChange"
     [allPlans]="plans"
     [requestsPerMonth]="selectedPlanRequests"
+    [bringBackOffer]="bringBackOffer"
     (confirm)="confirmPlanChange()"
     (cancel)="cancelPlanChange()"
     (comparePlans)="compareDiscountedPlansFromDialog()"
@@ -98,6 +99,55 @@
 
     <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
         <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+            <section
+                *ngIf="showBringBackPromoBanner"
+                class="rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-orange-50/80 px-5 py-5 dark:border-amber-900/60 dark:from-amber-950/50 dark:via-gray-950 dark:to-gray-950 md:px-6"
+            >
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="flex min-w-0 flex-1 items-start gap-3">
+                        <div
+                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-600/15 text-amber-800 dark:bg-amber-400/15 dark:text-amber-300"
+                        >
+                            <mat-icon>local_offer</mat-icon>
+                        </div>
+                        <div class="min-w-0 space-y-1.5">
+                            <p
+                                class="inline-flex rounded-full border border-amber-200/90 bg-amber-100 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-950 dark:border-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+                            >
+                                {{ 'subscriptionPlans.promo.bringBack.badge' | transloco }}
+                            </p>
+                            <h2 class="text-base font-semibold text-amber-950 dark:text-amber-50">
+                                {{
+                                    'subscriptionPlans.promo.bringBack.titleFirstMonth'
+                                        | transloco
+                                            : { multiplier: bringBackOffer?.multiplier || 2 }
+                                }}
+                            </h2>
+                            <p class="text-sm leading-relaxed text-amber-950/90 dark:text-amber-100/90">
+                                {{
+                                    'subscriptionPlans.promo.bringBack.bodyFirstMonth'
+                                        | transloco
+                                            : {
+                                                  multiplier: bringBackOffer?.multiplier || 2,
+                                                  example: bringBackPromoExampleCredits,
+                                              }
+                                }}
+                            </p>
+                            <p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
+                                {{
+                                    'subscriptionPlans.promo.bringBack.deadline'
+                                        | transloco
+                                            : {
+                                                  expiresAt:
+                                                      (bringBackOffer?.expiresAt | date: 'medium') ||
+                                                      '',
+                                              }
+                                }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
             <!-- ================================================== -->
             <!-- CURRENT PLAN VIEW                                   -->
             <!-- ================================================== -->
@@ -932,6 +982,18 @@
                                 {{ 'subscriptionPlans.requestSlider.bestValue' | transloco }}
                             </span>
 
+                            <!-- Bring-back 3x first month -->
+                            <span
+                                *ngIf="isBringBackPromoPlan(plan)"
+                                class="absolute -top-3 right-3 rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-amber-950 shadow-sm dark:border-amber-700 dark:bg-amber-900 dark:text-amber-100"
+                            >
+                                {{
+                                    'subscriptionPlans.promo.bringBack.planBadge'
+                                        | transloco
+                                            : { multiplier: bringBackOffer?.multiplier || 3 }
+                                }}
+                            </span>
+
                             <!-- Not optimal badge -->
                             <span
                                 *ngIf="!isPlanCompetitive(plan)"
@@ -950,6 +1012,15 @@
                                 >
                                     {{ plan.name }}
                                 </h3>
+                                <p
+                                    *ngIf="isBringBackPromoPlan(plan)"
+                                    class="mt-1 text-xs font-medium text-amber-800 dark:text-amber-300"
+                                >
+                                    ${{ plan.amount | number: '1.0-0' }} → ${{
+                                        bringBackFirstMonthCredits(plan) | number: '1.0-0'
+                                    }}
+                                    {{ 'subscriptionPlans.credits' | transloco | lowercase }}
+                                </p>
                             </div>
 
                             <!-- Pricing block (blurred when not optimal) -->

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
+import { BringBackOffer } from 'app/core/user/user.types';
 import {
     formatBenefitRowsFromChanges,
     hasOtherPlanWithApiDiscount,
@@ -17,12 +18,13 @@ export type SubscriptionDialogContext = 'first' | 'upgrade' | 'downgrade' | 'pla
     templateUrl: './plan-change-dialog.component.html',
     styleUrls: ['./plan-change-dialog.component.scss'],
 })
-export class PlanChangeDialogComponent implements OnInit {
+export class PlanChangeDialogComponent implements OnInit, OnChanges {
     @Input() currentPlan: ClientSubscription | null = null;
     @Input() newPlan: SubscriptionPlan | null = null;
     @Input() allPlans: SubscriptionPlan[] | null = null;
     @Input() isOpen = false;
     @Input() requestsPerMonth = 0;
+    @Input() bringBackOffer: BringBackOffer | null = null;
 
     @Output() confirm = new EventEmitter<void>();
     @Output() cancel = new EventEmitter<void>();
@@ -44,6 +46,35 @@ export class PlanChangeDialogComponent implements OnInit {
 
     get hasMeaningfulBenefits(): boolean {
         return (this.formattedPlan?.benefits?.length ?? 0) > 0;
+    }
+
+    get showBringBackPromo(): boolean {
+        return Boolean(this.bringBackOffer?.eligible && this._isBringBackPromoPlan(this.newPlan));
+    }
+
+    get bringBackMultiplier(): number {
+        return this.bringBackOffer?.multiplier || 2;
+    }
+
+    /**
+     * Amount charged on the first invoice (usage estimate when present, else plan base).
+     */
+    get bringBackPayUsd(): number {
+        const total = Number(this.formattedPlan?.estimatedTotal);
+        if (Number.isFinite(total) && total > 0) {
+            return Math.round(total);
+        }
+
+        const monthly = Number(this.formattedPlan?.amountByMonth);
+        if (Number.isFinite(monthly) && monthly > 0) {
+            return Math.round(monthly);
+        }
+
+        return Math.round(Number(this.newPlan?.amount) || 0);
+    }
+
+    get bringBackReceiveUsd(): number {
+        return Math.round(this.bringBackPayUsd * this.bringBackMultiplier);
     }
 
     get hasBetterDiscountOptions(): boolean {
@@ -152,5 +183,24 @@ export class PlanChangeDialogComponent implements OnInit {
         if ((event.target as HTMLElement).classList.contains('dialog-backdrop')) {
             this.onCancel();
         }
+    }
+
+    private _isBringBackPromoPlan(plan: SubscriptionPlan | null): boolean {
+        if (!plan) {
+            return false;
+        }
+
+        const name = (plan.name || '').toLowerCase();
+
+        return (
+            /\bbasic\b/.test(name) ||
+            name.includes('básico') ||
+            /\bplus\b/.test(name) ||
+            /\bbusiness\b/.test(name) ||
+            name.includes('empresarial') ||
+            /\bsmart\s*basic\b/.test(name) ||
+            /\bsmart\s*plus\b/.test(name) ||
+            /\bsmart\s*business\b/.test(name)
+        );
     }
 }

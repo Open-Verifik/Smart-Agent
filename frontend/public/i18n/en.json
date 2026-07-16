@@ -526,6 +526,11 @@
             "title": "The Trust Layer for AI Agents",
             "subtitle": "Verify humans and companies behind autonomous agents. Powered by 14+ official government database integrations and the x402 payment protocol."
         },
+        "bringBackModal": {
+            "maybeLater": "Maybe later",
+            "okLetsDoIt": "OK, let's do it",
+            "viewPlans": "View subscription plans"
+        },
         "onboarding": {
             "title": "Developer Onboarding Checklist",
             "subtitle": "Complete these tasks to verify your integration, test our APIs, and get rewarded. Earn $1.00 USD for each completed task (up to $12.00 USD total). Rewards will be credited to your account balance.",
@@ -3511,6 +3516,17 @@
                 "deadline": "Complete your qualifying purchase by {{expiresAt}}",
                 "walletStrip": "Limited: pick {{amountUsd}} when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
                 "dialogDouble": "First-week promo: you pay {{payUsd}} for this recharge and receive {{receivedUsd}} in total credited value—including the matched bonus."
+            },
+            "bringBack": {
+                "badge": "Welcome-back offer",
+                "title": "Your next recharge is {{multiplier}}x credits",
+                "body": "Pay once and we credit {{multiplier}} times that amount. Example: recharge $50 and receive ${{exampleReceived}}, or subscribe and get {{multiplier}}x credits on your first plan payment. One-time offer.",
+                "bodyTriple": "Pay once and we credit {{multiplier}} times that amount. Example: recharge $50 and receive $150, or subscribe and get {{multiplier}}x credits on your first plan payment.",
+                "deadline": "Offer expires {{expiresAt}}",
+                "walletStrip": "Active offer: your next credit purchase or first subscription month is credited at {{multiplier}}x (pay $50 → receive ${{exampleReceived}}).",
+                "dialogMultiplied": "Welcome-back promo: you pay {{payUsd}} and receive {{receivedUsd}} in total credits ({{multiplier}}x).",
+                "ctaRecharge": "Recharge now",
+                "ctaSubscribe": "View subscription plans"
             }
         },
         "purchaseDialog": {
@@ -3591,6 +3607,15 @@
         "subtitle": "Simple, transparent pricing that scales with your business.",
         "titleWithPlan": "Manage your plan",
         "subtitleWithPlan": "Compare plans and upgrade to unlock more benefits.",
+        "promo": {
+            "bringBack": {
+                "badge": "Welcome-back offer",
+                "titleFirstMonth": "First subscription payment: {{multiplier}}x credits",
+                "bodyFirstMonth": "Subscribe to Basic, Plus, or Business — first paid month is credited at {{multiplier}}x (e.g. $400 plan → ${{example}} credits).",
+                "deadline": "Offer expires {{expiresAt}}",
+                "planBadge": "{{multiplier}}x first month"
+            }
+        },
         "activePlan": "Active Plan",
         "started": "Started",
         "renews": "Renews",
@@ -3659,7 +3684,12 @@
             "includedFallbackBullet1": "Full access to the API catalog and your Verifik workspace",
             "includedFallbackBullet2": "Per-request billing at the standard credit rate (no plan discount)",
             "compareDiscountedPlans": "Compare plans with API discounts",
-            "compareDiscountedPlansShort": "See plans with API discounts"
+            "compareDiscountedPlansShort": "See plans with API discounts",
+            "bringBack": {
+                "badge": "{{multiplier}}x welcome-back",
+                "payReceive": "You pay ${{payUsd}} → receive ${{receiveUsd}} in credits ({{multiplier}}x)",
+                "note": "Your plan stays ${{payUsd}} every month. The {{multiplier}}x bonus credits apply only to this first payment — renewals use the same plan price with standard credits (no bonus)."
+            }
         },
         "requestSlider": {
             "label": "Estimated requests per month",

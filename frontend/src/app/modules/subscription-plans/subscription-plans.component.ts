@@ -14,7 +14,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
-import { Subject } from 'rxjs';
+import type { BringBackOffer } from 'app/core/user/user.types';
+import { UserService } from 'app/core/user/user.service';
+import { Subject, catchError, of } from 'rxjs';
 import { BillingRequiredDialogComponent } from './billing-required-dialog/billing-required-dialog.component';
 import { PlanChangeDialogComponent } from './plan-change-dialog/plan-change-dialog.component';
 import {
@@ -65,6 +67,9 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     hasBillingSetup = false;
     hasPaymentMethod = false;
 
+    /** Active bring-back offer from session (2x recharge / 3x recharge+subscription). */
+    bringBackOffer: BringBackOffer | null = null;
+
     // Request estimator (single source of truth: requestsPerMonth)
     requestsPerMonth = 2000;
     requestsPerYear = 24000;
@@ -114,7 +119,8 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
         private _route: ActivatedRoute,
         private _translocoService: TranslocoService,
         private _snackBar: MatSnackBar,
-        private _authGate: AuthRequiredGateService
+        private _authGate: AuthRequiredGateService,
+        private _userService: UserService
     ) {}
 
     ngOnInit(): void {
@@ -125,19 +131,70 @@ export class SubscriptionPlansComponent implements OnInit, OnDestroy {
     }
 
     private _bootstrapSubscriptionPlansAfterAuth(): void {
+        this._loadBringBackOffer();
         this._loadCurrentSubscription();
         this._checkBillingSetup();
         this._confirmSessionIfPresent();
     }
 
+    private _loadBringBackOffer(): void {
+        this._userService
+            .get()
+            .pipe(
+                catchError((err) => {
+                    console.error('Failed to load session for bring-back offer:', err);
+                    return of(null);
+                }),
+            )
+            .subscribe((user) => {
+                const offer = user?.bringBackOffer;
+                this.bringBackOffer =
+                    offer?.kind === 'bring_back' && offer.eligible ? offer : null;
+            });
+    }
+
+    get showBringBackPromoBanner(): boolean {
+        return Boolean(this.bringBackOffer?.eligible);
+    }
+
+    get bringBackPromoExampleCredits(): number {
+        const multiplier = this.bringBackOffer?.multiplier || 2;
+
+        return Math.round(400 * multiplier);
+    }
+
+    /**
+     * Basic / Plus / Business (and common locale aliases) qualify for first-month promo badge.
+     */
+    isBringBackPromoPlan(plan: SubscriptionPlan): boolean {
+        if (!this.showBringBackPromoBanner) {
+            return false;
+        }
+
+        const name = (plan.name || '').toLowerCase();
+
+        return (
+            /\bbasic\b/.test(name) ||
+            name.includes('básico') ||
+            /\bplus\b/.test(name) ||
+            /\bbusiness\b/.test(name) ||
+            name.includes('empresarial') ||
+            /\bsmart\s*basic\b/.test(name) ||
+            /\bsmart\s*plus\b/.test(name) ||
+            /\bsmart\s*business\b/.test(name)
+        );
+    }
+
+    bringBackFirstMonthCredits(plan: SubscriptionPlan): number {
+        const amount = Number(plan.amount) || 0;
+        const multiplier = this.bringBackOffer?.multiplier || 2;
+
+        return Math.round(amount * multiplier);
+    }
+
     ngOnDestroy(): void {
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
-    }
-
-    // Navigation
-    navigateToAddCredits(): void {
-        this._router.navigate(['/add-credits']);
     }
 
     goToBillingDetails(): void {

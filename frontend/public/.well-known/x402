@@ -21,6 +21,8 @@
     "GET /api/interpol",
     "GET /api/ofac",
     "POST /api/mx/curp",
+    "GET /api/mx/ine",
+    "POST /api/mx/ine/ocr",
     "GET /api/pe/vehiculo/placa",
     "GET /api/pe/vehiculo/soat",
     "POST /api/co/simit/comparendos",

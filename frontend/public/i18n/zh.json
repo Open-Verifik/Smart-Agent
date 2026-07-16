@@ -512,6 +512,11 @@
             "title": "AI 代理的信任层",
             "subtitle": "验证自主代理背后的人员和公司。由 14+ 官方政府数据库集成 and x402 支付协议提供支持。"
         },
+        "bringBackModal": {
+            "maybeLater": "稍后再说",
+            "okLetsDoIt": "好的，开始吧",
+            "viewPlans": "查看订阅计划"
+        },
         "onboarding": {
             "title": "开发者入驻清单",
             "subtitle": "完成这些任务以验证您的集成、测试我们的 API 并获得奖励。每完成一项任务可赚取 $1.00 USD（总计高达 $12.00 USD）。奖励将记入您的账户余额中。",
@@ -3497,6 +3502,17 @@
                 "deadline": "请在 {{expiresAt}} 前完成符合条件的首笔购买",
                 "walletStrip": "首周限时：购买积分时选择 {{amountUsd}} 之一，本促销活动有效期间积分价值翻倍（详见上方横幅）。",
                 "dialogDouble": "首周优惠：本次支付 {{payUsd}}，到账总积分价值为 {{receivedUsd}}（含等额赠送）。"
+            },
+            "bringBack": {
+                "badge": "回归优惠",
+                "title": "您的下次充值可获 {{multiplier}}x 积分",
+                "body": "支付一次，我们将按该金额的 {{multiplier}} 倍计入积分。例如：充值 $50 可获得 ${{exampleReceived}}，或订阅后首月付款按 {{multiplier}}x 计入积分。一次性优惠。",
+                "bodyTriple": "支付一次，我们将按该金额的 {{multiplier}} 倍计入积分。例如：充值 $50 可获得 $150，或订阅后首月付款按 {{multiplier}}x 计入积分。",
+                "deadline": "优惠截止于 {{expiresAt}}",
+                "walletStrip": "优惠生效中：您的下次积分购买或首月订阅按 {{multiplier}}x 计入（支付 $50 → 获得 ${{exampleReceived}}）。",
+                "dialogMultiplied": "回归优惠：您支付 {{payUsd}}，共获得 {{receivedUsd}} 积分（{{multiplier}}x）。",
+                "ctaRecharge": "立即充值",
+                "ctaSubscribe": "查看订阅计划"
             }
         },
         "purchaseDialog": {
@@ -3577,6 +3593,15 @@
         "subtitle": "简单、透明的定价，随您的业务扩展。",
         "titleWithPlan": "管理您的计划",
         "subtitleWithPlan": "比较计划并升级以解锁更多权益。",
+        "promo": {
+            "bringBack": {
+                "badge": "回归优惠",
+                "titleFirstMonth": "首次订阅付款：{{multiplier}}x 积分",
+                "bodyFirstMonth": "订阅 Basic、Plus 或 Business — 首个付费月按 {{multiplier}}x 计入积分（例如 $400 套餐 → ${{example}} 积分）。",
+                "deadline": "优惠截止于 {{expiresAt}}",
+                "planBadge": "{{multiplier}}x 首月"
+            }
+        },
         "activePlan": "当前计划",
         "started": "开始日期",
         "renews": "续费日期",
@@ -3641,6 +3666,11 @@
             "secureTransaction": "安全交易",
             "estimatedTotal": "应付总额",
             "usageNote": "最终账单金额取决于实际使用量。",
+            "bringBack": {
+                "badge": "{{multiplier}}x 回归优惠",
+                "payReceive": "您支付 ${{payUsd}} → 获得 ${{receiveUsd}} 积分（{{multiplier}}x）",
+                "note": "套餐每月仍为 ${{payUsd}}。{{multiplier}}x 奖励积分仅适用于本次首期付款；续费仍按相同套餐价格，发放标准积分（无奖励）。"
+            },
             "includedFallback": "此方案不包含 API 请求量的折扣。每次调用均按标准每请求积分价格计费。",
             "includedFallbackBullet1": "完整访问 API 目录与 Verifik 工作区",
             "includedFallbackBullet2": "按标准积分费率按次计费（无方案折扣）",
