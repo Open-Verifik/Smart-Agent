@@ -859,6 +859,10 @@
         "bolivia_api_voting_location": {
             "title": "Bolivia - Voting Location",
             "description": "Query official Bolivian electoral registry (OEP Yo Participo) via GET /v2/bo/votacion using CI and date of birth. Returns polling place, table, voting eligibility, and signed response data."
+        },
+        "ecuador_api_company_lookup_v3": {
+            "title": "Ecuadorian Business Verification",
+            "description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify comprehensive business data in seconds."
         }
     }
 }
