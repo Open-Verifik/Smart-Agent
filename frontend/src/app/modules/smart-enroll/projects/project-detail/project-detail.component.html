@@ -271,6 +271,14 @@
                                     </div>
                                     <div class="flex flex-col gap-1 rounded-xl bg-stone-50 px-3 py-2 dark:bg-gray-900/40">
                                         <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                            {{ t('smartEnrollProjects.detail.basic.defaultLanguage') }}
+                                        </span>
+                                        <span class="text-sm text-stone-800 dark:text-stone-100">
+                                            {{ basic.defaultLanguage || 'en' }}
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-col gap-1 rounded-xl bg-stone-50 px-3 py-2 dark:bg-gray-900/40">
+                                        <span class="text-[11px] font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
                                             {{ t('smartEnrollProjects.detail.basic.privacyUrl') }}
                                         </span>
                                         @if (basic.privacyUrl) {

@@ -115,6 +115,7 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         return {
             name: p?.name ?? '',
             contactEmail: p?.contactEmail ?? '',
+            defaultLanguage: p?.defaultLanguage ?? 'en',
             allowedCountries: p?.allowedCountries ?? [],
             privacyUrl: p?.privacyUrl ?? '',
             termsAndConditionsUrl: p?.termsAndConditionsUrl ?? '',

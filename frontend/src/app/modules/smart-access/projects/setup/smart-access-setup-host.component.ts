@@ -45,6 +45,7 @@ const BASIC_KEYS = [
     'name',
     'allowedCountries',
     'contactEmail',
+    'defaultLanguage',
     'privacyUrl',
     'termsAndConditionsUrl',
     'dataProtection.name',
@@ -440,6 +441,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                     Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
                 ],
             ],
+            defaultLanguage: [p?.defaultLanguage || 'en', Validators.required],
             name: [p?.name || '', [Validators.required, Validators.maxLength(60)]],
             privacyUrl: [p?.privacyUrl || '', [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]],
             target: [(p?.target || 'personal') as string],
@@ -589,6 +591,7 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             name: raw['name'],
             allowedCountries: raw['allowedCountries'],
             contactEmail: raw['contactEmail'],
+            defaultLanguage: raw['defaultLanguage'] || 'en',
             privacyUrl: raw['privacyUrl'],
             termsAndConditionsUrl: raw['termsAndConditionsUrl'],
         };

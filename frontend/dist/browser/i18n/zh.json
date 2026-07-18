@@ -435,7 +435,21 @@
         "paginatorLastPage": "最后一页",
         "paginatorRange": "{{start}} – {{end}} / {{total}}",
         "paginatorRangeEmpty": "0 / 0",
-        "signatureImage": "签名图片"
+        "signatureImage": "签名图片",
+        "aiLayoutAssistant": "AI 布局助手",
+        "aiLayoutAssistantHint": "描述您想要的布局，AI 将为您构建",
+        "generateLayout": "生成布局",
+        "generatingLayout": "正在生成...",
+        "useSamplePrompt": "使用示例提示",
+        "aiPromptPlaceholder": "例如：顶部粗体标题、分隔线、下方证件号与全名，以及结果数据表的简洁报告",
+        "layoutGeneratedSuccess": "AI 已成功生成布局！",
+        "layoutGeneratedEmpty": "AI 返回了空布局。请尝试改写提示。",
+        "layoutGeneratedFailed": "AI 布局生成失败，请重试。",
+        "aiModeRebuild": "全部重建",
+        "aiModeEditSection": "编辑区块",
+        "aiModeAddSection": "添加区块",
+        "sectionEditedSuccess": "已通过 AI 成功更新区块！",
+        "sectionsAppendedSuccess": "已成功追加新区块！"
     },
     "guestFeatureAuth": {
         "title": "需要登录",
@@ -1370,6 +1384,7 @@
                 "subtitle": "项目的身份与合规基本信息。",
                 "name": "项目名称",
                 "contactEmail": "联系邮箱",
+                "defaultLanguage": "默认语言",
                 "privacyUrl": "隐私政策",
                 "termsUrl": "条款与条件",
                 "allowedCountries": "允许的国家",
@@ -1438,6 +1453,7 @@
                 "layoutCustom": "自定义邮件布局",
                 "layoutCustomDescription": "为此语言自定义结构化文案。预览和测试邮件使用未保存的编辑；生产 OTP 邮件仅使用已保存的文案。",
                 "layoutPreviewNote": "未保存的更改会出现在预览和测试邮件中。保存模板以将其应用于生产 OTP 邮件。",
+                "languageTabHint": "此标签页用于编辑文案，不是选择生产环境发送语言。",
                 "resetLanguageDefaults": "将此语言重置为系统默认值",
                 "greetingLabel": "问候语",
                 "greetingPlaceholder": "例如：亲爱的 {{firstName}}，",
@@ -1867,19 +1883,27 @@
                     "remove": "移除",
                     "add": "添加国家",
                     "configurations": "配置",
-                    "activateHint": "至少启用一个配置以使该国家有效。",
+                    "activateHint": "至少启用一个在目录中有模板的类别。没有模板的类别请保持关闭。",
                     "invalid": "部分配置不完整。",
                     "errors": {
                         "atLeastOne": "至少添加一个国家配置。",
                         "duplicateCountries": "每个国家只能添加一次。",
-                        "allMustBeValid": "部分国家的配置不完整。",
-                        "emptyCountry": "请为每个配置选择国家。"
+                        "allMustBeValid": "部分国家的配置不完整。请为每一行选择国家，保持空类别关闭，并至少保留一个含有模板的活动类别。",
+                        "emptyCountry": "请为每个配置选择国家。删除空白行，或为每一行选择国家。"
                     },
                     "pickCountryFirst": "请选择一个国家以加载可用证件。",
                     "loading": "正在加载证件…",
-                    "noTemplates": "{{ country }} 及全球范围内均无可用的 {{ category }}。",
-                    "noTemplatesShort": "该国家在目录（含全球）中暂无可用证件。",
+                    "noTemplates": "目录中没有 {{ country }} 的 {{ category }} 模板（含全球）。请保持此类别关闭。",
+                    "noTemplatesShort": "{{ country }} 没有 {{ category }} 模板（含全球）。",
+                    "tryOtherCategories": "该国家在以下类别有证件：{{ categories }}。请改为启用这些类别。",
                     "selectedOfAvailable": "已选 {{ selected }}/{{ total }}",
+                    "countriesConfigured": "已配置 {{ count }} 个国家",
+                    "summaryDocs": "已选 {{ count }} 份证件",
+                    "showDocuments": "显示证件",
+                    "hideDocuments": "隐藏证件",
+                    "expandCountry": "展开国家配置",
+                    "collapseCountry": "折叠国家配置",
+                    "needsAttention": "需要处理",
                     "preview": "预览",
                     "previewTitle": "证件预览",
                     "frontImage": "正面",
@@ -1911,7 +1935,9 @@
                     "title": "项目标识",
                     "subtitle": "项目在客户与团队侧的展示方式。",
                     "name": "项目名称",
-                    "contactEmail": "联系邮箱"
+                    "contactEmail": "联系邮箱",
+                    "defaultLanguage": "默认语言",
+                    "defaultLanguageHint": "当用户未选择其他语言时，用于注册者界面和 OTP 邮件。"
                 },
                 "allowed": {
                     "title": "允许的国家/地区",
@@ -6259,10 +6285,7 @@
         "uploadBatchAppendHint": "上传 CSV 以向此批次追加多行记录。",
         "addOneRecordTitle": "添加一条记录",
         "addOneRecordDesc": "填写必填字段，向此批次追加一条记录。",
-        "appendFailed": "无法添加该记录，请重试。",
-        "stepIncompatibleTitle": "部分行将在运行时跳过步骤",
-        "stepIncompatibleWarning": "第 {{row}} 行：{{message}}",
-        "stepIncompatibleDetail": "{{field}} 的值 \"{{value}}\" 不受 {{step}} 支持（允许：{{allowed}}）。批次运行时将跳过该步骤。"
+        "appendFailed": "无法添加该记录，请重试。"
     },
     "colombiaVehicleReport": {
         "sections": {

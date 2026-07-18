@@ -20,6 +20,17 @@ import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { CountryOption, CountryService } from 'app/core/services/country.service';
 
+/** Backend `SUPPORTED_EMAIL_LANGUAGES` codes for project.defaultLanguage. */
+export const PROJECT_DEFAULT_LANGUAGES = [
+    { code: 'en', label: 'English' },
+    { code: 'es', label: 'Español' },
+    { code: 'br', label: 'Português' },
+    { code: 'fr', label: 'Français' },
+    { code: 'ja', label: '日本語' },
+    { code: 'kr', label: '한국어' },
+    { code: 'cn', label: '中文' },
+] as const;
+
 /**
  * Step 0 — Basic project setup.
  * Mirrors verifik-client-panel `SmartEnrollBasicSetupComponent`: project name,
@@ -55,6 +66,9 @@ export class SetupBasicSetupComponent {
 
     countries: CountryOption[] = this._countryService.countries;
     ipCountries: CountryOption[] = this._countryService.ipCountries;
+
+    /** Project default locale options (backend email/UI language codes). */
+    readonly defaultLanguages = PROJECT_DEFAULT_LANGUAGES;
 
     /** Filter text for allowed-country autocomplete (OnPush + form control). */
     readonly allowedCountryFilterCtrl = new FormControl('', { nonNullable: true });

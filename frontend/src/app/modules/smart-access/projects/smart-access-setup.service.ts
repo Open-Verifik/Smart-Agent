@@ -53,6 +53,7 @@ export class SmartAccessSetupService {
                 name: '',
                 postalCode: '',
             },
+            defaultLanguage: 'en',
             identifier: '',
             name: '',
             privacyUrl: '',
@@ -195,6 +196,7 @@ export type AccessProjectLike = {
     client?: string;
     contactEmail?: string;
     dataProtection?: Record<string, string>;
+    defaultLanguage?: string;
     demoMode?: boolean;
     demoOTP?: string | number;
     name?: string;

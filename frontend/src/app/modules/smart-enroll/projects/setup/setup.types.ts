@@ -217,6 +217,8 @@ export interface Project<T extends SmartEnrollProjectFlow = SmartEnrollProjectFl
     createdAt?: string;
     currentStep: number;
     dataProtection: DataProtection;
+    /** Default enrollee UI / OTP locale when the user has not chosen a language. */
+    defaultLanguage?: string;
     demoMode?: boolean;
     identifier?: string;
     lastStep: number;

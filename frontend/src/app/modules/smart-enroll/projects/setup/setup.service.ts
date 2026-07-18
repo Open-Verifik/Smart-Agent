@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { environment } from 'environments/environment';
-import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, catchError, expand, map, reduce, throwError } from 'rxjs';
 import type {
     Branding,
     BusinessProjectFlow,
@@ -85,6 +85,7 @@ export class SetupService {
             'name',
             'allowedCountries',
             'contactEmail',
+            'defaultLanguage',
             'privacyUrl',
             'termsAndConditionsUrl',
             'dataProtection.name',
@@ -354,6 +355,7 @@ export class SetupService {
             collectionCode: '',
             contactEmail: '',
             currentStep: 0,
+            defaultLanguage: 'en',
             identifier: '',
             lastStep: 0,
             name: '',
@@ -587,16 +589,67 @@ export class SetupService {
      * Catalog of prompt templates used by the documents step to populate the
      * per-country, per-category list. Mirrors the call client-panel issues
      * (`{ in_country: [country, 'World'], populates: ['documentType'] }`).
+     *
+     * Backend MongoORM defaults to 20 rows per page; US state licenses alone
+     * exceed that, so callers that need the full catalog should use
+     * {@link listAllPromptTemplates}.
      */
     listPromptTemplates(
         query: Record<string, string | string[] | number | boolean | undefined> = {}
-    ): Observable<{ data: PromptTemplateLite[] }> {
+    ): Observable<{
+        data: PromptTemplateLite[];
+        total?: number;
+        limit?: number;
+        page?: number;
+        pages?: number;
+    }> {
         return this._http
-            .get<{ data: PromptTemplateLite[] }>(`${this.apiUrl}/v2/prompt-templates`, {
+            .get<{
+                data: PromptTemplateLite[];
+                total?: number;
+                limit?: number;
+                page?: number;
+                pages?: number;
+            }>(`${this.apiUrl}/v2/prompt-templates`, {
                 params: this._params(query),
                 headers: this.authHeaders,
             })
             .pipe(catchError((err) => throwError(() => err)));
+    }
+
+    /**
+     * Loads every approved prompt template matching the query by paging until
+     * `page >= pages` (needed for countries with many license templates).
+     */
+    listAllPromptTemplates(
+        query: Record<string, string | string[] | number | boolean | undefined> = {}
+    ): Observable<{ data: PromptTemplateLite[] }> {
+        const perPage = 200;
+        const baseQuery = {
+            ...query,
+            perPage,
+            sort: 'name',
+        };
+
+        return this.listPromptTemplates({ ...baseQuery, page: 1 }).pipe(
+            expand((response) => {
+                const page = Number(response.page) || 1;
+                const pages = Number(response.pages);
+                const batch = response?.data?.length || 0;
+                const hasMorePages = Number.isFinite(pages) ? page < pages : batch >= perPage;
+                if (!hasMorePages) return EMPTY;
+                return this.listPromptTemplates({ ...baseQuery, page: page + 1 });
+            }),
+            reduce(
+                (acc, response) => {
+                    acc.push(...(response?.data || []));
+                    return acc;
+                },
+                [] as PromptTemplateLite[]
+            ),
+            map((data) => ({ data })),
+            catchError((err) => throwError(() => err))
+        );
     }
 
     /** List webhooks for the integrations step. */

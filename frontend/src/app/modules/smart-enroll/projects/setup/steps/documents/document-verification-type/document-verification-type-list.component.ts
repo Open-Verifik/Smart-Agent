@@ -4,6 +4,7 @@ import {
     ChangeDetectorRef,
     Component,
     DestroyRef,
+    ElementRef,
     Input,
     OnInit,
     inject,
@@ -20,7 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 
 import { CountryService } from 'app/core/services/country.service';
 import { SetupFormFactory } from '../../../setup-form.factory';
@@ -31,6 +32,9 @@ import {
 } from '../document-type-preview-dialog/document-type-preview-dialog.component';
 
 type CategoryBucket = Record<string, PromptTemplateLite[]>;
+
+/** Collapse long template checklists above this count by default. */
+const CATEGORY_LIST_COLLAPSE_THRESHOLD = 6;
 
 /**
  * Editable list of "document verification types" (one per country).
@@ -77,6 +81,8 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     private _dialog = inject(MatDialog);
     private _cdr = inject(ChangeDetectorRef);
     private _destroyRef = inject(DestroyRef);
+    private _host = inject(ElementRef<HTMLElement>);
+    private _transloco = inject(TranslocoService);
 
     countries = this._countries.worldCountries;
 
@@ -86,6 +92,15 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     private _loadingCountries = new Set<string>();
     /** Countries we've already attempted to fetch (success or failure). */
     private _fetchedCountries = new Set<string>();
+
+    /** Explicitly expanded country card indices (user opened a valid card). */
+    private _expandedCountries = new Set<number>();
+    /** Explicitly collapsed country card indices (user closed a card). */
+    private _userCollapsedCountries = new Set<number>();
+    /** Expanded category template lists: `${countryIndex}:${category}`. */
+    private _expandedCategoryLists = new Set<string>();
+
+    readonly categoryListCollapseThreshold = CATEGORY_LIST_COLLAPSE_THRESHOLD;
 
     ngOnInit(): void {
         this.documentTypes?.controls.forEach((group) => this._watchCountry(group as FormGroup));
@@ -105,10 +120,100 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         return control as FormArray;
     }
 
+    /**
+     * Transloco key for the country display name, or the raw code / empty.
+     */
+    countryNameKey(countryCode: string): string {
+        if (!countryCode) return '';
+        const match = this.countries.find((c) => c.country === countryCode);
+        return match?.name || countryCode;
+    }
+
+    totalSelected(group: FormGroup): number {
+        const arr = this.asArray(group.get('configurations'));
+        if (!arr) return 0;
+        return arr.controls.reduce((sum, cfg) => sum + this.selectedCount(cfg), 0);
+    }
+
+    /**
+     * True when the country row needs user attention (empty, invalid, or no active category).
+     */
+    countryNeedsAttention(group: FormGroup): boolean {
+        const country = (group.get('country')?.value as string) || '';
+        if (!country) return true;
+        if (group.invalid) return true;
+        if (this.activeCategories(group).length === 0) return true;
+        return false;
+    }
+
+    isCountryExpanded(index: number): boolean {
+        const group = this.asGroup(this.documentTypes.at(index));
+        if (this.countryNeedsAttention(group)) return true;
+        if (this._userCollapsedCountries.has(index)) return false;
+        return this._expandedCountries.has(index);
+    }
+
+    toggleCountry(index: number, event?: Event): void {
+        event?.stopPropagation();
+        const group = this.asGroup(this.documentTypes.at(index));
+        // Incomplete rows stay open so the user can finish configuration.
+        if (this.countryNeedsAttention(group)) return;
+
+        if (this.isCountryExpanded(index)) {
+            this._userCollapsedCountries.add(index);
+            this._expandedCountries.delete(index);
+        } else {
+            this._expandedCountries.add(index);
+            this._userCollapsedCountries.delete(index);
+        }
+        this._cdr.markForCheck();
+    }
+
+    focusCountry(index: number): void {
+        this._expandedCountries.add(index);
+        this._userCollapsedCountries.delete(index);
+        this._cdr.markForCheck();
+
+        queueMicrotask(() => {
+            const el = this._host.nativeElement.querySelector(
+                `#doc-country-${index}`
+            ) as HTMLElement | null;
+            el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    }
+
+    categoryListKey(countryIndex: number, category: string): string {
+        return `${countryIndex}:${category}`;
+    }
+
+    isCategoryListExpanded(
+        countryIndex: number,
+        category: string,
+        templatesLength: number
+    ): boolean {
+        if (templatesLength === 0) return false;
+        if (templatesLength <= CATEGORY_LIST_COLLAPSE_THRESHOLD) return true;
+        return this._expandedCategoryLists.has(this.categoryListKey(countryIndex, category));
+    }
+
+    toggleCategoryList(countryIndex: number, category: string, event?: Event): void {
+        event?.stopPropagation();
+        const key = this.categoryListKey(countryIndex, category);
+        if (this._expandedCategoryLists.has(key)) {
+            this._expandedCategoryLists.delete(key);
+        } else {
+            this._expandedCategoryLists.add(key);
+        }
+        this._cdr.markForCheck();
+    }
+
     addType(): void {
         this._factory.addDocumentTypesWithDefaults(this.documentTypes, this.target);
-        const last = this.documentTypes.at(this.documentTypes.length - 1) as FormGroup;
+        const lastIndex = this.documentTypes.length - 1;
+        const last = this.documentTypes.at(lastIndex) as FormGroup;
         this._watchCountry(last);
+        this._expandedCountries.add(lastIndex);
+        this._userCollapsedCountries.delete(lastIndex);
         this._factory.updateValidatorsForActiveState(this.documentTypes);
         this.documentTypes?.updateValueAndValidity();
         this._cdr.markForCheck();
@@ -116,6 +221,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
 
     removeType(index: number): void {
         this.documentTypes.removeAt(index);
+        this._reindexCollapseState(index);
         this._cdr.markForCheck();
     }
 
@@ -136,6 +242,45 @@ export class DocumentVerificationTypeListComponent implements OnInit {
     templatesFor(country: string, category: string): PromptTemplateLite[] {
         if (!country || !category) return [];
         return this._templatesByCountry[country]?.[category] || [];
+    }
+
+    /**
+     * Categories with catalog templates first so empty Government ID does not
+     * hide License (e.g. United States state driver licenses).
+     */
+    orderedConfigurationControls(group: FormGroup): AbstractControl[] {
+        const country = group?.get('country')?.value as string;
+        const arr = this.asArray(group?.get('configurations'));
+        const controls = arr?.controls ? [...arr.controls] : [];
+        if (!country || !this._fetchedCountries.has(country)) return controls;
+
+        return controls.sort((a, b) => {
+            const catA = a.get('documentCategory')?.value as string;
+            const catB = b.get('documentCategory')?.value as string;
+            const countA = this.templatesFor(country, catA).length;
+            const countB = this.templatesFor(country, catB).length;
+            if (countA > 0 && countB === 0) return -1;
+            if (countA === 0 && countB > 0) return 1;
+            return 0;
+        });
+    }
+
+    /** Other categories on this country that have catalog templates (for empty-state hints). */
+    categoriesWithTemplates(country: string, excludeCategory: string): string[] {
+        if (!country) return [];
+        const buckets = this._templatesByCountry[country] || {};
+        return Object.keys(buckets).filter(
+            (category) => category !== excludeCategory && (buckets[category]?.length || 0) > 0
+        );
+    }
+
+    /** Comma-separated translated labels for empty-state “try other categories” hints. */
+    otherCategoryLabels(country: string, excludeCategory: string): string {
+        return this.categoriesWithTemplates(country, excludeCategory)
+            .map((category) =>
+                this._transloco.translate(`smartEnrollProjects.setup.documents.category.${category}`)
+            )
+            .join(', ');
     }
 
     /** Helper to look up the populated DocumentType on a prompt template. */
@@ -288,6 +433,31 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         });
     }
 
+    private _reindexCollapseState(removedIndex: number): void {
+        const nextExpanded = new Set<number>();
+        const nextCollapsed = new Set<number>();
+        for (const i of this._expandedCountries) {
+            if (i === removedIndex) continue;
+            nextExpanded.add(i > removedIndex ? i - 1 : i);
+        }
+        for (const i of this._userCollapsedCountries) {
+            if (i === removedIndex) continue;
+            nextCollapsed.add(i > removedIndex ? i - 1 : i);
+        }
+        this._expandedCountries = nextExpanded;
+        this._userCollapsedCountries = nextCollapsed;
+
+        const nextCategory = new Set<string>();
+        for (const key of this._expandedCategoryLists) {
+            const [idxStr, category] = key.split(':');
+            const idx = Number(idxStr);
+            if (Number.isNaN(idx) || idx === removedIndex) continue;
+            const newIdx = idx > removedIndex ? idx - 1 : idx;
+            nextCategory.add(`${newIdx}:${category}`);
+        }
+        this._expandedCategoryLists = nextCategory;
+    }
+
     private _watchCountry(group: FormGroup): void {
         const countryCtrl = group?.get('country');
         if (!countryCtrl) return;
@@ -297,6 +467,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
             .pipe(takeUntilDestroyed(this._destroyRef))
             .subscribe((country: string) => {
                 if (country) this._fetchTemplatesForCountry(country);
+                this._cdr.markForCheck();
             });
     }
 
@@ -309,7 +480,7 @@ export class DocumentVerificationTypeListComponent implements OnInit {
         this._cdr.markForCheck();
 
         this._setup
-            .listPromptTemplates({
+            .listAllPromptTemplates({
                 in_country: country === 'World' ? ['World'] : [country, 'World'],
                 populates: ['documentType'],
             })

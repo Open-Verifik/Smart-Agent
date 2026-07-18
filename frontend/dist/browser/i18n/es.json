@@ -1384,6 +1384,7 @@
                 "subtitle": "Identidad y bases de cumplimiento del proyecto.",
                 "name": "Nombre del proyecto",
                 "contactEmail": "Correo de contacto",
+                "defaultLanguage": "Idioma predeterminado",
                 "privacyUrl": "Política de privacidad",
                 "termsUrl": "Términos y condiciones",
                 "allowedCountries": "Países permitidos",
@@ -1418,7 +1419,7 @@
             },
             "emailTemplate": {
                 "title": "Plantilla de correo",
-                "description": "Personaliza el correo de verificación OTP que reciben tus registrados. Deja los campos vacíos para usar el texto predeterminado.",
+                "description": "Personaliza el texto del correo OTP por idioma. Las pestañas de idioma solo editan overrides guardados: no eligen el idioma de envío. El idioma OTP en producción viene de la interfaz del usuario / language del registro (inglés por defecto). Deja los campos vacíos para usar los textos del sistema.",
                 "subjectLabel": "Asunto del correo",
                 "subjectPlaceholder": "ej. Código de verificación",
                 "messageLabel": "Cuerpo del mensaje",
@@ -1450,8 +1451,8 @@
                 "layoutToggleLabel": "Diseño del correo",
                 "layoutStandard": "Diseño estándar",
                 "layoutCustom": "Diseño de correo personalizado",
-                "layoutCustomDescription": "Personalice el copy estructurado para este idioma. La vista previa y los correos de prueba usan cambios sin guardar; los OTP de producción solo usan copy guardado.",
-                "layoutPreviewNote": "Los cambios sin guardar aparecen en la vista previa y en correos de prueba. Guarde la plantilla para aplicarlos a los OTP de producción.",
+                "layoutCustomDescription": "Personalice el copy estructurado para esta pestaña de idioma (solo edición: no es el idioma de envío). La vista previa y los correos de prueba usan cambios sin guardar; los OTP de producción usan el copy guardado del idioma del usuario.",
+                "layoutPreviewNote": "Los cambios sin guardar aparecen en la vista previa y en correos de prueba. Guarde la plantilla para aplicarlos a los OTP de producción. El idioma de envío sigue la sesión/API del usuario, no esta pestaña.",
                 "resetLanguageDefaults": "Restablecer este idioma a los valores predeterminados",
                 "greetingLabel": "Saludo",
                 "greetingPlaceholder": "p. ej. Estimado/a {{firstName}},",
@@ -1475,7 +1476,8 @@
                 "htmlErrorScriptlets": "No se permiten scripts en línea (<% ... %>).",
                 "htmlErrorsBlockSave": "Resuelve los errores de HTML para guardar.",
                 "slotRemovedBadge": "Eliminado del diseño",
-                "saveError": "No se pudo guardar la plantilla. Inténtalo de nuevo."
+                "saveError": "No se pudo guardar la plantilla. Inténtalo de nuevo.",
+                "languageTabHint": "Esta pestaña es para editar el texto, no para elegir el idioma de envío en producción."
             },
             "documents": {
                 "subtitle": "Cómo se aceptan y verifican los documentos de identidad.",
@@ -1884,25 +1886,33 @@
                     "remove": "Quitar",
                     "add": "Añadir país",
                     "configurations": "Configuraciones",
-                    "activateHint": "Activa al menos una configuración para validar este país.",
+                    "activateHint": "Activa al menos una categoría que tenga plantillas en el catálogo. Deja inactivas las categorías sin plantillas.",
                     "invalid": "Algunas configuraciones están incompletas.",
                     "errors": {
                         "atLeastOne": "Añade al menos una configuración de país.",
                         "duplicateCountries": "Cada país solo puede añadirse una vez.",
-                        "allMustBeValid": "Algunas configuraciones de país están incompletas.",
-                        "emptyCountry": "Selecciona un país para cada configuración."
+                        "allMustBeValid": "Algunas configuraciones de país están incompletas. Selecciona un país en cada fila, deja inactivas las categorías vacías y mantén al menos una categoría activa con plantillas.",
+                        "emptyCountry": "Selecciona un país para cada configuración. Elimina filas en blanco o elige un país en cada una."
                     },
                     "pickCountryFirst": "Selecciona un país para cargar los documentos disponibles.",
                     "loading": "Cargando documentos…",
-                    "noTemplates": "No hay documentos disponibles para {{ category }} en {{ country }} ni a nivel global.",
-                    "noTemplatesShort": "No se encontraron documentos para este país en el catálogo (incluido el global).",
+                    "noTemplates": "No hay plantillas de {{ category }} para {{ country }} en el catálogo (incluido el global). Deja esta categoría inactiva.",
+                    "noTemplatesShort": "Sin plantillas de {{ category }} para {{ country }} (incluido el global).",
                     "selectedOfAvailable": "{{ selected }} de {{ total }} seleccionados",
+                    "countriesConfigured": "{{ count }} países configurados",
+                    "summaryDocs": "{{ count }} documentos seleccionados",
+                    "showDocuments": "Mostrar documentos",
+                    "hideDocuments": "Ocultar documentos",
+                    "expandCountry": "Expandir configuración del país",
+                    "collapseCountry": "Contraer configuración del país",
+                    "needsAttention": "Requiere atención",
                     "preview": "Previsualizar",
                     "previewTitle": "Vista previa del documento",
                     "frontImage": "Anverso",
                     "backImage": "Reverso",
                     "noImage": "Imagen no disponible.",
-                    "globalBadge": "Global"
+                    "globalBadge": "Global",
+                    "tryOtherCategories": "Este país tiene documentos en: {{ categories }}. Activa esas categorías en su lugar."
                 },
                 "category": {
                     "government_id": "Documento de identidad",
@@ -1928,11 +1938,13 @@
                     "title": "Identidad del proyecto",
                     "subtitle": "Cómo aparece tu proyecto para los clientes y el equipo.",
                     "name": "Nombre del proyecto",
-                    "contactEmail": "Correo de contacto"
+                    "contactEmail": "Correo de contacto",
+                    "defaultLanguage": "Idioma predeterminado",
+                    "defaultLanguageHint": "Se usa para la interfaz del usuario y los correos OTP cuando el usuario no ha elegido otro idioma."
                 },
                 "allowed": {
                     "title": "Países permitidos",
-                    "subtitle": "Restringe desde dónde pueden inscribirse tus clientes. Añade Mundo para permitir todos los países.",
+                    "subtitle": "Restringe desde dónde pueden inscribirse tus clientes. Añade Mundo (All) para permitir todos los países. Los tipos de documento se configuran por país en el paso Documentos.",
                     "add": "Añadir país",
                     "search": "Buscar países…",
                     "remove": "Eliminar"
@@ -2946,8 +2958,8 @@
         "connectWallet": "Conectar Billetera",
         "connectWalletDescription": "Vincula una billetera para acceder a funciones Web3 y pagos AVAX",
         "resetWallet": "Restablecer Billetera",
-        "signOutWeb2": "Cerrar Sesión de Cuenta Empresarial",
-        "signOutWeb3": "Cerrar Sesión Billetera",
+        "signOutWeb2": "Cerrar Sesión",
+        "signOutWeb3": "Eliminar Billetera",
         "settings": "Configuración"
     },
     "layoutSettings": {
@@ -6459,80 +6471,26 @@
                 "Normal: Solicitudes generales que no afectan la disponibilidad."
             ],
             "responseTitle": "Tiempos de respuesta",
-            "responseHeaders": [
-                "Criticidad",
-                "Atención",
-                "Revisión",
-                "Escalamiento",
-                "Solución"
-            ],
+            "responseHeaders": ["Criticidad", "Atención", "Revisión", "Escalamiento", "Solución"],
             "responseRows": {
-                "critical": [
-                    "Crítico",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "urgent": [
-                    "Urgente",
-                    "0.5 hr",
-                    "0.5 hr",
-                    "15 min",
-                    "48 hrs"
-                ],
-                "medium": [
-                    "Medio",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ],
-                "normal": [
-                    "Normal",
-                    "1 hr",
-                    "1 hr",
-                    "0.5 hr",
-                    "96 hrs"
-                ]
+                "critical": ["Crítico", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "urgent": ["Urgente", "0.5 hr", "0.5 hr", "15 min", "48 hrs"],
+                "medium": ["Medio", "1 hr", "1 hr", "0.5 hr", "96 hrs"],
+                "normal": ["Normal", "1 hr", "1 hr", "0.5 hr", "96 hrs"]
             },
             "availabilityTitle": "Disponibilidad de la plataforma",
-            "availabilityHeaders": [
-                "Producto",
-                "Disponibilidad",
-                "Notas"
-            ],
+            "availabilityHeaders": ["Producto", "Disponibilidad", "Notas"],
             "availabilityRows": {
                 "smartCheck": [
                     "SmartCheck",
                     "90.0%",
                     "DB Screening — depende de fuentes gubernamentales"
                 ],
-                "smartAccessComm": [
-                    "SmartAccess (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartAccessBio": [
-                    "SmartAccess (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollComm": [
-                    "SmartEnroll (Email/Tel)",
-                    "99.0%",
-                    ""
-                ],
-                "smartEnrollBio": [
-                    "SmartEnroll (Biometrics)",
-                    "98.0%",
-                    ""
-                ],
-                "smartEnrollDoc": [
-                    "SmartEnroll (Escaneo de docs)",
-                    "98.0%",
-                    ""
-                ],
+                "smartAccessComm": ["SmartAccess (Email/Tel)", "99.0%", ""],
+                "smartAccessBio": ["SmartAccess (Biometrics)", "98.0%", ""],
+                "smartEnrollComm": ["SmartEnroll (Email/Tel)", "99.0%", ""],
+                "smartEnrollBio": ["SmartEnroll (Biometrics)", "98.0%", ""],
+                "smartEnrollDoc": ["SmartEnroll (Escaneo de docs)", "98.0%", ""],
                 "smartEnrollDataApi": [
                     "SmartEnroll (DB Screening)",
                     "90.0%",
@@ -6555,16 +6513,8 @@
                 "Producto"
             ],
             "compensationRows": {
-                "dataApiHigh": [
-                    "DB Screening — 90.0% o mayor",
-                    "Sin crédito",
-                    "SmartCheck"
-                ],
-                "dataApiLow": [
-                    "DB Screening — 89.99% o menor",
-                    "Compensación",
-                    "SmartCheck"
-                ],
+                "dataApiHigh": ["DB Screening — 90.0% o mayor", "Sin crédito", "SmartCheck"],
+                "dataApiLow": ["DB Screening — 89.99% o menor", "Compensación", "SmartCheck"],
                 "emailTelHigh": [
                     "Email / Tel — 99.00% o mayor",
                     "Sin crédito",
@@ -6600,15 +6550,9 @@
             "billingTitle": "Esquema de cobro por servicio SmartCheck",
             "billingIntro": "El esquema de cobro aplica para la solución smartCHECK, el cual permite la consulta de bases de datos gubernamentales. Verifik no es dueña, gestora ni responsable de las bases de datos gubernamentales de los distintos países que ofrecemos; por lo tanto, Verifik no ofrece garantías respecto a tiempo de respuesta, tiempo promedio de disponibilidad ni precisión de los datos.",
             "billingTableTitle": "Códigos HTTP facturables",
-            "billingHeaders": [
-                "Cobro",
-                "Ausente de cobro"
-            ],
+            "billingHeaders": ["Cobro", "Ausente de cobro"],
             "billingRows": {
-                "codes": [
-                    "200, 404",
-                    "403, 409, 412, 422, 500"
-                ]
+                "codes": ["200, 404", "403, 409, 412, 422, 500"]
             },
             "maintenanceTitle": "Mantenimiento programado",
             "maintenance": "Los tiempos de mantenimiento programado se realizarán en las noches y/o fines de semana, con previa comunicación vía correo electrónico a los usuarios.",

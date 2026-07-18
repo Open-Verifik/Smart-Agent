@@ -333,6 +333,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                 [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)],
             ],
             currentStep: [project?.currentStep || 0],
+            defaultLanguage: [project?.defaultLanguage || 'en', [Validators.required]],
             lastStep: [project?.lastStep || 0],
             name: [project?.name || '', [Validators.required, Validators.maxLength(60)]],
             privacyUrl: [project?.privacyUrl || '', [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]],

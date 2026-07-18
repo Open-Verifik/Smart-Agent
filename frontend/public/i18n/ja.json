@@ -435,7 +435,21 @@
         "paginatorLastPage": "最後のページ",
         "paginatorRange": "{{start}} – {{end}} / {{total}}",
         "paginatorRangeEmpty": "0 / 0",
-        "signatureImage": "署名画像"
+        "signatureImage": "署名画像",
+        "aiLayoutAssistant": "AIレイアウトアシスタント",
+        "aiLayoutAssistantHint": "希望するレイアウトを説明すると、AIが構築します",
+        "generateLayout": "レイアウトを生成",
+        "generatingLayout": "生成中...",
+        "useSamplePrompt": "サンプルプロンプトを使用",
+        "aiPromptPlaceholder": "例: 上部に太字のタイトル、区切り線、その下に書類番号と氏名、結果用のデータ表があるすっきりしたレポート",
+        "layoutGeneratedSuccess": "AIによるレイアウト生成に成功しました！",
+        "layoutGeneratedEmpty": "AIが空のレイアウトを返しました。プロンプトを言い換えてください。",
+        "layoutGeneratedFailed": "AIによるレイアウト生成に失敗しました。もう一度お試しください。",
+        "aiModeRebuild": "すべて再構築",
+        "aiModeEditSection": "セクションを編集",
+        "aiModeAddSection": "セクションを追加",
+        "sectionEditedSuccess": "AIでセクションを更新しました！",
+        "sectionsAppendedSuccess": "新しいセクションを追加しました！"
     },
     "guestFeatureAuth": {
         "title": "サインインが必要です",
@@ -1370,6 +1384,7 @@
                 "subtitle": "プロジェクトのアイデンティティとコンプライアンスの基本。",
                 "name": "プロジェクト名",
                 "contactEmail": "連絡先メール",
+                "defaultLanguage": "デフォルト言語",
                 "privacyUrl": "プライバシーポリシー",
                 "termsUrl": "利用規約",
                 "allowedCountries": "許可された国",
@@ -1438,6 +1453,7 @@
                 "layoutCustom": "カスタムメールレイアウト",
                 "layoutCustomDescription": "この言語の構造化テキストをカスタマイズします。プレビューとテストメールは未保存の編集を使用し、本番OTPメールは保存済みのテキストのみを使用します。",
                 "layoutPreviewNote": "未保存の変更はプレビューとテストメールに反映されます。本番OTPメールに適用するにはテンプレートを保存してください。",
+                "languageTabHint": "このタブは文言の編集用であり、本番で送信される言語を選ぶものではありません。",
                 "resetLanguageDefaults": "この言語をシステムのデフォルトにリセット",
                 "greetingLabel": "挨拶",
                 "greetingPlaceholder": "例: {{firstName}} 様",
@@ -1867,19 +1883,27 @@
                     "remove": "削除",
                     "add": "国を追加",
                     "configurations": "設定",
-                    "activateHint": "この国を有効にするには、少なくとも1つの設定を有効にしてください。",
+                    "activateHint": "カタログにテンプレートがあるカテゴリを少なくとも1つ有効にしてください。テンプレートのないカテゴリは無効のままにしてください。",
                     "invalid": "一部の設定が不完全です。",
                     "errors": {
                         "atLeastOne": "少なくとも1つの国の設定を追加してください。",
                         "duplicateCountries": "各国は一度しか追加できません。",
-                        "allMustBeValid": "一部の国の設定が不完全です。",
-                        "emptyCountry": "各設定で国を選んでください。"
+                        "allMustBeValid": "一部の国の設定が不完全です。各行で国を選択し、空のカテゴリは無効のままにし、テンプレート付きの有効なカテゴリを少なくとも1つ残してください。",
+                        "emptyCountry": "各設定で国を選んでください。空の行を削除するか、各行で国を選択してください。"
                     },
                     "pickCountryFirst": "利用可能な書類を読み込むには国を選択してください。",
                     "loading": "書類を読み込み中…",
-                    "noTemplates": "{{ country }}またはグローバルに{{ category }}の書類はありません。",
-                    "noTemplatesShort": "この国にはカタログ（グローバルを含む）に利用可能な書類がありません。",
+                    "noTemplates": "{{ country }}（グローバル含む）のカタログに{{ category }}のテンプレートはありません。このカテゴリは無効のままにしてください。",
+                    "noTemplatesShort": "{{ country }}（グローバル含む）に{{ category }}のテンプレートはありません。",
+                    "tryOtherCategories": "この国には次のカテゴリに書類があります: {{ categories }}。代わりにそれらを有効にしてください。",
                     "selectedOfAvailable": "{{ total }}件中{{ selected }}件選択済み",
+                    "countriesConfigured": "{{ count }}か国を設定済み",
+                    "summaryDocs": "{{ count }}件の書類を選択済み",
+                    "showDocuments": "書類を表示",
+                    "hideDocuments": "書類を非表示",
+                    "expandCountry": "国の設定を展開",
+                    "collapseCountry": "国の設定を折りたたむ",
+                    "needsAttention": "要確認",
                     "preview": "プレビュー",
                     "previewTitle": "書類プレビュー",
                     "frontImage": "表面",
@@ -1911,7 +1935,9 @@
                     "title": "プロジェクトの識別情報",
                     "subtitle": "顧客とチームにどのように表示されるかを設定します。",
                     "name": "プロジェクト名",
-                    "contactEmail": "連絡先メール"
+                    "contactEmail": "連絡先メール",
+                    "defaultLanguage": "デフォルト言語",
+                    "defaultLanguageHint": "ユーザーが別の言語を選択していない場合、登録者向け UI と OTP メールに使用されます。"
                 },
                 "allowed": {
                     "title": "許可する国・地域",
@@ -6259,10 +6285,7 @@
         "uploadBatchAppendHint": "CSVをアップロードしてこのバッチに複数行を追加します。",
         "addOneRecordTitle": "1件追加",
         "addOneRecordDesc": "必須項目を入力して、このバッチに1件追加します。",
-        "appendFailed": "レコードを追加できませんでした。もう一度お試しください。",
-        "stepIncompatibleTitle": "一部の行は実行時にステップをスキップします",
-        "stepIncompatibleWarning": "行 {{row}}: {{message}}",
-        "stepIncompatibleDetail": "{{field}} の \"{{value}}\" は {{step}} でサポートされていません（許可: {{allowed}}）。バッチ実行時にこのステップはスキップされます。"
+        "appendFailed": "レコードを追加できませんでした。もう一度お試しください。"
     },
     "colombiaVehicleReport": {
         "sections": {

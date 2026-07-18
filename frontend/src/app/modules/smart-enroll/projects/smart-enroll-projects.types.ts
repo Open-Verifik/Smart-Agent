@@ -86,6 +86,7 @@ export interface EnrollProject {
     demoOTP?: string;
     allowedCountries?: string[];
     contactEmail?: string;
+    defaultLanguage?: string;
     privacyUrl?: string;
     termsAndConditionsUrl?: string;
     target?: 'personal' | 'business';

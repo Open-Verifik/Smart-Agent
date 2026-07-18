@@ -435,7 +435,21 @@
         "securityPassword": "Mot de passe propriétaire",
         "securityPasswordPlaceholder": "Mot de passe pour restreindre les permissions",
         "securityPasswordHint": "Chiffre le fichier PDF. Les utilisateurs auront besoin de ce mot de passe pour modifier ou copier le contenu du rapport généré.",
-        "signatureImage": "Image de signature"
+        "signatureImage": "Image de signature",
+        "aiLayoutAssistant": "Assistant de mise en page IA",
+        "aiLayoutAssistantHint": "Décrivez la mise en page souhaitée et l'IA la construira",
+        "generateLayout": "Générer la mise en page",
+        "generatingLayout": "Génération...",
+        "useSamplePrompt": "Utiliser un exemple",
+        "aiPromptPlaceholder": "ex. Un rapport clair avec un titre en gras en haut, une ligne de séparation, le numéro de document et le nom complet en dessous, et un tableau de résultats",
+        "layoutGeneratedSuccess": "Mise en page générée par l'IA avec succès !",
+        "layoutGeneratedEmpty": "L'IA a renvoyé une mise en page vide. Reformulez votre demande.",
+        "layoutGeneratedFailed": "Échec de la génération de la mise en page par IA. Réessayez.",
+        "aiModeRebuild": "Tout reconstruire",
+        "aiModeEditSection": "Modifier la section",
+        "aiModeAddSection": "Ajouter une section",
+        "sectionEditedSuccess": "Section mise à jour avec succès via l'IA !",
+        "sectionsAppendedSuccess": "Nouvelles sections ajoutées avec succès !"
     },
     "guestFeatureAuth": {
         "title": "Connexion requise",
@@ -1370,6 +1384,7 @@
                 "subtitle": "Identité et bases de conformité du projet.",
                 "name": "Nom du projet",
                 "contactEmail": "E-mail de contact",
+                "defaultLanguage": "Langue par défaut",
                 "privacyUrl": "Politique de confidentialité",
                 "termsUrl": "Conditions d’utilisation",
                 "allowedCountries": "Pays autorisés",
@@ -1438,6 +1453,7 @@
                 "layoutCustom": "Mise en page personnalisée",
                 "layoutCustomDescription": "Personnalisez le texte structuré pour cette langue. L'aperçu et les e-mails de test utilisent vos modifications non enregistrées ; les OTP de production n'utilisent que le texte enregistré.",
                 "layoutPreviewNote": "Les modifications non enregistrées apparaissent dans l'aperçu et les e-mails de test. Enregistrez le modèle pour les appliquer aux OTP de production.",
+                "languageTabHint": "Cet onglet sert à modifier le texte, pas à choisir la langue d'envoi en production.",
                 "resetLanguageDefaults": "Réinitialiser cette langue aux valeurs par défaut",
                 "greetingLabel": "Salutation",
                 "greetingPlaceholder": "ex. Cher/Chère {{firstName}},",
@@ -1870,19 +1886,27 @@
                     "remove": "Retirer",
                     "add": "Ajouter un pays",
                     "configurations": "Configurations",
-                    "activateHint": "Activez au moins une configuration pour valider ce pays.",
+                    "activateHint": "Activez au moins une catégorie qui a des modèles dans le catalogue. Laissez inactives les catégories sans modèles.",
                     "invalid": "Certaines configurations sont incomplètes.",
                     "errors": {
                         "atLeastOne": "Ajoutez au moins une configuration de pays.",
                         "duplicateCountries": "Chaque pays ne peut être ajouté qu’une fois.",
-                        "allMustBeValid": "Certaines configurations de pays sont incomplètes.",
-                        "emptyCountry": "Sélectionnez un pays pour chaque configuration."
+                        "allMustBeValid": "Certaines configurations de pays sont incomplètes. Sélectionnez un pays sur chaque ligne, laissez inactives les catégories vides et gardez au moins une catégorie active avec des modèles.",
+                        "emptyCountry": "Sélectionnez un pays pour chaque configuration. Supprimez les lignes vides ou choisissez un pays pour chacune."
                     },
                     "pickCountryFirst": "Choisissez un pays pour charger les documents disponibles.",
                     "loading": "Chargement des documents…",
-                    "noTemplates": "Aucun document disponible pour {{ category }} en {{ country }} ni au niveau mondial.",
-                    "noTemplatesShort": "Aucun document trouvé pour ce pays dans le catalogue (y compris mondial).",
+                    "noTemplates": "Aucun modèle {{ category }} pour {{ country }} dans le catalogue (y compris mondial). Laissez cette catégorie inactive.",
+                    "noTemplatesShort": "Aucun modèle {{ category }} pour {{ country }} (y compris mondial).",
+                    "tryOtherCategories": "Ce pays a des documents sous : {{ categories }}. Activez ces catégories à la place.",
                     "selectedOfAvailable": "{{ selected }} sur {{ total }} sélectionnés",
+                    "countriesConfigured": "{{ count }} pays configurés",
+                    "summaryDocs": "{{ count }} documents sélectionnés",
+                    "showDocuments": "Afficher les documents",
+                    "hideDocuments": "Masquer les documents",
+                    "expandCountry": "Développer la configuration du pays",
+                    "collapseCountry": "Réduire la configuration du pays",
+                    "needsAttention": "Attention requise",
                     "preview": "Aperçu",
                     "previewTitle": "Aperçu du document",
                     "frontImage": "Recto",
@@ -1914,7 +1938,9 @@
                     "title": "Identité du projet",
                     "subtitle": "Comment votre projet apparaît aux clients et à l'équipe.",
                     "name": "Nom du projet",
-                    "contactEmail": "E-mail de contact"
+                    "contactEmail": "E-mail de contact",
+                    "defaultLanguage": "Langue par défaut",
+                    "defaultLanguageHint": "Utilisée pour l’interface utilisateur et les e-mails OTP lorsque l’utilisateur n’a pas choisi une autre langue."
                 },
                 "allowed": {
                     "title": "Pays autorisés",
@@ -2935,6 +2961,35 @@
         "signOutWeb2": "Déconnexion du compte professionnel",
         "signOutWeb3": "Déconnecter Portefeuille",
         "settings": "Paramètres"
+    },
+    "layoutSettings": {
+        "sections": {
+            "theme": "Thème",
+            "scheme": "Schéma",
+            "layout": "Disposition"
+        },
+        "scheme": {
+            "auto": "Auto",
+            "dark": "Sombre",
+            "light": "Clair",
+            "autoTooltip": "Définit automatiquement le schéma selon la préférence système de l'utilisateur via la requête média 'prefer-color-scheme'."
+        },
+        "layouts": {
+            "empty": "Vide",
+            "classic": "Classique",
+            "classy": "Élégant",
+            "compact": "Compact",
+            "dense": "Dense",
+            "futuristic": "Futuriste",
+            "thin": "Fin",
+            "centered": "Centré",
+            "enterprise": "Entreprise",
+            "material": "Material",
+            "modern": "Moderne"
+        },
+        "themes": {
+            "theme-default": "Par défaut"
+        }
     },
     "postman": {
         "layout": {

@@ -435,7 +435,21 @@
         "paginatorLastPage": "Última página",
         "paginatorRange": "{{start}} – {{end}} de {{total}}",
         "paginatorRangeEmpty": "0 de 0",
-        "signatureImage": "Imagem da Assinatura"
+        "signatureImage": "Imagem da Assinatura",
+        "aiLayoutAssistant": "Assistente de layout com IA",
+        "aiLayoutAssistantHint": "Descreva o layout desejado e a IA o criará",
+        "generateLayout": "Gerar layout",
+        "generatingLayout": "Gerando...",
+        "useSamplePrompt": "Usar prompt de exemplo",
+        "aiPromptPlaceholder": "ex.: Um relatório limpo com um título em negrito no topo, uma linha divisória, o número do documento e o nome completo abaixo, e uma tabela de resultados",
+        "layoutGeneratedSuccess": "Layout gerado pela IA com sucesso!",
+        "layoutGeneratedEmpty": "A IA devolveu um layout vazio. Tente reformular o prompt.",
+        "layoutGeneratedFailed": "Falha ao gerar o layout com IA. Tente novamente.",
+        "aiModeRebuild": "Reconstruir tudo",
+        "aiModeEditSection": "Editar secção",
+        "aiModeAddSection": "Adicionar secção",
+        "sectionEditedSuccess": "Secção atualizada com sucesso via IA!",
+        "sectionsAppendedSuccess": "Novas secções adicionadas com sucesso!"
     },
     "guestFeatureAuth": {
         "title": "É necessário iniciar sessão",
@@ -1370,6 +1384,7 @@
                 "subtitle": "Identidade e bases de conformidade do projeto.",
                 "name": "Nome do projeto",
                 "contactEmail": "E-mail de contacto",
+                "defaultLanguage": "Idioma padrão",
                 "privacyUrl": "Política de privacidade",
                 "termsUrl": "Termos e condições",
                 "allowedCountries": "Países permitidos",
@@ -1438,6 +1453,7 @@
                 "layoutCustom": "Layout de e-mail personalizado",
                 "layoutCustomDescription": "Personalize o texto estruturado para este idioma. A pré-visualização e os e-mails de teste usam alterações não guardadas; os OTP de produção usam apenas o texto guardado.",
                 "layoutPreviewNote": "Alterações não guardadas aparecem na pré-visualização e nos e-mails de teste. Guarde o modelo para aplicá-las aos OTP de produção.",
+                "languageTabHint": "Este separador serve para editar o texto, não para escolher o idioma de envio em produção.",
                 "resetLanguageDefaults": "Repor este idioma para os padrões do sistema",
                 "greetingLabel": "Saudação",
                 "greetingPlaceholder": "ex: Caro/a {{firstName}},",
@@ -1867,19 +1883,27 @@
                     "remove": "Remover",
                     "add": "Adicionar país",
                     "configurations": "Configurações",
-                    "activateHint": "Ative ao menos uma configuração para tornar este país válido.",
+                    "activateHint": "Ative ao menos uma categoria que tenha modelos no catálogo. Deixe inativas as categorias sem modelos.",
                     "invalid": "Algumas configurações estão incompletas.",
                     "errors": {
                         "atLeastOne": "Adicione ao menos uma configuração de país.",
                         "duplicateCountries": "Cada país só pode ser adicionado uma vez.",
-                        "allMustBeValid": "Algumas configurações de país estão incompletas.",
-                        "emptyCountry": "Escolha um país para cada configuração."
+                        "allMustBeValid": "Algumas configurações de país estão incompletas. Selecione um país em cada linha, deixe categorias vazias inativas e mantenha ao menos uma categoria ativa com modelos.",
+                        "emptyCountry": "Escolha um país para cada configuração. Remova linhas em branco ou escolha um país em cada uma."
                     },
                     "pickCountryFirst": "Selecione um país para carregar os documentos disponíveis.",
                     "loading": "Carregando documentos…",
-                    "noTemplates": "Nenhum documento disponível para {{ category }} em {{ country }} ou globalmente.",
-                    "noTemplatesShort": "Nenhum documento encontrado para este país no catálogo (incluindo global).",
+                    "noTemplates": "Nenhum modelo de {{ category }} para {{ country }} no catálogo (incluindo global). Deixe esta categoria inativa.",
+                    "noTemplatesShort": "Nenhum modelo de {{ category }} para {{ country }} (incluindo global).",
+                    "tryOtherCategories": "Este país tem documentos em: {{ categories }}. Ative essas categorias em vez disso.",
                     "selectedOfAvailable": "{{ selected }} de {{ total }} selecionados",
+                    "countriesConfigured": "{{ count }} países configurados",
+                    "summaryDocs": "{{ count }} documentos selecionados",
+                    "showDocuments": "Mostrar documentos",
+                    "hideDocuments": "Ocultar documentos",
+                    "expandCountry": "Expandir configuração do país",
+                    "collapseCountry": "Recolher configuração do país",
+                    "needsAttention": "Precisa de atenção",
                     "preview": "Pré-visualizar",
                     "previewTitle": "Pré-visualização do documento",
                     "frontImage": "Frente",
@@ -1911,7 +1935,9 @@
                     "title": "Identidade do projeto",
                     "subtitle": "Como o projeto aparece aos clientes e à equipa.",
                     "name": "Nome do projeto",
-                    "contactEmail": "E-mail de contacto"
+                    "contactEmail": "E-mail de contacto",
+                    "defaultLanguage": "Idioma padrão",
+                    "defaultLanguageHint": "Usado na interface do usuário e nos e-mails OTP quando o usuário não escolheu outro idioma."
                 },
                 "allowed": {
                     "title": "Países permitidos",
@@ -6259,10 +6285,7 @@
         "uploadBatchAppendHint": "Envie um CSV para adicionar várias linhas a este lote.",
         "addOneRecordTitle": "Adicionar um registro",
         "addOneRecordDesc": "Preencha os campos obrigatórios para adicionar um registro a este lote.",
-        "appendFailed": "Não foi possível adicionar o registro. Tente novamente.",
-        "stepIncompatibleTitle": "Algumas linhas ignorarão etapas em tempo de execução",
-        "stepIncompatibleWarning": "Linha {{row}}: {{message}}",
-        "stepIncompatibleDetail": "\"{{value}}\" para {{field}} não é compatível com {{step}} (permitidos: {{allowed}}). Essa etapa será ignorada quando o lote executar."
+        "appendFailed": "Não foi possível adicionar o registro. Tente novamente."
     },
     "colombiaVehicleReport": {
         "sections": {

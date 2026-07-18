@@ -32,6 +32,16 @@
                     <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.identity.contactEmail') }}</mat-label>
                     <input matInput formControlName="contactEmail" type="email" autocomplete="email" />
                 </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguage') }}</mat-label>
+                    <mat-select formControlName="defaultLanguage">
+                        @for (lang of defaultLanguages; track lang.code) {
+                            <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                        }
+                    </mat-select>
+                    <mat-hint>{{ t('smartEnrollProjects.setup.basicSetup.identity.defaultLanguageHint') }}</mat-hint>
+                </mat-form-field>
             </div>
         </section>
 
