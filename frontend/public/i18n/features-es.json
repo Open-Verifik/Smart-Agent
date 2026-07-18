@@ -859,6 +859,10 @@
         "bolivia_api_voting_location": {
             "title": "Bolivia - Lugar de Votación",
             "description": "Consulta el padrón electoral OEP Yo Participo mediante GET /v2/bo/votacion con CI y fecha de nacimiento. Devuelve recinto, mesa, habilitación para votar y respuesta firmada."
+        },
+        "ecuador_api_company_lookup_v3": {
+            "title": "Verificación Empresarial Ecuatoriana",
+            "description": "Valida empresas ecuatorianas con la API KYB de Verifik. Conecta con fuentes oficiales y verifica datos empresariales completos en segundos."
         }
     }
 }

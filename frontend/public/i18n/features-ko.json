@@ -859,6 +859,10 @@
         "bolivia_api_voting_location": {
             "title": "볼리비아 - 투표 장소",
             "description": "GET /v2/bo/votacion으로 OEP Yo Participo 선거 등록부를 CI와 생년월일로 조회합니다. 투표소, 테이블, 투표 자격 및 서명된 응답을 반환합니다."
+        },
+        "ecuador_api_company_lookup_v3": {
+            "title": "에콰도르 기업(RUCEC)",
+            "description": "Verifik의 KYB API로 에콰도르 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
         }
     }
 }

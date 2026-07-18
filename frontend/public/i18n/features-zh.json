@@ -859,6 +859,10 @@
         "bolivia_api_voting_location": {
             "title": "玻利维亚 - 投票地点",
             "description": "通过 GET /v2/bo/votacion 使用 CI 和出生日期查询 OEP Yo Participo 选举登记。返回投票站、桌号、投票资格及签名响应。"
+        },
+        "ecuador_api_company_lookup_v3": {
+            "title": "厄瓜多尔企业（RUCEC）",
+            "description": "使用 Verifik 的 KYB API 核验厄瓜多尔企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         }
     }
 }

@@ -859,6 +859,10 @@
         "bolivia_api_voting_location": {
             "title": "Bolívia - Local de Votação",
             "description": "Consulte o registro eleitoral OEP Yo Participo via GET /v2/bo/votacion com CI e data de nascimento. Devolve local, mesa, elegibilidade e resposta assinada."
+        },
+        "ecuador_api_company_lookup_v3": {
+            "title": "Equador — Empresa (RUCEC)",
+            "description": "Valide empresas equatorianas com a API KYB da Verifik. Conecte-se a fontes oficiais e verifique dados empresariais em segundos."
         }
     }
 }

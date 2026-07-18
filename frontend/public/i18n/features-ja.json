@@ -859,6 +859,10 @@
         "bolivia_api_voting_location": {
             "title": "ボリビア - 投票所",
             "description": "GET /v2/bo/votacionでOEP Yo Participo選挙人名簿をCIと生年月日で照会。投票所、テーブル、投票資格、署名付きレスポンスを返します。"
+        },
+        "ecuador_api_company_lookup_v3": {
+            "title": "エクアドル法人（RUCEC）",
+            "description": "Verifik の KYB API を使用してエクアドル企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         }
     }
 }
