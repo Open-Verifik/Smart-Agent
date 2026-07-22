@@ -31,6 +31,7 @@ import {
     removePostmanIncludeCostParam,
     resolvePostmanIncludeCostForSend,
 } from './postman-include-cost.util';
+import { normalizePostmanSexoValue } from './postman-sexo.util';
 
 import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
@@ -714,7 +715,8 @@ export class PostmanService {
                 if (p.key === POSTMAN_INCLUDE_COST_KEY) {
                     return;
                 }
-                options.params[p.key] = p.value;
+                options.params[p.key] =
+                    p.key === 'sexo' ? normalizePostmanSexoValue(p.value) : p.value;
             });
         }
 
@@ -724,6 +726,9 @@ export class PostmanService {
                 endpoint.body && typeof endpoint.body === 'object'
                     ? { ...endpoint.body }
                     : {};
+            if (body && typeof body.sexo === 'string') {
+                body.sexo = normalizePostmanSexoValue(body.sexo);
+            }
         }
 
         if (!isX402) {

@@ -921,6 +921,27 @@ export const SUPPORT_TICKET_SMARTCHECK_APIS: SupportTicketSmartCheckApi[] = [
                 country: "Colombia",
             },
             {
+                type: "identity",
+                value: "colombia_api_identity_lookup_by_name",
+                label: "data-api.colombia_api_identity_lookup_by_name",
+                endpoint: "GET /v2/co/cedula/by-name",
+                country: "Colombia",
+            },
+            {
+                type: "identity",
+                value: "colombia_api_registraduria_serial",
+                label: "data-api.colombia_api_registraduria_serial",
+                endpoint: "GET /v2/co/registraduria/serial",
+                country: "Colombia",
+            },
+            {
+                type: "identity",
+                value: "colombia_api_registraduria_matrimonio",
+                label: "data-api.colombia_api_registraduria_matrimonio",
+                endpoint: "GET /v2/co/registraduria/matrimonio",
+                country: "Colombia",
+            },
+            {
                 type: "background",
                 value: "colombia_api_registraduria_voting",
                 label: "data-api.colombia_api_registraduria_voting",

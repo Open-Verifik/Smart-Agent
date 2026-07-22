@@ -294,7 +294,7 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
           <ng-container *ngIf="error()">
             <!-- Insufficient credits (credits mode + 403) -->
             <div
-              *ngIf="insufficientCreditsError(); else genericExplorerError"
+              *ngIf="insufficientCreditsError(); else endpointOutOfServiceOrGeneric"
               class="rounded-xl border border-stone-200/90 bg-stone-50/90 dark:border-gray-800 dark:bg-gray-950/90 p-4 max-w-full shadow-sm backdrop-blur-sm"
             >
               <div
@@ -343,36 +343,93 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
               </div>
             </div>
 
-            <ng-template #genericExplorerError>
+            <ng-template #endpointOutOfServiceOrGeneric>
               <div
-                class="text-red-700 dark:text-red-300 rounded-xl border border-red-200/90 bg-red-50/90 dark:border-red-900/50 dark:bg-red-950/30 p-4 max-w-full"
+                *ngIf="endpointOutOfServiceError(); else genericExplorerError"
+                class="rounded-xl border border-amber-200/90 bg-amber-50/90 dark:border-amber-900/50 dark:bg-amber-950/30 p-4 max-w-full shadow-sm"
               >
-                <div class="mb-3 flex flex-wrap items-center gap-2 font-bold">
-                  <span class="material-icons text-base">error_outline</span>
-                  {{ 'postman.responseViewer.error' | transloco }}
-                  <span
-                    *ngIf="httpError() as httpErr"
-                    class="rounded-md bg-white/70 px-2 py-0.5 text-xs font-mono font-semibold dark:bg-black/25"
+                <div class="flex flex-wrap items-start gap-4">
+                  <div
+                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
                   >
-                    {{ httpErr.status }} {{ httpErr.statusText }}
-                  </span>
+                    <mat-icon class="!h-7 !w-7">cloud_off</mat-icon>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <h3 class="text-lg font-semibold tracking-tight text-stone-900 dark:text-white">
+                      {{ 'postman.responseViewer.endpointOutOfServiceTitle' | transloco }}
+                    </h3>
+                    <p class="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                      {{ 'postman.responseViewer.endpointOutOfServiceBody' | transloco }}
+                    </p>
+                    <p
+                      *ngIf="httpError() as httpErr"
+                      class="mt-2 text-xs font-mono text-stone-500 dark:text-stone-400"
+                    >
+                      {{ httpErr.status }}
+                      <span *ngIf="genericErrorBackendMessage() as msg"> · {{ msg }}</span>
+                      <span *ngIf="endpointOutOfServiceCode() as code"> · {{ code }}</span>
+                    </p>
+                  </div>
                 </div>
-                <p
-                  *ngIf="genericErrorBackendMessage()"
-                  class="mb-3 text-sm text-red-800/95 dark:text-red-100/95"
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    class="!rounded-xl"
+                    [disabled]="isLoading() || !selectedEndpoint()"
+                    (click)="retryLastRequest()"
+                  >
+                    <span class="inline-flex items-center gap-2">
+                      <mat-icon class="!h-5 !w-5">refresh</mat-icon>
+                      {{ 'postman.responseViewer.retryRequest' | transloco }}
+                    </span>
+                  </button>
+                </div>
+                <details
+                  class="mt-4 rounded-lg border border-amber-200/80 bg-white/60 p-3 dark:border-amber-900/40 dark:bg-slate-900/40"
                 >
-                  {{ genericErrorBackendMessage() }}
-                </p>
-                <details class="rounded-lg border border-red-200/80 bg-white/60 p-3 dark:border-red-900/40 dark:bg-slate-900/40">
-                  <summary class="cursor-pointer text-xs font-medium text-red-800 dark:text-red-200">
+                  <summary class="cursor-pointer text-xs font-medium text-amber-900 dark:text-amber-200">
                     {{ 'postman.responseViewer.errorTechnicalDetails' | transloco }}
                   </summary>
                   <pre
-                    class="mt-3 max-h-64 overflow-auto text-xs leading-relaxed text-red-900/90 dark:text-red-100/90 select-text"
+                    class="mt-3 max-h-64 overflow-auto text-xs leading-relaxed text-amber-950/90 dark:text-amber-100/90 select-text"
                     >{{ errorDetailPayload() | json }}</pre
                   >
                 </details>
               </div>
+
+              <ng-template #genericExplorerError>
+                <div
+                  class="text-red-700 dark:text-red-300 rounded-xl border border-red-200/90 bg-red-50/90 dark:border-red-900/50 dark:bg-red-950/30 p-4 max-w-full"
+                >
+                  <div class="mb-3 flex flex-wrap items-center gap-2 font-bold">
+                    <span class="material-icons text-base">error_outline</span>
+                    {{ 'postman.responseViewer.error' | transloco }}
+                    <span
+                      *ngIf="httpError() as httpErr"
+                      class="rounded-md bg-white/70 px-2 py-0.5 text-xs font-mono font-semibold dark:bg-black/25"
+                    >
+                      {{ httpErr.status }} {{ httpErr.statusText }}
+                    </span>
+                  </div>
+                  <p
+                    *ngIf="genericErrorBackendMessage()"
+                    class="mb-3 text-sm text-red-800/95 dark:text-red-100/95"
+                  >
+                    {{ genericErrorBackendMessage() }}
+                  </p>
+                  <details class="rounded-lg border border-red-200/80 bg-white/60 p-3 dark:border-red-900/40 dark:bg-slate-900/40">
+                    <summary class="cursor-pointer text-xs font-medium text-red-800 dark:text-red-200">
+                      {{ 'postman.responseViewer.errorTechnicalDetails' | transloco }}
+                    </summary>
+                    <pre
+                      class="mt-3 max-h-64 overflow-auto text-xs leading-relaxed text-red-900/90 dark:text-red-100/90 select-text"
+                      >{{ errorDetailPayload() | json }}</pre
+                    >
+                  </details>
+                </div>
+              </ng-template>
             </ng-template>
           </ng-container>
 
@@ -614,6 +671,45 @@ export class ResponseViewerComponent {
 
     return code === 'FORBIDDEN' && mentionsCreditsIssue;
   });
+
+  /**
+   * True when Registraduría / upstream captcha path returned Endpoint_out_of_service.
+   */
+  endpointOutOfServiceError = computed(() => {
+    const err = this.httpError();
+
+    if (!err || err.status !== 409) return false;
+
+    const body = err.error;
+
+    if (typeof body !== 'object' || body === null) return false;
+
+    const raw = body as { message?: string; code?: string };
+    const message = String(raw.message ?? '');
+
+    return message === 'Endpoint_out_of_service' || raw.code === 'Endpoint_out_of_service';
+  });
+
+  endpointOutOfServiceCode = computed(() => {
+    const err = this.httpError();
+    const body = err?.error;
+
+    if (typeof body !== 'object' || body === null) return null;
+
+    const code = (body as { code?: string }).code;
+
+    return typeof code === 'string' && code.length ? code : null;
+  });
+
+  retryLastRequest(): void {
+    const endpoint = this.selectedEndpoint();
+
+    if (!endpoint || this.isLoading()) {
+      return;
+    }
+
+    this._postmanService.sendRequest(endpoint);
+  }
 
   endpointCreditsCostFormatted = computed(() => {
     const ep = this.selectedEndpoint();

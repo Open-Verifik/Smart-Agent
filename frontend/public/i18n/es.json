@@ -3071,6 +3071,8 @@
                 "valuePlaceholder": "Valor",
                 "descriptionPlaceholder": "Descripción",
                 "documentTypePlaceholder": "Selecciona el tipo de documento",
+                "sexoFemale": "Femenino (FEMENINO)",
+                "sexoMale": "Masculino (MASCULINO)",
                 "otherParameters": "Otros parámetros",
                 "requiredFieldLegend": "* Campo obligatorio",
                 "includeCostDescription": "Cuando es true, la respuesta incluye el bloque de créditos (credits, creditsCharged, charged, featureCode). Cambia a false o elimina esta fila para omitirlo."
@@ -3117,6 +3119,7 @@
             "validation": {
                 "groupedModesTitle": "Cómo completar esta solicitud",
                 "groupedModesBody": "Usa un solo enfoque: búsqueda por nombre completo, o por datos del documento (tipo, número y fechas requeridas según el tipo). No mezcles ambos en la misma solicitud.",
+                "groupedModesBodyWithSerial": "Usa un solo enfoque: búsqueda por nombre, por número de documento (más sexo cuando aplique), o por serial del registro civil. No mezcles modos en la misma solicitud.",
                 "documentFieldsGuidanceTitle": "Cómo completar esta solicitud",
                 "documentFieldsGuidanceBody": "Indica el tipo de documento, el número de documento y los demás campos obligatorios de este endpoint (por ejemplo, la fecha de nacimiento).",
                 "groupedModesDateLine": "Cuando aplique un campo de fecha, usa este formato: {{format}}.",
@@ -3159,6 +3162,9 @@
             "insufficientCreditsBody": "Añade créditos a tu cuenta para ejecutar esta solicitud. Se descuentan créditos por cada validación.",
             "insufficientCreditsCostHint": "Este endpoint cuesta unos {{cost}} créditos por solicitud.",
             "insufficientCreditsCta": "Añadir créditos",
+            "endpointOutOfServiceTitle": "Fuente temporalmente no disponible",
+            "endpointOutOfServiceBody": "El registro fuente (Registraduría SCCRC) no pudo completar la solicitud, a menudo por captcha o una interrupción temporal. Reintenta en un momento, o usa modo Sandbox para demostrar perfiles fijos sin la Registraduría en vivo.",
+            "retryRequest": "Reintentar solicitud",
             "errorTechnicalDetails": "Detalles técnicos"
         },
         "dynamicQuery": {
@@ -6142,8 +6148,10 @@
         "disabledNoBatchName": "Introduce un nombre de lote para continuar",
         "disabledFixDataErrors": "Corrige los errores en tus datos para continuar",
         "searchModesIntro": "Cada fila debe usar un solo enfoque: búsqueda por nombre completo o por tipo y número de documento (más fecha de nacimiento cuando ciertos tipos lo exijan). No mezcles ambos en la misma fila.",
+        "searchModesIntroWithSerial": "Usa un solo enfoque: búsqueda por nombre, por número de documento (más sexo cuando aplique), o por serial del registro civil. No mezcles modos en la misma solicitud.",
         "searchModeOptionFullName": "Opción A — Búsqueda por nombre completo",
         "searchModeOptionDocument": "Opción B — Búsqueda por documento",
+        "searchModeOptionSerial": "Opción C — Búsqueda por serial",
         "dateOfBirthConditionalHint": "Si el tipo de documento es uno de: {{values}}, la columna dateOfBirth es obligatoria en esa fila.",
         "fieldConditional": "Condicional",
         "fieldConditionalDetail": "Obligatorio cuando {{whenField}} es uno de: {{values}}.",

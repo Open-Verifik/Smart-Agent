@@ -58,6 +58,11 @@ import {
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
 import { syncPostmanIncludeCostParam } from '../postman-include-cost.util';
+import {
+    filterPostmanSexoEnumOptions,
+    getPostmanSexoLabelKey,
+    normalizePostmanSexoValue,
+} from '../postman-sexo.util';
 
 /**
  * Stable UI string for numeric prices (avoids float artifacts like 0.3000000005).
@@ -377,6 +382,11 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                         'postman.requestEditor.validation.documentFieldsGuidanceBody'
                                                             | transloco
                                                     }}
+                                                } @else if (xorGuidanceHasSerial()) {
+                                                    {{
+                                                        'postman.requestEditor.validation.groupedModesBodyWithSerial'
+                                                            | transloco
+                                                    }}
                                                 } @else {
                                                     {{
                                                         'postman.requestEditor.validation.groupedModesBody'
@@ -441,7 +451,12 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                         <p
                                             class="text-sm leading-relaxed text-slate-600 dark:text-slate-400"
                                         >
-                                            {{ 'createBatch.searchModesIntro' | transloco }}
+                                            {{
+                                                (L.serialRows.length
+                                                    ? 'createBatch.searchModesIntroWithSerial'
+                                                    : 'createBatch.searchModesIntro'
+                                                ) | transloco
+                                            }}
                                         </p>
                                         <div class="flex flex-col gap-4">
                                             <div
@@ -554,6 +569,59 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                                     }
                                                 </div>
                                             </div>
+                                            @if (L.serialRows.length) {
+                                                <div
+                                                    class="rounded-2xl border border-slate-200/90 bg-slate-50/50 p-4 dark:border-slate-700 dark:bg-slate-900/40"
+                                                >
+                                                    <h5
+                                                        class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+                                                    >
+                                                        {{
+                                                            'createBatch.searchModeOptionSerial'
+                                                                | transloco
+                                                        }}
+                                                    </h5>
+                                                    <div
+                                                        class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500"
+                                                    >
+                                                        <div class="flex-1">
+                                                            {{
+                                                                'postman.requestEditor.params.key'
+                                                                    | transloco
+                                                            }}
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            {{
+                                                                'postman.requestEditor.params.value'
+                                                                    | transloco
+                                                            }}
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            {{
+                                                                'postman.requestEditor.params.description'
+                                                                    | transloco
+                                                            }}
+                                                        </div>
+                                                        <div class="w-8"></div>
+                                                    </div>
+                                                    <div class="space-y-2">
+                                                        @for (
+                                                            item of L.serialRows;
+                                                            track item.index
+                                                        ) {
+                                                            <ng-container
+                                                                *ngTemplateOutlet="
+                                                                    postmanParamRow;
+                                                                    context: {
+                                                                        $implicit: item,
+                                                                        xOrOptionRow: true,
+                                                                    }
+                                                                "
+                                                            ></ng-container>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
                                         @if (L.otherRows.length) {
                                             <div class="space-y-2 pt-2">
@@ -789,7 +857,8 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             "
                             [ngModel]="item.param.value"
                             (ngModelChange)="
-                                item.param.value = $event; onRequestInputsChanged()
+                                item.param.value = coerceParamValue(item.param.key, $event);
+                                onRequestInputsChanged()
                             "
                         >
                             @if (
@@ -804,7 +873,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                                 </option>
                             }
                             @for (opt of paramValueOptions(item.param); track opt) {
-                                <option [value]="opt">{{ opt }}</option>
+                                <option [value]="opt">{{ paramOptionDisplayLabel(item.param, opt) }}</option>
                             }
                         </select>
                     } @else {
@@ -817,7 +886,8 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                             "
                             [ngModel]="item.param.value"
                             (ngModelChange)="
-                                item.param.value = $event; onRequestInputsChanged()
+                                item.param.value = coerceParamValue(item.param.key, $event);
+                                onRequestInputsChanged()
                             "
                             [placeholder]="
                                 'postman.requestEditor.params.valuePlaceholder' | transloco
@@ -1224,6 +1294,12 @@ export class RequestEditorComponent {
         getPostmanDependencyGuidanceKind(this.endpoint())
     );
 
+    readonly xorGuidanceHasSerial = computed(() => {
+        const layout = getPostmanXorParamLayout(this.endpoint());
+
+        return layout.kind === 'xor' && layout.serialRows.length > 0;
+    });
+
     readonly endpointHasDateFormatDeps = computed(() =>
         (this.endpoint()?.dependencies ?? []).some((d) => !!d.dateFormat)
     );
@@ -1337,11 +1413,37 @@ export class RequestEditorComponent {
         if (!list?.length) {
             return [];
         }
+        const filtered = param.key === 'sexo' ? filterPostmanSexoEnumOptions(list) : [...list];
         const v = (param.value ?? '').trim();
-        if (v && !list.includes(v)) {
-            return [v, ...list];
+        if (v && !filtered.includes(v)) {
+            return [v, ...filtered];
         }
-        return [...list];
+        return filtered;
+    }
+
+    /**
+     * Coerces known aliases (e.g. Female → FEMENINO) before send/validation.
+     */
+    coerceParamValue(key: string, value: string): string {
+        if (key === 'sexo') {
+            return normalizePostmanSexoValue(value);
+        }
+
+        return value;
+    }
+
+    paramOptionDisplayLabel(
+        param: NonNullable<ApiEndpoint['params']>[number],
+        opt: string
+    ): string {
+        if (param.key === 'sexo') {
+            const labelKey = getPostmanSexoLabelKey(opt);
+            if (labelKey) {
+                return this.translocoService.translate(labelKey);
+            }
+        }
+
+        return opt;
     }
 
     priceDisplay = computed(() => {

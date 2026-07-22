@@ -81,6 +81,9 @@ export const COLOMBIA_CONTRALORIA_CERTIFICATE_ENDPOINT_CODE = 'colombia_api_cont
 export const COLOMBIA_DIAN_INVOICER_ENDPOINT_CODE = 'colombia_api_dian_invoicer';
 export const COLOMBIA_RUES_V3_ENDPOINT_CODE = 'colombia_api_rues_v3';
 export const COLOMBIA_REGISTRADURIA_CERTIFICATE_ENDPOINT_CODE = 'colombia_api_registraduria_certificate';
+export const COLOMBIA_CEDULA_BY_NAME_ENDPOINT_CODE = 'colombia_api_identity_lookup_by_name';
+export const COLOMBIA_REGISTRADURIA_SERIAL_ENDPOINT_CODE = 'colombia_api_registraduria_serial';
+export const COLOMBIA_REGISTRADURIA_MATRIMONIO_ENDPOINT_CODE = 'colombia_api_registraduria_matrimonio';
 export const COLOMBIA_REGISTRADURIA_VOTING_ENDPOINT_CODE = 'colombia_api_registraduria_voting';
 export const COLOMBIA_SENA_ENDPOINT_CODE = 'colombia_api_sena';
 export const COLOMBIA_SIMIT_COMPARENDO_DETAILS_ENDPOINT_CODE = 'colombia_api_simit_subpoenas_details';
@@ -100,6 +103,9 @@ const COLOMBIA_AFFILIATIONS_DEFAULT_DATE = '15/03/1990';
 const COLOMBIA_CEDULA_EXTRA_DEFAULT_DATE = '15/03/2020';
 const COLOMBIA_POLICE_RNMC_DEFAULT_DATE = '22/07/2005';
 const COLOMBIA_REGISTRADURIA_CERTIFICATE_DEFAULT_DATE = '15/03/2018';
+const COLOMBIA_SCCRC_BY_NAME_DEFAULT_DATE = '15/03/1990';
+const COLOMBIA_SCCRC_SERIAL_DEFAULT = '0031058170';
+const COLOMBIA_SCCRC_MARRIAGE_DEFAULT_DATE = '20/06/2015';
 
 const COLOMBIA_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     { documentNumber: '10000001', fullName: 'MARIA ELENA LOPEZ GARCIA' },
@@ -176,6 +182,140 @@ const COLOMBIA_SIGEP_BY_NAME_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBI
         },
     })
 );
+
+const COLOMBIA_SCCRC_BY_NAME_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile, index) => {
+        const parts = String(profile.fullName || '').split(/\s+/);
+        const primerNombre = parts[0] || 'MARIA';
+        const segundoNombre = parts[1] || 'ELENA';
+        const primerApellido = parts[2] || 'LOPEZ';
+        const segundoApellido = parts[3] || 'GARCIA';
+        const sexo = index % 2 === 0 ? 'FEMENINO' : 'MASCULINO';
+
+        return {
+            documentNumber: profile.documentNumber,
+            fullName: `${profile.fullName} — SCCRC by name`,
+            paramOverrides: {
+                primerNombre,
+                segundoNombre,
+                primerApellido,
+                segundoApellido,
+                sexo,
+                fecha: COLOMBIA_SCCRC_BY_NAME_DEFAULT_DATE,
+            },
+        };
+    }
+);
+
+const COLOMBIA_SCCRC_SERIAL_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile, index) => ({
+        documentNumber: profile.documentNumber,
+        fullName: `${profile.fullName} — SCCRC serial`,
+        paramOverrides: {
+            serial: index === 0 ? COLOMBIA_SCCRC_SERIAL_DEFAULT : `00310${String(profile.documentNumber).slice(-5)}`,
+        },
+    })
+);
+
+const COLOMBIA_SCCRC_MATRIMONIO_SANDBOX_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX_PROFILES.map(
+    (profile, index) => {
+        const parts = String(profile.fullName || '').split(/\s+/);
+        const primerNombre = parts[0] || 'JUAN';
+        const segundoNombre = parts[1] || 'CARLOS';
+        const primerApellido = parts[2] || 'PEREZ';
+        const segundoApellido = parts[3] || 'GOMEZ';
+        const sexo = index % 2 === 0 ? 'FEMENINO' : 'MASCULINO';
+        const mode = index % 3;
+
+        if (mode === 1) {
+            return {
+                documentNumber: profile.documentNumber,
+                fullName: `${profile.fullName} — SCCRC matrimonio (name)`,
+                paramOverrides: {
+                    primerNombre,
+                    segundoNombre,
+                    primerApellido,
+                    segundoApellido,
+                    sexo,
+                    fecha: COLOMBIA_SCCRC_MARRIAGE_DEFAULT_DATE,
+                    documentNumber: '',
+                    serial: '',
+                },
+            };
+        }
+
+        if (mode === 2) {
+            return {
+                documentNumber: profile.documentNumber,
+                fullName: `${profile.fullName} — SCCRC matrimonio (serial)`,
+                paramOverrides: {
+                    serial: `00420${String(profile.documentNumber).slice(-5)}`,
+                    documentNumber: '',
+                    primerNombre: '',
+                    segundoNombre: '',
+                    primerApellido: '',
+                    segundoApellido: '',
+                    sexo: '',
+                    fecha: '',
+                },
+            };
+        }
+
+        return {
+            documentNumber: profile.documentNumber,
+            fullName: `${profile.fullName} — SCCRC matrimonio (document)`,
+            paramOverrides: {
+                documentNumber: profile.documentNumber,
+                sexo,
+                fecha: '',
+                primerNombre: '',
+                segundoNombre: '',
+                primerApellido: '',
+                segundoApellido: '',
+                serial: '',
+            },
+        };
+    }
+);
+
+const COLOMBIA_SCCRC_BY_NAME_CONFLICT_MISSING_PRIMER_NOMBRE: PostmanSandboxProfile = {
+    profileKey: '409-sccrc-missing-primerNombre',
+    documentNumber: '90040921',
+    fullName: '409 — Missing primerNombre',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: {
+        primerNombre: '',
+        primerApellido: 'LOPEZ',
+        sexo: 'FEMENINO',
+        fecha: COLOMBIA_SCCRC_BY_NAME_DEFAULT_DATE,
+    },
+};
+
+const COLOMBIA_SCCRC_SERIAL_CONFLICT_MISSING_SERIAL: PostmanSandboxProfile = {
+    profileKey: '409-sccrc-missing-serial',
+    documentNumber: '90040922',
+    fullName: '409 — Missing serial',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: { serial: '' },
+};
+
+const COLOMBIA_SCCRC_MATRIMONIO_CONFLICT_MISSING_SEXO: PostmanSandboxProfile = {
+    profileKey: '409-sccrc-matrimonio-missing-sexo',
+    documentNumber: '90040923',
+    fullName: '409 — Missing sexo (document mode)',
+    responseType: 'error',
+    expectedStatus: 409,
+    paramOverrides: {
+        documentNumber: '10000001',
+        sexo: '',
+        fecha: '',
+        primerNombre: '',
+        primerApellido: '',
+        serial: '',
+    },
+};
 
 const COLOMBIA_SIGEP_BY_NAME_ERROR_PROFILE_404: PostmanSandboxProfile = {
     profileKey: '404-sigep-name',
@@ -892,6 +1032,30 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         documentTypeByCode: {
             [COLOMBIA_REGISTRADURIA_CERTIFICATE_ENDPOINT_CODE]: 'CC',
         },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_CEDULA_BY_NAME_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SCCRC_BY_NAME_SANDBOX_PROFILES, {
+            conflictProfiles: [COLOMBIA_SCCRC_BY_NAME_CONFLICT_MISSING_PRIMER_NOMBRE],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultDate: COLOMBIA_SCCRC_BY_NAME_DEFAULT_DATE,
+        showProfileMeta: false,
+    },
+    [COLOMBIA_REGISTRADURIA_SERIAL_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SCCRC_SERIAL_SANDBOX_PROFILES, {
+            conflictProfiles: [COLOMBIA_SCCRC_SERIAL_CONFLICT_MISSING_SERIAL],
+            include404: false,
+        }),
+        defaultDocumentNumber: '10000001',
+        showProfileMeta: false,
+    },
+    [COLOMBIA_REGISTRADURIA_MATRIMONIO_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SCCRC_MATRIMONIO_SANDBOX_PROFILES, {
+            conflictProfiles: [COLOMBIA_SCCRC_MATRIMONIO_CONFLICT_MISSING_SEXO],
+        }),
+        defaultDocumentNumber: '10000001',
+        defaultDate: COLOMBIA_SCCRC_MARRIAGE_DEFAULT_DATE,
         showProfileMeta: false,
     },
     [COLOMBIA_INPEC_ENDPOINT_CODE]: {

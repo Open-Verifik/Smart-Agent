@@ -3071,6 +3071,8 @@
                 "valuePlaceholder": "Value",
                 "descriptionPlaceholder": "Description",
                 "documentTypePlaceholder": "Select document type",
+                "sexoFemale": "Female (FEMENINO)",
+                "sexoMale": "Male (MASCULINO)",
                 "otherParameters": "Other parameters",
                 "requiredFieldLegend": "* Required field",
                 "includeCostDescription": "When true, the response includes a credits block (credits, creditsCharged, charged, featureCode). Set to false or delete this row to omit it."
@@ -3117,6 +3119,7 @@
             "validation": {
                 "groupedModesTitle": "How to fill this request",
                 "groupedModesBody": "Use one approach only: search by full name, or by document fields (type, number, and any dates required for that document type). Do not mix both in the same request.",
+                "groupedModesBodyWithSerial": "Use one approach only: search by name, by document number (plus sex when required), or by civil-registry serial. Do not mix modes in the same request.",
                 "documentFieldsGuidanceTitle": "How to fill this request",
                 "documentFieldsGuidanceBody": "Provide the document type, document number, and any other required fields for this endpoint (such as date of birth).",
                 "groupedModesDateLine": "When a date field applies, use this format: {{format}}.",
@@ -3159,6 +3162,9 @@
             "insufficientCreditsBody": "Add credits to your account to run this request. Each validation consumes credits.",
             "insufficientCreditsCostHint": "This endpoint charges about {{cost}} credits per request.",
             "insufficientCreditsCta": "Add credits",
+            "endpointOutOfServiceTitle": "Source temporarily unavailable",
+            "endpointOutOfServiceBody": "The upstream registry (Registraduría SCCRC) could not complete this request, often due to captcha or temporary outage. Retry in a moment, or use Sandbox mode to demo fixed profiles without live Registraduría.",
+            "retryRequest": "Retry request",
             "errorTechnicalDetails": "Technical details"
         },
         "dynamicQuery": {
@@ -6142,8 +6148,10 @@
         "disabledNoBatchName": "Enter a batch name to continue",
         "disabledFixDataErrors": "Fix the errors in your data to continue",
         "searchModesIntro": "Each row must use one approach only: either search by full name, or by document type and number (plus date of birth when required for certain types). Do not mix both in the same row.",
+        "searchModesIntroWithSerial": "Use one approach only: search by name, by document number (plus sex when required), or by civil-registry serial. Do not mix modes in the same request.",
         "searchModeOptionFullName": "Option A — Search by full name",
         "searchModeOptionDocument": "Option B — Search by document",
+        "searchModeOptionSerial": "Option C — Search by serial",
         "dateOfBirthConditionalHint": "When document type is one of: {{values}}, the dateOfBirth column is required for that row.",
         "fieldConditional": "Conditional",
         "fieldConditionalDetail": "Required when {{whenField}} is one of: {{values}}.",

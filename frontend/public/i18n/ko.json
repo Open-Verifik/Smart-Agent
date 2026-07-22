@@ -6144,6 +6144,7 @@
         "searchModesIntro": "각 행에는 한 가지 방식만 사용하세요. 전체 이름으로 검색하거나, 문서 유형과 번호로 검색합니다(특정 유형에서는 생년월일이 추가로 필요할 수 있습니다). 같은 행에 두 방식을 섞지 마세요.",
         "searchModeOptionFullName": "옵션 A — 전체 이름으로 검색",
         "searchModeOptionDocument": "옵션 B — 문서로 검색",
+        "searchModeOptionSerial": "옵션 C — 일련번호로 검색",
         "dateOfBirthConditionalHint": "문서 \"documentType\"이 다음 중 하나일 때 해당 행에서 \"dateOfBirth\" 열이 필요합니다: {{values}}",
         "fieldConditional": "조건부",
         "fieldConditionalDetail": "{{whenField}}가 다음 중 하나일 때 필수입니다: {{values}}.",

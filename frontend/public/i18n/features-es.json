@@ -112,6 +112,18 @@
             "title": "Certificado de vigencia de cédula (Registraduría)",
             "description": "Obtén el certificado oficial de vigencia de la cédula colombiana (CC) con número y fecha de expedición mediante GET /v2/co/registraduria/certificado."
         },
+        "colombia_api_identity_lookup_by_name": {
+            "title": "Búsqueda de ciudadano por nombre (SCCRC)",
+            "description": "Consulta inversa de registros civiles de nacimiento colombianos por nombres, sexo y fecha de nacimiento mediante GET /v2/co/cedula/by-name (Registraduría SCCRC)."
+        },
+        "colombia_api_registraduria_serial": {
+            "title": "Consulta de registro civil por serial (SCCRC)",
+            "description": "Localiza un registro civil de nacimiento colombiano por número de serial mediante GET /v2/co/registraduria/serial (Registraduría SCCRC)."
+        },
+        "colombia_api_registraduria_matrimonio": {
+            "title": "Registro civil de matrimonio (SCCRC)",
+            "description": "Busca registros civiles de matrimonio colombianos por documento, nombre o serial mediante GET /v2/co/registraduria/matrimonio (Registraduría SCCRC)."
+        },
         "colombia_api_delinquent_debtors": {
             "title": "Deudores morosos (BDME)",
             "description": "Consulta la BDME (Base de Datos de Morosos) de Colombia mediante GET /v2/co/deudoresmorosos."

@@ -112,6 +112,18 @@
             "title": "Certificat de validité de cédula (Registraduría)",
             "description": "Certificat officiel de validité de la cédula colombienne (CC) via numéro et date d’émission."
         },
+        "colombia_api_identity_lookup_by_name": {
+            "title": "Recherche de citoyen par nom (SCCRC)",
+            "description": "Recherche inverse des actes de naissance civils colombiens par noms, sexe et date de naissance via GET /v2/co/cedula/by-name (Registraduría SCCRC)."
+        },
+        "colombia_api_registraduria_serial": {
+            "title": "Consultation du registre civil par serial (SCCRC)",
+            "description": "Localisez un acte de naissance civil colombien par numéro de serial via GET /v2/co/registraduria/serial (Registraduría SCCRC)."
+        },
+        "colombia_api_registraduria_matrimonio": {
+            "title": "Registre civil de mariage (SCCRC)",
+            "description": "Recherchez les actes de mariage civils colombiens par document, nom ou serial via GET /v2/co/registraduria/matrimonio (Registraduría SCCRC)."
+        },
         "colombia_api_delinquent_debtors": {
             "title": "Colombie - Débiteurs (BDME)",
             "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."

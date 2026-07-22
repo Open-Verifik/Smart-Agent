@@ -1357,6 +1357,118 @@
 			}
 		},
 		{
+			"id": "colombia_api_identity_lookup_by_name",
+			"name": "Colombia — Citizen lookup by name (SCCRC)",
+			"category": "Colombia — Citizen lookup by name (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/cedula/by-name",
+			"verifikPath": "/v2/co/cedula/by-name",
+			"method": "POST",
+			"description": "Reverse-lookup Colombian birth civil registry records by names, sex (FEMENINO/MASCULINO), and date of birth via /v2/co/cedula/by-name (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"primerNombre": {
+						"type": "string",
+						"description": "First given name"
+					},
+					"primerApellido": {
+						"type": "string",
+						"description": "First surname"
+					},
+					"sexo": {
+						"type": "string",
+						"description": "MASCULINO or FEMENINO",
+						"enum": ["MASCULINO", "FEMENINO", "M", "F"]
+					},
+					"fecha": {
+						"type": "string",
+						"description": "Date of birth DD/MM/YYYY"
+					},
+					"segundoNombre": {
+						"type": "string",
+						"description": "Optional second given name"
+					},
+					"segundoApellido": {
+						"type": "string",
+						"description": "Optional second surname"
+					}
+				},
+				"required": [
+					"primerNombre",
+					"primerApellido",
+					"sexo",
+					"fecha"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_registraduria_serial",
+			"name": "Colombia — Civil registry lookup by serial (SCCRC)",
+			"category": "Colombia — Civil registry lookup by serial (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/registraduria/serial",
+			"verifikPath": "/v2/co/registraduria/serial",
+			"method": "POST",
+			"description": "Locate a Colombian birth civil registry record by serial via /v2/co/registraduria/serial (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"serial": {
+						"type": "string",
+						"description": "Civil registry serial (up to 10 digits)"
+					}
+				},
+				"required": [
+					"serial"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_registraduria_matrimonio",
+			"name": "Colombia — Marriage civil registry (SCCRC)",
+			"category": "Colombia — Marriage civil registry (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/registraduria/matrimonio",
+			"verifikPath": "/v2/co/registraduria/matrimonio",
+			"method": "POST",
+			"description": "Search Colombian marriage civil registry via /v2/co/registraduria/matrimonio (Registraduría SCCRC). Use exactly one mode: documentNumber+sexo, name fields+sexo+fecha (DD/MM/YYYY), or serial. Sexo: FEMENINO/MASCULINO (or F/M). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "NUIP/CC (document mode; requires sexo)"
+					},
+					"sexo": {
+						"type": "string",
+						"description": "FEMENINO or MASCULINO (required for document or name mode)",
+						"enum": ["MASCULINO", "FEMENINO", "M", "F"]
+					},
+					"serial": {
+						"type": "string",
+						"description": "Marriage registry serial (serial mode)"
+					},
+					"primerNombre": {
+						"type": "string",
+						"description": "First given name (name mode)"
+					},
+					"primerApellido": {
+						"type": "string",
+						"description": "First surname (name mode)"
+					},
+					"fecha": {
+						"type": "string",
+						"description": "Marriage date DD/MM/YYYY (name mode)"
+					}
+				},
+				"required": []
+			}
+		},
+		{
 			"id": "colombia_api_delinquent_debtors",
 			"name": "Colombia — Delinquent debtors (BDME)",
 			"category": "Colombia — Delinquent debtors (BDME)",

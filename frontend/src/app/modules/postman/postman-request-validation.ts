@@ -1,5 +1,6 @@
 import { isClientVisibleBatchDependencyField } from '../smart-batch/smart-batch-dependency.constants';
 import { ApiEndpoint, PostmanDependencyMeta } from './postman.types';
+import { isPostmanSexoEnumMatch } from './postman-sexo.util';
 import { getPostmanPathParamKeysForEndpoint } from './postman-url.util';
 
 const DOCUMENT_NUMBER_FIELD = 'documentNumber';
@@ -48,10 +49,20 @@ const getRowCellRaw = (row: Record<string, unknown>, field: string): unknown => 
     return k ? row[k] : undefined;
 };
 
-export const getPostmanXorGroupMetadata = (deps: PostmanDependencyMeta[]): {
+const NAME_MODE_TRIGGER_FIELDS = new Set(['fullName', 'primerNombre', 'primerApellido']);
+const NAME_MODE_REQUIRED_FIELDS = ['fullName', 'primerNombre', 'primerApellido', 'fecha'] as const;
+const SEXO_FIELD = 'sexo';
+const SERIAL_FIELD = 'serial';
+
+export type PostmanXorGroupMetadata = {
     docGroupIds: Set<string>;
     nameGroupIds: Set<string>;
-} | null => {
+    serialGroupIds: Set<string>;
+};
+
+export const getPostmanXorGroupMetadata = (
+    deps: PostmanDependencyMeta[]
+): PostmanXorGroupMetadata | null => {
     const grouped = new Map<string, PostmanDependencyMeta[]>();
     for (const d of deps) {
         const g = normalizeDependencyGroup(d);
@@ -63,16 +74,20 @@ export const getPostmanXorGroupMetadata = (deps: PostmanDependencyMeta[]): {
 
     const docGroupIds = new Set<string>();
     const nameGroupIds = new Set<string>();
+    const serialGroupIds = new Set<string>();
     for (const [gid, list] of grouped) {
         if (list.some((x) => x.field === 'documentType' || x.field === 'documentNumber')) {
             docGroupIds.add(gid);
         }
-        if (list.some((x) => x.field === 'fullName')) {
+        if (list.some((x) => NAME_MODE_TRIGGER_FIELDS.has(x.field))) {
             nameGroupIds.add(gid);
+        }
+        if (list.some((x) => x.field === SERIAL_FIELD)) {
+            serialGroupIds.add(gid);
         }
     }
     if (docGroupIds.size === 0 || nameGroupIds.size === 0) return null;
-    return { docGroupIds, nameGroupIds };
+    return { docGroupIds, nameGroupIds, serialGroupIds };
 };
 
 const isDocumentSearchModeActive = (
@@ -97,7 +112,22 @@ const isFullNameModeActive = (
     for (const d of deps) {
         const g = normalizeDependencyGroup(d);
         if (g === null || !nameGroupIds.has(g)) continue;
-        if (d.field !== 'fullName') continue;
+        if (!NAME_MODE_TRIGGER_FIELDS.has(d.field)) continue;
+        if (!isEffectivelyEmptyForMode(getRowCellRaw(row, d.field))) return true;
+    }
+    return false;
+};
+
+const isSerialSearchModeActive = (
+    row: Record<string, unknown>,
+    deps: PostmanDependencyMeta[],
+    serialGroupIds: Set<string>
+): boolean => {
+    if (serialGroupIds.size === 0) return false;
+    for (const d of deps) {
+        const g = normalizeDependencyGroup(d);
+        if (g === null || !serialGroupIds.has(g)) continue;
+        if (d.field !== SERIAL_FIELD) continue;
         if (!isEffectivelyEmptyForMode(getRowCellRaw(row, d.field))) return true;
     }
     return false;
@@ -117,15 +147,85 @@ export const requiredWhenPredicateMatches = (
 const allXorGroupDependencyFieldsEmpty = (
     row: Record<string, unknown>,
     deps: PostmanDependencyMeta[],
-    xorMeta: { docGroupIds: Set<string>; nameGroupIds: Set<string> }
+    xorMeta: PostmanXorGroupMetadata
 ): boolean => {
     for (const d of deps) {
         const g = normalizeDependencyGroup(d);
         if (g === null) continue;
-        if (!xorMeta.docGroupIds.has(g) && !xorMeta.nameGroupIds.has(g)) continue;
+        if (
+            !xorMeta.docGroupIds.has(g) &&
+            !xorMeta.nameGroupIds.has(g) &&
+            !xorMeta.serialGroupIds.has(g)
+        ) {
+            continue;
+        }
         if (!isEffectivelyEmptyForMode(getRowCellRaw(row, d.field))) return false;
     }
     return true;
+};
+
+const appendSharedSexoRequiredIfNeeded = (
+    row: Record<string, unknown>,
+    deps: PostmanDependencyMeta[],
+    stepLabel: string,
+    issues: PostmanValidationIssue[]
+): void => {
+    const hasSexoDep = deps.some((d) => d.field === SEXO_FIELD);
+    if (!hasSexoDep) return;
+    if (!isEffectivelyEmptyForMode(getRowCellRaw(row, SEXO_FIELD))) return;
+    issues.push({
+        field: SEXO_FIELD,
+        translationKey: FIELD_REQUIRED_TRANSLATION_KEY,
+        translationParams: { field: SEXO_FIELD, step: stepLabel },
+    });
+};
+
+const appendNameModeRequiredFields = (
+    row: Record<string, unknown>,
+    deps: PostmanDependencyMeta[],
+    nameGroupIds: Set<string>,
+    stepLabel: string,
+    issues: PostmanValidationIssue[]
+): void => {
+    const nameFields = new Set(
+        deps
+            .filter((d) => {
+                const g = normalizeDependencyGroup(d);
+                return g !== null && nameGroupIds.has(g);
+            })
+            .map((d) => d.field)
+    );
+
+    for (const field of NAME_MODE_REQUIRED_FIELDS) {
+        if (!nameFields.has(field)) continue;
+        if (!isEffectivelyEmptyForMode(getRowCellRaw(row, field))) continue;
+        issues.push({
+            field,
+            translationKey: FIELD_REQUIRED_TRANSLATION_KEY,
+            translationParams: { field, step: stepLabel },
+        });
+    }
+};
+
+const appendLeakIssuesForGroups = (
+    row: Record<string, unknown>,
+    deps: PostmanDependencyMeta[],
+    leakGroupIds: Set<string>,
+    translationKey: string,
+    stepLabel: string,
+    issues: PostmanValidationIssue[]
+): void => {
+    for (const d of deps) {
+        const g = normalizeDependencyGroup(d);
+        if (g === null || !leakGroupIds.has(g)) continue;
+        if (!isEffectivelyEmptyForMode(getRowCellRaw(row, d.field))) {
+            issues.push({
+                field: d.field,
+                translationKey,
+                translationParams: { step: stepLabel, field: d.field },
+            });
+        }
+    }
 };
 
 const isCalendarDdMmYyyy = (value: string): boolean => {
@@ -212,6 +312,22 @@ const appendEnumIssueIfAny = (
     const enums = d.enum;
     if (!enums || !Array.isArray(enums) || enums.length === 0) return;
     if (isEmptyValue(raw)) return;
+
+    if (d.field === SEXO_FIELD) {
+        if (!isPostmanSexoEnumMatch(raw, enums.map(String))) {
+            issues.push({
+                field: d.field,
+                translationKey: 'postman.requestEditor.validation.invalidEnum',
+                translationParams: {
+                    field: d.field,
+                    value: String(raw),
+                    expected: enums.join(', '),
+                },
+            });
+        }
+        return;
+    }
+
     const normalizedValue = String(raw).trim().toLowerCase();
     const validValues = enums.map((v) => String(v).toLowerCase());
 
@@ -312,20 +428,23 @@ const appendGroupedDependencyIssues = (
         return;
     }
 
-    const { docGroupIds, nameGroupIds } = xorMeta;
+    const { docGroupIds, nameGroupIds, serialGroupIds } = xorMeta;
     const mode1Active = isDocumentSearchModeActive(row, deps, docGroupIds);
     const mode2Active = isFullNameModeActive(row, deps, nameGroupIds);
+    const mode3Active = isSerialSearchModeActive(row, deps, serialGroupIds);
+    const activeModeCount =
+        Number(mode1Active) + Number(mode2Active) + Number(mode3Active);
 
-    if (mode1Active && mode2Active) {
+    if (activeModeCount > 1) {
         issues.push({
-            field: 'fullName',
+            field: mode2Active ? 'fullName' : mode3Active ? SERIAL_FIELD : DOCUMENT_NUMBER_FIELD,
             translationKey: 'createBatch.validationXorBothModes',
             translationParams: { step: stepLabel },
         });
         return;
     }
 
-    if (!mode1Active && !mode2Active) {
+    if (activeModeCount === 0) {
         const skipNeither =
             options?.lenientEmptyXor && allXorGroupDependencyFieldsEmpty(row, deps, xorMeta);
         if (!skipNeither) {
@@ -339,31 +458,27 @@ const appendGroupedDependencyIssues = (
     }
 
     if (mode2Active) {
-        for (const d of deps) {
-            const g = normalizeDependencyGroup(d);
-            if (g === null || !docGroupIds.has(g)) continue;
-            if (!isEffectivelyEmptyForMode(getRowCellRaw(row, d.field))) {
-                issues.push({
-                    field: d.field,
-                    translationKey: 'createBatch.validationLeakDocumentWhenFullName',
-                    translationParams: { step: stepLabel, field: d.field },
-                });
-            }
-        }
+        appendLeakIssuesForGroups(
+            row,
+            deps,
+            new Set([...docGroupIds, ...serialGroupIds]),
+            'createBatch.validationLeakDocumentWhenFullName',
+            stepLabel,
+            issues
+        );
+        appendNameModeRequiredFields(row, deps, nameGroupIds, stepLabel, issues);
+        appendSharedSexoRequiredIfNeeded(row, deps, stepLabel, issues);
     }
 
     if (mode1Active) {
-        for (const d of deps) {
-            const g = normalizeDependencyGroup(d);
-            if (g === null || !nameGroupIds.has(g)) continue;
-            if (!isEffectivelyEmptyForMode(getRowCellRaw(row, d.field))) {
-                issues.push({
-                    field: d.field,
-                    translationKey: 'createBatch.validationLeakFullNameWhenDocument',
-                    translationParams: { step: stepLabel, field: d.field },
-                });
-            }
-        }
+        appendLeakIssuesForGroups(
+            row,
+            deps,
+            new Set([...nameGroupIds, ...serialGroupIds]),
+            'createBatch.validationLeakFullNameWhenDocument',
+            stepLabel,
+            issues
+        );
 
         appendDocumentTypeNumberPairErrorsForDeps(row, deps, docGroupIds, issues, stepLabel);
 
@@ -386,6 +501,25 @@ const appendGroupedDependencyIssues = (
                 });
             }
         }
+        appendSharedSexoRequiredIfNeeded(row, deps, stepLabel, issues);
+    }
+
+    if (mode3Active) {
+        appendLeakIssuesForGroups(
+            row,
+            deps,
+            new Set([...docGroupIds, ...nameGroupIds]),
+            'createBatch.validationLeakDocumentWhenFullName',
+            stepLabel,
+            issues
+        );
+        if (isEffectivelyEmptyForMode(getRowCellRaw(row, SERIAL_FIELD))) {
+            issues.push({
+                field: SERIAL_FIELD,
+                translationKey: FIELD_REQUIRED_TRANSLATION_KEY,
+                translationParams: { field: SERIAL_FIELD, step: stepLabel },
+            });
+        }
     }
 
     for (const d of deps) {
@@ -395,12 +529,17 @@ const appendGroupedDependencyIssues = (
         if (isGrouped) {
             const gid = g as string;
             applies =
-                (mode1Active && docGroupIds.has(gid)) || (mode2Active && nameGroupIds.has(gid));
+                (mode1Active && docGroupIds.has(gid)) ||
+                (mode2Active && nameGroupIds.has(gid)) ||
+                (mode3Active && serialGroupIds.has(gid));
+        } else {
+            // Shared ungrouped fields (e.g. sexo): validate enum/date when filled.
+            applies = true;
         }
         if (!applies) continue;
 
         const raw = getRowCellRaw(row, d.field);
-        if (d.required && isEmptyValue(raw)) {
+        if (d.required && isEmptyValue(raw) && isGrouped) {
             issues.push({
                 field: d.field,
                 translationKey: 'postman.requestEditor.validation.fieldRequired',
@@ -463,18 +602,32 @@ const legacyParamIssues = (endpoint: ApiEndpoint, stepLabel: string): PostmanVal
         if (!p.enum?.length) continue;
         const raw = p.value;
         if (isEmptyValue(raw)) continue;
-        const normalizedValue = String(raw).trim().toLowerCase();
-        const validValues = p.enum.map((v) => String(v).toLowerCase());
-        if (!validValues.includes(normalizedValue)) {
-            issues.push({
-                field: p.key,
-                translationKey: 'postman.requestEditor.validation.invalidEnum',
-                translationParams: {
+        if (p.key === SEXO_FIELD) {
+            if (!isPostmanSexoEnumMatch(raw, p.enum.map(String))) {
+                issues.push({
                     field: p.key,
-                    value: String(raw),
-                    expected: p.enum.join(', '),
-                },
-            });
+                    translationKey: 'postman.requestEditor.validation.invalidEnum',
+                    translationParams: {
+                        field: p.key,
+                        value: String(raw),
+                        expected: p.enum.join(', '),
+                    },
+                });
+            }
+        } else {
+            const normalizedValue = String(raw).trim().toLowerCase();
+            const validValues = p.enum.map((v) => String(v).toLowerCase());
+            if (!validValues.includes(normalizedValue)) {
+                issues.push({
+                    field: p.key,
+                    translationKey: 'postman.requestEditor.validation.invalidEnum',
+                    translationParams: {
+                        field: p.key,
+                        value: String(raw),
+                        expected: p.enum.join(', '),
+                    },
+                });
+            }
         }
         if (p.dateFormat && !isEmptyValue(raw) && !valueMatchesDependencyDateFormat(raw, p.dateFormat)) {
             issues.push({
@@ -562,14 +715,36 @@ export type PostmanXorParamLayout =
           kind: 'xor';
           nameRows: PostmanParamRowRef[];
           documentRows: PostmanParamRowRef[];
+          serialRows: PostmanParamRowRef[];
           otherRows: PostmanParamRowRef[];
       };
 
-const DOCUMENT_FIELD_ORDER = ['documentType', 'documentNumber', 'dateOfBirth', 'expirationDate'];
+const DOCUMENT_FIELD_ORDER = [
+    'documentType',
+    'documentNumber',
+    'sexo',
+    'dateOfBirth',
+    'expirationDate',
+];
+const NAME_FIELD_ORDER = [
+    'fullName',
+    'primerNombre',
+    'segundoNombre',
+    'primerApellido',
+    'segundoApellido',
+    'sexo',
+    'fecha',
+];
+
+/**
+ * Shared ungrouped fields that must appear in both name and document XOR cards (same param value).
+ * Kept out of exclusive dependencyGroups so serial mode does not treat them as leaks.
+ */
+const isSharedXorNameAndDocumentField = (field: string): boolean => field === SEXO_FIELD;
 
 /**
  * Partitions GET query param rows into Smart Batch–style XOR groups when dependency metadata has
- * distinct name vs document groups.
+ * distinct name vs document groups (and optional serial group).
  */
 export const getPostmanXorParamLayout = (
     endpoint: ApiEndpoint | null | undefined
@@ -594,7 +769,9 @@ export const getPostmanXorParamLayout = (
 
     const nameRows: PostmanParamRowRef[] = [];
     const documentRows: PostmanParamRowRef[] = [];
+    const serialRows: PostmanParamRowRef[] = [];
     const otherRows: PostmanParamRowRef[] = [];
+    const sharedNameDocRows: PostmanParamRowRef[] = [];
 
     for (const item of allRows) {
         const g = fieldToGroup.get(item.param.key);
@@ -602,6 +779,10 @@ export const getPostmanXorParamLayout = (
             nameRows.push(item);
         } else if (g && xor.docGroupIds.has(g)) {
             documentRows.push(item);
+        } else if (g && xor.serialGroupIds.has(g)) {
+            serialRows.push(item);
+        } else if (isSharedXorNameAndDocumentField(item.param.key)) {
+            sharedNameDocRows.push(item);
         } else {
             otherRows.push(item);
         }
@@ -611,8 +792,17 @@ export const getPostmanXorParamLayout = (
         return { kind: 'flat', allRows };
     }
 
+    for (const shared of sharedNameDocRows) {
+        nameRows.push(shared);
+        documentRows.push(shared);
+    }
+
     const docOrder = (key: string) => {
         const i = DOCUMENT_FIELD_ORDER.indexOf(key);
+        return i === -1 ? 1000 : i;
+    };
+    const nameOrder = (key: string) => {
+        const i = NAME_FIELD_ORDER.indexOf(key);
         return i === -1 ? 1000 : i;
     };
     documentRows.sort(
@@ -620,10 +810,15 @@ export const getPostmanXorParamLayout = (
             docOrder(a.param.key) - docOrder(b.param.key) ||
             a.param.key.localeCompare(b.param.key)
     );
-    nameRows.sort((a, b) => a.param.key.localeCompare(b.param.key));
+    nameRows.sort(
+        (a, b) =>
+            nameOrder(a.param.key) - nameOrder(b.param.key) ||
+            a.param.key.localeCompare(b.param.key)
+    );
+    serialRows.sort((a, b) => a.param.key.localeCompare(b.param.key));
     otherRows.sort((a, b) => a.index - b.index);
 
-    return { kind: 'xor', nameRows, documentRows, otherRows };
+    return { kind: 'xor', nameRows, documentRows, serialRows, otherRows };
 };
 
 /**
@@ -642,7 +837,13 @@ export const filterVisibleXorDocumentRows = (
 
     return documentRows.filter((item) => {
         const key = item.param.key;
-        if (key === DOCUMENT_TYPE_FIELD || key === DOCUMENT_NUMBER_FIELD) return true;
+        if (
+            key === DOCUMENT_TYPE_FIELD ||
+            key === DOCUMENT_NUMBER_FIELD ||
+            isSharedXorNameAndDocumentField(key)
+        ) {
+            return true;
+        }
         const meta = deps.find((d) => d.field === key);
         if (!meta) return true;
         if (meta.requiredWhen?.in?.length) {

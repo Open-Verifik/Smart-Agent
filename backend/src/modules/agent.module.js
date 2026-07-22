@@ -33,6 +33,8 @@ const toolsDef = JSON.parse(fs.readFileSync(toolsPath, "utf8"));
  * @param {string} userToken - Optional user JWT token (for Credits mode)
  * @param {number|string} [paymentChainId] - Optional EVM chain id the tx was sent on. Forwarded as `x-payment-chain-id` so the x402 middleware can validate against the correct chain.
  */
+const { normalizeToolArgsSexo } = require("../utils/normalize-sexo.util");
+
 const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmount, userToken, paymentChainId) => {
     const tool = toolsDef.endpoints.find((t) => t.id === toolName);
     if (!tool) throw new Error(`Tool ${toolName} not found`);
@@ -41,6 +43,8 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
     // The URL in the manifest might be "https://x402-agent.verifik.co/..."
     // We will use the config to potentially override the base URL or just use as is if it's absolute
     // But the requirement says "The agent will connect to the source (verifik backend) via web2"
+
+    args = normalizeToolArgsSexo(args);
 
     let url = tool.url;
     console.log(`[Agent] Executing Tool: ${toolName}`);
@@ -154,9 +158,14 @@ const executeTool = async (toolName, args, paymentTx, paymentWallet, paymentAmou
 
         if (response.status >= 400) {
             const errorMsg = response.data?.error || response.data?.message || JSON.stringify(response.data) || "Unknown Backend Error";
+            const friendlyOutOfService =
+                String(errorMsg) === "Endpoint_out_of_service"
+                    ? "The upstream registry is temporarily unavailable (often captcha or a short outage). Please retry shortly, or use Sandbox mode for demo profiles."
+                    : null;
+
             return {
                 status: "error",
-                error: `Backend returned ${response.status}: ${errorMsg}`,
+                error: friendlyOutOfService || `Backend returned ${response.status}: ${errorMsg}`,
             };
         }
 

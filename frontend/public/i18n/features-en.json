@@ -112,6 +112,18 @@
             "title": "Registraduría ID validity certificate (CC)",
             "description": "Obtain the official Registraduría certificate of validity for a Colombian cédula (CC) using document number and issue date via GET /v2/co/registraduria/certificado."
         },
+        "colombia_api_identity_lookup_by_name": {
+            "title": "Citizen lookup by name (SCCRC)",
+            "description": "Reverse-lookup Colombian birth civil registry records by names, sex, and date of birth via GET /v2/co/cedula/by-name (Registraduría SCCRC)."
+        },
+        "colombia_api_registraduria_serial": {
+            "title": "Civil registry lookup by serial (SCCRC)",
+            "description": "Locate a Colombian birth civil registry record by serial number via GET /v2/co/registraduria/serial (Registraduría SCCRC)."
+        },
+        "colombia_api_registraduria_matrimonio": {
+            "title": "Marriage civil registry (SCCRC)",
+            "description": "Search Colombian marriage civil registry records by document, name, or serial via GET /v2/co/registraduria/matrimonio (Registraduría SCCRC)."
+        },
         "colombia_api_delinquent_debtors": {
             "title": "Delinquent debtors (BDME)",
             "description": "Query Colombia’s BDME (Base de Datos de Morosos) delinquent debtors registry via GET /v2/co/deudoresmorosos."
