@@ -879,6 +879,10 @@
         "ecuador_api_company_lookup_v3": {
             "title": "厄瓜多尔企业（RUCEC）",
             "description": "使用 Verifik 的 KYB API 核验厄瓜多尔企业。直接对接官方数据源，在数秒内完成企业数据核验。"
+        },
+        "colombia_api_identity_lookup_registraduria": {
+            "title": "通过 Registraduría（SCCRC）查询公民",
+            "description": "通过 GET /v2/co/cedula/registraduria（仅 Registraduría SCCRC）按证件号查询哥伦比亚出生民事登记记录。"
         }
     }
 }

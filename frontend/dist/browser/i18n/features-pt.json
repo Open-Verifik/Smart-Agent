@@ -879,6 +879,10 @@
         "ecuador_api_company_lookup_v3": {
             "title": "Equador — Empresa (RUCEC)",
             "description": "Valide empresas equatorianas com a API KYB da Verifik. Conecte-se a fontes oficiais e verifique dados empresariais em segundos."
+        },
+        "colombia_api_identity_lookup_registraduria": {
+            "title": "Consulta de cidadão via Registraduría (SCCRC)",
+            "description": "Consulte um registro civil de nascimento colombiano por número de documento via GET /v2/co/cedula/registraduria (somente Registraduría SCCRC)."
         }
     }
 }

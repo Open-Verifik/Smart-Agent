@@ -879,6 +879,10 @@
         "ecuador_api_company_lookup_v3": {
             "title": "エクアドル法人（RUCEC）",
             "description": "Verifik の KYB API を使用してエクアドル企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
+        },
+        "colombia_api_identity_lookup_registraduria": {
+            "title": "コロンビア — Registraduría（SCCRC）市民照会",
+            "description": "GET /v2/co/cedula/registraduria（Registraduría SCCRC のみ）で文書番号によりコロンビア出生民事登録を照会します。"
         }
     }
 }

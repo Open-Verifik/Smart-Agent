@@ -879,6 +879,10 @@
         "ecuador_api_company_lookup_v3": {
             "title": "에콰도르 기업(RUCEC)",
             "description": "Verifik의 KYB API로 에콰도르 기업을 검증합니다. 공식 출처와 직접 연결되어 수 초 내에 기업 데이터를 확인합니다."
+        },
+        "colombia_api_identity_lookup_registraduria": {
+            "title": "콜롬비아 — Registraduría(SCCRC) 시민 조회",
+            "description": "GET /v2/co/cedula/registraduria(Registraduría SCCRC 전용)로 문서 번호로 콜롬비아 출생 민사등록을 조회합니다."
         }
     }
 }

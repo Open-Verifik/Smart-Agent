@@ -879,6 +879,10 @@
         "ecuador_api_company_lookup_v3": {
             "title": "Ecuadorian Business Verification",
             "description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify comprehensive business data in seconds."
+        },
+        "colombia_api_identity_lookup_registraduria": {
+            "title": "Citizen lookup via Registraduría (SCCRC)",
+            "description": "Look up a Colombian birth civil registry record by document number via GET /v2/co/cedula/registraduria (Registraduría SCCRC only)."
         }
     }
 }
