@@ -523,8 +523,11 @@
             "openFromEmail": "正在打开您的通知…"
         },
         "welcome": {
-            "title": "AI 代理的信任层",
-            "subtitle": "验证自主代理背后的人员和公司。由 14+ 官方政府数据库集成 and x402 支付协议提供支持。"
+            "title": "面向每家企业的身份验证",
+            "subtitle": "通过一个 API 在 14+ 官方政府数据源中验证个人、企业、车辆和证件。按实际验证量付费。",
+            "greeting": "欢迎回来，{{ name }}",
+            "greetingSubtitle": "以下是您账户的最新动态。",
+            "fallbackName": "您好"
         },
         "bringBackModal": {
             "maybeLater": "稍后再说",
@@ -532,7 +535,7 @@
             "viewPlans": "查看订阅计划"
         },
         "onboarding": {
-            "title": "开发者入驻清单",
+            "title": "探索并获取积分",
             "subtitle": "完成这些任务以验证您的集成、测试我们的 API 并获得奖励。每完成一项任务可赚取 $1.00 USD（总计高达 $12.00 USD）。奖励将记入您的账户余额中。",
             "progressBar": "清单进度：已完成 {{completed}} / {{total}} 项任务",
             "pendingApproval": "（{{amount}} USD 待批准）",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "快捷访问",
             "chat": "聊天",
+            "chatSubtitle": "提问并运行身份验证",
             "supportTickets": "支持工单",
             "supportTicketsSubtitle": "创建工单并与团队沟通",
             "postman": "Postman",
@@ -690,9 +694,9 @@
             "back": "返回",
             "next": "下一步",
             "getStarted": "开始使用",
-            "step0Title": "欢迎使用信任层",
-            "step0Desc": "Smart Agent 为 AI 代理提供身份验证。通过 Avalanche 上的 x402 协议按验证付费。14+ 政府数据库集成，ERC-8004 代理标准。",
-            "step0Tip": "您可以使用积分或 x402（加密货币）支付验证费用。",
+            "step0Title": "欢迎使用 Smart Agent",
+            "step0Desc": "您的身份验证控制台，覆盖 14+ 官方政府数据源。在一个地方探索 API、运行验证并管理账单。",
+            "step0Tip": "每次验证均可使用积分或加密货币支付。",
             "step1Title": "Smart Agent 聊天",
             "step1Desc": "原生体验 x402 流程。代理识别付费端点，通过钱包签名请求授权，并在链上执行验证。完整的付费获取真相循环。",
             "step2Title": "API 浏览器 (Postman)",
@@ -713,7 +717,7 @@
             "pendingText": "您的账户验证正在审核中。"
         },
         "identityVerificationModal": {
-            "title": "验证您的身份",
+            "title": "验证身份以解锁生产环境模式",
             "subtitle": "完成身份验证以保障您的账户安全并解锁生产环境访问权限。",
             "reason1_title": "账户负责人",
             "reason1_desc": "确定负责管理您的 Verifik 工作区的主要人员。",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "请先完成企业验证以启用正式环境",
             "aria": "在沙盒模式与正式环境之间切换"
         },
+        "verifyUnlocked": "身份验证已完成。现已可使用生产模式和积分。",
         "errors": {
             "updateFailed": "无法更新环境模式，请稍后重试。",
             "verifyFailed": "无法打开验证流程，请重试或使用「添加积分」。"

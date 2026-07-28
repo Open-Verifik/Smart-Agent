@@ -171,7 +171,12 @@ export class PaymentService {
 
         return this._httpClient
             .post<{
-                data: { path: string };
+                data: {
+                    path?: string | null;
+                    alreadyCompleted?: boolean;
+                    canRecharge?: boolean;
+                    approvalAction?: string;
+                };
             }>(`${this.apiUrl}/v2/app-registrations/resume-kyc`, {}, { headers })
             .pipe(
                 finalize(() => {

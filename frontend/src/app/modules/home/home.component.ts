@@ -98,6 +98,7 @@ export class HomeComponent implements OnInit {
     private _accountEnv = inject(AccountEnvironmentService);
 
     isAuthenticated = signal(false);
+    userFirstName = signal('');
     loading = this._homeService.loading;
     dashboardData = this._homeService.dashboardData;
 
@@ -166,7 +167,7 @@ export class HomeComponent implements OnInit {
     });
 
     shortcuts: ShortcutItem[] = [
-        { id: 'chat', titleKey: 'home.shortcuts.chat', subtitleKey: 'nav.ai_validation', link: '/chat', icon: 'chat_bubble' },
+        { id: 'chat', titleKey: 'home.shortcuts.chat', subtitleKey: 'home.shortcuts.chatSubtitle', link: '/chat', icon: 'chat_bubble' },
         {
             id: 'support-tickets',
             titleKey: 'home.shortcuts.supportTickets',
@@ -250,11 +251,14 @@ export class HomeComponent implements OnInit {
                         promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
                     );
 
+                    const clientId = user?._id || user?.id || '';
+                    const rawName = (user?.name || '').trim();
+                    this.userFirstName.set(rawName ? rawName.split(/\s+/)[0] : '');
+
                     if (activeBringBack) {
-                        this._maybeOpenBringBackOfferModal(
-                            user?._id || user?.id || '',
-                            activeBringBack,
-                        );
+                        this._maybeOpenBringBackOfferModal(clientId, activeBringBack);
+                    } else {
+                        this._maybeOpenProductionVerificationModal();
                     }
                 });
         }
@@ -390,6 +394,19 @@ export class HomeComponent implements OnInit {
                 void this._router.navigate(['/subscription-plans']);
             }
         });
+    }
+
+    /**
+     * Invasive nudge on every Home visit for unverified accounts to complete KYC and unlock
+     * Production Mode. Skipped while a review is already pending. Reuses the same
+     * "why verify" modal + KYC wiring as the manual `account-verification-strip` CTA.
+     */
+    private _maybeOpenProductionVerificationModal(): void {
+        if (!this._accountEnv.showVerifyStrip() || this._accountEnv.verifyStripPendingReview()) {
+            return;
+        }
+
+        this._accountEnv.startCompanyVerification();
     }
 
     openTutorial(): void {

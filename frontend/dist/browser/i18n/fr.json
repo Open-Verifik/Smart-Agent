@@ -523,8 +523,11 @@
             "openFromEmail": "Ouverture de vos notifications…"
         },
         "welcome": {
-            "title": "La couche de confiance pour les agents IA",
-            "subtitle": "Vérifiez les humains et les entreprises derrière les agents autonomes. Plus de 14 intégrations officielles de bases de données gouvernementales et le protocole de paiement x402."
+            "title": "Vérification d'identité pour chaque entreprise",
+            "subtitle": "Une API pour vérifier les personnes, les entreprises, les véhicules et les documents auprès de plus de 14 sources gouvernementales officielles. Payez uniquement ce que vous vérifiez.",
+            "greeting": "Bon retour, {{ name }}",
+            "greetingSubtitle": "Voici ce qui se passe sur votre compte.",
+            "fallbackName": "bonjour"
         },
         "bringBackModal": {
             "maybeLater": "Plus tard",
@@ -532,7 +535,7 @@
             "viewPlans": "Voir les plans d'abonnement"
         },
         "onboarding": {
-            "title": "Liste de contrôle d'intégration des développeurs",
+            "title": "Explorez et obtenez des crédits",
             "subtitle": "Effectuez ces tâches pour vérifier votre intégration, tester nos API et obtenir des récompenses. Gagnez 1,00 USD pour chaque tâche complétée (jusqu'à 12,00 USD au total). Les récompenses seront créditées sur le solde de votre compte.",
             "progressBar": "Progression : {{completed}} / {{total}} tâches complétées",
             "pendingApproval": "({{amount}} USD en attente d'approbation)",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "Accès rapide",
             "chat": "Chat",
+            "chatSubtitle": "Posez des questions et lancez des validations d'identité",
             "supportTickets": "Tickets de support",
             "supportTicketsSubtitle": "Ouvrez un ticket et discutez avec notre équipe",
             "smartAccess": "Smart Access",
@@ -690,9 +694,9 @@
             "back": "Retour",
             "next": "Suivant",
             "getStarted": "Commencer",
-            "step0Title": "Bienvenue dans la couche de confiance",
-            "step0Desc": "Smart Agent fournit la vérification d'identité pour les agents IA. Paiement par vérification via le protocole x402 sur Avalanche. Plus de 14 intégrations de bases de données gouvernementales, norme ERC-8004.",
-            "step0Tip": "Vous pouvez utiliser des crédits ou x402 (crypto) pour payer les validations.",
+            "step0Title": "Bienvenue sur Smart Agent",
+            "step0Desc": "Votre tableau de bord pour la vérification d'identité auprès de plus de 14 sources gouvernementales officielles. Explorez les API, lancez des validations et gérez la facturation depuis un seul endroit.",
+            "step0Tip": "Vous pouvez payer avec des crédits ou en crypto pour chaque validation.",
             "step1Title": "Chat de l'agent intelligent",
             "step1Desc": "Experiencez le flux x402 de manière native. L'agent identifie les endpoints payants, demande l'autorisation via signature de portefeuille et exécute la vérification on-chain. Une boucle complète de paiement pour la vérité.",
             "step2Title": "Explorateur API (Postman)",
@@ -713,7 +717,7 @@
             "pendingText": "La vérification de votre compte est en cours d'examen."
         },
         "identityVerificationModal": {
-            "title": "Vérifiez votre identité",
+            "title": "Vérifiez votre identité pour obtenir le mode production",
             "subtitle": "Effectuez la vérification pour sécuriser votre compte et déverrouiller l'accès à la production.",
             "reason1_title": "Responsable du compte",
             "reason1_desc": "Identifier la personne principale responsable de la gestion de votre espace de travail Verifik.",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "Vérifiez votre entreprise pour activer le mode Production",
             "aria": "Basculer entre Sandbox et Production"
         },
+        "verifyUnlocked": "Identité vérifiée. Le mode Production et les crédits sont maintenant disponibles.",
         "errors": {
             "updateFailed": "Impossible de mettre à jour le mode d'environnement. Réessayez.",
             "verifyFailed": "Impossible d'ouvrir la vérification. Réessayez ou utilisez Ajouter des crédits."

@@ -202,10 +202,24 @@ export class AccountEnvironmentService {
                 })
             )
             .subscribe((response) => {
-                const path = (response as any)?.data?.path;
-                if (path && environment.kycBaseUrl) {
+                if (!response) {
+                    return;
+                }
+
+                const data = response.data;
+                if (data?.alreadyCompleted || (!data?.path && data?.canRecharge === true)) {
+                    this._snackBar.open(
+                        this._transloco.translate('accountEnv.verifyUnlocked'),
+                        undefined,
+                        { duration: 4000 }
+                    );
+                    this.syncUser();
+                    return;
+                }
+
+                if (data?.path && environment.kycBaseUrl) {
                     window.open(
-                        `${environment.kycBaseUrl}${path}`,
+                        `${environment.kycBaseUrl}${data.path}`,
                         '_blank',
                         'noopener,noreferrer'
                     );

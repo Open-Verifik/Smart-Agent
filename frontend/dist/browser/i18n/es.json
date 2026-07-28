@@ -523,8 +523,11 @@
             "openFromEmail": "Abriendo tus notificaciones…"
         },
         "welcome": {
-            "title": "La capa de confianza para agentes de IA",
-            "subtitle": "Verifica humanos y empresas detrás de agentes autónomos. Con más de 14 integraciones oficiales de bases de datos gubernamentales y el protocolo de pago x402."
+            "title": "Verificación de identidad para todo negocio",
+            "subtitle": "Una API para verificar personas, empresas, vehículos y documentos en más de 14 fuentes oficiales de gobierno. Paga solo por lo que verificas.",
+            "greeting": "Bienvenido de nuevo, {{ name }}",
+            "greetingSubtitle": "Esto es lo que está pasando en tu cuenta.",
+            "fallbackName": "amigo"
         },
         "bringBackModal": {
             "maybeLater": "Quizás más tarde",
@@ -532,7 +535,7 @@
             "viewPlans": "Ver planes de suscripción"
         },
         "onboarding": {
-            "title": "Lista de Incorporación para Desarrolladores",
+            "title": "Explora y obtén créditos",
             "subtitle": "Completa estas tareas para verificar tu integración, probar nuestras APIs y recibir recompensas. Gana $1.00 USD por cada tarea completada (hasta $12.00 USD en total). Las recompensas se acreditarán al saldo de tu cuenta.",
             "progressBar": "Progreso de la Lista: {{completed}} / {{total}} tareas completadas",
             "pendingApproval": "({{amount}} USD pendientes de aprobación)",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "Acceso rápido",
             "chat": "Chat",
+            "chatSubtitle": "Haz preguntas y ejecuta validaciones de identidad",
             "supportTickets": "Tickets de soporte",
             "supportTicketsSubtitle": "Abre un ticket y chatea con nuestro equipo",
             "postman": "Postman",
@@ -690,9 +694,9 @@
             "back": "Atrás",
             "next": "Siguiente",
             "getStarted": "Comenzar",
-            "step0Title": "Bienvenido a la capa de confianza",
-            "step0Desc": "Smart Agent proporciona verificación de identidad para agentes de IA. Pago por verificación vía protocolo x402 en Avalanche. Más de 14 integraciones de bases de datos gubernamentales, estándar ERC-8004.",
-            "step0Tip": "Puedes usar créditos o x402 (cripto) para pagar validaciones.",
+            "step0Title": "Bienvenido a Smart Agent",
+            "step0Desc": "Tu panel para verificación de identidad en más de 14 fuentes oficiales de gobierno. Explora APIs, ejecuta validaciones y gestiona la facturación desde un solo lugar.",
+            "step0Tip": "Puedes pagar con créditos o cripto por cada validación.",
             "step1Title": "Chat del agente inteligente",
             "step1Desc": "Experimenta el flujo x402 de forma nativa. El agente identifica endpoints de pago, solicita autorización por firma de wallet y ejecuta la verificación on-chain. Un bucle completo de pago por verdad.",
             "step2Title": "Explorador de API (Postman)",
@@ -713,7 +717,7 @@
             "cta": "Verificar identidad"
         },
         "identityVerificationModal": {
-            "title": "Verifica tu identidad",
+            "title": "Verifica tu identidad para obtener el Modo Producción",
             "subtitle": "Completa la verificación para asegurar tu cuenta y desbloquear el acceso a producción.",
             "reason1_title": "Responsable de la cuenta",
             "reason1_desc": "Identificar a la persona principal responsable de administrar tu espacio de trabajo de Verifik.",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "Verifica tu empresa para activar el modo Producción",
             "aria": "Alternar entre modo Sandbox y Producción"
         },
+        "verifyUnlocked": "Identidad verificada. El modo Producción y los créditos ya están disponibles.",
         "errors": {
             "updateFailed": "No se pudo actualizar el modo de entorno. Intenta de nuevo.",
             "verifyFailed": "No se pudo abrir la verificación. Intenta de nuevo o usa Agregar créditos."

@@ -523,8 +523,11 @@
             "openFromEmail": "通知を開いています…"
         },
         "welcome": {
-            "title": "AIエージェントのための信頼レイヤー",
-            "subtitle": "自律エージェントの背後にある人と企業を検証。14以上の公式政府データベース連携とx402決済プロトコルで駆動。"
+            "title": "あらゆるビジネスのための本人確認",
+            "subtitle": "14以上の公式政府ソースで人物・企業・車両・書類を検証するワンAPI。検証した分だけお支払い。",
+            "greeting": "おかえりなさい、{{ name }}さん",
+            "greetingSubtitle": "アカウントの最新状況です。",
+            "fallbackName": "ゲスト"
         },
         "bringBackModal": {
             "maybeLater": "あとで",
@@ -532,7 +535,7 @@
             "viewPlans": "サブスクリプションプランを見る"
         },
         "onboarding": {
-            "title": "開発者オンボーディングチェックリスト",
+            "title": "探索してクレジットを獲得",
             "subtitle": "これらのタスクを完了して、統合を確認し、APIをテストし、報酬を獲得してください。完了したタスクごとに$1.00 USDがアカウント残高に加算されます（最大$12.00 USD）。",
             "progressBar": "進捗状況: {{completed}} / {{total}} タスク完了",
             "pendingApproval": "（{{amount}} USD 承認待ち）",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "クイックアクセス",
             "chat": "チャット",
+            "chatSubtitle": "質問し、本人確認を実行",
             "supportTickets": "サポートチケット",
             "supportTicketsSubtitle": "チケットを開いてチームとチャット",
             "postman": "Postman",
@@ -690,9 +694,9 @@
             "back": "戻る",
             "next": "次へ",
             "getStarted": "始める",
-            "step0Title": "信頼レイヤーへようこそ",
-            "step0Desc": "Smart AgentはAIエージェント向けの本人確認を提供。Avalanche上のx402プロトコルによる検証ごとの支払い。14以上の政府データベース連携、ERC-8004エージェント標準。",
-            "step0Tip": "クレジットまたはx402（暗号）で検証の支払いができます。",
+            "step0Title": "Smart Agentへようこそ",
+            "step0Desc": "14以上の公式政府ソースでの本人確認ダッシュボードです。APIの探索、検証の実行、請求管理を一か所で。",
+            "step0Tip": "各検証はクレジットまたは暗号資産でお支払いいただけます。",
             "step1Title": "Smart Agentチャット",
             "step1Desc": "x402フローをネイティブに体験。エージェントが有料エンドポイントを識別し、ウォレット署名で認可を要求し、オンチェーンで検証を実行。完全な真実のための支払いループ。",
             "step2Title": "APIエクスプローラー（Postman）",
@@ -713,7 +717,7 @@
             "pendingText": "アカウント認証を審査中です。"
         },
         "identityVerificationModal": {
-            "title": "本人確認を行ってください",
+            "title": "本人確認を行って本番モードを取得してください",
             "subtitle": "本人確認を完了してアカウントを保護し、本番環境へのアクセスを有効にします。",
             "reason1_title": "アカウントの責任者",
             "reason1_desc": "Verifik ワークスペースの管理を担当する主な個人を特定します。",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "本番モードを有効にするには法人認証を完了してください",
             "aria": "サンドボックスと本番モードを切り替える"
         },
+        "verifyUnlocked": "本人確認が完了しました。本番モードとクレジットが利用できます。",
         "errors": {
             "updateFailed": "環境モードを更新できませんでした。もう一度お試しください。",
             "verifyFailed": "認証を開けませんでした。再試行するかクレジット追加をご利用ください。"

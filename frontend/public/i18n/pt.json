@@ -523,8 +523,11 @@
             "openFromEmail": "A abrir as suas notificações…"
         },
         "welcome": {
-            "title": "A Camada de Confiança para Agentes de IA",
-            "subtitle": "Verifique humanos e empresas por trás de agentes autônomos. Alimentado por mais de 14 integrações oficiais de bancos de dados governamentais e o protocolo de pagamento x402."
+            "title": "Verificação de identidade para todo negócio",
+            "subtitle": "Uma API para verificar pessoas, empresas, veículos e documentos em mais de 14 fontes oficiais do governo. Pague apenas pelo que verificar.",
+            "greeting": "Bem-vindo de volta, {{ name }}",
+            "greetingSubtitle": "Veja o que está acontecendo na sua conta.",
+            "fallbackName": "olá"
         },
         "bringBackModal": {
             "maybeLater": "Talvez depois",
@@ -532,7 +535,7 @@
             "viewPlans": "Ver planos de assinatura"
         },
         "onboarding": {
-            "title": "Lista de Integração do Desenvolvedor",
+            "title": "Explore e obtenha créditos",
             "subtitle": "Conclua estas tarefas para verificar sua integração, testar nossas APIs e obter recompensas. Ganhe $1.00 USD por cada tarefa concluída (até $12.00 USD no total). As recompensas serão creditadas no saldo da sua conta.",
             "progressBar": "Progresso da Lista: {{completed}} / {{total}} tarefas concluídas",
             "pendingApproval": "({{amount}} USD aguardando aprovação)",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "Acesso rápido",
             "chat": "Chat",
+            "chatSubtitle": "Faça perguntas e execute validações de identidade",
             "supportTickets": "Tickets de suporte",
             "supportTicketsSubtitle": "Abra um ticket e converse com nossa equipe",
             "postman": "Postman",
@@ -690,9 +694,9 @@
             "back": "Voltar",
             "next": "Próximo",
             "getStarted": "Começar",
-            "step0Title": "Bem-vindo à Camada de Confiança",
-            "step0Desc": "O Smart Agent fornece verificação de identidade para agentes de IA. Pagamento por verificação via protocolo x402 na Avalanche. Mais de 14 integrações de bancos de dados governamentais, padrão de agente ERC-8004.",
-            "step0Tip": "Você pode usar créditos ou x402 (cripto) para pagar validações.",
+            "step0Title": "Bem-vindo ao Smart Agent",
+            "step0Desc": "Seu painel para verificação de identidade em mais de 14 fontes oficiais do governo. Explore APIs, execute validações e gerencie a cobrança em um só lugar.",
+            "step0Tip": "Você pode pagar com créditos ou cripto por cada validação.",
             "step1Title": "Chat Smart Agent",
             "step1Desc": "Experimente o fluxo x402 nativamente. O agente identifica endpoints pagos, solicita autorização via assinatura de carteira e executa verificação on-chain. Um loop completo de pagamento por verdade.",
             "step2Title": "Explorador de API (Postman)",
@@ -713,7 +717,7 @@
             "pendingText": "A verificação da sua conta está em análise."
         },
         "identityVerificationModal": {
-            "title": "Verifique sua identidade",
+            "title": "Verifique sua identidade para obter o Modo de Produção",
             "subtitle": "Conclua a verificação para proteger sua conta e desbloquear o acesso à produção.",
             "reason1_title": "Responsabilidade da conta",
             "reason1_desc": "Identificar a pessoa principal responsável por gerenciar seu espaço de trabalho Verifik.",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "Verifique a sua empresa para ativar o modo Produção",
             "aria": "Alternar entre modo Sandbox e Produção"
         },
+        "verifyUnlocked": "Identidade verificada. O modo Produção e os créditos já estão disponíveis.",
         "errors": {
             "updateFailed": "Não foi possível atualizar o modo de ambiente. Tente novamente.",
             "verifyFailed": "Não foi possível abrir a verificação. Tente novamente ou use Adicionar créditos."

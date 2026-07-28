@@ -155,9 +155,12 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         this._paymentService.resumeKYC().subscribe({
             next: (response) => {
                 this.loading = false;
-                // @ts-ignore
+                if (response.data?.alreadyCompleted || (!response.data?.path && response.data?.canRecharge === true)) {
+                    this._dialogRef.close({ alreadyCompleted: true });
+                    return;
+                }
+
                 if (response.data?.path && environment.kycBaseUrl) {
-                    // @ts-ignore
                     const kycUrl = `${environment.kycBaseUrl}${response.data.path}`;
                     window.open(kycUrl, '_blank');
                     this._dialogRef.close();

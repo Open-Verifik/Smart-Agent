@@ -529,9 +529,9 @@ export class AddCreditsComponent implements OnInit {
             },
         });
 
-        // Refreshes user data when dialog closes successfully
+        // Refreshes user data when dialog closes successfully or after KYC unlock
         dialogRef.afterClosed().subscribe((result) => {
-            if (result === 'success') {
+            if (result === 'success' || result?.alreadyCompleted === true) {
                 // Refresh user data to get updated credits without signing in again
                 this._authService.refreshSession().subscribe(() => {
                     // Reload balance after user data is refreshed and synced to local storage

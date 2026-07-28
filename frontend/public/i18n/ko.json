@@ -523,8 +523,11 @@
             "openFromEmail": "알림을 여는 중…"
         },
         "welcome": {
-            "title": "AI 에이전트를 위한 신뢰 레이어",
-            "subtitle": "자율 에이전트 뒤의 사람과 회사를 검증하세요. 14개 이상의 공식 정부 데이터베이스 통합과 x402 결제 프로토콜로 구동됩니다."
+            "title": "모든 비즈니스를 위한 신원 확인",
+            "subtitle": "14개 이상의 공식 정부 소스에서 사람, 기업, 차량, 문서를 검증하는 하나의 API. 검증한 만큼만 결제하세요.",
+            "greeting": "다시 오신 것을 환영합니다, {{ name }}님",
+            "greetingSubtitle": "계정에서 진행 중인 내용입니다.",
+            "fallbackName": "고객"
         },
         "bringBackModal": {
             "maybeLater": "나중에",
@@ -532,7 +535,7 @@
             "viewPlans": "구독 플랜 보기"
         },
         "onboarding": {
-            "title": "개발자 온보딩 체크리스트",
+            "title": "살펴보고 크레딧 받기",
             "subtitle": "이러한 작업을 완료하여 연동을 확인하고, API를 테스트하고, 리워드를 받으세요. 완료된 작업당 $1.00 USD가 적립됩니다 (최대 $12.00 USD). 리워드는 계정 잔액으로 지급됩니다.",
             "progressBar": "체크리스트 진행률: {{completed}} / {{total}} 작업 완료",
             "pendingApproval": "({{amount}} USD 승인 대기 중)",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "빠른 액세스",
             "chat": "채팅",
+            "chatSubtitle": "질문하고 신원 확인을 실행하세요",
             "supportTickets": "지원 티켓",
             "supportTicketsSubtitle": "티켓을 열고 팀과 채팅하세요",
             "postman": "Postman",
@@ -690,9 +694,9 @@
             "back": "뒤로",
             "next": "다음",
             "getStarted": "시작하기",
-            "step0Title": "신뢰 레이어에 오신 것을 환영합니다",
-            "step0Desc": "Smart Agent는 AI 에이전트를 위한 신원 검증을 제공합니다. Avalanche의 x402 프로토콜을 통한 검증당 결제. 14개 이상의 정부 데이터베이스 통합, ERC-8004 에이전트 표준.",
-            "step0Tip": "크레딧 또는 x402(암호화폐)로 검증 비용을 지불할 수 있습니다.",
+            "step0Title": "Smart Agent에 오신 것을 환영합니다",
+            "step0Desc": "14개 이상의 공식 정부 소스에서 신원 확인을 위한 대시보드입니다. API를 탐색하고, 검증을 실행하며, 결제를 한곳에서 관리하세요.",
+            "step0Tip": "각 검증은 크레딧 또는 암호화폐로 결제할 수 있습니다.",
             "step1Title": "Smart Agent 채팅",
             "step1Desc": "x402 플로우를 네이티브로 경험하세요. 에이전트가 유료 엔드포인트를 식별하고, 지갑 서명을 통해 인증을 요청하며, 온체인에서 검증을 실행합니다. 완전한 진실을 위한 결제 루프.",
             "step2Title": "API 탐색기 (Postman)",
@@ -713,7 +717,7 @@
             "pendingText": "계정 인증을 검토 중입니다."
         },
         "identityVerificationModal": {
-            "title": "신원 인증 진행",
+            "title": "신원 인증을 완료하고 운영 모드에 액세스하세요",
             "subtitle": "신원 인증을 완료하여 계정을 보호하고 운영 환경 액세스 권한을 활성화하세요.",
             "reason1_title": "계정 책임자 확인",
             "reason1_desc": "Verifik 워크스페이스를 관리할 주 책임자를 식별합니다.",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "프로덕션 모드를 사용하려면 회사 인증을 완료하세요",
             "aria": "샌드박스와 프로덕션 모드 전환"
         },
+        "verifyUnlocked": "본인 인증이 완료되었습니다. 프로덕션 모드와 크레딧을 사용할 수 있습니다.",
         "errors": {
             "updateFailed": "환경 모드를 업데이트할 수 없습니다. 다시 시도하세요.",
             "verifyFailed": "인증을 열 수 없습니다. 다시 시도하거나 크레딧 추가를 이용하세요."

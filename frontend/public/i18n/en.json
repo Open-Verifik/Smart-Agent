@@ -523,8 +523,11 @@
             "openFromEmail": "Opening your notifications…"
         },
         "welcome": {
-            "title": "The Trust Layer for AI Agents",
-            "subtitle": "Verify humans and companies behind autonomous agents. Powered by 14+ official government database integrations and the x402 payment protocol."
+            "title": "Identity verification for every business",
+            "subtitle": "One API to verify people, companies, vehicles, and documents across 14+ official government sources. Pay only for what you verify.",
+            "greeting": "Welcome back, {{ name }}",
+            "greetingSubtitle": "Here's what's happening with your account.",
+            "fallbackName": "there"
         },
         "bringBackModal": {
             "maybeLater": "Maybe later",
@@ -532,7 +535,7 @@
             "viewPlans": "View subscription plans"
         },
         "onboarding": {
-            "title": "Developer Onboarding Checklist",
+            "title": "Explore and obtain credits",
             "subtitle": "Complete these tasks to verify your integration, test our APIs, and get rewarded. Earn $1.00 USD for each completed task (up to $12.00 USD total). Rewards will be credited to your account balance.",
             "progressBar": "Checklist Progress: {{completed}} / {{total}} tasks completed",
             "pendingApproval": "({{amount}} USD pending approval)",
@@ -641,6 +644,7 @@
         "shortcuts": {
             "title": "Quick access",
             "chat": "Chat",
+            "chatSubtitle": "Ask questions and run identity validations",
             "supportTickets": "Support tickets",
             "supportTicketsSubtitle": "Open a ticket and chat with our team",
             "postman": "Postman",
@@ -690,9 +694,9 @@
             "back": "Back",
             "next": "Next",
             "getStarted": "Get started",
-            "step0Title": "Welcome to the Trust Layer",
-            "step0Desc": "Smart Agent provides identity verification for AI agents. Pay-per-verification via x402 protocol on Avalanche. 14+ government database integrations, ERC-8004 agent standard.",
-            "step0Tip": "You can use credits or x402 (crypto) to pay for validations.",
+            "step0Title": "Welcome to Smart Agent",
+            "step0Desc": "Your dashboard for identity verification across 14+ official government sources. Explore APIs, run validations, and manage billing from one place.",
+            "step0Tip": "You can pay with credits or crypto for each validation.",
             "step1Title": "Smart Agent Chat",
             "step1Desc": "Experience the x402 flow natively. The agent identifies paid endpoints, requests authorization via wallet signature, and executes verification on-chain. A complete payment-for-truth loop.",
             "step2Title": "API Explorer (Postman)",
@@ -713,7 +717,7 @@
             "cta": "Verify identity"
         },
         "identityVerificationModal": {
-            "title": "Verify your identity",
+            "title": "Verify Identity to Obtain Production Mode",
             "subtitle": "Complete verification to secure your account and unlock production access.",
             "reason1_title": "Account Responsibility",
             "reason1_desc": "Identify the primary person responsible for managing your Verifik workspace.",
@@ -738,6 +742,7 @@
             "tooltipDisabled": "Verify your company to enable Production mode",
             "aria": "Toggle between Sandbox and Production mode"
         },
+        "verifyUnlocked": "Identity verified. Production mode and credits are now available.",
         "errors": {
             "updateFailed": "Could not update environment mode. Try again.",
             "verifyFailed": "Could not open verification. Try again or use Add credits."

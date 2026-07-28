@@ -5,17 +5,26 @@
 
     <!-- Welcome / Hero -->
     <div class="mb-8">
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-            {{ 'home.welcome.title' | transloco }}
-        </h1>
-        <p class="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
-            {{ 'home.welcome.subtitle' | transloco }}
-        </p>
+        @if (isAuthenticated()) {
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                {{ 'home.welcome.greeting' | transloco: { name: userFirstName() || ('home.welcome.fallbackName' | transloco) } }}
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
+                {{ 'home.welcome.greetingSubtitle' | transloco }}
+            </p>
+        } @else {
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                {{ 'home.welcome.title' | transloco }}
+            </h1>
+            <p class="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
+                {{ 'home.welcome.subtitle' | transloco }}
+            </p>
+        }
     </div>
 
     @if (isAuthenticated() && showBringBackPromoBanner()) {
         <section
-            class="mb-8 rounded-2xl border border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-orange-50/80 px-5 py-6 dark:border-amber-900/60 dark:from-amber-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"
+            class="promo-banner promo-banner-amber mb-8 px-5 py-6 md:px-8"
         >
             <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                 <div class="flex min-w-0 flex-1 items-start gap-4">
@@ -92,7 +101,7 @@
 
     <!-- Onboarding Checklist Widget -->
     @if (isAuthenticated() && onboarding()) {
-        <section class="mb-8 p-6 rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-purple-50/30 dark:border-indigo-950/40 dark:from-indigo-950/20 dark:via-gray-950 dark:to-gray-950">
+        <section class="onboarding-section mb-8 p-6">
             <!-- Header -->
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
@@ -141,7 +150,7 @@
             <!-- Checklist Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @for (task of onboarding()?.tasks; track task.taskId) {
-                    <div class="flex flex-col justify-between p-4 rounded-xl border bg-white/70 dark:bg-slate-900/40 backdrop-blur-sm transition-all duration-300 hover:shadow-md"
+                    <div class="flex flex-col justify-between p-4 rounded-xl border bg-white dark:bg-slate-900 transition-all duration-300 hover:shadow-md"
                          [ngClass]="{
                              'border-emerald-200 dark:border-emerald-950/40 bg-emerald-50/10 dark:bg-emerald-950/5': task.status === 'COMPLETED',
                              'border-indigo-100 dark:border-slate-800': task.status !== 'COMPLETED'
@@ -225,7 +234,7 @@
 
     @if (isAuthenticated() && showWeekOneUsd50PromoBanner()) {
         <section
-            class="mb-8 rounded-2xl border border-emerald-200/80 bg-gradient-to-br from-emerald-50 via-white to-teal-50/80 px-5 py-6 dark:border-emerald-900/60 dark:from-emerald-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"
+            class="promo-banner promo-banner-emerald mb-8 px-5 py-6 md:px-8"
         >
             <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                 <div class="flex min-w-0 flex-1 items-start gap-4">
@@ -290,27 +299,27 @@
                 </div>
             } @else {
                 @let totals = getTotals();
-                <div class="stats-grid">
-                    <div class="stat-card">
+                <div class="stat-strip">
+                    <div class="stat-strip-item">
                         <div class="stat-value">{{ totals.total }}</div>
                         <div class="stat-label">{{ 'home.stats.totalValidations' | transloco }}</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value text-green-600 dark:text-green-400">{{ totals.ok }}</div>
+                    <div class="stat-strip-item">
+                        <div class="stat-value">{{ totals.ok }}</div>
                         <div class="stat-label">{{ 'home.stats.successful' | transloco }}</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value text-red-600 dark:text-red-400">{{ totals.failed }}</div>
+                    <div class="stat-strip-item">
+                        <div class="stat-value">{{ totals.failed }}</div>
                         <div class="stat-label">{{ 'home.stats.failed' | transloco }}</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-strip-item">
                         <div class="stat-value">{{ totals.credits | number: '1.0-3' }}</div>
                         <div class="stat-label">{{ 'home.stats.creditsUsed' | transloco }}</div>
                     </div>
                 </div>
             }
         } @else {
-            <div class="stat-card p-6 text-center">
+            <div class="sign-in-card p-6 text-center">
                 <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
                     {{ 'home.stats.signInPrompt' | transloco }}
                 </p>
@@ -405,21 +414,21 @@
                     @let notFoundSum = sumSeries(last30.series?.[1]?.data);
                     @let totalReq = last30.amount || (okSum + notFoundSum);
                     <div class="kpi-row">
-                        <div class="kpi-card">
+                        <div class="kpi-item">
                             <div class="kpi-label">{{ 'home.stats.requestsTotal' | transloco }}</div>
                             <div class="kpi-value">
                                 <span>{{ totalReq }}</span>
                                 <span class="kpi-pct kpi-pct-positive">100%</span>
                             </div>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-item">
                             <div class="kpi-label">{{ 'home.stats.requestsSuccess' | transloco }}</div>
                             <div class="kpi-value">
                                 <span>{{ okSum }}</span>
                                 <span class="kpi-pct kpi-pct-positive">{{ percentOf(okSum, totalReq) }}%</span>
                             </div>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-item">
                             <div class="kpi-label">{{ 'home.stats.requestsNotFound' | transloco }}</div>
                             <div class="kpi-value">
                                 <span>{{ notFoundSum }}</span>
@@ -456,41 +465,25 @@
                     </div>
 
                     @if (podium().length > 0) {
-                        <div class="podium-grid">
-                            @if (podium()[0]; as top) {
-                                <div class="podium-card podium-card-primary">
-                                    <div class="podium-rank">{{ 'home.stats.top1' | transloco }}</div>
-                                    <div class="podium-count">{{ top.count }}</div>
-                                    <div class="podium-name">{{ top.displayName }}</div>
-                                    @if (top.failed > 0) {
-                                        <span class="api-failed-badge mt-2">
-                                            {{ top.failed }} {{ 'home.stats.failed' | transloco }}
-                                        </span>
-                                    }
-                                </div>
-                            }
-                            @if (podium()[1]; as top) {
-                                <div class="podium-card podium-card-secondary">
-                                    <div class="podium-rank">{{ 'home.stats.top2' | transloco }}</div>
-                                    <div class="podium-count">{{ top.count }}</div>
-                                    <div class="podium-name">{{ top.displayName }}</div>
-                                    @if (top.failed > 0) {
-                                        <span class="api-failed-badge mt-2">
-                                            {{ top.failed }} {{ 'home.stats.failed' | transloco }}
-                                        </span>
-                                    }
-                                </div>
-                            }
-                            @for (top of podium().slice(2); track top.code) {
-                                <div class="podium-card podium-card-small">
-                                    <div class="podium-rank">{{ 'home.stats.top' + ($index + 3) | transloco }}</div>
-                                    <div class="podium-count podium-count-small">{{ top.count }}</div>
-                                    <div class="podium-name podium-name-small">{{ top.displayName }}</div>
-                                    @if (top.failed > 0) {
-                                        <span class="api-failed-badge mt-1">
-                                            {{ top.failed }} {{ 'home.stats.failed' | transloco }}
-                                        </span>
-                                    }
+                        @let maxCount = podium()[0]?.count || 1;
+                        <div class="performers-list">
+                            @for (top of podium(); track top.code; let i = $index) {
+                                <div class="performer-row" [class.performer-row-top]="i === 0">
+                                    <div class="performer-rank">{{ i + 1 }}</div>
+                                    <div class="performer-info">
+                                        <div class="performer-name">{{ top.displayName }}</div>
+                                        <div class="performer-bar-track">
+                                            <div class="performer-bar-fill" [style.width.%]="(top.count / maxCount) * 100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="performer-stats">
+                                        <span class="performer-count">{{ top.count }}</span>
+                                        @if (top.failed > 0) {
+                                            <span class="api-failed-badge">
+                                                {{ top.failed }} {{ 'home.stats.failed' | transloco }}
+                                            </span>
+                                        }
+                                    </div>
                                 </div>
                             }
                         </div>
