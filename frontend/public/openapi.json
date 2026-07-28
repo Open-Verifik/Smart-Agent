@@ -2742,6 +2742,236 @@
         }
       }
     },
+    "/api/co/cedula/by-name": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_identity_lookup_by_name",
+        "summary": "Colombia — Citizen lookup by name (SCCRC)",
+        "description": "Reverse-lookup Colombian birth civil registry records by names, sex (FEMENINO/MASCULINO), and date of birth via /v2/co/cedula/by-name (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "primerNombre": {
+                    "type": "string",
+                    "description": "First given name"
+                  },
+                  "primerApellido": {
+                    "type": "string",
+                    "description": "First surname"
+                  },
+                  "sexo": {
+                    "type": "string",
+                    "description": "MASCULINO or FEMENINO",
+                    "enum": [
+                      "MASCULINO",
+                      "FEMENINO",
+                      "M",
+                      "F"
+                    ]
+                  },
+                  "fecha": {
+                    "type": "string",
+                    "description": "Date of birth DD/MM/YYYY"
+                  },
+                  "segundoNombre": {
+                    "type": "string",
+                    "description": "Optional second given name"
+                  },
+                  "segundoApellido": {
+                    "type": "string",
+                    "description": "Optional second surname"
+                  }
+                },
+                "required": [
+                  "primerNombre",
+                  "primerApellido",
+                  "sexo",
+                  "fecha"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/co/registraduria/serial": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_registraduria_serial",
+        "summary": "Colombia — Civil registry lookup by serial (SCCRC)",
+        "description": "Locate a Colombian birth civil registry record by serial via /v2/co/registraduria/serial (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "serial": {
+                    "type": "string",
+                    "description": "Civil registry serial (up to 10 digits)"
+                  }
+                },
+                "required": [
+                  "serial"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/co/registraduria/matrimonio": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_registraduria_matrimonio",
+        "summary": "Colombia — Marriage civil registry (SCCRC)",
+        "description": "Search Colombian marriage civil registry via /v2/co/registraduria/matrimonio (Registraduría SCCRC). Use exactly one mode: documentNumber+sexo, name fields+sexo+fecha (DD/MM/YYYY), or serial. Sexo: FEMENINO/MASCULINO (or F/M). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "NUIP/CC (document mode; requires sexo)"
+                  },
+                  "sexo": {
+                    "type": "string",
+                    "description": "FEMENINO or MASCULINO (required for document or name mode)",
+                    "enum": [
+                      "MASCULINO",
+                      "FEMENINO",
+                      "M",
+                      "F"
+                    ]
+                  },
+                  "serial": {
+                    "type": "string",
+                    "description": "Marriage registry serial (serial mode)"
+                  },
+                  "primerNombre": {
+                    "type": "string",
+                    "description": "First given name (name mode)"
+                  },
+                  "primerApellido": {
+                    "type": "string",
+                    "description": "First surname (name mode)"
+                  },
+                  "fecha": {
+                    "type": "string",
+                    "description": "Marriage date DD/MM/YYYY (name mode)"
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/co/deudoresmorosos": {
       "post": {
         "tags": [

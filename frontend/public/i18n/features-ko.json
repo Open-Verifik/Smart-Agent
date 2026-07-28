@@ -724,6 +724,10 @@
             "title": "코스타리카 — 차량 정보",
             "description": "GET /v2/cr/vehicle에 plate를 전달해 코스타리카 차량을 번호판으로 조회합니다. 가용 시 소유자, 사양, 위반 기록, 소유 이력을 반환합니다."
         },
+        "costa_rica_api_traffic_infractions": {
+            "title": "코스타리카 — 교통 위반",
+            "description": "GET /v2/cr/traffic-infractions에 번호판을 전달해 코스타리카 교통 위반(COSEVI) 내역을 조회합니다. 가용 시 벌금 금액과 상태를 반환합니다."
+        },
         "paraguay_api_vehicle": {
             "title": "파라과이 — 차량 정보",
             "description": "번호판으로 파라과이 차량의 종합 정보를 조회하는 검증 서비스."

@@ -6144,6 +6144,7 @@
         "searchModesIntro": "Chaque ligne doit utiliser une seule approche : recherche par nom complet ou par type et numéro de document (plus la date de naissance lorsque certains types l'exigent). N'utilisez pas les deux sur la même ligne.",
         "searchModeOptionFullName": "Option A — Recherche par nom complet",
         "searchModeOptionDocument": "Option B — Recherche par document",
+        "searchModeOptionSerial": "Option C — Recherche par serial",
         "dateOfBirthConditionalHint": "Lorsque le type de document est l'un des suivants : {{values}}, la colonne dateOfBirth est obligatoire pour cette ligne.",
         "fieldConditional": "Conditionnel",
         "fieldConditionalDetail": "Obligatoire lorsque {{whenField}} est l'un des suivants : {{values}}.",

@@ -724,6 +724,10 @@
             "title": "哥斯达黎加 — 车辆信息",
             "description": "通过 GET /v2/cr/vehicle 与必填的 plate 参数查询哥斯达黎加车辆；返回车主、参数、违章记录及历史车主信息（在数据可用时）。"
         },
+        "costa_rica_api_traffic_infractions": {
+            "title": "哥斯达黎加 — 交通违章",
+            "description": "通过 GET /v2/cr/traffic-infractions 与车牌查询哥斯达黎加交通违章（COSEVI）信息；在数据可用时返回罚款金额及状态。"
+        },
         "paraguay_api_vehicle": {
             "title": "巴拉圭 — 车辆信息",
             "description": "巴拉圭车辆核验服务，按车牌检索完整车辆信息。"

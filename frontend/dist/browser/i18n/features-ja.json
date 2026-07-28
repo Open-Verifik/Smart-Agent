@@ -112,6 +112,18 @@
             "title": "コロンビア — 選挙管理庁 身分証明書有効性証明（CC）",
             "description": "CC番号と発行日で Registraduría の公式有効性証明書（PDF）を取得します。"
         },
+        "colombia_api_identity_lookup_by_name": {
+            "title": "氏名による市民検索（SCCRC）",
+            "description": "GET /v2/co/cedula/by-name（Registraduría SCCRC）で氏名・性別・生年月日によりコロンビアの出生民事登記記録を逆引きします。"
+        },
+        "colombia_api_registraduria_serial": {
+            "title": "シリアルによる民事登記検索（SCCRC）",
+            "description": "GET /v2/co/registraduria/serial（Registraduría SCCRC）でシリアル番号によりコロンビアの出生民事登記記録を特定します。"
+        },
+        "colombia_api_registraduria_matrimonio": {
+            "title": "婚姻民事登記（SCCRC）",
+            "description": "GET /v2/co/registraduria/matrimonio（Registraduría SCCRC）で書類・氏名・シリアルによりコロンビアの婚姻民事登記記録を検索します。"
+        },
         "colombia_api_delinquent_debtors": {
             "title": "コロンビア - 延滞債務者(BDME)",
             "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
@@ -711,6 +723,10 @@
         "costa_rica_api_vehicle": {
             "title": "コスタリカ — 車両情報",
             "description": "GET /v2/cr/vehicle で必要なナンバープレートを指定し、コスタリカの車両を照会します。利用可能な場合、所有者、仕様、違反、所有者履歴を返します。"
+        },
+        "costa_rica_api_traffic_infractions": {
+            "title": "コスタリカ — 交通違反",
+            "description": "GET /v2/cr/traffic-infractions でナンバープレートを指定し、コスタリカの交通違反（COSEVI）を照会します。利用可能な場合、罰金額と状態を返します。"
         },
         "paraguay_api_vehicle": {
             "title": "パラグアイ — 車両情報",

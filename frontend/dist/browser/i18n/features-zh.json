@@ -112,6 +112,18 @@
             "title": "选举机构身份证有效性证明（CC）",
             "description": "使用 CC 号码与签发日期获取 Registraduría 官方有效性证明（PDF）。"
         },
+        "colombia_api_identity_lookup_by_name": {
+            "title": "按姓名查询公民（SCCRC）",
+            "description": "通过 GET /v2/co/cedula/by-name（Registraduría SCCRC），使用姓名、性别与出生日期反向查询哥伦比亚出生民事登记记录。"
+        },
+        "colombia_api_registraduria_serial": {
+            "title": "按序列号查询民事登记（SCCRC）",
+            "description": "通过 GET /v2/co/registraduria/serial（Registraduría SCCRC），使用序列号定位哥伦比亚出生民事登记记录。"
+        },
+        "colombia_api_registraduria_matrimonio": {
+            "title": "婚姻民事登记（SCCRC）",
+            "description": "通过 GET /v2/co/registraduria/matrimonio（Registraduría SCCRC），按证件、姓名或序列号搜索哥伦比亚婚姻民事登记记录。"
+        },
         "colombia_api_delinquent_debtors": {
             "title": "哥伦比亚 - 拖欠债务人(BDME)",
             "description": "Check if a person or company is listed in the BDME (Base de Datos de Morosos) delinquent debtors registry."
@@ -711,6 +723,10 @@
         "costa_rica_api_vehicle": {
             "title": "哥斯达黎加 — 车辆信息",
             "description": "通过 GET /v2/cr/vehicle 与必填的 plate 参数查询哥斯达黎加车辆；返回车主、参数、违章记录及历史车主信息（在数据可用时）。"
+        },
+        "costa_rica_api_traffic_infractions": {
+            "title": "哥斯达黎加 — 交通违章",
+            "description": "通过 GET /v2/cr/traffic-infractions 与车牌查询哥斯达黎加交通违章（COSEVI）信息；在数据可用时返回罚款金额及状态。"
         },
         "paraguay_api_vehicle": {
             "title": "巴拉圭 — 车辆信息",

@@ -724,6 +724,10 @@
             "title": "Información de Vehículos",
             "description": "Consulta vehicular por placa: GET /v2/cr/vehicle con plate obligatorio; devuelve titular, datos técnicos e historiales cuando la fuente los expone."
         },
+        "costa_rica_api_traffic_infractions": {
+            "title": "Infracciones de Tránsito",
+            "description": "Consulta de infracciones de tránsito en Costa Rica por placa: GET /v2/cr/traffic-infractions; devuelve boletas de COSEVI, montos de multa y estado cuando estén disponibles."
+        },
         "paraguay_api_vehicle": {
             "title": "Información de Vehículos",
             "description": "Servicio de validación de vehículos paraguayos para recuperar información integral de vehículos por placa de matrícula"

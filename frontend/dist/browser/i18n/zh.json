@@ -6144,6 +6144,7 @@
         "searchModesIntro": "每一行只能采用一种方式：按全名检索，或按证件类型与号码检索（部分类型可能还需要出生日期）。请勿在同一行混用两种方式。",
         "searchModeOptionFullName": "方式 A — 按全名检索",
         "searchModeOptionDocument": "方式 B — 按证件检索",
+        "searchModeOptionSerial": "方式 C — 按序列号检索",
         "dateOfBirthConditionalHint": "当证件类型（documentType）为以下之一时，该行必须填写 dateOfBirth 列：{{values}}",
         "fieldConditional": "条件必填",
         "fieldConditionalDetail": "当 {{whenField}} 为以下之一时必填：{{values}}。",

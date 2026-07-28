@@ -6144,6 +6144,7 @@
         "searchModesIntro": "各行ではどちらか一方のみを使ってください。氏名での検索、または文書種別と番号での検索です（種別によっては生年月日が追加で必要になります）。同一行で両方を混在させないでください。",
         "searchModeOptionFullName": "オプション A — 氏名で検索",
         "searchModeOptionDocument": "オプション B — 文書で検索",
+        "searchModeOptionSerial": "オプション C — シリアルで検索",
         "dateOfBirthConditionalHint": "documentType が次のいずれかのとき、その行では dateOfBirth 列が必須です: {{values}}",
         "fieldConditional": "条件付き必須",
         "fieldConditionalDetail": "{{whenField}} が次のいずれかのとき必須です: {{values}}。",

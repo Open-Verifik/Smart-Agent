@@ -724,6 +724,10 @@
             "title": "コスタリカ — 車両情報",
             "description": "GET /v2/cr/vehicle で必要なナンバープレートを指定し、コスタリカの車両を照会します。利用可能な場合、所有者、仕様、違反、所有者履歴を返します。"
         },
+        "costa_rica_api_traffic_infractions": {
+            "title": "コスタリカ — 交通違反",
+            "description": "GET /v2/cr/traffic-infractions でナンバープレートを指定し、コスタリカの交通違反（COSEVI）を照会します。利用可能な場合、罰金額と状態を返します。"
+        },
         "paraguay_api_vehicle": {
             "title": "パラグアイ — 車両情報",
             "description": "ナンバープレートを用いてパラグアイの車両に関する包括的な情報を取得する車両検証サービス。"
