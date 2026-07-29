@@ -45,6 +45,70 @@ export interface ResolveAboutOverviewInput {
     locale?: PostmanCopyLocale | null;
 }
 
+export interface TranslocoLike {
+    getTranslation(lang?: string): Record<string, unknown> | undefined;
+    getActiveLang(): string;
+    translate?(key: string): string;
+}
+
+/**
+ * Safely looks up `appFeatures.${code}.title` and `appFeatures.${code}.description`
+ * from loaded Transloco translations without triggering missing key warnings.
+ */
+export const getAppFeatureCatalogCopy = (
+    transloco: TranslocoLike,
+    code: string | null | undefined
+): { title?: string; description?: string } => {
+    if (!code) return {};
+    const lang = transloco.getActiveLang();
+    const translations = transloco.getTranslation(lang) || {};
+    const appFeatures = translations['appFeatures'] as
+        | Record<string, { title?: string; description?: string }>
+        | undefined;
+    if (appFeatures && typeof appFeatures === 'object' && !Array.isArray(appFeatures)) {
+        const candidates = [
+            code,
+            code.toLowerCase(),
+            `api_${code}`,
+            `${code}_vehicle`,
+            `api_${code}_vehicle`,
+            code.replace(/^[a-z]{2,10}_api_/, 'api_'),
+        ];
+        for (const key of candidates) {
+            const feature = appFeatures[key];
+            if (feature && typeof feature === 'object' && !Array.isArray(feature)) {
+                return {
+                    title:
+                        typeof feature.title === 'string' && feature.title.trim()
+                            ? feature.title.trim()
+                            : undefined,
+                    description:
+                        typeof feature.description === 'string' && feature.description.trim()
+                            ? feature.description.trim()
+                            : undefined,
+                };
+            }
+        }
+        if (code.includes('data_sheet')) {
+            const dsKey = Object.keys(appFeatures).find((k) => k.includes('data_sheet'));
+            if (dsKey && appFeatures[dsKey]) {
+                const feature = appFeatures[dsKey];
+                return {
+                    title:
+                        typeof feature.title === 'string' && feature.title.trim()
+                            ? feature.title.trim()
+                            : undefined,
+                    description:
+                        typeof feature.description === 'string' && feature.description.trim()
+                            ? feature.description.trim()
+                            : undefined,
+                };
+            }
+        }
+    }
+    return {};
+};
+
 export interface AboutParamsColumnVisibilityInput {
     conditionalHint?: string | null;
     allowed?: readonly string[] | null;
@@ -82,7 +146,7 @@ const pickEnglishDocLang = (docs: EndpointDocs | undefined): EndpointDocLang | n
     docs?.en ?? null;
 
 /**
- * Removes JSON-exported emoji codepoints and leading flag glyphs from catalog/backend titles.
+ * Removes JSON-exported emoji codepoints, leading flag glyphs, and humanizes snake_case identifiers.
  */
 export const sanitizePostmanCopyText = (value: string | null | undefined): string => {
     if (!value?.trim()) return '';
@@ -90,6 +154,9 @@ export const sanitizePostmanCopyText = (value: string | null | undefined): strin
     text = text.replace(/\\U0001[A-Fa-f0-9]{4}/g, '');
     text = text.replace(/^[\u{1F1E6}-\u{1F1FF}]{2}\s*/u, '');
     text = text.replace(/\s{2,}/g, ' ').trim();
+    if (text.includes('_') && !text.includes(' ')) {
+        text = text.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    }
     return text;
 };
 
@@ -195,6 +262,10 @@ export const resolvePostmanEndpointCopy = (
         description = endpointDesc;
     } else if (catalogDesc) {
         description = catalogDesc;
+    }
+
+    if (description.includes('_') && !description.includes(' ')) {
+        description = sanitizePostmanCopyText(description);
     }
 
     return {

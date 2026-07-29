@@ -24,7 +24,10 @@ import { ApiEndpoint, PostmanFolderDto, SidebarFolderNode } from '../postman.typ
 import { PostmanService } from '../postman.service';
 import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
 import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
-import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
+import {
+  getAppFeatureCatalogCopy,
+  resolvePostmanEndpointCopy,
+} from '../postman-endpoint-copy.util';
 
 @Component({
   selector: 'postman-sidebar-folder',
@@ -284,14 +287,13 @@ export class PostmanSidebarFolderComponent {
   }
 
   endpointDisplayCopy(endpoint: ApiEndpoint) {
+    const catalogCopy = endpoint.code
+      ? getAppFeatureCatalogCopy(this._transloco, endpoint.code)
+      : {};
     return resolvePostmanEndpointCopy({
       endpoint,
-      catalogTitle: endpoint.code
-        ? this._transloco.translate(`appFeatures.${endpoint.code}.title`)
-        : endpoint.label,
-      catalogDescription: endpoint.code
-        ? this._transloco.translate(`appFeatures.${endpoint.code}.description`)
-        : endpoint.description ?? '',
+      catalogTitle: catalogCopy.title ?? endpoint.label,
+      catalogDescription: catalogCopy.description ?? endpoint.description ?? '',
       locale: this._transloco.getActiveLang(),
     });
   }

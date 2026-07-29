@@ -2557,7 +2557,7 @@
         "verification": "検証",
         "email": "メール",
         "AUTHENTICATION": "認証",
-        "BIOMETRICS_APIS": "生体認証 API",
+        "BIOMETRICS_APIS": "生体認証",
         "IDENTITY_VALIDATION": "本人確認",
         "EMAIL": "メール",
         "FACEVERIFICATION": "顔認証",
@@ -2566,7 +2566,14 @@
         "PAYMENTS": "決済",
         "SEARCH": "検索",
         "SOLUTIONS": "ソリューション",
-        "VERIFICATION": "照合"
+        "VERIFICATION": "照合",
+        "DATA_SHEET": "データシート",
+        "LOOK_UPS": "検索",
+        "RM": "商業登記",
+        "rm": "商業登記",
+        "identity_validation": "本人確認",
+        "biometrics_apis": "生体認証",
+        "authentication": "認証"
     },
     "settings": {
         "title": "設定",

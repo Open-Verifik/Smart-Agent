@@ -2557,7 +2557,7 @@
         "verification": "검증",
         "email": "이메일",
         "AUTHENTICATION": "인증",
-        "BIOMETRICS_APIS": "생체인증 API",
+        "BIOMETRICS_APIS": "생체 인식",
         "IDENTITY_VALIDATION": "신원 확인",
         "EMAIL": "이메일",
         "FACEVERIFICATION": "안면 인증",
@@ -2566,7 +2566,14 @@
         "PAYMENTS": "결제",
         "SEARCH": "검색",
         "SOLUTIONS": "솔루션",
-        "VERIFICATION": "검증"
+        "VERIFICATION": "검증",
+        "DATA_SHEET": "데이터 시트",
+        "LOOK_UPS": "조회",
+        "RM": "상업 등기소",
+        "rm": "상업 등기소",
+        "identity_validation": "신원 확인",
+        "biometrics_apis": "생체 인식",
+        "authentication": "인증"
     },
     "settings": {
         "title": "설정",

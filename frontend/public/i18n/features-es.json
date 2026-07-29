@@ -25,8 +25,8 @@
             "description": "Consulta la situación militar en Colombia con cédula de ciudadanía (CC). Datos oficiales vía Verifik."
         },
         "colombia_api_rethus": {
-            "title": "Verificación de Médicos Profesionales de la Salud",
-            "description": "Consulta el registro RETHUS de talento humano en salud en Colombia mediante GET /v2/co/cedula/rethus."
+            "title": "RETHUS (registro de talento humano en salud)",
+            "description": "Consulta el registro RETHUS de Colombia mediante GET /v2/co/cedula/rethus."
         },
         "colombia_api_rues": {
             "title": "Registro Empresarial RUES",
@@ -41,8 +41,8 @@
             "description": "Servicio de verificación empresarial para Peru. Proporciona detalles de registro de empresas, estado legal e información comercial."
         },
         "peru_api_driver_license_lookup": {
-            "title": "Perú - Licencia de conducir",
-            "description": "Consulta licencias de conducir peruanas por DNI mediante GET /v2/pe/driver-license. Devuelve categoría, estado, vencimiento, restricciones y datos de emisión cuando estén disponibles en registros oficiales."
+            "title": "Licencia de Conducir",
+            "description": "Consulta licencias de conducir peruanas por DNI mediante GET /v2/pe/driver-license. Devuelve categoría, estado, vencimiento, restricciones y detalles de emisión cuando están disponibles en registros oficiales."
         },
         "colombia_api_judicial_process_details": {
             "title": "Recuperar Detalles de un Proceso Legal por Número",
@@ -181,8 +181,8 @@
             "description": "Lista procesos judiciales en Colombia por CC o NIT (Rama Judicial)."
         },
         "colombia_api_vehicle": {
-            "title": "RUNT - SOAT y RTM del Vehículo",
-            "description": "Información de seguros e inspección técnica"
+            "title": "RUNT — Vehículo (registro básico)",
+            "description": "Consulta datos de registro y características básicas del vehículo en RUNT con placa y documento del titular."
         },
         "colombia_api_pico_placa": {
             "title": "Pico y Placa",
@@ -205,8 +205,8 @@
             "description": "Verificación de cédula nacional (CCCR): GET /v2/cr/cedula con documentType y documentNumber para KYC y prevención de fraude."
         },
         "costarica_api_voting_location": {
-            "title": "Costa Rica - Lugar de Votación",
-            "description": "Consulta el registro oficial TSE Donde Votar mediante GET /v2/cr/votacion con CCCR (9–13 dígitos). Devuelve lugar de votación, junta, provincia, cantón, distrito y respuesta firmada."
+            "title": "Lugar de Votación",
+            "description": "Consulta el padrón electoral oficial Donde Votar del TSE por CCCR. Devuelve centro de votación, junta, provincia, cantón, distrito y coordenadas."
         },
         "ecuador_api_criminal_history": {
             "title": "Ecuador - Antecedentes Penales",
@@ -349,11 +349,11 @@
             "description": "Proporciona servicios confiables de verificación y validación."
         },
         "brasil_api_company_lookup": {
-            "title": "Brasil — Verificación empresarial (CNPJ)",
+            "title": "Verificación empresarial (CNPJ)",
             "description": "Verificar empresas brasileñas usando CNPJ (Cadastro Nacional da Pessoa Jurídica)"
         },
         "brasil_api_vehicle": {
-            "title": "Brasil — Información de vehículos",
+            "title": "Información de vehículos",
             "description": "Verificar información de vehículos brasileños usando placa de matrícula"
         },
         "argentina_api_identity_lookup": {
@@ -369,24 +369,24 @@
             "description": "Consulta profesionales médicos registrados en Argentina mediante GET /v2/ar/cedula/medico-profesional usando DNI (documentNumber). Devuelve matrícula, establecimientos vinculados y datos de registro SISA MSAL."
         },
         "ar_certificate_verify": {
-            "title": "Argentina - Certificado de antecedentes penales",
-            "description": "Verifica un certificado DNREC de antecedentes penales con el código de solicitud y código de seguridad del PDF mediante GET /v2/ar/certificate/verify. Devuelve datos de identidad y la declaración de antecedentes extraída del certificado oficial."
+            "title": "Certificado de Antecedentes Penales",
+            "description": "Verifica un certificado de antecedentes penales DNREC de Argentina usando el código de solicitud (Solicitud) y el código de seguridad (Cod. Segur.) impresos en el PDF. Devuelve datos de identidad, la declaración de antecedentes y el certificado en PDF codificado en base64."
         },
         "chile_api_transport_vehicle": {
             "title": "Vehículo de transporte público",
             "description": "Consulta registro RNT de vehículos de transporte público en Chile por placa mediante GET /v2/cl/transport-vehicle."
         },
         "chile_api_vehicle_soap": {
-            "title": "Chile - SOAP vehicular",
-            "description": "Consulta certificado SOAP vehicular chileno (Seguro Obligatorio de Accidentes Personales) por patente y número de póliza mediante GET /v2/cl/vehicle-soap."
+            "title": "SOAP vehicular",
+            "description": "Consulta certificado SOAP vehicular chileno por patente y número de póliza: estado, aseguradora, propietario, vigencia y datos del vehículo."
         },
         "chile_api_vehicle_soap_plate": {
             "title": "SOAP vehicular (por patente)",
             "description": "Consulta SOAP vehicular chileno solo por patente. Devuelve objetos anidados soap y vehicle con estado, aseguradora, titular, vigencia y datos del vehículo."
         },
         "cl_certificate_verify": {
-            "title": "Chile - Verificación de certificado del Registro Civil",
-            "description": "Verifica un certificado del Registro Civil de Chile (SRCEI) con folio y código verificador mediante GET /v2/cl/certificate/verify. Devuelve metadatos del PDF y antecedentes de registros de condenas cuando estén disponibles."
+            "title": "Verificación de Certificado del Registro Civil",
+            "description": "Verifica un certificado del Registro Civil de Chile (SRCEI) usando folio y código verificador. Devuelve metadatos del PDF y detalles de registros de condenas cuando están disponibles."
         },
         "ecuador_api_company_lookup": {
             "title": "Verificación Empresarial Ecuatoriana",
@@ -597,32 +597,32 @@
             "description": "Verificar el estado actual y vigencia de profesionales legales en Colombia"
         },
         "argentina_api_vehicle": {
-            "title": "Argentina - Información Vehicular",
-            "description": "Verifica información de vehículos argentinos usando placa de matrícula."
+            "title": "Información Vehicular",
+            "description": "Verificar información de vehículos argentinos usando placa de matrícula"
         },
         "argentina_api_vehicle_v3": {
-            "title": "Argentina - Vehículo v3",
-            "description": "Consulta detalles de vehículos argentinos por placa, incluyendo identificadores, estado de póliza y ficha técnica cuando esté disponible."
+            "title": "Vehículo v3",
+            "description": "Obtén los detalles de un vehículo argentino por placa, incluidos identificadores del vehículo, estado de la póliza y datos de ficha técnica cuando estén disponibles."
         },
         "argentina_api_buenos_aires_traffic_infractions": {
-            "title": "Infracciones de Tránsito Buenos Aires",
-            "description": "Consulta infracciones de tránsito de Buenos Aires por placa vehicular argentina."
+            "title": "Buenos Aires - Infracciones de Tránsito",
+            "description": "Consulta infracciones de tránsito en Buenos Aires por placa de vehículo argentina."
         },
         "argentina_api_traffic_infractions": {
             "title": "Infracciones de Tránsito Buenos Aires",
             "description": "Consulta infracciones de tránsito de Buenos Aires por placa vehicular argentina."
         },
         "argentina_api_buenos_aires_technical_inspection": {
-            "title": "Inspección Técnica Buenos Aires",
-            "description": "Consulta el historial de inspección técnica vehicular de Buenos Aires por placa argentina."
+            "title": "Buenos Aires - Inspección Técnica",
+            "description": "Consulta el historial de inspección técnica vehicular en Buenos Aires por placa argentina."
         },
         "argentina_api_technical_inspection": {
             "title": "Inspección Técnica Buenos Aires",
             "description": "Consulta el historial de inspección técnica vehicular de Buenos Aires por placa argentina."
         },
         "argentina_api_rto": {
-            "title": "RTO Argentina",
-            "description": "Consulta registros de RTO argentinos por placa vehicular."
+            "title": "RTO",
+            "description": "Consulta registros de inspección RTO argentinos por placa de vehículo."
         },
         "argentina_api_company_lookup": {
             "title": "Verificación Empresarial Argentina",
@@ -633,7 +633,7 @@
             "description": "Servicio de validación de vehículos bolivianos para recuperar información de vehículos por placa de matrícula"
         },
         "brasil_api_criminal_history": {
-            "title": "Verificación de Antecedentes Brasil",
+            "title": "Verificación de antecedentes (CPF)",
             "description": "Realizar verificaciones de antecedentes en individuos brasileños usando CPF"
         },
         "bolivia_api_business_lookup": {
@@ -757,8 +757,8 @@
             "description": "Valida la identidad de personas en Honduras con la API KYC de Verifik. Conecta con fuentes oficiales y verifica datos personales en segundos."
         },
         "honduras_api_voting_location": {
-            "title": "Honduras - Lugar de Votación",
-            "description": "Consulta el padrón electoral hondureño (Donde Me Toca Votar) mediante GET /v2/hn/votacion con DNIHN (13 dígitos). Devuelve centro de votación, JRV, habilitación para votar y respuesta firmada."
+            "title": "Lugar de Votación",
+            "description": "Consulta el padrón electoral hondureño (Donde Me Toca Votar) por DNIHN. Devuelve centro de votación, JRV, habilitación para votar y datos de residencia."
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "Ciudadano Dominicano",
@@ -865,16 +865,16 @@
             "description": "Valida la identidad de personas en Guatemala con detalles adicionales como fecha de nacimiento y género."
         },
         "chile_api_vehicle_v3": {
-            "title": "Chile - Revisión técnica vehicular",
+            "title": "Revisión técnica vehicular",
             "description": "Consulta estado e historial de revisión técnica vehicular chilena por patente mediante GET /v3/cl/vehicle."
         },
         "bolivia_api_vehicle_soat": {
-            "title": "Bolivia - SOAT de Vehículo",
-            "description": "Consulta el SOAT obligatorio en Bolivia mediante GET /v2/bo/vehicle-soat con placa. Devuelve vigencia, clasificación del vehículo, departamento, estado y respuesta firmada."
+            "title": "SOAT de Vehículo",
+            "description": "Consulta el seguro obligatorio de accidentes de tránsito (SOAT) en Bolivia por placa. Devuelve vigencia de cobertura, clasificación del vehículo, departamento y estado calculado."
         },
         "bolivia_api_voting_location": {
-            "title": "Bolivia - Lugar de Votación",
-            "description": "Consulta el padrón electoral OEP Yo Participo mediante GET /v2/bo/votacion con CI y fecha de nacimiento. Devuelve recinto, mesa, habilitación para votar y respuesta firmada."
+            "title": "Lugar de Votación",
+            "description": "Consulta el padrón electoral oficial de Bolivia (OEP Yo Participo) por CI y fecha de nacimiento. Devuelve recinto, mesa, habilitación para votar y datos de residencia."
         },
         "ecuador_api_company_lookup_v3": {
             "title": "Verificación Empresarial Ecuatoriana",
@@ -883,6 +883,14 @@
         "colombia_api_identity_lookup_registraduria": {
             "title": "Consulta de ciudadano vía Registraduría (SCCRC)",
             "description": "Consulta un registro civil de nacimiento colombiano por número de documento mediante GET /v2/co/cedula/registraduria (solo Registraduría SCCRC)."
+        },
+        "mexico_api_ine_ocr": {
+            "title": "OCR INE",
+            "description": "Extrae campos del INE con OCR Gemini de Verifik y valida el estatus electoral con Nexcar (solo números) en una sola petición."
+        },
+        "mexico_api_ine_validate": {
+            "title": "Validación INE",
+            "description": "Valida una credencial para votar (INE) mexicana contra el padrón electoral usando CIC, OCR o clave de elector."
         }
     }
 }

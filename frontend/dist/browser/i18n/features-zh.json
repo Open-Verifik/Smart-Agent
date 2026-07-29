@@ -41,7 +41,7 @@
             "description": "Business verification service 为 Peru. 提供 company registration details, legal status, and business information."
         },
         "peru_api_driver_license_lookup": {
-            "title": "秘鲁 - 驾驶证",
+            "title": "驾驶证",
             "description": "通过 GET /v2/pe/driver-license 按 DNI 查询秘鲁驾驶证。返回官方记录中可用的类别、状态、有效期、限制及签发信息。"
         },
         "colombia_api_judicial_process_details": {
@@ -89,8 +89,8 @@
             "description": "获取 comprehensive vehicle information 为 Colombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "墨西哥 — 按车牌查车辆",
-            "description": "通过车牌查询墨西哥车辆信息。"
+            "title": "墨西哥",
+            "description": "通过车牌查询墨西哥车辆信息"
         },
         "feature_passwordless_solution": {
             "title": "Passwordless Authentication",
@@ -165,8 +165,8 @@
             "description": "Labor certificates verification service 为 Colombia. 提供 work-related certifications and labor status information."
         },
         "colombia_api_registraduria_voting": {
-            "title": "Colombia - 选举记录验证",
-            "description": "Electoral records verification service 为 Colombia 公民. 提供 voting status and electoral information."
+            "title": "投票信息（Registraduría）",
+            "description": "从 Registraduría Nacional del Estado Civil 检索哥伦比亚公民的投票信息。"
         },
         "world_api_europol": {
             "title": "欧洲刑警组织（Europol）背景核查",
@@ -206,7 +206,7 @@
         },
         "costarica_api_voting_location": {
             "title": "哥斯达黎加 - 投票地点",
-            "description": "通过 GET /v2/cr/votacion 与 CCCR（9–13 位）查询官方 TSE Donde Votar 登记。返回投票站、junta、省、canton、区及签名响应。"
+            "description": "通过 CCCR 查询 TSE Donde Votar 官方选举登记。返回投票站、junta、省、cantón、区及地图坐标。"
         },
         "ecuador_api_criminal_history": {
             "title": "厄瓜多尔 - 犯罪记录",
@@ -218,7 +218,7 @@
         },
         "panama_api_identity_lookup": {
             "title": "巴拿马公民",
-            "description": "通过对接民事登记官方数据源，核验巴拿马 CCPA 国民身份证数据（证件、姓名、出生日期），适用于 KYC 与反欺诈。"
+            "description": "核验巴拿马 CCPA 国民身份证数据（证件与姓名），适用于 KYC 与反欺诈。"
         },
         "panama_api_vehicle": {
             "title": "巴拿马 - 车辆验证",
@@ -269,12 +269,12 @@
             "description": "通过出租车控制卡号码查询波哥大注册的出租车司机及营运卡信息。"
         },
         "india_api_epic_lookup": {
-            "title": "印度 EPIC 姓名查询",
-            "description": "根据印度 EPIC（选民证）号码，从印度选举委员会（ECI）选民查询返回与姓名相关的信息。"
+            "title": "印度 EPIC（选民证）— 姓名查询 | Verifik",
+            "description": "通过 Verifik API，使用 10 位 EPIC（选民证）从印度选举委员会（ECI）相关来源检索选民姓名及相关字段。"
         },
         "india_api_epic_voting_lookup": {
-            "title": "印度 EPIC 投票站查询",
-            "description": "返回 EPIC（选民证）号码对应的投票站及选举地点信息。"
+            "title": "印度 EPIC（选民证）— 投票站与投票地点 | Verifik",
+            "description": "通过 Verifik API 与面向 ECI 的来源，检索印度 EPIC（选民证）的议会选区、分区与投票站详情。"
         },
         "usa_api_driver_license_lookup_kansas": {
             "title": "堪萨斯州驾照核验",
@@ -370,7 +370,7 @@
         },
         "ar_certificate_verify": {
             "title": "阿根廷 - 犯罪记录证明",
-            "description": "通过 GET /v2/ar/certificate/verify，使用 PDF 上的申请代码（Solicitud）和安全代码（Cod. Segur.）验证阿根廷 DNREC 犯罪记录证明。返回身份字段及从官方证明中提取的犯罪记录声明。"
+            "description": "通过 GET /v2/ar/dnrec/antecedentes，使用 PDF 上的申请代码（Solicitud）和安全代码（Cod. Segur.）验证阿根廷 DNREC 犯罪记录证明。返回身份字段及从官方证明中提取的犯罪记录声明。"
         },
         "chile_api_transport_vehicle": {
             "title": "智利 — 公共交通车辆",
@@ -378,15 +378,15 @@
         },
         "chile_api_vehicle_soap": {
             "title": "智利 — 车辆 SOAP",
-            "description": "通过 GET /v2/cl/vehicle-soap 按号牌和保单号查询智利车辆 SOAP（强制人身意外保险）证书。"
+            "description": "按号牌和保单号查询智利车辆 SOAP 证书：状态、保险公司、车主、有效期及车辆信息。"
         },
         "chile_api_vehicle_soap_plate": {
-            "title": "Vehicle SOAP (by plate)",
-            "description": "Query Chile vehicular SOAP by license plate only. Returns nested soap and vehicle objects."
+            "title": "智利 — 车辆 SOAP（仅车牌）",
+            "description": "仅用车牌查询智利车辆 SOAP。返回嵌套的 soap/vehicle 对象及状态、保险公司、车主和有效期。"
         },
         "cl_certificate_verify": {
             "title": "智利 - 民事登记处证明核验",
-            "description": "通过 GET /v2/cl/certificate/verify，使用 folio 和验证码（Código Verificador）核验智利 Registro Civil（SRCEI）证明。返回 PDF 元数据及有罪判决登记详情（如有）。"
+            "description": "通过 GET /v2/cl/registro-civil/certificado，使用 folio 和验证码（Código Verificador）核验智利 Registro Civil（SRCEI）证明。返回 PDF 元数据及有罪判决登记详情（如有）。"
         },
         "ecuador_api_company_lookup": {
             "title": "厄瓜多尔企业核验",
@@ -485,8 +485,8 @@
             "description": "核验加拿大安大略省驾驶证。"
         },
         "canada_api_ontario_plate": {
-            "title": "安大略 — 车牌到期",
-            "description": "通过车牌号和许可号查询安大略车牌贴纸到期日。"
+            "title": "加拿大 — 安大略车牌到期",
+            "description": "通过 GET /v2/ca/ontario/plate 使用 plate 和 permitNumber 查询安大略车牌贴纸到期日。"
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — 按车牌查询车辆（简化）",
@@ -505,8 +505,8 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "canada_api_driver_license_british-columbia": {
-            "title": "不列颠哥伦比亚 — 驾驶证",
-            "description": "核验加拿大不列颠哥伦比亚省驾驶证。"
+            "title": "加拿大驾驶证核验",
+            "description": "使用 Verifik 的 KYC API 核验加拿大驾驶证。直接对接官方数据源，在数秒内完成驾驶证数据核验。"
         },
         "ocr_scan_gpt": {
             "title": "OCR 文档扫描 GPT",
@@ -530,7 +530,7 @@
         },
         "canada_api_company": {
             "title": "加拿大企业核验",
-            "description": "使用 Verifik KYB API 通过企业名称和省份核验加拿大企业。"
+            "description": "使用 Verifik 的 KYB API 核验加拿大企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "us_api_passport_entries": {
             "title": "us api passport entries",
@@ -538,7 +538,7 @@
         },
         "mexico_api_company": {
             "title": "墨西哥企业核验",
-            "description": "使用 Verifik KYB API 通过 FME 核验墨西哥企业。"
+            "description": "使用 Verifik 的 KYB API 核验墨西哥企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -602,11 +602,11 @@
         },
         "argentina_api_vehicle_v3": {
             "title": "阿根廷 — 车辆 v3",
-            "description": "通过车牌查询阿根廷车辆详情，包括车辆标识、保单状态以及可用的技术参数。"
+            "description": "通过车牌查询阿根廷车辆详情，包括车辆标识符、有效保单状态及技术参数表数据（如有）。"
         },
         "argentina_api_buenos_aires_traffic_infractions": {
             "title": "布宜诺斯艾利斯 — 交通违章",
-            "description": "通过阿根廷车辆车牌查询布宜诺斯艾利斯交通违章记录。"
+            "description": "通过阿根廷车牌查询布宜诺斯艾利斯交通违章记录。"
         },
         "argentina_api_traffic_infractions": {
             "title": "布宜诺斯艾利斯 — 交通违章",
@@ -614,7 +614,7 @@
         },
         "argentina_api_buenos_aires_technical_inspection": {
             "title": "布宜诺斯艾利斯 — 技术检验",
-            "description": "通过阿根廷车辆车牌查询布宜诺斯艾利斯车辆技术检验历史。"
+            "description": "通过阿根廷车牌查询布宜诺斯艾利斯车辆技术检验历史。"
         },
         "argentina_api_technical_inspection": {
             "title": "布宜诺斯艾利斯 — 技术检验",
@@ -633,7 +633,7 @@
             "description": "通过车牌查询玻利维亚登记车辆信息（品牌、类别、登记地、用途等）。"
         },
         "brasil_api_criminal_history": {
-            "title": "巴西",
+            "title": "背景核查 (CPF)",
             "description": "使用 CPF 对巴西个人进行背景核查。"
         },
         "bolivia_api_business_lookup": {
@@ -646,7 +646,7 @@
         },
         "paraguay_api_business_lookup": {
             "title": "巴拉圭企业核验",
-            "description": "使用 Verifik KYB API 通过 RUC 核验巴拉圭企业。"
+            "description": "使用 Verifik 的 KYB API 核验巴拉圭企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Fasecolda — 理赔 / 事故记录",
@@ -757,8 +757,8 @@
             "description": "提供可靠的验证和验证服务。"
         },
         "honduras_api_voting_location": {
-            "title": "洪都拉斯 - 投票地点",
-            "description": "通过 GET /v2/hn/votacion 使用 DNIHN（13 位）查询洪都拉斯官方选举登记（Donde Me Toca Votar）。返回投票站、JRV、投票资格和签名响应。"
+            "title": "投票地点",
+            "description": "通过 DNIHN 查询洪都拉斯官方选举登记（Donde Me Toca Votar）。返回投票站、JRV、投票资格和居住信息。"
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "多米尼加共和国 - 国民身份证验证",
@@ -793,16 +793,16 @@
             "description": "秘鲁外国居民身份证核验服务，用于核实外国人身份证件。"
         },
         "colombia_api_rues_full_v3": {
-            "title": "RUES 完整企业登记 (v3)",
-            "description": "从 RUES 获取哥伦比亚完整企业登记档案。GET /v3/co/rues-complete。"
+            "title": "RUES 企业完整核验 (v3)",
+            "description": "通过 NIT 与登记类别查询哥伦比亚 RUES 完整企业信息。GET /v3/co/rues-complete。"
         },
         "colombia_api_rues_v3": {
             "title": "RUES 企业查询 (v3)",
             "description": "通过 NIT 与登记类别查询哥伦比亚 RUES 基础企业信息。GET /v3/co/rues。"
         },
         "peru_identity_lookup_v3": {
-            "title": "秘鲁公民 v3",
-            "description": "使用 DNI 通过 v3 API 核验秘鲁公民身份。"
+            "title": "秘鲁",
+            "description": "通过 DNI v3 API 核验秘鲁公民身份"
         },
         "peru_identity_extra_lookup_v3": {
             "title": "DNI（扩展信息）",
@@ -817,8 +817,8 @@
             "description": "通过 GET /v3/co/ministerio-de-trabajo/certificados 查询哥伦比亚劳动部证书及高空作业（curso de alturas）培训数据。"
         },
         "peru_api_company_lookup_v3": {
-            "title": "秘鲁企业核验 v3",
-            "description": "使用 Verifik KYB v3 API 通过 RUC 核验秘鲁企业。"
+            "title": "秘鲁企业核验",
+            "description": "使用 Verifik 的 KYB API 核验秘鲁企业。直接对接官方数据源，在数秒内完成企业数据核验。"
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -869,12 +869,12 @@
             "description": "通过 GET /v3/cl/vehicle 按车牌查询智利车辆技术检验状态和历史。"
         },
         "bolivia_api_vehicle_soat": {
-            "title": "玻利维亚 - 车辆SOAT",
-            "description": "通过 GET /v2/bo/vehicle-soat 按 plate 查询玻利维亚强制SOAT。返回有效期、车辆分类、部门、状态及签名响应。"
+            "title": "车辆 SOAT",
+            "description": "通过车牌号查询玻利维亚强制交通事故保险（SOAT）。返回保险有效期、车辆分类、省（department）及计算状态。"
         },
         "bolivia_api_voting_location": {
-            "title": "玻利维亚 - 投票地点",
-            "description": "通过 GET /v2/bo/votacion 使用 CI 和出生日期查询 OEP Yo Participo 选举登记。返回投票站、桌号、投票资格及签名响应。"
+            "title": "投票地点",
+            "description": "通过 CI 和出生日期查询玻利维亚官方选举登记（OEP Yo Participo）。返回投票站、桌号、投票资格及居住信息。"
         },
         "ecuador_api_company_lookup_v3": {
             "title": "厄瓜多尔企业（RUCEC）",
@@ -883,6 +883,14 @@
         "colombia_api_identity_lookup_registraduria": {
             "title": "通过 Registraduría（SCCRC）查询公民",
             "description": "通过 GET /v2/co/cedula/registraduria（仅 Registraduría SCCRC）按证件号查询哥伦比亚出生民事登记记录。"
+        },
+        "mexico_api_ine_ocr": {
+            "title": "INE OCR",
+            "description": "通过 OCR 从墨西哥 INE 正反面图像中提取个人与证件字段。"
+        },
+        "mexico_api_ine_validate": {
+            "title": "INE 验证",
+            "description": "使用 CIC、OCR 或 clave de elector，对照选举登记册验证墨西哥选民证（INE）。"
         }
     }
 }

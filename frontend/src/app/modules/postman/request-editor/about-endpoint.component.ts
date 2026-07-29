@@ -23,6 +23,7 @@ import {
     EndpointDocs,
 } from '../postman.types';
 import {
+    getAppFeatureCatalogCopy,
     resolveAboutParamsColumnVisibility,
     resolveAboutOverview,
 } from '../postman-endpoint-copy.util';
@@ -384,7 +385,7 @@ export class AboutEndpointComponent {
         const ep = this._endpoint();
         if (!ep) return '';
         const catalogDescription = ep.code
-            ? this._transloco.translate(`appFeatures.${ep.code}.description`)
+            ? (getAppFeatureCatalogCopy(this._transloco, ep.code).description ?? '')
             : '';
         return resolveAboutOverview({
             endpoint: ep,

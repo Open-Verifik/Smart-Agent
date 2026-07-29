@@ -89,7 +89,7 @@
             "description": "取得 comprehensive vehicle information のColombian vehicles. Includes ownership details, specifications, legal status, and registration data."
         },
         "mexico_api_vehicle": {
-            "title": "メキシコ — ナンバー別車両",
+            "title": "メキシコ",
             "description": "ナンバープレートでメキシコの車両情報を検証します。"
         },
         "feature_passwordless_solution": {
@@ -113,15 +113,15 @@
             "description": "CC番号と発行日で Registraduría の公式有効性証明書（PDF）を取得します。"
         },
         "colombia_api_identity_lookup_by_name": {
-            "title": "氏名による市民検索（SCCRC）",
+            "title": "コロンビア — 氏名による市民検索（SCCRC）",
             "description": "GET /v2/co/cedula/by-name（Registraduría SCCRC）で氏名・性別・生年月日によりコロンビアの出生民事登記記録を逆引きします。"
         },
         "colombia_api_registraduria_serial": {
-            "title": "シリアルによる民事登記検索（SCCRC）",
+            "title": "コロンビア — シリアルによる民事登記検索（SCCRC）",
             "description": "GET /v2/co/registraduria/serial（Registraduría SCCRC）でシリアル番号によりコロンビアの出生民事登記記録を特定します。"
         },
         "colombia_api_registraduria_matrimonio": {
-            "title": "婚姻民事登記（SCCRC）",
+            "title": "コロンビア — 婚姻民事登記（SCCRC）",
             "description": "GET /v2/co/registraduria/matrimonio（Registraduría SCCRC）で書類・氏名・シリアルによりコロンビアの婚姻民事登記記録を検索します。"
         },
         "colombia_api_delinquent_debtors": {
@@ -165,8 +165,8 @@
             "description": "Labor certificates verification service のColombia. 提供 work-related certifications and labor status information."
         },
         "colombia_api_registraduria_voting": {
-            "title": "Colombia - 選挙記録検証",
-            "description": "Electoral records verification service のColombia 市民. 提供 voting status and electoral information."
+            "title": "コロンビア — 投票情報（Registraduría）",
+            "description": "Registraduría Nacional del Estado Civil からコロンビア市民の投票情報を取得します。"
         },
         "world_api_europol": {
             "title": "Europol 身元照会",
@@ -206,7 +206,7 @@
         },
         "costarica_api_voting_location": {
             "title": "コスタリカ — 投票所",
-            "description": "GET /v2/cr/votacion と CCCR（9〜13桁）で公式 TSE Donde Votar 登録を照会します。投票所、junta、州、canton、地区および署名付きレスポンスを返します。"
+            "description": "CCCRでTSE Donde Votar公式選挙登録を照会します。投票所、junta、州、cantón、district、地図座標を返します。"
         },
         "ecuador_api_criminal_history": {
             "title": "エクアドル - 犯罪歴",
@@ -218,7 +218,7 @@
         },
         "panama_api_identity_lookup": {
             "title": "パナマ — 国民身分証",
-            "description": "パナマの CCPA 国民 ID（文書、氏名、生年月日）を公式戸籍ソースに対して検証し、KYC や不正防止に活用できます。"
+            "description": "パナマの CCPA 国民 ID（書類と氏名）を検証し、KYC や不正防止に活用できます。"
         },
         "panama_api_vehicle": {
             "title": "パナマ - 車両検証",
@@ -269,12 +269,12 @@
             "description": "タクシー管理カード番号で、ボゴタに登録されたタクシー運転手と運行カードの情報を照会します。"
         },
         "india_api_epic_lookup": {
-            "title": "インドEPIC氏名照会",
-            "description": "インドのEPIC（有権者ID）番号について、ECIの選挙人名簿検索から氏名に関する情報を返します。"
+            "title": "インド EPIC（Voter ID）— 氏名照会 | Verifik",
+            "description": "10文字のEPIC（Voter ID）でインド選挙管理委員会（ECI）由来の有権者名および関連フィールドをVerifik APIで取得します。"
         },
         "india_api_epic_voting_lookup": {
-            "title": "インドEPIC投票所照会",
-            "description": "EPIC（有権者ID）番号の投票所および選挙関連の所在地情報を返します。"
+            "title": "インド EPIC（Voter ID）— 投票所・投票場所 | Verifik",
+            "description": "インド EPIC（Voter ID）の議会区・部・投票所の詳細を、ECI 指向ソースと Verifik API で取得します。"
         },
         "usa_api_driver_license_lookup_kansas": {
             "title": "アメリカ合衆国 — カンザス州運転免許",
@@ -370,7 +370,7 @@
         },
         "ar_certificate_verify": {
             "title": "アルゼンチン - 犯罪歴証明書",
-            "description": "GET /v2/ar/certificate/verify により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"
+            "description": "GET /v2/ar/dnrec/antecedentes により、PDFに記載された申請コード（Solicitud）とセキュリティコード（Cod. Segur.）でアルゼンチンDNREC犯罪歴証明書を検証します。身分情報と公式証明書から抽出した犯罪歴声明を返します。"
         },
         "chile_api_transport_vehicle": {
             "title": "チリ — 公共交通車両",
@@ -378,15 +378,15 @@
         },
         "chile_api_vehicle_soap": {
             "title": "チリ — 車両 SOAP",
-            "description": "GET /v2/cl/vehicle-soap でナンバープレートと保険証券番号によりチリ車両 SOAP（人身事故強制保険）証明書を照会します。"
+            "description": "ナンバープレートと保険証券番号でチリ車両 SOAP 証明書を照会します：ステータス、保険会社、所有者、有効期間、車両情報。"
         },
         "chile_api_vehicle_soap_plate": {
-            "title": "Vehicle SOAP (by plate)",
-            "description": "Query Chile vehicular SOAP by license plate only. Returns nested soap and vehicle objects."
+            "title": "チリ — 車両 SOAP（ナンバーのみ）",
+            "description": "ナンバープレートのみでチリ車両 SOAP を照会します。ネストされた soap/vehicle オブジェクトとステータス、保険会社、所有者、有効期間を返します。"
         },
         "cl_certificate_verify": {
             "title": "チリ - Registro Civil 証明書照合",
-            "description": "GET /v2/cl/certificate/verify により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
+            "description": "GET /v2/cl/registro-civil/certificado により folio と検証コード（Código Verificador）でチリ Registro Civil（SRCEI）証明書を照合します。PDFメタデータと有罪判決登録の詳細を返します。"
         },
         "ecuador_api_company_lookup": {
             "title": "エクアドル — 法人検証",
@@ -485,8 +485,8 @@
             "description": "オンタリオ（カナダ）の運転免許を文書番号で検証します。"
         },
         "canada_api_ontario_plate": {
-            "title": "オンタリオ — ナンバー有効期限",
-            "description": "ナンバーと許可番号でオンタリオのステッカー有効期限を照会します。"
+            "title": "カナダ — オンタリオ ナンバー有効期限",
+            "description": "GET /v2/ca/ontario/plate で plate と permitNumber を指定し、オンタリオのナンバーステッカー有効期限を照会します。"
         },
         "colombia_api_vehicle_complete_by_plate_simplified": {
             "title": "RUNT — ナンバー別車両（簡易・別名）",
@@ -505,8 +505,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "canada_api_driver_license_british-columbia": {
-            "title": "ブリティッシュコロンビア — 運転免許",
-            "description": "ブリティッシュコロンビア（カナダ）の運転免許を、文書番号と姓を用いて検証します。"
+            "title": "カナダ — 運転免許検証",
+            "description": "Verifik の KYC API を使用してカナダの運転免許を検証します。公式ソースに直接接続し、運転免許データを数秒で確認できます。"
         },
         "ocr_scan_gpt": {
             "title": "OCR文書スキャンGPT",
@@ -530,7 +530,7 @@
         },
         "canada_api_company": {
             "title": "カナダ — 法人検証",
-            "description": "Verifik の KYB API を使用して法人名と州でカナダ法人を検証します。"
+            "description": "Verifik の KYB API を使用してカナダ法人を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "us_api_passport_entries": {
             "title": "アメリカ — パスポート・米国入出国履歴",
@@ -538,7 +538,7 @@
         },
         "mexico_api_company": {
             "title": "メキシコ — 法人検証",
-            "description": "Verifik の KYB API を使用して FME でメキシコ企業を検証します。"
+            "description": "Verifik の KYB API を使用してメキシコ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "face_recognition_compare": {
             "title": "Face Comparison",
@@ -581,8 +581,8 @@
             "description": "Fasecolda コードで車両価格・仕様情報を取得します。"
         },
         "usa_api_company": {
-            "title": "米国 — 法人検証",
-            "description": "Verifik の KYB API を使用して法人名で米国企業を検証します。"
+            "title": "アメリカ — 法人（SEC EDGAR）",
+            "description": "SEC EDGAR を用いた米国企業の法人名検索・企業情報取得。POST /v2/usa/company。"
         },
         "colombia_api_runt_owners": {
             "title": "コロンビア - 車両所有者(RUNT)",
@@ -602,11 +602,11 @@
         },
         "argentina_api_vehicle_v3": {
             "title": "アルゼンチン — 車両 v3",
-            "description": "ナンバープレートでアルゼンチン車両の詳細を照会します。識別番号、保険状態、利用可能な場合は技術仕様も含まれます。"
+            "description": "ナンバープレートでアルゼンチン車両の詳細（識別子、アクティブ保険の状態、技術シートデータなど）を取得します。"
         },
         "argentina_api_buenos_aires_traffic_infractions": {
             "title": "ブエノスアイレス — 交通違反",
-            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの交通違反を照会します。"
+            "description": "アルゼンチンのナンバープレートでブエノスアイレスの交通違反を照会します。"
         },
         "argentina_api_traffic_infractions": {
             "title": "ブエノスアイレス — 交通違反",
@@ -614,7 +614,7 @@
         },
         "argentina_api_buenos_aires_technical_inspection": {
             "title": "ブエノスアイレス — 技術検査",
-            "description": "アルゼンチン車両のナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
+            "description": "アルゼンチンのナンバープレートでブエノスアイレスの車両技術検査履歴を照会します。"
         },
         "argentina_api_technical_inspection": {
             "title": "ブエノスアイレス — 技術検査",
@@ -622,7 +622,7 @@
         },
         "argentina_api_rto": {
             "title": "アルゼンチン — RTO",
-            "description": "ナンバープレートでアルゼンチンの RTO 検査記録を照会します。"
+            "description": "ナンバープレートでアルゼンチンRTO検査記録を照会します。"
         },
         "argentina_api_company_lookup": {
             "title": "アルゼンチン — 法人検証",
@@ -633,7 +633,7 @@
             "description": "ナンバープレートを用いてボリビアの車両に関する情報を取得する車両検証サービス。"
         },
         "brasil_api_criminal_history": {
-            "title": "ブラジル",
+            "title": "身元調査 (CPF)",
             "description": "CPF を用いてブラジル個人のバックグラウンドチェックを実施します。"
         },
         "bolivia_api_business_lookup": {
@@ -646,7 +646,7 @@
         },
         "paraguay_api_business_lookup": {
             "title": "パラグアイ — 法人検証",
-            "description": "Verifik の KYB API を使用して RUC でパラグアイ企業を検証します。"
+            "description": "Verifik の KYB API を使用してパラグアイ企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "colombia_api_vehicle_sinister_fasecolda_by_plate": {
             "title": "Fasecolda — 保険請求・事故履歴",
@@ -757,8 +757,8 @@
             "description": "信頼性の高い検証と検証サービスを提供します。"
         },
         "honduras_api_voting_location": {
-            "title": "ホンジュラス - 投票所",
-            "description": "GET /v2/hn/votacion で DNIHN（13桁）を使い、ホンジュラス公式選挙登録（Donde Me Toca Votar）を照会。投票所、JRV、投票資格、署名付きレスポンスを返します。"
+            "title": "投票所",
+            "description": "DNIHNでホンジュラス公式選挙登録（Donde Me Toca Votar）を照会。投票所、JRV、投票資格、居住地情報を返します。"
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "ドミニカ共和国 - 国民ID検証",
@@ -801,8 +801,8 @@
             "description": "NIT と登録区分でコロンビア RUES の基本情報を照会します。GET /v3/co/rues。"
         },
         "peru_identity_lookup_v3": {
-            "title": "ペルー — 市民 v3",
-            "description": "DNI を使用して v3 API でペルー市民の本人確認を行います。"
+            "title": "ペルー",
+            "description": "DNI v3 API を使用してペルー市民の本人確認を行います。"
         },
         "peru_identity_extra_lookup_v3": {
             "title": "ペルー — DNI（拡張データ）",
@@ -817,8 +817,8 @@
             "description": "コロンビア労働省の証明書（高所作業 curso de alturas 等）を GET /v3/co/ministerio-de-trabajo/certificados で照会します。"
         },
         "peru_api_company_lookup_v3": {
-            "title": "ペルー — 法人検証 v3",
-            "description": "Verifik の KYB v3 API を使用して RUC でペルー企業を検証します。"
+            "title": "ペルー — 法人検証",
+            "description": "Verifik の KYB API を使用してペルー企業を検証します。公式ソースに直接接続し、企業データを数秒で確認できます。"
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -869,12 +869,12 @@
             "description": "GET /v3/cl/vehicle でナンバープレートからチリ車両の技術検査ステータスと履歴を照会します。"
         },
         "bolivia_api_vehicle_soat": {
-            "title": "ボリビア - 車両SOAT",
-            "description": "GET /v2/bo/vehicle-soatでボリビアの強制SOATをplateで照会。有効期間、車両分類、県、ステータス、署名付きレスポンスを返します。"
+            "title": "ボリビア - 車両 SOAT",
+            "description": "ボリビアでナンバープレートにより義務交通事故保険（SOAT）を照会します。補償の有効期間、車両分類、県（department）、算出ステータスを返します。"
         },
         "bolivia_api_voting_location": {
             "title": "ボリビア - 投票所",
-            "description": "GET /v2/bo/votacionでOEP Yo Participo選挙人名簿をCIと生年月日で照会。投票所、テーブル、投票資格、署名付きレスポンスを返します。"
+            "description": "CIと生年月日でボリビア公式選挙登録（OEP Yo Participo）を照会します。投票所、テーブル、投票資格、居住地情報を返します。"
         },
         "ecuador_api_company_lookup_v3": {
             "title": "エクアドル法人（RUCEC）",
@@ -883,6 +883,14 @@
         "colombia_api_identity_lookup_registraduria": {
             "title": "コロンビア — Registraduría（SCCRC）市民照会",
             "description": "GET /v2/co/cedula/registraduria（Registraduría SCCRC のみ）で文書番号によりコロンビア出生民事登録を照会します。"
+        },
+        "mexico_api_ine_ocr": {
+            "title": "メキシコ — INE OCR",
+            "description": "OCR によりメキシコ INE の表面・裏面画像から個人・証明書フィールドを抽出します。"
+        },
+        "mexico_api_ine_validate": {
+            "title": "メキシコ — INE 検証",
+            "description": "CIC、OCR、または clave de elector を使い、メキシコ有権者証（INE）を選挙人名簿に対して検証します。"
         }
     }
 }

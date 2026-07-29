@@ -28,7 +28,7 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
   selector: 'postman-response-viewer',
   standalone: true,
   imports: [CommonModule, JsonTableComponent, RouterModule, MatButtonModule, MatIconModule, TranslocoPipe],
-  host: { class: 'block h-full' },
+  host: { class: 'block h-full w-full min-w-0 overflow-hidden' },
   template: `
     <div class="flex flex-col h-full overflow-hidden bg-transparent">
       <div
@@ -77,7 +77,7 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
         </div>
       </div>
 
-      <div class="flex-1 min-h-0 flex flex-col overflow-hidden p-4 relative">
+      <div class="flex-1 min-h-0 flex flex-col overflow-hidden px-3 py-3 relative">
         <div
           *ngIf="isLoading()"
           class="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-black/50 z-10 backdrop-blur-sm"

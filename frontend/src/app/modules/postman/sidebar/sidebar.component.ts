@@ -46,7 +46,10 @@ import {
 } from '../postman-rename-endpoint-dialog.component';
 import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
 import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
-import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
+import {
+  getAppFeatureCatalogCopy,
+  resolvePostmanEndpointCopy,
+} from '../postman-endpoint-copy.util';
 
 function buildFolderTree(
   folders: PostmanFolderDto[],
@@ -103,7 +106,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col w-full h-full bg-slate-50 border-r dark:bg-slate-900 dark:border-slate-800 transition-all duration-300"
+      class="flex flex-col w-full h-full min-h-0 overflow-hidden bg-slate-50 border-r dark:bg-slate-900 dark:border-slate-800"
     >
       <div
         class="h-14 flex items-center justify-between px-2 border-b dark:border-slate-800 flex-shrink-0 gap-1"
@@ -139,16 +142,19 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
 
       <div
         *ngIf="postman.layoutError() && !collapsed"
-        class="px-3 py-2 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900"
+        class="flex-shrink-0 px-3 py-2 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900"
       >
         {{ postman.layoutError()! | transloco }}
       </div>
 
-      <div *ngIf="postman.layoutLoading() && !collapsed" class="flex justify-center py-2 border-b dark:border-slate-800">
+      <div
+        *ngIf="postman.layoutLoading() && !collapsed"
+        class="flex flex-shrink-0 justify-center py-2 border-b dark:border-slate-800"
+      >
         <mat-spinner diameter="22"></mat-spinner>
       </div>
 
-      <div class="p-2 border-b dark:border-slate-800" *ngIf="!collapsed">
+      <div class="flex-shrink-0 p-2 border-b dark:border-slate-800" *ngIf="!collapsed">
         <div class="relative">
           <mat-icon
             class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 !w-4 !h-4 !text-[16px]"
@@ -165,7 +171,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
         </div>
       </div>
 
-      <div class="flex-1 overflow-y-auto p-2 space-y-2">
+      <div class="flex-1 min-h-0 overflow-y-auto p-2 space-y-2">
         <!-- Collapsed + layout: flat list -->
         <ng-container *ngIf="postman.useLayoutSidebar() && collapsed">
           <a
@@ -228,7 +234,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                 (click)="toggleCategory(category.name)"
                 class="text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header"
               >
-                <span>{{ 'categories.' + category.name | transloco }}</span>
+                <span>{{ categoryDisplayTitle(category.name) }}</span>
                 <mat-icon
                   class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
                   [class.rotate-180]="collapsedCategories().has(category.name)"
@@ -301,7 +307,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
               (click)="toggleCategory(category.name)"
               class="text-xs font-bold text-slate-500 uppercase px-3 py-2 truncate flex items-center justify-between cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors select-none group/header"
             >
-              <span>{{ 'categories.' + category.name | transloco }}</span>
+              <span>{{ categoryDisplayTitle(category.name) }}</span>
               <mat-icon
                 class="!w-4 !h-4 !text-[16px] text-slate-400 group-hover/header:text-slate-600 dark:group-hover/header:text-slate-300 transition-transform"
                 [class.rotate-180]="collapsedCategories().has(category.name)"
@@ -330,9 +336,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
                 [class.dark:bg-blue-900]="selectedEndpoint()?.id === endpoint.id"
                 [matTooltip]="
                   collapsed
-                    ? endpoint.code
-                      ? ('appFeatures.' + endpoint.code + '.title' | transloco)
-                      : endpoint.label
+                    ? endpointDisplayTitle(endpoint)
                     : ''
                 "
                 matTooltipPosition="right"
@@ -374,6 +378,17 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
       </div>
     </div>
   `,
+  styles: [
+    `
+      :host {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+      }
+    `,
+  ],
 })
 export class SidebarComponent {
   @Input() collapsed: boolean = false;
@@ -416,10 +431,10 @@ export class SidebarComponent {
       return true;
     }
     if (endpoint.code) {
-      const title = this._transloco
-        .translate(`appFeatures.${endpoint.code}.title`)
-        .toLowerCase();
-      return title.includes(query);
+      const copy = getAppFeatureCatalogCopy(this._transloco, endpoint.code);
+      if (copy.title && copy.title.toLowerCase().includes(query)) {
+        return true;
+      }
     }
     return false;
   }
@@ -729,7 +744,8 @@ export class SidebarComponent {
   /** Catalog / API default title shown in the explorer when no custom label exists. */
   private _defaultEndpointCatalogTitle(endpoint: ApiEndpoint): string {
     if (endpoint.code) {
-      return this._transloco.translate(`appFeatures.${endpoint.code}.title`);
+      const copy = getAppFeatureCatalogCopy(this._transloco, endpoint.code);
+      if (copy.title) return copy.title;
     }
     return endpoint.label;
   }
@@ -777,9 +793,32 @@ export class SidebarComponent {
     return this.endpointDisplayCopy(endpoint).title;
   }
 
+  categoryDisplayTitle(categoryName: string): string {
+    if (!categoryName) return '';
+    const activeTranslations =
+      this._transloco.getTranslation(this._transloco.getActiveLang()) || {};
+    const categoriesObj = activeTranslations['categories'] as
+      | Record<string, string>
+      | undefined;
+    if (categoriesObj && typeof categoriesObj === 'object') {
+      const match =
+        categoriesObj[categoryName] ||
+        categoriesObj[categoryName.toLowerCase()] ||
+        categoriesObj[categoryName.toUpperCase()];
+      if (typeof match === 'string' && match.trim()) {
+        return match.trim();
+      }
+    }
+    return categoryName
+      .toLowerCase()
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
   private _defaultEndpointCatalogDescription(endpoint: ApiEndpoint): string {
     if (endpoint.code) {
-      return this._transloco.translate(`appFeatures.${endpoint.code}.description`);
+      const copy = getAppFeatureCatalogCopy(this._transloco, endpoint.code);
+      if (copy.description) return copy.description;
     }
     return endpoint.description ?? '';
   }

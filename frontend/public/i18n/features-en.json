@@ -25,8 +25,8 @@
             "description": "Query Colombian military service (situación militar) using a Cédula de Ciudadanía (CC). Returns status and related details from official sources."
         },
         "colombia_api_rethus": {
-            "title": "Professional Healthcare Physicians Verification",
-            "description": "Query the Colombian RETHUS registry for health-sector professionals via GET /v2/co/cedula/rethus."
+            "title": "RETHUS (health professionals registry)",
+            "description": "Query the Colombian RETHUS registry for health-sector talent data via GET /v2/co/cedula/rethus."
         },
         "colombia_api_rues": {
             "title": "RUES business lookup (v2, legacy)",
@@ -41,7 +41,7 @@
             "description": "Business verification service for Peru. Provides company registration details, legal status, and business information."
         },
         "peru_api_driver_license_lookup": {
-            "title": "Peru - Driver license",
+            "title": "Driver License",
             "description": "Look up Peruvian driver licenses by DNI via GET /v2/pe/driver-license. Returns category, status, expiration, restrictions, and issuance details when available from official records."
         },
         "colombia_api_judicial_process_details": {
@@ -205,8 +205,8 @@
             "description": "National ID (CCCR cédula) verification for Costa Rica via GET /v2/cr/cedula with documentType and documentNumber for KYC and fraud prevention."
         },
         "costarica_api_voting_location": {
-            "title": "Costa Rica - Voting Location",
-            "description": "Query official Costa Rican TSE Donde Votar registry via GET /v2/cr/votacion using CCCR (9–13 digits). Returns polling place, junta, province, canton, district, and signed response data."
+            "title": "Voting Location",
+            "description": "Query official Costa Rican TSE Donde Votar registry by CCCR. Returns polling place, junta, province, canton, district, and map coordinates."
         },
         "ecuador_api_criminal_history": {
             "title": "Ecuador - Criminal History",
@@ -349,11 +349,11 @@
             "description": "Provides reliable verification and validation services."
         },
         "brasil_api_company_lookup": {
-            "title": "Brazilian Business Verification",
+            "title": "Business Verification (CNPJ)",
             "description": "Validate Brazilian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
         },
         "brasil_api_vehicle": {
-            "title": "Vehicle information",
+            "title": "Vehicle Information",
             "description": "Brazilian plate lookup: registry-style vehicle attributes (make, model, years, VIN/chassis, FIPE codes when available) for fleet, insurance, collateral, and marketplace checks."
         },
         "argentina_api_identity_lookup": {
@@ -369,24 +369,24 @@
             "description": "Query medical professionals registered in Argentina via GET /v2/ar/cedula/medico-profesional using DNI (documentNumber). Returns SISA MSAL registration, matriculas, linked establishments, and signed response data."
         },
         "ar_certificate_verify": {
-            "title": "Argentina - Criminal record certificate",
-            "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF via GET /v2/ar/certificate/verify. Returns identity fields and the criminal-record statement extracted from the official certificate."
+            "title": "Criminal Record Certificate",
+            "description": "Verify an Argentine DNREC criminal-record certificate using the request code (Solicitud) and security code (Cod. Segur.) printed on the PDF. Returns identity fields, the criminal-record statement, and the certificate as base64-encoded PDF."
         },
         "chile_api_transport_vehicle": {
             "title": "Public Transport Vehicle",
             "description": "Query Chile public transport vehicle registration (RNT) by license plate via GET /v2/cl/transport-vehicle."
         },
         "chile_api_vehicle_soap": {
-            "title": "Chile - Vehicle SOAP",
-            "description": "Query Chile vehicular SOAP (Seguro Obligatorio de Accidentes Personales) certificate by license plate and policy number via GET /v2/cl/vehicle-soap."
+            "title": "Vehicle SOAP",
+            "description": "Query Chile vehicular SOAP certificate by license plate and policy number: status, insurer, owner, validity dates, and vehicle details."
         },
         "chile_api_vehicle_soap_plate": {
             "title": "Vehicle SOAP (by plate)",
             "description": "Query Chile vehicular SOAP by license plate only. Returns nested soap and vehicle objects with coverage status, insurer, owner, validity dates, and vehicle details."
         },
         "cl_certificate_verify": {
-            "title": "Chile - Civil registry certificate verification",
-            "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador) via GET /v2/cl/certificate/verify. Returns certificate PDF metadata and conviction-register details when available."
+            "title": "Civil Registry Certificate Verification",
+            "description": "Verify a Chile Registro Civil (SRCEI) certificate using folio and verification code (Código Verificador). Returns certificate PDF metadata and conviction-register details when available."
         },
         "ecuador_api_company_lookup": {
             "title": "Ecuadorian Business Verification",
@@ -505,8 +505,8 @@
             "description": "Validate the identity of individuals in El Salvador with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
         },
         "canada_api_driver_license_british-columbia": {
-            "title": "British Columbia Driver License",
-            "description": "British Columbia driver license verification service"
+            "title": "Canadian Driver License Validation",
+            "description": "Validate Canadian driver licenses with Verifik's KYC API. Connect with official sources and verify driver license data in seconds."
         },
         "ocr_scan_gpt": {
             "title": "OCR Document Scan GPT",
@@ -597,12 +597,12 @@
             "description": "Verify the current status and validity of legal professionals in Colombia"
         },
         "argentina_api_vehicle": {
-            "title": "Argentina - Vehicle Information",
-            "description": "Verify Argentine vehicle information using a license plate."
+            "title": "Vehicle Information",
+            "description": "Verify Argentine vehicle information using license plate"
         },
         "argentina_api_vehicle_v3": {
-            "title": "Argentina - Vehicle v3",
-            "description": "Retrieve Argentine vehicle details by license plate, including identifiers, policy status, and technical-sheet data when available."
+            "title": "Vehicle v3",
+            "description": "Retrieve Argentine vehicle details by license plate, including vehicle identifiers, policy status, and technical-sheet data when available."
         },
         "argentina_api_buenos_aires_traffic_infractions": {
             "title": "Buenos Aires Traffic Infractions",
@@ -613,8 +613,8 @@
             "description": "Check Buenos Aires traffic infractions by Argentine vehicle license plate."
         },
         "argentina_api_buenos_aires_technical_inspection": {
-            "title": "Buenos Aires Technical Inspection",
-            "description": "Check Buenos Aires vehicle technical inspection history by Argentine license plate."
+            "title": "Endpoint URL → Doc page (Reference)",
+            "description": "Deterministic mapping from each Verifik API endpoint path to its canonical documentation page, grouped by country and topic."
         },
         "argentina_api_technical_inspection": {
             "title": "Buenos Aires Technical Inspection",
@@ -633,7 +633,7 @@
             "description": "Bolivian vehicle validation service for retrieving vehicle information by license plate"
         },
         "brasil_api_criminal_history": {
-            "title": "Brazil",
+            "title": "Background Check (CPF)",
             "description": "Conduct background checks on Brazilian individuals using CPF"
         },
         "bolivia_api_business_lookup": {
@@ -757,8 +757,8 @@
             "description": "Validate the identity of individuals in Honduras with Verifik's KYC API. Connect with official sources and verify personal data in seconds."
         },
         "honduras_api_voting_location": {
-            "title": "Honduras - Voting Location",
-            "description": "Query official Honduran electoral registry (Donde Me Toca Votar) via GET /v2/hn/votacion using DNIHN (13 digits). Returns polling place, JRV, voting eligibility, and signed response data."
+            "title": "Voting Location",
+            "description": "Query official Honduran electoral registry (Donde Me Toca Votar) by DNIHN. Returns polling place, JRV, voting eligibility, and residence details."
         },
         "republica_dominicana_api_citizen_lookup": {
             "title": "Dominican Citizen",
@@ -817,8 +817,8 @@
             "description": "Labor and height-safety (“curso de alturas”) certificate data from Colombia’s Ministry of Labor via GET /v3/co/ministerio-de-trabajo/certificados."
         },
         "peru_api_company_lookup_v3": {
-            "title": "Peruvian Business Verification v3",
-            "description": "Validate Peruvian companies by RUC with Verifik's KYB API v3."
+            "title": "Peruvian Business Verification",
+            "description": "Validate Peruvian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds."
         },
         "face_recognition_detect_face": {
             "title": "Face Detection",
@@ -865,16 +865,16 @@
             "description": "Validate the identity of individuals in Guatemala with additional details such as birth date and gender."
         },
         "chile_api_vehicle_v3": {
-            "title": "Chile - Vehicle Technical Review",
+            "title": "Vehicle Technical Review",
             "description": "Query Chile vehicle technical review status and inspection history by license plate via GET /v3/cl/vehicle."
         },
         "bolivia_api_vehicle_soat": {
-            "title": "Bolivia - Vehicle SOAT",
-            "description": "Query mandatory vehicle accident insurance (SOAT) in Bolivia via GET /v2/bo/vehicle-soat using plate. Returns coverage validity, vehicle classification, department, status, and signed response data."
+            "title": "Vehicle SOAT",
+            "description": "Query mandatory vehicle accident insurance (SOAT) in Bolivia by license plate. Returns coverage validity, vehicle classification, department, and computed status."
         },
         "bolivia_api_voting_location": {
-            "title": "Bolivia - Voting Location",
-            "description": "Query official Bolivian electoral registry (OEP Yo Participo) via GET /v2/bo/votacion using CI and date of birth. Returns polling place, table, voting eligibility, and signed response data."
+            "title": "Voting Location",
+            "description": "Query official Bolivian electoral registry (OEP Yo Participo) by CI and date of birth. Returns polling place, table, voting eligibility, and residence details."
         },
         "ecuador_api_company_lookup_v3": {
             "title": "Ecuadorian Business Verification",
@@ -883,6 +883,14 @@
         "colombia_api_identity_lookup_registraduria": {
             "title": "Citizen lookup via Registraduría (SCCRC)",
             "description": "Look up a Colombian birth civil registry record by document number via GET /v2/co/cedula/registraduria (Registraduría SCCRC only)."
+        },
+        "mexico_api_ine_ocr": {
+            "title": "INE OCR",
+            "description": "Extract INE fields with Verifik Gemini OCR, then validate electoral status via Nexcar numbers in one request."
+        },
+        "mexico_api_ine_validate": {
+            "title": "INE Validation",
+            "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector."
         }
     }
 }

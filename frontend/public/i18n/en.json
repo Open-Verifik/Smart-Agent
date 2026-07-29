@@ -2557,7 +2557,7 @@
         "verification": "Verification",
         "email": "Email",
         "AUTHENTICATION": "Authentication",
-        "BIOMETRICS_APIS": "Biometrics APIs",
+        "BIOMETRICS_APIS": "Biometrics",
         "IDENTITY_VALIDATION": "Identity Validation",
         "EMAIL": "Email",
         "FACEVERIFICATION": "Face Verification",
@@ -2566,7 +2566,14 @@
         "PAYMENTS": "Payments",
         "SEARCH": "Search",
         "SOLUTIONS": "Solutions",
-        "VERIFICATION": "Verification"
+        "VERIFICATION": "Verification",
+        "DATA_SHEET": "Data Sheet",
+        "LOOK_UPS": "Lookups",
+        "RM": "Mercantile Registry",
+        "rm": "Mercantile Registry",
+        "identity_validation": "Identity Validation",
+        "biometrics_apis": "Biometrics",
+        "authentication": "Authentication"
     },
     "settings": {
         "title": "Settings",

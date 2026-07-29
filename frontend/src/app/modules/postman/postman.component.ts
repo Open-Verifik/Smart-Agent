@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    DestroyRef,
+    effect,
+    inject,
+    NgZone,
+    signal,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -38,15 +46,35 @@ import {
     ],
     template: `
         <div
+            data-postman-root
             class="flex min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
             [class.h-full]="!isMobile()"
             [class.h-dvh]="isMobile()"
         >
-            <!-- Sidebar (fixed column on desktop) -->
+            @if (isDragging) {
+                <div
+                    class="fixed inset-0 z-[9999] select-none"
+                    [class.cursor-col-resize]="
+                        dragMode === 'sidebar' ||
+                        (dragMode === 'horizontal' && layout === 'horizontal')
+                    "
+                    [class.cursor-row-resize]="
+                        dragMode === 'vertical' ||
+                        (dragMode === 'horizontal' && layout === 'vertical')
+                    "
+                ></div>
+            }
+
+            <!-- Sidebar (desktop column; main area flex-shrinks as this grows) -->
             @if (!isMobile()) {
                 <div
-                    class="flex-shrink-0 transition-all duration-300 ease-in-out h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 z-20"
+                    class="z-20 flex h-full min-h-0 flex-col overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                    [class.transition-[flex-basis,width]]="dragMode !== 'sidebar'"
+                    [class.duration-300]="dragMode !== 'sidebar'"
+                    [class.ease-in-out]="dragMode !== 'sidebar'"
+                    [style.flex]="'0 0 ' + sidebarWidth + 'px'"
                     [style.width.px]="sidebarWidth"
+                    [style.max-width.px]="sidebarWidth"
                 >
                     <postman-sidebar
                         [collapsed]="sidebarCollapsed"
@@ -54,6 +82,17 @@ import {
                     >
                     </postman-sidebar>
                 </div>
+
+                @if (!sidebarCollapsed) {
+                    <div
+                        class="hover:bg-blue-500/20 active:bg-blue-500/40 transition-colors rounded-full flex-shrink-0 z-30 flex items-center justify-center w-3 h-full cursor-col-resize group"
+                        (mousedown)="startSidebarDrag($event)"
+                    >
+                        <div
+                            class="w-0.5 h-8 rounded-full bg-slate-300 dark:bg-slate-700 group-hover:bg-blue-400 group-active:bg-blue-500"
+                        ></div>
+                    </div>
+                }
             }
 
             <!-- Sidebar (slide-in drawer on mobile) -->
@@ -68,7 +107,7 @@ import {
                 ></div>
                 <!-- Drawer -->
                 <div
-                    class="fixed inset-y-0 left-0 z-[60] w-[85%] max-w-[320px] h-dvh bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-300 ease-in-out"
+                    class="fixed inset-y-0 left-0 z-[60] w-[85%] max-w-[320px] h-dvh min-h-0 overflow-hidden bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xl transition-transform duration-300 ease-in-out"
                     [class.-translate-x-full]="!mobileSidebarOpen()"
                     [class.translate-x-0]="mobileSidebarOpen()"
                 >
@@ -76,12 +115,15 @@ import {
                 </div>
             }
 
-            <!-- Main Content Wrapper -->
-            <div class="flex-1 flex flex-col h-full min-w-0 bg-[#f8fafc] dark:bg-[#0f172a]">
+            <!-- Main Content Wrapper (shrinks when sidebar grows) -->
+            <div
+                class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-[#f8fafc] dark:bg-[#0f172a]"
+            >
                 <!-- Toolbar / Header -->
                 <div
-                    class="h-16 flex items-center justify-between py-3 bg-transparent z-10"
-                    [class.px-6]="!isMobile()"
+                    class="flex flex-shrink-0 items-center justify-between bg-transparent z-10 min-h-14 py-2"
+                    [class.pl-3]="!isMobile()"
+                    [class.pr-1]="!isMobile()"
                     [class.px-3]="isMobile()"
                     [class.gap-2]="isMobile()"
                 >
@@ -100,7 +142,7 @@ import {
 
                     <!-- Country Filters (Pill Style) -->
                     <div
-                        class="flex items-center gap-1.5 overflow-x-auto scrollbar-hide mask-gradient p-1"
+                        class="postman-flag-scroller flex items-center gap-1 overflow-x-auto px-1 pt-1"
                         [ngClass]="isMobile() ? 'flex-1 min-w-0' : 'max-w-[60%]'"
                     >
                         @for (country of countries(); track country.name) {
@@ -116,7 +158,7 @@ import {
                                 [class.bg-slate-900]="selected"
                                 [class.text-white]="selected"
                                 [class.border-transparent]="selected"
-                                class="h-9 w-9 min-w-[2.25rem] flex items-center justify-center rounded-full border transition-all duration-200 relative group flex-shrink-0 aspect-square dark:border-slate-700"
+                                class="h-7 w-7 min-w-[1.75rem] flex items-center justify-center rounded-full border transition-all duration-200 relative group flex-shrink-0 aspect-square dark:border-slate-700"
                                 [matTooltip]="country.name + ' (' + country.count + ')'"
                             >
                                 @switch (ui.k) {
@@ -124,16 +166,16 @@ import {
                                         <img
                                             [src]="ui.src"
                                             alt=""
-                                            width="20"
-                                            height="20"
+                                            width="16"
+                                            height="16"
                                             decoding="async"
                                             loading="lazy"
-                                            class="h-5 w-5 rounded-full object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/15"
+                                            class="h-4 w-4 rounded-full object-cover shadow-sm ring-1 ring-black/10 dark:ring-white/15"
                                         />
                                     }
                                     @case ('globe') {
                                         <mat-icon
-                                            class="!w-5 !h-5 !text-[18px]"
+                                            class="!w-4 !h-4 !text-[16px]"
                                             [class.text-white]="selected"
                                             [class.text-slate-600]="!selected"
                                             [class.dark:text-slate-300]="!selected"
@@ -143,7 +185,7 @@ import {
                                     }
                                     @case ('initials') {
                                         <span
-                                            class="text-[9px] font-bold leading-tight text-center px-0.5 max-w-full truncate"
+                                            class="text-[8px] font-bold leading-tight text-center px-0.5 max-w-full truncate"
                                             [class.text-white]="selected"
                                             [class.text-slate-700]="!selected"
                                             [class.dark:text-slate-200]="!selected"
@@ -227,20 +269,16 @@ import {
                 <!-- Split Content Area (desktop: side-by-side / stacked with resizer) -->
                 @if (!isMobile()) {
                     <div
-                        class="flex-1 flex min-w-0 min-h-0 p-4 pt-0 gap-4"
+                        class="flex flex-1 min-h-0 min-w-0 overflow-hidden pl-3 pr-1 pb-2 pt-0 gap-2"
                         [class.flex-row]="layout === 'horizontal'"
                         [class.flex-col]="layout === 'vertical'"
-                        (mousemove)="onDrag($event)"
-                        (mouseup)="stopDrag()"
-                        (mouseleave)="stopDrag()"
                     >
                         <!-- Request Editor Panel -->
                         <div
                             [class.h-full]="layout === 'horizontal'"
                             [class.w-full]="layout === 'vertical'"
-                            [style.width.%]="layout === 'horizontal' ? requestPanelSize : 100"
-                            [style.height.%]="layout === 'vertical' ? requestPanelSize : 100"
-                            class="min-w-0 min-h-0 relative overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                            [style.flex]="'1 1 ' + requestPanelSize + '%'"
+                            class="relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
                         >
                             <postman-request-editor></postman-request-editor>
                         </div>
@@ -272,7 +310,8 @@ import {
 
                         <!-- Response Viewer Panel -->
                         <div
-                            class="flex-1 min-w-0 min-h-0 overflow-hidden flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                            [style.flex]="'1 1 ' + (100 - requestPanelSize) + '%'"
+                            class="relative flex min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900"
                         >
                             <postman-response-viewer></postman-response-viewer>
                         </div>
@@ -340,17 +379,41 @@ import {
                 min-height: 0;
                 height: 100%;
             }
+
+            .postman-flag-scroller {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .postman-flag-scroller::-webkit-scrollbar {
+                display: none;
+                width: 0;
+                height: 0;
+            }
         `,
     ],
 })
 export class PostmanComponent {
+    private static readonly SIDEBAR_COLLAPSED_WIDTH = 64;
+    private static readonly SIDEBAR_MIN_WIDTH = 220;
+    private static readonly SIDEBAR_DEFAULT_WIDTH = 360;
+    /** Minimum width reserved for request + response so they can still reflow. */
+    private static readonly MAIN_MIN_WIDTH = 360;
+    private static readonly SIDEBAR_RESIZER_WIDTH = 8;
+
     private _postmanService = inject(PostmanService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _fuseMediaWatcherService = inject(FuseMediaWatcherService);
+    private _ngZone = inject(NgZone);
+    private _destroyRef = inject(DestroyRef);
 
     sidebarCollapsed = false;
-    sidebarWidth = 280; // Expanded width
+    sidebarExpandedWidth = PostmanComponent.SIDEBAR_DEFAULT_WIDTH;
+    sidebarWidth = PostmanComponent.SIDEBAR_DEFAULT_WIDTH;
+    private _sidebarDragRootLeft = 0;
+    private _sidebarDragRootWidth = 0;
+    private _sidebarDragActive = false;
 
     // Responsive State (true when viewport is below the `md` breakpoint)
     isMobile = signal(false);
@@ -365,7 +428,7 @@ export class PostmanComponent {
     // Resizable Split (Size in Percentage)
     requestPanelSize = 50;
     isDragging = false;
-    dragMode: 'horizontal' | 'vertical' | null = null;
+    dragMode: 'sidebar' | 'horizontal' | 'vertical' | null = null;
 
     // Flag to prevent cyclic updates
     private _isNavigating = false;
@@ -437,6 +500,8 @@ export class PostmanComponent {
     });
 
     constructor() {
+        this._destroyRef.onDestroy(() => this.stopDrag());
+
         // Track viewport size: anything below the `md` alias is treated as mobile.
         this._fuseMediaWatcherService.onMediaChange$
             .pipe(takeUntilDestroyed())
@@ -575,52 +640,107 @@ export class PostmanComponent {
     private _wasLoading = false;
     private _lastSelectedCodeForMobile: string | null = null;
 
+    private _activeDrag: 'sidebar' | 'horizontal' | 'vertical' | null = null;
+    private _splitRect: DOMRect | null = null;
+
     toggleSidebar() {
         this.sidebarCollapsed = !this.sidebarCollapsed;
-        this.sidebarWidth = this.sidebarCollapsed ? 64 : 256;
+        this.sidebarWidth = this.sidebarCollapsed
+            ? PostmanComponent.SIDEBAR_COLLAPSED_WIDTH
+            : this.sidebarExpandedWidth;
     }
 
     setLayout(mode: 'horizontal' | 'vertical') {
         this.layout = mode;
     }
 
+    startSidebarDrag(event: MouseEvent) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const root = (event.currentTarget as HTMLElement).closest(
+            '[data-postman-root]'
+        ) as HTMLElement | null;
+        const rootRect = root?.getBoundingClientRect();
+        this._sidebarDragRootLeft = rootRect?.left ?? 0;
+        this._sidebarDragRootWidth = rootRect?.width ?? window.innerWidth;
+        this.isDragging = true;
+        this.dragMode = 'sidebar';
+        this._activeDrag = 'sidebar';
+
+        this._listenGlobalDrag();
+    }
+
     startDrag(event: MouseEvent, mode: 'horizontal' | 'vertical') {
         event.preventDefault();
+        event.stopPropagation();
+
+        const container = (event.currentTarget as HTMLElement).parentElement;
+        this._splitRect = container?.getBoundingClientRect() ?? null;
         this.isDragging = true;
         this.dragMode = mode;
+        this._activeDrag = mode;
+
+        this._listenGlobalDrag();
     }
+
+    private _listenGlobalDrag() {
+        this._ngZone.runOutsideAngular(() => {
+            document.addEventListener('mousemove', this._onGlobalPointerMove);
+            document.addEventListener('mouseup', this._onGlobalPointerUp);
+        });
+    }
+
+    private _onGlobalPointerMove = (event: MouseEvent) => {
+        if (!this._activeDrag) return;
+
+        if (this._activeDrag === 'sidebar') {
+            const rootWidth = this._sidebarDragRootWidth || window.innerWidth;
+            const available =
+                rootWidth -
+                PostmanComponent.SIDEBAR_RESIZER_WIDTH -
+                PostmanComponent.MAIN_MIN_WIDTH;
+            const maxW = Math.max(PostmanComponent.SIDEBAR_MIN_WIDTH, available);
+            let width = event.clientX - this._sidebarDragRootLeft;
+            width = Math.max(PostmanComponent.SIDEBAR_MIN_WIDTH, Math.min(maxW, width));
+
+            this._ngZone.run(() => {
+                this.sidebarExpandedWidth = width;
+                this.sidebarWidth = width;
+            });
+        } else if (this._splitRect) {
+            const mode = this._activeDrag;
+            let newSizePercent = 50;
+
+            if (mode === 'horizontal') {
+                const offsetX = event.clientX - this._splitRect.left;
+                newSizePercent = (offsetX / this._splitRect.width) * 100;
+            } else {
+                const offsetY = event.clientY - this._splitRect.top;
+                newSizePercent = (offsetY / this._splitRect.height) * 100;
+            }
+
+            if (newSizePercent < 15) newSizePercent = 15;
+            if (newSizePercent > 85) newSizePercent = 85;
+
+            this._ngZone.run(() => {
+                this.requestPanelSize = newSizePercent;
+            });
+        }
+    };
+
+    private _onGlobalPointerUp = () => {
+        if (!this._activeDrag) return;
+        this._ngZone.run(() => this.stopDrag());
+    };
 
     stopDrag() {
+        this._activeDrag = null;
+        this._splitRect = null;
+        document.removeEventListener('mousemove', this._onGlobalPointerMove);
+        document.removeEventListener('mouseup', this._onGlobalPointerUp);
         this.isDragging = false;
         this.dragMode = null;
-    }
-
-    onDrag(event: MouseEvent) {
-        if (!this.isDragging) return;
-
-        // Use dragMode or fallback to layout
-        const mode = this.dragMode || this.layout;
-
-        // We need the container dimensions.
-        // The event is on the container (mousemove), so currentTarget is the container.
-        const container = event.currentTarget as HTMLElement;
-        const rect = container.getBoundingClientRect();
-
-        let newSizePercent = 50;
-
-        if (mode === 'horizontal') {
-            const offsetX = event.clientX - rect.left;
-            newSizePercent = (offsetX / rect.width) * 100;
-        } else {
-            const offsetY = event.clientY - rect.top;
-            newSizePercent = (offsetY / rect.height) * 100;
-        }
-
-        // Clamp
-        if (newSizePercent < 20) newSizePercent = 20;
-        if (newSizePercent > 80) newSizePercent = 80;
-
-        this.requestPanelSize = newSizePercent;
     }
 
     private applyHistoryPrefill(endpoint: ApiEndpoint): void {

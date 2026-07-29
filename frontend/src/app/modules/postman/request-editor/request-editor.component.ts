@@ -49,7 +49,10 @@ import {
 import { distinctUntilChanged, map, skip } from 'rxjs';
 import { AboutEndpointComponent } from './about-endpoint.component';
 import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
-import { resolvePostmanEndpointCopy } from '../postman-endpoint-copy.util';
+import {
+    getAppFeatureCatalogCopy,
+    resolvePostmanEndpointCopy,
+} from '../postman-endpoint-copy.util';
 import {
     COLOMBIA_CEDULA_SLA_URL,
     hasDynamicQueryPriceRange,
@@ -91,7 +94,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
         AboutEndpointComponent,
         PostmanEndpointLabelComponent,
     ],
-    host: { class: 'block h-full' },
+    host: { class: 'block h-full w-full min-w-0 overflow-hidden' },
     template: `
         <div
             class="flex flex-col h-full bg-white dark:bg-slate-900"
@@ -1115,16 +1118,13 @@ export class RequestEditorComponent {
     });
 
     endpointHeaderCopy(ep: ApiEndpoint) {
-        const catalogTitle = ep.code
-            ? this.translocoService.translate(`appFeatures.${ep.code}.title`)
-            : ep.label;
-        const catalogDescription = ep.code
-            ? this.translocoService.translate(`appFeatures.${ep.code}.description`)
-            : ep.description ?? '';
+        const catalogCopy = ep.code
+            ? getAppFeatureCatalogCopy(this.translocoService, ep.code)
+            : {};
         return resolvePostmanEndpointCopy({
             endpoint: ep,
-            catalogTitle,
-            catalogDescription,
+            catalogTitle: catalogCopy.title ?? ep.label,
+            catalogDescription: catalogCopy.description ?? ep.description ?? '',
             locale: this._activeLang(),
         });
     }
