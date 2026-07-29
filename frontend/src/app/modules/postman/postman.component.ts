@@ -1,13 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    computed,
-    DestroyRef,
-    effect,
-    inject,
-    NgZone,
-    signal,
-} from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, NgZone, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +7,12 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { TranslocoPipe } from '@jsverse/transloco';
+import {
+    countryNameToIso,
+    postmanCountryFlagUi,
+    PostmanCountryFlagUi,
+    resolveCountryNameFromIso,
+} from './postman-country.util';
 import {
     POSTMAN_HISTORY_PREFILL_STORAGE_KEY,
     PostmanHistoryPrefillPayload,
@@ -24,12 +22,6 @@ import { ApiEndpoint } from './postman.types';
 import { RequestEditorComponent } from './request-editor/request-editor.component';
 import { ResponseViewerComponent } from './response-viewer/response-viewer.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import {
-    countryNameToIso,
-    postmanCountryFlagUi,
-    PostmanCountryFlagUi,
-    resolveCountryNameFromIso,
-} from './postman-country.util';
 
 @Component({
     selector: 'app-postman',
@@ -47,8 +39,7 @@ import {
     template: `
         <div
             data-postman-root
-            class="flex min-h-0 w-full min-w-0 flex-1 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
-            [class.h-full]="!isMobile()"
+            class="flex h-full min-h-0 w-full min-w-0 overflow-hidden bg-[#f8fafc] select-none font-sans text-slate-900 dark:bg-[#0f172a] dark:text-slate-100"
             [class.h-dvh]="isMobile()"
         >
             @if (isDragging) {
@@ -68,7 +59,7 @@ import {
             <!-- Sidebar (desktop column; main area flex-shrinks as this grows) -->
             @if (!isMobile()) {
                 <div
-                    class="z-20 flex h-full min-h-0 flex-col overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
+                    class="z-20 flex h-full max-h-full min-h-0 flex-col self-stretch overflow-hidden border-r border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900"
                     [class.transition-[flex-basis,width]]="dragMode !== 'sidebar'"
                     [class.duration-300]="dragMode !== 'sidebar'"
                     [class.ease-in-out]="dragMode !== 'sidebar'"
@@ -77,6 +68,7 @@ import {
                     [style.max-width.px]="sidebarWidth"
                 >
                     <postman-sidebar
+                        class="min-h-0 flex-1"
                         [collapsed]="sidebarCollapsed"
                         (toggleCollapsed)="toggleSidebar()"
                     >
@@ -372,12 +364,13 @@ import {
     styles: [
         `
             :host {
+                position: absolute;
+                inset: 0;
                 display: flex;
-                flex: 1 1 auto;
-                width: 100%;
+                flex-direction: column;
                 min-width: 0;
                 min-height: 0;
-                height: 100%;
+                overflow: hidden;
             }
 
             .postman-flag-scroller {
@@ -447,9 +440,7 @@ export class PostmanComponent {
 
         return Object.entries(counts)
             .map(([name, count]) => ({ name, count }))
-            .sort((a, b) =>
-                a.name.localeCompare(b.name, 'en', { sensitivity: 'base' })
-            );
+            .sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
     });
 
     // Payment Method State
@@ -514,49 +505,45 @@ export class PostmanComponent {
             });
 
         // Effect: Sync URL code param -> Selected Endpoint (route is source of truth for code)
-        effect(
-            () => {
-                const params = this._queryParamMap();
-                const codeParam = params?.get('code');
-                const endpoints = this._postmanService.visibleEndpoints();
-                if (endpoints.length > 0 && codeParam) {
-                    const found = endpoints.find((ep) => ep.code === codeParam);
-                    // Skip re-selecting if the endpoint is already active. Re-selecting
-                    // calls `selectEndpoint` which clears the current `response`, and we
-                    // would otherwise wipe the user's last result whenever the endpoint
-                    // catalog is reloaded (e.g. after a credits refresh).
-                    if (found && this._postmanService.selectedEndpoint()?.code !== found.code) {
-                        this._postmanService.selectEndpoint(found);
-                    }
+        effect(() => {
+            const params = this._queryParamMap();
+            const codeParam = params?.get('code');
+            const endpoints = this._postmanService.visibleEndpoints();
+            if (endpoints.length > 0 && codeParam) {
+                const found = endpoints.find((ep) => ep.code === codeParam);
+                // Skip re-selecting if the endpoint is already active. Re-selecting
+                // calls `selectEndpoint` which clears the current `response`, and we
+                // would otherwise wipe the user's last result whenever the endpoint
+                // catalog is reloaded (e.g. after a credits refresh).
+                if (found && this._postmanService.selectedEndpoint()?.code !== found.code) {
+                    this._postmanService.selectEndpoint(found);
                 }
             }
-        );
+        });
 
         // Effect: Sync URL country param -> selectedCountry, gated on loaded catalog
-        effect(
-            () => {
-                const params = this._queryParamMap();
-                const isoParam = params?.get('country');
-                const endpoints = this._postmanService.visibleEndpoints();
-                if (endpoints.length === 0) return;
+        effect(() => {
+            const params = this._queryParamMap();
+            const isoParam = params?.get('country');
+            const endpoints = this._postmanService.visibleEndpoints();
+            if (endpoints.length === 0) return;
 
-                if (!isoParam) {
-                    if (this._postmanService.selectedCountry() !== null) {
-                        this._postmanService.selectedCountry.set(null);
-                    }
-                    return;
-                }
-
-                const resolved = resolveCountryNameFromIso(isoParam, endpoints);
-                if (resolved) {
-                    if (this._postmanService.selectedCountry() !== resolved) {
-                        this._postmanService.selectedCountry.set(resolved);
-                    }
-                } else if (this._postmanService.selectedCountry() !== null) {
+            if (!isoParam) {
+                if (this._postmanService.selectedCountry() !== null) {
                     this._postmanService.selectedCountry.set(null);
                 }
+                return;
             }
-        );
+
+            const resolved = resolveCountryNameFromIso(isoParam, endpoints);
+            if (resolved) {
+                if (this._postmanService.selectedCountry() !== resolved) {
+                    this._postmanService.selectedCountry.set(resolved);
+                }
+            } else if (this._postmanService.selectedCountry() !== null) {
+                this._postmanService.selectedCountry.set(null);
+            }
+        });
 
         // Effect: Selected Endpoint -> Sync URL (code + country together, so the
         // country param always matches the endpoint and we self-heal mismatches like
@@ -597,8 +584,7 @@ export class PostmanComponent {
         effect(() => {
             const loading = this._postmanService.isLoading();
             const hasResult =
-                this._postmanService.response() != null ||
-                this._postmanService.error() != null;
+                this._postmanService.response() != null || this._postmanService.error() != null;
             const wasLoading = this._wasLoading;
             this._wasLoading = loading;
 

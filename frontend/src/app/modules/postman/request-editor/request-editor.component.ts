@@ -94,14 +94,16 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
         AboutEndpointComponent,
         PostmanEndpointLabelComponent,
     ],
-    host: { class: 'block h-full w-full min-w-0 overflow-hidden' },
+    host: {
+        class: 'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden',
+    },
     template: `
         <div
-            class="flex flex-col h-full bg-white dark:bg-slate-900"
+            class="flex flex-col h-full min-h-0 overflow-hidden bg-white dark:bg-slate-900"
             *ngIf="endpoint(); else noSelection"
         >
             <!-- Top Bar: Method & URL & Send -->
-            <div *ngIf="endpoint() as ep" class="px-4 pt-4 pb-2 select-text">
+            <div *ngIf="endpoint() as ep" class="flex-shrink-0 px-4 pt-4 pb-2 select-text">
                 <ng-container *ngIf="ep.code; else defaultHeader">
                     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
                         <postman-endpoint-label
@@ -182,7 +184,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             </div>
 
             <!-- Request Bar -->
-            <div class="p-4 pt-2">
+            <div class="flex-shrink-0 p-4 pt-2">
                 <div class="flex flex-col md:flex-row md:items-center gap-2">
                     <div
                         class="flex min-w-0 items-center overflow-x-auto rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm dark:border-slate-600 dark:bg-slate-800 md:flex-1"
@@ -216,23 +218,22 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
             </div>
 
             <!-- Tabs: About, Params, Headers, Body -->
-            <div class="flex-1 overflow-hidden flex flex-col">
-                <mat-tab-group class="h-full">
+            <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
+                <mat-tab-group class="postman-request-tabs min-h-0 flex-1">
                     <!-- About -->
                     <mat-tab
                         [label]="'postman.requestEditor.tabs.about' | transloco"
                         *ngIf="showAboutTab()"
                     >
-                        <div class="flex flex-col h-full overflow-hidden">
+                        <div class="flex flex-col min-h-0 overflow-hidden">
                             @if (endpoint()?.docs) {
                                 <postman-about-endpoint
-                                    class="flex-1 min-h-0"
                                     [docs]="endpoint()?.docs"
                                     [endpoint]="endpoint()"
                                 ></postman-about-endpoint>
                             } @else {
                                 <div
-                                    class="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900/50"
+                                    class="postman-pane-scroll flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900/50"
                                 >
                                     <div
                                         class="prose prose-sm dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-blue-600 prose-img:rounded-xl select-text"
@@ -245,7 +246,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                     <!-- Params -->
                     <mat-tab [label]="'postman.requestEditor.tabs.params' | transloco">
-                        <div class="p-4 overflow-y-auto h-full space-y-4 select-text">
+                        <div class="postman-pane-scroll p-4 overflow-y-auto h-full space-y-4 select-text">
                             @if (showPostmanSandboxProfilePicker()) {
                                 <div
                                     class="select-text rounded-2xl border border-slate-200/90 bg-white px-4 py-4 shadow-sm dark:border-slate-700/80 dark:bg-slate-900/40"
@@ -726,7 +727,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
 
                     <!-- Headers -->
                     <mat-tab [label]="'postman.requestEditor.tabs.headers' | transloco">
-                        <div class="p-4 overflow-y-auto h-full space-y-4">
+                        <div class="postman-pane-scroll p-4 overflow-y-auto h-full space-y-4">
                             <div
                                 class="flex items-center gap-2 mb-2 font-semibold text-xs uppercase text-slate-500 tracking-wider"
                             >
@@ -1070,21 +1071,43 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
     `,
     styles: [
         `
-            ::ng-deep .mat-mdc-tab-group {
-                height: 100%;
-            }
-            ::ng-deep .mat-mdc-tab-body-wrapper {
-                height: 100%;
-                overflow-y: auto;
-            }
-            ::ng-deep .mat-mdc-tab-body {
-                height: 100%;
+            ::ng-deep .postman-request-tabs.mat-mdc-tab-group {
                 display: flex;
+                flex: 1 1 0%;
                 flex-direction: column;
-            }
-            ::ng-deep .mat-mdc-tab-body-content {
+                min-height: 0;
                 height: 100%;
-                overflow: hidden;
+            }
+            ::ng-deep .postman-request-tabs .mat-mdc-tab-header {
+                flex-shrink: 0;
+            }
+            ::ng-deep .postman-request-tabs .mat-mdc-tab-body-wrapper {
+                flex: 1 1 0%;
+                min-height: 0;
+                overflow-y: auto;
+                overscroll-behavior: contain;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            ::ng-deep .postman-request-tabs .mat-mdc-tab-body-wrapper::-webkit-scrollbar {
+                display: none;
+                width: 0;
+                height: 0;
+            }
+            .postman-pane-scroll {
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+            .postman-pane-scroll::-webkit-scrollbar {
+                display: none;
+                width: 0;
+                height: 0;
+            }
+            ::ng-deep .postman-request-tabs .mat-mdc-tab-body {
+                display: block;
+            }
+            ::ng-deep .postman-request-tabs .mat-mdc-tab-body-content {
+                overflow: visible;
             }
             select.postman-param-value-select {
                 -webkit-appearance: none;

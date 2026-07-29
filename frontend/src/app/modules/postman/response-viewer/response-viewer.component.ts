@@ -28,9 +28,9 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
   selector: 'postman-response-viewer',
   standalone: true,
   imports: [CommonModule, JsonTableComponent, RouterModule, MatButtonModule, MatIconModule, TranslocoPipe],
-  host: { class: 'block h-full w-full min-w-0 overflow-hidden' },
+  host: { class: 'flex h-full min-h-0 w-full min-w-0 flex-col overflow-hidden' },
   template: `
-    <div class="flex flex-col h-full overflow-hidden bg-transparent">
+    <div class="flex h-full min-h-0 flex-col overflow-hidden bg-transparent">
       <div
         class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex-shrink-0"
       >

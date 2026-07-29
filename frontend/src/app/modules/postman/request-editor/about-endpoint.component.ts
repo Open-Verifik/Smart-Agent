@@ -41,11 +41,9 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
     selector: 'postman-about-endpoint',
     standalone: true,
     imports: [CommonModule, MatIconModule, MatTooltipModule, TranslocoPipe, MarkdownPipe],
-    host: { class: 'block h-full' },
+    host: { class: 'block w-full' },
     template: `
-        <div class="flex h-full flex-col overflow-hidden">
-            <div class="flex-1 overflow-y-auto">
-                <div class="mx-auto w-full max-w-4xl space-y-6 p-6 select-text">
+        <div class="mx-auto w-full max-w-4xl space-y-6 p-6 select-text">
                     @if (showFallbackBadge()) {
                         <div
                             class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300"
@@ -315,15 +313,9 @@ import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
                         </div>
                     }
                 </div>
-            </div>
-        </div>
     `,
     styles: [
         `
-            :host {
-                display: block;
-                height: 100%;
-            }
             pre.hljs {
                 background-color: rgb(15 23 42);
                 color: rgb(226 232 240);

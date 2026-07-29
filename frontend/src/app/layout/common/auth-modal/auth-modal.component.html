@@ -274,7 +274,10 @@
               type="button"
               (click)="selectCountry(country)"
               class="w-full px-4 py-3 flex items-center gap-3 hover:bg-slate-50 dark:hover:bg-slate-700 text-left transition-colors"
-              [class.bg-blue-50]="selectedCountry()?.dialCode === country.dialCode"
+              [ngClass]="{
+                'bg-blue-50 dark:bg-blue-900/20':
+                  selectedCountry()?.countryCode === country.countryCode
+              }"
             >
               <span class="text-2xl">{{ country.flag }}</span>
               <div class="flex-1 min-w-0">

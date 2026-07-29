@@ -171,7 +171,7 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
         </div>
       </div>
 
-      <div class="flex-1 min-h-0 overflow-y-auto p-2 space-y-2">
+      <div class="postman-sidebar-scroll p-2 space-y-2">
         <!-- Collapsed + layout: flat list -->
         <ng-container *ngIf="postman.useLayoutSidebar() && collapsed">
           <a
@@ -383,9 +383,29 @@ function pruneFolderTree(nodes: SidebarFolderNode[]): SidebarFolderNode[] {
       :host {
         display: flex;
         flex-direction: column;
+        flex: 1 1 auto;
         height: 100%;
+        max-height: 100%;
         min-height: 0;
         overflow: hidden;
+      }
+
+      /* Independent vertical scroller for the endpoint list */
+      .postman-sidebar-scroll {
+        flex: 1 1 0%;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .postman-sidebar-scroll::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
       }
     `,
   ],

@@ -1,0 +1,1 @@
+import"./chunk-WOXRZINP.js";var e=[{path:"",redirectTo:"projects",pathMatch:"full"},{path:"plans",loadComponent:()=>import("./chunk-QNAPAC6S.js").then(t=>t.SmartAccessPlansComponent)},{path:"projects",loadChildren:()=>import("./chunk-S2LCXCLY.js").then(t=>t.default)}];export{e as default};
