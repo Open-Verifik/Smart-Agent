@@ -163,118 +163,6 @@
         ]
       }
     },
-    "/api/usa/vehicle": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "USA"
-        ],
-        "operationId": "usa_api_vehicle",
-        "summary": "United States - Vehicle Information",
-        "description": "US vehicle validation service for retrieving vehicle information using license plate and state",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.3"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "state",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "AL",
-                "AK",
-                "AZ",
-                "AR",
-                "CA",
-                "CO",
-                "CT",
-                "DE",
-                "FL",
-                "GA",
-                "HI",
-                "ID",
-                "IL",
-                "IN",
-                "IA",
-                "KS",
-                "KY",
-                "LA",
-                "ME",
-                "MD",
-                "MA",
-                "MI",
-                "MN",
-                "MS",
-                "MO",
-                "MT",
-                "NE",
-                "NV",
-                "NH",
-                "NJ",
-                "NM",
-                "NY",
-                "NC",
-                "ND",
-                "OH",
-                "OK",
-                "OR",
-                "PA",
-                "RI",
-                "SC",
-                "SD",
-                "TN",
-                "TX",
-                "UT",
-                "VT",
-                "VA",
-                "WA",
-                "WV",
-                "WI",
-                "WY"
-              ]
-            },
-            "description": "Parameter: state"
-          },
-          {
-            "name": "plate",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: plate"
-          }
-        ]
-      }
-    },
     "/api/co/simit/acuerdos": {
       "post": {
         "tags": [
@@ -1564,6 +1452,57 @@
         ]
       }
     },
+    "/api/v3/pe/vehiculo/placa": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "peru_api_vehicle_v3",
+        "summary": "Peru - Vehicle Information",
+        "description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet data when available.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate to query, without spaces or punctuation."
+          }
+        ]
+      }
+    },
     "/api/pe/vehiculo/soat": {
       "get": {
         "tags": [
@@ -2742,236 +2681,6 @@
         }
       }
     },
-    "/api/co/cedula/by-name": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_api_identity_lookup_by_name",
-        "summary": "Colombia — Citizen lookup by name (SCCRC)",
-        "description": "Reverse-lookup Colombian birth civil registry records by names, sex (FEMENINO/MASCULINO), and date of birth via /v2/co/cedula/by-name (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.3"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "primerNombre": {
-                    "type": "string",
-                    "description": "First given name"
-                  },
-                  "primerApellido": {
-                    "type": "string",
-                    "description": "First surname"
-                  },
-                  "sexo": {
-                    "type": "string",
-                    "description": "MASCULINO or FEMENINO",
-                    "enum": [
-                      "MASCULINO",
-                      "FEMENINO",
-                      "M",
-                      "F"
-                    ]
-                  },
-                  "fecha": {
-                    "type": "string",
-                    "description": "Date of birth DD/MM/YYYY"
-                  },
-                  "segundoNombre": {
-                    "type": "string",
-                    "description": "Optional second given name"
-                  },
-                  "segundoApellido": {
-                    "type": "string",
-                    "description": "Optional second surname"
-                  }
-                },
-                "required": [
-                  "primerNombre",
-                  "primerApellido",
-                  "sexo",
-                  "fecha"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/co/registraduria/serial": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_api_registraduria_serial",
-        "summary": "Colombia — Civil registry lookup by serial (SCCRC)",
-        "description": "Locate a Colombian birth civil registry record by serial via /v2/co/registraduria/serial (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.3"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "serial": {
-                    "type": "string",
-                    "description": "Civil registry serial (up to 10 digits)"
-                  }
-                },
-                "required": [
-                  "serial"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/co/registraduria/matrimonio": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_api_registraduria_matrimonio",
-        "summary": "Colombia — Marriage civil registry (SCCRC)",
-        "description": "Search Colombian marriage civil registry via /v2/co/registraduria/matrimonio (Registraduría SCCRC). Use exactly one mode: documentNumber+sexo, name fields+sexo+fecha (DD/MM/YYYY), or serial. Sexo: FEMENINO/MASCULINO (or F/M). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.3"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "documentNumber": {
-                    "type": "string",
-                    "description": "NUIP/CC (document mode; requires sexo)"
-                  },
-                  "sexo": {
-                    "type": "string",
-                    "description": "FEMENINO or MASCULINO (required for document or name mode)",
-                    "enum": [
-                      "MASCULINO",
-                      "FEMENINO",
-                      "M",
-                      "F"
-                    ]
-                  },
-                  "serial": {
-                    "type": "string",
-                    "description": "Marriage registry serial (serial mode)"
-                  },
-                  "primerNombre": {
-                    "type": "string",
-                    "description": "First given name (name mode)"
-                  },
-                  "primerApellido": {
-                    "type": "string",
-                    "description": "First surname (name mode)"
-                  },
-                  "fecha": {
-                    "type": "string",
-                    "description": "Marriage date DD/MM/YYYY (name mode)"
-                  }
-                },
-                "required": []
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/co/deudoresmorosos": {
       "post": {
         "tags": [
@@ -3139,6 +2848,57 @@
               "type": "string"
             },
             "description": "Parameter: plate"
+          }
+        ]
+      }
+    },
+    "/api/v3/ec/vehiculo/placa": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "ecuador_api_vehicle_v3",
+        "summary": "Ecuador - Vehicle Verification",
+        "description": "Look up Ecuadorian vehicle registration details by license plate, including technical-sheet data when available.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.2"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate to query, without spaces or punctuation."
           }
         ]
       }
@@ -3404,7 +3164,7 @@
         ],
         "operationId": "panama_api_identity_lookup",
         "summary": "Panama - Panamanian Citizen",
-        "description": "Verify Panamanian CCPA national ID data (document, name, date of birth) against official civil-registry sources for KYC and fraud prevention.",
+        "description": "Verify Panamanian CCPA national ID data (document and name) for KYC and fraud prevention.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -3453,15 +3213,6 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
-          },
-          {
-            "name": "dateOfBirth",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Parameter: dateOfBirth"
           }
         ]
       }
@@ -3989,6 +3740,69 @@
         "operationId": "ecuador_api_company_lookup",
         "summary": "Ecuador - Ecuadorian Business Verification",
         "description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "RUCEC"
+              ]
+            },
+            "description": "Parameter: documentType"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Parameter: documentNumber"
+          }
+        ]
+      }
+    },
+    "/api/v3/ec/company": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "ecuador_api_company_lookup_v3",
+        "summary": "Ecuador - Ecuadorian Business Verification (v3)",
+        "description": "Validate Ecuadorian companies with Verifik's KYB API (v3). Connect with official sources and verify comprehensive business data in seconds.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -10116,6 +9930,668 @@
               ]
             },
             "description": "When true, bypasses cached records and fetches fresh data from the source."
+          }
+        ]
+      }
+    },
+    "/api/hn/votacion": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "honduras_api_voting_location",
+        "summary": "Honduras - Voting Location",
+        "description": "Honduran voting location lookup service for retrieving polling place, JRV, and residence details from the electoral consultation registry.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Document type. Allowed value: DNIHN.",
+                    "enum": [
+                      "DNIHN"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Honduran identity document number (13 digits)."
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cr/votacion": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "costarica_api_voting_location",
+        "summary": "Costa Rica - Voting Location",
+        "description": "Costa Rican voting location lookup service for retrieving polling place, junta, and residence details from the official TSE Donde Votar registry.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Document type. Allowed value: CCCR.",
+                    "enum": [
+                      "CCCR"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Costa Rican identity document number (9 to 13 digits)."
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mx/ine": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "mexico_api_ine_validate",
+        "summary": "Mexico - INE Validation",
+        "description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector identifiers.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.4"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Document type. Allowed value: INE.",
+                    "enum": [
+                      "INE"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Primary INE identifier: CIC (9 digits), OCR (13 digits), or clave de elector (18 characters).",
+                    "minimum": 9,
+                    "maximum": 18
+                  },
+                  "citizenIdentifier": {
+                    "type": "string",
+                    "description": "Citizen identifier from the back of the credential. Required for models E, F, G, and H with CIC."
+                  },
+                  "emissionNumber": {
+                    "type": "string",
+                    "description": "Emission number. Required for model C with OCR and clave de elector."
+                  },
+                  "model": {
+                    "type": "string",
+                    "description": "Optional INE card model hint to select the correct field combination.",
+                    "enum": [
+                      "C",
+                      "D",
+                      "E",
+                      "F",
+                      "G",
+                      "H"
+                    ]
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mx/ine/ocr": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "mexico_api_ine_ocr",
+        "summary": "Mexico - INE OCR",
+        "description": "Extract INE fields with Verifik Gemini OCR, then validate electoral status via Nexcar numbers in one request.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.4"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "front": {
+                    "type": "string",
+                    "description": "Front image of the INE as a public URL or base64 string."
+                  },
+                  "back": {
+                    "type": "string",
+                    "description": "Optional back image as a public URL or base64 string. Improves OCR accuracy."
+                  }
+                },
+                "required": [
+                  "front"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cr/traffic-infractions": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "costa_rica_api_traffic_infractions",
+        "summary": "Costa Rica - Traffic Infractions",
+        "description": "Costa Rican traffic infractions lookup service for retrieving COSEVI tickets by vehicle license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "plate": {
+                    "type": "string",
+                    "description": "Vehicle license plate to consult, without spaces or special characters (max 6).",
+                    "minimum": 3,
+                    "maximum": 6
+                  },
+                  "force": {
+                    "type": "string",
+                    "description": "When true, bypasses cached records and fetches fresh data from the source.",
+                    "enum": [
+                      "true",
+                      "false"
+                    ]
+                  }
+                },
+                "required": [
+                  "plate"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/co/cedula/by-name": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_identity_lookup_by_name",
+        "summary": "Colombia - Citizen Lookup by Name (SCCRC)",
+        "description": "Search Colombian birth civil registry records by names, sex, and date of birth via Registraduría SCCRC",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "primerNombre",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "First given name"
+          },
+          {
+            "name": "primerApellido",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "First surname"
+          },
+          {
+            "name": "sexo",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "MASCULINO",
+                "FEMENINO",
+                "M",
+                "F"
+              ]
+            },
+            "description": "Sex as registered (MASCULINO or FEMENINO)"
+          },
+          {
+            "name": "fecha",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Date of birth in DD/MM/YYYY"
+          },
+          {
+            "name": "segundoNombre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Second given name"
+          },
+          {
+            "name": "segundoApellido",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Second surname"
+          }
+        ]
+      }
+    },
+    "/api/co/registraduria/serial": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_registraduria_serial",
+        "summary": "Colombia - Civil Registry Lookup by Serial (SCCRC)",
+        "description": "Lookup Colombian birth civil registry records by serial number via Registraduría SCCRC",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "serial",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Civil registry serial printed on the registro civil (up to 10 digits)"
+          }
+        ]
+      }
+    },
+    "/api/co/registraduria/matrimonio": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_registraduria_matrimonio",
+        "summary": "Colombia - Marriage Civil Registry (SCCRC)",
+        "description": "Search Colombian marriage civil registry records by document, name, or serial via Registraduría SCCRC",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "NUIP/CC (document mode; also needs sexo)"
+                  },
+                  "primerNombre": {
+                    "type": "string",
+                    "description": "First given name (name mode)"
+                  },
+                  "primerApellido": {
+                    "type": "string",
+                    "description": "First surname (name mode)"
+                  },
+                  "segundoNombre": {
+                    "type": "string",
+                    "description": "Optional second given name"
+                  },
+                  "segundoApellido": {
+                    "type": "string",
+                    "description": "Optional second surname"
+                  },
+                  "fecha": {
+                    "type": "string",
+                    "description": "Marriage date DD/MM/YYYY (name mode)"
+                  },
+                  "serial": {
+                    "type": "string",
+                    "description": "Marriage registry serial (serial mode)"
+                  },
+                  "sexo": {
+                    "type": "string",
+                    "description": "Required for document (Option B) and name (Option A) modes; not used with serial",
+                    "enum": [
+                      "MASCULINO",
+                      "FEMENINO",
+                      "M",
+                      "F"
+                    ]
+                  }
+                },
+                "required": []
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/co/cedula/registraduria": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_identity_lookup_registraduria",
+        "summary": "Colombia - Citizen Lookup via Registraduría (SCCRC)",
+        "description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría, DIAN, and Olimpia)",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CC"
+              ]
+            },
+            "description": "Document type (CC only)"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Colombian cédula number"
           }
         ]
       }

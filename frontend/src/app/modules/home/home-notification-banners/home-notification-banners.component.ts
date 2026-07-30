@@ -1,11 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoModule } from '@jsverse/transloco';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { InboxItem } from 'app/core/notifications/app-notifications.models';
+import {
+    openNotificationCta,
+    shouldShowNotificationCta,
+} from 'app/core/notifications/notification-cta.util';
 import { SessionService } from 'app/core/services/session.service';
+import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 
 @Component({
     selector: 'app-home-notification-banners',
@@ -17,6 +23,8 @@ import { SessionService } from 'app/core/services/session.service';
 export class HomeNotificationBannersComponent implements OnInit {
     private readonly _notifications = inject(AppNotificationsService);
     private readonly _session = inject(SessionService);
+    private readonly _router = inject(Router);
+    private readonly _quickChat = inject(QuickChatService);
 
     banners = signal<InboxItem[]>([]);
     dismissingId = signal<string | null>(null);
@@ -50,10 +58,15 @@ export class HomeNotificationBannersComponent implements OnInit {
         });
     }
 
+    showCta(item: InboxItem): boolean {
+        return shouldShowNotificationCta(item.cta);
+    }
+
     openCta(item: InboxItem): void {
-        const url = item.cta?.url?.trim();
-        if (!url) return;
-        window.open(url, item.cta?.openInNewTab !== false ? '_blank' : '_self', 'noopener');
+        openNotificationCta(item.cta, {
+            router: this._router,
+            quickChat: this._quickChat,
+        });
     }
 
     trackById(_index: number, item: InboxItem): string {

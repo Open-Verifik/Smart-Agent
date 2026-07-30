@@ -40,7 +40,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="flex flex-wrap gap-2">
-    @if (item.cta?.url) {
+    @if (showCta()) {
         <button mat-stroked-button type="button" (click)="openCta()">
             {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
         </button>

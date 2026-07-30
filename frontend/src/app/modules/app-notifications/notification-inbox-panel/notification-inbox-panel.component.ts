@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
@@ -23,9 +24,14 @@ import {
     InteractionMode,
     NotificationCategory,
 } from 'app/core/notifications/app-notifications.models';
+import {
+    openNotificationCta,
+    shouldShowNotificationCta,
+} from 'app/core/notifications/notification-cta.util';
 import { SessionService } from 'app/core/services/session.service';
 import { FuseScrollbarDirective } from '@fuse/directives/scrollbar';
 import { AuthModalComponent } from 'app/layout/common/auth-modal/auth-modal.component';
+import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -48,6 +54,8 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class NotificationInboxPanelComponent implements OnDestroy {
     private readonly _notifications = inject(AppNotificationsService);
+    private readonly _router = inject(Router);
+    private readonly _quickChat = inject(QuickChatService);
     private readonly _session = inject(SessionService);
     private readonly _dialog = inject(MatDialog);
     private readonly _sanitizer = inject(DomSanitizer);
@@ -192,10 +200,15 @@ export class NotificationInboxPanelComponent implements OnDestroy {
         }
     }
 
+    showCta(item: InboxItem | null): boolean {
+        return shouldShowNotificationCta(item?.cta);
+    }
+
     openCtaUrl(item: InboxItem | null): void {
-        const url = item?.cta?.url?.trim();
-        if (!url) return;
-        window.open(url, item.cta?.openInNewTab !== false ? '_blank' : '_self', 'noopener');
+        openNotificationCta(item?.cta, {
+            router: this._router,
+            quickChat: this._quickChat,
+        });
     }
 
     trackByNotificationId(_index: number, item: InboxItem): string {

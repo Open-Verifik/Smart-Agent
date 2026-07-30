@@ -541,12 +541,11 @@ export const SUPPORT_TICKET_SMARTCHECK_APIS: SupportTicketSmartCheckApi[] = [
                 endpoint: "/v2/es/vehicle",
                 country: "España",
             },
-            { type: "vehicle", value: "usa_api_vehicle", label: "data-api.usa_api_vehicle", endpoint: "/v2/us/vehicle", country: "USA" },
             {
                 type: "vehicle",
                 value: "usa_api_vehicle_lookup_by_vin",
                 label: "data-api.usa_api_vehicle_lookup_by_vin",
-                endpoint: "/v2/us/vehicle-vin",
+                endpoint: "/v2/usa/vehicle-by-vin",
                 country: "USA",
             },
             {

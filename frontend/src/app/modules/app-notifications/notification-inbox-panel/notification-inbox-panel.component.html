@@ -206,7 +206,7 @@
                     <div
                         class="border-divider flex flex-0 flex-wrap items-center gap-2 border-t p-3"
                     >
-                        @if (item.cta?.url) {
+                        @if (showCta(item)) {
                             <button
                                 mat-stroked-button
                                 type="button"

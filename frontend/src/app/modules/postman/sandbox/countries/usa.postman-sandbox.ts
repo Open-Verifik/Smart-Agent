@@ -8,12 +8,8 @@ import {
     SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
 } from '../sandbox-error-profiles';
 import {
-    appendVehiclePlateSandboxProfiles,
     appendVehicleVinSandboxProfiles,
-    SANDBOX_DEFAULT_PLATE,
     SANDBOX_DEFAULT_VIN,
-    SANDBOX_ERROR_PROFILE_PLATE_404,
-    SANDBOX_VEHICLE_PLATE_PROFILES,
     SANDBOX_VEHICLE_VIN_PROFILES,
 } from '../vehicle-plate-profiles';
 
@@ -21,13 +17,13 @@ export const USA_COMPANY_ENDPOINT_CODE = 'usa_api_company';
 export const USA_SSN_ENDPOINT_CODE = 'usa_api_ssn';
 export const USA_FLORIDA_DRIVER_LICENSE_ENDPOINT_CODE = 'usa_api_driver_license_lookup';
 export const USA_KANSAS_DRIVER_LICENSE_ENDPOINT_CODE = 'usa_api_driver_license_lookup_kansas';
+/** Plate-by-state lookup is temporarily unavailable (catalogHidden / isAvailable false). */
 export const USA_VEHICLE_ENDPOINT_CODE = 'usa_api_vehicle';
 export const USA_VEHICLE_BY_VIN_ENDPOINT_CODE = 'usa_api_vehicle_lookup_by_vin';
 
 const USA_COMPANY_DEFAULT_BUSINESS = 'APPLE INC';
 const USA_SSN_DEMO = '123-45-678';
 const USA_KANSAS_DEFAULT_DATE_OF_BIRTH = '15/03/1990';
-const USA_VEHICLE_DEFAULT_STATE = 'FL';
 
 const USA_SSN_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
     {
@@ -144,22 +140,6 @@ const USA_KANSAS_ERROR_PROFILE_404: PostmanSandboxProfile = {
     },
 };
 
-const USA_VEHICLE_SANDBOX_PROFILES: PostmanSandboxProfile[] = SANDBOX_VEHICLE_PLATE_PROFILES.map((profile) => ({
-    ...profile,
-    paramOverrides: {
-        plate: profile.plate ?? profile.documentNumber,
-        state: USA_VEHICLE_DEFAULT_STATE,
-    },
-}));
-
-const USA_VEHICLE_ERROR_PROFILE_404: PostmanSandboxProfile = {
-    ...SANDBOX_ERROR_PROFILE_PLATE_404,
-    paramOverrides: {
-        plate: SANDBOX_ERROR_PROFILE_PLATE_404.plate ?? 'ERR40401',
-        state: USA_VEHICLE_DEFAULT_STATE,
-    },
-};
-
 export const USA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [USA_COMPANY_ENDPOINT_CODE]: {
         profiles: [...USA_COMPANY_SANDBOX_PROFILES, USA_COMPANY_ERROR_PROFILE_404],
@@ -189,13 +169,6 @@ export const USA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointC
         ],
         defaultDocumentNumber: 'K10000001',
         defaultDateOfBirth: USA_KANSAS_DEFAULT_DATE_OF_BIRTH,
-        showProfileMeta: false,
-    },
-    [USA_VEHICLE_ENDPOINT_CODE]: {
-        profiles: [...USA_VEHICLE_SANDBOX_PROFILES, USA_VEHICLE_ERROR_PROFILE_404],
-        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
-        defaultPlate: SANDBOX_DEFAULT_PLATE,
-        defaultState: USA_VEHICLE_DEFAULT_STATE,
         showProfileMeta: false,
     },
     [USA_VEHICLE_BY_VIN_ENDPOINT_CODE]: {

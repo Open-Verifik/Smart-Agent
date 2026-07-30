@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import {
@@ -14,6 +15,11 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { trustNotificationBodyHtml } from 'app/core/notifications/notification-body-html.util';
 import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { InboxItem } from 'app/core/notifications/app-notifications.models';
+import {
+    openNotificationCta,
+    shouldShowNotificationCta,
+} from 'app/core/notifications/notification-cta.util';
+import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 
 export interface BlockingNotificationModalData {
     item: InboxItem;
@@ -41,6 +47,8 @@ export class BlockingNotificationModalComponent {
     private readonly _data = inject<BlockingNotificationModalData>(MAT_DIALOG_DATA);
     private readonly _notifications = inject(AppNotificationsService);
     private readonly _sanitizer = inject(DomSanitizer);
+    private readonly _router = inject(Router);
+    private readonly _quickChat = inject(QuickChatService);
 
     readonly item = this._data.item;
     actionBusy = signal(false);
@@ -83,10 +91,15 @@ export class BlockingNotificationModalComponent {
         });
     }
 
+    showCta(): boolean {
+        return shouldShowNotificationCta(this.item.cta);
+    }
+
     openCta(): void {
-        const url = this.item.cta?.url?.trim();
-        if (!url) return;
-        window.open(url, '_blank', 'noopener');
+        openNotificationCta(this.item.cta, {
+            router: this._router,
+            quickChat: this._quickChat,
+        });
     }
 
     private _closeSuccess(): void {
