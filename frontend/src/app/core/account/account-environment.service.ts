@@ -27,8 +27,18 @@ export class AccountEnvironmentService {
     readonly sandboxToggleLoading = signal(false);
     readonly verifyCompanyLoading = signal(false);
 
+    /**
+     * True after `/v2/auth/session` (or equivalent) has hydrated the account.
+     * Prevents stale `verifik_account` localStorage from flashing the KYC strip/modal.
+     */
+    readonly sessionHydrated = signal(false);
+
     readonly showVerifyStrip = computed(
-        () => this.isAuthenticated() && this.accountSnapshot()?.canRecharge === false
+        () =>
+            this.sessionHydrated() &&
+            this.isAuthenticated() &&
+            this.accountSnapshot()?.canRecharge === false &&
+            this.accountSnapshot()?.approvalRequestStatus !== 'approved'
     );
 
     readonly verifyStripPendingReview = computed(
@@ -46,11 +56,14 @@ export class AccountEnvironmentService {
     readonly isSandboxModeActive = computed(() => this._isSandboxModeActive());
 
     /**
-     * true = Production is ACTIVE (sandboxMode === false).
-     * The slide-toggle `checked` represents "Production on", not "Sandbox on".
+     * true = Production is ACTIVE (sandboxMode === false) and the account can recharge.
+     * Unverified accounts must not appear as Production while KYC is still required.
      */
     readonly productionModeOn = computed(
-        () => this.isAuthenticated() && !this._isSandboxModeActive()
+        () =>
+            this.isAuthenticated() &&
+            this.accountSnapshot()?.canRecharge === true &&
+            !this._isSandboxModeActive()
     );
 
     /** Toggle is enabled only when canRecharge is explicitly true and settings._id exists. */
@@ -68,6 +81,11 @@ export class AccountEnvironmentService {
         this._userService.user$.pipe(takeUntilDestroyed()).subscribe((user) => {
             if (user) {
                 this.accountSnapshot.set(user);
+                // Session payloads always include a boolean canRecharge; localStorage hydrate
+                // goes through `_hydrateFromStorage` and must not unlock the KYC strip early.
+                if (typeof user.canRecharge === 'boolean') {
+                    this.sessionHydrated.set(true);
+                }
             }
             this._refreshAuthState();
         });
@@ -88,6 +106,7 @@ export class AccountEnvironmentService {
                 if (user) {
                     this.accountSnapshot.set(user);
                     this._userService.user = user;
+                    this.sessionHydrated.set(true);
                 }
                 this._refreshAuthState();
             });
@@ -97,6 +116,7 @@ export class AccountEnvironmentService {
     onSessionSynced(user: User | null): void {
         if (user) {
             this.accountSnapshot.set(user);
+            this.sessionHydrated.set(true);
         }
         this._refreshAuthState();
     }

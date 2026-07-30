@@ -338,11 +338,8 @@ export class HomeComponent implements OnInit {
 
                 if (activeBringBack) {
                     this._maybeOpenBringBackOfferModal(clientId, activeBringBack);
-                } else if (
-                    user?.canRecharge === false &&
-                    user.approvalRequestStatus !== 'requested'
-                ) {
-                    this._maybeOpenProductionVerificationModal();
+                } else {
+                    this._maybeOpenProductionVerificationModal(user);
                 }
             });
     }
@@ -488,11 +485,23 @@ export class HomeComponent implements OnInit {
 
     /**
      * Invasive nudge on every Home visit for unverified accounts to complete KYC and unlock
-     * Production Mode. Skipped while a review is already pending. Reuses the same
-     * "why verify" modal + KYC wiring as the manual `account-verification-strip` CTA.
+     * Production Mode. Uses the fresh `/v2/auth/session` user only — never stale
+     * `accountSnapshot` / localStorage — so approved production clients are not prompted.
      */
-    private _maybeOpenProductionVerificationModal(): void {
-        if (!this._accountEnv.showVerifyStrip() || this._accountEnv.verifyStripPendingReview()) {
+    private _maybeOpenProductionVerificationModal(
+        user: {
+            canRecharge?: boolean;
+            approvalRequestStatus?: 'requested' | 'approved' | 'rejected';
+        } | null
+    ): void {
+        if (!user || user.canRecharge !== false) {
+            return;
+        }
+
+        if (
+            user.approvalRequestStatus === 'requested' ||
+            user.approvalRequestStatus === 'approved'
+        ) {
             return;
         }
 

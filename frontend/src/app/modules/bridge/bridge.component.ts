@@ -257,13 +257,16 @@ export class BridgeComponent implements OnInit {
             this._authService.accessToken = newAccess;
         }
 
-        await this.hydrateUserFromApi();
-        await this.applyOptionalBase64UserOverlay();
+        const hydrated = await this.hydrateUserFromApi();
+        // Incomplete admin handoff `user` payloads can overwrite canRecharge/settings.
+        if (!hydrated) {
+            await this.applyOptionalBase64UserOverlay();
+        }
 
         this.startSuccessCountdownAndRedirect(redirect);
     }
 
-    private async hydrateUserFromApi(): Promise<void> {
+    private async hydrateUserFromApi(): Promise<boolean> {
         try {
             const res = await firstValueFrom(this._authApiService.getSession().pipe(take(1)));
             const userData = res.data?.user || res.user || res;
@@ -271,10 +274,13 @@ export class BridgeComponent implements OnInit {
                 localStorage.setItem('verifik_account', JSON.stringify(userData));
                 this._userService.user = userData;
                 this._sessionService.resetReloadTracking();
+                return true;
             }
         } catch (e) {
             console.warn('[Bridge] Session hydrate skipped or failed:', e);
         }
+
+        return false;
     }
 
     /** Legacy SSO: incoming token is already the client JWT */
