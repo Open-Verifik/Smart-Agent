@@ -66,86 +66,6 @@
 			}
 		},
 		{
-			"id": "usa_api_vehicle",
-			"name": "United States - Vehicle Information",
-			"category": "United States - Vehicle Information",
-			"url": "https://ai.verifik.co/api/usa/vehicle",
-			"verifikPath": "/v2/usa/vehicle",
-			"method": "GET",
-			"description": "US vehicle validation service for retrieving vehicle information using license plate and state",
-			"country": "United States",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"state": {
-						"type": "string",
-						"description": "Parameter: state",
-						"enum": [
-							"AL",
-							"AK",
-							"AZ",
-							"AR",
-							"CA",
-							"CO",
-							"CT",
-							"DE",
-							"FL",
-							"GA",
-							"HI",
-							"ID",
-							"IL",
-							"IN",
-							"IA",
-							"KS",
-							"KY",
-							"LA",
-							"ME",
-							"MD",
-							"MA",
-							"MI",
-							"MN",
-							"MS",
-							"MO",
-							"MT",
-							"NE",
-							"NV",
-							"NH",
-							"NJ",
-							"NM",
-							"NY",
-							"NC",
-							"ND",
-							"OH",
-							"OK",
-							"OR",
-							"PA",
-							"RI",
-							"SC",
-							"SD",
-							"TN",
-							"TX",
-							"UT",
-							"VT",
-							"VA",
-							"WA",
-							"WV",
-							"WI",
-							"WY"
-						]
-					},
-					"plate": {
-						"type": "string",
-						"description": "Parameter: plate"
-					}
-				},
-				"required": [
-					"state",
-					"plate"
-				]
-			}
-		},
-		{
 			"id": "colombia_api_simit_agreements",
 			"name": "Colombia - SIMIT - Agreements",
 			"category": "Colombia - SIMIT - Agreements",
@@ -779,6 +699,29 @@
 			}
 		},
 		{
+			"id": "peru_api_vehicle_v3",
+			"name": "Peru - Vehicle Information",
+			"category": "Peru - Vehicle Information",
+			"url": "https://ai.verifik.co/api/v3/pe/vehiculo/placa",
+			"verifikPath": "/v3/pe/vehiculo/placa",
+			"method": "GET",
+			"description": "Query Peruvian vehicle details by license plate, including identifiers and technical-sheet data when available.",
+			"country": "Peru",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to query, without spaces or punctuation."
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
 			"id": "peru_api_vehicle_soat",
 			"name": "Peru - Vehicle Insurance",
 			"category": "Peru - Vehicle Insurance",
@@ -1357,118 +1300,6 @@
 			}
 		},
 		{
-			"id": "colombia_api_identity_lookup_by_name",
-			"name": "Colombia — Citizen lookup by name (SCCRC)",
-			"category": "Colombia — Citizen lookup by name (SCCRC)",
-			"url": "https://ai.verifik.co/api/co/cedula/by-name",
-			"verifikPath": "/v2/co/cedula/by-name",
-			"method": "POST",
-			"description": "Reverse-lookup Colombian birth civil registry records by names, sex (FEMENINO/MASCULINO), and date of birth via /v2/co/cedula/by-name (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"primerNombre": {
-						"type": "string",
-						"description": "First given name"
-					},
-					"primerApellido": {
-						"type": "string",
-						"description": "First surname"
-					},
-					"sexo": {
-						"type": "string",
-						"description": "MASCULINO or FEMENINO",
-						"enum": ["MASCULINO", "FEMENINO", "M", "F"]
-					},
-					"fecha": {
-						"type": "string",
-						"description": "Date of birth DD/MM/YYYY"
-					},
-					"segundoNombre": {
-						"type": "string",
-						"description": "Optional second given name"
-					},
-					"segundoApellido": {
-						"type": "string",
-						"description": "Optional second surname"
-					}
-				},
-				"required": [
-					"primerNombre",
-					"primerApellido",
-					"sexo",
-					"fecha"
-				]
-			}
-		},
-		{
-			"id": "colombia_api_registraduria_serial",
-			"name": "Colombia — Civil registry lookup by serial (SCCRC)",
-			"category": "Colombia — Civil registry lookup by serial (SCCRC)",
-			"url": "https://ai.verifik.co/api/co/registraduria/serial",
-			"verifikPath": "/v2/co/registraduria/serial",
-			"method": "POST",
-			"description": "Locate a Colombian birth civil registry record by serial via /v2/co/registraduria/serial (Registraduría SCCRC). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"serial": {
-						"type": "string",
-						"description": "Civil registry serial (up to 10 digits)"
-					}
-				},
-				"required": [
-					"serial"
-				]
-			}
-		},
-		{
-			"id": "colombia_api_registraduria_matrimonio",
-			"name": "Colombia — Marriage civil registry (SCCRC)",
-			"category": "Colombia — Marriage civil registry (SCCRC)",
-			"url": "https://ai.verifik.co/api/co/registraduria/matrimonio",
-			"verifikPath": "/v2/co/registraduria/matrimonio",
-			"method": "POST",
-			"description": "Search Colombian marriage civil registry via /v2/co/registraduria/matrimonio (Registraduría SCCRC). Use exactly one mode: documentNumber+sexo, name fields+sexo+fecha (DD/MM/YYYY), or serial. Sexo: FEMENINO/MASCULINO (or F/M). Live calls may return Endpoint_out_of_service when captcha fails — retry shortly.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentNumber": {
-						"type": "string",
-						"description": "NUIP/CC (document mode; requires sexo)"
-					},
-					"sexo": {
-						"type": "string",
-						"description": "FEMENINO or MASCULINO (required for document or name mode)",
-						"enum": ["MASCULINO", "FEMENINO", "M", "F"]
-					},
-					"serial": {
-						"type": "string",
-						"description": "Marriage registry serial (serial mode)"
-					},
-					"primerNombre": {
-						"type": "string",
-						"description": "First given name (name mode)"
-					},
-					"primerApellido": {
-						"type": "string",
-						"description": "First surname (name mode)"
-					},
-					"fecha": {
-						"type": "string",
-						"description": "Marriage date DD/MM/YYYY (name mode)"
-					}
-				},
-				"required": []
-			}
-		},
-		{
 			"id": "colombia_api_delinquent_debtors",
 			"name": "Colombia — Delinquent debtors (BDME)",
 			"category": "Colombia — Delinquent debtors (BDME)",
@@ -1540,6 +1371,29 @@
 					"plate": {
 						"type": "string",
 						"description": "Parameter: plate"
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_vehicle_v3",
+			"name": "Ecuador - Vehicle Verification",
+			"category": "Ecuador - Vehicle Verification",
+			"url": "https://ai.verifik.co/api/v3/ec/vehiculo/placa",
+			"verifikPath": "/v3/ec/vehiculo/placa",
+			"method": "GET",
+			"description": "Look up Ecuadorian vehicle registration details by license plate, including technical-sheet data when available.",
+			"country": "Ecuador",
+			"priceUsd": 0.2,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to query, without spaces or punctuation."
 					}
 				},
 				"required": [
@@ -1687,7 +1541,7 @@
 			"url": "https://ai.verifik.co/api/pa/cedula",
 			"verifikPath": "/v2/pa/cedula",
 			"method": "GET",
-			"description": "Verify Panamanian CCPA national ID data (document, name, date of birth) against official civil-registry sources for KYC and fraud prevention.",
+			"description": "Verify Panamanian CCPA national ID data (document and name) for KYC and fraud prevention.",
 			"country": "Panama",
 			"priceUsd": 1,
 			"parameters": {
@@ -1703,16 +1557,11 @@
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
-					},
-					"dateOfBirth": {
-						"type": "string",
-						"description": "Parameter: dateOfBirth"
 					}
 				},
 				"required": [
 					"documentType",
-					"documentNumber",
-					"dateOfBirth"
+					"documentNumber"
 				]
 			}
 		},
@@ -1960,6 +1809,37 @@
 			"verifikPath": "/v2/ec/company",
 			"method": "GET",
 			"description": "Validate Ecuadorian companies with Verifik's KYB API. Connect with official sources and verify business data in seconds.",
+			"country": "Ecuador",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Parameter: documentType",
+						"enum": [
+							"RUCEC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "ecuador_api_company_lookup_v3",
+			"name": "Ecuador - Ecuadorian Business Verification (v3)",
+			"category": "Ecuador - Ecuadorian Business Verification (v3)",
+			"url": "https://ai.verifik.co/api/v3/ec/company",
+			"verifikPath": "/v3/ec/company",
+			"method": "GET",
+			"description": "Validate Ecuadorian companies with Verifik's KYB API (v3). Connect with official sources and verify comprehensive business data in seconds.",
 			"country": "Ecuador",
 			"priceUsd": 0.3,
 			"parameters": {
@@ -4869,6 +4749,342 @@
 				},
 				"required": [
 					"plate"
+				]
+			}
+		},
+		{
+			"id": "honduras_api_voting_location",
+			"name": "Honduras - Voting Location",
+			"category": "Honduras - Voting Location",
+			"url": "https://ai.verifik.co/api/hn/votacion",
+			"verifikPath": "/v2/hn/votacion",
+			"method": "POST",
+			"description": "Honduran voting location lookup service for retrieving polling place, JRV, and residence details from the electoral consultation registry.",
+			"country": "Honduras",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Document type. Allowed value: DNIHN.",
+						"enum": [
+							"DNIHN"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Honduran identity document number (13 digits)."
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "costarica_api_voting_location",
+			"name": "Costa Rica - Voting Location",
+			"category": "Costa Rica - Voting Location",
+			"url": "https://ai.verifik.co/api/cr/votacion",
+			"verifikPath": "/v2/cr/votacion",
+			"method": "POST",
+			"description": "Costa Rican voting location lookup service for retrieving polling place, junta, and residence details from the official TSE Donde Votar registry.",
+			"country": "Costa Rica",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Document type. Allowed value: CCCR.",
+						"enum": [
+							"CCCR"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Costa Rican identity document number (9 to 13 digits)."
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_ine_validate",
+			"name": "Mexico - INE Validation",
+			"category": "Mexico - INE Validation",
+			"url": "https://ai.verifik.co/api/mx/ine",
+			"verifikPath": "/v2/mx/ine",
+			"method": "POST",
+			"description": "Validate a Mexican voter credential (INE) against the electoral registry using CIC, OCR, or clave de elector identifiers.",
+			"country": "Mexico",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Document type. Allowed value: INE.",
+						"enum": [
+							"INE"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Primary INE identifier: CIC (9 digits), OCR (13 digits), or clave de elector (18 characters).",
+						"minimum": 9,
+						"maximum": 18
+					},
+					"citizenIdentifier": {
+						"type": "string",
+						"description": "Citizen identifier from the back of the credential. Required for models E, F, G, and H with CIC."
+					},
+					"emissionNumber": {
+						"type": "string",
+						"description": "Emission number. Required for model C with OCR and clave de elector."
+					},
+					"model": {
+						"type": "string",
+						"description": "Optional INE card model hint to select the correct field combination.",
+						"enum": [
+							"C",
+							"D",
+							"E",
+							"F",
+							"G",
+							"H"
+						]
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "mexico_api_ine_ocr",
+			"name": "Mexico - INE OCR",
+			"category": "Mexico - INE OCR",
+			"url": "https://ai.verifik.co/api/mx/ine/ocr",
+			"verifikPath": "/v2/mx/ine/ocr",
+			"method": "POST",
+			"description": "Extract INE fields with Verifik Gemini OCR, then validate electoral status via Nexcar numbers in one request.",
+			"country": "Mexico",
+			"priceUsd": 0.4,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"front": {
+						"type": "string",
+						"description": "Front image of the INE as a public URL or base64 string."
+					},
+					"back": {
+						"type": "string",
+						"description": "Optional back image as a public URL or base64 string. Improves OCR accuracy."
+					}
+				},
+				"required": [
+					"front"
+				]
+			}
+		},
+		{
+			"id": "costa_rica_api_traffic_infractions",
+			"name": "Costa Rica - Traffic Infractions",
+			"category": "Costa Rica - Traffic Infractions",
+			"url": "https://ai.verifik.co/api/cr/traffic-infractions",
+			"verifikPath": "/v2/cr/traffic-infractions",
+			"method": "POST",
+			"description": "Costa Rican traffic infractions lookup service for retrieving COSEVI tickets by vehicle license plate.",
+			"country": "Costa Rica",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"plate": {
+						"type": "string",
+						"description": "Vehicle license plate to consult, without spaces or special characters (max 6).",
+						"minimum": 3,
+						"maximum": 6
+					},
+					"force": {
+						"type": "string",
+						"description": "When true, bypasses cached records and fetches fresh data from the source.",
+						"enum": [
+							"true",
+							"false"
+						]
+					}
+				},
+				"required": [
+					"plate"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup_by_name",
+			"name": "Colombia - Citizen Lookup by Name (SCCRC)",
+			"category": "Colombia - Citizen Lookup by Name (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/cedula/by-name",
+			"verifikPath": "/v2/co/cedula/by-name",
+			"method": "GET",
+			"description": "Search Colombian birth civil registry records by names, sex, and date of birth via Registraduría SCCRC",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"primerNombre": {
+						"type": "string",
+						"description": "First given name"
+					},
+					"primerApellido": {
+						"type": "string",
+						"description": "First surname"
+					},
+					"sexo": {
+						"type": "string",
+						"description": "Sex as registered (MASCULINO or FEMENINO)",
+						"enum": [
+							"MASCULINO",
+							"FEMENINO",
+							"M",
+							"F"
+						]
+					},
+					"fecha": {
+						"type": "string",
+						"description": "Date of birth in DD/MM/YYYY"
+					},
+					"segundoNombre": {
+						"type": "string",
+						"description": "Second given name"
+					},
+					"segundoApellido": {
+						"type": "string",
+						"description": "Second surname"
+					}
+				},
+				"required": [
+					"primerNombre",
+					"primerApellido",
+					"sexo",
+					"fecha"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_registraduria_serial",
+			"name": "Colombia - Civil Registry Lookup by Serial (SCCRC)",
+			"category": "Colombia - Civil Registry Lookup by Serial (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/registraduria/serial",
+			"verifikPath": "/v2/co/registraduria/serial",
+			"method": "GET",
+			"description": "Lookup Colombian birth civil registry records by serial number via Registraduría SCCRC",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"serial": {
+						"type": "string",
+						"description": "Civil registry serial printed on the registro civil (up to 10 digits)"
+					}
+				},
+				"required": [
+					"serial"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_registraduria_matrimonio",
+			"name": "Colombia - Marriage Civil Registry (SCCRC)",
+			"category": "Colombia - Marriage Civil Registry (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/registraduria/matrimonio",
+			"verifikPath": "/v2/co/registraduria/matrimonio",
+			"method": "POST",
+			"description": "Search Colombian marriage civil registry records by document, name, or serial via Registraduría SCCRC",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentNumber": {
+						"type": "string",
+						"description": "NUIP/CC (document mode; also needs sexo)"
+					},
+					"primerNombre": {
+						"type": "string",
+						"description": "First given name (name mode)"
+					},
+					"primerApellido": {
+						"type": "string",
+						"description": "First surname (name mode)"
+					},
+					"segundoNombre": {
+						"type": "string",
+						"description": "Optional second given name"
+					},
+					"segundoApellido": {
+						"type": "string",
+						"description": "Optional second surname"
+					},
+					"fecha": {
+						"type": "string",
+						"description": "Marriage date DD/MM/YYYY (name mode)"
+					},
+					"serial": {
+						"type": "string",
+						"description": "Marriage registry serial (serial mode)"
+					},
+					"sexo": {
+						"type": "string",
+						"description": "Required for document (Option B) and name (Option A) modes; not used with serial",
+						"enum": [
+							"MASCULINO",
+							"FEMENINO",
+							"M",
+							"F"
+						]
+					}
+				},
+				"required": []
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup_registraduria",
+			"name": "Colombia - Citizen Lookup via Registraduría (SCCRC)",
+			"category": "Colombia - Citizen Lookup via Registraduría (SCCRC)",
+			"url": "https://ai.verifik.co/api/co/cedula/registraduria",
+			"verifikPath": "/v2/co/cedula/registraduria",
+			"method": "GET",
+			"description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría, DIAN, and Olimpia)",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "Document type (CC only)",
+						"enum": [
+							"CC"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Colombian cédula number"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
 				]
 			}
 		}
