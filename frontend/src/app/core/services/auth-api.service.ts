@@ -13,6 +13,7 @@ export interface EmailValidationRequest {
 export interface EmailValidationResponse {
   data?: {
     _id: string;
+    expiresAt?: string | Date;
   };
 }
 
@@ -36,6 +37,7 @@ export interface PhoneValidationRequest {
 export interface PhoneValidationResponse {
   data?: {
     _id: string;
+    expiresAt?: string | Date;
   };
 }
 

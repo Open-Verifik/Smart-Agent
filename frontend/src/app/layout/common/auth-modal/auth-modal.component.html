@@ -388,8 +388,24 @@
             : state() === 'OTP_VERIFY_WHATSAPP'
               ? 'authModal.otpVerify.whatsappMessage'
               : 'authModal.otpVerify.phoneMessage'
-          ) | transloco: { email: email(), phone: phone() }
+          ) | transloco: { email: email(), phone: formattedPhoneDestination() }
         }}
+      </p>
+      <p class="text-xs text-slate-400">{{ 'authModal.otpVerify.ttlHint' | transloco }}</p>
+      <p
+        *ngIf="otpExpiresAt()"
+        class="text-sm font-medium"
+        [class.text-slate-600]="!isOtpExpired"
+        [class.dark:text-slate-300]="!isOtpExpired"
+        [class.text-amber-600]="isOtpExpired"
+        [class.dark:text-amber-400]="isOtpExpired"
+      >
+        <ng-container *ngIf="!isOtpExpired; else otpExpiredLabel">
+          {{ 'authModal.otpVerify.expiresIn' | transloco: { time: otpExpiryTimeLabel() } }}
+        </ng-container>
+        <ng-template #otpExpiredLabel>
+          {{ 'authModal.otpVerify.expired' | transloco }}
+        </ng-template>
       </p>
     </div>
 
@@ -401,9 +417,10 @@
         inputmode="numeric"
         maxlength="1"
         [value]="digit"
+        [disabled]="isOtpExpired || isLoading()"
         (input)="onOtpInput($event, i)"
         (keydown)="onKeyDown($event, i)"
-        class="w-12 h-14 text-center text-2xl font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        class="w-12 h-14 text-center text-2xl font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
       />
     </div>
 
@@ -411,7 +428,7 @@
       mat-flat-button
       color="primary"
       class="w-full !h-11 !rounded-lg"
-      [disabled]="otpArray().join('').length !== 6 || isLoading()"
+      [disabled]="isOtpExpired || otpArray().join('').length !== 6 || isLoading()"
       (click)="state() === 'OTP_VERIFY_EMAIL' ? verifyEmailOtp() : verifyPhoneOtp()"
     >
       <span *ngIf="!isLoading()">{{ 'authModal.otpVerify.verify' | transloco }}</span>
@@ -420,6 +437,22 @@
         diameter="20"
         mode="indeterminate"
       ></mat-progress-spinner>
+    </button>
+
+    <button
+      mat-button
+      color="primary"
+      class="w-full"
+      type="button"
+      [disabled]="!canResendOtp || isLoading()"
+      (click)="resendOtp()"
+    >
+      <ng-container *ngIf="canResendOtp; else resendCooldown">
+        {{ 'authModal.otpVerify.resend' | transloco }}
+      </ng-container>
+      <ng-template #resendCooldown>
+        {{ 'authModal.otpVerify.resendIn' | transloco: { time: otpResendCooldownTimeLabel() } }}
+      </ng-template>
     </button>
 
     <button mat-button class="w-full" (click)="setState('CHOICE')">

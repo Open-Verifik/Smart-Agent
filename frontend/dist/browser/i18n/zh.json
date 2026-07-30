@@ -3249,6 +3249,11 @@
             "emailMessage": "请检查{{email}}的消息并在下方输入您的代码。",
             "phoneMessage": "请检查{{phone}}的消息并在下方输入您的代码。",
             "whatsappMessage": "请检查发送到{{phone}}的WhatsApp消息并在下方输入您的代码。",
+            "ttlHint": "验证码有效期为 10 分钟。2 分钟后可重新发送。",
+            "expiresIn": "验证码将在 {{time}} 后过期",
+            "expired": "此验证码已过期。",
+            "resend": "重新发送验证码",
+            "resendIn": "{{time}} 后可重新发送",
             "verify": "验证",
             "back": "返回"
         },
@@ -3282,7 +3287,9 @@
         },
         "errors": {
             "invalidEmail": "无效的电子邮件地址",
-            "invalidPhone": "无效的电话号码"
+            "invalidPhone": "无效的电话号码",
+            "otpRecentlySent": "刚刚已发送验证码。请稍候再请求新的验证码。",
+            "otpExpired": "此验证码已过期。请重新获取。"
         },
         "passkey": {
             "cta": "使用通行密钥登录",

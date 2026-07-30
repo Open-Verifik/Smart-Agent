@@ -3,6 +3,7 @@ import {
     Component,
     ElementRef,
     HostListener,
+    OnDestroy,
     inject,
     signal,
     ViewChild,
@@ -67,7 +68,7 @@ type AuthState =
   templateUrl: './auth-modal.component.html',
   encapsulation: ViewEncapsulation.None,
 })
-export class AuthModalComponent {
+export class AuthModalComponent implements OnDestroy {
   state = signal<AuthState>('CHOICE');
   isLoading = signal(false);
 
@@ -76,6 +77,22 @@ export class AuthModalComponent {
   phone = signal('');
   otp = signal(''); // Array of 6 chars? Or just string for now.
   otpArray = signal<string[]>(new Array(6).fill(''));
+
+  /** OTP TTL countdown (backend default: 10 minutes). */
+  otpExpiresAt = signal<Date | null>(null);
+  otpRemainingSeconds = signal(0);
+  /** Seconds until backend resend cooldown ends (~2 minutes). */
+  otpResendRemainingSeconds = signal(0);
+  private _otpSentAt: Date | null = null;
+  private _otpExpiryTimer: ReturnType<typeof setInterval> | null = null;
+  private static readonly OTP_TTL_MS = 10 * 60 * 1000;
+  /** Matches `_resendMessage`: block while timePassed <= 2 minutes. */
+  private static readonly OTP_RESEND_COOLDOWN_MS = 2 * 60 * 1000;
+  private static readonly OTP_VERIFY_STATES: AuthState[] = [
+    'OTP_VERIFY_EMAIL',
+    'OTP_VERIFY_PHONE',
+    'OTP_VERIFY_WHATSAPP',
+  ];
 
   // Wallet encryption
   pin = signal('');
@@ -165,6 +182,64 @@ export class AuthModalComponent {
     }
   }
 
+  ngOnDestroy(): void {
+    this._clearOtpExpiryTimer();
+    if (this._passkeyDebounceTimer) {
+      clearTimeout(this._passkeyDebounceTimer);
+      this._passkeyDebounceTimer = null;
+    }
+  }
+
+  /**
+   * National phone digits with dial code for OTP confirmation copy (e.g. "+57 3202807186").
+   */
+  formattedPhoneDestination(): string {
+    const country = this.selectedCountry();
+    let national = this.phone().replace(/\D/g, '');
+    if (!country) {
+      return national || this.phone().trim();
+    }
+
+    const dialDigits = country.dialCode.replace(/\D/g, '');
+    if (national.startsWith(dialDigits)) {
+      national = national.substring(dialDigits.length);
+    }
+
+    return `${country.dialCode} ${national}`.trim();
+  }
+
+  get isOtpExpired(): boolean {
+    return (
+      Boolean(this.otpExpiresAt()) &&
+      this.otpRemainingSeconds() <= 0 &&
+      AuthModalComponent.OTP_VERIFY_STATES.includes(this.state())
+    );
+  }
+
+  /** Resend allowed after 2-minute backend cooldown (or once the code expired). */
+  get canResendOtp(): boolean {
+    if (!AuthModalComponent.OTP_VERIFY_STATES.includes(this.state())) {
+      return false;
+    }
+
+    return this.isOtpExpired || this.otpResendRemainingSeconds() <= 0;
+  }
+
+  otpExpiryTimeLabel(): string {
+    return this._formatCountdown(this.otpRemainingSeconds());
+  }
+
+  otpResendCooldownTimeLabel(): string {
+    return this._formatCountdown(this.otpResendRemainingSeconds());
+  }
+
+  private _formatCountdown(totalSeconds: number): string {
+    const remaining = Math.max(0, totalSeconds);
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    return `${minutes}:${`${seconds}`.padStart(2, '0')}`;
+  }
+
   setState(newState: AuthState) {
     const previous = this.state();
     this.state.set(newState);
@@ -172,6 +247,17 @@ export class AuthModalComponent {
     this.otpArray.set(new Array(6).fill(''));
     this.error.set(null);
     this.errorKey.set(null);
+
+    const leavingOtp =
+      AuthModalComponent.OTP_VERIFY_STATES.includes(previous) &&
+      !AuthModalComponent.OTP_VERIFY_STATES.includes(newState);
+    if (leavingOtp) {
+      this._clearOtpExpiryTimer();
+      this.otpExpiresAt.set(null);
+      this.otpRemainingSeconds.set(0);
+      this.otpResendRemainingSeconds.set(0);
+      this._otpSentAt = null;
+    }
 
     // Only clear passkey CTA when leaving a contact-entry screen (not when staying to choose passkey vs OTP).
     const contactStates: AuthState[] = ['EMAIL_INPUT', 'PHONE_INPUT', 'WHATSAPP_INPUT'];
@@ -312,7 +398,7 @@ export class AuthModalComponent {
     return this.isValidEmail(this.email());
   }
 
-  async sendEmailOtp() {
+  async sendEmailOtp(options: { stayOnOtp?: boolean } = {}) {
     const emailValue = this.email().trim();
 
     if (!emailValue) {
@@ -342,12 +428,15 @@ export class AuthModalComponent {
           if (res.data?._id) {
             this.validationId.set(res.data._id);
             this.setState('OTP_VERIFY_EMAIL');
+            this._beginOtpCountdown(res.data.expiresAt);
           }
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.setState('EMAIL_INPUT');
-          this.setError(err.error?.message || 'Failed to send OTP');
+          if (!options.stayOnOtp) {
+            this.setState('EMAIL_INPUT');
+          }
+          this.setError(err.error?.message || err.error?.code || 'Failed to send OTP');
         },
       });
   }
@@ -355,7 +444,7 @@ export class AuthModalComponent {
   async verifyEmailOtp() {
     const code = this.otpArray().join('');
 
-    if (code.length !== 6 || !this.validationId()) return;
+    if (this.isOtpExpired || code.length !== 6 || !this.validationId()) return;
 
     this.isLoading.set(true);
     this.error.set(null);
@@ -445,7 +534,7 @@ export class AuthModalComponent {
     this._syncPhonePasskeyAvailability();
   }
 
-  async sendPhoneOtp() {
+  async sendPhoneOtp(options: { stayOnOtp?: boolean } = {}) {
     const phoneValue = this.phone().trim();
     const country = this.selectedCountry();
 
@@ -495,19 +584,42 @@ export class AuthModalComponent {
           if (res.data?._id) {
             this.validationId.set(res.data._id);
             this.setState(gateway === 'whatsapp' ? 'OTP_VERIFY_WHATSAPP' : 'OTP_VERIFY_PHONE');
+            this._beginOtpCountdown(res.data.expiresAt);
           }
         },
         error: (err) => {
           this.isLoading.set(false);
-          this.setState(gateway === 'whatsapp' ? 'WHATSAPP_INPUT' : 'PHONE_INPUT');
-          this.setError(err.error?.message || 'Failed to send OTP');
+          if (!options.stayOnOtp) {
+            this.setState(gateway === 'whatsapp' ? 'WHATSAPP_INPUT' : 'PHONE_INPUT');
+          }
+          this.setError(err.error?.message || err.error?.code || 'Failed to send OTP');
         },
       });
   }
 
+  /**
+   * Resend after the 2-minute backend cooldown (or after OTP TTL expiry).
+   */
+  async resendOtp(): Promise<void> {
+    if (!this.canResendOtp || this.isLoading()) {
+      return;
+    }
+
+    this.error.set(null);
+    this.errorKey.set(null);
+    this.otpArray.set(new Array(6).fill(''));
+
+    if (this.state() === 'OTP_VERIFY_EMAIL') {
+      await this.sendEmailOtp({ stayOnOtp: true });
+      return;
+    }
+
+    await this.sendPhoneOtp({ stayOnOtp: true });
+  }
+
   async verifyPhoneOtp() {
     const code = this.otpArray().join('');
-    if (code.length !== 6 || !this.validationId()) return;
+    if (this.isOtpExpired || code.length !== 6 || !this.validationId()) return;
 
     this.isLoading.set(true);
     this.error.set(null);
@@ -739,6 +851,9 @@ export class AuthModalComponent {
     const errorMap: { [key: string]: string } = {
       invalid_email: 'authModal.errors.invalidEmail',
       invalid_phone: 'authModal.errors.invalidPhone',
+      otp_recently_sent: 'authModal.errors.otpRecentlySent',
+      phoneValidation_has_expired: 'authModal.errors.otpExpired',
+      phone_validation_has_expired: 'authModal.errors.otpExpired',
     };
 
     // Check if message matches an error code
@@ -754,6 +869,12 @@ export class AuthModalComponent {
   }
 
   handleSuccess(res: any) {
+    this._clearOtpExpiryTimer();
+    this.otpExpiresAt.set(null);
+    this.otpRemainingSeconds.set(0);
+    this.otpResendRemainingSeconds.set(0);
+    this._otpSentAt = null;
+
     const data = res.data || res;
     // This is the temporary token from the validation endpoint
     const tempToken = data.token || data.accessToken;
@@ -765,6 +886,59 @@ export class AuthModalComponent {
     }
 
     void this._afterOtpSuccess(tempToken);
+  }
+
+  private _clearOtpExpiryTimer(): void {
+    if (this._otpExpiryTimer) {
+      clearInterval(this._otpExpiryTimer);
+      this._otpExpiryTimer = null;
+    }
+  }
+
+  private _beginOtpCountdown(expiresAtValue?: string | Date | null): void {
+    this._clearOtpExpiryTimer();
+    this._otpSentAt = new Date();
+
+    const expiresAt = expiresAtValue
+      ? new Date(expiresAtValue)
+      : new Date(Date.now() + AuthModalComponent.OTP_TTL_MS);
+
+    if (Number.isNaN(expiresAt.getTime())) {
+      this.otpExpiresAt.set(new Date(Date.now() + AuthModalComponent.OTP_TTL_MS));
+    } else {
+      this.otpExpiresAt.set(expiresAt);
+    }
+
+    this._tickOtpExpiry();
+    this._otpExpiryTimer = setInterval(() => this._tickOtpExpiry(), 1000);
+  }
+
+  private _tickOtpExpiry(): void {
+    const expiresAt = this.otpExpiresAt();
+    if (!expiresAt) {
+      this.otpRemainingSeconds.set(0);
+      this.otpResendRemainingSeconds.set(0);
+      return;
+    }
+
+    const now = Date.now();
+    const ttlRemaining = Math.max(0, Math.floor((expiresAt.getTime() - now) / 1000));
+    this.otpRemainingSeconds.set(ttlRemaining);
+
+    if (this._otpSentAt) {
+      const cooldownEndsAt =
+        this._otpSentAt.getTime() + AuthModalComponent.OTP_RESEND_COOLDOWN_MS;
+      this.otpResendRemainingSeconds.set(
+        Math.max(0, Math.floor((cooldownEndsAt - now) / 1000)),
+      );
+    } else {
+      this.otpResendRemainingSeconds.set(0);
+    }
+
+    // Keep ticking through the resend-available window until the OTP itself expires.
+    if (ttlRemaining === 0) {
+      this._clearOtpExpiryTimer();
+    }
   }
 
   /**

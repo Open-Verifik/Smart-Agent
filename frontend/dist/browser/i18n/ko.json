@@ -3249,6 +3249,11 @@
             "emailMessage": "{{email}}에서 메시지를 확인하고 아래에 코드를 입력하세요.",
             "phoneMessage": "{{phone}}에서 메시지를 확인하고 아래에 코드를 입력하세요.",
             "whatsappMessage": "{{phone}}로 전송된 WhatsApp 메시지를 확인하고 아래에 코드를 입력하세요.",
+            "ttlHint": "코드는 10분 동안 유효합니다. 2분 후 다시 보낼 수 있습니다.",
+            "expiresIn": "코드 만료까지 {{time}}",
+            "expired": "이 코드가 만료되었습니다.",
+            "resend": "코드 다시 보내기",
+            "resendIn": "{{time}} 후 재전송 가능",
             "verify": "확인",
             "back": "뒤로"
         },
@@ -3282,7 +3287,9 @@
         },
         "errors": {
             "invalidEmail": "유효하지 않은 이메일 주소",
-            "invalidPhone": "유효하지 않은 전화번호"
+            "invalidPhone": "유효하지 않은 전화번호",
+            "otpRecentlySent": "코드를 방금 보냈습니다. 잠시 후 다시 요청해 주세요.",
+            "otpExpired": "이 코드가 만료되었습니다. 새 코드를 요청하세요."
         },
         "passkey": {
             "cta": "패스키로 로그인",

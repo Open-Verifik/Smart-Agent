@@ -3249,6 +3249,11 @@
             "emailMessage": "Por favor, verifique {{email}} para uma mensagem e digite seu código abaixo.",
             "phoneMessage": "Por favor, verifique {{phone}} para uma mensagem e digite seu código abaixo.",
             "whatsappMessage": "Por favor, verifique o WhatsApp para uma mensagem enviada para {{phone}} e digite seu código abaixo.",
+            "ttlHint": "Os códigos são válidos por 10 minutos. Você pode reenviar após 2 minutos.",
+            "expiresIn": "O código expira em {{time}}",
+            "expired": "Este código expirou.",
+            "resend": "Reenviar código",
+            "resendIn": "Reenvio disponível em {{time}}",
             "verify": "Verificar",
             "back": "Voltar"
         },
@@ -3282,7 +3287,9 @@
         },
         "errors": {
             "invalidEmail": "Endereço de e-mail inválido",
-            "invalidPhone": "Número de telefone inválido"
+            "invalidPhone": "Número de telefone inválido",
+            "otpRecentlySent": "Um código acabou de ser enviado. Aguarde um momento antes de solicitar outro.",
+            "otpExpired": "Este código expirou. Solicite um novo."
         },
         "passkey": {
             "cta": "Entrar com uma passkey",

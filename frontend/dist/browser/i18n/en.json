@@ -3255,6 +3255,11 @@
             "emailMessage": "Please check {{email}} for a message and enter your code below.",
             "phoneMessage": "Please check {{phone}} for a message and enter your code below.",
             "whatsappMessage": "Please check WhatsApp for a message sent to {{phone}} and enter your code below.",
+            "ttlHint": "Codes are valid for 10 minutes. You can resend after 2 minutes.",
+            "expiresIn": "Code expires in {{time}}",
+            "expired": "This code has expired.",
+            "resend": "Resend code",
+            "resendIn": "Resend available in {{time}}",
             "verify": "Verify",
             "back": "Back"
         },
@@ -3288,7 +3293,9 @@
         },
         "errors": {
             "invalidEmail": "Invalid email address",
-            "invalidPhone": "Invalid phone number"
+            "invalidPhone": "Invalid phone number",
+            "otpRecentlySent": "A code was just sent. Please wait a moment before requesting another.",
+            "otpExpired": "This code has expired. Request a new one."
         },
         "passkey": {
             "cta": "Sign in with a passkey",

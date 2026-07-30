@@ -3249,6 +3249,11 @@
             "emailMessage": "{{email}}にメッセージが届いているか確認し、以下にコードを入力してください。",
             "phoneMessage": "{{phone}}にメッセージが届いているか確認し、以下にコードを入力してください。",
             "whatsappMessage": "{{phone}}に送信されたWhatsAppメッセージを確認し、以下にコードを入力してください。",
+            "ttlHint": "コードの有効期限は10分です。2分後に再送信できます。",
+            "expiresIn": "コードの有効期限：{{time}}",
+            "expired": "このコードの有効期限が切れました。",
+            "resend": "コードを再送信",
+            "resendIn": "再送信まで {{time}}",
             "verify": "確認",
             "back": "戻る"
         },
@@ -3282,7 +3287,9 @@
         },
         "errors": {
             "invalidEmail": "無効なメールアドレス",
-            "invalidPhone": "無効な電話番号"
+            "invalidPhone": "無効な電話番号",
+            "otpRecentlySent": "コードを送信したばかりです。しばらくしてから再リクエストしてください。",
+            "otpExpired": "このコードの有効期限が切れました。新しいコードをリクエストしてください。"
         },
         "passkey": {
             "cta": "パスキーでサインイン",
