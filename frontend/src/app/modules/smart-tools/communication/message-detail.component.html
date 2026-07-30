@@ -1,0 +1,138 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <button mat-stroked-button type="button" (click)="goBack()">
+                    <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    {{ t('communication_messages.compose.back') }}
+                </button>
+                <div class="hero-text">
+                    <h1 class="title">{{ t(titleKey) }}</h1>
+                    <p class="subtitle">
+                        {{ t('communication_messages.detail.subtitle') }}
+                    </p>
+                </div>
+            </header>
+
+            <div *ngIf="loading" class="state-loading">
+                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            </div>
+
+            <div class="empty" *ngIf="!loading && !record">
+                {{ t('communication_messages.detail.not_found') }}
+            </div>
+
+            <div class="layout" *ngIf="!loading && record">
+                <section class="details-panel">
+                    <h2 class="panel-heading">
+                        {{ t('communication_messages.detail.sent_details') }}
+                    </h2>
+
+                    <dl class="details-grid">
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.list.columns.phone') }}</dt>
+                            <dd>{{ previewPhone }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.list.columns.status') }}</dt>
+                            <dd>
+                                <span class="status" [attr.data-status]="record.status">{{
+                                    record.status
+                                }}</span>
+                            </dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.list.columns.source') }}</dt>
+                            <dd>
+                                <span class="badge">{{ t(sourceKey) }}</span>
+                            </dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.list.columns.project') }}</dt>
+                            <dd>{{ projectLabel }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.detail.gateway') }}</dt>
+                            <dd>{{ record.phoneGateway }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.compose.language') }}</dt>
+                            <dd>{{ record.language || 'en' }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.detail.type') }}</dt>
+                            <dd>{{ record.type || '—' }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.detail.otp') }}</dt>
+                            <dd class="otp-mask">{{ maskedOtp }}</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>{{ t('communication_messages.list.columns.created') }}</dt>
+                            <dd>{{ record.createdAt | date: 'medium' }}</dd>
+                        </div>
+                        <div class="detail-row" *ngIf="record.expiresAt">
+                            <dt>{{ t('communication_messages.detail.expires') }}</dt>
+                            <dd>{{ record.expiresAt | date: 'medium' }}</dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section class="preview-panel">
+                    <h2 class="panel-heading">
+                        {{ t('communication_messages.compose.preview_title') }}
+                    </h2>
+
+                    <div
+                        class="phone-frame"
+                        [class.whatsapp]="(record.phoneGateway || phoneGateway) === 'whatsapp'"
+                        [class.sms]="(record.phoneGateway || phoneGateway) === 'sms'"
+                    >
+                        <div class="phone-notch"></div>
+                        <div class="phone-status">{{ previewPhone }}</div>
+                        <div class="chat">
+                            @if ((record.phoneGateway || phoneGateway) === 'sms') {
+                                <div class="chat-header">
+                                    <div class="avatar">{{ senderName.charAt(0) }}</div>
+                                    <div>
+                                        <div class="sender-label">
+                                            {{
+                                                t(
+                                                    'communication_messages.compose.preview_sender'
+                                                )
+                                            }}
+                                        </div>
+                                        <div class="sender-name">{{ senderName }}</div>
+                                    </div>
+                                </div>
+                            }
+                            <div
+                                class="bubble"
+                                [class.template]="
+                                    (record.phoneGateway || phoneGateway) === 'whatsapp'
+                                "
+                            >
+                                @if ((record.phoneGateway || phoneGateway) === 'whatsapp') {
+                                    <div class="bubble-title">{{ senderName }}</div>
+                                }
+                                <p class="bubble-body">{{ previewBody }}</p>
+                                @if ((record.phoneGateway || phoneGateway) === 'whatsapp') {
+                                    <div class="bubble-footer">
+                                        {{
+                                            t(
+                                                'communication_messages.compose.preview_powered_by'
+                                            )
+                                        }}
+                                    </div>
+                                }
+                                <span class="time">{{
+                                    record.createdAt | date: 'shortTime'
+                                }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+</ng-container>

@@ -1,0 +1,254 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <button mat-stroked-button type="button" (click)="goBack()">
+                    <mat-icon svgIcon="heroicons_outline:arrow-left"></mat-icon>
+                    {{ t('communication_messages.compose.back') }}
+                </button>
+                <div class="hero-text">
+                    <h1 class="title">{{ t(titleKey) }}</h1>
+                    <p class="subtitle">{{ t('communication_messages.compose.subtitle') }}</p>
+                </div>
+            </header>
+
+            <div class="layout">
+                <section class="form-panel">
+                    <form [formGroup]="form" (ngSubmit)="submit()">
+                        <mat-form-field appearance="outline" class="full">
+                            <mat-label>{{
+                                t('communication_messages.compose.country_code')
+                            }}</mat-label>
+                            <mat-select
+                                formControlName="countryIso"
+                                panelClass="country-code-search-panel"
+                                (openedChange)="
+                                    $event
+                                        ? onCountryCodeSelectOpened()
+                                        : onCountryCodeSelectClosed()
+                                "
+                            >
+                                <mat-select-trigger>
+                                    <span class="country-code-value">{{
+                                        selectedDialCode
+                                    }}</span>
+                                    <span class="country-code-name">{{
+                                        selectedCountryName
+                                    }}</span>
+                                </mat-select-trigger>
+
+                                <div
+                                    class="country-code-search"
+                                    (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()"
+                                    (mousedown)="$event.stopPropagation()"
+                                >
+                                    <mat-icon class="country-code-search-icon">search</mat-icon>
+                                    <input
+                                        #countryCodeSearchInput
+                                        type="text"
+                                        class="country-code-search-input"
+                                        [placeholder]="
+                                            t('communication_messages.compose.search_country')
+                                        "
+                                        [value]="countryCodeSearchTerm"
+                                        (click)="$event.stopPropagation()"
+                                        (input)="
+                                            onCountryCodeSearchChange($any($event.target).value)
+                                        "
+                                        (keydown)="$event.stopPropagation()"
+                                    />
+                                    @if (countryCodeSearchTerm) {
+                                        <button
+                                            mat-icon-button
+                                            type="button"
+                                            class="country-code-clear"
+                                            (click)="clearCountryCodeSearch($event)"
+                                        >
+                                            <mat-icon>close</mat-icon>
+                                        </button>
+                                    }
+                                </div>
+
+                                @for (
+                                    option of filteredPhoneCountryCodes;
+                                    track trackByPhoneCountryCode($index, option)
+                                ) {
+                                    <mat-option [value]="option.countryCode">
+                                        <span class="country-code-value">{{
+                                            option.dialCode
+                                        }}</span>
+                                        <span class="country-code-name">{{ option.name }}</span>
+                                    </mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full">
+                            <mat-label>{{ t('communication_messages.compose.phone') }}</mat-label>
+                            <input matInput formControlName="phone" inputmode="numeric" />
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full">
+                            <mat-label>{{
+                                t('communication_messages.compose.sender_title')
+                            }}</mat-label>
+                            <input
+                                matInput
+                                formControlName="title"
+                                [maxlength]="senderTitleMaxLength"
+                                autocomplete="organization"
+                            />
+                            <mat-hint>
+                                {{ t('communication_messages.compose.sender_title_hint') }}
+                            </mat-hint>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline" class="full">
+                            <mat-label>{{
+                                t('communication_messages.compose.language')
+                            }}</mat-label>
+                            <mat-select formControlName="language">
+                                @for (lang of languages; track lang.code) {
+                                    <mat-option [value]="lang.code">{{ lang.label }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+
+                        <p class="charge-note">
+                            {{ t('communication_messages.compose.charge_note') }}
+                        </p>
+
+                        <button
+                            mat-flat-button
+                            color="primary"
+                            type="submit"
+                            class="send-btn"
+                            [disabled]="sending || form.invalid"
+                        >
+                            @if (sending) {
+                                <mat-progress-spinner
+                                    diameter="18"
+                                    mode="indeterminate"
+                                ></mat-progress-spinner>
+                                {{ t('communication_messages.compose.sending') }}
+                            } @else {
+                                {{ t('communication_messages.compose.send') }}
+                            }
+                        </button>
+                    </form>
+
+                    @if (otpSent) {
+                        <div class="verify-panel">
+                            <h3 class="verify-title">
+                                {{ t('communication_messages.compose.verify_title') }}
+                            </h3>
+                            <p class="verify-hint">
+                                {{ t('communication_messages.compose.verify_hint') }}
+                            </p>
+                            @if (expiresAt) {
+                                <p
+                                    class="expiry-note"
+                                    [class.expired]="isOtpExpired"
+                                >
+                                    @if (isOtpExpired) {
+                                        {{ t('communication_messages.compose.expired') }}
+                                    } @else {
+                                        {{ expiryCountdownLabel }}
+                                    }
+                                </p>
+                            }
+                            <mat-form-field appearance="outline" class="full">
+                                <mat-label>{{
+                                    t('communication_messages.compose.otp')
+                                }}</mat-label>
+                                <input
+                                    matInput
+                                    [formControl]="otpControl"
+                                    inputmode="numeric"
+                                    maxlength="6"
+                                    autocomplete="one-time-code"
+                                />
+                            </mat-form-field>
+                            <button
+                                mat-flat-button
+                                color="primary"
+                                type="button"
+                                class="send-btn"
+                                [disabled]="!canVerify"
+                                (click)="verify()"
+                            >
+                                @if (verifying) {
+                                    <mat-progress-spinner
+                                        diameter="18"
+                                        mode="indeterminate"
+                                    ></mat-progress-spinner>
+                                    {{ t('communication_messages.compose.verifying') }}
+                                } @else {
+                                    {{ t('communication_messages.compose.verify') }}
+                                }
+                            </button>
+                        </div>
+                    }
+                </section>
+
+                <section class="preview-panel">
+                    <h2 class="preview-heading">
+                        {{ t('communication_messages.compose.preview_title') }}
+                    </h2>
+
+                    <div
+                        class="phone-frame"
+                        [class.whatsapp]="phoneGateway === 'whatsapp'"
+                        [class.sms]="phoneGateway === 'sms'"
+                    >
+                        <div class="phone-notch"></div>
+                        <div class="phone-status">{{ previewPhone }}</div>
+                        <div class="chat">
+                            @if (phoneGateway === 'sms') {
+                                <div class="chat-header">
+                                    <div class="avatar">{{ senderName.charAt(0) }}</div>
+                                    <div>
+                                        <div class="sender-label">
+                                            {{
+                                                t(
+                                                    'communication_messages.compose.preview_sender'
+                                                )
+                                            }}
+                                        </div>
+                                        <div class="sender-name">{{ senderName }}</div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="bubble" [class.template]="phoneGateway === 'whatsapp'">
+                                @if (phoneGateway === 'whatsapp') {
+                                    <div class="bubble-title">{{ senderName }}</div>
+                                }
+                                <p class="bubble-body">{{ previewBody }}</p>
+                                @if (phoneGateway === 'whatsapp') {
+                                    <div class="bubble-footer">
+                                        {{
+                                            t(
+                                                'communication_messages.compose.preview_powered_by'
+                                            )
+                                        }}
+                                    </div>
+                                }
+                                <span class="time">now</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <communication-message-dev-guide
+                [phoneGateway]="phoneGateway"
+                [countryCode]="selectedDialCode"
+                [phone]="form.get('phone')?.value || ''"
+                [title]="senderName"
+                [language]="form.get('language')?.value || 'en'"
+                [lastApiResponse]="lastApiResponse"
+            ></communication-message-dev-guide>
+        </div>
+    </div>
+</ng-container>

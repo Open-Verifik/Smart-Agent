@@ -53,6 +53,7 @@ const OVERRIDES = {
   communication_messaging_sms: { en: "SMS Messaging", es: "Mensajería SMS" },
   communication_colombia_messaging_whatsapp: { en: "Colombia - WhatsApp Messaging", es: "Colombia - Mensajería WhatsApp" },
   communication_global_messaging_whatsapp: { en: "Global - WhatsApp Messaging", es: "Global - Mensajería WhatsApp" },
+  communication_global_messaging_sms: { en: "Global - SMS Messaging", es: "Global - Mensajería SMS" },
   communication_global_email_otp: { en: "Email OTP", es: "OTP por Correo" },
   usa_api_ssn: { en: "USA - SSN Verification", es: "Estados Unidos - Verificación de SSN" },
   api_autodata_manufacturers: { en: "Vehicle Manufacturers Database", es: "Base de Datos de Fabricantes de Vehículos" },
@@ -130,6 +131,13 @@ const MULTI_LANG_TITLE_BY_CODE = {
   ),
   "ip-lookup": ML("Géolocalisation IP", "Consulta de Geolocalização IP", "IP位置情報照会", "IP 지리위치 조회", "IP 地理位置查询"),
   communication_messaging_sms: ML("Messagerie SMS", "Mensagens SMS", "SMSメッセージ", "SMS 메시징", "短信消息"),
+  communication_global_messaging_sms: ML(
+    "Mondial - Messagerie SMS",
+    "Global - Mensagens SMS",
+    "グローバル - SMSメッセージ",
+    "글로벌 - SMS 메시징",
+    "全球 - 短信消息",
+  ),
   communication_global_email_otp: ML("OTP par e-mail", "OTP por E-mail", "メールOTP", "이메일 OTP", "邮件 OTP"),
   credit_intent_kyc_passwordless: ML(
     "Intention de crédit KYC sans mot de passe",

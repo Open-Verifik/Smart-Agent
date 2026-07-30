@@ -1,0 +1,191 @@
+:host {
+    display: block;
+}
+
+.page {
+    min-height: 100%;
+    padding: 1.5rem 1.25rem 2.5rem;
+    width: 100% !important;
+    background: rgb(249 250 251);
+}
+
+.inner {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.hero {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.hero-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.875rem;
+    display: grid;
+    place-items: center;
+    background: rgb(239 246 255);
+    border: 1px solid rgb(219 234 254);
+    color: rgb(37 99 235);
+}
+
+.hero-text {
+    flex: 1 1 auto;
+    min-width: 200px;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgb(17 24 39);
+}
+
+.subtitle {
+    margin: 0.25rem 0 0;
+    color: rgb(107 114 128);
+}
+
+.filters {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.4fr) repeat(2, minmax(140px, 0.8fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.state-loading,
+.empty {
+    display: grid;
+    place-items: center;
+    min-height: 220px;
+    color: rgb(107 114 128);
+}
+
+.table-wrap {
+    border: 1px solid rgb(229 231 235);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+}
+
+.messages-table {
+    width: 100%;
+}
+
+.clickable-row {
+    cursor: pointer;
+}
+
+.clickable-row:hover {
+    background: rgb(248 250 252);
+}
+
+.status,
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status[data-status='sent'],
+.badge[data-source='manual'] {
+    background: rgb(220 252 231);
+    color: #15803d;
+}
+
+.status[data-status='validated'],
+.badge[data-source='smart_enroll'] {
+    background: rgb(219 234 254);
+    color: #1d4ed8;
+}
+
+.status[data-status='failed'] {
+    background: rgb(254 226 226);
+    color: #b91c1c;
+}
+
+.badge[data-source='smart_access'] {
+    background: rgb(243 232 255);
+    color: #7e22ce;
+}
+
+.badge[data-source='flow'],
+.status[data-status='new'] {
+    background: rgb(241 245 249);
+    color: rgb(51 65 85);
+}
+
+@media (max-width: 800px) {
+    .filters {
+        grid-template-columns: 1fr;
+    }
+}
+
+:host-context(.dark) {
+    .page {
+        background: transparent;
+    }
+
+    .title {
+        color: rgb(241 245 249);
+    }
+
+    .subtitle,
+    .state-loading,
+    .empty {
+        color: rgb(148 163 184);
+    }
+
+    .hero-icon {
+        background: rgb(30 58 138 / 0.35);
+        border-color: rgb(51 65 85);
+        color: rgb(147 197 253);
+    }
+
+    .table-wrap {
+        background: rgb(30 41 59);
+        border-color: rgb(51 65 85);
+        box-shadow: none;
+    }
+
+    .clickable-row:hover {
+        background: rgb(51 65 85 / 0.45);
+    }
+
+    .status[data-status='sent'],
+    .badge[data-source='manual'] {
+        background: rgb(20 83 45 / 0.45);
+        color: #86efac;
+    }
+
+    .status[data-status='validated'],
+    .badge[data-source='smart_enroll'] {
+        background: rgb(30 58 138 / 0.45);
+        color: #93c5fd;
+    }
+
+    .status[data-status='failed'] {
+        background: rgb(127 29 29 / 0.45);
+        color: #fca5a5;
+    }
+
+    .badge[data-source='smart_access'] {
+        background: rgb(88 28 135 / 0.4);
+        color: #d8b4fe;
+    }
+
+    .badge[data-source='flow'],
+    .status[data-status='new'] {
+        background: rgb(51 65 85);
+        color: rgb(226 232 240);
+    }
+}

@@ -308,6 +308,10 @@
             "title": "글로벌 - WhatsApp Messaging",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
         },
+        "communication_global_messaging_sms": {
+            "title": "글로벌 - SMS 메시징",
+            "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+        },
         "communication_global_email_otp": {
             "title": "Email OTP",
             "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."

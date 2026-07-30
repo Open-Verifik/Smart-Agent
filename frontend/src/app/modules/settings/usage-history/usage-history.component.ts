@@ -369,9 +369,9 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     /**
-     * Resolves a credit `code` to a human label. Translates if a key exists under
-     * `settings.usageHistory.products.<code>`; falls back to the raw code so we
-     * never display blank cells.
+     * Resolves a credit `code` to a human label via `appFeatures.<code>.title`,
+     * then `settings.usageHistory.products.<code>`, then AppFeature meta names.
+     * Falls back to the raw code so we never display blank cells.
      */
     translateProductCode(code?: string): string {
         return this._labelFromAppFeatureMeta(code, this.appFeatures());
@@ -710,13 +710,29 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
         metaMap: Record<string, AppFeatureUsageMeta>
     ): string {
         if (!code) return '';
+
+        // Prefer AppFeature catalog i18n so missing nameES does not show raw codes.
+        const featureKey = `appFeatures.${code}.title`;
+        const featureTitle = this._transloco.translate(featureKey);
+        if (featureTitle && featureTitle !== featureKey) {
+            return featureTitle;
+        }
+
+        const usageLabel = this._translateProduct(code);
+        if (usageLabel && usageLabel !== code) {
+            return usageLabel;
+        }
+
         const meta = metaMap[code];
         if (meta?.name) {
             const lang = this._transloco.getActiveLang?.() || 'en';
             const fromDb = lang === 'es' ? meta.nameES || meta.name : meta.name;
-            if (fromDb) return fromDb;
+            if (fromDb && fromDb !== code) {
+                return fromDb;
+            }
         }
-        return this._translateProduct(code);
+
+        return code;
     }
 
     private _endpointPathFromMeta(

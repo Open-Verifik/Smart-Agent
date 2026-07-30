@@ -6,29 +6,28 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { FuseConfigService } from '@fuse/services/config/config.service';
 import type { FuseConfig } from '@fuse/services/config/config.types';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
+import { Onboarding, OnboardingService } from 'app/core/services/onboarding.service';
 import { ApexOptions, NgApexchartsModule } from 'ng-apexcharts';
-import { catchError } from 'rxjs/operators';
-import { of } from 'rxjs';
-import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
+import { catchError, of } from 'rxjs';
+import { AccountEnvironmentService } from '../../core/account/account-environment.service';
 import { SessionService } from '../../core/services/session.service';
-import type { BringBackOffer, SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
 import { UserService } from '../../core/user/user.service';
-import { DashboardData, HomeService } from './home.service';
+import type { BringBackOffer, SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
+import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import { QuickChatService } from '../../layout/common/quick-chat/quick-chat.service';
-import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
-import { OnboardingExplanationModalComponent } from './onboarding-explanation-modal/onboarding-explanation-modal.component';
 import { BringBackOfferModalComponent } from './bring-back-offer-modal/bring-back-offer-modal.component';
 import {
     dismissBringBackModal,
     isBringBackModalDismissed,
 } from './bring-back-offer-modal/bring-back-offer-storage';
-import { AppNotificationsService } from 'app/core/notifications/app-notifications.service';
 import { HomeNotificationBannersComponent } from './home-notification-banners/home-notification-banners.component';
-import { OnboardingService, Onboarding, OnboardingTask } from 'app/core/services/onboarding.service';
-import { AccountEnvironmentService } from '../../core/account/account-environment.service';
+import { DashboardData, HomeService } from './home.service';
+import { OnboardingExplanationModalComponent } from './onboarding-explanation-modal/onboarding-explanation-modal.component';
+import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
 interface ChartTheme {
     tooltipTheme: 'light' | 'dark';
@@ -108,13 +107,13 @@ export class HomeComponent implements OnInit {
 
     completedTasksCount = computed(() => {
         const tasks = this.onboarding()?.tasks ?? [];
-        return tasks.filter(t => t.status === 'COMPLETED').length;
+        return tasks.filter((t) => t.status === 'COMPLETED').length;
     });
 
     onboardingProgressPercentage = computed(() => {
         const tasks = this.onboarding()?.tasks ?? [];
         if (tasks.length === 0) return 0;
-        return (tasks.filter(t => t.status === 'COMPLETED').length / tasks.length) * 100;
+        return (tasks.filter((t) => t.status === 'COMPLETED').length / tasks.length) * 100;
     });
 
     onboardingTotalRewarded = computed(() => {
@@ -141,7 +140,7 @@ export class HomeComponent implements OnInit {
     showBringBackPromoBanner = computed(() => Boolean(this.bringBackOffer()?.eligible));
 
     showWeekOneUsd50PromoBanner = computed(
-        () => Boolean(this.weekOneUsd50Promotion()?.eligible) && !this.showBringBackPromoBanner(),
+        () => Boolean(this.weekOneUsd50Promotion()?.eligible) && !this.showBringBackPromoBanner()
     );
 
     bringBackExampleReceived = computed(() => {
@@ -167,7 +166,13 @@ export class HomeComponent implements OnInit {
     });
 
     shortcuts: ShortcutItem[] = [
-        { id: 'chat', titleKey: 'home.shortcuts.chat', subtitleKey: 'home.shortcuts.chatSubtitle', link: '/chat', icon: 'chat_bubble' },
+        {
+            id: 'chat',
+            titleKey: 'home.shortcuts.chat',
+            subtitleKey: 'home.shortcuts.chatSubtitle',
+            link: '/chat',
+            icon: 'chat_bubble',
+        },
         {
             id: 'support-tickets',
             titleKey: 'home.shortcuts.supportTickets',
@@ -176,17 +181,83 @@ export class HomeComponent implements OnInit {
             action: 'support-tickets',
             accent: 'support',
         },
-        { id: 'postman', titleKey: 'home.shortcuts.postman', subtitleKey: 'nav.api_testing', link: '/postman', icon: 'terminal' },
-        { id: 'smart-batch', titleKey: 'home.shortcuts.smartBatch', subtitleKey: 'nav.batch_automation', link: '/smart-batch', icon: 'queue' },
-        { id: 'smart-access', titleKey: 'home.shortcuts.smartAccess', subtitleKey: 'nav.smart_access_projects_subtitle', link: '/smart-access/projects', icon: 'lock_open' },
-        { id: 'history', titleKey: 'home.shortcuts.history', subtitleKey: 'nav.history_subtitle', link: '/history', icon: 'history' },
-        { id: 'smart-scan', titleKey: 'home.shortcuts.smartScan', subtitleKey: 'nav.scan_documents', link: '/smart-enroll/smart-scan', icon: 'document_scanner' },
-        { id: 'status-check', titleKey: 'home.shortcuts.statusCheck', subtitleKey: 'nav.system_health', link: '/smart-monitor/status-check', icon: 'monitor_heart' },
-        { id: 'incidents', titleKey: 'home.shortcuts.incidents', subtitleKey: 'nav.active_incidents', link: '/smart-monitor/incidents', icon: 'warning' },
-        { id: 'webhooks', titleKey: 'home.shortcuts.webhooks', subtitleKey: 'nav.webhooks_subtitle', link: '/smart-monitor/webhooks', icon: 'link' },
-        { id: 'smart-reduce', titleKey: 'home.shortcuts.smartReduce', subtitleKey: 'nav.resize_compress_images', link: '/smart-tools/smart-reduce', icon: 'image' },
-        { id: 'subscription-plans', titleKey: 'home.shortcuts.subscriptionPlans', subtitleKey: 'nav.manage_subscription', link: '/subscription-plans', icon: 'credit_card' },
-        { id: 'add-credits', titleKey: 'home.shortcuts.addCredits', subtitleKey: 'nav.purchase_credits', link: '/add-credits', icon: 'add_circle' },
+        {
+            id: 'postman',
+            titleKey: 'home.shortcuts.postman',
+            subtitleKey: 'nav.api_testing',
+            link: '/postman',
+            icon: 'terminal',
+        },
+        {
+            id: 'smart-batch',
+            titleKey: 'home.shortcuts.smartBatch',
+            subtitleKey: 'nav.batch_automation',
+            link: '/smart-batch',
+            icon: 'queue',
+        },
+        {
+            id: 'smart-access',
+            titleKey: 'home.shortcuts.smartAccess',
+            subtitleKey: 'nav.smart_access_projects_subtitle',
+            link: '/smart-access/projects',
+            icon: 'lock_open',
+        },
+        {
+            id: 'history',
+            titleKey: 'home.shortcuts.history',
+            subtitleKey: 'nav.history_subtitle',
+            link: '/history',
+            icon: 'history',
+        },
+        {
+            id: 'smart-scan',
+            titleKey: 'home.shortcuts.smartScan',
+            subtitleKey: 'nav.scan_documents',
+            link: '/smart-enroll/smart-scan',
+            icon: 'document_scanner',
+        },
+        {
+            id: 'status-check',
+            titleKey: 'home.shortcuts.statusCheck',
+            subtitleKey: 'nav.system_health',
+            link: '/smart-monitor/status-check',
+            icon: 'monitor_heart',
+        },
+        {
+            id: 'incidents',
+            titleKey: 'home.shortcuts.incidents',
+            subtitleKey: 'nav.active_incidents',
+            link: '/smart-monitor/incidents',
+            icon: 'warning',
+        },
+        {
+            id: 'webhooks',
+            titleKey: 'home.shortcuts.webhooks',
+            subtitleKey: 'nav.webhooks_subtitle',
+            link: '/smart-monitor/webhooks',
+            icon: 'link',
+        },
+        {
+            id: 'smart-reduce',
+            titleKey: 'home.shortcuts.smartReduce',
+            subtitleKey: 'nav.resize_compress_images',
+            link: '/smart-tools/smart-reduce',
+            icon: 'image',
+        },
+        {
+            id: 'subscription-plans',
+            titleKey: 'home.shortcuts.subscriptionPlans',
+            subtitleKey: 'nav.manage_subscription',
+            link: '/subscription-plans',
+            icon: 'credit_card',
+        },
+        {
+            id: 'add-credits',
+            titleKey: 'home.shortcuts.addCredits',
+            subtitleKey: 'nav.purchase_credits',
+            link: '/add-credits',
+            icon: 'add_circle',
+        },
     ];
 
     constructor() {
@@ -201,16 +272,14 @@ export class HomeComponent implements OnInit {
 
         this._destroyRef.onDestroy(() => this._detachSchemeAutoListener());
 
-        this._fuseConfig.config$
-            .pipe(takeUntilDestroyed())
-            .subscribe((config: FuseConfig) => {
-                if (config.scheme === 'auto') {
-                    this._attachSchemeAutoListener();
-                } else {
-                    this._detachSchemeAutoListener();
-                }
-                this._scheduleRebuildCharts();
-            });
+        this._fuseConfig.config$.pipe(takeUntilDestroyed()).subscribe((config: FuseConfig) => {
+            if (config.scheme === 'auto') {
+                this._attachSchemeAutoListener();
+            } else {
+                this._detachSchemeAutoListener();
+            }
+            this._scheduleRebuildCharts();
+        });
     }
 
     ngOnInit(): void {
@@ -228,44 +297,54 @@ export class HomeComponent implements OnInit {
                         next: (res) => this.onboarding.set(res.data),
                         error: (e) => console.error('Failed to load onboarding progress:', e),
                     });
-                }
+                },
             });
 
-            this._userService
-                .get()
-                .pipe(
-                    catchError((err) => {
-                        console.error('Failed to load session for promotions:', err);
-                        return of(null);
-                    }),
-                )
-                .subscribe((user) => {
-                    const bringBack = user?.bringBackOffer;
-                    const activeBringBack =
-                        bringBack?.kind === 'bring_back' && bringBack.eligible ? bringBack : undefined;
-
-                    this.bringBackOffer.set(activeBringBack);
-
-                    const promo = user?.promotion;
-                    this.weekOneUsd50Promotion.set(
-                        promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
-                    );
-
-                    const clientId = user?._id || user?.id || '';
-                    const rawName = (user?.name || '').trim();
-                    this.userFirstName.set(rawName ? rawName.split(/\s+/)[0] : '');
-
-                    if (activeBringBack) {
-                        this._maybeOpenBringBackOfferModal(clientId, activeBringBack);
-                    } else {
-                        this._maybeOpenProductionVerificationModal();
-                    }
-                });
+            this._loadUserData();
         }
 
         this._installApexSvgFix();
 
         this._homeService.fetchStats();
+    }
+
+    private _loadUserData(): void {
+        this._userService
+            .get()
+            .pipe(
+                catchError((err) => {
+                    console.error('Failed to load session for promotions:', err);
+                    return of(null);
+                })
+            )
+            .subscribe((user) => {
+                const bringBack = user?.bringBackOffer;
+                const activeBringBack =
+                    bringBack?.kind === 'bring_back' && bringBack.eligible ? bringBack : undefined;
+
+                this.bringBackOffer.set(activeBringBack);
+
+                const promo = user?.promotion;
+
+                this.weekOneUsd50Promotion.set(
+                    promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined
+                );
+
+                const clientId = user?._id || user?.id || '';
+
+                const rawName = (user?.name || '').trim();
+
+                this.userFirstName.set(rawName ? rawName.split(/\s+/)[0] : '');
+
+                if (activeBringBack) {
+                    this._maybeOpenBringBackOfferModal(clientId, activeBringBack);
+                } else if (
+                    user?.canRecharge === false &&
+                    user.approvalRequestStatus !== 'requested'
+                ) {
+                    this._maybeOpenProductionVerificationModal();
+                }
+            });
     }
 
     getTotals(): { total: number; ok: number; failed: number; credits: number } {
@@ -298,27 +377,38 @@ export class HomeComponent implements OnInit {
                     }
                 }, 5000);
                 console.error('Failed to verify task:', err);
-            }
+            },
         });
     }
 
     getTaskLink(taskId: string): string {
         switch (taskId) {
-            case 'test_smartcheck': return '/postman';
-            case 'test_collection_demo': return '/smart-enroll/demos/create-collection';
-            case 'test_add_person_demo': return '/smart-enroll/demos/create-person';
-            case 'test_search_person_demo': return '/smart-enroll/demos/search-person';
-            case 'test_liveness_demo': return '/smart-enroll/demos/liveness';
-            case 'test_humanauthn_creation': return '/smart-enroll/demos/humanid-create-qr';
+            case 'test_smartcheck':
+                return '/postman';
+            case 'test_collection_demo':
+                return '/smart-enroll/demos/create-collection';
+            case 'test_add_person_demo':
+                return '/smart-enroll/demos/create-person';
+            case 'test_search_person_demo':
+                return '/smart-enroll/demos/search-person';
+            case 'test_liveness_demo':
+                return '/smart-enroll/demos/liveness';
+            case 'test_humanauthn_creation':
+                return '/smart-enroll/demos/humanid-create-qr';
             case 'test_humanauthn_decryption':
                 return '/smart-enroll/demos/humanid-decrypt';
             case 'test_humanauthn_preview':
                 return '/smart-enroll/demos/humanid-preview';
-            case 'subscribe_smart_access': return '/smart-access/projects';
-            case 'subscribe_smart_enroll': return '/smart-enroll/projects';
-            case 'add_billing_details': return '/settings/billing-details';
-            case 'complete_kyc': return '/home';
-            default: return '/home';
+            case 'subscribe_smart_access':
+                return '/smart-access/projects';
+            case 'subscribe_smart_enroll':
+                return '/smart-enroll/projects';
+            case 'add_billing_details':
+                return '/settings/billing-details';
+            case 'complete_kyc':
+                return '/home';
+            default:
+                return '/home';
         }
     }
 
@@ -491,8 +581,7 @@ export class HomeComponent implements OnInit {
         const onChange = (): void => this._scheduleRebuildCharts();
 
         mql.addEventListener('change', onChange);
-        this._schemeAutoListenerCleanup = (): void =>
-            mql.removeEventListener('change', onChange);
+        this._schemeAutoListenerCleanup = (): void => mql.removeEventListener('change', onChange);
     }
 
     private _detachSchemeAutoListener(): void {
@@ -528,15 +617,19 @@ export class HomeComponent implements OnInit {
         this.chartYearlyExpenses = data.yearlyExpenses
             ? this._buildExpenseSparkline(data.yearlyExpenses, '#FB7185', theme)
             : null;
-        this.chartLastMonth = data.lastMonthRequests ? this._buildLastMonthArea(data.lastMonthRequests, theme) : null;
-        this.chartDistribution = data.distribution ? this._buildDistributionRadar(data.distribution, theme) : null;
+        this.chartLastMonth = data.lastMonthRequests
+            ? this._buildLastMonthArea(data.lastMonthRequests, theme)
+            : null;
+        this.chartDistribution = data.distribution
+            ? this._buildDistributionRadar(data.distribution, theme)
+            : null;
         this.chartUsageLine = data.topCodes ? this._buildUsageLine(data.topCodes, theme) : null;
     }
 
     private _buildExpenseSparkline(
         seriesData: { labels: string[]; series: any[] },
         color: string,
-        theme: ChartTheme,
+        theme: ChartTheme
     ): ApexOptions {
         const data = (seriesData.series ?? []).map((num: number) => Math.abs(Number(num) || 0));
 
@@ -568,7 +661,7 @@ export class HomeComponent implements OnInit {
 
     private _buildLastMonthArea(
         seriesData: { labels: string[]; series: any[] },
-        theme: ChartTheme,
+        theme: ChartTheme
     ): ApexOptions {
         return {
             chart: {
@@ -625,11 +718,13 @@ export class HomeComponent implements OnInit {
 
     private _buildDistributionRadar(
         distribution: { categories: string[]; series: { name: string; data: number[] }[] },
-        theme: ChartTheme,
+        theme: ChartTheme
     ): ApexOptions {
         const counts = distribution.series?.[1]?.data ?? [];
         const total = counts.reduce((acc, val) => acc + (Number(val) || 0), 0);
-        const percentages = counts.map((value) => Number(((Number(value) || 0) * 100 / (total || 1)).toFixed(2)));
+        const percentages = counts.map((value) =>
+            Number((((Number(value) || 0) * 100) / (total || 1)).toFixed(2))
+        );
 
         return {
             chart: {
@@ -692,9 +787,11 @@ export class HomeComponent implements OnInit {
 
     private _buildUsageLine(
         topCodes: { labels: string[]; series: { date: string; count: number }[][] },
-        theme: ChartTheme,
+        theme: ChartTheme
     ): ApexOptions {
-        const aggregated = (topCodes.series ?? []).map((bucket) => bucket.reduce((acc, curr) => acc + (Number(curr?.count) || 0), 0));
+        const aggregated = (topCodes.series ?? []).map((bucket) =>
+            bucket.reduce((acc, curr) => acc + (Number(curr?.count) || 0), 0)
+        );
 
         return {
             chart: {

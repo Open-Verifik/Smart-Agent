@@ -185,6 +185,11 @@
     "description": "General data verification service for . Provides reliable information verification and validation."
   },
   {
+    "code": "communication_global_messaging_sms",
+    "title": " - Data Verification Service",
+    "description": "General data verification service for . Provides reliable information verification and validation."
+  },
+  {
     "code": "communication_global_email_otp",
     "title": " - Data Verification Service",
     "description": "General data verification service for . Provides reliable information verification and validation."

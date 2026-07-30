@@ -1,0 +1,313 @@
+<ng-container *transloco="let t">
+    <section class="dev-guide">
+        <header class="dev-guide-header">
+            <div>
+                <h2 class="dev-guide-title">
+                    {{ t('communication_messages.dev_guide.title') }}
+                </h2>
+                <p class="dev-guide-intro">
+                    {{ t('communication_messages.dev_guide.intro') }}
+                </p>
+            </div>
+            <div class="dev-guide-links">
+                <a
+                    class="docs-link"
+                    [href]="docsOverviewUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ t('communication_messages.dev_guide.link_overview') }}
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+                <a
+                    class="docs-link"
+                    [href]="docsManualUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ t('communication_messages.dev_guide.link_send') }}
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+                <a
+                    class="docs-link"
+                    [href]="docsValidateUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ t('communication_messages.dev_guide.link_verify') }}
+                    <mat-icon>open_in_new</mat-icon>
+                </a>
+            </div>
+        </header>
+
+        <div class="steps">
+            <article class="step">
+                <div class="step-badge">1</div>
+                <div class="step-body">
+                    <h3>{{ t('communication_messages.dev_guide.step_send_title') }}</h3>
+                    <p>{{ t('communication_messages.dev_guide.step_send_body') }}</p>
+                    <code class="endpoint">{{ sendEndpoint }}</code>
+
+                    <table class="params">
+                        <thead>
+                            <tr>
+                                <th>{{ t('communication_messages.dev_guide.param') }}</th>
+                                <th>{{ t('communication_messages.dev_guide.required') }}</th>
+                                <th>{{ t('communication_messages.dev_guide.description') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>phone</code></td>
+                                <td>{{ t('communication_messages.dev_guide.yes') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_phone') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>countryCode</code></td>
+                                <td>{{ t('communication_messages.dev_guide.yes') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_country') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>phoneGateway</code></td>
+                                <td>{{ t('communication_messages.dev_guide.yes') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_gateway') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>title</code></td>
+                                <td>{{ t('communication_messages.dev_guide.no') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_title') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>language</code></td>
+                                <td>{{ t('communication_messages.dev_guide.no') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_language') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>cURL</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(sendCurl)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ sendCurl }}</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>Node.js</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(sendNode)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ sendNode }}</pre>
+                    </div>
+
+                    <h4 class="sample-heading">
+                        {{ t('communication_messages.dev_guide.sample_success') }}
+                    </h4>
+                    <p class="sample-note">
+                        {{ t('communication_messages.dev_guide.sample_send_success_note') }}
+                    </p>
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>HTTP 200</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(sendSuccessSample)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ sendSuccessSample }}</pre>
+                    </div>
+
+                    <h4 class="sample-heading">
+                        {{ t('communication_messages.dev_guide.sample_errors') }}
+                    </h4>
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>HTTP 403 / 409</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(sendErrorSamples)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ sendErrorSamples }}</pre>
+                    </div>
+                </div>
+            </article>
+
+            <article class="step">
+                <div class="step-badge">2</div>
+                <div class="step-body">
+                    <h3>{{ t('communication_messages.dev_guide.step_verify_title') }}</h3>
+                    <p>{{ t('communication_messages.dev_guide.step_verify_body') }}</p>
+                    <code class="endpoint">{{ verifyEndpoint }}</code>
+
+                    <table class="params">
+                        <thead>
+                            <tr>
+                                <th>{{ t('communication_messages.dev_guide.param') }}</th>
+                                <th>{{ t('communication_messages.dev_guide.required') }}</th>
+                                <th>{{ t('communication_messages.dev_guide.description') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>phone</code></td>
+                                <td>{{ t('communication_messages.dev_guide.yes') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_phone') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>countryCode</code></td>
+                                <td>{{ t('communication_messages.dev_guide.yes') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_country') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>otp</code></td>
+                                <td>{{ t('communication_messages.dev_guide.yes') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_otp') }}</td>
+                            </tr>
+                            <tr>
+                                <td><code>phoneGateway</code></td>
+                                <td>{{ t('communication_messages.dev_guide.no') }}</td>
+                                <td>{{ t('communication_messages.dev_guide.param_gateway_optional') }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>cURL</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(verifyCurl)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ verifyCurl }}</pre>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>Node.js</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(verifyNode)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ verifyNode }}</pre>
+                    </div>
+
+                    <h4 class="sample-heading">
+                        {{ t('communication_messages.dev_guide.sample_success') }}
+                    </h4>
+                    <p class="sample-note">
+                        {{ t('communication_messages.dev_guide.sample_verify_success_note') }}
+                    </p>
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>HTTP 200</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(verifySuccessSample)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ verifySuccessSample }}</pre>
+                    </div>
+
+                    <h4 class="sample-heading">
+                        {{ t('communication_messages.dev_guide.sample_errors') }}
+                    </h4>
+                    <div class="code-block">
+                        <div class="code-toolbar">
+                            <span>HTTP 403 / 404</span>
+                            <button
+                                mat-button
+                                type="button"
+                                (click)="copyText(verifyErrorSamples)"
+                            >
+                                <mat-icon>content_copy</mat-icon>
+                                {{ t('communication_messages.dev_guide.copy') }}
+                            </button>
+                        </div>
+                        <pre>{{ verifyErrorSamples }}</pre>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <section
+            class="api-result"
+            id="communication-last-api-response"
+        >
+            <div class="code-toolbar">
+                <h3>{{ t('communication_messages.dev_guide.last_response') }}</h3>
+                @if (lastApiResponse) {
+                    <button
+                        mat-button
+                        type="button"
+                        (click)="copyText(lastResponseJson)"
+                    >
+                        <mat-icon>content_copy</mat-icon>
+                        {{ t('communication_messages.dev_guide.copy') }}
+                    </button>
+                }
+            </div>
+            @if (lastApiResponse) {
+                <div
+                    class="result-meta"
+                    [class.ok]="lastApiResponse.ok"
+                    [class.err]="!lastApiResponse.ok"
+                >
+                    @if (lastOperationLabel) {
+                        <span>{{ lastOperationLabel }} · </span>
+                    }
+                    {{
+                        lastApiResponse.ok
+                            ? t('communication_messages.dev_guide.response_ok')
+                            : t('communication_messages.dev_guide.response_error')
+                    }}
+                    @if (lastApiResponse.status) {
+                        <span>· HTTP {{ lastApiResponse.status }}</span>
+                    }
+                </div>
+                <pre>{{ lastResponseJson }}</pre>
+            } @else {
+                <p class="empty">
+                    {{ t('communication_messages.dev_guide.last_response_empty') }}
+                </p>
+            }
+        </section>
+    </section>
+</ng-container>

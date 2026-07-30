@@ -1,0 +1,139 @@
+<ng-container *transloco="let t">
+    <div class="page">
+        <div class="inner">
+            <header class="hero">
+                <div class="hero-icon">
+                    <mat-icon
+                        [svgIcon]="
+                            phoneGateway === 'sms'
+                                ? 'heroicons_outline:device-phone-mobile'
+                                : 'heroicons_outline:chat-bubble-left-ellipsis'
+                        "
+                    ></mat-icon>
+                </div>
+                <div class="hero-text">
+                    <h1 class="title">{{ t(titleKey) }}</h1>
+                    <p class="subtitle">{{ t('communication_messages.list.subtitle') }}</p>
+                </div>
+                <button mat-flat-button color="primary" type="button" (click)="goCompose()">
+                    <mat-icon svgIcon="heroicons_outline:plus"></mat-icon>
+                    {{ t('communication_messages.list.send_new') }}
+                </button>
+            </header>
+
+            <div class="filters">
+                <mat-form-field class="search" appearance="outline" subscriptSizing="dynamic">
+                    <mat-icon matPrefix svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+                    <input
+                        matInput
+                        [placeholder]="t('communication_messages.list.search_placeholder')"
+                        [ngModel]="search"
+                        (ngModelChange)="onSearchInput($event)"
+                    />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ t('communication_messages.list.filter_source') }}</mat-label>
+                    <mat-select [(ngModel)]="sourceFilter" (selectionChange)="onFilterChange()">
+                        <mat-option value="">{{ t('communication_messages.list.all') }}</mat-option>
+                        <mat-option value="manual">{{
+                            t('communication_messages.list.source.manual')
+                        }}</mat-option>
+                        <mat-option value="flow">{{
+                            t('communication_messages.list.source.flow')
+                        }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                    <mat-label>{{ t('communication_messages.list.filter_status') }}</mat-label>
+                    <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()">
+                        <mat-option value="">{{ t('communication_messages.list.all') }}</mat-option>
+                        <mat-option value="sent">sent</mat-option>
+                        <mat-option value="validated">validated</mat-option>
+                        <mat-option value="failed">failed</mat-option>
+                        <mat-option value="new">new</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div *ngIf="loading" class="state-loading">
+                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            </div>
+
+            <div class="table-wrap" *ngIf="!loading">
+                <table mat-table [dataSource]="rows" class="messages-table" *ngIf="rows.length">
+                    <ng-container matColumnDef="phone">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{ t('communication_messages.list.columns.phone') }}
+                        </th>
+                        <td mat-cell *matCellDef="let row">{{ formatPhone(row) }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="status">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{ t('communication_messages.list.columns.status') }}
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <span class="status" [attr.data-status]="row.status">{{
+                                row.status
+                            }}</span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="source">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{ t('communication_messages.list.columns.source') }}
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <span class="badge" [attr.data-source]="resolveSource(row)">
+                                {{
+                                    t(
+                                        'communication_messages.list.source.' +
+                                            resolveSource(row)
+                                    )
+                                }}
+                            </span>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="project">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{ t('communication_messages.list.columns.project') }}
+                        </th>
+                        <td mat-cell *matCellDef="let row">{{ projectLabel(row) }}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="createdAt">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{ t('communication_messages.list.columns.created') }}
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{ row.createdAt | date: 'medium' }}
+                        </td>
+                    </ng-container>
+
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr
+                        mat-row
+                        *matRowDef="let row; columns: displayedColumns"
+                        class="clickable-row"
+                        (click)="goDetail(row)"
+                    ></tr>
+                </table>
+
+                <div class="empty" *ngIf="!rows.length">
+                    {{ t('communication_messages.list.empty') }}
+                </div>
+
+                <mat-paginator
+                    [length]="total"
+                    [pageIndex]="page - 1"
+                    [pageSize]="limit"
+                    [pageSizeOptions]="[10, 20, 50]"
+                    (page)="onPage($event)"
+                ></mat-paginator>
+            </div>
+        </div>
+    </div>
+</ng-container>

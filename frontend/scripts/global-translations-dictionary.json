@@ -1109,6 +1109,36 @@
       "description": "提供可靠的验证和验证服务。"
     }
   },
+  "communication_global_messaging_sms": {
+    "en": {
+      "title": "Global - SMS Messaging",
+      "description": "Provides reliable verification and validation services."
+    },
+    "es": {
+      "title": "Global - Mensajería SMS",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
+    "fr": {
+      "title": "Mondial - Messagerie SMS",
+      "description": "Fournit des services de vérification et de validation fiables."
+    },
+    "pt": {
+      "title": "Global - Mensagens SMS",
+      "description": "Fornece serviços confiáveis de verificação e validação."
+    },
+    "ja": {
+      "title": "グローバル - SMSメッセージ",
+      "description": "信頼性の高い検証と検証サービスを提供します。"
+    },
+    "ko": {
+      "title": "글로벌 - SMS 메시징",
+      "description": "신뢰할 수 있는 검증 및 검증 서비스를 제공합니다."
+    },
+    "zh": {
+      "title": "全球 - 短信消息",
+      "description": "提供可靠的验证和验证服务。"
+    }
+  },
   "communication_global_email_otp": {
     "en": {
       "title": "Email OTP",

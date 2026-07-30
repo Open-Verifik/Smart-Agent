@@ -308,6 +308,10 @@
             "title": "全球 - WhatsApp Messaging",
             "description": "提供可靠的验证和验证服务。"
         },
+        "communication_global_messaging_sms": {
+            "title": "全球 - 短信消息",
+            "description": "提供可靠的验证和验证服务。"
+        },
         "communication_global_email_otp": {
             "title": "Email OTP",
             "description": "提供可靠的验证和验证服务。"

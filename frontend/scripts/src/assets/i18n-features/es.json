@@ -308,6 +308,10 @@
       "title": "Global - Mensajería WhatsApp",
       "description": "Proporciona servicios confiables de verificación y validación."
     },
+    "communication_global_messaging_sms": {
+      "title": "Global - Mensajería SMS",
+      "description": "Proporciona servicios confiables de verificación y validación."
+    },
     "communication_global_email_otp": {
       "title": "OTP por Correo",
       "description": "Proporciona servicios confiables de verificación y validación."
