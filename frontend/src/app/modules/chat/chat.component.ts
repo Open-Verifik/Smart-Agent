@@ -153,6 +153,9 @@ export class ChatComponent implements OnInit {
 
     private readonly _transloco = inject(TranslocoService);
 
+    /** Prevents parallel /api/agent/info requests (modal open + feedback refresh). */
+    private agentInfoRequestInFlight = false;
+
     baseUrl = environment.baseUrl;
     protected readonly smartAgentUrl = environment.smartAgentUrl;
     protected readonly tokenTicker = environment.tokenTicker || 'VKA';
@@ -240,10 +243,13 @@ export class ChatComponent implements OnInit {
 
     async ngOnInit() {
         this.walletAddress.set(this.walletService.getAddress());
-        await this.refreshBalance();
 
-        // Auto-register VKA token if using MetaMask
-        this.walletService.registerVkaToken();
+        const hasWalletAuth = this.hasWalletAuth();
+        if (hasWalletAuth) {
+            await this.refreshBalance();
+            // Auto-register VKA token if using MetaMask
+            this.walletService.registerVkaToken();
+        }
 
         // Check for Wallet Change
         const currentWallet = this.walletAddress();
@@ -256,38 +262,40 @@ export class ChatComponent implements OnInit {
             this.currentConversationId.set(null);
         }
 
-        // Load initial data
-        this.loadAgentInfo();
-
-        // Determine Mode Smartly based on Balances
         // Determine Mode Smartly based on Balances & Preference
+        // Agent ERC-8004 info is loaded lazily only with wallet auth when the user
+        // opens the agent info modal (avoids slow on-chain RPC on every chat visit).
         const savedMode = localStorage.getItem('chatMode') as 'x402' | 'credits';
-        const hasWallet = !!this.walletService.getAddress();
         const hasCredits = !!localStorage.getItem('accessToken');
         const walletBalance = parseFloat(this.walletBalance() || '0');
 
         if (
             savedMode &&
-            ((savedMode === 'x402' && hasWallet) || (savedMode === 'credits' && hasCredits))
+            ((savedMode === 'x402' && hasWalletAuth) || (savedMode === 'credits' && hasCredits))
         ) {
             this.chatMode.set(savedMode);
         } else {
             // Fallback if no preference or preference is invalid for current auth state
-            if (hasCredits && !hasWallet) {
+            if (hasCredits && !hasWalletAuth) {
                 this.setChatMode('credits');
-            } else if (hasWallet && hasCredits) {
+            } else if (hasWalletAuth && hasCredits) {
                 if (walletBalance < 0.01) {
                     this.setChatMode('credits');
                 } else {
                     this.setChatMode('x402');
                 }
-            } else if (hasWallet) {
+            } else if (hasWalletAuth) {
                 this.setChatMode('x402');
             }
         }
 
-        // Now load conversations with correct mode/wallet
-        this.loadConversations(); // This filters by wallet address
+        // Only fetch conversations when authenticated for the active mode
+        if (
+            (this.chatMode() === 'x402' && hasWalletAuth) ||
+            (this.chatMode() === 'credits' && hasCredits)
+        ) {
+            this.loadConversations();
+        }
 
         // Restore Session
         const savedId = localStorage.getItem('currentConversationId');
@@ -300,6 +308,23 @@ export class ChatComponent implements OnInit {
         } else {
             this.startNewChat(false);
         }
+    }
+
+    /**
+     * True when the user has a usable wallet session (address + MetaMask or agent key),
+     * not merely a stale address in localStorage.
+     */
+    private hasWalletAuth(): boolean {
+        const address = this.walletService.getAddress();
+        if (!address) {
+            return false;
+        }
+
+        const walletType = localStorage.getItem('x402_wallet_type');
+        const hasEncryptedWallet = !!localStorage.getItem('x402_agent_pk_encrypted');
+        const hasPlainPk = !!localStorage.getItem('x402_agent_pk');
+
+        return walletType === 'metamask' || hasEncryptedWallet || hasPlainPk;
     }
 
     // --- Conversations Logic ---
@@ -480,27 +505,51 @@ export class ChatComponent implements OnInit {
 
     // --- Existing Logic ---
 
-    async loadAgentInfo() {
+    async loadAgentInfo(force = false) {
+        if (!this.hasWalletAuth()) {
+            this.agentInfo.set(null);
+            this.isLoadingAgentInfo.set(false);
+            return;
+        }
+
+        if (!force && this.agentInfo()) {
+            return;
+        }
+
+        if (this.agentInfoRequestInFlight) {
+            return;
+        }
+
+        this.agentInfoRequestInFlight = true;
         this.isLoadingAgentInfo.set(true);
         try {
             this.http.get<AgentInfo>(`${this.apiUrl}/info`).subscribe({
                 next: (info) => {
                     this.agentInfo.set(info);
                     this.isLoadingAgentInfo.set(false);
+                    this.agentInfoRequestInFlight = false;
                 },
                 error: (err) => {
                     console.warn('Failed to load agent info:', err);
                     this.isLoadingAgentInfo.set(false);
+                    this.agentInfoRequestInFlight = false;
                 },
             });
         } catch (error) {
             console.warn('Error loading agent info:', error);
             this.isLoadingAgentInfo.set(false);
+            this.agentInfoRequestInFlight = false;
         }
     }
 
     toggleAgentInfoModal() {
-        this.showAgentInfoModal.update((show) => !show);
+        const willOpen = !this.showAgentInfoModal();
+        this.showAgentInfoModal.set(willOpen);
+
+        // On-chain agent card is only useful for wallet/x402 users; credits-only skips it.
+        if (willOpen && this.hasWalletAuth() && !this.agentInfo()) {
+            void this.loadAgentInfo();
+        }
     }
 
     openAuthModal() {
@@ -846,7 +895,7 @@ export class ChatComponent implements OnInit {
                     });
 
                     this.scrollToBottom();
-                    await this.loadAgentInfo();
+                    await this.loadAgentInfo(true);
                 } catch (error) {
                     this.walletService.pausePolling();
                     console.error('Transaction confirmation error:', error);
@@ -1176,6 +1225,7 @@ export class ChatComponent implements OnInit {
         if (confirm('Are you sure you want to reset your wallet?')) {
             this.walletService.resetWallet();
             this.walletAddress.set('');
+            this.agentInfo.set(null);
             localStorage.setItem('lastWalletAddress', '');
 
             // Clear Chat State

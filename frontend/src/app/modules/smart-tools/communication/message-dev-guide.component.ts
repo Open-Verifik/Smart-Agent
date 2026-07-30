@@ -158,33 +158,6 @@ export class MessageDevGuideComponent {
     }
 
     get sendSuccessSample(): string {
-        const e164Digits = `${this.sampleCountryCode}${this.samplePhone}`.replace(
-            /\D/g,
-            ''
-        );
-
-        const providerConfirmation =
-            this.phoneGateway === 'sms'
-                ? {
-                      sid: 'SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-                      status: 'queued',
-                  }
-                : {
-                      messaging_product: 'whatsapp',
-                      contacts: [
-                          {
-                              input: e164Digits,
-                              wa_id: e164Digits,
-                          },
-                      ],
-                      messages: [
-                          {
-                              id: 'wamid.HBgLMTc4MDkxMzMwODEVAgARGBJCMDVEMDlDRUI0MzUzMjg1N0EA',
-                              message_status: 'accepted',
-                          },
-                      ],
-                  };
-
         return JSON.stringify(
             {
                 data: {
@@ -209,7 +182,6 @@ export class MessageDevGuideComponent {
                     __v: 0,
                     new: true,
                     sent: true,
-                    providerConfirmation,
                 },
                 signature: {
                     dateTime: 'July 30, 2026 12:30 AM',
