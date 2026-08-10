@@ -51,6 +51,8 @@ export const COLOMBIA_MIN_TRABAJO_V3_ENDPOINT_CODE = 'colombia_api_min_trabajo_v
 
 export const COLOMBIA_RETHUS_ENDPOINT_CODE = 'colombia_api_rethus';
 
+export const COLOMBIA_ADRES_ENDPOINT_CODE = 'colombia_api_adres';
+
 export const COLOMBIA_RUNT_VEHICLE_ENDPOINT_CODE = 'colombia_api_vehicle';
 export const COLOMBIA_RUNT_DRIVER_ENDPOINT_CODE = 'colombia_api_driver';
 export const COLOMBIA_RUNT_VEHICLE_COMPLETE_PLATE_ENDPOINT_CODE = 'colombia_api_vehicle_complete_by_plate';
@@ -537,6 +539,25 @@ const COLOMBIA_RETHUS_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     paramOverrides: { documentType: 'INVALID', documentNumber: '10000001' },
 };
 
+/** Mirrors verifik-backend Adres sandbox fixtures (live BDUA shape, anonymized). */
+const COLOMBIA_ADRES_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    { documentNumber: '10000001', fullName: 'LILIA MANUELA LESPORT FERNANDEZ — CONTRIBUTIVO ACTIVO' },
+    { documentNumber: '10000002', fullName: 'JUAN CARLOS PEREZ GOMEZ — SUBSIDIADO ACTIVO' },
+    { documentNumber: '10000003', fullName: 'CARLA ISABEL MARTINEZ FERNANDEZ — INACTIVO' },
+    { documentNumber: '10000004', fullName: 'LUIS ALBERTO GONZALEZ HERRERA — CONTRIBUTIVO ACTIVO' },
+    { documentNumber: '10000005', fullName: 'ANA SOFIA RAMIREZ TORRES — SUBSIDIADO ACTIVO' },
+    { documentNumber: '10000006', fullName: 'DIEGO ALEJANDRO SILVA MENDOZA — INACTIVO' },
+    { documentNumber: '10000007', fullName: 'VALENTINA ANDREA CASTRO VARGAS — CONTRIBUTIVO ACTIVO' },
+    { documentNumber: '10000008', fullName: 'RICARDO JOSE MORALES SUAREZ — SUBSIDIADO ACTIVO' },
+    { documentNumber: '10000009', fullName: 'PATRICIA CAROLINA DIAZ REYES — INACTIVO' },
+    { documentNumber: '10000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — CONTRIBUTIVO ACTIVO' },
+];
+
+const COLOMBIA_ADRES_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: { documentType: 'INVALID', documentNumber: '10000001' },
+};
+
 export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [COLOMBIA_CEDULA_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
@@ -703,6 +724,19 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         defaultDocumentNumber: '10000001',
         documentTypeByCode: {
             [COLOMBIA_RETHUS_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_ADRES_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_ADRES_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COLOMBIA_ADRES_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_ADRES_ENDPOINT_CODE]: 'CC',
         },
         showProfileMeta: false,
     },
