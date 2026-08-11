@@ -60,6 +60,11 @@ export const appRoutes: Route[] = [
                     import('app/modules/smart-batch/smart-batch.routes').then((m) => m.default),
             },
             {
+                path: 'smart-fleet',
+                loadChildren: () =>
+                    import('app/modules/smart-fleet/smart-fleet.routes').then((m) => m.default),
+            },
+            {
                 path: 'subscription-plans',
                 loadChildren: () =>
                     import('app/modules/subscription-plans/subscription-plans.routes').then(

@@ -515,4 +515,110 @@ export class ReportPreviewComponent implements AfterViewInit {
             .replace(/^./, (s) => s.toUpperCase())
             .trim();
     }
+
+    // ============================================
+    // STRUCTURAL RENDERING
+    // ============================================
+    //
+    // The rich section types are rendered exactly by the backend, which the builder
+    // shows in an iframe. The canvas only needs enough of each block to select,
+    // reorder and position it, so these helpers deliberately return an outline
+    // rather than trying to reproduce the printed output.
+
+    /** Raw value at a path, as opposed to `resolveDataPath`'s display string. */
+    private _valueAt(path: string | undefined): any {
+        if (!path) return null;
+
+        let current: any = this.previewData();
+
+        for (const part of path.split('.')) {
+            if (current == null || typeof current !== 'object') return null;
+
+            current = current[part];
+        }
+
+        return current ?? null;
+    }
+
+    /** Records behind a `dataTable` or `repeater`, normalizing a lone object. */
+    structuralRecords(section: ReportSection): Record<string, any>[] {
+        const value = this._valueAt(section.dataPath);
+
+        if (Array.isArray(value)) {
+            return value.filter((entry) => entry && typeof entry === 'object');
+        }
+
+        return value && typeof value === 'object' ? [value] : [];
+    }
+
+    /** Declared columns, or the ones the backend would derive from the records. */
+    structuralColumns(section: ReportSection): { key: string; label: string }[] {
+        if (section.columns?.length) {
+            return section.columns.map((column) => ({
+                key: column.key,
+                label: column.label || this._humanize(column.key),
+            }));
+        }
+
+        const records = this.structuralRecords(section);
+        const keys: string[] = [];
+
+        for (const record of records) {
+            for (const key of Object.keys(record)) {
+                if (!keys.includes(key)) keys.push(key);
+            }
+        }
+
+        return keys
+            .slice(0, section.maxColumns || 6)
+            .map((key) => ({ key, label: this._humanize(key) }));
+    }
+
+    /** Two rows are enough to show shape without reproducing the document. */
+    structuralSampleRows(section: ReportSection): string[][] {
+        const columns = this.structuralColumns(section);
+
+        return this.structuralRecords(section)
+            .slice(0, 2)
+            .map((record) =>
+                columns.map((column) => {
+                    const value = record[column.key];
+
+                    if (value == null) return '—';
+
+                    return typeof value === 'object' ? '…' : String(value);
+                })
+            );
+    }
+
+    /** Entries behind a `keyValueGrid`, capped so the outline stays compact. */
+    structuralEntries(section: ReportSection): { key: string; value: string }[] {
+        const value = this._valueAt(section.dataPath);
+
+        if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
+
+        return Object.entries(value)
+            .filter(([, entry]) => entry != null && typeof entry !== 'object')
+            .slice(0, 6)
+            .map(([key, entry]) => ({ key: this._humanize(key), value: String(entry) }));
+    }
+
+    /**
+     * Tailwind classes for a variant, mirroring the backend palette.
+     *
+     * `variantRules` are evaluated server-side; the canvas shows the static variant
+     * so the block is recognizable without duplicating rule evaluation.
+     */
+    variantClasses(section: ReportSection): string {
+        const palette: Record<string, string> = {
+            neutral: 'bg-gray-50 text-gray-700 border-gray-200',
+            success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            warning: 'bg-amber-50 text-amber-700 border-amber-200',
+            danger: 'bg-rose-50 text-rose-700 border-rose-200',
+            info: 'bg-blue-50 text-blue-700 border-blue-200',
+            primary: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        };
+
+        return palette[section.style?.variant || 'neutral'] ?? palette.neutral;
+    }
 }

@@ -857,12 +857,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 --------------------------------------------------------------------------------
-Package: ag-grid-angular
+Package: @stripe/stripe-js
 License: "MIT"
 
-The MIT License
+MIT License
 
-Copyright (c) 2015-2026 AG GRID LTD
+Copyright (c) 2017 Stripe
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -883,12 +883,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 --------------------------------------------------------------------------------
-Package: @stripe/stripe-js
+Package: ag-grid-angular
 License: "MIT"
 
-MIT License
+The MIT License
 
-Copyright (c) 2017 Stripe
+Copyright (c) 2015-2026 AG GRID LTD
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -1,6 +1,16 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    DestroyRef,
+    effect,
+    inject,
+    OnDestroy,
+    OnInit,
+    signal,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -11,16 +21,23 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { catchError, debounceTime, distinctUntilChanged, map, of, Subject, switchMap } from 'rxjs';
 import { buildHelperDataPaths } from '../helper-data.util';
 import { ReportBuilderPreviewDataService } from '../report-builder-preview-data.service';
 import { ReportPreviewComponent } from '../report-preview/report-preview.component';
 import { BatchConfiguration, SmartBatchService } from '../smart-batch.service';
 import {
+    DataNode,
+    ReportConditionOperator,
     ReportSection,
+    ReportSectionType,
+    ReportStyleVariant,
     SampleReportData,
+    SmartReport,
     SmartReportService,
     SmartReportTemplate,
 } from '../smart-report.service';
@@ -63,7 +80,7 @@ const OVERLAY_MIN_Y = 52;
     templateUrl: './report-builder.component.html',
     animations: [fuseAnimations],
 })
-export class ReportBuilderComponent implements OnInit {
+export class ReportBuilderComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _fb = inject(FormBuilder);
@@ -73,6 +90,8 @@ export class ReportBuilderComponent implements OnInit {
     private _previewDataService = inject(ReportBuilderPreviewDataService);
     private _transloco = inject(TranslocoService);
     private _batchService = inject(SmartBatchService);
+    private _sanitizer = inject(DomSanitizer);
+    private _destroyRef = inject(DestroyRef);
 
     configId = signal<string | null>(null);
     templateId = signal<string | null>(null);
@@ -94,6 +113,69 @@ export class ReportBuilderComponent implements OnInit {
     activeTab = signal<'design' | 'data'>('design');
     showPassword = false;
 
+    /**
+     * Left rail tab.
+     *
+     * `data` leads because binding a real data node is the primary action: the
+     * palette knows the paths, so nobody has to remember that step 1 was the cédula
+     * lookup. `blocks` adds unbound layout, `layers` reorders what exists.
+     */
+    railTab = signal<'data' | 'blocks' | 'layers'>('data');
+
+    /** Document settings live in a drawer; only name and colour stay inline. */
+    showSettingsDrawer = signal(false);
+
+    /**
+     * Where the author is in the document's life: build it, check it, send it.
+     *
+     * The three actions were previously all present at once — a rail, a canvas and
+     * two send buttons in the top bar — which gave no sense of what to do next.
+     */
+    builderStep = signal<'prepare' | 'preview' | 'deliver'>('prepare');
+
+    readonly builderSteps = [
+        { key: 'prepare', labelKey: 'smartReport.stepPrepare', icon: 'edit_document' },
+        { key: 'preview', labelKey: 'smartReport.stepPreview', icon: 'visibility' },
+        { key: 'deliver', labelKey: 'smartReport.stepDeliver', icon: 'send' },
+    ] as const;
+
+    /** Documents already produced from this template, newest first. */
+    deliveries = signal<SmartReport[]>([]);
+    isLoadingDeliveries = signal(false);
+
+    /** Data palette, described by the backend from the current sample payload. */
+    dataNodes = signal<DataNode[]>([]);
+    batchNodes = signal<DataNode[]>([]);
+    isIntrospecting = signal(false);
+
+    /** Paths of expanded palette branches. Roots start open. */
+    expandedPaths = signal<Set<string>>(new Set(['results', 'inputData']));
+
+    /** Drop list id the canvas exposes, so palette drags can target it. */
+    readonly canvasDropListId = 'report-canvas-drop';
+
+    /**
+     * Whether the raw dataPath input is shown for the selected block.
+     *
+     * Typing dot notation was the largest source of broken reports, so it is now an
+     * escape hatch behind a disclosure rather than the primary way to bind a block.
+     */
+    showAdvancedPath = signal(false);
+
+    /**
+     * `edit` is the Angular canvas: selectable blocks and draggable overlays.
+     * `exact` is the real document, rendered by the same server code that makes the
+     * PDF, so the two can never drift on typography or page breaks.
+     */
+    previewMode = signal<'edit' | 'exact'>('edit');
+    exactPreviewUrl = signal<SafeResourceUrl | null>(null);
+    isRenderingExact = signal(false);
+    exactPreviewError = signal<string | null>(null);
+
+    /** Latest object URL, revoked when replaced so blobs do not accumulate. */
+    private _exactPreviewObjectUrl: string | null = null;
+    private readonly _exactPreviewRequest$ = new Subject<void>();
+
     sections = signal<ReportSection[]>([]);
     selectedSection = signal<ReportSection | null>(null);
 
@@ -106,14 +188,111 @@ export class ReportBuilderComponent implements OnInit {
 
     templateForm: FormGroup;
 
-    sectionTypes = [
-        { type: 'header', labelKey: 'smartReport.sectionHeader', icon: 'title' },
-        { type: 'text', labelKey: 'smartReport.sectionText', icon: 'notes' },
-        { type: 'field', labelKey: 'smartReport.sectionField', icon: 'data_object' },
-        { type: 'table', labelKey: 'smartReport.sectionTable', icon: 'table_chart' },
-        { type: 'image', labelKey: 'smartReport.sectionImage', icon: 'image' },
-        { type: 'divider', labelKey: 'smartReport.sectionDivider', icon: 'horizontal_rule' },
-        { type: 'spacer', labelKey: 'smartReport.sectionSpacer', icon: 'space_bar' },
+    /**
+     * Every section type the renderer supports.
+     *
+     * `table` stays for templates that already use it but is not offered as a new
+     * block: it cannot render arrays, which is exactly what `dataTable` fixed.
+     */
+    sectionTypes: {
+        type: ReportSectionType;
+        labelKey: string;
+        icon: string;
+        group: 'content' | 'data' | 'layout';
+        legacy?: boolean;
+    }[] = [
+        { type: 'header', labelKey: 'smartReport.sectionHeader', icon: 'title', group: 'content' },
+        { type: 'text', labelKey: 'smartReport.sectionText', icon: 'notes', group: 'content' },
+        { type: 'image', labelKey: 'smartReport.sectionImage', icon: 'image', group: 'content' },
+        { type: 'field', labelKey: 'smartReport.sectionField', icon: 'data_object', group: 'data' },
+        {
+            type: 'badge',
+            labelKey: 'smartReport.sectionBadge',
+            icon: 'label_important',
+            group: 'data',
+        },
+        {
+            type: 'keyValueGrid',
+            labelKey: 'smartReport.sectionKeyValueGrid',
+            icon: 'grid_view',
+            group: 'data',
+        },
+        {
+            type: 'dataTable',
+            labelKey: 'smartReport.sectionDataTable',
+            icon: 'table_rows',
+            group: 'data',
+        },
+        { type: 'repeater', labelKey: 'smartReport.sectionRepeater', icon: 'repeat', group: 'data' },
+        {
+            type: 'reportBlocks',
+            labelKey: 'smartReport.sectionReportBlocks',
+            icon: 'dashboard_customize',
+            group: 'data',
+        },
+        { type: 'card', labelKey: 'smartReport.sectionCard', icon: 'crop_square', group: 'layout' },
+        {
+            type: 'divider',
+            labelKey: 'smartReport.sectionDivider',
+            icon: 'horizontal_rule',
+            group: 'layout',
+        },
+        {
+            type: 'spacer',
+            labelKey: 'smartReport.sectionSpacer',
+            icon: 'space_bar',
+            group: 'layout',
+        },
+        {
+            type: 'table',
+            labelKey: 'smartReport.sectionTable',
+            icon: 'table_chart',
+            group: 'data',
+            legacy: true,
+        },
+    ];
+
+    /** Palette groups, in the order they appear in the "Add sections" panel. */
+    readonly sectionGroups: { key: 'content' | 'data' | 'layout'; labelKey: string }[] = [
+        { key: 'data', labelKey: 'smartReport.groupData' },
+        { key: 'content', labelKey: 'smartReport.groupContent' },
+        { key: 'layout', labelKey: 'smartReport.groupLayout' },
+    ];
+
+    readonly styleVariants: ReportStyleVariant[] = [
+        'neutral',
+        'success',
+        'warning',
+        'danger',
+        'info',
+        'primary',
+    ];
+
+    readonly conditionOperators: ReportConditionOperator[] = [
+        'equals',
+        'notEquals',
+        'exists',
+        'notExists',
+        'contains',
+        'in',
+        'gt',
+        'gte',
+        'lt',
+        'lte',
+        'isEmpty',
+        'notEmpty',
+    ];
+
+    /** Types whose editor exposes a `dataPath`. */
+    private readonly _dataBoundTypes: ReportSectionType[] = [
+        'field',
+        'table',
+        'dataTable',
+        'keyValueGrid',
+        'badge',
+        'card',
+        'repeater',
+        'reportBlocks',
     ];
 
     /** Mock data used to render the live preview. */
@@ -149,6 +328,24 @@ export class ReportBuilderComponent implements OnInit {
     });
 
     constructor() {
+        // Sections, logo and sample data live in signals rather than the form, so they
+        // need their own trigger to keep the exact preview current.
+        effect(() => {
+            this.sections();
+            this.logoUrl();
+            this.previewData();
+
+            if (this.previewMode() === 'exact') this._exactPreviewRequest$.next();
+        });
+
+        // The palette describes whatever sample payload is loaded, so it has to be
+        // rebuilt when a template's own sample data replaces the placeholder.
+        effect(() => {
+            this.previewData();
+
+            this._loadIntrospection();
+        });
+
         this.templateForm = this._fb.group({
             name: ['', [Validators.required, Validators.maxLength(150)]],
             description: ['', Validators.maxLength(500)],
@@ -190,6 +387,7 @@ export class ReportBuilderComponent implements OnInit {
     ngOnInit(): void {
         this._applyPreviewDataFromRouterState();
         this._batchService.getConfigurations().subscribe();
+        this._watchExactPreview();
 
         this._route.params.subscribe((params) => {
             const routeConfigId = params['configId'] ?? null;
@@ -210,6 +408,231 @@ export class ReportBuilderComponent implements OnInit {
 
             this._initDefaultSections();
         });
+    }
+
+    ngOnDestroy(): void {
+        this._releaseExactPreviewUrl();
+    }
+
+    // ============================================
+    // DATA PALETTE
+    // ============================================
+
+    /**
+     * Ask the backend to describe the sample payload.
+     *
+     * Introspection runs server-side so path resolution, column derivation and the
+     * shape-to-section-type mapping stay in one place: any path the palette offers is
+     * guaranteed to resolve when the document is rendered.
+     */
+    private _loadIntrospection(): void {
+        this.isIntrospecting.set(true);
+
+        this._reportService
+            .introspect(this.previewData())
+            .pipe(
+                catchError(() => of(null)),
+                takeUntilDestroyed(this._destroyRef)
+            )
+            .subscribe((introspection) => {
+                this.isIntrospecting.set(false);
+
+                if (!introspection) return;
+
+                this.dataNodes.set(introspection.nodes);
+                this.batchNodes.set(introspection.batch);
+            });
+    }
+
+    isExpanded(path: string): boolean {
+        return this.expandedPaths().has(path);
+    }
+
+    toggleNode(path: string): void {
+        this.expandedPaths.update((paths) => {
+            const next = new Set(paths);
+
+            next.has(path) ? next.delete(path) : next.add(path);
+
+            return next;
+        });
+    }
+
+    /** Icon for a node's recommended block, reusing the palette's own mapping. */
+    nodeIcon(node: DataNode): string {
+        return this.getSectionIcon(node.sectionType);
+    }
+
+    /**
+     * Add the block the backend recommended for a data node.
+     *
+     * This is the interaction that replaces hand-typed dot notation: label, path and
+     * columns all arrive pre-filled in `node.suggestion`.
+     */
+    addNodeSection(node: DataNode, index?: number): void {
+        this.addSuggestedSection(node.suggestion, index);
+        this.railTab.set('layers');
+    }
+
+    // ============================================
+    // PREPARE / PREVIEW / DELIVER
+    // ============================================
+
+    /**
+     * Move to a step, bringing along what that step needs.
+     *
+     * Preview implies the server-rendered document, because checking a structural
+     * outline for typography and page breaks is exactly the mistake the exact mode
+     * exists to prevent.
+     */
+    goToStep(step: 'prepare' | 'preview' | 'deliver'): void {
+        this.builderStep.set(step);
+
+        if (step === 'preview') {
+            this.setPreviewMode('exact');
+
+            return;
+        }
+
+        if (step === 'prepare') {
+            this.setPreviewMode('edit');
+
+            return;
+        }
+
+        this._loadDeliveries();
+    }
+
+    /**
+     * Documents already produced from this template.
+     *
+     * Read from `SmartReport`, so the step shows the same status lifecycle and
+     * `emailHistory` that the batch flow writes rather than a second record of
+     * what was sent.
+     */
+    private _loadDeliveries(): void {
+        const id = this.templateId();
+
+        if (!id) return;
+
+        this.isLoadingDeliveries.set(true);
+
+        this._reportService
+            .getReportsByTemplate(id)
+            .pipe(
+                catchError(() => of([] as SmartReport[])),
+                takeUntilDestroyed(this._destroyRef)
+            )
+            .subscribe((reports) => {
+                this.deliveries.set(reports);
+                this.isLoadingDeliveries.set(false);
+            });
+    }
+
+    /** Every delivery recorded against this template, newest first. */
+    deliveryHistory = computed(() =>
+        this.deliveries()
+            .flatMap((report) =>
+                (report.emailHistory ?? []).map((entry) => ({
+                    ...entry,
+                    reportName: report.name || '',
+                    reportStatus: report.status,
+                }))
+            )
+            .sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())
+    );
+
+    /** Tailwind classes for a report or delivery status chip. */
+    statusClasses(status: string): string {
+        const palette: Record<string, string> = {
+            sent: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+            delivered: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+            generated: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300',
+            generating: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+            pending: 'bg-stone-100 text-stone-600 dark:bg-gray-800 dark:text-stone-300',
+            failed: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+            bounced: 'bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300',
+        };
+
+        return palette[status] || palette.pending;
+    }
+
+    // ============================================
+    // EXACT PREVIEW (server-rendered)
+    // ============================================
+
+    setPreviewMode(mode: 'edit' | 'exact'): void {
+        // Preview step always means the printed document; the Edit/Exact toggle is
+        // only meaningful while authoring on Prepare.
+        if (this.builderStep() === 'preview' && mode !== 'exact') return;
+
+        this.previewMode.set(mode);
+
+        if (mode === 'exact') this._exactPreviewRequest$.next();
+    }
+
+    /**
+     * Keep the exact preview in step with the draft.
+     *
+     * Debounced so typing does not fire a request per keystroke, and compared by
+     * payload so a change that does not affect the document costs nothing. Requests
+     * only run while the exact tab is open.
+     */
+    private _watchExactPreview(): void {
+        this.templateForm.valueChanges.pipe(takeUntilDestroyed(this._destroyRef)).subscribe(() => {
+            if (this.previewMode() === 'exact') this._exactPreviewRequest$.next();
+        });
+
+        this._exactPreviewRequest$
+            .pipe(
+                debounceTime(400),
+                map(() => JSON.stringify(this._buildTemplatePayload())),
+                distinctUntilChanged(),
+                switchMap((serialized) => {
+                    this.isRenderingExact.set(true);
+                    this.exactPreviewError.set(null);
+
+                    return this._reportService
+                        .previewHtml(JSON.parse(serialized), this.previewData())
+                        .pipe(catchError(() => of(null)));
+                }),
+                takeUntilDestroyed(this._destroyRef)
+            )
+            .subscribe((html) => {
+                this.isRenderingExact.set(false);
+
+                if (html === null) {
+                    this.exactPreviewError.set(
+                        this._transloco.translate('smartReport.previewFailed')
+                    );
+
+                    return;
+                }
+
+                this._setExactPreviewHtml(html);
+            });
+    }
+
+    /**
+     * Publish rendered HTML to the iframe through a blob URL.
+     *
+     * A blob URL plus the template's `sandbox` attribute puts the document in an
+     * opaque origin with scripts disabled, so report content cannot reach the app.
+     */
+    private _setExactPreviewHtml(html: string): void {
+        this._releaseExactPreviewUrl();
+
+        const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+
+        this._exactPreviewObjectUrl = url;
+        this.exactPreviewUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));
+    }
+
+    private _releaseExactPreviewUrl(): void {
+        if (!this._exactPreviewObjectUrl) return;
+
+        URL.revokeObjectURL(this._exactPreviewObjectUrl);
+        this._exactPreviewObjectUrl = null;
     }
 
     /** True when we got preview data from report viewer navigation (don't overwrite with template.sampleData) */
@@ -379,11 +802,44 @@ export class ReportBuilderComponent implements OnInit {
     // DRAG & DROP
     // ============================================
 
+    /**
+     * Reorder the layer list, or bind a dropped data node at the drop position.
+     *
+     * A drag that starts in another container is a palette drag, so the drop index
+     * becomes the new block's order instead of moving an existing one.
+     */
     onDrop(event: CdkDragDrop<ReportSection[]>): void {
+        if (event.previousContainer !== event.container) {
+            this._bindDroppedItem(event.item.data, event.currentIndex);
+
+            return;
+        }
+
         const current = [...this.sections()];
         moveItemInArray(current, event.previousIndex, event.currentIndex);
         current.forEach((s, i) => (s.order = i));
         this.sections.set(current);
+    }
+
+    /** A node dropped on the page itself lands at the end of the document. */
+    onCanvasDrop(event: CdkDragDrop<unknown>): void {
+        if (event.previousContainer === event.container) return;
+
+        this._bindDroppedItem(event.item.data);
+    }
+
+    /**
+     * @param item Drag payload: a `DataNode` from the palette, or a section type
+     * from the block palette.
+     */
+    private _bindDroppedItem(item: DataNode | ReportSectionType, index?: number): void {
+        if (typeof item === 'string') {
+            this.addSection(item, index);
+
+            return;
+        }
+
+        if (item?.suggestion) this.addSuggestedSection(item.suggestion, index);
     }
 
     // ============================================
@@ -481,8 +937,9 @@ export class ReportBuilderComponent implements OnInit {
             });
     }
 
-    addSection(type: string): void {
-        const defaults: Record<string, Partial<ReportSection>> = {
+    /** Starting properties for a freshly added block of each type. */
+    private _sectionDefaults(type: ReportSectionType): Partial<ReportSection> {
+        const defaults: Partial<Record<ReportSectionType, Partial<ReportSection>>> = {
             header: {
                 staticContent: 'Section Title',
                 style: { fontSize: 18, fontWeight: 'bold', textAlign: 'left' },
@@ -495,21 +952,227 @@ export class ReportBuilderComponent implements OnInit {
                 style: { color: this.templateForm.get('primaryColor')?.value || '#4F46E5' },
             },
             spacer: { style: { padding: '16' } },
+            dataTable: { label: 'Records', dataPath: '', columns: [], maxRows: 20 },
+            keyValueGrid: { label: 'Details', dataPath: '', columnsPerRow: 2 },
+            badge: { label: 'Status', dataPath: '', style: { variant: 'neutral', variantRules: [] } },
+            card: { label: 'Card title', staticContent: '', dataPath: '' },
+            repeater: { label: 'Items', dataPath: '', itemTitle: '', maxRows: 10 },
+            reportBlocks: { dataPath: 'report', blockIds: [], showDisplayRows: true },
         };
 
+        return defaults[type] ?? {};
+    }
+
+    addSection(type: ReportSectionType, index?: number): void {
+        this.addSuggestedSection({ type, ...this._sectionDefaults(type) }, index);
+    }
+
+    /**
+     * Insert a section already bound to a data node.
+     *
+     * The backend's introspection picked the type and pre-filled the label, path and
+     * columns, so this is the path that avoids hand-typed dot notation entirely.
+     * @param suggestion Partial section from `DataNode.suggestion`.
+     * @param index Optional drop position; appended when omitted.
+     */
+    addSuggestedSection(suggestion: Partial<ReportSection>, index?: number): void {
         const newSection: ReportSection = {
+            ...suggestion,
             id: this._generateId(),
-            type: type as any,
-            order: this.sections().length,
-            ...defaults[type],
+            type: (suggestion.type ?? 'field') as ReportSectionType,
+            order: 0,
         };
 
-        this.sections.update((list) => [...list, newSection]);
+        this.sections.update((list) => {
+            const next = [...list];
+            next.splice(index ?? next.length, 0, newSection);
+
+            return next.map((section, position) => ({ ...section, order: position }));
+        });
+
         this.selectSection(newSection);
+    }
+
+    /**
+     * Write a numeric section field, clearing it when the input is emptied so the
+     * renderer falls back to its own default instead of receiving 0.
+     */
+    updateSectionNumber(
+        id: string,
+        key: 'maxRows' | 'maxColumns' | 'columnsPerRow',
+        raw: string
+    ): void {
+        const parsed = parseInt(raw, 10);
+
+        this.updateSection(id, {
+            [key]: Number.isFinite(parsed) && parsed > 0 ? parsed : undefined,
+        } as Partial<ReportSection>);
+    }
+
+    sectionTypesForGroup(group: 'content' | 'data' | 'layout'): typeof this.sectionTypes {
+        return this.sectionTypes.filter((entry) => entry.group === group && !entry.legacy);
+    }
+
+    /** Whether the selected section's editor should show the data path field. */
+    isDataBound(type: ReportSectionType | undefined): boolean {
+        return !!type && this._dataBoundTypes.includes(type);
+    }
+
+    // ============================================
+    // DATA TABLE COLUMNS
+    // ============================================
+
+    addColumn(): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        this.updateSection(section.id, {
+            columns: [...(section.columns ?? []), { key: '', label: '' }],
+        });
+    }
+
+    updateColumn(index: number, patch: { key?: string; label?: string }): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        const columns = [...(section.columns ?? [])];
+        columns[index] = { ...columns[index], ...patch };
+
+        this.updateSection(section.id, { columns });
+    }
+
+    removeColumn(index: number): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        this.updateSection(section.id, {
+            columns: (section.columns ?? []).filter((_, position) => position !== index),
+        });
+    }
+
+    /** Columns are optional: with none declared the renderer derives them. */
+    clearColumns(): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        this.updateSection(section.id, { columns: [] });
+    }
+
+    // ============================================
+    // VARIANT RULES (data-driven colour)
+    // ============================================
+
+    addVariantRule(): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        const rules = [...(section.style?.variantRules ?? [])];
+        rules.push({
+            field: section.dataPath || '',
+            operator: 'equals',
+            value: '',
+            variant: 'success',
+        });
+
+        this.updateSectionStyle('variantRules', rules);
+    }
+
+    updateVariantRule(
+        index: number,
+        patch: Partial<{
+            field: string;
+            operator: ReportConditionOperator;
+            value: any;
+            variant: ReportStyleVariant;
+        }>
+    ): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        const rules = [...(section.style?.variantRules ?? [])];
+        rules[index] = { ...rules[index], ...patch };
+
+        this.updateSectionStyle('variantRules', rules);
+    }
+
+    removeVariantRule(index: number): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        this.updateSectionStyle(
+            'variantRules',
+            (section.style?.variantRules ?? []).filter((_, position) => position !== index)
+        );
+    }
+
+    /** Operators that compare against a value, as opposed to testing presence. */
+    operatorNeedsValue(operator: ReportConditionOperator | undefined): boolean {
+        return !!operator && !['exists', 'notExists', 'isEmpty', 'notEmpty'].includes(operator);
+    }
+
+    // ============================================
+    // REPORT BLOCK IDS
+    // ============================================
+
+    /** Comma-separated in the editor; an empty list means "render every block". */
+    updateBlockIds(raw: string): void {
+        const section = this.currentSelectedSection();
+        if (!section) return;
+
+        this.updateSection(section.id, {
+            blockIds: raw
+                .split(',')
+                .map((entry) => entry.trim())
+                .filter(Boolean),
+        });
     }
 
     selectSection(section: ReportSection): void {
         this.selectedSection.set({ ...section });
+        this.showAdvancedPath.set(false);
+    }
+
+    /**
+     * The human label introspection gave a path, for showing a binding as
+     * "Owner name" rather than `results.1.propietario.nombre`.
+     *
+     * Falls back to the last path segment so a hand-typed path still reads as words.
+     */
+    dataLabelFor(path: string): string {
+        const labels = this._nodeLabels();
+
+        if (labels.has(path)) return labels.get(path)!;
+
+        const leaf = path.split('.').pop() || path;
+
+        return this._humanize(leaf);
+    }
+
+    /** Flatten the introspection tree into path to label, memoised per payload. */
+    private _nodeLabels = computed(() => {
+        const labels = new Map<string, string>();
+
+        const walk = (nodes: DataNode[]): void =>
+            nodes.forEach((node) => {
+                labels.set(node.path, node.label);
+
+                if (node.children?.length) walk(node.children);
+            });
+
+        walk(this.dataNodes());
+        walk(this.batchNodes());
+
+        return labels;
+    });
+
+    /** `numeroPoliza` reads as "Numero poliza"; introspection labels are preferred. */
+    private _humanize(key: string): string {
+        const spaced = key
+            .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+            .replace(/[_-]+/g, ' ')
+            .trim();
+
+        return spaced.charAt(0).toUpperCase() + spaced.slice(1);
     }
 
     updateSection(id: string, updates: Partial<ReportSection>): void {
@@ -577,14 +1240,13 @@ export class ReportBuilderComponent implements OnInit {
     // SAVE
     // ============================================
 
-    save(onSuccess?: () => void): void {
-        if (this.templateForm.invalid) {
-            this._snack.open('Please fill in all required fields', 'Close', { duration: 3000 });
-            return;
-        }
-
-        this.isSaving.set(true);
-
+    /**
+     * Collapse the flat form controls into the nested template shape the API takes.
+     *
+     * Shared by save and the server-rendered preview, so what you preview is exactly
+     * what gets persisted and printed.
+     */
+    private _buildTemplatePayload(): Partial<SmartReportTemplate> {
         const formVal = this.templateForm.value;
 
         const templateData: Partial<SmartReportTemplate> = {
@@ -624,25 +1286,42 @@ export class ReportBuilderComponent implements OnInit {
             bodyTopPadding: formVal.bodyTopPadding ?? 0,
         };
 
-        // Remove flat watermark fields from the spread
-        delete (templateData as any).watermarkEnabled;
-        delete (templateData as any).watermarkType;
-        delete (templateData as any).watermarkText;
-        delete (templateData as any).watermarkOpacity;
-        delete (templateData as any).watermarkPattern;
-        delete (templateData as any).securityEnabled;
-        delete (templateData as any).securityPassword;
-        delete (templateData as any).signatureEnabled;
-        delete (templateData as any).signatureImage;
-        delete (templateData as any).signatureX;
-        delete (templateData as any).signatureY;
-        delete (templateData as any).signatureWidth;
-        delete (templateData as any).signatureHeight;
-        delete (templateData as any).logoX;
-        delete (templateData as any).logoY;
-        delete (templateData as any).logoWidth;
-        delete (templateData as any).logoHeight;
-        delete (templateData as any).logoAutoFitContent;
+        // Remove the flat controls that were folded into the nested groups above.
+        const flatKeys = [
+            'watermarkEnabled',
+            'watermarkType',
+            'watermarkText',
+            'watermarkOpacity',
+            'watermarkPattern',
+            'securityEnabled',
+            'securityPassword',
+            'signatureEnabled',
+            'signatureImage',
+            'signatureX',
+            'signatureY',
+            'signatureWidth',
+            'signatureHeight',
+            'logoX',
+            'logoY',
+            'logoWidth',
+            'logoHeight',
+            'logoAutoFitContent',
+        ];
+
+        for (const key of flatKeys) delete (templateData as any)[key];
+
+        return templateData;
+    }
+
+    save(onSuccess?: () => void): void {
+        if (this.templateForm.invalid) {
+            this._snack.open('Please fill in all required fields', 'Close', { duration: 3000 });
+            return;
+        }
+
+        this.isSaving.set(true);
+
+        const templateData = this._buildTemplatePayload();
 
         const id = this.templateId();
 

@@ -23,6 +23,12 @@ import ApexCharts from 'apexcharts';
 import { DateTime } from 'luxon';
 import { catchError, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
 import { StatusCheckService } from './status-check.service';
+import { AWAITING, laneOf, measuredCount, uptimePercentage } from './status-lane.util';
+
+/** Matches the backend's traffic bucket width, so all 50 bars span equal time. */
+const BUCKET_MINUTES = 360;
+
+const HISTORY_POINTS = 50;
 
 @Component({
     selector: 'status-check',
@@ -267,8 +273,16 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
                         this.processStatusRecord(resultData, method);
                     }
 
+                    /** Unmeasured endpoints sort last: they are not 100%, they are unknown. */
                     this.dataSource.sort((a, b) => {
-                        return a.subject.percentage < b.subject.percentage ? 1 : -1;
+                        const left = a.subject.percentage;
+                        const right = b.subject.percentage;
+
+                        if (left === null && right === null) return 0;
+                        if (left === null) return 1;
+                        if (right === null) return -1;
+
+                        return right - left;
                     });
 
                     this.applyFilters();
@@ -290,8 +304,14 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         for (const method of features) {
             const payload = {
                 where_code: method.code,
+                /**
+                 * Traffic buckets only. Without this the 50 bars would mix 6-hour
+                 * buckets with 30-minute probe verdicts, so a bar's width would not
+                 * match the time it represents.
+                 */
+                where_bucketMinutes: BUCKET_MINUTES,
                 page: 1,
-                perPage: 50,
+                perPage: HISTORY_POINTS,
                 sort: '-createdAt',
             };
 
@@ -305,49 +325,126 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         return promises;
     }
 
-    processStatusRecord(listStatusRecord: any[], method: any): void {
-        if (listStatusRecord && listStatusRecord.length < 50) {
-            const filler = {
-                group: 'apiRequest',
-                status: 'awaiting',
-                responseTime: 0,
-                createdAt: null,
-            };
-            const copyList = [...listStatusRecord];
-            const needed = 50 - listStatusRecord.length;
-            for (let i = 0; i < needed; i++) {
-                copyList.push(filler);
-            }
-            listStatusRecord = copyList.reverse();
-        } else if (listStatusRecord) {
-            listStatusRecord = [...listStatusRecord].reverse();
+    // Status lanes, so the template can colour a bar by what it means
+
+    isUp(status: string): boolean {
+        return laneOf(status) === 'up';
+    }
+
+    isDegraded(status: string): boolean {
+        return laneOf(status) === 'degraded';
+    }
+
+    isDown(status: string): boolean {
+        return laneOf(status) === 'down';
+    }
+
+    /** We looked and learned nothing. Rendered distinctly from an interval nobody reported. */
+    isUnmeasured(status: string): boolean {
+        return laneOf(status) === 'unmeasured';
+    }
+
+    isAwaiting(status: string): boolean {
+        return laneOf(status) === 'awaiting';
+    }
+
+    /**
+     * Tooltip for one bar: when + scrubbed public copy (never raw probe internals).
+     */
+    tickTooltip(point: any): string {
+        if (this.isAwaiting(point?.status)) {
+            return this._translocoService.translate('network.no_data');
         }
 
-        let errorCount = 0;
-        const validPoints = listStatusRecord.filter((x) => x.status && x.status !== 'awaiting');
+        const parts = [
+            this.formatDate(point.createdAt),
+            point.publicMessage || this.laneLabel(point.status),
+        ];
 
-        validPoints.forEach((singleData) => {
-            if (singleData.status !== 'ok') {
-                errorCount += 1;
+        if (point.responseTime) parts.push(`${point.responseTime}ms`);
+
+        if (point.trafficSamples) {
+            parts.push(`${point.trafficSamples} req`);
+        }
+
+        return parts.filter(Boolean).join(' · ');
+    }
+
+    /**
+     * Latest measured point on the card (ignores awaiting fillers).
+     */
+    latestPoint(item: any): any | null {
+        const points = item?.data || [];
+
+        for (let index = points.length - 1; index >= 0; index -= 1) {
+            if (points[index]?.createdAt && !this.isAwaiting(points[index].status)) {
+                return points[index];
             }
-        });
+        }
 
-        const percentage =
-            validPoints.length > 0
-                ? ((validPoints.length - errorCount) * 100) / validPoints.length
-                : 100;
+        return null;
+    }
 
-        const firstDate = listStatusRecord.find((x) => x.createdAt)?.createdAt;
-        const lastDate = listStatusRecord[listStatusRecord.length - 1]?.createdAt;
+    currentLane(item: any): string {
+        return laneOf(this.latestPoint(item)?.status);
+    }
+
+    publicMessageFor(item: any): string {
+        const point = this.latestPoint(item);
+
+        if (point?.publicMessage) return point.publicMessage;
+
+        const lane = this.currentLane(item);
+
+        if (lane === 'down') {
+            return this._translocoService.translate('network.lanes.outage_message');
+        }
+
+        if (lane === 'unmeasured' || lane === 'awaiting') {
+            return this._translocoService.translate('network.lanes.limited_message');
+        }
+
+        if (lane === 'degraded') {
+            return this._translocoService.translate('network.lanes.degraded_message');
+        }
+
+        return this._translocoService.translate('network.lanes.operational_message');
+    }
+
+    laneLabel(status: string): string {
+        const lane = laneOf(status);
+
+        return this._translocoService.translate(`network.lanes.${lane}`);
+    }
+
+    processStatusRecord(listStatusRecord: any[], method: any): void {
+        const reported = listStatusRecord || [];
+        const filler = {
+            group: 'apiRequest',
+            status: AWAITING,
+            responseTime: 0,
+            createdAt: null,
+        };
+        const padding = Array.from({ length: Math.max(0, HISTORY_POINTS - reported.length) }, () => filler);
+        const points = [...reported, ...padding].reverse();
+
+        const latest = [...points].reverse().find((point) => point.createdAt && point.status !== AWAITING);
 
         const record = {
-            data: listStatusRecord,
+            data: points,
             subject: {
                 method: method,
                 showGraph: false,
-                percentage: percentage,
-                firstDate: firstDate,
-                lastDate: lastDate,
+                /**
+                 * Only the down lane is downtime, the unmeasured lane is left out of the
+                 * denominator, and nothing measurable yields null rather than 100.
+                 */
+                percentage: uptimePercentage(points),
+                measuredPoints: measuredCount(points),
+                firstDate: points.find((point) => point.createdAt)?.createdAt,
+                lastDate: [...points].reverse().find((point) => point.createdAt)?.createdAt,
+                currentStatus: latest?.status || AWAITING,
+                publicMessage: latest?.publicMessage || null,
                 isSubscribed: false,
                 subscription: null,
             },

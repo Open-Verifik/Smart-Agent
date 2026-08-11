@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { take } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
@@ -40,9 +41,26 @@ export class SmartBatchComponent implements OnInit {
     private _authGate = inject(AuthRequiredGateService);
     private _inputModeService = inject(SmartBatchInputModeService);
     private _snackBar = inject(MatSnackBar);
+    private _confirm = inject(FuseConfirmationService);
 
     configurations = this._smartBatchService.configurations;
     isLoading = this._smartBatchService.isLoading;
+
+    private _configPagination = this._smartBatchService.configurationsPage;
+    configPage = computed(() => this._configPagination().page);
+    configPages = computed(() => this._configPagination().pages);
+    configTotal = computed(() => this._configPagination().total);
+    configRangeStart = computed(() => {
+        const state = this._configPagination();
+        return state.total === 0 ? 0 : (state.page - 1) * state.perPage + 1;
+    });
+    configRangeEnd = computed(() => {
+        const state = this._configPagination();
+        return Math.min(state.page * state.perPage, state.total);
+    });
+    canGoPreviousConfigPage = computed(() => this.configPage() > 1 && !this.isLoading());
+    canGoNextConfigPage = computed(() => this.configPage() < this.configPages() && !this.isLoading());
+
     activeTab = signal<'configurations' | 'templates'>('configurations');
     templates = this._smartReportService.templates;
     isLoadingTemplates = this._smartReportService.isLoading;
@@ -91,6 +109,22 @@ export class SmartBatchComponent implements OnInit {
 
     setActiveTab(tab: 'configurations' | 'templates') {
         this.activeTab.set(tab);
+    }
+
+    previousConfigPage() {
+        if (!this.canGoPreviousConfigPage()) return;
+        this._loadConfigPage(this.configPage() - 1);
+    }
+
+    nextConfigPage() {
+        if (!this.canGoNextConfigPage()) return;
+        this._loadConfigPage(this.configPage() + 1);
+    }
+
+    private _loadConfigPage(page: number): void {
+        this._smartBatchService.getConfigurations({ page }).subscribe({
+            error: (err) => console.error('[SmartBatch] getConfigurations error', err),
+        });
     }
 
     createConfiguration() {
@@ -192,17 +226,38 @@ export class SmartBatchComponent implements OnInit {
 
     deleteConfiguration(id: string, event: Event) {
         event.stopPropagation();
-        if (confirm('Are you sure you want to delete this configuration?')) {
-            this._smartBatchService.deleteConfiguration(id).subscribe();
-        }
+
+        this._openDeleteDialog('smartBatchLanding.deleteConfigConfirmation').subscribe((result) => {
+            if (result !== 'confirmed') return;
+
+            this._smartBatchService.deleteConfiguration(id).subscribe(() => {
+                const page = this.configurations().length === 0 ? Math.max(1, this.configPage() - 1) : this.configPage();
+                this._loadConfigPage(page);
+            });
+        });
     }
 
     deleteTemplate(id: string, event: Event) {
         event.stopPropagation();
-        const message = this._transloco.translate('smartBatchLanding.deleteConfirmation');
-        if (confirm(message)) {
+
+        this._openDeleteDialog('smartBatchLanding.deleteConfirmation').subscribe((result) => {
+            if (result !== 'confirmed') return;
+
             this._smartReportService.deleteTemplate(id).subscribe();
-        }
+        });
+    }
+
+    private _openDeleteDialog(messageKey: string) {
+        return this._confirm
+            .open({
+                title: this._transloco.translate('smartBatchLanding.deleteTitle'),
+                message: this._transloco.translate(messageKey),
+                actions: {
+                    confirm: { label: this._transloco.translate('smartBatchLanding.deleteConfirm') },
+                    cancel: { label: this._transloco.translate('smartBatchLanding.deleteCancel') },
+                },
+            })
+            .afterClosed();
     }
 
     openTemplateEditor(template: SmartReportTemplate, event: Event) {
@@ -338,5 +393,21 @@ export class SmartBatchComponent implements OnInit {
         };
         const key = (country || '').trim().toLowerCase();
         return map[key] ?? '🏳️';
+    }
+
+    /**
+     * Soft-launch gate for system presets.
+     *
+     * Smart Batch / Smart Report ship first as a Colombia Beta: non-Colombia
+     * system presets stay visible as roadmap, but their CTA is disabled.
+     */
+    isColombiaBetaCountry(country?: string): boolean {
+        const key = (country || '').trim().toLowerCase();
+
+        return key === 'colombia' || key === 'col' || key === 'co';
+    }
+
+    isSystemPresetAvailable(template: SmartReportTemplate): boolean {
+        return this.isColombiaBetaCountry(template.country);
     }
 }

@@ -11,60 +11,85 @@
                     >
                         <mat-icon>arrow_back</mat-icon>
                     </button>
-                    <div>
-                        <h1 class="text-lg font-bold text-stone-950 dark:text-white">
-                            {{
-                                (templateId()
-                                    ? 'smartReport.editReportTemplate'
-                                    : 'smartReport.newReportTemplate'
-                                ) | transloco
-                            }}
-                        </h1>
-                        <p class="text-xs text-stone-500 dark:text-stone-400">
-                            {{ 'smartReport.designReportLayout' | transloco }}
-                        </p>
+                    <!--
+                        Name and primary colour are the only settings inline; the other
+                        ~25 controls live in the Document settings drawer so the canvas
+                        is what the page is about.
+                    -->
+                    <div class="flex items-center gap-2" [formGroup]="templateForm">
+                        <div class="min-w-0">
+                            <input
+                                type="text"
+                                formControlName="name"
+                                class="w-full min-w-0 max-w-[280px] truncate border-0 bg-transparent p-0 text-lg font-bold text-stone-950 outline-none placeholder:text-stone-300 dark:text-white dark:placeholder:text-stone-600"
+                                [placeholder]="'smartReport.templateNamePlaceholder' | transloco"
+                            />
+                            <p class="text-xs text-stone-500 dark:text-stone-400">
+                                {{
+                                    (templateId()
+                                        ? 'smartReport.editReportTemplate'
+                                        : 'smartReport.newReportTemplate'
+                                    ) | transloco
+                                }}
+                            </p>
+                        </div>
+                        <input
+                            type="color"
+                            formControlName="primaryColor"
+                            class="h-8 w-8 shrink-0 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
+                            [matTooltip]="'smartReport.primaryColor' | transloco"
+                        />
+                        <span
+                            class="hidden shrink-0 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800 sm:inline-flex dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                            [matTooltip]="'smartReport.betaColombiaHint' | transloco"
+                        >
+                            {{ 'smartReport.betaColombiaBadge' | transloco }}
+                        </span>
                     </div>
+                </div>
+
+                <!--
+                    Prepare, Preview, Deliver.
+                    A document has an order to it: build, check, send. Showing all three
+                    at once said nothing about what to do next, and let a template be
+                    emailed without its printed form ever being looked at.
+                -->
+                <div
+                    class="hidden items-center gap-1 rounded-xl border border-stone-200 bg-stone-50 p-1 md:flex dark:border-gray-800 dark:bg-gray-900"
+                >
+                    @for (step of builderSteps; track step.key; let index = $index) {
+                        <button
+                            (click)="goToStep(step.key)"
+                            class="inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+                            [ngClass]="
+                                builderStep() === step.key
+                                    ? 'bg-white text-stone-950 shadow-sm dark:bg-gray-800 dark:text-white'
+                                    : 'text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200'
+                            "
+                        >
+                            <span
+                                class="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold"
+                                [ngClass]="
+                                    builderStep() === step.key
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'bg-stone-200 text-stone-600 dark:bg-gray-700 dark:text-stone-300'
+                                "
+                                >{{ index + 1 }}</span
+                            >
+                            {{ step.labelKey | transloco }}
+                        </button>
+                    }
                 </div>
 
                 <div class="flex items-center gap-3">
                     <button
                         mat-stroked-button
-                        (click)="downloadSamplePdf()"
-                        [disabled]="
-                            !templateId() || isDownloadingSample() || isSendingSample()
-                        "
-                        [matTooltip]="
-                            !templateId() ? ('smartReport.saveTemplateFirst' | transloco) : ''
-                        "
+                        (click)="showSettingsDrawer.set(true)"
                         class="!rounded-xl"
                     >
                         <span class="inline-flex items-center gap-2">
-                            @if (isDownloadingSample()) {
-                                <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
-                                {{ 'smartReport.downloadingSample' | transloco }}
-                            } @else {
-                                <mat-icon class="!text-lg">file_download</mat-icon>
-                                {{ 'smartReport.downloadSample' | transloco }}
-                            }
-                        </span>
-                    </button>
-                    <button
-                        mat-stroked-button
-                        (click)="sendSample()"
-                        [disabled]="!templateId() || isSendingSample() || isDownloadingSample()"
-                        [matTooltip]="
-                            !templateId() ? ('smartReport.saveTemplateFirst' | transloco) : ''
-                        "
-                        class="!rounded-xl"
-                    >
-                        <span class="inline-flex items-center gap-2">
-                            @if (isSendingSample()) {
-                                <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
-                                {{ 'smartReport.sendingSample' | transloco }}
-                            } @else {
-                                <mat-icon class="!text-lg">send</mat-icon>
-                                {{ 'smartReport.sendSample' | transloco }}
-                            }
+                            <mat-icon class="!text-lg">tune</mat-icon>
+                            {{ 'smartReport.documentSettings' | transloco }}
                         </span>
                     </button>
                     <button
@@ -85,21 +110,69 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Compact step switcher for narrow viewports (desktop uses the top-bar control). -->
+            <div
+                class="mt-3 flex items-center gap-1 rounded-xl border border-stone-200 bg-stone-50 p-1 md:hidden dark:border-gray-800 dark:bg-gray-900"
+            >
+                @for (step of builderSteps; track step.key; let index = $index) {
+                    <button
+                        (click)="goToStep(step.key)"
+                        class="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-medium transition-colors"
+                        [ngClass]="
+                            builderStep() === step.key
+                                ? 'bg-white text-stone-950 shadow-sm dark:bg-gray-800 dark:text-white'
+                                : 'text-stone-500 dark:text-stone-400'
+                        "
+                    >
+                        <span
+                            class="flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold"
+                            [ngClass]="
+                                builderStep() === step.key
+                                    ? 'bg-indigo-600 text-white'
+                                    : 'bg-stone-200 text-stone-600 dark:bg-gray-700 dark:text-stone-300'
+                            "
+                            >{{ index + 1 }}</span
+                        >
+                        {{ step.labelKey | transloco }}
+                    </button>
+                }
+            </div>
         </div>
     </div>
 
     <!-- ========== MAIN LAYOUT ========== -->
     <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex gap-6 items-start">
-            <!-- ============================== -->
-            <!-- LEFT COLUMN: Editor (40%)      -->
-            <!-- ============================== -->
-            <div class="w-full lg:w-[440px] shrink-0 space-y-4">
-                <!-- Template Settings -->
-                <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-                    <h3 class="mb-4 text-sm font-semibold text-stone-950 dark:text-white">
-                        {{ 'smartReport.templateSettings' | transloco }}
-                    </h3>
+            <!--
+                ============================================
+                DOCUMENT SETTINGS DRAWER
+                ============================================
+                Page setup, logo, watermark, security and signature. Fixed-position, so
+                it sits over the canvas rather than competing with it for width.
+            -->
+            @if (showSettingsDrawer()) {
+                <div
+                    class="fixed inset-0 z-40 bg-stone-900/25 dark:bg-black/50"
+                    (click)="showSettingsDrawer.set(false)"
+                ></div>
+                <aside
+                    class="fixed right-0 top-0 z-50 flex h-screen w-full max-w-md flex-col border-l border-stone-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                >
+                    <div
+                        class="flex shrink-0 items-center justify-between border-b border-stone-100 px-5 py-3 dark:border-gray-800"
+                    >
+                        <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ 'smartReport.documentSettings' | transloco }}
+                        </h3>
+                        <button mat-icon-button (click)="showSettingsDrawer.set(false)">
+                            <mat-icon class="!text-base text-stone-400 dark:text-stone-500"
+                                >close</mat-icon
+                            >
+                        </button>
+                    </div>
+
+                    <div class="min-h-0 flex-1 overflow-y-auto p-5">
                     <form [formGroup]="templateForm" class="space-y-4">
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-label>{{ 'smartReport.templateName' | transloco }}</mat-label>
@@ -653,16 +726,15 @@
                             }
                         </div>
                     </form>
-                </div>
 
-                <!-- Helper Data - available paths from preview -->
-                <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-                    <h3 class="mb-2 text-sm font-semibold text-stone-950 dark:text-white">
-                        {{ 'smartReport.helperData' | transloco }}
-                    </h3>
-                    <p class="mb-3 text-xs text-stone-500 dark:text-stone-400">
-                        {{ 'smartReport.helperDataHint' | transloco }}
-                    </p>
+                    <!-- Every resolvable path, for the rare case the palette is not enough. -->
+                    <div class="mt-4 border-t border-stone-100 pt-4 dark:border-gray-800">
+                        <h4 class="mb-2 text-sm font-semibold text-stone-950 dark:text-white">
+                            {{ 'smartReport.helperData' | transloco }}
+                        </h4>
+                        <p class="mb-3 text-xs text-stone-500 dark:text-stone-400">
+                            {{ 'smartReport.helperDataHint' | transloco }}
+                        </p>
                     @if (helperDataPaths().length === 0) {
                         <p class="text-xs italic text-stone-400 dark:text-stone-500">
                             {{ 'smartReport.openFromReportViewer' | transloco }}
@@ -716,31 +788,155 @@
                             }
                         </div>
                     }
-                </div>
+                    </div>
+                    </div>
+                </aside>
+            }
 
+            <!-- ============================== -->
+            <!-- LEFT RAIL: data, blocks, layers -->
+            <!-- ============================== -->
+            <!-- Authoring tools belong to Prepare; Preview and Deliver give the page the full width. -->
+            <div class="w-full lg:w-[360px] shrink-0" [class.hidden]="builderStep() !== 'prepare'">
+                <div class="sticky top-[88px] space-y-3">
+                    <div
+                        class="flex rounded-xl border border-stone-200/90 bg-white p-1 shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                    >
+                        @for (
+                            tab of [
+                                { key: 'data', labelKey: 'smartReport.railData', icon: 'account_tree' },
+                                { key: 'blocks', labelKey: 'smartReport.railBlocks', icon: 'widgets' },
+                                { key: 'layers', labelKey: 'smartReport.railLayers', icon: 'layers' },
+                            ];
+                            track tab.key
+                        ) {
+                            <button
+                                (click)="railTab.set($any(tab.key))"
+                                class="flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-medium transition-colors"
+                                [ngClass]="
+                                    railTab() === tab.key
+                                        ? 'bg-indigo-600 text-white'
+                                        : 'text-stone-500 hover:bg-stone-50 dark:text-stone-400 dark:hover:bg-gray-800/50'
+                                "
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">{{ tab.icon }}</mat-icon>
+                                {{ tab.labelKey | transloco }}
+                                @if (tab.key === 'layers') {
+                                    <span class="opacity-70">{{ sections().length }}</span>
+                                }
+                            </button>
+                        }
+                    </div>
 
+                    <!--
+                        DATA PALETTE
+                        Nodes come from the backend's introspection, so each one already
+                        knows its path, a human label and the block type that fits its
+                        shape. Clicking or dragging a node binds it: no dot notation.
+                    -->
+                    @if (railTab() === 'data') {
+                        <div
+                            class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <div
+                                class="border-b border-stone-100 px-4 py-3 dark:border-gray-800"
+                            >
+                                <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                    {{ 'smartReport.dataPalette' | transloco }}
+                                </h3>
+                                <p class="text-xs text-stone-400 dark:text-stone-500">
+                                    {{ 'smartReport.dataPaletteHint' | transloco }}
+                                </p>
+                            </div>
+
+                            <div
+                                cdkDropList
+                                [cdkDropListConnectedTo]="[canvasDropListId, 'report-layers-drop']"
+                                [cdkDropListSortingDisabled]="true"
+                                class="max-h-[calc(100vh-260px)] overflow-y-auto p-2"
+                            >
+                                @if (isIntrospecting() && dataNodes().length === 0) {
+                                    <p
+                                        class="px-2 py-6 text-center text-xs text-stone-400 dark:text-stone-500"
+                                    >
+                                        {{ 'smartReport.rendering' | transloco }}
+                                    </p>
+                                } @else if (dataNodes().length === 0) {
+                                    <p
+                                        class="px-2 py-6 text-center text-xs italic text-stone-400 dark:text-stone-500"
+                                    >
+                                        {{ 'smartReport.openFromReportViewer' | transloco }}
+                                    </p>
+                                }
+
+                                @for (node of dataNodes(); track node.path) {
+                                    <ng-container
+                                        [ngTemplateOutlet]="dataNodeRow"
+                                        [ngTemplateOutletContext]="{ node: node, depth: 0 }"
+                                    ></ng-container>
+                                }
+
+                                @if (batchNodes().length > 0) {
+                                    <p
+                                        class="mb-1 mt-3 px-2 text-[11px] font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500"
+                                    >
+                                        {{ 'smartReport.batchFields' | transloco }}
+                                    </p>
+                                    @for (node of batchNodes(); track node.path) {
+                                        <ng-container
+                                            [ngTemplateOutlet]="dataNodeRow"
+                                            [ngTemplateOutletContext]="{ node: node, depth: 0 }"
+                                        ></ng-container>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    }
 
                 <!-- Add Sections toolbar -->
+                @if (railTab() === 'blocks') {
                 <div class="rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
                     <h3 class="mb-3 text-sm font-semibold text-stone-950 dark:text-white">
                         {{ 'smartReport.addSections' | transloco }}
                     </h3>
-                    <div class="flex flex-wrap gap-2">
-                        @for (sectionType of sectionTypes; track sectionType.type) {
-                            <button
-                                (click)="addSection(sectionType.type)"
-                                class="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-700 transition-colors hover:border-indigo-300 hover:bg-indigo-50 dark:border-gray-700 dark:text-stone-300 dark:hover:border-indigo-600 dark:hover:bg-indigo-950/30"
+                    @for (group of sectionGroups; track group.key) {
+                        <div class="mb-3 last:mb-0">
+                            <p
+                                class="mb-1.5 text-[11px] font-semibold uppercase tracking-wide text-stone-400 dark:text-stone-500"
                             >
-                                <mat-icon class="!text-base text-stone-400 dark:text-stone-500">{{
-                                    sectionType.icon
-                                }}</mat-icon>
-                                {{ sectionType.labelKey | transloco }}
-                            </button>
-                        }
-                    </div>
+                                {{ group.labelKey | transloco }}
+                            </p>
+                            <div
+                                cdkDropList
+                                [cdkDropListConnectedTo]="[canvasDropListId, 'report-layers-drop']"
+                                [cdkDropListSortingDisabled]="true"
+                                class="flex flex-wrap gap-2"
+                            >
+                                @for (
+                                    sectionType of sectionTypesForGroup(group.key);
+                                    track sectionType.type
+                                ) {
+                                    <button
+                                        cdkDrag
+                                        [cdkDragData]="sectionType.type"
+                                        (click)="addSection(sectionType.type)"
+                                        class="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-2 text-sm text-stone-700 transition-colors hover:border-indigo-300 hover:bg-indigo-50 dark:border-gray-700 dark:text-stone-300 dark:hover:border-indigo-600 dark:hover:bg-indigo-950/30"
+                                    >
+                                        <mat-icon
+                                            class="!text-base text-stone-400 dark:text-stone-500"
+                                            >{{ sectionType.icon }}</mat-icon
+                                        >
+                                        {{ sectionType.labelKey | transloco }}
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
                 </div>
+                }
 
                 <!-- Section List (drag & drop) -->
+                @if (railTab() === 'layers') {
                 <div class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
                     <div
                         class="flex items-center justify-between border-b border-stone-100 px-5 py-3 dark:border-gray-800"
@@ -759,9 +955,10 @@
                     </div>
 
                     <div
+                        id="report-layers-drop"
                         cdkDropList
                         (cdkDropListDropped)="onDrop($event)"
-                        class="p-3 min-h-[200px]"
+                        class="max-h-[calc(100vh-300px)] overflow-y-auto p-3 min-h-[200px]"
                     >
                         @if (sections().length === 0) {
                             <div
@@ -855,24 +1052,232 @@
                         }
                     </div>
                 </div>
-
+                }
+                </div>
             </div>
 
             <!-- ============================== -->
-            <!-- RIGHT COLUMN: Live Preview     -->
+            <!-- CENTRE: page canvas            -->
             <!-- ============================== -->
             <div class="flex-1 min-w-0">
                 <div class="sticky top-20">
-                    <div class="flex items-center justify-between mb-3">
+                    <div
+                        class="flex flex-wrap items-center justify-between gap-2 mb-3"
+                        [class.hidden]="builderStep() === 'deliver'"
+                    >
                         <h3 class="text-sm font-semibold text-stone-500 dark:text-stone-400">
                             {{ 'smartReport.preview' | transloco }}
                         </h3>
-                        <span class="text-xs text-stone-400 dark:text-stone-500">{{
-                            'smartReport.livePreviewWithSample' | transloco
-                        }}</span>
+
+                        <div class="flex items-center gap-2">
+                            @if (previewMode() === 'exact' && isRenderingExact()) {
+                                <span
+                                    class="text-xs text-stone-400 dark:text-stone-500"
+                                    >{{ 'smartReport.rendering' | transloco }}</span
+                                >
+                            }
+
+                            <!--
+                                Edit/Exact is only for Prepare. On Preview the step itself
+                                locks Exact so the printed document cannot be swapped away.
+                            -->
+                            @if (builderStep() === 'prepare') {
+                                <div
+                                    class="inline-flex rounded-lg border border-stone-200 p-0.5 dark:border-gray-700"
+                                >
+                                    <button
+                                        (click)="setPreviewMode('edit')"
+                                        class="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+                                        [ngClass]="
+                                            previewMode() === 'edit'
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'text-stone-500 hover:text-stone-800 dark:text-stone-400'
+                                        "
+                                    >
+                                        {{ 'smartReport.previewModeEdit' | transloco }}
+                                    </button>
+                                    <button
+                                        (click)="setPreviewMode('exact')"
+                                        class="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
+                                        [ngClass]="
+                                            previewMode() === 'exact'
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'text-stone-500 hover:text-stone-800 dark:text-stone-400'
+                                        "
+                                    >
+                                        {{ 'smartReport.previewModeExact' | transloco }}
+                                    </button>
+                                </div>
+                            } @else if (builderStep() === 'preview') {
+                                <span
+                                    class="rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300"
+                                >
+                                    {{ 'smartReport.previewModeExact' | transloco }}
+                                </span>
+                            }
+                        </div>
                     </div>
 
+                    @if (previewMode() === 'edit' && builderStep() === 'prepare') {
+                        <p class="mb-3 text-xs text-stone-400 dark:text-stone-500">
+                            {{ 'smartReport.editModeHint' | transloco }}
+                        </p>
+                    }
+
+                    <!--
+                        DELIVER
+                        Sending reuses the sample-send endpoint, and the history is read
+                        from `SmartReport.emailHistory` so this step reports what the batch
+                        flow actually recorded rather than keeping its own log.
+                    -->
+                    @if (builderStep() === 'deliver') {
+                        <div class="space-y-4">
+                            <div
+                                class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                            >
+                                <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                    {{ 'smartReport.deliverTitle' | transloco }}
+                                </h3>
+                                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                    {{ 'smartReport.deliverHint' | transloco }}
+                                </p>
+
+                                @if (!templateId()) {
+                                    <p
+                                        class="mt-4 rounded-xl border border-dashed border-stone-200 px-4 py-3 text-sm text-stone-500 dark:border-gray-700 dark:text-stone-400"
+                                    >
+                                        {{ 'smartReport.saveTemplateFirst' | transloco }}
+                                    </p>
+                                }
+
+                                <div class="mt-4 flex flex-wrap gap-3">
+                                    <button
+                                        mat-flat-button
+                                        (click)="sendSample()"
+                                        [disabled]="
+                                            !templateId() || isSendingSample() || isDownloadingSample()
+                                        "
+                                        class="!rounded-xl !bg-indigo-600 !text-white"
+                                    >
+                                        <span class="inline-flex items-center gap-2">
+                                            @if (isSendingSample()) {
+                                                <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
+                                                {{ 'smartReport.sendingSample' | transloco }}
+                                            } @else {
+                                                <mat-icon class="!text-lg">send</mat-icon>
+                                                {{ 'smartReport.sendSample' | transloco }}
+                                            }
+                                        </span>
+                                    </button>
+                                    <button
+                                        mat-stroked-button
+                                        (click)="downloadSamplePdf()"
+                                        [disabled]="
+                                            !templateId() || isDownloadingSample() || isSendingSample()
+                                        "
+                                        class="!rounded-xl"
+                                    >
+                                        <span class="inline-flex items-center gap-2">
+                                            @if (isDownloadingSample()) {
+                                                <mat-icon class="animate-spin !text-lg">refresh</mat-icon>
+                                                {{ 'smartReport.downloadingSample' | transloco }}
+                                            } @else {
+                                                <mat-icon class="!text-lg">file_download</mat-icon>
+                                                {{ 'smartReport.downloadSample' | transloco }}
+                                            }
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div
+                                class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                            >
+                                <div
+                                    class="flex items-center justify-between border-b border-stone-100 px-5 py-3 dark:border-gray-800"
+                                >
+                                    <h3 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                        {{ 'smartReport.deliveryHistory' | transloco }}
+                                    </h3>
+                                    @if (isLoadingDeliveries()) {
+                                        <span class="text-xs text-stone-400 dark:text-stone-500">{{
+                                            'smartReport.rendering' | transloco
+                                        }}</span>
+                                    }
+                                </div>
+
+                                @if (deliveries().length === 0) {
+                                    <p
+                                        class="px-5 py-8 text-center text-sm italic text-stone-400 dark:text-stone-500"
+                                    >
+                                        {{ 'smartReport.noDeliveries' | transloco }}
+                                    </p>
+                                } @else {
+                                    <div class="divide-y divide-stone-100 dark:divide-gray-800">
+                                        @for (report of deliveries(); track report._id) {
+                                            <div class="flex items-center gap-3 px-5 py-3">
+                                                <mat-icon
+                                                    class="!h-5 !w-5 shrink-0 !text-xl text-stone-300 dark:text-gray-700"
+                                                    >description</mat-icon
+                                                >
+                                                <div class="min-w-0 flex-1">
+                                                    <p
+                                                        class="truncate text-sm font-medium text-stone-800 dark:text-stone-200"
+                                                    >
+                                                        {{
+                                                            report.name ||
+                                                                ('smartReport.untitledReport' | transloco)
+                                                        }}
+                                                    </p>
+                                                    <p class="text-xs text-stone-400 dark:text-stone-500">
+                                                        {{
+                                                            (report.emailHistory ?? []).length
+                                                        }}
+                                                        {{ 'smartReport.emailsSent' | transloco }}
+                                                    </p>
+                                                </div>
+                                                <span
+                                                    class="shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide"
+                                                    [ngClass]="statusClasses(report.status)"
+                                                    >{{ report.status }}</span
+                                                >
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                @if (deliveryHistory().length > 0) {
+                                    <div
+                                        class="border-t border-stone-100 px-5 py-3 dark:border-gray-800"
+                                    >
+                                        @for (
+                                            entry of deliveryHistory();
+                                            track entry.sentAt + entry.subject
+                                        ) {
+                                            <div class="flex items-center gap-3 py-1.5">
+                                                <span
+                                                    class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase"
+                                                    [ngClass]="statusClasses(entry.status)"
+                                                    >{{ entry.status }}</span
+                                                >
+                                                <span
+                                                    class="min-w-0 flex-1 truncate text-xs text-stone-600 dark:text-stone-300"
+                                                    >{{ entry.recipients.join(', ') }}</span
+                                                >
+                                                <span
+                                                    class="shrink-0 text-xs text-stone-400 dark:text-stone-500"
+                                                    >{{ entry.sentAt | date: 'short' }}</span
+                                                >
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
                     <!-- AI Layout Assistant (Relocated and Upgraded) -->
+                    @if (builderStep() === 'prepare') {
                     <div class="mb-4 rounded-2xl border border-indigo-100 bg-indigo-50/20 p-4 shadow-sm dark:border-indigo-950/30 dark:bg-indigo-950/10">
                         <div class="mb-3 flex items-center justify-between">
                             <div class="flex items-center gap-2">
@@ -982,9 +1387,10 @@
                             </div>
                         </div>
                     </div>
+                    }
 
                     <!-- Section Inspector (free-floating, draggable panel) -->
-                    @if (currentSelectedSection(); as sel) {
+                    @if (builderStep() === 'prepare' && currentSelectedSection(); as sel) {
                         <div
                             cdkDrag
                             class="absolute right-2 top-12 z-40 flex max-h-[min(70vh,560px)] w-80 flex-col rounded-xl border border-indigo-200 bg-white shadow-2xl dark:border-indigo-800 dark:bg-gray-900"
@@ -1078,28 +1484,13 @@
                                             [placeholder]="'smartReport.fieldLabel' | transloco"
                                         />
                                     </div>
-                                    <div>
-                                        <label
-                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
-                                            >{{ 'smartReport.dataPath' | transloco }}</label
-                                        >
-                                        <input
-                                            type="text"
-                                            [value]="sel.dataPath || ''"
-                                            (input)="
-                                                updateSection(sel.id, {
-                                                    dataPath: $any($event.target).value,
-                                                })
-                                            "
-                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                            [placeholder]="
-                                                'smartReport.dataPathPlaceholder' | transloco
-                                            "
-                                        />
-                                        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
-                                            {{ 'smartReport.dotSeparatedPath' | transloco }}
-                                        </p>
-                                    </div>
+                                    <ng-container
+                                        [ngTemplateOutlet]="dataBinding"
+                                        [ngTemplateOutletContext]="{
+                                            sel: sel,
+                                            hintKey: 'smartReport.dotSeparatedPath',
+                                        }"
+                                    ></ng-container>
                                 }
 
                                 <!-- TABLE EDITOR -->
@@ -1121,26 +1512,13 @@
                                             [placeholder]="'smartReport.tableLabel' | transloco"
                                         />
                                     </div>
-                                    <div>
-                                        <label
-                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
-                                            >{{ 'smartReport.dataPathObject' | transloco }}</label
-                                        >
-                                        <input
-                                            type="text"
-                                            [value]="sel.dataPath || ''"
-                                            (input)="
-                                                updateSection(sel.id, {
-                                                    dataPath: $any($event.target).value,
-                                                })
-                                            "
-                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
-                                            placeholder="results.1"
-                                        />
-                                        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
-                                            {{ 'smartReport.pathToObject' | transloco }}
-                                        </p>
-                                    </div>
+                                    <ng-container
+                                        [ngTemplateOutlet]="dataBinding"
+                                        [ngTemplateOutletContext]="{
+                                            sel: sel,
+                                            hintKey: 'smartReport.pathToObject',
+                                        }"
+                                    ></ng-container>
                                 }
 
                                 <!-- IMAGE EDITOR -->
@@ -1217,6 +1595,497 @@
                                             (input)="updateStyleColor($any($event.target).value)"
                                             class="h-9 w-9 cursor-pointer rounded-lg border border-stone-200 dark:border-gray-700"
                                         />
+                                    </div>
+                                }
+
+                                <!-- LABEL + DATA PATH (rich data-bound sections) -->
+                                @if (
+                                    sel.type === 'dataTable' ||
+                                    sel.type === 'keyValueGrid' ||
+                                    sel.type === 'badge' ||
+                                    sel.type === 'card' ||
+                                    sel.type === 'repeater'
+                                ) {
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.label' | transloco }}</label
+                                        >
+                                        <input
+                                            type="text"
+                                            [value]="sel.label || ''"
+                                            (input)="
+                                                updateSection(sel.id, {
+                                                    label: $any($event.target).value,
+                                                })
+                                            "
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="'smartReport.fieldLabel' | transloco"
+                                        />
+                                    </div>
+                                    <ng-container
+                                        [ngTemplateOutlet]="dataBinding"
+                                        [ngTemplateOutletContext]="{
+                                            sel: sel,
+                                            hintKey:
+                                                sel.type === 'dataTable' || sel.type === 'repeater'
+                                                    ? 'smartReport.pathToArray'
+                                                    : 'smartReport.dotSeparatedPath',
+                                        }"
+                                    ></ng-container>
+                                }
+
+                                <!-- DATA TABLE EDITOR -->
+                                @if (sel.type === 'dataTable') {
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                                >{{ 'smartReport.maxRows' | transloco }}</label
+                                            >
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="1000"
+                                                [value]="sel.maxRows ?? ''"
+                                                (input)="
+                                                    updateSectionNumber(
+                                                        sel.id,
+                                                        'maxRows',
+                                                        $any($event.target).value
+                                                    )
+                                                "
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                placeholder="20"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                                >{{ 'smartReport.maxColumns' | transloco }}</label
+                                            >
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                max="24"
+                                                [value]="sel.maxColumns ?? ''"
+                                                (input)="
+                                                    updateSectionNumber(
+                                                        sel.id,
+                                                        'maxColumns',
+                                                        $any($event.target).value
+                                                    )
+                                                "
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                placeholder="8"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="mb-1 flex items-center justify-between">
+                                            <label
+                                                class="text-xs font-medium text-stone-500 dark:text-stone-400"
+                                                >{{ 'smartReport.columns' | transloco }}</label
+                                            >
+                                            <div class="flex items-center gap-1">
+                                                @if ((sel.columns || []).length > 0) {
+                                                    <button
+                                                        (click)="clearColumns()"
+                                                        class="rounded px-1.5 py-0.5 text-xs text-stone-400 hover:text-rose-500"
+                                                    >
+                                                        {{ 'smartReport.autoColumns' | transloco }}
+                                                    </button>
+                                                }
+                                                <button
+                                                    (click)="addColumn()"
+                                                    class="rounded px-1.5 py-0.5 text-xs text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+                                                >
+                                                    + {{ 'smartReport.addColumn' | transloco }}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        @if ((sel.columns || []).length === 0) {
+                                            <p
+                                                class="rounded-lg bg-stone-50 px-3 py-2 text-xs text-stone-400 dark:bg-gray-950 dark:text-stone-500"
+                                            >
+                                                {{ 'smartReport.columnsDerived' | transloco }}
+                                            </p>
+                                        }
+
+                                        @for (column of sel.columns || []; track $index) {
+                                            <div class="mb-1.5 flex items-center gap-1.5">
+                                                <input
+                                                    type="text"
+                                                    [value]="column.key"
+                                                    (input)="
+                                                        updateColumn($index, {
+                                                            key: $any($event.target).value,
+                                                        })
+                                                    "
+                                                    class="w-1/2 rounded-lg border border-stone-200 px-2 py-1.5 font-mono text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [placeholder]="
+                                                        'smartReport.columnKey' | transloco
+                                                    "
+                                                />
+                                                <input
+                                                    type="text"
+                                                    [value]="column.label || ''"
+                                                    (input)="
+                                                        updateColumn($index, {
+                                                            label: $any($event.target).value,
+                                                        })
+                                                    "
+                                                    class="w-1/2 rounded-lg border border-stone-200 px-2 py-1.5 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                    [placeholder]="
+                                                        'smartReport.columnLabel' | transloco
+                                                    "
+                                                />
+                                                <button
+                                                    (click)="removeColumn($index)"
+                                                    class="shrink-0 rounded p-1 text-stone-300 hover:text-rose-500"
+                                                >
+                                                    <mat-icon class="!h-4 !w-4 !text-base"
+                                                        >close</mat-icon
+                                                    >
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+
+                                <!-- KEY VALUE GRID EDITOR -->
+                                @if (sel.type === 'keyValueGrid') {
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.columnsPerRow' | transloco }}</label
+                                        >
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="4"
+                                            [value]="sel.columnsPerRow ?? 2"
+                                            (input)="
+                                                updateSectionNumber(
+                                                    sel.id,
+                                                    'columnsPerRow',
+                                                    $any($event.target).value
+                                                )
+                                            "
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                        />
+                                    </div>
+                                }
+
+                                <!-- CARD EDITOR -->
+                                @if (sel.type === 'card') {
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.cardBody' | transloco }}</label
+                                        >
+                                        <textarea
+                                            rows="3"
+                                            [value]="sel.staticContent || ''"
+                                            (input)="
+                                                updateSection(sel.id, {
+                                                    staticContent: $any($event.target).value,
+                                                })
+                                            "
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="
+                                                'smartReport.placeholderSupported' | transloco
+                                            "
+                                        ></textarea>
+                                    </div>
+                                }
+
+                                <!-- REPEATER EDITOR -->
+                                @if (sel.type === 'repeater') {
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.itemTitle' | transloco }}</label
+                                        >
+                                        <input
+                                            type="text"
+                                            [value]="sel.itemTitle || ''"
+                                            (input)="
+                                                updateSection(sel.id, {
+                                                    itemTitle: $any($event.target).value,
+                                                })
+                                            "
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            placeholder="{numeroPoliza}"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.itemTemplate' | transloco }}</label
+                                        >
+                                        <textarea
+                                            rows="2"
+                                            [value]="sel.itemTemplate || ''"
+                                            (input)="
+                                                updateSection(sel.id, {
+                                                    itemTemplate: $any($event.target).value,
+                                                })
+                                            "
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="
+                                                'smartReport.itemTemplateHint' | transloco
+                                            "
+                                        ></textarea>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.maxItems' | transloco }}</label
+                                        >
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            max="1000"
+                                            [value]="sel.maxRows ?? ''"
+                                            (input)="
+                                                updateSectionNumber(
+                                                    sel.id,
+                                                    'maxRows',
+                                                    $any($event.target).value
+                                                )
+                                            "
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            placeholder="10"
+                                        />
+                                    </div>
+                                }
+
+                                <!-- REPORT BLOCKS EDITOR -->
+                                @if (sel.type === 'reportBlocks') {
+                                    <p
+                                        class="rounded-lg bg-indigo-50/60 px-3 py-2 text-xs text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-300"
+                                    >
+                                        {{ 'smartReport.reportBlocksHint' | transloco }}
+                                    </p>
+                                    <div>
+                                        <label
+                                            class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                            >{{ 'smartReport.blockIds' | transloco }}</label
+                                        >
+                                        <input
+                                            type="text"
+                                            [value]="(sel.blockIds || []).join(', ')"
+                                            (change)="updateBlockIds($any($event.target).value)"
+                                            class="w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            [placeholder]="'smartReport.allBlocks' | transloco"
+                                        />
+                                        <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
+                                            {{ 'smartReport.blockIdsHint' | transloco }}
+                                        </p>
+                                    </div>
+                                    <label class="flex items-center gap-2 text-xs text-stone-600 dark:text-stone-300">
+                                        <input
+                                            type="checkbox"
+                                            [checked]="sel.showDisplayRows !== false"
+                                            (change)="
+                                                updateSection(sel.id, {
+                                                    showDisplayRows: $any($event.target).checked,
+                                                })
+                                            "
+                                            class="rounded border-stone-300 text-indigo-600"
+                                        />
+                                        {{ 'smartReport.showDisplayRows' | transloco }}
+                                    </label>
+                                }
+
+                                <!-- BADGE VARIANT + DATA-DRIVEN COLOUR RULES -->
+                                @if (
+                                    sel.type === 'badge' ||
+                                    sel.type === 'card' ||
+                                    sel.type === 'keyValueGrid' ||
+                                    sel.type === 'dataTable'
+                                ) {
+                                    <div
+                                        class="space-y-3 border-t border-stone-100 pt-3 dark:border-gray-800"
+                                    >
+                                        <div>
+                                            <label
+                                                class="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400"
+                                                >{{ 'smartReport.variant' | transloco }}</label
+                                            >
+                                            <select
+                                                [value]="sel.style?.variant || 'neutral'"
+                                                (change)="
+                                                    updateSectionStyle(
+                                                        'variant',
+                                                        $any($event.target).value
+                                                    )
+                                                "
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                            >
+                                                @for (variant of styleVariants; track variant) {
+                                                    <option [value]="variant">
+                                                        {{
+                                                            'smartReport.variant_' + variant
+                                                                | transloco
+                                                        }}
+                                                    </option>
+                                                }
+                                            </select>
+                                        </div>
+
+                                        <div>
+                                            <div class="mb-1 flex items-center justify-between">
+                                                <label
+                                                    class="text-xs font-medium text-stone-500 dark:text-stone-400"
+                                                    >{{
+                                                        'smartReport.variantRules' | transloco
+                                                    }}</label
+                                                >
+                                                <button
+                                                    (click)="addVariantRule()"
+                                                    class="rounded px-1.5 py-0.5 text-xs text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+                                                >
+                                                    + {{ 'smartReport.addRule' | transloco }}
+                                                </button>
+                                            </div>
+                                            <p
+                                                class="mb-1.5 text-xs text-stone-400 dark:text-stone-500"
+                                            >
+                                                {{ 'smartReport.variantRulesHint' | transloco }}
+                                            </p>
+
+                                            @for (
+                                                rule of sel.style?.variantRules || [];
+                                                track $index
+                                            ) {
+                                                <div
+                                                    class="mb-2 space-y-1.5 rounded-lg border border-stone-200 p-2 dark:border-gray-700"
+                                                >
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input
+                                                            type="text"
+                                                            [value]="rule.field"
+                                                            (input)="
+                                                                updateVariantRule($index, {
+                                                                    field: $any($event.target).value,
+                                                                })
+                                                            "
+                                                            class="min-w-0 flex-1 rounded border border-stone-200 px-2 py-1 font-mono text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                            [placeholder]="
+                                                                'smartReport.ruleField' | transloco
+                                                            "
+                                                        />
+                                                        <button
+                                                            (click)="removeVariantRule($index)"
+                                                            class="shrink-0 rounded p-1 text-stone-300 hover:text-rose-500"
+                                                        >
+                                                            <mat-icon class="!h-4 !w-4 !text-base"
+                                                                >close</mat-icon
+                                                            >
+                                                        </button>
+                                                    </div>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <select
+                                                            [value]="rule.operator"
+                                                            (change)="
+                                                                updateVariantRule($index, {
+                                                                    operator: $any($event.target)
+                                                                        .value,
+                                                                })
+                                                            "
+                                                            class="w-1/3 rounded border border-stone-200 px-1.5 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                        >
+                                                            @for (
+                                                                operator of conditionOperators;
+                                                                track operator
+                                                            ) {
+                                                                <option [value]="operator">
+                                                                    {{ operator }}
+                                                                </option>
+                                                            }
+                                                        </select>
+                                                        @if (operatorNeedsValue(rule.operator)) {
+                                                            <input
+                                                                type="text"
+                                                                [value]="rule.value ?? ''"
+                                                                (input)="
+                                                                    updateVariantRule($index, {
+                                                                        value: $any($event.target)
+                                                                            .value,
+                                                                    })
+                                                                "
+                                                                class="w-1/3 min-w-0 rounded border border-stone-200 px-1.5 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                                [placeholder]="
+                                                                    'smartReport.ruleValue'
+                                                                        | transloco
+                                                                "
+                                                            />
+                                                        }
+                                                        <select
+                                                            [value]="rule.variant"
+                                                            (change)="
+                                                                updateVariantRule($index, {
+                                                                    variant: $any($event.target)
+                                                                        .value,
+                                                                })
+                                                            "
+                                                            class="w-1/3 rounded border border-stone-200 px-1.5 py-1 text-xs dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                        >
+                                                            @for (
+                                                                variant of styleVariants;
+                                                                track variant
+                                                            ) {
+                                                                <option [value]="variant">
+                                                                    {{ variant }}
+                                                                </option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+
+                                <!-- EMPTY STATE HANDLING (data-bound sections) -->
+                                @if (isDataBound(sel.type)) {
+                                    <div
+                                        class="space-y-2 border-t border-stone-100 pt-3 dark:border-gray-800"
+                                    >
+                                        <label
+                                            class="flex items-center gap-2 text-xs text-stone-600 dark:text-stone-300"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                [checked]="!!sel.showWhenEmpty"
+                                                (change)="
+                                                    updateSection(sel.id, {
+                                                        showWhenEmpty: $any($event.target).checked,
+                                                    })
+                                                "
+                                                class="rounded border-stone-300 text-indigo-600"
+                                            />
+                                            {{ 'smartReport.showWhenEmpty' | transloco }}
+                                        </label>
+                                        @if (sel.showWhenEmpty) {
+                                            <input
+                                                type="text"
+                                                [value]="sel.emptyMessage || ''"
+                                                (input)="
+                                                    updateSection(sel.id, {
+                                                        emptyMessage: $any($event.target).value,
+                                                    })
+                                                "
+                                                class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                                [placeholder]="
+                                                    'smartReport.emptyMessage' | transloco
+                                                "
+                                            />
+                                        }
                                     </div>
                                 }
 
@@ -1326,7 +2195,62 @@
                         </div>
                     }
 
-                    <!-- Paper container - shared ReportPreviewComponent -->
+                    <!--
+                        Exact preview: HTML from the backend renderer, shown in a
+                        sandboxed iframe. `sandbox` with no tokens gives the document an
+                        opaque origin and disables scripts, so report content — which can
+                        include third-party data — cannot reach the application.
+                    -->
+                    @if (previewMode() === 'exact' && builderStep() !== 'deliver') {
+                        <div
+                            class="overflow-hidden rounded-2xl border border-stone-200/90 bg-stone-100 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                        >
+                            @if (exactPreviewError()) {
+                                <div
+                                    class="flex h-[600px] flex-col items-center justify-center gap-2 text-stone-400 dark:text-stone-500"
+                                >
+                                    <mat-icon class="!h-8 !w-8 !text-3xl">error_outline</mat-icon>
+                                    <p class="text-sm">{{ exactPreviewError() }}</p>
+                                    <button
+                                        (click)="setPreviewMode('exact')"
+                                        class="rounded-lg border border-stone-200 px-3 py-1.5 text-xs hover:bg-white dark:border-gray-700"
+                                    >
+                                        {{ 'smartReport.retry' | transloco }}
+                                    </button>
+                                </div>
+                            } @else if (exactPreviewUrl()) {
+                                <iframe
+                                    [src]="exactPreviewUrl()"
+                                    sandbox
+                                    title="Report preview"
+                                    class="h-[80vh] min-h-[600px] w-full border-0 bg-white"
+                                ></iframe>
+                            } @else {
+                                <div
+                                    class="flex h-[600px] flex-col items-center justify-center gap-2 text-stone-400 dark:text-stone-500"
+                                >
+                                    <mat-icon class="!h-8 !w-8 !text-3xl animate-pulse"
+                                        >description</mat-icon
+                                    >
+                                    <p class="text-sm">{{ 'smartReport.rendering' | transloco }}</p>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <!--
+                        Authoring canvas: selectable blocks and draggable overlays, and
+                        the drop target for palette drags. Sorting is off because the
+                        paginated preview is not a flat list; a node dropped here is
+                        appended, and the Layers rail is where order is chosen precisely.
+                    -->
+                    <div
+                        [id]="canvasDropListId"
+                        cdkDropList
+                        [cdkDropListSortingDisabled]="true"
+                        (cdkDropListDropped)="onCanvasDrop($event)"
+                        [class.hidden]="previewMode() !== 'edit' || builderStep() === 'deliver'"
+                    >
                     <report-preview
                         [template]="{
                             sections: sections(),
@@ -1369,8 +2293,146 @@
                         (logoPositionChange)="onLogoPositionChange($event)"
                         (logoSizeChange)="onLogoSizeChange($event)"
                     />
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!--
+    How a block says where its content comes from.
+
+    A bound block shows the field's human name, because that is what the author
+    recognises; the dot-notation path is the machine's business and only appears
+    behind "Edit path" for the cases the palette cannot express, such as a payload
+    the current sample does not contain.
+-->
+<ng-template #dataBinding let-sel="sel" let-hintKey="hintKey">
+    <div>
+        <div class="mb-1 flex items-center justify-between">
+            <label class="text-xs font-medium text-stone-500 dark:text-stone-400">{{
+                'smartReport.dataSource' | transloco
+            }}</label>
+            <button
+                (click)="showAdvancedPath.set(!showAdvancedPath())"
+                class="text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+            >
+                {{
+                    (showAdvancedPath() ? 'smartReport.hidePath' : 'smartReport.editPath')
+                        | transloco
+                }}
+            </button>
+        </div>
+
+        @if (sel.dataPath) {
+            <div
+                class="flex items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50/60 px-3 py-2 dark:border-indigo-900/50 dark:bg-indigo-950/30"
+            >
+                <mat-icon class="!h-4 !w-4 shrink-0 !text-base text-indigo-500"
+                    >account_tree</mat-icon
+                >
+                <span
+                    class="min-w-0 flex-1 truncate text-sm text-stone-700 dark:text-stone-200"
+                    [matTooltip]="sel.dataPath"
+                    >{{ dataLabelFor(sel.dataPath) }}</span
+                >
+                <button
+                    (click)="updateSection(sel.id, { dataPath: '' })"
+                    class="shrink-0 text-stone-400 hover:text-red-500"
+                    [matTooltip]="'smartReport.unbind' | transloco"
+                >
+                    <mat-icon class="!h-4 !w-4 !text-base">close</mat-icon>
+                </button>
+            </div>
+        } @else {
+            <button
+                (click)="railTab.set('data')"
+                class="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 px-3 py-2.5 text-sm text-stone-500 hover:border-indigo-300 hover:text-indigo-600 dark:border-gray-700 dark:text-stone-400"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base">account_tree</mat-icon>
+                {{ 'smartReport.chooseFromData' | transloco }}
+            </button>
+        }
+
+        @if (showAdvancedPath()) {
+            <input
+                type="text"
+                [value]="sel.dataPath || ''"
+                (input)="updateSection(sel.id, { dataPath: $any($event.target).value })"
+                class="mt-2 w-full rounded-lg border border-stone-200 px-3 py-2 font-mono text-sm dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                [placeholder]="'smartReport.dataPathPlaceholder' | transloco"
+            />
+            <p class="mt-1 text-xs text-stone-400 dark:text-stone-500">
+                {{ hintKey | transloco }}
+            </p>
+        }
+    </div>
+</ng-template>
+
+<!--
+    One row of the data palette, recursive over children.
+
+    Each row carries the block the backend recommended for that node's shape, so
+    clicking or dragging it produces a bound section with its label, path and columns
+    already filled in.
+-->
+<ng-template #dataNodeRow let-node="node" let-depth="depth">
+    <div
+        cdkDrag
+        [cdkDragData]="node"
+        class="group flex items-center gap-1.5 rounded-lg px-1.5 py-1 hover:bg-stone-50 dark:hover:bg-gray-800/50"
+        [style.padding-left.px]="6 + depth * 12"
+    >
+        @if (node.children?.length) {
+            <button
+                (click)="toggleNode(node.path)"
+                class="flex h-5 w-5 shrink-0 items-center justify-center rounded text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base">{{
+                    isExpanded(node.path) ? 'expand_more' : 'chevron_right'
+                }}</mat-icon>
+            </button>
+        } @else {
+            <span class="h-5 w-5 shrink-0"></span>
+        }
+
+        <mat-icon
+            class="!h-4 !w-4 shrink-0 !text-base text-stone-300 dark:text-stone-600"
+            [matTooltip]="getSectionLabel(node.sectionType)"
+            >{{ nodeIcon(node) }}</mat-icon
+        >
+
+        <button
+            (click)="addNodeSection(node)"
+            class="flex min-w-0 flex-1 items-baseline gap-2 text-left"
+            [matTooltip]="node.path"
+        >
+            <span class="truncate text-xs font-medium text-stone-700 dark:text-stone-300">{{
+                node.label
+            }}</span>
+            <span class="truncate text-[11px] text-stone-400 dark:text-stone-500">{{
+                node.count !== undefined
+                    ? ('smartReport.structuralRows' | transloco: { count: node.count })
+                    : node.sample
+            }}</span>
+        </button>
+
+        <button
+            (click)="addNodeSection(node)"
+            class="shrink-0 rounded p-0.5 text-indigo-500 opacity-0 transition-opacity group-hover:opacity-100"
+            [matTooltip]="'smartReport.addBoundBlock' | transloco"
+        >
+            <mat-icon class="!h-4 !w-4 !text-base">add_circle_outline</mat-icon>
+        </button>
+    </div>
+
+    @if (node.children?.length && isExpanded(node.path)) {
+        @for (child of node.children; track child.path) {
+            <ng-container
+                [ngTemplateOutlet]="dataNodeRow"
+                [ngTemplateOutletContext]="{ node: child, depth: depth + 1 }"
+            ></ng-container>
+        }
+    }
+</ng-template>

@@ -108,6 +108,32 @@
             </div>
         </div>
 
+        <!-- Lane legend -->
+        <div
+            *ngIf="!loading"
+            class="mb-6 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400"
+        >
+            <span class="font-semibold uppercase tracking-wide text-gray-400">{{
+                'network.legend' | transloco
+            }}</span>
+            <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-green-500"></span>
+                {{ 'network.lanes.up' | transloco }}
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-amber-400"></span>
+                {{ 'network.lanes.degraded' | transloco }}
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-red-500"></span>
+                {{ 'network.lanes.down' | transloco }}
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+                <span class="h-2.5 w-2.5 rounded-sm bg-slate-400"></span>
+                {{ 'network.lanes.unmeasured' | transloco }}
+            </span>
+        </div>
+
         <!-- Loading -->
         <div *ngIf="loading" class="flex flex-auto justify-center items-center py-20">
             <mat-spinner diameter="64"></mat-spinner>
@@ -142,16 +168,39 @@
                 <div
                     class="p-5 border-b border-gray-100 dark:border-gray-700/50 bg-gray-50/30 dark:bg-gray-800/50"
                 >
-                    <div class="flex items-start justify-between">
+                    <div class="flex items-start justify-between gap-3">
                         <div class="flex flex-col min-w-0">
-                            <h3
-                                class="text-lg font-semibold text-gray-900 dark:text-white truncate"
-                                [title]="item.subject.method.currentTranslation"
+                            <div class="flex items-center gap-2 min-w-0">
+                                <h3
+                                    class="text-lg font-semibold text-gray-900 dark:text-white truncate"
+                                    [title]="item.subject.method.currentTranslation"
+                                >
+                                    {{ item.subject.method.currentTranslation }}
+                                </h3>
+                                <span
+                                    class="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+                                    [ngClass]="{
+                                        'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300':
+                                            currentLane(item) === 'up',
+                                        'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200':
+                                            currentLane(item) === 'degraded',
+                                        'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300':
+                                            currentLane(item) === 'down',
+                                        'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300':
+                                            currentLane(item) === 'unmeasured' ||
+                                            currentLane(item) === 'awaiting',
+                                    }"
+                                >
+                                    {{ laneLabel(item.subject.currentStatus) }}
+                                </span>
+                            </div>
+                            <p
+                                class="mt-1.5 text-sm leading-5 text-gray-500 dark:text-gray-400 line-clamp-2"
                             >
-                                {{ item.subject.method.currentTranslation }}
-                            </h3>
+                                {{ publicMessageFor(item) }}
+                            </p>
                             <div
-                                class="flex items-center mt-1 space-x-2 text-sm text-gray-500 dark:text-gray-400"
+                                class="flex items-center mt-2 space-x-2 text-sm text-gray-500 dark:text-gray-400"
                             >
                                 <span
                                     class="uppercase tracking-wider text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
@@ -258,14 +307,13 @@
                             <div
                                 class="status-tick w-full flex-1 rounded-sm transition-all hover:opacity-80"
                                 [ngClass]="{
-                                    'bg-green-500': it.status === 'ok',
-                                    'bg-red-500': it.status !== 'ok' && it.status !== 'awaiting',
-                                    'bg-gray-200 dark:bg-gray-700': it.status === 'awaiting',
+                                    'bg-green-500': isUp(it.status),
+                                    'bg-amber-400': isDegraded(it.status),
+                                    'bg-red-500': isDown(it.status),
+                                    'bg-slate-400 dark:bg-slate-500': isUnmeasured(it.status),
+                                    'bg-gray-100 dark:bg-gray-800': isAwaiting(it.status),
                                 }"
-                                [matTooltip]="
-                                    formatDate(it.createdAt) +
-                                    (it.responseTime ? ' - ' + it.responseTime + 'ms' : '')
-                                "
+                                [matTooltip]="tickTooltip(it)"
                                 matTooltipPosition="above"
                             ></div>
                         </ng-container>
@@ -286,16 +334,28 @@
                         <span class="text-xs text-gray-400 uppercase font-semibold tracking-wide">{{
                             'network.uptime' | transloco
                         }}</span>
+                        <!-- Null means nothing measurable happened, which is not 100%. -->
                         <span
+                            *ngIf="item.subject.percentage !== null; else noUptime"
                             class="text-lg font-bold"
                             [class.text-green-600]="item.subject.percentage >= 98"
                             [class.text-yellow-600]="
                                 item.subject.percentage < 98 && item.subject.percentage >= 90
                             "
                             [class.text-red-600]="item.subject.percentage < 90"
+                            [matTooltip]="
+                                item.subject.measuredPoints + ' ' + ('network.measured_points' | transloco)
+                            "
                         >
                             {{ item.subject.percentage | number: '1.0-2' }}%
                         </span>
+                        <ng-template #noUptime>
+                            <span
+                                class="text-lg font-bold text-gray-400"
+                                [matTooltip]="'network.not_measured' | transloco"
+                                >&mdash;</span
+                            >
+                        </ng-template>
                     </div>
 
                     <div class="text-right flex flex-col items-end">

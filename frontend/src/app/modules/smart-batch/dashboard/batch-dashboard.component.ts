@@ -9,6 +9,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
     BatchConfiguration,
+    DEFAULT_PER_PAGE,
     SmartBatch,
     SmartBatchService,
     SmartBatchStats,
@@ -42,6 +43,19 @@ export class BatchDashboardComponent implements OnInit {
     batches = signal<SmartBatch[]>([]);
     stats = signal<SmartBatchStats | null>(null);
     isLoading = signal(true);
+    isLoadingBatches = signal(false);
+
+    page = signal(1);
+    perPage = signal(DEFAULT_PER_PAGE);
+    totalBatches = signal(0);
+    totalPages = signal(1);
+
+    rangeStart = computed(() =>
+        this.totalBatches() === 0 ? 0 : (this.page() - 1) * this.perPage() + 1
+    );
+    rangeEnd = computed(() => Math.min(this.page() * this.perPage(), this.totalBatches()));
+    canGoPrevious = computed(() => this.page() > 1 && !this.isLoadingBatches());
+    canGoNext = computed(() => this.page() < this.totalPages() && !this.isLoadingBatches());
 
     // Panel visibility
     showStepsPanel = signal(false);
@@ -108,16 +122,7 @@ export class BatchDashboardComponent implements OnInit {
             },
         });
 
-        // Load batches
-        this._smartBatchService.getSmartBatches(configId).subscribe({
-            next: (res) => {
-                this.batches.set(res.data || []);
-                this.isLoading.set(false);
-            },
-            error: () => {
-                this.isLoading.set(false);
-            },
-        });
+        this.loadBatches(1);
 
         // Load stats
         this._smartBatchService.getSmartBatchStats(configId).subscribe({
@@ -125,6 +130,41 @@ export class BatchDashboardComponent implements OnInit {
                 this.stats.set(res.data);
             },
         });
+    }
+
+    loadBatches(page: number) {
+        const configId = this.configId();
+        if (!configId) return;
+
+        this.isLoadingBatches.set(true);
+
+        this._smartBatchService
+            .getSmartBatches(configId, { page, perPage: this.perPage() })
+            .subscribe({
+                next: (res) => {
+                    this.batches.set(res.data || []);
+                    this.page.set(res.page ?? page);
+                    this.perPage.set(res.limit ?? this.perPage());
+                    this.totalBatches.set(res.total ?? res.data?.length ?? 0);
+                    this.totalPages.set(Math.max(1, res.pages ?? 1));
+                    this.isLoadingBatches.set(false);
+                    this.isLoading.set(false);
+                },
+                error: () => {
+                    this.isLoadingBatches.set(false);
+                    this.isLoading.set(false);
+                },
+            });
+    }
+
+    previousPage() {
+        if (!this.canGoPrevious()) return;
+        this.loadBatches(this.page() - 1);
+    }
+
+    nextPage() {
+        if (!this.canGoNext()) return;
+        this.loadBatches(this.page() + 1);
     }
 
     createBatch() {

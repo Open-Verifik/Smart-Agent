@@ -32,12 +32,23 @@
                                         batch()?.status === 'failed',
                                     'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-stone-400':
                                         batch()?.status === 'cancelled',
+                                    'bg-violet-100 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300':
+                                        batch()?.status === 'paused',
                                 }"
                             >
                                 {{
                                     'batchProcessing.' + (batch()?.status || 'pending') | transloco
                                 }}
                             </span>
+                            @if (isServerManaged()) {
+                                <span
+                                    class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-600 dark:bg-gray-800 dark:text-stone-300"
+                                    [matTooltip]="'batchProcessing.serverManagedHint' | transloco"
+                                >
+                                    <mat-icon class="icon-size-3.5">cloud_done</mat-icon>
+                                    {{ 'batchProcessing.serverManaged' | transloco }}
+                                </span>
+                            }
                         </div>
                         <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
                             {{ batch()?.totalRows || 0 }}
@@ -48,33 +59,7 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center gap-3">
-                    @if (
-                        isSingleStepBatch() &&
-                        batch() &&
-                        batch()?.status !== 'completed' &&
-                        batch()?.status !== 'cancelled'
-                    ) {
-                        <mat-form-field
-                            appearance="outline"
-                            class="!w-[8.5rem] shrink-0"
-                            subscriptSizing="dynamic"
-                        >
-                            <mat-label>{{
-                                'batchProcessing.parallelWorkers' | transloco
-                            }}</mat-label>
-                            <mat-select
-                                [value]="parallelRowsPreference()"
-                                (selectionChange)="setParallelRowsPreference($event.value)"
-                                [disabled]="isStarting() || isProcessing()"
-                                [matTooltip]="'batchProcessing.parallelWorkersHint' | transloco"
-                            >
-                                @for (n of parallelConcurrencyOptions; track n) {
-                                    <mat-option [value]="n">{{ n }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    }
-                    @if (batch() && batch()?.status !== 'processing') {
+                    @if (batch() && !isProcessing()) {
                         <button mat-stroked-button (click)="editInputs()" class="!rounded-xl">
                             <span class="inline-flex items-center gap-2">
                                 <mat-icon>playlist_add</mat-icon>
@@ -82,7 +67,11 @@
                             </span>
                         </button>
                     }
-                    @if (batch()?.status === 'draft' || batch()?.status === 'pending') {
+                    @if (
+                        batch()?.status === 'draft' ||
+                        batch()?.status === 'pending' ||
+                        batch()?.status === 'failed'
+                    ) {
                         <button
                             mat-flat-button
                             color="primary"
@@ -106,7 +95,7 @@
                             </span>
                         </button>
                     }
-                    @if (batch()?.status === 'processing' && isProcessing()) {
+                    @if (isProcessing()) {
                         <button
                             mat-stroked-button
                             (click)="pauseProcessing()"
@@ -123,19 +112,35 @@
                                 }
                             </span>
                         </button>
+                        <button
+                            mat-stroked-button
+                            (click)="cancelProcessing()"
+                            [disabled]="isCancelling()"
+                            class="!rounded-xl !border-red-400 !text-red-700 dark:!text-red-300"
+                        >
+                            <span class="inline-flex items-center gap-2">
+                                @if (isCancelling()) {
+                                    <mat-icon class="animate-spin">refresh</mat-icon>
+                                    {{ 'batchProcessing.cancelling' | transloco }}
+                                } @else {
+                                    <mat-icon>stop_circle</mat-icon>
+                                    {{ 'batchProcessing.cancel' | transloco }}
+                                }
+                            </span>
+                        </button>
                     }
-                    @if (batch()?.status === 'processing' && !isProcessing()) {
+                    @if (isPaused()) {
                         <button
                             mat-flat-button
                             color="primary"
-                            (click)="startProcessing()"
-                            [disabled]="isStarting()"
+                            (click)="resumeProcessing()"
+                            [disabled]="isResuming()"
                             class="!rounded-xl"
                         >
                             <span class="inline-flex items-center gap-2">
-                                @if (isStarting()) {
+                                @if (isResuming()) {
                                     <mat-icon class="animate-spin">refresh</mat-icon>
-                                    {{ 'batchProcessing.starting' | transloco }}
+                                    {{ 'batchProcessing.resuming' | transloco }}
                                 } @else {
                                     <mat-icon>play_arrow</mat-icon>
                                     {{ 'batchProcessing.resume' | transloco }}
@@ -143,10 +148,32 @@
                             </span>
                         </button>
                     }
+                    @if (canOperateRetryFailed()) {
+                        <button
+                            mat-stroked-button
+                            (click)="retryAllFailedRows($event)"
+                            [disabled]="isRetryingFailed()"
+                            class="!rounded-xl !border-amber-400 !text-amber-800 dark:!text-amber-300"
+                            [matTooltip]="'batchProcessing.retryFailedTooltip' | transloco"
+                        >
+                            <span class="inline-flex items-center gap-2">
+                                @if (isRetryingFailed()) {
+                                    <mat-icon class="animate-spin">refresh</mat-icon>
+                                    {{ 'batchProcessing.retrying' | transloco }}
+                                } @else {
+                                    <mat-icon>replay</mat-icon>
+                                    {{
+                                        'batchProcessing.retryFailedRows'
+                                            | transloco: { count: retryableRowCount() }
+                                    }}
+                                }
+                            </span>
+                        </button>
+                    }
                     @if (
                         batch()?.status === 'completed' ||
-                        batch()?.status === 'processing' ||
-                        (batch()?.status === 'pending' && hasBatchRunProgress())
+                        isProcessing() ||
+                        hasBatchRunProgress()
                     ) {
                         <button
                             mat-flat-button
@@ -164,35 +191,72 @@
             </div>
 
             <!-- Progress Bar -->
-            @if (isProcessing()) {
+            @if (isProcessing() || isPaused()) {
                 <div class="mt-4">
                     <div class="mb-1 flex justify-between text-sm text-stone-600 dark:text-stone-400">
-                        <span>{{ 'batchProcessing.processing' | transloco }}</span>
+                        <span>{{
+                            (isPaused() ? 'batchProcessing.paused' : 'batchProcessing.processing')
+                                | transloco
+                        }}</span>
                         <span>{{ progress() }}%</span>
                     </div>
                     <mat-progress-bar
-                        mode="determinate"
+                        [mode]="isPaused() ? 'determinate' : 'buffer'"
                         [value]="progress()"
                         class="!rounded-full"
                     ></mat-progress-bar>
-                    @if (parallelRowConcurrency() > 1) {
-                        <p class="mt-2 text-xs text-amber-800 dark:text-amber-300">
-                            {{
-                                'batchProcessing.processingParallelHint'
-                                    | transloco: { conc: parallelRowConcurrency() }
-                            }}
-                        </p>
-                        @if (processingActiveRowIndexes().length > 0) {
-                            <p class="mt-1 break-words font-mono text-xs text-stone-600 dark:text-stone-400">
-                                {{
-                                    'batchProcessing.parallelActiveRows'
-                                        | transloco
-                                            : { rows: processingActiveRowIndexes().join(', ') }
-                                }}
-                            </p>
+                    <p class="mt-2 text-xs text-stone-600 dark:text-stone-400">
+                        {{
+                            'batchProcessing.serverProgressHint'
+                                | transloco
+                                    : {
+                                          completed: batch()?.completedRows || 0,
+                                          failed: batch()?.failedRows || 0,
+                                          total: batch()?.totalRows || 0,
+                                      }
+                        }}
+                        @if (runConcurrencyLabel()) {
+                            <span class="ml-1 font-mono">· {{ runConcurrencyLabel() }}</span>
                         }
-                    }
+                    </p>
                 </div>
+            }
+
+            <!-- Pre-flight credit estimate -->
+            @if (estimate(); as est) {
+                @if (est.pendingRows > 0 && !isProcessing()) {
+                    <div
+                        class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-1 rounded-xl border px-4 py-2.5 text-sm"
+                        [ngClass]="
+                            est.sufficientCredits
+                                ? 'border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-900/60 dark:text-stone-300'
+                                : 'border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-300'
+                        "
+                    >
+                        <span class="inline-flex items-center gap-2 font-semibold">
+                            <mat-icon class="icon-size-4">calculate</mat-icon>
+                            {{
+                                'batchProcessing.estimateCost'
+                                    | transloco
+                                        : { credits: est.totalCredits, rows: est.pendingRows }
+                            }}
+                        </span>
+                        <span>{{
+                            'batchProcessing.estimatePerRecord'
+                                | transloco: { credits: est.creditsPerItem }
+                        }}</span>
+                        <span>{{
+                            'batchProcessing.estimateAvailable'
+                                | transloco: { credits: est.availableCredits }
+                        }}</span>
+                        @if (!est.sufficientCredits) {
+                            <span class="font-semibold">{{
+                                'batchProcessing.estimateShortfall'
+                                    | transloco: { credits: est.shortfall }
+                            }}</span>
+                        }
+                    </div>
+                }
             }
         </div>
     </div>
@@ -890,11 +954,11 @@
                                                 mat-icon-button
                                                 type="button"
                                                 class="!w-8 !h-8 shrink-0 text-red-600"
-                                                [disabled]="!canOperateRetryFailed() || isRetryingFailedRowReset(item.row)"
+                                                [disabled]="!canOperateRetryFailed() || isRetryingRow(item.row)"
                                                 [matTooltip]="'batchProcessing.retryThisFailedRow' | transloco"
                                                 (click)="retrySingleFailedRow(item.row, $event)"
                                             >
-                                                @if (isRetryingFailedRowReset(item.row)) {
+                                                @if (isRetryingRow(item.row)) {
                                                     <mat-spinner diameter="20"></mat-spinner>
                                                 } @else {
                                                     <mat-icon>replay</mat-icon>
@@ -1041,12 +1105,16 @@
                                         'batchProcessing.json' | transloco
                                     }}</mat-button-toggle>
                                 </mat-button-toggle-group>
-                                @if (selectedRow() && hasPendingSteps(selectedRow()!)) {
+                                @if (
+                                    selectedRow() &&
+                                    hasPendingSteps(selectedRow()!) &&
+                                    canOperateRetryFailed()
+                                ) {
                                     <button
                                         mat-stroked-button
                                         class="!rounded-lg !border-indigo-300 !text-indigo-700"
-                                        (click)="continuePendingSteps(selectedRow()!)"
-                                        [disabled]="isContinuingRow(selectedRow()!)"
+                                        (click)="retrySingleFailedRow(selectedRow()!)"
+                                        [disabled]="isRetryingRow(selectedRow()!)"
                                         [matTooltip]="
                                             'batchProcessing.continuePendingStepsHint'
                                                 | transloco
@@ -1056,7 +1124,7 @@
                                         "
                                     >
                                         <span class="inline-flex items-center gap-2">
-                                            @if (isContinuingRow(selectedRow()!)) {
+                                            @if (isRetryingRow(selectedRow()!)) {
                                                 <mat-icon class="animate-spin icon-size-4"
                                                     >refresh</mat-icon
                                                 >
@@ -1158,32 +1226,24 @@
                                                         >
                                                             <mat-icon class="!text-lg">edit</mat-icon>
                                                         </button>
-                                                        @if (firstFailedStep(); as failedStep) {
+                                                        @if (canOperateRetryFailed()) {
                                                             <button
                                                                 mat-flat-button
                                                                 color="primary"
                                                                 type="button"
                                                                 class="!h-9 !min-h-9 rounded-xl px-4"
                                                                 (click)="
-                                                                    retryStep(selectedRow()!, failedStep)
+                                                                    retrySingleFailedRow(selectedRow()!)
                                                                 "
                                                                 [disabled]="
                                                                     savingRuesCategory() ||
-                                                                    isRetryingStep(
-                                                                        selectedRow()!,
-                                                                        failedStep
-                                                                    )
+                                                                    isRetryingRow(selectedRow()!)
                                                                 "
                                                             >
                                                                 <span
                                                                     class="inline-flex items-center gap-1.5"
                                                                 >
-                                                                    @if (
-                                                                        isRetryingStep(
-                                                                            selectedRow()!,
-                                                                            failedStep
-                                                                        )
-                                                                    ) {
+                                                                    @if (isRetryingRow(selectedRow()!)) {
                                                                         <mat-icon
                                                                             class="animate-spin !text-base"
                                                                             >refresh</mat-icon
@@ -1197,7 +1257,7 @@
                                                                             >restart_alt</mat-icon
                                                                         >
                                                                         {{
-                                                                            'batchProcessing.retryStep'
+                                                                            'batchProcessing.retryRow'
                                                                                 | transloco
                                                                         }}
                                                                     }
@@ -1369,6 +1429,7 @@
                                                     </span>
                                                     @if (
                                                         !canEditRuesCategory() &&
+                                                        canOperateRetryFailed() &&
                                                         getRowStepStatus(
                                                             selectedRow()!,
                                                             step.sequence
@@ -1377,20 +1438,19 @@
                                                         <button
                                                             mat-stroked-button
                                                             class="!h-8 !rounded-lg !border-amber-300 !text-amber-700"
-                                                            (click)="retryStep(selectedRow()!, step)"
-                                                            [disabled]="
-                                                                isRetryingStep(selectedRow()!, step)
+                                                            (click)="
+                                                                retrySingleFailedRow(selectedRow()!)
+                                                            "
+                                                            [disabled]="isRetryingRow(selectedRow()!)"
+                                                            [matTooltip]="
+                                                                'batchProcessing.retryRowTooltip'
+                                                                    | transloco
                                                             "
                                                         >
                                                             <span
                                                                 class="inline-flex items-center gap-1.5"
                                                             >
-                                                                @if (
-                                                                    isRetryingStep(
-                                                                        selectedRow()!,
-                                                                        step
-                                                                    )
-                                                                ) {
+                                                                @if (isRetryingRow(selectedRow()!)) {
                                                                     <mat-icon
                                                                         class="animate-spin !text-base"
                                                                         >refresh</mat-icon
@@ -1404,7 +1464,7 @@
                                                                         >restart_alt</mat-icon
                                                                     >
                                                                     {{
-                                                                        'batchProcessing.retryStep'
+                                                                        'batchProcessing.retryRow'
                                                                             | transloco
                                                                     }}
                                                                 }

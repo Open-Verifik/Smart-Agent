@@ -1,0 +1,563 @@
+<div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+    <header
+        class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
+    >
+        <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+            <div
+                class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+            >
+                <a
+                    routerLink="/smart-fleet"
+                    class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                >
+                    {{ 'smartFleet.title' | transloco }}
+                </a>
+                <mat-icon
+                    class="icon-size-4 mx-2 text-stone-400"
+                    svgIcon="heroicons_solid:chevron-right"
+                ></mat-icon>
+                <span class="cursor-default text-stone-600 dark:text-stone-300">{{
+                    'smartFleet.nav.assets' | transloco
+                }}</span>
+            </div>
+
+            <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex min-w-0 items-start gap-3">
+                    <button
+                        mat-icon-button
+                        type="button"
+                        routerLink="/smart-fleet"
+                        [matTooltip]="'smartFleet.back' | transloco"
+                        class="shrink-0 !text-stone-600 dark:!text-stone-300"
+                    >
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <div class="min-w-0">
+                        <h1
+                            class="text-2xl font-semibold tracking-tight text-stone-900 dark:text-white md:text-3xl"
+                        >
+                            {{ 'smartFleet.assets.title' | transloco }}
+                        </h1>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                            {{ 'smartFleet.assets.subtitle' | transloco }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex shrink-0 flex-wrap items-center gap-2">
+                    <label class="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
+                        <span class="font-medium uppercase">{{
+                            'smartFleet.assets.importCountry' | transloco
+                        }}</span>
+                        <select
+                            [ngModel]="importCountry()"
+                            (ngModelChange)="setImportCountry($event)"
+                            name="importCountry"
+                            class="rounded-xl border border-stone-200 bg-white px-2 py-1.5 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        >
+                            <option
+                                *ngFor="let option of countryOptions()"
+                                [value]="option.code"
+                                [disabled]="!option.available"
+                            >
+                                {{ countryOptionLabel(option) }}
+                            </option>
+                        </select>
+                    </label>
+                    <button
+                        mat-stroked-button
+                        type="button"
+                        [matMenuTriggerFor]="importMenu"
+                        [disabled]="isImporting()"
+                        class="rounded-xl !px-5 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">upload_file</mat-icon>
+                        {{ 'smartFleet.assets.import' | transloco }}
+                    </button>
+                    <mat-menu #importMenu="matMenu">
+                        <button mat-menu-item type="button" (click)="fileInput.click()">
+                            <mat-icon>attach_file</mat-icon>
+                            {{ 'smartFleet.assets.chooseFile' | transloco }}
+                        </button>
+                        <button mat-menu-item type="button" (click)="downloadTemplate()">
+                            <mat-icon>download</mat-icon>
+                            {{ 'smartFleet.assets.downloadTemplate' | transloco }}
+                        </button>
+                    </mat-menu>
+                    <input
+                        #fileInput
+                        type="file"
+                        class="hidden"
+                        accept=".csv,.xlsx,.jsonl"
+                        (change)="onFileSelected($event)"
+                    />
+
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        (click)="toggleCreateForm()"
+                        class="rounded-xl !px-6 !py-2"
+                    >
+                        <mat-icon class="mr-2 icon-size-5">{{
+                            showCreateForm() ? 'close' : 'add'
+                        }}</mat-icon>
+                        {{
+                            (showCreateForm()
+                                ? 'smartFleet.cancel'
+                                : 'smartFleet.assets.addAsset'
+                            ) | transloco
+                        }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+        <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
+            <!-- Create form -->
+            <div
+                *ngIf="showCreateForm()"
+                class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            >
+                <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                        {{ formTitleKey() | transloco }}
+                    </h2>
+                    <span
+                        class="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                        [matTooltip]="'smartFleet.assets.betaColombiaHint' | transloco"
+                    >
+                        {{ 'smartFleet.assets.betaColombiaBadge' | transloco }}
+                    </span>
+                </div>
+                <div class="mt-4 grid gap-4 md:grid-cols-3">
+                    <label class="flex flex-col gap-1 md:col-span-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.country' | transloco
+                        }}</span>
+                        <select
+                            [ngModel]="draft().country"
+                            (ngModelChange)="setDraftCountry($event)"
+                            name="country"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        >
+                            <option
+                                *ngFor="let option of countryOptions()"
+                                [value]="option.code"
+                                [disabled]="!option.available"
+                            >
+                                {{ countryOptionLabel(option) }}
+                            </option>
+                        </select>
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.nickname' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().nickname"
+                            (ngModelChange)="updateDraft('nickname', $event)"
+                            name="nickname"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.group' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().group"
+                            (ngModelChange)="updateDraft('group', $event)"
+                            name="group"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                </div>
+
+                <div class="mt-5" *ngIf="(draft().country || 'co') === 'co'">
+                    <span class="text-xs font-medium uppercase text-stone-500">{{
+                        'smartFleet.assets.identifierMode' | transloco
+                    }}</span>
+                    <div class="mt-2 flex flex-wrap gap-1">
+                        <button
+                            type="button"
+                            (click)="setIdentifierMode('plate')"
+                            class="rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
+                            [class.bg-stone-900]="identifierMode() === 'plate'"
+                            [class.text-white]="identifierMode() === 'plate'"
+                            [class.text-stone-600]="identifierMode() !== 'plate'"
+                            [class.hover:bg-stone-100]="identifierMode() !== 'plate'"
+                        >
+                            {{ 'smartFleet.assets.modePlateDocs' | transloco }}
+                        </button>
+                        <button
+                            type="button"
+                            (click)="setIdentifierMode('vin')"
+                            class="rounded-xl px-3 py-1.5 text-sm font-medium transition-colors"
+                            [class.bg-stone-900]="identifierMode() === 'vin'"
+                            [class.text-white]="identifierMode() === 'vin'"
+                            [class.text-stone-600]="identifierMode() !== 'vin'"
+                            [class.hover:bg-stone-100]="identifierMode() !== 'vin'"
+                        >
+                            {{ 'smartFleet.assets.modeVin' | transloco }}
+                        </button>
+                    </div>
+                    <p class="mt-2 text-xs text-stone-500 dark:text-stone-400">
+                        {{ 'smartFleet.assets.identifierHint' | transloco }}
+                    </p>
+                </div>
+
+                <div class="mt-4 grid gap-4 md:grid-cols-3" *ngIf="identifierMode() === 'plate'">
+                    <label class="flex flex-col gap-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.plate' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().plate"
+                            (ngModelChange)="updateDraft('plate', $event)"
+                            name="plate"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="draftPlaceholders().plate"
+                        />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.documentType' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().ownerDocumentType"
+                            (ngModelChange)="updateDraft('ownerDocumentType', $event)"
+                            name="ownerDocumentType"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                            [placeholder]="draftPlaceholders().documentType"
+                        />
+                    </label>
+                    <label class="flex flex-col gap-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.documentNumber' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().ownerDocumentNumber"
+                            (ngModelChange)="updateDraft('ownerDocumentNumber', $event)"
+                            name="ownerDocumentNumber"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                </div>
+
+                <div class="mt-4 grid gap-4 md:grid-cols-3" *ngIf="identifierMode() === 'vin'">
+                    <label class="flex flex-col gap-1 md:col-span-1">
+                        <span class="text-xs font-medium uppercase text-stone-500">{{
+                            'smartFleet.assets.vin' | transloco
+                        }}</span>
+                        <input
+                            type="text"
+                            [ngModel]="draft().vin"
+                            (ngModelChange)="updateDraft('vin', $event)"
+                            name="vin"
+                            class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm uppercase text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                        />
+                    </label>
+                </div>
+
+                <label class="mt-4 flex flex-col gap-1">
+                    <span class="text-xs font-medium uppercase text-stone-500">{{
+                        'smartFleet.assets.notes' | transloco
+                    }}</span>
+                    <input
+                        type="text"
+                        [ngModel]="draft().notes"
+                        (ngModelChange)="updateDraft('notes', $event)"
+                        name="notes"
+                        class="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                    />
+                </label>
+
+                <div
+                    class="mt-5 rounded-xl border border-stone-200 bg-stone-50 p-4 dark:border-gray-800 dark:bg-gray-950/40"
+                    *ngIf="unlockedChecks().length"
+                >
+                    <p class="text-sm font-semibold text-stone-900 dark:text-white">
+                        {{ 'smartFleet.assets.unlockedChecksTitle' | transloco }}
+                    </p>
+                    <ul class="mt-3 space-y-2">
+                        <li
+                            *ngFor="let check of unlockedChecks()"
+                            class="rounded-lg bg-white px-3 py-2 text-xs dark:bg-gray-900"
+                            [class.opacity-50]="!check.ready"
+                        >
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="font-semibold text-stone-900 dark:text-white">{{
+                                    'smartFleet.checkType.' + check.checkType | transloco
+                                }}</span>
+                                <span
+                                    class="rounded-full px-2 py-0.5 font-medium"
+                                    [class.bg-emerald-100]="check.ready"
+                                    [class.text-emerald-700]="check.ready"
+                                    [class.bg-stone-100]="!check.ready"
+                                    [class.text-stone-500]="!check.ready"
+                                >
+                                    {{
+                                        (check.ready
+                                            ? 'smartFleet.assets.checkReady'
+                                            : 'smartFleet.assets.checkMissingIds'
+                                        ) | transloco
+                                    }}
+                                </span>
+                            </div>
+                            <p class="mt-1 font-mono text-stone-600 dark:text-stone-300">
+                                {{ check.request }}
+                            </p>
+                            <p
+                                class="mt-1 text-stone-500 dark:text-stone-400"
+                                *ngIf="check.conditionKey"
+                            >
+                                {{ check.conditionKey | transloco }}
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        [disabled]="!canSubmitDraft() || isCreating()"
+                        (click)="saveAsset()"
+                        class="rounded-xl !px-6 !py-2"
+                    >
+                        <mat-spinner *ngIf="isCreating()" diameter="18" class="mr-2"></mat-spinner>
+                        {{ 'smartFleet.assets.save' | transloco }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Import rejections -->
+            <div
+                *ngIf="importRejections().length"
+                class="rounded-2xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-900/20"
+            >
+                <h3 class="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                    {{
+                        'smartFleet.assets.rejectedRows'
+                            | transloco: { count: importRejections().length }
+                    }}
+                </h3>
+                <ul class="mt-2 flex flex-col gap-1 text-xs text-amber-800 dark:text-amber-300">
+                    <li *ngFor="let rejection of importRejections()">
+                        {{ 'smartFleet.assets.row' | transloco }} {{ rejection.rowIndex + 1 }}
+                        <span *ngIf="rejection.plate">({{ rejection.plate }})</span>:
+                        {{ rejection.reason }}
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Search -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative flex-1 min-w-64">
+                    <mat-icon
+                        class="icon-size-5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400"
+                        >search</mat-icon
+                    >
+                    <input
+                        type="text"
+                        [ngModel]="search()"
+                        (ngModelChange)="search.set($event)"
+                        (keyup.enter)="applySearch()"
+                        name="search"
+                        [placeholder]="'smartFleet.assets.searchPlaceholder' | transloco"
+                        class="w-full rounded-xl border border-stone-200 bg-white py-2 pl-10 pr-3 text-sm text-stone-900 focus:border-indigo-400 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    />
+                </div>
+                <button mat-stroked-button type="button" (click)="applySearch()" class="rounded-xl">
+                    {{ 'smartFleet.assets.search' | transloco }}
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div
+                class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            >
+                <div class="flex justify-center py-16" *ngIf="isLoading() && !assets().length">
+                    <mat-spinner diameter="36"></mat-spinner>
+                </div>
+
+                <p
+                    class="px-5 py-12 text-center text-sm text-stone-500 dark:text-stone-400"
+                    *ngIf="!isLoading() && !assets().length"
+                >
+                    {{ 'smartFleet.assets.empty' | transloco }}
+                </p>
+
+                <table class="w-full" *ngIf="assets().length">
+                    <thead class="bg-stone-50 dark:bg-gray-950/50">
+                        <tr class="text-left text-xs font-medium uppercase text-stone-500">
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.plate' | transloco }}</th>
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.country' | transloco }}</th>
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.nickname' | transloco }}</th>
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.group' | transloco }}</th>
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.alerts' | transloco }}</th>
+                            <th class="px-5 py-3">
+                                {{ 'smartFleet.assets.lastChecked' | transloco }}
+                            </th>
+                            <th class="px-5 py-3">
+                                {{ 'smartFleet.assets.nextCheck' | transloco }}
+                            </th>
+                            <th class="px-5 py-3">{{ 'smartFleet.assets.status' | transloco }}</th>
+                            <th class="px-5 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-stone-200/90 dark:divide-gray-800">
+                        <tr
+                            *ngFor="let asset of assets()"
+                            class="text-sm transition-colors hover:bg-stone-50 dark:hover:bg-gray-800/50"
+                        >
+                            <td class="px-5 py-3">
+                                <button
+                                    type="button"
+                                    (click)="openAsset(asset)"
+                                    class="rounded-lg bg-stone-100 px-2 py-1 font-mono text-sm font-semibold text-stone-800 hover:bg-stone-200 dark:bg-gray-800 dark:text-stone-200"
+                                >
+                                    {{ asset.plate || asset.vin }}
+                                </button>
+                            </td>
+                            <td class="px-5 py-3">
+                                <span
+                                    class="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-xs font-medium text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300"
+                                    [matTooltip]="countryLabel(asset.country || 'co')"
+                                >
+                                    <span aria-hidden="true">{{
+                                        getCountryFlag(asset.country || 'co')
+                                    }}</span>
+                                    {{ countryLabel(asset.country || 'co') }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3 text-stone-600 dark:text-stone-300">
+                                {{ asset.nickname || '—' }}
+                            </td>
+                            <td class="px-5 py-3 text-stone-600 dark:text-stone-300">
+                                {{ asset.group || '—' }}
+                            </td>
+                            <td class="px-5 py-3">
+                                <span
+                                    class="rounded-full px-2 py-0.5 text-xs font-semibold"
+                                    [ngClass]="alertBadgeClasses(asset)"
+                                    >{{ openAlertCount(asset) }}</span
+                                >
+                            </td>
+                            <td class="px-5 py-3 text-xs text-stone-500 dark:text-stone-400">
+                                {{ formatDate(asset.lastCheckedAt) }}
+                            </td>
+                            <td class="px-5 py-3 text-xs text-stone-500 dark:text-stone-400">
+                                {{ formatDate(asset.nextCheckAt) }}
+                            </td>
+                            <td class="px-5 py-3">
+                                <span
+                                    class="rounded-full px-2 py-0.5 text-xs font-medium"
+                                    [class.bg-emerald-100]="asset.isActive"
+                                    [class.text-emerald-700]="asset.isActive"
+                                    [class.bg-stone-100]="!asset.isActive"
+                                    [class.text-stone-600]="!asset.isActive"
+                                >
+                                    {{
+                                        (asset.isActive
+                                            ? 'smartFleet.assets.active'
+                                            : 'smartFleet.assets.paused'
+                                        ) | transloco
+                                    }}
+                                </span>
+                            </td>
+                            <td class="px-5 py-3">
+                                <div class="flex items-center justify-end gap-1">
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        (click)="startEdit(asset)"
+                                        [matTooltip]="'smartFleet.assets.edit' | transloco"
+                                    >
+                                        <mat-icon class="icon-size-5">edit</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        [disabled]="checkingAssetId() === asset._id"
+                                        (click)="checkNow(asset)"
+                                        [matTooltip]="'smartFleet.assets.checkNow' | transloco"
+                                    >
+                                        <mat-icon class="icon-size-5">refresh</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        (click)="toggleActive(asset)"
+                                        [matTooltip]="
+                                            (asset.isActive
+                                                ? 'smartFleet.assets.pause'
+                                                : 'smartFleet.assets.resume'
+                                            ) | transloco
+                                        "
+                                    >
+                                        <mat-icon class="icon-size-5">{{
+                                            asset.isActive ? 'pause' : 'play_arrow'
+                                        }}</mat-icon>
+                                    </button>
+                                    <button
+                                        mat-icon-button
+                                        type="button"
+                                        (click)="deleteAsset(asset)"
+                                        [matTooltip]="'smartFleet.assets.delete' | transloco"
+                                        class="!text-red-500"
+                                    >
+                                        <mat-icon class="icon-size-5">delete</mat-icon>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex flex-wrap items-center justify-between gap-3" *ngIf="pages() > 1">
+                <span class="text-xs text-stone-500 dark:text-stone-400">
+                    {{
+                        'smartFleet.paginationRange'
+                            | transloco
+                                : { start: rangeStart(), end: rangeEnd(), total: total() }
+                    }}
+                </span>
+                <div class="flex items-center gap-2">
+                    <button
+                        mat-icon-button
+                        type="button"
+                        [disabled]="!canGoPrevious()"
+                        (click)="previousPage()"
+                        [matTooltip]="'smartFleet.previousPage' | transloco"
+                    >
+                        <mat-icon>chevron_left</mat-icon>
+                    </button>
+                    <span class="text-xs text-stone-500 dark:text-stone-400">
+                        {{ 'smartFleet.pageOf' | transloco: { page: page(), pages: pages() } }}
+                    </span>
+                    <button
+                        mat-icon-button
+                        type="button"
+                        [disabled]="!canGoNext()"
+                        (click)="nextPage()"
+                        [matTooltip]="'smartFleet.nextPage' | transloco"
+                    >
+                        <mat-icon>chevron_right</mat-icon>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

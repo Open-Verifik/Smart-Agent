@@ -3,13 +3,70 @@ import { Injectable, signal } from '@angular/core';
 import { environment } from 'environments/environment';
 import { map, Observable, tap } from 'rxjs';
 
+export type ReportSectionType =
+    | 'header'
+    | 'text'
+    | 'table'
+    | 'field'
+    | 'image'
+    | 'divider'
+    | 'spacer'
+    | 'dataTable'
+    | 'card'
+    | 'badge'
+    | 'keyValueGrid'
+    | 'repeater'
+    | 'reportBlocks';
+
+export type ReportConditionOperator =
+    | 'equals'
+    | 'notEquals'
+    | 'exists'
+    | 'notExists'
+    | 'contains'
+    | 'in'
+    | 'gt'
+    | 'gte'
+    | 'lt'
+    | 'lte'
+    | 'isEmpty'
+    | 'notEmpty';
+
+export type ReportStyleVariant = 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'primary';
+
+export interface ReportSectionCondition {
+    field: string;
+    operator: ReportConditionOperator;
+    value?: any;
+}
+
 export interface ReportSection {
     id: string;
-    type: 'header' | 'text' | 'table' | 'field' | 'image' | 'divider' | 'spacer';
+    type: ReportSectionType;
     order: number;
     dataPath?: string;
     label?: string;
     staticContent?: string;
+
+    /** dataTable: explicit columns; derived from the row keys when omitted. */
+    columns?: { key: string; label?: string }[];
+    maxColumns?: number;
+    maxRows?: number;
+
+    /** keyValueGrid */
+    columnsPerRow?: number;
+
+    /** repeater: `{field}` placeholders resolved against each array item. */
+    itemTitle?: string;
+    itemTemplate?: string;
+
+    /** reportBlocks: restrict to specific composed blocks, all when omitted. */
+    blockIds?: string[];
+    showDisplayRows?: boolean;
+
+    showWhenEmpty?: boolean;
+    emptyMessage?: string;
+
     style?: {
         fontSize?: number;
         fontWeight?: 'normal' | 'bold';
@@ -17,12 +74,11 @@ export interface ReportSection {
         color?: string;
         backgroundColor?: string;
         padding?: string;
+        variant?: ReportStyleVariant;
+        /** Data-driven appearance, first matching rule wins. */
+        variantRules?: (ReportSectionCondition & { variant: ReportStyleVariant })[];
     };
-    condition?: {
-        field: string;
-        operator: 'equals' | 'notEquals' | 'exists' | 'notExists';
-        value?: any;
-    };
+    condition?: ReportSectionCondition;
 }
 
 export interface BatchConfigurationRef {
@@ -117,6 +173,17 @@ export interface SmartReportTemplate {
     /** Sample data for Helper Data panel and preview (persisted from report viewer) */
     sampleData?: SampleReportData;
 
+    /**
+     * Cached page-one render, sent only by the list endpoint. Absent when the
+     * template has no sample data to render, in which case the card falls back to
+     * its icon.
+     */
+    thumbnail?: {
+        image?: string;
+        hash?: string;
+        generatedAt?: string;
+    };
+
     isActive?: boolean;
     createdAt?: string;
     updatedAt?: string;
@@ -151,6 +218,46 @@ export interface SmartReport {
     generatedAt?: string;
     createdAt?: string;
     updatedAt?: string;
+}
+
+/** How the backend classified a node in the sample payload. */
+export type DataNodeShape =
+    | 'scalar'
+    | 'status'
+    | 'objectList'
+    | 'scalarList'
+    | 'flatObject'
+    | 'nested'
+    | 'blocks'
+    | 'empty';
+
+/**
+ * One node of the sample payload, described by the backend.
+ *
+ * `suggestion` is a ready-to-insert section, which is what lets a user drop a data
+ * node onto the page without typing a `dataPath` or naming columns by hand.
+ */
+export interface DataNode {
+    path: string;
+    key: string;
+    label: string;
+    shape: DataNodeShape;
+    semantic?: 'plain' | 'status' | 'date' | 'amount' | 'boolean';
+    sectionType: ReportSectionType;
+    alternatives: ReportSectionType[];
+    sample: string;
+    count?: number;
+    columns?: { key: string; label?: string }[];
+    blockIds?: string[];
+    suggestion: Partial<ReportSection> & { type: ReportSectionType };
+    children?: DataNode[];
+}
+
+export interface DataIntrospection {
+    nodes: DataNode[];
+    batch: DataNode[];
+    count: number;
+    truncated: boolean;
 }
 
 export interface SampleReportData {
@@ -260,6 +367,38 @@ export class SmartReportService {
             .pipe(map((res) => res.data));
     }
 
+    /**
+     * Render the live preview through the same code path that produces the PDF.
+     *
+     * The template travels in the body so an unsaved draft can be previewed, and
+     * the response is raw HTML for an iframe rather than a section view model.
+     */
+    previewHtml(
+        template: Partial<SmartReportTemplate>,
+        sampleData: SampleReportData
+    ): Observable<string> {
+        return this._httpClient
+            .post<{
+                data: { html: string };
+            }>(`${environment.apiUrl}/v2/smart-report-templates/preview-html`, {
+                ...template,
+                sampleData,
+            })
+            .pipe(map((res) => res.data.html));
+    }
+
+    /**
+     * Describe a sample payload so the builder can offer a data palette instead of
+     * asking the user to type dot paths.
+     */
+    introspect(sampleData: SampleReportData): Observable<DataIntrospection> {
+        return this._httpClient
+            .post<{
+                data: DataIntrospection;
+            }>(`${environment.apiUrl}/v2/smart-report-templates/introspect`, { sampleData })
+            .pipe(map((res) => res.data));
+    }
+
     sendTemplateSample(
         id: string,
         options: {
@@ -307,6 +446,21 @@ export class SmartReportService {
                 map((res) => res.data),
                 tap((reports) => this.reports.set(reports))
             );
+    }
+
+    /**
+     * Reports generated from a template, newest first.
+     *
+     * Unlike `getReports`, this does not replace the shared `reports` signal: the
+     * builder's Deliver step asks about one template while a batch view may be
+     * showing another batch's reports.
+     */
+    getReportsByTemplate(templateId: string): Observable<SmartReport[]> {
+        return this._httpClient
+            .get<{ data: SmartReport[] }>(`${environment.apiUrl}/v2/smart-reports`, {
+                params: { template: templateId, sort: '-createdAt' },
+            })
+            .pipe(map((res) => res.data ?? []));
     }
 
     getReport(id: string): Observable<SmartReport> {

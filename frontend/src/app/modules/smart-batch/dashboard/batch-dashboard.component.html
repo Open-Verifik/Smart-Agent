@@ -605,6 +605,52 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div
+                    *ngIf="totalPages() > 1"
+                    class="flex items-center justify-between gap-4 px-1"
+                >
+                    <p class="text-sm text-stone-500 dark:text-stone-400">
+                        {{
+                            'batchDashboard.paginationRange'
+                                | transloco
+                                    : {
+                                          start: rangeStart(),
+                                          end: rangeEnd(),
+                                          total: totalBatches()
+                                      }
+                        }}
+                    </p>
+
+                    <div class="flex items-center gap-2">
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="rounded-xl"
+                            [disabled]="!canGoPrevious()"
+                            (click)="previousPage()"
+                        >
+                            <mat-icon class="icon-size-5">chevron_left</mat-icon>
+                            {{ 'batchDashboard.previousPage' | transloco }}
+                        </button>
+                        <span class="text-sm text-stone-500 dark:text-stone-400">
+                            {{
+                                'batchDashboard.pageOf'
+                                    | transloco: { page: page(), pages: totalPages() }
+                            }}
+                        </span>
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="rounded-xl"
+                            [disabled]="!canGoNext()"
+                            (click)="nextPage()"
+                        >
+                            {{ 'batchDashboard.nextPage' | transloco }}
+                            <mat-icon class="icon-size-5">chevron_right</mat-icon>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

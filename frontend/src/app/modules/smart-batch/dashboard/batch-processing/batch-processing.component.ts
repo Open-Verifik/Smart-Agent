@@ -1,17 +1,6 @@
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import {
-    Component,
-    computed,
-    effect,
-    ElementRef,
-    inject,
-    OnDestroy,
-    OnInit,
-    signal,
-    ViewChild,
-} from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
@@ -27,31 +16,21 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, Subject } from 'rxjs';
 import * as XLSX from 'xlsx';
-import {
-    escapeCsvRow,
-    getBatchInputCsvHeaders,
-    inputDataValueForCsvCell,
-} from '../../batch-input-csv.util';
-import {
-    BATCH_INPUT_META_SKIPPED_STEPS_KEY,
-    BatchSkippedStepMeta,
-    getBatchSkippedStepsFromInput,
-    getStepIncompatibilityReason,
-    stripBatchInputMeta,
-} from '../../batch-required-fields.util';
+import { escapeCsvRow, getBatchInputCsvHeaders, inputDataValueForCsvCell } from '../../batch-input-csv.util';
+import { getBatchSkippedStepsFromInput } from '../../batch-required-fields.util';
 import {
     AppFeature,
     BatchConfiguration,
     BatchStep,
-    getEffectiveSmartBatchSuccessWhen,
     SmartBatch,
+    SmartBatchEstimate,
+    SmartBatchProgress,
     SmartBatchRow,
-    SmartBatchRowStatus,
     SmartBatchService,
-    SmartBatchSuccessWhenRule,
 } from '../../smart-batch.service';
 import { getStepDisplayFields } from '../../step-result-presenters/registry';
 import { inferBatchCategory, SmartBatchInputModeService } from '../../smart-batch-input-mode.service';
@@ -77,15 +56,11 @@ export type StepResultDisplayField =
     | { kind: 'text'; label: string; value: string }
     | { kind: 'pdf'; label: string; dataUrl: string };
 
-type StepExecutionResult =
-    | { sequence: number; result: any }
-    | { sequence: number; error: { step: number; message: string; code: string } };
+/** Progress poll cadence while a run is active. */
+const PROGRESS_POLL_INTERVAL_MS = 2500;
 
-/** Max simultaneous Verifik API calls per batch when parallel mode applies (single-step batches only). */
-const SMART_BATCH_PARALLEL_MAX = 5;
-const SMART_BATCH_PARALLEL_MIN = 1;
-const SMART_BATCH_PARALLEL_DEFAULT = 1;
-const SMART_BATCH_PARALLEL_CONCURRENCY_STORAGE_KEY = 'smartBatch.parallelRowConcurrency';
+/** Slower cadence once the run reaches a terminal state, to pick up late sync writes. */
+const IDLE_POLL_INTERVAL_MS = 15000;
 
 /** Colombia RUES batch steps that accept an optional/query `category` (codes match seeded AppFeatures). */
 const RUES_SMART_BATCH_FEATURE_CODES = new Set<string>([
@@ -108,6 +83,13 @@ const RUES_CATEGORY_FALLBACK_SORTED = [
     'EXTRANJERAS',
 ];
 
+/**
+ * Batch monitoring view.
+ *
+ * Execution lives on the server in the FeatureRunner engine, so this component
+ * only starts/pauses/resumes/cancels a run and polls progress. It used to be the
+ * job runner itself, which meant closing the tab killed the batch.
+ */
 @Component({
     selector: 'batch-processing',
     standalone: true,
@@ -139,34 +121,15 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _sanitizer = inject(DomSanitizer);
     private _transloco = inject(TranslocoService);
     private _snack = inject(MatSnackBar);
+    private _confirm = inject(FuseConfirmationService);
     private _inputModeService = inject(SmartBatchInputModeService);
     private _destroy$ = new Subject<void>();
-    private _processingAborted = false;
-    /**
-     * Serialized chain for all `updateBatchRow` calls so concurrent row workers never overlap parent
-     * batch counter updates on the server (stale snapshot races).
-     */
-    private _persistChain: Promise<void> = Promise.resolve();
+    private _pollTimer: ReturnType<typeof setTimeout> | null = null;
     private _shouldAutostart = false;
     private _reportOnComplete = false;
     private _reportRowIndex = '0';
-
-    /** Effective parallel row workers for the current run (`1` unless single-step batch). */
-    parallelRowConcurrency = signal(1);
-
-    /** User preference for parallel row workers (single-step batches only); persisted in localStorage. */
-    parallelRowsPreference = signal(SMART_BATCH_PARALLEL_DEFAULT);
-
-    /** Options shown in the parallel workers selector (1 … MAX). */
-    readonly parallelConcurrencyOptions: readonly number[] = Array.from(
-        { length: SMART_BATCH_PARALLEL_MAX - SMART_BATCH_PARALLEL_MIN + 1 },
-        (_, i) => i + SMART_BATCH_PARALLEL_MIN
-    );
-
-    isSingleStepBatch = computed(() => this.configSteps().length === 1);
-
-    /** Row indexes currently executing API steps (parallel mode). */
-    processingActiveRowIndexes = signal<readonly number[]>([]);
+    /** Guards the one-shot redirect so a late poll cannot navigate twice. */
+    private _reportRedirectDone = false;
 
     // Route params
     configId = signal<string | null>(null);
@@ -175,13 +138,22 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     // Batch data
     batch = signal<SmartBatch | null>(null);
     configuration = signal<BatchConfiguration | null>(null);
+    progressDetail = signal<SmartBatchProgress | null>(null);
+    estimate = signal<SmartBatchEstimate | null>(null);
     isLoading = signal(true);
-    isProcessing = signal(false);
     isStarting = signal(false);
-    /** True while persisting pause (`pending`) to the API. */
     isPausing = signal(false);
-    retryingStepKey = signal<string | null>(null);
-    continuingRowIndex = signal<number | null>(null);
+    isResuming = signal(false);
+    isRetryingFailed = signal(false);
+    isCancelling = signal(false);
+    isLoadingEstimate = signal(false);
+    /** Row index currently being re-queued through the row-scoped retry endpoint. */
+    retryingRowIndex = signal<number | null>(null);
+
+    /** `{rowIndex}_{stepSequence}` while that step JSON block shows “Copied” feedback */
+    batchJsonCopyFeedbackKey = signal<string | null>(null);
+    private _batchJsonCopyClearTimer: ReturnType<typeof setTimeout> | null = null;
+
     /** True while persisting RUES category / inputData patch for the selected row. */
     savingRuesCategory = signal(false);
     /** When true, show mat-select for category with Apply/Cancel instead of read-only row. */
@@ -189,19 +161,26 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     /** Draft value while editing RUES category (Apply persists to server). */
     ruesCategoryDraft = signal('');
 
-    /** `{rowIndex}_{stepSequence}` while that step JSON block shows “Copied” feedback */
-    batchJsonCopyFeedbackKey = signal<string | null>(null);
-    private _batchJsonCopyClearTimer: ReturnType<typeof setTimeout> | null = null;
+    /** True while the server is executing this batch. Drives polling and button states. */
+    isProcessing = computed(() => this.batch()?.status === 'processing');
 
-    // Current processing state
-    currentRowIndex = signal<number | null>(null);
-    currentStepIndex = signal<number | null>(null);
+    isPaused = computed(() => this.batch()?.status === 'paused');
+
+    /** True once the batch has been handed to the engine. */
+    isServerManaged = computed(() => Boolean(this.batch()?.run));
 
     // Configuration steps (sorted by sequence)
     configSteps = computed(() => {
         const config = this.configuration();
         if (!config?.steps) return [];
         return config.steps.filter((s) => s.enabled).sort((a, b) => a.sequence - b.sequence);
+    });
+
+    /** Concurrency the engine is actually applying, from the run's mergeStrategy. */
+    runConcurrencyLabel = computed(() => {
+        const strategy = this.progressDetail()?.run?.mergeStrategy;
+        if (!strategy) return '';
+        return strategy === 'sequential' ? 'sequential' : 'parallel';
     });
 
     // Computed signals for row filtering
@@ -246,20 +225,19 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return b.rows.filter((r) => r.status === 'failed');
     });
 
-    /**
-     * Whether the user can bulk- or single-retry failed rows (not during an active client/server run).
-     */
-    canOperateRetryFailed = computed(() => {
+    /** Rows the server would re-run on retry-failed: failed plus partially completed. */
+    retryableRowCount = computed(() => {
         const b = this.batch();
-        if (!b?.rows?.length) return false;
-        if (this.failedRowsIgnoringSearch().length === 0) return false;
-        if (b.status === 'processing') return false;
-        if (this.isProcessing() || this.isStarting()) return false;
-        return true;
+        if (!b?.rows) return 0;
+        return b.rows.filter((r) => r.status === 'failed' || r.status === 'partial').length;
     });
 
-    /** Set while resetting one failed row and starting processing */
-    retryingFailedRowIndex = signal<number | null>(null);
+    /** Retry-failed is a server operation, so it only needs the batch to be idle. */
+    canOperateRetryFailed = computed(() => {
+        if (this.retryableRowCount() === 0) return false;
+        if (this.isProcessing() || this.isStarting() || this.isRetryingFailed()) return false;
+        return true;
+    });
 
     /**
      * Rows whose input columns are exported to CSV for the active tab (ignores search).
@@ -368,14 +346,23 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     });
 
-    // Total credits consumed: completedRows × sum of all step prices
+    /**
+     * Credits actually spent, recorded per step by the engine's RunLedger.
+     * Falls back to completed rows × step price for legacy browser-run batches,
+     * which have no ledger.
+     */
     totalCreditsCost = computed(() => {
+        const spent = this.progressDetail()?.spend?.credits ?? this.batch()?.creditsSpent;
+        if (typeof spent === 'number' && spent > 0) return spent;
+
         const completed = this.completedRows().length;
         if (completed === 0) return 0;
-        const steps = this.configSteps();
-        const costPerRow = steps.reduce((sum, step) => sum + this.getStepPrice(step), 0);
+        const costPerRow = this.configSteps().reduce((sum, step) => sum + this.getStepPrice(step), 0);
         return completed * costPerRow;
     });
+
+    /** True when credits come from the ledger rather than a client-side guess. */
+    creditsAreMeasured = computed(() => (this.progressDetail()?.spend?.credits ?? 0) > 0);
 
     // Progress
     progress = computed(() => {
@@ -397,7 +384,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     /**
      * Keep the detail panel row in sync with `batch()` after any `batch.set()` replaces `rows`
-     * (e.g. silent refresh); avoids stale `results` / wrong step status on the selected snapshot.
+     * (e.g. progress poll); avoids stale `results` / wrong step status on the selected snapshot.
      */
     private readonly _syncSelectedRowWithBatch = effect(() => {
         const batch = this.batch();
@@ -464,7 +451,6 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     @ViewChild('rowDetailPanel') rowDetailPanel!: ElementRef;
 
     ngOnInit(): void {
-        this._loadParallelRowsPreferenceFromStorage();
         this._route.queryParams.subscribe((query) => {
             this._shouldAutostart = query['autostart'] === '1';
             this._reportOnComplete = query['reportOnComplete'] === '1';
@@ -479,49 +465,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this._processingAborted = true;
+        this._stopPolling();
         this._clearBatchJsonCopyTimer();
         this._destroy$.next();
         this._destroy$.complete();
-    }
-
-    private _loadParallelRowsPreferenceFromStorage(): void {
-        let initial = SMART_BATCH_PARALLEL_DEFAULT;
-        try {
-            const raw = localStorage.getItem(SMART_BATCH_PARALLEL_CONCURRENCY_STORAGE_KEY);
-            if (raw != null) {
-                const parsed = parseInt(raw, 10);
-                if (!Number.isNaN(parsed)) {
-                    initial = Math.max(
-                        SMART_BATCH_PARALLEL_MIN,
-                        Math.min(SMART_BATCH_PARALLEL_MAX, parsed)
-                    );
-                }
-            }
-        } catch {
-            /* ignore */
-        }
-        this.parallelRowsPreference.set(initial);
-    }
-
-    /**
-     * Updates parallel worker preference (single-step batches only) and persists to localStorage.
-     */
-    setParallelRowsPreference(n: number): void {
-        const rounded = Math.round(Number(n));
-        const v = Math.max(
-            SMART_BATCH_PARALLEL_MIN,
-            Math.min(
-                SMART_BATCH_PARALLEL_MAX,
-                Number.isNaN(rounded) ? SMART_BATCH_PARALLEL_DEFAULT : rounded
-            )
-        );
-        this.parallelRowsPreference.set(v);
-        try {
-            localStorage.setItem(SMART_BATCH_PARALLEL_CONCURRENCY_STORAGE_KEY, String(v));
-        } catch {
-            /* ignore */
-        }
     }
 
     private _loadConfiguration(): void {
@@ -536,7 +483,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * @param options.silent When true, skip full-page loading spinner (e.g. refresh after `_processRows`).
+     * @param options.silent When true, skip full-page loading spinner (poll refresh).
      */
     private _loadBatch(options?: { silent?: boolean }): void {
         const id = this.batchId();
@@ -551,11 +498,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                 this.batch.set(res.data);
                 if (!silent) {
                     this.isLoading.set(false);
+                    this.loadEstimate();
                 }
                 if (this._shouldAutostart && !this.isProcessing() && !this.isStarting()) {
                     this._shouldAutostart = false;
-                    void this.startProcessing().then(() => this._maybeRedirectToReport());
+                    void this.startProcessing();
+                    return;
                 }
+                this._schedulePoll();
             },
             error: (err) => {
                 console.error('Failed to load batch:', err);
@@ -566,111 +516,280 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         });
     }
 
+    /** Pre-flight credit cost for the pending rows. */
+    loadEstimate(): void {
+        const id = this.batchId();
+        if (!id) return;
+
+        this.isLoadingEstimate.set(true);
+        this._smartBatchService.getBatchEstimate(id).subscribe({
+            next: (res) => {
+                this.estimate.set(res.data);
+                this.isLoadingEstimate.set(false);
+            },
+            error: () => {
+                this.isLoadingEstimate.set(false);
+            },
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Run control — every operation is a single server call
+    // -------------------------------------------------------------------------
+
+    /**
+     * Hand the batch to the engine. Returns as soon as the run is queued; the
+     * worker owns execution from there, so closing this tab is now safe.
+     */
     async startProcessing(): Promise<void> {
         const batchId = this.batchId();
-        if (!batchId) return;
+        if (!batchId || this.isStarting() || this.isProcessing()) return;
+
+        const estimate = this.estimate();
+        if (estimate && !estimate.sufficientCredits) {
+            const confirmed = await this._askConfirmation({
+                titleKey: 'batchProcessing.insufficientCreditsTitle',
+                messageKey: 'batchProcessing.insufficientCreditsMessage',
+                messageParams: { required: estimate.totalCredits, available: estimate.availableCredits },
+                confirmKey: 'batchProcessing.startAnyway',
+            });
+            if (!confirmed) return;
+        }
 
         this.isStarting.set(true);
-        this._processingAborted = false;
-
         try {
-            // 1. Tell backend to set status to "processing"
-            const res = await firstValueFrom(
-                this._smartBatchService.updateSmartBatch(batchId, { status: 'processing' })
-            );
+            const res = await firstValueFrom(this._smartBatchService.startSmartBatch(batchId));
             this.batch.set(res.data);
-            this.isStarting.set(false);
-            this.isProcessing.set(true);
-
-            // 2. Process each row from the frontend
-            await this._processRows();
+            this._notify('batchProcessing.runQueued');
+            this._schedulePoll(true);
         } catch (err) {
-            console.error('Failed to start processing:', err);
+            this._reportFailure('batchProcessing.startFailed', err);
+        } finally {
             this.isStarting.set(false);
         }
     }
 
-    /**
-     * Serialize every smart-batch row PUT against races on parent `completedRows` / aggregates.
-     */
-    private async _serializedBatchRowMutation<T>(mutation: () => Promise<T>): Promise<T> {
-        const pending = this._persistChain.then(() => mutation());
-        this._persistChain = pending.then(
-            () => undefined,
-            () => undefined
-        );
-        return pending;
+    async pauseProcessing(): Promise<void> {
+        const batchId = this.batchId();
+        if (!batchId || this.isPausing()) return;
+
+        this.isPausing.set(true);
+        try {
+            const res = await firstValueFrom(this._smartBatchService.pauseSmartBatch(batchId));
+            this.batch.set(res.data);
+            this._notify('batchProcessing.runPaused');
+        } catch (err) {
+            this._reportFailure('batchProcessing.pauseFailed', err);
+        } finally {
+            this.isPausing.set(false);
+            this._schedulePoll(true);
+        }
     }
 
-    private async _awaitPersistDrain(): Promise<void> {
-        await this._persistChain.catch(() => undefined);
+    async resumeProcessing(): Promise<void> {
+        const batchId = this.batchId();
+        if (!batchId || this.isResuming()) return;
+
+        this.isResuming.set(true);
+        try {
+            const res = await firstValueFrom(this._smartBatchService.resumeSmartBatch(batchId));
+            this.batch.set(res.data);
+            this._notify('batchProcessing.runResumed');
+        } catch (err) {
+            this._reportFailure('batchProcessing.resumeFailed', err);
+        } finally {
+            this.isResuming.set(false);
+            this._schedulePoll(true);
+        }
     }
 
     /**
-     * Process all pending rows by making API calls from the frontend.
-     * Multi-step configs run one row at a time (sequential workers) because mid-row resume and
-     * persist-between-steps semantics are ambiguous with concurrency; parallel mode is enabled only when
-     * there is exactly one enabled step (see `parallelRowsPreference` capped by MIN/MAX).
+     * Re-run failed and partial rows. The engine keeps completed step results, so
+     * only the steps that actually failed are billed again.
      */
-    private async _processRows(): Promise<void> {
-        // Wait for configuration to be loaded if it isn't yet
-        while (!this.configuration() && !this._processingAborted) {
-            await new Promise((resolve) => setTimeout(resolve, 100));
+    async retryAllFailedRows(event?: Event): Promise<void> {
+        event?.stopPropagation();
+        const batchId = this.batchId();
+        if (!batchId || !this.canOperateRetryFailed()) return;
+
+        const confirmed = await this._askConfirmation({
+            titleKey: 'batchProcessing.retryFailedTitle',
+            messageKey: 'batchProcessing.retryFailedMessage',
+            messageParams: { count: this.retryableRowCount() },
+            confirmKey: 'batchProcessing.retryFailedConfirm',
+        });
+        if (!confirmed) return;
+
+        this.isRetryingFailed.set(true);
+        try {
+            const res = await firstValueFrom(this._smartBatchService.retrySmartBatchFailedRows(batchId));
+            this.batch.set(res.data.batch);
+            this._notify('batchProcessing.retryQueued', { count: res.data.retried });
+        } catch (err) {
+            this._reportFailure('batchProcessing.retryAllFailedError', err);
+        } finally {
+            this.isRetryingFailed.set(false);
+            this._schedulePoll(true);
         }
+    }
 
-        const currentBatch = this.batch();
-        const steps = this.configSteps();
+    /** Re-run a single failed row via the same server endpoint, scoped by row index. */
+    async retrySingleFailedRow(row: SmartBatchRow, event?: Event): Promise<void> {
+        event?.stopPropagation();
+        const batchId = this.batchId();
+        if (!batchId || !this.canOperateRetryFailed()) return;
+        if (row.status !== 'failed' && row.status !== 'partial') return;
 
-        if (!currentBatch || steps.length === 0) {
-            this.isProcessing.set(false);
-            return;
+        this.retryingRowIndex.set(row.rowIndex);
+        try {
+            const res = await firstValueFrom(
+                this._smartBatchService.retrySmartBatchFailedRows(batchId, [row.rowIndex])
+            );
+            this.batch.set(res.data.batch);
+            this._notify('batchProcessing.retryQueued', { count: res.data.retried });
+        } catch (err) {
+            this._reportFailure('batchProcessing.retryRowFailedError', err);
+        } finally {
+            this.retryingRowIndex.set(null);
+            this._schedulePoll(true);
         }
+    }
 
-        this._persistChain = Promise.resolve();
+    isRetryingRow(row: SmartBatchRow): boolean {
+        return this.retryingRowIndex() === row.rowIndex;
+    }
 
-        const useParallelWorkers = steps.length === 1 && !this._processingAborted;
-        const requested = Math.max(
-            SMART_BATCH_PARALLEL_MIN,
-            Math.min(SMART_BATCH_PARALLEL_MAX, this.parallelRowsPreference())
+    async cancelProcessing(): Promise<void> {
+        const batchId = this.batchId();
+        if (!batchId || this.isCancelling()) return;
+
+        const confirmed = await this._askConfirmation({
+            titleKey: 'batchProcessing.cancelTitle',
+            messageKey: 'batchProcessing.cancelMessage',
+            confirmKey: 'batchProcessing.cancelConfirm',
+        });
+        if (!confirmed) return;
+
+        this.isCancelling.set(true);
+        try {
+            const res = await firstValueFrom(this._smartBatchService.cancelSmartBatch(batchId));
+            this.batch.set(res.data);
+            this._notify('batchProcessing.runCancelled');
+        } catch (err) {
+            this._reportFailure('batchProcessing.cancelFailed', err);
+        } finally {
+            this.isCancelling.set(false);
+            this._schedulePoll(true);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Progress polling
+    // -------------------------------------------------------------------------
+
+    /**
+     * Queue the next progress poll. Active runs poll frequently; idle batches poll
+     * slowly so a run started from another tab still shows up here.
+     * @param immediate Poll on the next tick rather than after the interval.
+     */
+    private _schedulePoll(immediate = false): void {
+        this._stopPolling();
+
+        const delay = immediate ? 0 : this.isProcessing() ? PROGRESS_POLL_INTERVAL_MS : IDLE_POLL_INTERVAL_MS;
+
+        this._pollTimer = setTimeout(() => {
+            this._pollTimer = null;
+            this._pollProgress();
+        }, delay);
+    }
+
+    private _stopPolling(): void {
+        if (this._pollTimer == null) return;
+
+        clearTimeout(this._pollTimer);
+        this._pollTimer = null;
+    }
+
+    private _pollProgress(): void {
+        const id = this.batchId();
+        if (!id) return;
+
+        this._smartBatchService.getBatchProgress(id).subscribe({
+            next: (res) => {
+                const previousStatus = this.batch()?.status;
+                this.progressDetail.set(res.data);
+                this._applyProgressToBatch(res.data);
+
+                // Row payloads are heavy, so only refetch them when counts moved or
+                // the run reached a terminal state.
+                if (this._progressChangedRows(res.data) || previousStatus !== res.data.status) {
+                    this._refreshRows();
+                }
+
+                if (previousStatus === 'processing' && res.data.status !== 'processing') {
+                    this.loadEstimate();
+                    this._maybeRedirectToReport();
+                }
+
+                this._schedulePoll();
+            },
+            error: () => {
+                this._schedulePoll();
+            },
+        });
+    }
+
+    /** Cheap counter patch so the header updates without refetching every row. */
+    private _applyProgressToBatch(progress: SmartBatchProgress): void {
+        this.batch.update((current) =>
+            current
+                ? {
+                      ...current,
+                      status: progress.status,
+                      totalRows: progress.totalRows,
+                      completedRows: progress.completedRows,
+                      failedRows: progress.failedRows,
+                      partialRows: progress.partialRows,
+                      creditsSpent: progress.creditsSpent,
+                      startedAt: progress.startedAt ?? current.startedAt,
+                      completedAt: progress.completedAt ?? current.completedAt,
+                  }
+                : current
         );
-        const parallel = useParallelWorkers ? requested : 1;
+    }
 
-        this.parallelRowConcurrency.set(parallel);
-        this.processingActiveRowIndexes.set([]);
+    private _progressChangedRows(progress: SmartBatchProgress): boolean {
+        const b = this.batch();
+        if (!b?.rows?.length) return true;
 
-        const rowsSnapshot = [...currentBatch.rows];
-        const rowsToProcess = rowsSnapshot.filter((r) => !this._isTerminalRowStatus(r.status));
+        const localCompleted = b.rows.filter((r) => r.status === 'completed').length;
+        const localFailed = b.rows.filter((r) => r.status === 'failed').length;
+        const localPartial = b.rows.filter((r) => r.status === 'partial').length;
 
-        console.log(
-            `Starting/Resuming processing for ${currentBatch.rows.length} rows (${parallel === 1 ? 'sequential' : `up to ${parallel} parallel`})`
+        return (
+            localCompleted !== progress.completedRows ||
+            localFailed !== progress.failedRows ||
+            localPartial !== progress.partialRows
         );
+    }
 
-        if (parallel === 1) {
-            for (const row of rowsToProcess) {
-                if (this._processingAborted) break;
+    private _refreshRows(): void {
+        this._loadBatchRowsOnly();
+    }
 
-                this.currentRowIndex.set(row.rowIndex);
-                await this._processRow(row, steps);
-            }
-        } else {
-            await this._processRowsWithConcurrency(rowsToProcess, steps, parallel);
-        }
+    private _loadBatchRowsOnly(): void {
+        const id = this.batchId();
+        if (!id) return;
 
-        await this._awaitPersistDrain();
-
-        this._loadBatch({ silent: true });
-        this.isProcessing.set(false);
-        this.currentRowIndex.set(null);
-        this.currentStepIndex.set(null);
-        this.parallelRowConcurrency.set(1);
-        this.processingActiveRowIndexes.set([]);
-        this._maybeRedirectToReport();
+        this._smartBatchService.getSmartBatch(id).subscribe({
+            next: (res) => this.batch.set(res.data),
+        });
     }
 
     private _maybeRedirectToReport(): void {
-        if (!this._reportOnComplete) return;
+        if (!this._reportOnComplete || this._reportRedirectDone) return;
 
-        this._reportOnComplete = false;
+        this._reportRedirectDone = true;
         const configId = this.configId();
         const batchId = this.batchId();
         if (!configId || !batchId) return;
@@ -680,652 +799,57 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         });
     }
 
-    /** Parallel worker pool over rows (single-step batches only). */
-    private async _processRowsWithConcurrency(
-        rows: SmartBatchRow[],
-        steps: BatchStep[],
-        concurrency: number
-    ): Promise<void> {
-        if (rows.length === 0 || this._processingAborted) return;
+    // -------------------------------------------------------------------------
+    // Dialogs & notifications
+    // -------------------------------------------------------------------------
 
-        const workerCount = Math.min(concurrency, rows.length);
-        let next = 0;
-        const active = new Set<number>();
-
-        const runOneWorker = async (): Promise<void> => {
-            while (!this._processingAborted) {
-                const idx = next++;
-                if (idx >= rows.length) return;
-
-                const row = rows[idx];
-                active.add(row.rowIndex);
-                this.processingActiveRowIndexes.set([...active].sort((a, b) => a - b));
-
-                try {
-                    await this._processRow(row, steps);
-                } finally {
-                    active.delete(row.rowIndex);
-                    this.processingActiveRowIndexes.set([...active].sort((a, b) => a - b));
-                }
-            }
-        };
-
-        await Promise.all(Array.from({ length: workerCount }, () => runOneWorker()));
-    }
-
-    /**
-     * Process a single row through all steps
-     */
-    private async _processRow(row: SmartBatchRow, steps: BatchStep[]): Promise<void> {
-        const batchId = this.batchId();
-        if (!batchId) return;
-
-        const enabledSequences = steps.map((step) => step.sequence);
-        const initialResults = { ...(row.results || {}) };
-        const initialErrors = [...(row.errors || [])];
-        const stepsToRun = this._getRunnableSteps(steps, initialResults, initialErrors);
-
-        await this._runSteps(row, stepsToRun, initialResults, initialErrors, {
-            batchId,
-            enabledSequences,
-            persistProgress: true,
-        });
-    }
-
-    /**
-     * Persists row snapshot to the API and refreshes local batch + selected row (live UI).
-     * @param isFinal When false, row status is `processing`; when true, uses derived terminal outcome.
-     */
-    private async _persistRowProgress(
-        batchId: string,
-        rowIndex: number,
-        results: Record<number, any>,
-        errors: { step: number; message: string; code: string }[],
-        enabledSequences: number[],
-        isFinal: boolean,
-        rowInputData?: Record<string, unknown>,
-        skippedSteps?: BatchSkippedStepMeta[]
-    ): Promise<void> {
-        const status: SmartBatchRowStatus = isFinal
-            ? this._deriveRowOutcome(results, errors, enabledSequences)
-            : 'processing';
-
-        const inputDataPatch = rowInputData
-            ? {
-                  ...stripBatchInputMeta(rowInputData),
-                  [BATCH_INPUT_META_SKIPPED_STEPS_KEY]: skippedSteps?.length ? skippedSteps : null,
-              }
-            : undefined;
-
-        return this._serializedBatchRowMutation(async () => {
-            const updatedBatch = await firstValueFrom(
-                this._smartBatchService.updateBatchRow(batchId, rowIndex, {
-                    status,
-                    results,
-                    errors,
-                    ...(inputDataPatch ? { inputData: inputDataPatch } : {}),
+    private async _askConfirmation(options: {
+        titleKey: string;
+        messageKey: string;
+        messageParams?: Record<string, unknown>;
+        confirmKey: string;
+    }): Promise<boolean> {
+        const result = await firstValueFrom(
+            this._confirm
+                .open({
+                    title: this._transloco.translate(options.titleKey),
+                    message: this._transloco.translate(options.messageKey, options.messageParams),
+                    actions: {
+                        confirm: { label: this._transloco.translate(options.confirmKey) },
+                        cancel: { label: this._transloco.translate('batchProcessing.dialogCancel') },
+                    },
                 })
-            );
-            this.batch.set(updatedBatch.data);
-            const sel = this.selectedRow();
-            if (sel?.rowIndex === rowIndex) {
-                const updatedRow = updatedBatch.data.rows.find(
-                    (item) => item.rowIndex === rowIndex
-                );
-                if (updatedRow) {
-                    this.selectedRow.set(updatedRow);
-                }
-            }
-        });
+                .afterClosed()
+        );
+
+        return result === 'confirmed';
     }
 
-    private async _runSteps(
-        row: SmartBatchRow,
-        steps: BatchStep[],
-        initialResults: Record<number, any>,
-        initialErrors: { step: number; message: string; code: string }[],
-        persist?: {
-            batchId: string;
-            enabledSequences: number[];
-            persistProgress: boolean;
-        }
-    ): Promise<{
-        results: Record<number, any>;
-        errors: { step: number; message: string; code: string }[];
-    }> {
-        const results = { ...initialResults };
-        let errors = [...initialErrors];
-        let skippedSteps = [...getBatchSkippedStepsFromInput(row.inputData)];
-        const doPersist = persist?.persistProgress && !!persist.batchId;
-        const showFineGrainedRowStepUi = this.parallelRowConcurrency() <= 1;
-
-        for (let i = 0; i < steps.length; i++) {
-            if (this._processingAborted) break;
-
-            const step = steps[i];
-            if (showFineGrainedRowStepUi) {
-                this.currentRowIndex.set(row.rowIndex);
-                this.currentStepIndex.set(step.sequence);
-            }
-
-            const incompatibility = getStepIncompatibilityReason(step, row.inputData);
-            if (incompatibility) {
-                delete results[step.sequence];
-                errors = this._withoutStepError(errors, step.sequence);
-                const feature = step.appFeature as AppFeature;
-                const skipMeta: BatchSkippedStepMeta = {
-                    sequence: step.sequence,
-                    stepName: feature?.name || 'Unknown Step',
-                    stepCode: feature?.code,
-                    field: incompatibility.field,
-                    value: incompatibility.value,
-                    allowedValues: incompatibility.allowedValues,
-                };
-                skippedSteps = [
-                    ...skippedSteps.filter((entry) => entry.sequence !== step.sequence),
-                    skipMeta,
-                ];
-
-                if (doPersist && persist) {
-                    const isLast = i === steps.length - 1;
-                    try {
-                        await this._persistRowProgress(
-                            persist.batchId,
-                            row.rowIndex,
-                            results,
-                            errors,
-                            persist.enabledSequences,
-                            isLast,
-                            row.inputData,
-                            skippedSteps
-                        );
-                    } catch (err) {
-                        console.error(
-                            `Failed to persist row ${row.rowIndex} after skipping step ${step.sequence}:`,
-                            err
-                        );
-                    }
-                }
-                continue;
-            }
-
-            skippedSteps = skippedSteps.filter((entry) => entry.sequence !== step.sequence);
-
-            const outcome = await this._executeStep(row, step);
-            if ('result' in outcome) {
-                results[step.sequence] = outcome.result;
-                errors = this._withoutStepError(errors, step.sequence);
-            } else {
-                delete results[step.sequence];
-                errors = this._replaceStepError(errors, outcome.error);
-            }
-
-            if (doPersist && persist) {
-                const isLast = i === steps.length - 1;
-                try {
-                    await this._persistRowProgress(
-                        persist.batchId,
-                        row.rowIndex,
-                        results,
-                        errors,
-                        persist.enabledSequences,
-                        isLast,
-                        row.inputData,
-                        skippedSteps
-                    );
-                } catch (err) {
-                    console.error(
-                        `Failed to persist row ${row.rowIndex} after step ${step.sequence}:`,
-                        err
-                    );
-                }
-            }
-        }
-
-        if (skippedSteps.length > 0) {
-            row.inputData = {
-                ...stripBatchInputMeta(row.inputData),
-                [BATCH_INPUT_META_SKIPPED_STEPS_KEY]: skippedSteps,
-            };
-        } else if (row.inputData && BATCH_INPUT_META_SKIPPED_STEPS_KEY in row.inputData) {
-            const nextInput = { ...stripBatchInputMeta(row.inputData) };
-            row.inputData = nextInput;
-        }
-
-        return { results, errors };
+    private _notify(key: string, params?: Record<string, unknown>): void {
+        this._snack.open(
+            this._transloco.translate(key, params),
+            this._transloco.translate('batchProcessing.failedExportDismiss'),
+            { duration: 3000 }
+        );
     }
 
-    private async _executeStep(row: SmartBatchRow, step: BatchStep): Promise<StepExecutionResult> {
-        const params = this._buildStepParams(row.inputData, step);
-        const feature = step.appFeature as AppFeature;
+    private _reportFailure(key: string, error: unknown): void {
+        console.error(key, error);
+        const body = (error as { error?: { message?: string; code?: string } })?.error;
+        const detail = body?.message || body?.code;
 
-        try {
-            const featureUrl = feature?.url;
-            const featureMethod = feature?.method || 'GET';
-
-            if (!featureUrl) {
-                throw new Error(`Step ${step.sequence} has no URL configured`);
-            }
-
-            const response = await firstValueFrom(
-                this._smartBatchService.executeFeatureRequest(featureUrl, featureMethod, params)
-            );
-
-            return { sequence: step.sequence, result: response.data };
-        } catch (err: unknown) {
-            if (
-                err instanceof HttpErrorResponse &&
-                this._matchesSmartBatchSuccessWhen(
-                    feature,
-                    err.status,
-                    this._httpErrorBodyCode(err)
-                )
-            ) {
-                return {
-                    sequence: step.sequence,
-                    result: this._normalizeSmartBatchBenignResult(feature, params, err),
-                };
-            }
-
-            const anyErr = err as { error?: { message?: string; code?: string }; message?: string };
-            console.error(`Step ${step.sequence} failed for row ${row.rowIndex}:`, err);
-            return {
-                sequence: step.sequence,
-                error: {
-                    step: step.sequence,
-                    message: anyErr?.error?.message || anyErr?.message || 'Step execution failed',
-                    code: anyErr?.error?.code || 'STEP_ERROR',
-                },
-            };
-        }
+        this._snack.open(
+            detail
+                ? `${this._transloco.translate(key)} — ${detail}`
+                : this._transloco.translate(key),
+            this._transloco.translate('batchProcessing.failedExportDismiss'),
+            { duration: 5000 }
+        );
     }
 
-    private _httpErrorBodyCode(err: HttpErrorResponse): string | undefined {
-        const body = err.error;
-        if (body && typeof body === 'object' && 'code' in body) {
-            const c = (body as { code?: unknown }).code;
-            return c != null ? String(c) : undefined;
-        }
-        return undefined;
-    }
-
-    private _matchesSmartBatchSuccessWhen(
-        feature: AppFeature,
-        httpStatus: number,
-        responseCode: string | undefined
-    ): boolean {
-        const rules = getEffectiveSmartBatchSuccessWhen(feature);
-        if (!rules?.length) return false;
-
-        return rules.some((rule: SmartBatchSuccessWhenRule) => {
-            if (rule.httpStatus !== httpStatus) return false;
-            const codes = rule.responseCodes;
-            if (codes?.length) {
-                return responseCode != null && codes.includes(responseCode);
-            }
-            return true;
-        });
-    }
-
-    /**
-     * Normalized payload stored as step result when an HTTP error is treated as success (matches API "no record" shapes).
-     */
-    private _normalizeSmartBatchBenignResult(
-        feature: AppFeature,
-        params: Record<string, unknown>,
-        err: HttpErrorResponse
-    ): unknown {
-        const meta = {
-            smartBatchInterpretation: 'no_record',
-            benignHttpStatus: err.status,
-        };
-
-        if (feature.code === 'colombia_pep_lookup') {
-            return {
-                documentType: params.documentType,
-                documentNumber: params.documentNumber,
-                detail: [],
-                ...meta,
-            };
-        }
-
-        if (feature.code === 'api_colombia_contracts') {
-            return {
-                documentType: params.documentType,
-                documentNumber: params.documentNumber,
-                contractor: [],
-                contracts: [],
-                ...meta,
-            };
-        }
-
-        if (feature.code === 'colombia_api_vehicle_sinister_fasecolda_by_plate') {
-            return {
-                plate: params.plate,
-                sinister: [],
-                ...meta,
-            };
-        }
-
-        const out: Record<string, unknown> = { ...meta };
-        for (const dep of feature.dependencies || []) {
-            const f = dep.field;
-            if (f && params[f] !== undefined) out[f] = params[f];
-        }
-        return out;
-    }
-
-    /**
-     * Build params for a step from input data and step configuration.
-     * Does NOT auto-merge previous results - only uses inputData + parameterDefaults + inputFieldMapping.
-     */
-    private _buildStepParams(inputData: any, step: BatchStep): any {
-        const params: any = { ...stripBatchInputMeta(inputData) };
-
-        // Apply parameter defaults
-        if (step.parameterDefaults) {
-            Object.assign(params, step.parameterDefaults);
-        }
-
-        // Apply input field mappings (explicit mappings from inputData fields to API param names)
-        if (step.inputFieldMapping) {
-            const mapping = step.inputFieldMapping as Map<string, string> | Record<string, string>;
-            if (mapping instanceof Map) {
-                mapping.forEach((targetField, sourceField) => {
-                    if (inputData[sourceField] !== undefined) {
-                        params[targetField] = inputData[sourceField];
-                    }
-                });
-            } else {
-                Object.entries(mapping).forEach(([sourceField, targetField]) => {
-                    if (inputData[sourceField] !== undefined) {
-                        params[targetField] = inputData[sourceField];
-                    }
-                });
-            }
-        }
-
-        return params;
-    }
-
-    async retryStep(row: SmartBatchRow, step: BatchStep): Promise<void> {
-        const batchId = this.batchId();
-        if (
-            !batchId ||
-            this.isProcessing() ||
-            row.status === 'pending' ||
-            row.status === 'processing'
-        ) {
-            return;
-        }
-
-        const retryKey = this._getRetryKey(row, step);
-        const enabledSequences = this.configSteps().map((configStep) => configStep.sequence);
-
-        this.retryingStepKey.set(retryKey);
-        this.currentRowIndex.set(row.rowIndex);
-        this.currentStepIndex.set(step.sequence);
-
-        const results = { ...(row.results || {}) };
-        let errors = [...(row.errors || [])];
-        const retryOutcome = await this._executeStep(row, step);
-
-        try {
-            if ('result' in retryOutcome) {
-                results[step.sequence] = retryOutcome.result;
-                errors = this._withoutStepError(errors, step.sequence);
-                const remainingSteps = this.configSteps().filter(
-                    (configStep) =>
-                        configStep.sequence > step.sequence &&
-                        !this._hasStepResult(results, configStep.sequence) &&
-                        !this.getStepError({ ...row, errors }, configStep.sequence)
-                );
-
-                if (remainingSteps.length === 0) {
-                    const status = this._deriveRowOutcome(results, errors, enabledSequences);
-                    try {
-                        await this._serializedBatchRowMutation(async () => {
-                            const updatedBatch = await firstValueFrom(
-                                this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                                    status,
-                                    results,
-                                    errors,
-                                })
-                            );
-                            this.batch.set(updatedBatch.data);
-                            const updatedRow = updatedBatch.data.rows.find(
-                                (item) => item.rowIndex === row.rowIndex
-                            );
-                            if (updatedRow) {
-                                this.selectedRow.set(updatedRow);
-                            }
-                        });
-                    } catch (err) {
-                        console.error(`Failed to update row ${row.rowIndex}:`, err);
-                    }
-                } else {
-                    try {
-                        await this._persistRowProgress(
-                            batchId,
-                            row.rowIndex,
-                            results,
-                            errors,
-                            enabledSequences,
-                            false
-                        );
-                    } catch (err) {
-                        console.error(`Failed to persist row ${row.rowIndex} after retry:`, err);
-                    }
-
-                    const resumed = await this._runSteps(row, remainingSteps, results, errors, {
-                        batchId,
-                        enabledSequences,
-                        persistProgress: true,
-                    });
-                    Object.assign(results, resumed.results);
-                    errors = resumed.errors;
-                }
-            } else {
-                delete results[step.sequence];
-                errors = this._replaceStepError(errors, retryOutcome.error);
-
-                const status = this._deriveRowOutcome(results, errors, enabledSequences);
-                try {
-                    await this._serializedBatchRowMutation(async () => {
-                        const updatedBatch = await firstValueFrom(
-                            this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                                status,
-                                results,
-                                errors,
-                            })
-                        );
-                        this.batch.set(updatedBatch.data);
-                        const updatedRow = updatedBatch.data.rows.find(
-                            (item) => item.rowIndex === row.rowIndex
-                        );
-                        if (updatedRow) {
-                            this.selectedRow.set(updatedRow);
-                        }
-                    });
-                } catch (err) {
-                    console.error(`Failed to update row ${row.rowIndex}:`, err);
-                }
-            }
-        } catch (err) {
-            console.error(`Failed to retry step ${step.sequence} for row ${row.rowIndex}:`, err);
-        } finally {
-            this.retryingStepKey.set(null);
-            this.currentRowIndex.set(null);
-            this.currentStepIndex.set(null);
-        }
-    }
-
-    async continuePendingSteps(row: SmartBatchRow): Promise<void> {
-        const batchId = this.batchId();
-        if (!batchId || this.isProcessing() || this.isContinuingRow(row)) return;
-
-        const steps = this.configSteps();
-        const enabledSequences = steps.map((configStep) => configStep.sequence);
-        const initialResults = { ...(row.results || {}) };
-        const initialErrors = [...(row.errors || [])];
-        const stepsToRun = this._getRunnableSteps(steps, initialResults, initialErrors);
-
-        if (stepsToRun.length === 0) return;
-
-        this.continuingRowIndex.set(row.rowIndex);
-        this.currentRowIndex.set(row.rowIndex);
-
-        try {
-            await this._runSteps(row, stepsToRun, initialResults, initialErrors, {
-                batchId,
-                enabledSequences,
-                persistProgress: true,
-            });
-        } catch (err) {
-            console.error(`Failed to continue row ${row.rowIndex}:`, err);
-        } finally {
-            this.continuingRowIndex.set(null);
-            this.currentRowIndex.set(null);
-            this.currentStepIndex.set(null);
-        }
-    }
-
-    async pauseProcessing(): Promise<void> {
-        const batchId = this.batchId();
-        if (!batchId) return;
-
-        this._processingAborted = true;
-        this.isProcessing.set(false);
-
-        this.isPausing.set(true);
-        try {
-            const res = await firstValueFrom(
-                this._smartBatchService.updateSmartBatch(batchId, { status: 'pending' })
-            );
-            this.batch.set(res.data);
-        } catch (err) {
-            console.error('Failed to pause batch:', err);
-            this._snack.open(
-                this._transloco.translate('batchProcessing.pauseFailed'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 4000 }
-            );
-        } finally {
-            this.isPausing.set(false);
-        }
-    }
-
-    async retryAllFailedRows(event?: Event): Promise<void> {
-        event?.stopPropagation();
-        const batchId = this.batchId();
-        const b = this.batch();
-        if (!batchId || !b?.rows?.length) return;
-        if (!this.canOperateRetryFailed()) {
-            this._snack.open(
-                this._transloco.translate('batchProcessing.retryFailedBlocked'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 4000 }
-            );
-            return;
-        }
-
-        const failCount = b.rows.filter((r) => r.status === 'failed').length;
-        if (failCount === 0) return;
-
-        this.isStarting.set(true);
-        this._processingAborted = false;
-        try {
-            const newRows = b.rows.map((r) =>
-                r.status === 'failed'
-                    ? {
-                          ...r,
-                          status: 'pending' as SmartBatchRowStatus,
-                          results: {},
-                          errors: [],
-                          processedAt: undefined,
-                      }
-                    : r
-            );
-
-            const res = await firstValueFrom(
-                this._smartBatchService.updateSmartBatch(batchId, {
-                    rows: newRows,
-                    status: 'processing',
-                })
-            );
-            this.batch.set(res.data);
-            this.isStarting.set(false);
-            this.isProcessing.set(true);
-            await this._processRows();
-        } catch (err) {
-            console.error('Failed to retry all failed rows:', err);
-            this.isStarting.set(false);
-            this.isProcessing.set(false);
-            this._snack.open(
-                this._transloco.translate('batchProcessing.retryAllFailedError'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 5000 }
-            );
-        }
-    }
-
-    async retrySingleFailedRow(row: SmartBatchRow, event?: Event): Promise<void> {
-        event?.stopPropagation();
-        const batchId = this.batchId();
-        const b = this.batch();
-        if (!batchId || !b || row.status !== 'failed') return;
-        if (!this.canOperateRetryFailed()) {
-            this._snack.open(
-                this._transloco.translate('batchProcessing.retryFailedBlocked'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 4000 }
-            );
-            return;
-        }
-
-        this.retryingFailedRowIndex.set(row.rowIndex);
-        this._processingAborted = false;
-        try {
-            await this._serializedBatchRowMutation(async () => {
-                const res = await firstValueFrom(
-                    this._smartBatchService.updateBatchRow(batchId, row.rowIndex, {
-                        status: 'pending',
-                        results: {},
-                        errors: [],
-                    })
-                );
-                this.batch.set(res.data);
-            });
-
-            this.isStarting.set(true);
-            try {
-                const res = await firstValueFrom(
-                    this._smartBatchService.updateSmartBatch(batchId, { status: 'processing' })
-                );
-                this.batch.set(res.data);
-            } finally {
-                this.isStarting.set(false);
-            }
-
-            this.isProcessing.set(true);
-            await this._processRows();
-        } catch (err) {
-            console.error(`Failed to retry failed row ${row.rowIndex}:`, err);
-            this.isStarting.set(false);
-            this.isProcessing.set(false);
-            this._snack.open(
-                this._transloco.translate('batchProcessing.retryRowFailedError'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 5000 }
-            );
-        } finally {
-            this.retryingFailedRowIndex.set(null);
-        }
-    }
-
-    isRetryingFailedRowReset(row: SmartBatchRow): boolean {
-        return this.retryingFailedRowIndex() === row.rowIndex;
-    }
+    // -------------------------------------------------------------------------
+    // Exports
+    // -------------------------------------------------------------------------
 
     /**
      * Builds column order and one plain object per row (input fields only) for CSV / Excel / JSON export.
@@ -1466,6 +990,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     }
 
+    // -------------------------------------------------------------------------
+    // Navigation
+    // -------------------------------------------------------------------------
+
     generateReport(): void {
         const configId = this.configId();
         const batchId = this.batchId();
@@ -1521,6 +1049,17 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     }
 
+    goBack(): void {
+        const configId = this.configId();
+        if (configId) {
+            this._router.navigate(['/smart-batch', configId]);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Row list & detail panel
+    // -------------------------------------------------------------------------
+
     updateSearchQuery(query: string): void {
         this.searchQuery.set(query);
     }
@@ -1533,13 +1072,6 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             return JSON.stringify(row.results).toLowerCase().includes(query);
         }
         return false;
-    }
-
-    goBack(): void {
-        const configId = this.configId();
-        if (configId) {
-            this._router.navigate(['/smart-batch', configId]);
-        }
     }
 
     selectRow(row: SmartBatchRow): void {
@@ -1783,22 +1315,15 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         return this.getStepResultFields(trimmed);
     }
 
+    /** Steps the engine skipped for this row because its input was incompatible. */
+    getSkippedSteps(row: SmartBatchRow) {
+        return getBatchSkippedStepsFromInput(row.inputData);
+    }
+
     getSelectedRuesCategoryValue(): string {
         const raw = this.selectedRow()?.inputData?.category;
         if (raw === null || raw === undefined || raw === '') return '';
         return String(raw);
-    }
-
-    /** First step in failed state (for primary Retry next to RUES inputs). */
-    firstFailedStep(): BatchStep | null {
-        const row = this.selectedRow();
-        if (!row) return null;
-        for (const step of this.configSteps()) {
-            if (this.getRowStepStatus(row, step.sequence) === 'failed') {
-                return step;
-            }
-        }
-        return null;
     }
 
     beginRuesCategoryEdit(): void {
@@ -1830,41 +1355,34 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         }
     }
 
-    /** Persists merged input fields for the selected row before Retry. Returns false on skipped or failure. */
+    /**
+     * Persist corrected input fields for the selected row before a retry.
+     * Input-only patches are accepted on engine-managed batches while they are idle.
+     */
     async saveRowInputPatch(patch: Record<string, unknown>): Promise<boolean> {
         const bid = this.batchId();
         const row = this.selectedRow();
         if (!bid || row == null) return false;
+
+        if (this.isProcessing()) {
+            this._notify('batchProcessing.editInputsBlockedWhileProcessing');
+            return false;
+        }
+
         this.savingRuesCategory.set(true);
         try {
-            const res = await this._serializedBatchRowMutation(() =>
-                firstValueFrom(
-                    this._smartBatchService.updateBatchRow(bid, row.rowIndex, {
-                        status: row.status,
-                        results: row.results,
-                        errors: row.errors ?? [],
-                        inputData: patch,
-                    })
-                )
+            const res = await firstValueFrom(
+                this._smartBatchService.updateBatchRow(bid, row.rowIndex, { inputData: patch })
             );
             this.batch.set(res.data);
             const updated = res.data.rows.find((r) => r.rowIndex === row.rowIndex);
             if (updated) {
                 this.selectedRow.set(updated);
             }
-            this._snack.open(
-                this._transloco.translate('batchProcessing.ruesCategorySaved'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 2000 }
-            );
+            this._notify('batchProcessing.ruesCategorySaved');
             return true;
         } catch (err) {
-            console.error('saveRowInputPatch', err);
-            this._snack.open(
-                this._transloco.translate('batchProcessing.ruesCategorySaveFailed'),
-                this._transloco.translate('batchProcessing.failedExportDismiss'),
-                { duration: 4000 }
-            );
+            this._reportFailure('batchProcessing.ruesCategorySaveFailed', err);
             return false;
         } finally {
             this.savingRuesCategory.set(false);
@@ -1941,12 +1459,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     getRowStepStatus(row: SmartBatchRow, stepSequence: number): 'pending' | 'completed' | 'failed' {
-        if (this.currentRowIndex() === row.rowIndex && this.currentStepIndex() === stepSequence) {
-            return 'pending';
-        }
-
         if (!row.results || typeof row.results !== 'object') {
-            // Check if there's an error for this step
             const stepError = row.errors?.find((e) => e.step === stepSequence);
             if (stepError) return 'failed';
             return 'pending';
@@ -1969,56 +1482,11 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     }
 
     getPendingStepCount(row: SmartBatchRow): number {
-        return this._getRunnableSteps(this.configSteps(), row.results || {}, row.errors || [])
-            .length;
-    }
-
-    isRetryingStep(row: SmartBatchRow, step: BatchStep): boolean {
-        return this.retryingStepKey() === this._getRetryKey(row, step);
-    }
-
-    isContinuingRow(row: SmartBatchRow): boolean {
-        return this.continuingRowIndex() === row.rowIndex;
-    }
-
-    private _deriveRowOutcome(
-        results: Record<number, any>,
-        errors: { step: number; message: string; code: string }[],
-        enabledSequences: number[]
-    ): SmartBatchRowStatus {
-        const completedSteps = enabledSequences.filter((sequence) =>
-            this._hasStepResult(results, sequence)
-        ).length;
-
-        if (completedSteps === enabledSequences.length && errors.length === 0) return 'completed';
-        if (completedSteps === 0) return 'failed';
-        return 'partial';
-    }
-
-    private _withoutStepError(
-        errors: { step: number; message: string; code: string }[],
-        stepSequence: number
-    ): { step: number; message: string; code: string }[] {
-        return errors.filter((error) => error.step !== stepSequence);
-    }
-
-    private _replaceStepError(
-        errors: { step: number; message: string; code: string }[],
-        error: { step: number; message: string; code: string }
-    ): { step: number; message: string; code: string }[] {
-        return [...this._withoutStepError(errors, error.step), error];
-    }
-
-    private _getRunnableSteps(
-        steps: BatchStep[],
-        results: Record<number, any>,
-        errors: { step: number; message: string; code: string }[]
-    ): BatchStep[] {
-        return steps.filter(
+        return this.configSteps().filter(
             (step) =>
-                !this._hasStepResult(results, step.sequence) &&
-                !errors.some((error) => error.step === step.sequence)
-        );
+                !this._hasStepResult(row.results, step.sequence) &&
+                !(row.errors || []).some((error) => error.step === step.sequence)
+        ).length;
     }
 
     private _hasStepResult(
@@ -2026,13 +1494,5 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         stepSequence: number
     ): boolean {
         return results?.[stepSequence] !== undefined && results?.[stepSequence] !== null;
-    }
-
-    private _getRetryKey(row: SmartBatchRow, step: BatchStep): string {
-        return `${row.rowIndex}:${step.sequence}`;
-    }
-
-    private _isTerminalRowStatus(status: SmartBatchRowStatus): boolean {
-        return status === 'completed' || status === 'failed' || status === 'partial';
     }
 }

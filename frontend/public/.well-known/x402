@@ -133,7 +133,6 @@
     "GET /api/v3/pe/cedula",
     "POST /api/co/foreigner-id/ppt",
     "POST /api/v3/co/ministerio-de-trabajo/certificados",
-    "POST /api/co/sisben",
     "POST /api/face-recognition/face-validation",
     "GET /api/v3/pe/company",
     "POST /api/document-liveness",

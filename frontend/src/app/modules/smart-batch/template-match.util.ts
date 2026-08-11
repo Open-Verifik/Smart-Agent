@@ -72,6 +72,13 @@ export type BuildRowDataForResolutionOptions = {
     steps?: BatchStep[];
     batchName?: string;
     errors?: { step: number; message: string; code: string }[];
+    /**
+     * Report model composed by the backend (`GET /v2/smart-batches/:id/rows/:i/report`).
+     * When supplied it wins over local composition, so the preview renders exactly
+     * what the PDF will contain. Local composition stays as the offline path for
+     * fixtures and for previews built before results are persisted.
+     */
+    report?: Record<string, any> | null;
 };
 
 /**
@@ -91,6 +98,11 @@ export function buildRowDataForResolution(
         inputData: row.inputData ?? {},
         results: row.results ?? {},
     };
+
+    if (options?.report) {
+        data.report = options.report;
+        return data;
+    }
 
     const steps = options?.steps ?? [];
     if (steps.length > 0 && hasColombiaVehicleReportSteps(steps)) {
