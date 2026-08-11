@@ -776,6 +776,10 @@
             "title": "SISBEN score",
             "description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales) score and group classification for Colombian residents."
         },
+        "colombia_api_rui": {
+            "title": "RUI Classification",
+            "description": "Query DNP Ventanilla Social Registro Universal de Ingresos (RUI) classification—income group, RUI level, and location. Replaces the retired SISBEN lookup."
+        },
         "spain_api_vehicle_lookup": {
             "title": "Spain",
             "description": "Query Spanish vehicle registration data by license plate (matrícula) via Verifik."

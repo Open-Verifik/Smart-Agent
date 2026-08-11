@@ -776,6 +776,10 @@
             "title": "コロンビア — SISBEN スコア",
             "description": "コロンビアの SISBEN グループ・スコア情報を照会します。"
         },
+        "colombia_api_rui": {
+            "title": "コロンビア — RUI 分類",
+            "description": "DNP Ventanilla Social の Registro Universal de Ingresos（RUI）分類—所得グループ、RUI レベル、所在地を照会します。廃止された SISBEN 照会の後継です。"
+        },
         "spain_api_vehicle_lookup": {
             "title": "スペイン",
             "description": "Verifik 経由でナンバープレート（matrícula）によりスペインの車両登録データを照会します。"

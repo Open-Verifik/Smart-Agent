@@ -776,6 +776,10 @@
             "title": "Pontuação SISBEN",
             "description": "Consulte grupo e dados SISBEN (beneficiários de programas sociais na Colômbia)."
         },
+        "colombia_api_rui": {
+            "title": "Classificação RUI",
+            "description": "Consulte a classificação RUI (Registro Universal de Ingresos) na Ventanilla Social DNP: grupo de renda, nível RUI e localização. Substitui a consulta SISBEN retirada."
+        },
         "spain_api_vehicle_lookup": {
             "title": "Espanha",
             "description": "Consulte dados de registro de veículos na Espanha pela placa (matrícula) via Verifik."

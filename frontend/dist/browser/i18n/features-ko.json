@@ -776,6 +776,10 @@
             "title": "콜롬비아 — SISBEN 점수",
             "description": "콜롬비아 SISBEN 등급·점수 및 조사 정보를 조회합니다."
         },
+        "colombia_api_rui": {
+            "title": "콜롬비아 — RUI 분류",
+            "description": "DNP Ventanilla Social Registro Universal de Ingresos(RUI) 분류—소득 그룹, RUI 등급, 지역 정보를 조회합니다. 종료된 SISBEN 조회를 대체합니다."
+        },
         "spain_api_vehicle_lookup": {
             "title": "스페인",
             "description": "Verifik으로 번호판(matrícula)으로 스페인 차량 등록 정보를 조회합니다."

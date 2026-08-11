@@ -776,6 +776,10 @@
             "title": "SISBEN 分数",
             "description": "查询哥伦比亚 SISBEN 分组与社会项目受益人相关信息。"
         },
+        "colombia_api_rui": {
+            "title": "RUI 分类",
+            "description": "查询 DNP Ventanilla Social Registro Universal de Ingresos（RUI）分类—收入组别、RUI 等级与所在地。替代已停用的 SISBEN 查询。"
+        },
         "spain_api_vehicle_lookup": {
             "title": "西班牙",
             "description": "通过 Verifik 按车牌（matrícula）查询西班牙车辆登记数据。"

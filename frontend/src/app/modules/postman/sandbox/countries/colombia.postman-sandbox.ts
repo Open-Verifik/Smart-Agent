@@ -53,6 +53,8 @@ export const COLOMBIA_RETHUS_ENDPOINT_CODE = 'colombia_api_rethus';
 
 export const COLOMBIA_ADRES_ENDPOINT_CODE = 'colombia_api_adres';
 
+export const COLOMBIA_RUI_ENDPOINT_CODE = 'colombia_api_rui';
+
 export const COLOMBIA_RUNT_VEHICLE_ENDPOINT_CODE = 'colombia_api_vehicle';
 export const COLOMBIA_RUNT_DRIVER_ENDPOINT_CODE = 'colombia_api_driver';
 export const COLOMBIA_RUNT_VEHICLE_COMPLETE_PLATE_ENDPOINT_CODE = 'colombia_api_vehicle_complete_by_plate';
@@ -558,6 +560,25 @@ const COLOMBIA_ADRES_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     paramOverrides: { documentType: 'INVALID', documentNumber: '10000001' },
 };
 
+/** Mirrors verifik-backend RUI sandbox fixtures (Ventanilla Social / DNP). */
+const COLOMBIA_RUI_SANDBOX_PROFILES: PostmanSandboxProfile[] = [
+    { documentNumber: '10000001', fullName: 'MARIA ELENA LOPEZ GARCIA — RUI A01' },
+    { documentNumber: '10000002', fullName: 'JOSE ANTONIO PEREZ RODRIGUEZ — RUI A04' },
+    { documentNumber: '10000003', fullName: 'CARLA ISABEL MARTINEZ FERNANDEZ — RUI B01' },
+    { documentNumber: '10000004', fullName: 'LUIS ALBERTO GONZALEZ HERRERA — RUI B05' },
+    { documentNumber: '10000005', fullName: 'ANA SOFIA RAMIREZ TORRES — RUI C01' },
+    { documentNumber: '10000006', fullName: 'DIEGO ALEJANDRO SILVA MENDOZA — RUI C05' },
+    { documentNumber: '10000007', fullName: 'VALENTINA ANDREA CASTRO VARGAS — RUI D01' },
+    { documentNumber: '10000008', fullName: 'RICARDO JOSE MORALES SUAREZ — RUI A01' },
+    { documentNumber: '10000009', fullName: 'PATRICIA CAROLINA DIAZ REYES — RUI B01' },
+    { documentNumber: '10000010', fullName: 'FERNANDO MIGUEL ROJAS DELGADO — RUI C01' },
+];
+
+const COLOMBIA_RUI_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
+    ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+    paramOverrides: { documentType: 'INVALID', documentNumber: '10000001' },
+};
+
 export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndpointConfig> = {
     [COLOMBIA_CEDULA_ENDPOINT_CODE]: {
         profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
@@ -737,6 +758,19 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         defaultDocumentNumber: '10000001',
         documentTypeByCode: {
             [COLOMBIA_ADRES_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_RUI_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_RUI_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                COLOMBIA_RUI_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_RUI_ENDPOINT_CODE]: 'CC',
         },
         showProfileMeta: false,
     },

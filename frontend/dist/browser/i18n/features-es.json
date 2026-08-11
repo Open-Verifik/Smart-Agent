@@ -776,6 +776,10 @@
             "title": "Consulta puntaje SISBEN",
             "description": "Verificar puntaje y grupo SISBEN (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales)."
         },
+        "colombia_api_rui": {
+            "title": "Clasificación RUI",
+            "description": "Consulta la clasificación del Registro Universal de Ingresos (RUI) en Ventanilla Social DNP: grupo de ingresos, nivel RUI y ubicación. Reemplaza la consulta SISBEN retirada."
+        },
         "spain_api_vehicle_lookup": {
             "title": "Vehículo por matrícula",
             "description": "Consulta de datos de vehículo en España por matrícula (endpoint v2/es/vehicle). Obtén marca, modelo, año, tipo de vehículo y metadatos asociados cuando la matrícula existe en la fuente. Útil para seguros, talleres, compraventa, logística y cualquier flujo donde necesites validar que el coche coincide con lo declarado sin depender solo de capturas o PDFs del usuario."
