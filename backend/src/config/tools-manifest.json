@@ -4221,41 +4221,6 @@
 			}
 		},
 		{
-			"id": "colombia_sisben_api_lookup",
-			"name": "Colombia — SISBEN score",
-			"category": "Colombia — SISBEN score",
-			"url": "https://ai.verifik.co/api/co/sisben",
-			"verifikPath": "/v2/co/sisben",
-			"method": "POST",
-			"description": "Verify SISBEN (Sistema de Identificación de Potenciales Beneficiarios de Programas Sociales) score and group classification for Colombian residents.",
-			"country": "Colombia",
-			"priceUsd": 0.3,
-			"parameters": {
-				"type": "object",
-				"properties": {
-					"documentType": {
-						"type": "string",
-						"description": "Parameter: documentType",
-						"enum": [
-							"CC",
-							"CE",
-							"PEP",
-							"PPT",
-							"PA"
-						]
-					},
-					"documentNumber": {
-						"type": "string",
-						"description": "Parameter: documentNumber"
-					}
-				},
-				"required": [
-					"documentType",
-					"documentNumber"
-				]
-			}
-		},
-		{
 			"id": "face_recognition_detect_face",
 			"name": "Face Detection",
 			"category": "Global - Face Detection",
