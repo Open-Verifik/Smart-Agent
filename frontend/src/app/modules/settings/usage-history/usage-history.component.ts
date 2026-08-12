@@ -286,7 +286,7 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
     clearFilters(): void {
         this.selectedProductCodes = [];
         this._setDefaultDateRange();
-        this.activeQuickRangeId.set(null);
+        this._syncQuickRangeSelectionFromRange();
         this.pageIndex = 0;
         this._fetch();
         this._cdr.markForCheck();
@@ -689,20 +689,12 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     /**
-     * Mirrors the legacy 12-month fallback. If the stored user has a monthly
-     * subscription plan we use its window; otherwise we fall back to the last
-     * 12 calendar months ending at the end of the current month.
+     * Defaults to Today so the first load stays fast.
      */
     private _setDefaultDateRange(): void {
-        const sub = (this.user as any)?.clientSubscriptionPlan;
-        if (sub?.interval === 'month' && sub?.startDate && sub?.endDate) {
-            this.rangeStart.setValue(DateTime.fromISO(sub.startDate));
-            this.rangeEnd.setValue(DateTime.fromISO(sub.endDate));
-            return;
-        }
-        const now = DateTime.now();
-        this.rangeStart.setValue(now.startOf('month').minus({ months: 12 }));
-        this.rangeEnd.setValue(now.endOf('month'));
+        const { start, end } = this._boundsForQuickRange('today');
+        this.rangeStart.setValue(start);
+        this.rangeEnd.setValue(end);
     }
 
     private _labelFromAppFeatureMeta(
