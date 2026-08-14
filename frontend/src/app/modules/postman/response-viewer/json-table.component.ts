@@ -1,6 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { looksLikeImageBase64, normalizeImageDataUrl } from '../postman-audit-image.util';
 
 @Component({
   selector: 'postman-json-table',
@@ -17,9 +19,18 @@ import { TranslocoPipe } from '@jsverse/transloco';
           'postman.jsonTable.null' | transloco
         }}</span>
         <span *ngIf="typeof d === 'boolean'" class="text-purple-600">{{ d }}</span>
-        <span *ngIf="typeof d === 'string'" class="text-green-700 dark:text-green-400"
-          >"{{ d }}"</span
-        >
+        <ng-container *ngIf="typeof d === 'string'">
+          <div *ngIf="isImageValue(d); else plainString" class="space-y-2">
+            <img
+              [src]="imageSrc(d)"
+              [alt]="'postman.responseViewer.auditPreview' | transloco"
+              class="max-h-64 max-w-full rounded-lg border border-slate-200 object-contain dark:border-slate-700"
+            />
+          </div>
+          <ng-template #plainString>
+            <span class="text-green-700 dark:text-green-400">"{{ d }}"</span>
+          </ng-template>
+        </ng-container>
         <span *ngIf="typeof d === 'number'" class="text-blue-600 dark:text-blue-400">{{ d }}</span>
       </div>
 
@@ -103,6 +114,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
   ],
 })
 export class JsonTableComponent {
+  private _sanitizer = inject(DomSanitizer);
   private _data: any;
   parsedData: any;
   isExpanded = false; // Collapsed by default for performance
@@ -165,5 +177,13 @@ export class JsonTableComponent {
 
   getKeys(val: any): string[] {
     return Object.keys(val);
+  }
+
+  isImageValue(val: unknown): boolean {
+    return looksLikeImageBase64(val);
+  }
+
+  imageSrc(val: string): SafeUrl {
+    return this._sanitizer.bypassSecurityTrustUrl(normalizeImageDataUrl(val));
   }
 }

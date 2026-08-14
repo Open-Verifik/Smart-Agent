@@ -714,6 +714,24 @@
                     "description": "Vérifiez votre identité de développeur pour activer le mode production.",
                     "requirement": "Cliquez sur 'Vérifier l'identité' sur la bannière supérieure ou complétez le formulaire KYC pour activer la production."
                 }
+            },
+            "taskReward": "+1,00 USD",
+            "statusLabels": {
+                "NOT_STARTED": "Non commencée",
+                "VISITED": "Visitée",
+                "STARTED": "En cours",
+                "STUCK": "Besoin d'aide",
+                "COMPLETED": "Complétée"
+            },
+            "explanationModal": {
+                "reward": "Récompense +1,00 USD",
+                "sectionDescription": "Description",
+                "sectionHowTo": "Comment compléter",
+                "sectionApiReference": "Référence technique de l'API",
+                "close": "Fermer",
+                "goToTask": "Aller à la tâche",
+                "verifyIdentity": "Vérifier l'identité",
+                "helpTooltip": "En savoir plus sur cette tâche"
             }
         },
         "stats": {
@@ -3256,10 +3274,10 @@
                 "pathSegmentRequired": "Le segment d'URL « {{segment}} » est obligatoire."
             },
             "sandboxProfiles": {
-                "title": "Profils sandbox",
-                "description": "Choisissez un profil de données de test pour remplir rapidement cette requête.",
-                "selectLabel": "Profil sandbox",
-                "profileMeta": "{{country}} · {{documentType}}"
+                "title": "Profils de test Sandbox",
+                "description": "En mode Sandbox, ces valeurs de test renvoient des réponses prévisibles. Choisissez un profil pour remplir automatiquement les paramètres de la requête.",
+                "selectLabel": "Profil de test",
+                "profileMeta": "{{gender}} · {{birthDate}}"
             }
         },
         "responseViewer": {
@@ -3286,6 +3304,21 @@
             "pdfPreview": "Aperçu PDF",
             "openPdfInNewTab": "Ouvrir dans un nouvel onglet",
             "downloadPdf": "Télécharger le PDF",
+            "sandboxPdfDemo": {
+                "badge": "Sandbox",
+                "title": "Aperçu de document de démonstration",
+                "body": "Il s'agit d'un aperçu simulé uniquement. Verifik n'affiche pas de PDF réels ni de données personnelles en mode sandbox.",
+                "footnote": "Passez en mode Production pour obtenir des documents authentiques auprès de l'autorité émettrice."
+            },
+            "auditPreview": "Capture d'audit",
+            "openAuditInNewTab": "Ouvrir l'image",
+            "downloadAudit": "Télécharger l'image",
+            "auditImageOmitted": "[image omise — voir l'aperçu]",
+            "sandboxAuditDemo": {
+                "badge": "Sandbox",
+                "title": "Capture d'audit de démonstration",
+                "body": "Le sandbox renvoie une image factice. Passez en Production pour voir la capture officielle de la consultation."
+            },
             "insufficientCreditsTitle": "Crédits insuffisants",
             "insufficientCreditsBody": "Ajoutez des crédits à votre compte pour exécuter cette requête. Chaque validation consomme des crédits.",
             "insufficientCreditsCostHint": "Ce point de terminaison coûte environ {{cost}} crédits par requête.",

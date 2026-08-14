@@ -714,6 +714,24 @@
                     "description": "프로덕션 API 접근을 위해 개발자 신원 인증을 완료합니다.",
                     "requirement": "상단 배너의 '인증하기' 버튼을 누르거나 KYC 신원 인증 폼 작성을 완료하여 실거래 모드를 활성화합니다."
                 }
+            },
+            "taskReward": "+$1.00 USD",
+            "statusLabels": {
+                "NOT_STARTED": "시작 전",
+                "VISITED": "방문함",
+                "STARTED": "진행 중",
+                "STUCK": "도움 필요",
+                "COMPLETED": "완료됨"
+            },
+            "explanationModal": {
+                "reward": "보상 +$1.00 USD",
+                "sectionDescription": "설명",
+                "sectionHowTo": "완료 방법",
+                "sectionApiReference": "기술 API 참조",
+                "close": "닫기",
+                "goToTask": "작업으로 이동",
+                "verifyIdentity": "신원 확인",
+                "helpTooltip": "이 작업에 대해 자세히 알아보기"
             }
         },
         "stats": {
@@ -2802,14 +2820,14 @@
             "token_copied": "토큰이 클립보드에 복사되었습니다",
             "usage_hint": "API 요청에 이 토큰을 포함하세요: Authorization: Bearer <your_token>",
             "renew_token": "토큰 유효 기간 연장",
-            "renew_description": "기존 통합을 무효화하지 않고 현재 토큰의 만료 날짜를 연장합니다.",
+            "renew_description": "선택한 만료 기간의 새 JWT를 발급합니다. 복사하여 통합을 업데이트하세요 — 기존 JWT 문자열은 그대로 연장되지 않습니다.",
             "extend_validity": "유효 기간 연장",
             "select_expiration": "만료 기간 선택",
             "months": "개월",
             "cancel": "취소",
             "renew_now": "지금 연장",
             "renewing": "연장 중...",
-            "token_renewed_success": "토큰이 성공적으로 연장되었습니다!",
+            "token_renewed_success": "새 토큰이 생성되었습니다! 복사하여 통합을 업데이트하세요.",
             "token_renewal_failed": "토큰 연장에 실패했습니다. 다시 시도하세요.",
             "revoke_generate": "취소 및 새로 생성",
             "revoke_description": "기존의 모든 토큰을 무효화하고 새 토큰을 생성합니다. 토큰이 손상된 경우 사용하세요.",
@@ -2824,7 +2842,55 @@
             "copy_token_warning": "새 토큰을 지금 복사하세요. 이 페이지를 떠나면 다시 볼 수 없습니다.",
             "need_help": "API 통합에 도움이 필요하신가요?",
             "docs_description": "API 토큰 사용 방법을 배우고 문서를 탐색하세요.",
-            "view_docs": "문서 보기"
+            "view_docs": "문서 보기",
+            "help_label": "자세히 알아보기",
+            "help_close": "확인",
+            "how_it_works_title": "작동 방식",
+            "how_it_works_subtitle": "API 토큰은 JWT입니다. 연장 또는 취소는 항상 새 JWT를 발급합니다 — 복사하여 통합을 업데이트해야 합니다.",
+            "step1_title": "하나의 활성 토큰",
+            "step1_desc": "계정에는 이 페이지에 표시되는 API 액세스 토큰(JWT)이 하나 있습니다. 서버 측 요청 인증에 사용하세요.",
+            "step2_title": "Bearer로 전송",
+            "step2_desc": "모든 요청에 토큰을 포함하세요: Authorization: Bearer <your_token>.",
+            "step3_title": "연장 또는 취소",
+            "step3_desc": "유효 기간 연장은 선택한 만료 기간의 새 JWT를 발급합니다. 취소는 이전 JWT를 모두 무효화하고 새 JWT 하나를 발급합니다.",
+            "extend_new_token_notice": "이 작업은 새 JWT를 생성합니다. 확인 후 새 토큰을 복사하여 모든 통합을 업데이트하세요 — 현재 토큰 문자열은 그대로 수정되지 않습니다.",
+            "help": {
+                "overview": {
+                    "title": "API 토큰 작동 방식",
+                    "intro": "API 토큰은 Verifik에 대한 서버 측 요청을 인증하는 JWT 자격 증명입니다.",
+                    "point1": "이 페이지에 표시된 토큰은 서명된 JWT입니다. 그대로 수정할 수 없습니다 — 연장 또는 취소는 항상 새 JWT 문자열을 생성합니다.",
+                    "point2": "모든 JWT에는 만료 날짜가 있습니다. 만료되면 새 토큰을 받을 때까지 API 요청이 인증 오류를 반환합니다.",
+                    "point3": "유효 기간 연장은 선택한 기간의 새 JWT를 발급합니다. 새 토큰을 복사하고 Verifik을 호출하는 모든 통합을 업데이트하세요.",
+                    "point4": "취소 및 새로 생성도 새 JWT를 발급하지만, 계정에 이전에 발급된 모든 토큰을 즉시 무효화합니다.",
+                    "point5": "여러 서버나 환경이 각각 최신 JWT를 저장할 수 있습니다. 연장 또는 취소 후 모두 새 토큰 문자열을 사용하는지 확인하세요."
+                },
+                "token": {
+                    "title": "액세스 토큰 사용",
+                    "intro": "모든 API 요청에서 Bearer 자격 증명으로 토큰을 전송해야 합니다.",
+                    "point1": "이 페이지에서 토큰을 복사하여 백엔드에 안전하게 저장하세요 — 클라이언트 앱, 모바일 앱 또는 공개 저장소에 노출하지 마세요.",
+                    "point2": "api.verifik.co(또는 샌드박스 기본 URL)에 대한 모든 요청의 Authorization 헤더에 추가하세요.",
+                    "point3": "연장 또는 취소 후 이 페이지의 토큰 문자열이 변경됩니다. 이전 JWT를 사용하는 모든 서비스를 업데이트하세요.",
+                    "code": "curl -X GET \"https://api.verifik.co/v2/co/cedula\" \\\n  -H \"Authorization: Bearer YOUR_TOKEN_HERE\""
+                },
+                "extend": {
+                    "title": "토큰 유효 기간 연장",
+                    "intro": "유효 기간 연장은 현재 JWT를 수정하지 않습니다. 선택한 만료 기간의 완전히 새로운 JWT를 발급합니다.",
+                    "point1": "개월 수를 선택하세요(1–36). 새 JWT의 만료는 연장 시점부터 계산됩니다 — 이전 토큰 생성 시점이 아닙니다.",
+                    "point2": "이 페이지에서 즉시 새 토큰 문자열을 받습니다. 복사하여 Verifik API를 호출하는 모든 서비스, 스크립트, 환경 변수를 업데이트하세요.",
+                    "point3": "취소와 달리 연장은 이전에 발급된 JWT를 즉시 무효화하지 않습니다 — 각자의 만료까지 계속 작동합니다. 그래도 새 토큰을 모든 곳에 배포하세요.",
+                    "point4": "다운타임을 피하려면 현재 토큰이 만료되기 전에 연장하세요. 이미 만료된 경우 연장하거나 취소하여 유효한 JWT를 받으세요.",
+                    "note": "기존 JWT 문자열의 만료일을 앞당길 수 없습니다. 연장은 항상 새 토큰을 생성합니다."
+                },
+                "revoke": {
+                    "title": "취소 및 새 토큰 생성",
+                    "intro": "이것은 새 JWT를 발급하고 계정에 이전에 발급된 모든 토큰을 즉시 무효화합니다.",
+                    "point1": "취소는 이전 연장으로 생성된 토큰을 포함하여 모든 이전 JWT를 즉시 무효화합니다.",
+                    "point2": "확인 후 즉시 새 토큰 문자열을 받습니다. 복사하여 API를 호출하는 모든 통합을 업데이트하세요.",
+                    "point3": "이전 토큰을 계속 사용하는 애플리케이션은 업데이트될 때까지 401 오류를 받습니다.",
+                    "point4": "토큰이 유출되었거나 안전하지 않게 공유되었거나 전체 자격 증명 로테이션이 필요한 경우에만 취소를 사용하세요.",
+                    "note": "모든 활성 토큰을 즉시 끊지 않고 더 긴 유효 기간이 필요하면 유효 기간 연장을 사용하세요 — 하지만 새 JWT 문자열을 배포해야 합니다."
+                }
+            }
         },
         "billing": {
             "title": "청구 정보",
@@ -3244,10 +3310,10 @@
                 "pathSegmentRequired": "URL 경로 세그먼트 \"{{segment}}\"는 필수입니다."
             },
             "sandboxProfiles": {
-                "title": "샌드박스 프로필",
-                "description": "테스트 데이터 프로필을 선택해 이 요청을 빠르게 채우세요.",
-                "selectLabel": "샌드박스 프로필",
-                "profileMeta": "{{country}} · {{documentType}}"
+                "title": "Sandbox 테스트 프로필",
+                "description": "Sandbox 모드에서 이 테스트 값은 예측 가능한 응답을 반환합니다. 프로필을 선택하면 요청 매개변수가 자동으로 채워집니다.",
+                "selectLabel": "테스트 프로필",
+                "profileMeta": "{{gender}} · {{birthDate}}"
             }
         },
         "responseViewer": {
@@ -3274,6 +3340,21 @@
             "pdfPreview": "PDF 미리보기",
             "openPdfInNewTab": "새 탭에서 열기",
             "downloadPdf": "PDF 다운로드",
+            "sandboxPdfDemo": {
+                "badge": "Sandbox",
+                "title": "데모 문서 미리보기",
+                "body": "이것은 시뮬레이션된 미리보기입니다. Verifik은 샌드박스 모드에서 실제 증명서 PDF나 개인 데이터를 표시하지 않습니다.",
+                "footnote": "발급 기관의 실제 문서를 받으려면 프로덕션 모드로 전환하세요."
+            },
+            "auditPreview": "감사 스크린샷",
+            "openAuditInNewTab": "이미지 열기",
+            "downloadAudit": "이미지 다운로드",
+            "auditImageOmitted": "[이미지 생략 — 미리보기 참조]",
+            "sandboxAuditDemo": {
+                "badge": "Sandbox",
+                "title": "데모 감사 스크린샷",
+                "body": "Sandbox는 자리 표시자 이미지를 반환합니다. 공식 조회 화면을 보려면 프로덕션 모드로 전환하세요."
+            },
             "insufficientCreditsTitle": "크레딧이 부족합니다",
             "insufficientCreditsBody": "이 요청을 실행하려면 계정에 크레딧을 추가하세요. 검증마다 크레딧이 차감됩니다.",
             "insufficientCreditsCostHint": "이 엔드포인트는 요청당 약 {{cost}} 크레딧이 소모됩니다.",

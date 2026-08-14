@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal, computed, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -15,6 +15,12 @@ import {
     formatCreditsForDisplay,
     parseBillingFromResponse,
 } from '../postman-billing.util';
+import {
+    extractFirstAuditImageDeep,
+    isTinyAuditPlaceholder,
+    normalizeImageDataUrl,
+    redactAuditImages,
+} from '../postman-audit-image.util';
 
 /** Stable numeric string for endpoint price display (same idea as Postman request editor). */
 function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
@@ -200,6 +206,76 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
 
           <!-- Scrollable Content Area -->
           <div class="flex-1 overflow-auto min-h-0">
+            <ng-container *ngIf="normalizedAuditImageUrl() as auditImageUrl">
+              <div class="mb-4">
+                <div
+                  class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2"
+                >
+                  {{ 'postman.responseViewer.auditPreview' | transloco }}
+                </div>
+
+                <div
+                  *ngIf="showSandboxAuditDemo(); else productionAuditPreview"
+                  class="relative min-h-[220px] w-full rounded-xl border border-dashed border-amber-300/80 bg-gradient-to-b from-amber-50/80 to-white dark:from-amber-950/20 dark:to-slate-950 dark:border-amber-800/60 px-6 py-10 flex flex-col items-center justify-center text-center shadow-inner"
+                  role="status"
+                  [attr.aria-label]="'postman.responseViewer.sandboxAuditDemo.title' | transloco"
+                >
+                  <span
+                    class="absolute top-3 right-3 rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:bg-amber-900/50 dark:text-amber-200"
+                  >
+                    {{ 'postman.responseViewer.sandboxAuditDemo.badge' | transloco }}
+                  </span>
+                  <div
+                    class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-sm ring-1 ring-amber-200/80 dark:bg-slate-900 dark:ring-amber-900/60"
+                  >
+                    <mat-icon class="!h-8 !w-8 text-amber-600 dark:text-amber-300">photo</mat-icon>
+                  </div>
+                  <h4 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                    {{ 'postman.responseViewer.sandboxAuditDemo.title' | transloco }}
+                  </h4>
+                  <p class="mt-3 max-w-md text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+                    {{ 'postman.responseViewer.sandboxAuditDemo.body' | transloco }}
+                  </p>
+                </div>
+
+                <ng-template #productionAuditPreview>
+                  <div
+                    class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950"
+                  >
+                    <img
+                      [src]="sanitizeImageSrc(auditImageUrl)"
+                      [alt]="'postman.responseViewer.auditPreview' | transloco"
+                      class="mx-auto max-h-[520px] w-auto max-w-full object-contain"
+                    />
+                  </div>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      class="!text-xs"
+                      (click)="openImageInNewTab(auditImageUrl)"
+                    >
+                      <span class="inline-flex items-center gap-2">
+                        <mat-icon class="!w-4 !h-4">open_in_new</mat-icon>
+                        {{ 'postman.responseViewer.openAuditInNewTab' | transloco }}
+                      </span>
+                    </button>
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      class="!text-xs"
+                      (click)="downloadAuditImage(auditImageUrl)"
+                    >
+                      <span class="inline-flex items-center gap-2">
+                        <mat-icon class="!w-4 !h-4">download</mat-icon>
+                        {{ 'postman.responseViewer.downloadAudit' | transloco }}
+                      </span>
+                    </button>
+                  </div>
+                </ng-template>
+              </div>
+            </ng-container>
+
             <!-- JSON View -->
             <div *ngIf="viewMode() === 'json'" class="relative group">
               <button
@@ -212,7 +288,7 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
               </button>
               <pre
                 class="text-xs font-mono bg-slate-50 dark:bg-slate-950 p-4 rounded-xl border border-slate-200 dark:border-slate-800 overflow-x-auto select-text shadow-inner"
-                >{{ response().body | json }}</pre
+                >{{ displayBody() | json }}</pre
               >
             </div>
 
@@ -549,8 +625,17 @@ function formatPostmanCreditsPrice(value: number, maxDecimals = 6): string {
             </h3>
 
             <div class="print:block">
+              <ng-container *ngIf="normalizedAuditImageUrl() as auditImageUrl">
+                <div class="mb-6" *ngIf="!showSandboxAuditDemo()">
+                  <img
+                    [src]="sanitizeImageSrc(auditImageUrl)"
+                    [alt]="'postman.responseViewer.auditPreview' | transloco"
+                    class="mx-auto max-w-full rounded-lg border border-slate-200 dark:border-slate-800"
+                  />
+                </div>
+              </ng-container>
               <!-- Always use Table view for print layout if parsed body exists, otherwise JSON -->
-              <ng-container *ngIf="parsedBody() as body">
+              <ng-container *ngIf="displayBody() as body">
                 <!-- Use Table with expandAll forced when printing -->
                 <div class="border dark:border-slate-800 rounded-lg overflow-hidden">
                   <postman-json-table [data]="body" [expandAll]="isPrinting()"></postman-json-table>
@@ -775,6 +860,39 @@ export class ResponseViewerComponent {
   });
 
   /**
+   * On-screen JSON without huge screenshot payloads. Copy still uses the original body.
+   */
+  displayBody = computed(() => {
+    const body = this.parsedBody();
+
+    if (body === null || body === undefined || typeof body !== 'object') return body;
+
+    return redactAuditImages(body);
+  });
+
+  rawAuditImage = computed(() => {
+    const body = this.parsedBody();
+
+    if (body === null || body === undefined || typeof body !== 'object') return null;
+
+    return extractFirstAuditImageDeep(body);
+  });
+
+  normalizedAuditImageUrl = computed(() => {
+    const raw = this.rawAuditImage();
+
+    return raw ? normalizeImageDataUrl(raw) : null;
+  });
+
+  showSandboxAuditDemo = computed(() => {
+    const raw = this.rawAuditImage();
+
+    if (!raw || !this.isSandboxModeActive()) return false;
+
+    return isTinyAuditPlaceholder(raw);
+  });
+
+  /**
    * Normalized `data:application/pdf;base64,...` from nested response (e.g. `data.pdfBase64`), or null.
    */
   normalizedPdfDataUrlFromBody = computed(() => {
@@ -817,6 +935,41 @@ export class ResponseViewerComponent {
 
   sanitizePdfIframeSrc(dataUrl: string): SafeResourceUrl {
     return this._sanitizer.bypassSecurityTrustResourceUrl(dataUrl.trim());
+  }
+
+  sanitizeImageSrc(dataUrl: string): SafeUrl {
+    return this._sanitizer.bypassSecurityTrustUrl(dataUrl.trim());
+  }
+
+  openImageInNewTab(dataUrl: string): void {
+    window.open(normalizeImageDataUrl(dataUrl), '_blank', 'noopener,noreferrer');
+  }
+
+  downloadAuditImage(dataUrl: string): void {
+    const normalized = normalizeImageDataUrl(dataUrl);
+    let blobUrl: string;
+
+    try {
+      const comma = normalized.indexOf('base64,');
+      const b64 = comma === -1 ? normalized : normalized.slice(comma + 7);
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+
+      const mime = normalized.startsWith('data:image/jpeg') ? 'image/jpeg' : 'image/png';
+      blobUrl = URL.createObjectURL(new Blob([bytes], { type: mime }));
+    } catch {
+      return;
+    }
+
+    const anchor = document.createElement('a');
+    anchor.href = blobUrl;
+    anchor.download = 'audit-screenshot.png';
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
   }
 
   openPdfInNewTab(dataUrl: string): void {
