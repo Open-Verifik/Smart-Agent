@@ -11,6 +11,7 @@ import { TranslocoDirective, TranslocoModule, TranslocoService } from '@jsverse/
 import { take } from 'rxjs';
 import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.service';
 import { getPresetStepCount } from './batch-required-fields.util';
+import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
 import { BatchConfiguration, SmartBatchService } from './smart-batch.service';
 import { BatchConfigurationRef, SmartReportService, SmartReportTemplate } from './smart-report.service';
@@ -385,29 +386,11 @@ export class SmartBatchComponent implements OnInit {
         return map[category ?? ''] ?? category ?? '';
     }
 
-    getCountryFlag(country: string): string {
-        const map: Record<string, string> = {
-            colombia: '🇨🇴',
-            col: '🇨🇴',
-            co: '🇨🇴',
-        };
-        const key = (country || '').trim().toLowerCase();
-        return map[key] ?? '🏳️';
-    }
-
-    /**
-     * Soft-launch gate for system presets.
-     *
-     * Smart Batch / Smart Report ship first as a Colombia Beta: non-Colombia
-     * system presets stay visible as roadmap, but their CTA is disabled.
-     */
-    isColombiaBetaCountry(country?: string): boolean {
-        const key = (country || '').trim().toLowerCase();
-
-        return key === 'colombia' || key === 'col' || key === 'co';
+    getCountryFlag(country?: string): string {
+        return flagForCountry(country);
     }
 
     isSystemPresetAvailable(template: SmartReportTemplate): boolean {
-        return this.isColombiaBetaCountry(template.country);
+        return Boolean(template.systemKey) && this.getStepCount(template) > 0;
     }
 }

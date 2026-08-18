@@ -14,6 +14,7 @@ import {
     SmartBatchService,
     SmartBatchStats,
 } from '../smart-batch.service';
+import { getCountryFlag as flagForCountry } from '../smart-batch-country.util';
 import { inferBatchCategory, SmartBatchInputModeService } from '../smart-batch-input-mode.service';
 
 @Component({
@@ -247,56 +248,8 @@ export class BatchDashboardComponent implements OnInit {
         return batch.status !== 'processing';
     }
 
-    getCountryFlag(country: string): string {
-        const map: Record<string, string> = {
-            colombia: '🇨🇴',
-            col: '🇨🇴',
-            co: '🇨🇴',
-            'united states': '🇺🇸',
-            usa: '🇺🇸',
-            us: '🇺🇸',
-            peru: '🇵🇪',
-            pe: '🇵🇪',
-            world: '🌐',
-            mexico: '🇲🇽',
-            mx: '🇲🇽',
-            brazil: '🇧🇷',
-            br: '🇧🇷',
-            chile: '🇨🇱',
-            cl: '🇨🇱',
-            argentina: '🇦🇷',
-            ar: '🇦🇷',
-            ecuador: '🇪🇨',
-            ec: '🇪🇨',
-            venezuela: '🇻🇪',
-            ve: '🇻🇪',
-            bolivia: '🇧🇴',
-            bo: '🇧🇴',
-            uruguay: '🇺🇾',
-            uy: '🇺🇾',
-            paraguay: '🇵🇾',
-            py: '🇵🇾',
-            panama: '🇵🇦',
-            pa: '🇵🇦',
-            'costa rica': '🇨🇷',
-            cr: '🇨🇷',
-            guatemala: '🇬🇹',
-            gt: '🇬🇹',
-            honduras: '🇭🇳',
-            hn: '🇭🇳',
-            'el salvador': '🇸🇻',
-            sv: '🇸🇻',
-            'dominican republic': '🇩🇴',
-            'república dominicana': '🇩🇴',
-            'republica dominicana': '🇩🇴',
-            do: '🇩🇴',
-            canada: '🇨🇦',
-            ca: '🇨🇦',
-            spain: '🇪🇸',
-            es: '🇪🇸',
-        };
-        const key = (country || '').trim().toLowerCase();
-        return map[key] ?? '🏳️';
+    getCountryFlag(country?: string): string {
+        return flagForCountry(country);
     }
 
     getStatusColor(status: string): string {

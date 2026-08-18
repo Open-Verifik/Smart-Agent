@@ -20,6 +20,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import { isClientVisibleBatchDependencyField } from '../smart-batch-dependency.constants';
+import { filterFeaturesForCountry, resolveDropdownCountry } from '../smart-batch-country.util';
 import { BatchConfiguration, BatchStep, SmartBatchService } from '../smart-batch.service';
 
 @Component({
@@ -94,13 +95,7 @@ export class CreateBatchConfigComponent {
 
     // Available features limited to selected country + world endpoints
     availableFeaturesForCountry = computed(() => {
-        const all = this.availableFeatures();
-        const country = this.selectedCountryForEndpoints();
-        if (!country) return [];
-        return all.filter(
-            (f) =>
-                f.country === country || (f.country && String(f.country).toLowerCase() === 'world')
-        );
+        return filterFeaturesForCountry(this.availableFeatures(), this.selectedCountryForEndpoints());
     });
 
     // Filtered by search (title / URL) within country-filtered list
@@ -146,12 +141,10 @@ export class CreateBatchConfigComponent {
             next: (res) => {
                 const config = res.data;
 
-                // Normalize country to match dropdown options (API may return "COLOMBIA", we need "Colombia")
-                const countryFromApi = (config.country || '').trim();
-                const matchingCountry = this.countries().find(
-                    (c) => c.code.toLowerCase() === countryFromApi.toLowerCase()
+                const countryValue = resolveDropdownCountry(
+                    config.country,
+                    this.countries().map((country) => country.code)
                 );
-                const countryValue = matchingCountry?.code ?? countryFromApi;
 
                 // Populate form
                 this.step1Form.patchValue({
