@@ -22,6 +22,7 @@ import type {
     AppRegistrationListFilters,
     AppRegistrationRow,
     AppRegistrationStatus,
+    AppRegistrationStep,
 } from '../smart-enroll-projects.types';
 
 type DatePreset = 'all' | 'today' | 'thisWeek' | 'lastWeek' | 'thisMonth' | 'custom';
@@ -35,6 +36,20 @@ const STATUS_OPTIONS: Array<AppRegistrationStatus | 'all'> = [
     'NEEDS_MANUAL_VERIFICATION',
     'FAILED',
     'EXPIRED',
+];
+
+/** In flow order, so the dropdown reads as the journey the enrollee takes. */
+const STEP_OPTIONS: Array<AppRegistrationStep | 'all'> = [
+    'all',
+    '1',
+    'instructions',
+    'signUpForm',
+    'basicInformation',
+    'document',
+    'liveness',
+    'form',
+    'end',
+    'skipKYC',
 ];
 
 const DATE_PRESETS: DatePreset[] = ['all', 'today', 'thisWeek', 'lastWeek', 'thisMonth', 'custom'];
@@ -70,9 +85,10 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     private _searchDebounce: ReturnType<typeof setTimeout> | null = null;
 
     readonly statusOptions = STATUS_OPTIONS;
+    readonly stepOptions = STEP_OPTIONS;
     readonly datePresets = DATE_PRESETS;
 
-    displayedColumns = ['photo', 'status', 'email', 'phone', 'createdAt'];
+    displayedColumns = ['photo', 'status', 'currentStep', 'email', 'phone', 'createdAt'];
     dataSource: AppRegistrationRow[] = [];
     loading = signal(true);
     errorKey = signal<string | null>(null);
@@ -84,6 +100,7 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
 
     searchInput = '';
     statusFilter = signal<AppRegistrationStatus | 'all'>('all');
+    stepFilter = signal<AppRegistrationStep | 'all'>('all');
     datePreset = signal<DatePreset>('all');
     rangeStart = new FormControl<DateTime | null>(null);
     rangeEnd = new FormControl<DateTime | null>(null);
@@ -93,12 +110,15 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
         let count = 0;
         if (this.searchInput.trim()) count += 1;
         if (this.statusFilter() !== 'all') count += 1;
+        if (this.stepFilter() !== 'all') count += 1;
         if (this.datePreset() !== 'all') count += 1;
         return count;
     });
 
     ngOnInit(): void {
         this.projectId = this._route.snapshot.paramMap.get('projectId') ?? '';
+        const step = this._route.snapshot.queryParamMap.get('step');
+        if (step) this.stepFilter.set(step as AppRegistrationStep);
         if (!this.projectId) {
             this._router.navigate(['/smart-enroll/projects']);
             return;
@@ -122,6 +142,12 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
 
     onStatusChange(value: AppRegistrationStatus | 'all'): void {
         this.statusFilter.set(value);
+        this.pageIndex = 0;
+        this.fetchRecords();
+    }
+
+    onStepChange(value: AppRegistrationStep | 'all'): void {
+        this.stepFilter.set(value);
         this.pageIndex = 0;
         this.fetchRecords();
     }
@@ -158,6 +184,7 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     clearFilters(): void {
         this.searchInput = '';
         this.statusFilter.set('all');
+        this.stepFilter.set('all');
         this.datePreset.set('all');
         this.rangeStart.setValue(null, { emitEvent: false });
         this.rangeEnd.setValue(null, { emitEvent: false });
@@ -177,6 +204,18 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
     formatDate(date?: string): string {
         if (!date) return '—';
         return DateTime.fromISO(date).toFormat('MMM dd, yyyy HH:mm');
+    }
+
+    /**
+     * Translation key for a step value. Anything the backend adds later falls back to the raw
+     * value rather than rendering an empty cell.
+     */
+    stepLabelKey(step?: string): string {
+        if (!step) return 'smartEnrollProjects.step.1';
+
+        return STEP_OPTIONS.includes(step as AppRegistrationStep)
+            ? `smartEnrollProjects.step.${step}`
+            : '';
     }
 
     displayEmail(row: AppRegistrationRow): string {
@@ -214,6 +253,7 @@ export class ProjectRecordsComponent implements OnInit, OnDestroy {
         const filters: AppRegistrationListFilters = {
             search: this.searchInput.trim() || undefined,
             status: this.statusFilter(),
+            currentStep: this.stepFilter(),
             sort: this.sortDirection() === 'asc' ? 'createdAt' : '-createdAt',
             ...this._resolveDateRange(),
         };

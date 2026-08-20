@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
 import { NgxPrintDirective } from 'ngx-print';
@@ -16,6 +17,10 @@ import { finalize, forkJoin, Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
 import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
 import { ScanDeleteConfirmDialogComponent } from '../smart-scan/scan-delete-confirm-dialog.component';
+import {
+    CaptureRequirementsDialogComponent,
+    type CaptureRequirementsDialogData,
+} from './capture-requirements-dialog.component';
 import { DevApiHintDialogComponent } from './dev-api-hint-dialog.component';
 import { buildDevApiHintBody, type DevApiHintI18n } from './dev-api-hint.util';
 import {
@@ -23,20 +28,54 @@ import {
     type EnrollResendLinkDialogResult,
 } from './enroll-resend-link-dialog.component';
 import {
+    DocumentFaceDialogComponent,
+    type DocumentFaceDialogData,
+    type DocumentFaceDialogResult,
+} from './document-face-dialog.component';
+import {
+    DocumentTypeDialogComponent,
+    type DocumentTypeDialogData,
+    type DocumentTypeDialogResult,
+} from './document-type-dialog.component';
+import {
+    NameReviewDialogComponent,
+    type NameReviewDialogData,
+    type NameReviewDialogResult,
+} from './name-review-dialog.component';
+import {
     ResolveStatusDialogComponent,
     type ResolveStatusDialogData,
     type ResolveStatusDialogResult,
 } from './resolve-status-dialog.component';
 import {
+    buildFailedBiometricAttempts,
+    buildFailedDocumentAttempts,
     buildManualVerificationReasons,
+    canRerunCompare,
     cleanOcrExtraction,
     compareMinScoreDisplayPercent,
+    documentFaceReasonKey,
+    governmentNameResponse,
+    isDocumentTypeUndetected,
+    isNameVerificationPerformed,
+    livenessAttemptUsage,
     livenessMinScoreDisplayPercent,
+    manualNameReviewDecision,
+    nameVerificationSkip,
     normalizeUnitScore,
     pickEnrollmentFaceMedia,
+    recordFullName,
+    resolveCompareStatus,
+    resolveLivenessMinScoreUnit,
+    resolveOtpStepState,
     scoreToPercent,
     showNameVerificationSection,
+    type CompareStatus,
+    type FailedBiometricAttempt,
+    type FailedDocumentAttempt,
+    type GovernmentNameResponse,
     type ManualVerificationReason,
+    type NameVerificationSkip,
     type StepId,
     type StepState,
 } from './app-registration-record.utils';
@@ -49,6 +88,15 @@ import type {
     ManualReviewLogEntry,
     ResolvableAppRegistrationStatus,
 } from './smart-enroll-projects.types';
+
+/** Name-match metrics for one source, with an explicit "did the lookup run" flag. */
+interface NameMatchColumn {
+    performed: boolean;
+    firstNameMatchPercentage: number | null;
+    lastNameMatchPercentage: number | null;
+    fullNameMatchPercentage: number | null;
+    namesMatch: boolean | null;
+}
 
 const STEP_ORDER: StepId[] = [
     'consent',
@@ -70,6 +118,7 @@ const SKIP_INFO_KEYS = new Set([
     'validationMethod',
     'webhook',
     'type',
+    'deleted',
 ]);
 
 /** Shown only in the "Session & technical details" card, not in the signup grid */
@@ -174,6 +223,7 @@ const RESUME_DOCUMENT_OCR_EXCLUDE = new Set<string>([
         MatMenuModule,
         MatProgressSpinnerModule,
         MatSnackBarModule,
+        MatTooltipModule,
         NgxPrintDirective,
         TranslocoModule,
         WebhookEventsComponent,
@@ -199,6 +249,8 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
 
     private _sub: Subscription | null = null;
     private _observer: IntersectionObserver | null = null;
+    /** fieldLabel() runs per row on every change detection pass; keyed by `lang|field`. */
+    private _fieldLabelCache = new Map<string, string>();
 
     projectId = '';
     recordId = '';
@@ -213,6 +265,8 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     deleteErrorKey = signal<string | null>(null);
     exportLoading = signal(false);
     devView = signal(false);
+    nameActionLoading = signal(false);
+    compareActionLoading = signal(false);
 
     ngOnInit(): void {
         this.projectId = this._route.snapshot.paramMap.get('projectId') ?? '';
@@ -409,6 +463,26 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
             maxWidth: '100vw',
             maxHeight: '100vh',
             height: '100%',
+        });
+    }
+
+    /**
+     * Explains the capture rules the engine enforces, highlighting the one a given attempt broke.
+     *
+     * @param attempt the failed attempt to diagnose, or null for the general reference
+     */
+    openCaptureRequirements(attempt?: FailedBiometricAttempt | null): void {
+        const data: CaptureRequirementsDialogData = {
+            reason: attempt?.reasonKey ?? null,
+            scorePercent: attempt?.scorePercent ?? null,
+            thresholdPercent: this.livenessThresholdPercent(),
+        };
+
+        this._dialog.open(CaptureRequirementsDialogComponent, {
+            data,
+            width: '560px',
+            maxWidth: '92vw',
+            panelClass: 'capture-requirements-dialog-panel',
         });
     }
 
@@ -787,23 +861,26 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Uses Transloco when a key exists; otherwise a readable title from the property name
-     * (avoids showing raw i18n paths when a locale omits a field).
+     * Uses Transloco when a key exists; otherwise a readable title from the property name.
+     * Signup forms carry customer-defined fields, so misses are normal: the dictionary is read
+     * directly instead of via translate() to keep the missing-key handler from logging them.
      */
     fieldLabel(key: string): string {
-        const tk = `smartEnrollProjects.recordDetail.field.${key}`;
-        const translated = this._transloco.translate(tk);
-        if (this._translationLooksMissing(tk, translated)) {
-            return this._humanizeFieldKey(key);
-        }
-        return translated;
-    }
+        const lang = this._transloco.getActiveLang();
+        const cacheKey = `${lang}|${key}`;
+        const cached = this._fieldLabelCache.get(cacheKey);
+        if (cached) return cached;
 
-    private _translationLooksMissing(translationKey: string, translated: string): boolean {
-        if (!translated || translated.trim() === '') return true;
-        if (translated === translationKey) return true;
-        if (/smartenrollprojects\.recorddetail\.field\./i.test(translated)) return true;
-        return false;
+        const dictionary = this._transloco.getTranslation(lang) as Record<string, unknown> | undefined;
+        const translated = dictionary?.[`smartEnrollProjects.recordDetail.field.${key}`];
+
+        if (typeof translated === 'string' && translated.trim()) {
+            this._fieldLabelCache.set(cacheKey, translated);
+            return translated;
+        }
+
+        // Not cached: the dictionary may still be loading on first render.
+        return this._humanizeFieldKey(key);
     }
 
     private _humanizeFieldKey(key: string): string {
@@ -887,15 +964,21 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
      * Name-match metrics for one source — same split as client-panel
      * (`documentValidation` = gov vs OCR/scan, `informationValidation` = gov vs form).
      */
-    nameMatchColumn(
-        r: AppRegistrationDetail | null,
-        source: 'document' | 'information',
-    ): {
-        firstNameMatchPercentage: number | null;
-        lastNameMatchPercentage: number | null;
-        fullNameMatchPercentage: number | null;
-        namesMatch: boolean | null;
-    } {
+    nameMatchColumn(r: AppRegistrationDetail | null, source: 'document' | 'information'): NameMatchColumn {
+        const performed = isNameVerificationPerformed(r);
+
+        // Until the government lookup completes, every field is still its schema default
+        // (`0` / `false`); reporting those would read as a measured 0% mismatch.
+        if (!performed) {
+            return {
+                performed: false,
+                firstNameMatchPercentage: null,
+                lastNameMatchPercentage: null,
+                fullNameMatchPercentage: null,
+                namesMatch: null,
+            };
+        }
+
         const obj =
             source === 'document'
                 ? (r?.documentValidation as Record<string, unknown> | undefined)
@@ -920,26 +1003,343 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         };
 
         return {
+            performed: true,
             firstNameMatchPercentage: pickNum('firstNameMatchPercentage'),
             lastNameMatchPercentage: pickNum('lastNameMatchPercentage'),
             fullNameMatchPercentage: pickNum('fullNameMatchPercentage'),
-            namesMatch: pickBool('namesMatch'),
+            // The backend never writes `namesMatch` on informationValidation, so a stored
+            // `false` there would always read as "No" regardless of the percentages.
+            namesMatch: source === 'document' ? pickBool('namesMatch') : null,
         };
     }
 
     /** True if this source has any name-match field (used to show a sub-column without the flow flag) */
-    nameMatchColumnHasData(column: {
-        firstNameMatchPercentage: number | null;
-        lastNameMatchPercentage: number | null;
-        fullNameMatchPercentage: number | null;
-        namesMatch: boolean | null;
-    }): boolean {
+    nameMatchColumnHasData(column: NameMatchColumn): boolean {
         return (
             column.firstNameMatchPercentage != null ||
             column.lastNameMatchPercentage != null ||
             column.fullNameMatchPercentage != null ||
             column.namesMatch != null
         );
+    }
+
+    /** Failed liveness attempts, newest last, with score, decoded reason and captured frame. */
+    failedBiometricAttempts(): FailedBiometricAttempt[] {
+        return buildFailedBiometricAttempts(this.record());
+    }
+
+    /** Failed document scans with the reason, the detected type and whatever OCR was captured. */
+    failedDocumentAttempts(): FailedDocumentAttempt[] {
+        return buildFailedDocumentAttempts(this.record());
+    }
+
+    /**
+     * Type, category, country and status of the accepted scan. Shown because a reviewer cannot
+     * judge a skipped name check or a low match without knowing what the scan decided the
+     * document was.
+     */
+    documentSummaryFields(): { key: string; value: string }[] {
+        const docVal = this.record()?.documentValidation as Record<string, unknown> | null | undefined;
+
+        if (!docVal) return [];
+
+        const fields: { key: string; value: string }[] = [];
+
+        for (const key of ['documentType', 'documentCategory', 'country', 'status', 'inputMethod']) {
+            const value = docVal[key];
+
+            if (typeof value === 'string' && value.trim()) fields.push({ key, value: value.trim() });
+        }
+
+        return fields;
+    }
+
+    /** Translated label for a decoded failure reason. */
+    failedBiometricReasonKey(attempt: FailedBiometricAttempt): string {
+        return `smartEnrollProjects.recordDetail.biometricReason.${attempt.reasonKey}`;
+    }
+
+    /**
+     * Attempts spent against the flow's limit, so an abandoned record is not mistaken for one
+     * that ran out of retries.
+     */
+    livenessAttemptUsage(): { used: number; limit: number; captures: number } {
+        return livenessAttemptUsage(this.record());
+    }
+
+    /**
+     * Configured liveness threshold for the failed-attempt bars. Unlike `livenessMinScorePercent`,
+     * this does not require a successful validation on the record — a record with only failed
+     * attempts still needs the threshold to explain the rejection.
+     */
+    livenessThresholdPercent(): number {
+        return scoreToPercent(normalizeUnitScore(resolveLivenessMinScoreUnit(this.record())));
+    }
+
+    failedBiometricSelfieSrc(attempt: FailedBiometricAttempt): SafeUrl | string {
+        if (attempt.face?.base64) return this.sanitizeBase64(attempt.face.base64);
+        if (attempt.face?.url) return this.trustHttpUrl(attempt.face.url);
+        return '';
+    }
+
+    /** True when the name verification has not run, so the card should say so explicitly. */
+    nameVerificationPending(): boolean {
+        return !isNameVerificationPerformed(this.record());
+    }
+
+    /** Plain-language skip explanation, with the detected type and country filled in. */
+    nameVerificationSkip(): NameVerificationSkip | null {
+        return nameVerificationSkip(this.record());
+    }
+
+    /** Name as the document scan read it, shown so the manager can judge a skipped check. */
+    documentFullName(): string | null {
+        return recordFullName(this.record(), 'document');
+    }
+
+    /** Name as the person typed it into the sign-up form. */
+    formFullName(): string | null {
+        return recordFullName(this.record(), 'form');
+    }
+
+    /** Reviewer verdict when the names were confirmed or rejected by hand. */
+    manualNameDecision(): 'match' | 'mismatch' | null {
+        return manualNameReviewDecision(this.record());
+    }
+
+    /** What the government registry answered, shown so the percentages below can be read in context. */
+    governmentNameResponse(): GovernmentNameResponse | null {
+        return governmentNameResponse(this.record());
+    }
+
+    /**
+     * The registry resolves a normalized type (Panama `PA_CRP` is queried as `CCPA`), so it is
+     * only worth calling out when it differs from what the scan reported.
+     */
+    governmentLookupTypeDiffers(): boolean {
+        const resolved = this.governmentNameResponse()?.documentType;
+        if (!resolved) return false;
+
+        const docVal = this.record()?.documentValidation as { documentType?: string } | null | undefined;
+
+        return !!docVal?.documentType && docVal.documentType !== resolved;
+    }
+
+    /** The linked document validation, which the name actions operate on. */
+    private _documentValidationId(): string | null {
+        const docVal = this.record()?.documentValidation as { _id?: string } | null | undefined;
+        return docVal?._id ?? null;
+    }
+
+    /** True when there is a document to re-check or review names on. */
+    canReviewNames(): boolean {
+        return !!this._documentValidationId();
+    }
+
+    /** True when the scan stored an unknown type the reviewer can set from the catalog. */
+    canSetDocumentType(): boolean {
+        return this.canReviewNames() && isDocumentTypeUndetected(this.record());
+    }
+
+    /** The extracted-data tile for the scan's type, after `cleanOcrExtraction` spaces the key. */
+    isOcrDocumentTypeField(key: string): boolean {
+        return key === 'Document Type' || key === 'documentType';
+    }
+
+    /** Open the catalog picker so the reviewer can set a type without running the name lookup. */
+    openDocumentTypeDialog(): void {
+        const documentValidationId = this._documentValidationId();
+        if (!documentValidationId) return;
+
+        const docVal = this.record()?.documentValidation as { country?: string } | null | undefined;
+        const data: DocumentTypeDialogData = {
+            documentValidationId,
+            country: docVal?.country ?? null,
+        };
+
+        this._dialog
+            .open(DocumentTypeDialogComponent, {
+                width: '560px',
+                maxWidth: '92vw',
+                maxHeight: '90vh',
+                data,
+            })
+            .afterClosed()
+            .subscribe((result: DocumentTypeDialogResult | undefined) => {
+                if (!result?.success) return;
+                this._refreshRecordAfterNameAction('documentTypeDialog.success');
+            });
+    }
+
+    /**
+     * Re-run the government name lookup. Useful after a routing fix, since records scored under
+     * older routing keep their skip until someone asks for a fresh lookup.
+     */
+    rerunNameValidation(): void {
+        const documentValidationId = this._documentValidationId();
+        if (!documentValidationId || this.nameActionLoading()) return;
+
+        this.nameActionLoading.set(true);
+        this._cdr.markForCheck();
+
+        this._projectsService
+            .rerunNameValidation(documentValidationId)
+            .pipe(
+                finalize(() => {
+                    this.nameActionLoading.set(false);
+                    this._cdr.markForCheck();
+                })
+            )
+            .subscribe({
+                next: () => this._refreshRecordAfterNameAction('nameRerunSuccess'),
+                error: (error) => {
+                    const message =
+                        error?.error?.message ??
+                        this._transloco.translate('smartEnrollProjects.recordDetail.nameRerunError');
+                    this._snackBar.open(message, 'OK', { duration: 5000 });
+                },
+            });
+    }
+
+    /** State of the selfie/document compare, so the card can say why there is no score. */
+    compareStatus(): CompareStatus {
+        return resolveCompareStatus(this.record());
+    }
+
+    /** True when re-running the compare could still change the outcome. */
+    canRerunCompare(): boolean {
+        return canRerunCompare(this.record());
+    }
+
+    /** Explains a missing document portrait when the scan recorded why it has none. */
+    documentFaceReasonKey(): string | null {
+        return documentFaceReasonKey(this.record());
+    }
+
+    /**
+     * Which action the compare card offers: a plain re-run when the record already holds a
+     * document portrait, or cropping one out of the scan first when it does not.
+     */
+    compareAction(): 'rerun' | 'extract' | null {
+        if (!this.canRerunCompare()) return null;
+
+        return this.compareStatus() === 'missingDocumentFace' ? 'extract' : 'rerun';
+    }
+
+    /**
+     * Crop the portrait out of the stored scan and re-run the compare with it. This is the path
+     * for a record whose onboarding client never sent one, which leaves the compare with nothing
+     * to compare the selfie against.
+     */
+    openDocumentFaceDialog(): void {
+        const record = this.record();
+        if (!this.recordId || !record) return;
+
+        const documentValidation = record.documentValidation as { url?: string; backUrl?: string } | null | undefined;
+
+        const data: DocumentFaceDialogData = {
+            appRegistrationId: this.recordId,
+            frontUrl: documentValidation?.url ?? null,
+            backUrl: documentValidation?.backUrl ?? null,
+        };
+
+        this._dialog
+            .open(DocumentFaceDialogComponent, {
+                width: '560px',
+                maxWidth: '92vw',
+                maxHeight: '90vh',
+                data,
+            })
+            .afterClosed()
+            .subscribe((result: DocumentFaceDialogResult | undefined) => {
+                if (!result?.success) return;
+                this._refreshRecordAfterNameAction('compareRerunSuccess');
+            });
+    }
+
+    /**
+     * Re-run the selfie/document compare against the portrait already on the record, for a compare
+     * that failed or never ran.
+     */
+    rerunCompare(): void {
+        if (!this.recordId || this.compareActionLoading()) return;
+
+        this.compareActionLoading.set(true);
+        this._cdr.markForCheck();
+
+        this._projectsService
+            .rerunCompare(this.recordId)
+            .pipe(
+                finalize(() => {
+                    this.compareActionLoading.set(false);
+                    this._cdr.markForCheck();
+                })
+            )
+            .subscribe({
+                next: () => this._refreshRecordAfterNameAction('compareRerunSuccess'),
+                error: (error) => {
+                    const message =
+                        error?.error?.message ??
+                        this._transloco.translate('smartEnrollProjects.recordDetail.compareRerunError');
+                    this._snackBar.open(message, 'OK', { duration: 5000 });
+                },
+            });
+    }
+
+    /** Open the confirm / reject names dialog, pre-filled with both name sources. */
+    openNameReviewDialog(preselected?: 'match' | 'mismatch'): void {
+        const documentValidationId = this._documentValidationId();
+        if (!documentValidationId) return;
+
+        const docVal = this.record()?.documentValidation as
+            | { documentType?: string; country?: string }
+            | null
+            | undefined;
+        const skip = this.nameVerificationSkip();
+
+        const data: NameReviewDialogData = {
+            documentValidationId,
+            documentName: this.documentFullName(),
+            formName: this.formFullName(),
+            documentType: docVal?.documentType ?? null,
+            country: docVal?.country ?? null,
+            skipReason: skip ? this._transloco.translate(skip.key, skip.params) : null,
+            preselected,
+        };
+
+        this._dialog
+            .open(NameReviewDialogComponent, {
+                width: '560px',
+                maxWidth: '92vw',
+                maxHeight: '90vh',
+                data,
+            })
+            .afterClosed()
+            .subscribe((result: NameReviewDialogResult | undefined) => {
+                if (!result?.success) return;
+                this._refreshRecordAfterNameAction('nameReviewDialog.success');
+            });
+    }
+
+    /**
+     * Reload the record so the name card reflects the new verdict or score.
+     * @param successKey translation key (relative to `smartEnrollProjects.recordDetail`) for the toast
+     */
+    private _refreshRecordAfterNameAction(successKey: string): void {
+        this._snackBar.open(
+            this._transloco.translate(`smartEnrollProjects.recordDetail.${successKey}`),
+            'OK',
+            { duration: 4000 }
+        );
+
+        this._projectsService.getAppRegistration(this.recordId).subscribe({
+            next: (record) => {
+                if (!record) return;
+                this.record.set(record);
+                this._initOcr(record);
+                this._cdr.markForCheck();
+            },
+        });
     }
 
     /** When the flow enables name verification, show full grid (client-panel); else only if a column has data */
@@ -972,6 +1372,7 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
         if (s === 'ok') return 'check_circle';
         if (s === 'error') return 'error';
         if (s === 'warn') return 'warning';
+        if (s === 'info') return 'info';
         return 'radio_button_unchecked';
     }
 
@@ -984,16 +1385,10 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                 return this.hasConsentProof(r) ? 'ok' : 'pending';
             case 'information':
                 return r.informationValidation ? 'ok' : 'pending';
-            case 'email': {
-                if (!r.email && !r.emailValidation) return 'pending';
-                const st = (r.emailValidation as { status?: string } | undefined)?.status;
-                return st === 'validated' ? 'ok' : r.email || r.emailValidation ? 'warn' : 'pending';
-            }
-            case 'phone': {
-                if (!r.phone && !r.phoneValidation) return 'pending';
-                const st = (r.phoneValidation as { status?: string } | undefined)?.status;
-                return st === 'validated' ? 'ok' : r.phone || r.phoneValidation ? 'warn' : 'pending';
-            }
+            case 'email':
+                return resolveOtpStepState(r, 'email');
+            case 'phone':
+                return resolveOtpStepState(r, 'phone');
             case 'documents': {
                 const failed = r.failedDocumentValidations?.length ?? 0;
                 if (failed > 0) return 'error';
@@ -1006,9 +1401,20 @@ export class ProjectRecordDetailComponent implements OnInit, OnDestroy {
                 return this.hasEnrollmentSelfie(r) ? 'ok' : 'warn';
             }
             case 'compare': {
-                const cmp = r.compareFaceVerification as { result?: { score?: number } } | null | undefined;
-                if (cmp?.result?.score != null || this.showNameMatchCard()) return 'ok';
-                return 'pending';
+                // Only a compare score can turn this green. It used to also accept the name-match
+                // card being visible, which reported a passing compare on records where none had
+                // ever run.
+                switch (resolveCompareStatus(r)) {
+                    case 'passed':
+                        return 'ok';
+                    case 'failed':
+                        return 'error';
+                    case 'notRun':
+                    case 'missingDocumentFace':
+                        return 'warn';
+                    default:
+                        return 'pending';
+                }
             }
             case 'verdict': {
                 const st = r.status || '';

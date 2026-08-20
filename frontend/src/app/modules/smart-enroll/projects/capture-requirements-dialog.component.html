@@ -1,0 +1,83 @@
+<h2 mat-dialog-title class="capture-requirements-dialog__title">
+    {{ 'smartEnrollProjects.recordDetail.captureRequirements.title' | transloco }}
+</h2>
+
+<mat-dialog-content class="capture-requirements-dialog__content">
+    <p class="capture-requirements-dialog__subtitle">
+        {{ 'smartEnrollProjects.recordDetail.captureRequirements.subtitle' | transloco }}
+    </p>
+
+    @if (hasReason()) {
+        <div class="capture-requirements-dialog__diagnosis">
+            <mat-icon
+                class="capture-requirements-dialog__diagnosis-icon icon-size-5"
+                svgIcon="heroicons_outline:exclamation-triangle"
+            ></mat-icon>
+            <div class="min-w-0">
+                <p class="capture-requirements-dialog__diagnosis-label">
+                    {{ 'smartEnrollProjects.recordDetail.captureRequirements.diagnosisTitle' | transloco }}
+                </p>
+                <p class="capture-requirements-dialog__diagnosis-reason">
+                    {{ 'smartEnrollProjects.recordDetail.biometricReason.' + data.reason | transloco }}
+                </p>
+                @if (isScoreFailure()) {
+                    <p class="capture-requirements-dialog__diagnosis-score">
+                        {{
+                            'smartEnrollProjects.recordDetail.captureRequirements.scoreLine'
+                                | transloco: { score: data.scorePercent, threshold: data.thresholdPercent }
+                        }}
+                    </p>
+                } @else {
+                    <p class="capture-requirements-dialog__diagnosis-score">
+                        {{ 'smartEnrollProjects.recordDetail.captureRequirements.qualityNote' | transloco }}
+                    </p>
+                }
+            </div>
+        </div>
+    }
+
+    <h3 class="capture-requirements-dialog__section">
+        {{ 'smartEnrollProjects.recordDetail.captureRequirements.requirementsTitle' | transloco }}
+    </h3>
+
+    <ul class="capture-requirements-dialog__list">
+        @for (requirement of requirements; track requirement.key) {
+            <li
+                class="capture-requirements-dialog__item"
+                [class.capture-requirements-dialog__item--highlighted]="isHighlighted(requirement)"
+            >
+                <mat-icon
+                    class="capture-requirements-dialog__item-icon icon-size-5"
+                    [svgIcon]="
+                        isHighlighted(requirement) ? 'heroicons_outline:x-circle' : 'heroicons_outline:check-circle'
+                    "
+                ></mat-icon>
+                <span class="capture-requirements-dialog__item-text">
+                    {{
+                        'smartEnrollProjects.recordDetail.captureRequirements.requirement.' + requirement.key | transloco
+                    }}
+                </span>
+            </li>
+        }
+    </ul>
+
+    <p class="capture-requirements-dialog__footnote">
+        {{ 'smartEnrollProjects.recordDetail.captureRequirements.footnote' | transloco }}
+    </p>
+
+    <a
+        class="capture-requirements-dialog__docs"
+        href="https://docs.verifik.co/biometrics/face-image-requirements"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        <mat-icon class="icon-size-4" svgIcon="heroicons_outline:arrow-top-right-on-square"></mat-icon>
+        <span>{{ 'smartEnrollProjects.recordDetail.captureRequirements.docsLink' | transloco }}</span>
+    </a>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="capture-requirements-dialog__actions">
+    <button type="button" mat-flat-button color="primary" (click)="close()">
+        {{ 'smartEnrollProjects.recordDetail.captureRequirements.close' | transloco }}
+    </button>
+</mat-dialog-actions>

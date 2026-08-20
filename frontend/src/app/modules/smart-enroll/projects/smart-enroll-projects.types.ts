@@ -109,6 +109,11 @@ export interface AppRegistrationRow {
     _id: string;
     status?: string;
     createdAt?: string;
+    /**
+     * Last step the enrollee reached. Records start on the literal `'1'` before any step is
+     * reported, which reads as "never started".
+     */
+    currentStep?: string;
     /** Liveness selfie (`IdentityImage`) when populated */
     face?: { base64?: string; url?: string } | null;
     emailValidation?: { email?: string; status?: string; updatedAt?: string; createdAt?: string };
@@ -185,12 +190,46 @@ export interface AppRegistrationListFilters {
     search?: string;
     /** Single status enum value; 'all' or empty disables the filter */
     status?: AppRegistrationStatus | 'all' | string;
+    /** Single `currentStep` value; 'all' or empty disables the filter */
+    currentStep?: AppRegistrationStep | 'all' | string;
     /** ISO date-time inclusive lower bound for createdAt */
     createdFrom?: string;
     /** ISO date-time inclusive upper bound for createdAt */
     createdTo?: string;
     /** MongoORM sort string, e.g. '-createdAt' */
     sort?: string;
+}
+
+/**
+ * Steps a registration can be sitting on, in flow order.
+ *
+ * `'1'` is the value the backend writes on creation, so it means the enrollee opened the link and
+ * reported nothing. It is a step value like any other for filtering purposes.
+ */
+export type AppRegistrationStep =
+    | '1'
+    | 'instructions'
+    | 'signUpForm'
+    | 'basicInformation'
+    | 'document'
+    | 'liveness'
+    | 'form'
+    | 'end'
+    | 'skipKYC';
+
+/** One bar of a funnel breakdown: `label` is a status, a step, or a failure reason. */
+export interface FunnelBucket {
+    label: string;
+    count: number;
+}
+
+/** `GET /v2/app-registrations/statistics?funnel=true` */
+export interface AppRegistrationFunnel {
+    total: number;
+    byStatus: FunnelBucket[];
+    byCurrentStep: FunnelBucket[];
+    documentFailures: FunnelBucket[];
+    livenessFailures: FunnelBucket[];
 }
 
 export interface PaginatedResponse<T> {

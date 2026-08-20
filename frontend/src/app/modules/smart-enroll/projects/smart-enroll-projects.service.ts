@@ -5,6 +5,7 @@ import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
 import type { ClientSettingsOverrideSnapshot } from 'app/core/client-settings/override-conditions';
 import type {
     AppRegistrationDetail,
+    AppRegistrationFunnel,
     AppRegistrationListFilters,
     AppRegistrationRow,
     EnrollProject,
@@ -36,6 +37,23 @@ export const APP_REGISTRATION_DETAIL_POPULATES: string[] = [
     'manualReviewLog.reviewedByClient',
     'manualReviewLog.reviewedByStaff',
 ];
+
+export interface DocumentTypeOption {
+    _id?: string;
+    name: string;
+    code: string;
+    country: string;
+    category?: string;
+}
+
+export interface DocumentTypeSuggestion {
+    code: string | null;
+    name: string | null;
+    country: string | null;
+    category?: string | null;
+    confidence?: number;
+    source?: string;
+}
 
 const ONBOARDING_TYPE = 'onboarding';
 
@@ -285,6 +303,115 @@ export class SmartEnrollProjectsService {
             );
     }
 
+    /**
+     * Re-run the government name lookup on a document validation. `force` bypasses the
+     * `imageValidated` short-circuit, so a record skipped under older routing is re-scored.
+     */
+    /**
+     * Re-run the selfie/document face compare, optionally with a portrait the reviewer cropped out
+     * of the stored scan. That crop is what recovers a record whose compare never ran because the
+     * onboarding client never sent one.
+     */
+    rerunCompare(appRegistrationId: string, documentFace?: string): Observable<{ data: unknown }> {
+        return this._http
+            .post<{ data: unknown }>(
+                `${this.apiUrl}/v2/app-registrations/${appRegistrationId}/rerun-compare`,
+                documentFace ? { documentFace } : {},
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error re-running face compare:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    rerunNameValidation(documentValidationId: string): Observable<{ data: unknown }> {
+        return this._http
+            .put<{ data: unknown }>(
+                `${this.apiUrl}/v2/document-validations/${documentValidationId}/validate`,
+                { force: true },
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error re-running name validation:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    /**
+     * Record a reviewer verdict on the names when no registry can score them (licenses,
+     * passports, unmapped types) or the lookup keeps failing. Leaves the enrollment status alone —
+     * that stays with overrideAppRegistrationStatus().
+     */
+    listDocumentTypes(): Observable<DocumentTypeOption[]> {
+        return this._http
+            .get<{ data: DocumentTypeOption[] }>(`${this.apiUrl}/v2/document-types`, {
+                params: { where_status: 'active', limit: '200' },
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((response) => (Array.isArray(response.data) ? response.data : [])),
+                catchError((err) => {
+                    console.error('Error listing document types:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    setDocumentType(documentValidationId: string, documentType: string): Observable<{ data: unknown }> {
+        return this._http
+            .put<{ data: unknown }>(
+                `${this.apiUrl}/v2/document-validations/${documentValidationId}/document-type`,
+                { documentType },
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error setting document type:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    detectDocumentType(documentValidationId: string): Observable<DocumentTypeSuggestion> {
+        return this._http
+            .post<{ data: DocumentTypeSuggestion }>(
+                `${this.apiUrl}/v2/document-validations/${documentValidationId}/detect-document-type`,
+                {},
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                map((response) => response.data),
+                catchError((err) => {
+                    console.error('Error detecting document type:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
+    reviewDocumentNames(
+        documentValidationId: string,
+        decision: 'match' | 'mismatch',
+        note?: string
+    ): Observable<{ data: unknown }> {
+        return this._http
+            .put<{ data: unknown }>(
+                `${this.apiUrl}/v2/document-validations/${documentValidationId}/manual-name-review`,
+                { decision, ...(note?.trim() ? { note: note.trim() } : {}) },
+                { headers: this.authHeaders }
+            )
+            .pipe(
+                catchError((err) => {
+                    console.error('Error saving manual name review:', err);
+                    return throwError(() => err);
+                })
+            );
+    }
+
     listAppRegistrations(
         projectId: string,
         page: number,
@@ -318,6 +445,11 @@ export class SmartEnrollProjectsService {
             params.where_status = status;
         }
 
+        const currentStep = filters.currentStep?.trim();
+        if (currentStep && currentStep !== 'all') {
+            params.where_currentStep = currentStep;
+        }
+
         if (filters.createdFrom) params.whereGTE_createdAt = filters.createdFrom;
         if (filters.createdTo) params.whereLTE_createdAt = filters.createdTo;
 
@@ -330,6 +462,26 @@ export class SmartEnrollProjectsService {
                 catchError((err) => {
                     console.error('Error loading app registrations:', err);
                     return throwError(() => err);
+                })
+            );
+    }
+
+    /**
+     * Where the project's registrations are stalling, over its whole history.
+     *
+     * Opt-in on the backend, so nothing else that reads statistics pays for the aggregations.
+     */
+    getProjectFunnel(projectId: string): Observable<AppRegistrationFunnel | null> {
+        return this._http
+            .get<{ data?: { funnel?: AppRegistrationFunnel } }>(`${this.apiUrl}/v2/app-registrations/statistics`, {
+                params: { project: projectId, funnel: 'true' },
+                headers: this.authHeaders,
+            })
+            .pipe(
+                map((res) => res?.data?.funnel ?? null),
+                catchError((err) => {
+                    console.error('Error loading app registration funnel:', err);
+                    return of(null);
                 })
             );
     }
