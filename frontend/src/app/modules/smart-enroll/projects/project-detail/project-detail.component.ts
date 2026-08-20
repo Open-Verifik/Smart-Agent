@@ -12,13 +12,30 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { ProjectFlowOtpEmailEditorComponent } from 'app/core/project-flow-otp-email/project-flow-otp-email-editor.component';
+import { documentFailureReasonKey, livenessFailureReasonKey } from '../app-registration-record.utils';
 import { SmartEnrollProjectsService } from '../smart-enroll-projects.service';
 import type {
+    AppRegistrationFunnel,
     EnrollClientRef,
     EnrollProject,
     EnrollProjectBranding,
     EnrollProjectFlow,
+    FunnelBucket,
 } from '../smart-enroll-projects.types';
+
+/** Step values with a translated label; the backend can report others, which render raw. */
+const FUNNEL_STEP_LABELS = new Set([
+    '1',
+    'not_started',
+    'instructions',
+    'signUpForm',
+    'basicInformation',
+    'document',
+    'liveness',
+    'form',
+    'end',
+    'skipKYC',
+]);
 
 interface BrandingPreview {
     logo?: string;
@@ -94,6 +111,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
     errorKey = signal<string | null>(null);
     section = signal<string | null>(null);
     showOtpEmailEditor = signal(false);
+    /** Null until the aggregation returns, or when it fails; the card simply does not render. */
+    funnel = signal<AppRegistrationFunnel | null>(null);
 
     flow = computed<EnrollProjectFlow | null>(() => {
         const flows = this.project()?.projectFlows;
@@ -341,6 +360,8 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
             .pipe(map((q) => q.get('section')))
             .subscribe((s) => this.section.set(s));
 
+        this._projectsService.getProjectFunnel(id).subscribe((funnel) => this.funnel.set(funnel));
+
         this._projectsService.getProject(id).subscribe({
             next: (p) => {
                 this.project.set(p);
@@ -362,10 +383,52 @@ export class ProjectDetailComponent implements OnInit, OnDestroy {
         this._router.navigate(['/smart-enroll/projects']);
     }
 
-    goToRecords(): void {
+    goToRecords(step?: string): void {
         const id = this.project()?._id;
         if (!id) return;
-        this._router.navigate(['/smart-enroll/projects', id, 'records']);
+        // The funnel reports the creation-time `'1'` as `not_started`; the records list filters on
+        // the stored value.
+        const filter = step === 'not_started' ? '1' : step;
+        this._router.navigate(['/smart-enroll/projects', id, 'records'], {
+            queryParams: filter ? { step: filter } : {},
+        });
+    }
+
+    /** Translation key for a step value, falling back to the raw value when it is unknown. */
+    stepLabelKey(step: string): string {
+        return FUNNEL_STEP_LABELS.has(step) ? `smartEnrollProjects.step.${step}` : '';
+    }
+
+    /**
+     * Share of the project's registrations sitting in a bucket, as a bar width.
+     * Relative to the largest bucket rather than the total, so small buckets stay visible.
+     */
+    funnelBarWidth(count: number, buckets: FunnelBucket[]): number {
+        const largest = Math.max(...buckets.map((bucket) => bucket.count), 0);
+
+        return largest > 0 ? Math.max(Math.round((count / largest) * 100), 2) : 0;
+    }
+
+    /**
+     * Translated label for a failure reason bucket.
+     *
+     * The raw `failedReason` can be an upstream message carrying internal paths, so the funnel
+     * shows the same vetted labels as the record detail rather than the stored string.
+     */
+    documentFailureLabelKey(reason: string): string {
+        return `smartEnrollProjects.recordDetail.documentFailedReason.${documentFailureReasonKey(reason)}`;
+    }
+
+    /** Translated label for a liveness failure reason bucket. */
+    livenessFailureLabelKey(reason: string): string {
+        return `smartEnrollProjects.recordDetail.biometricReason.${livenessFailureReasonKey(reason)}`;
+    }
+
+    /** Percentage of all registrations, for the label beside the count. */
+    funnelShare(count: number): number {
+        const total = this.funnel()?.total ?? 0;
+
+        return total > 0 ? Math.round((count / total) * 100) : 0;
     }
 
     goToStaff(): void {

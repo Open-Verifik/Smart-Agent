@@ -44,6 +44,10 @@
     @apply text-amber-600 dark:text-amber-400;
 }
 
+.record-stepper-icon--info {
+    @apply text-sky-600 dark:text-sky-400;
+}
+
 .record-stepper-icon--pending {
     @apply text-stone-400 dark:text-stone-500;
 }

@@ -1,0 +1,77 @@
+.capture-requirements-dialog__title {
+    @apply m-0 text-lg font-semibold text-stone-900 dark:text-white;
+}
+
+.capture-requirements-dialog__content {
+    @apply max-h-[min(70vh,560px)] overflow-auto pt-2;
+}
+
+.capture-requirements-dialog__subtitle {
+    @apply m-0 text-sm leading-relaxed text-stone-600 dark:text-stone-400;
+}
+
+.capture-requirements-dialog__diagnosis {
+    @apply mt-4 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50/70 p-3;
+    @apply dark:border-amber-900/40 dark:bg-amber-950/20;
+}
+
+.capture-requirements-dialog__diagnosis-icon {
+    @apply shrink-0 text-amber-600 dark:text-amber-400;
+}
+
+.capture-requirements-dialog__diagnosis-label {
+    @apply m-0 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-400;
+}
+
+.capture-requirements-dialog__diagnosis-reason {
+    @apply mt-1 text-sm font-medium text-amber-900 dark:text-amber-200;
+}
+
+.capture-requirements-dialog__diagnosis-score {
+    @apply mt-1 text-xs leading-relaxed text-amber-800/90 dark:text-amber-300/90;
+}
+
+.capture-requirements-dialog__section {
+    @apply mb-0 mt-5 text-sm font-semibold text-stone-900 dark:text-white;
+}
+
+.capture-requirements-dialog__list {
+    @apply m-0 mt-3 list-none space-y-2 p-0;
+}
+
+.capture-requirements-dialog__item {
+    @apply flex items-start gap-2.5 rounded-lg px-2 py-1.5;
+}
+
+.capture-requirements-dialog__item--highlighted {
+    @apply bg-amber-50 dark:bg-amber-950/20;
+}
+
+.capture-requirements-dialog__item-icon {
+    @apply mt-0.5 shrink-0 text-stone-400 dark:text-stone-500;
+}
+
+.capture-requirements-dialog__item--highlighted .capture-requirements-dialog__item-icon {
+    @apply text-amber-600 dark:text-amber-400;
+}
+
+.capture-requirements-dialog__item-text {
+    @apply text-sm leading-relaxed text-stone-700 dark:text-stone-300;
+}
+
+.capture-requirements-dialog__item--highlighted .capture-requirements-dialog__item-text {
+    @apply font-medium text-amber-900 dark:text-amber-200;
+}
+
+.capture-requirements-dialog__footnote {
+    @apply mb-0 mt-4 text-xs leading-relaxed text-stone-500 dark:text-stone-400;
+}
+
+.capture-requirements-dialog__docs {
+    @apply mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary-600 hover:underline;
+    @apply dark:text-primary-400;
+}
+
+.capture-requirements-dialog__actions {
+    @apply gap-2 px-0 pb-2 pt-4;
+}

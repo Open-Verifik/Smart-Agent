@@ -73,6 +73,17 @@
                         </mat-select>
                     </mat-form-field>
 
+                    <mat-form-field appearance="outline" class="w-full sm:w-56" subscriptSizing="dynamic">
+                        <mat-label>{{ 'smartEnrollProjects.filterStep' | transloco }}</mat-label>
+                        <mat-select [value]="stepFilter()" (selectionChange)="onStepChange($event.value)">
+                            @for (option of stepOptions; track option) {
+                                <mat-option [value]="option">
+                                    {{ 'smartEnrollProjects.step.' + option | transloco }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+
                     @if (activeFilterCount() > 0) {
                         <button
                             mat-button
@@ -171,6 +182,16 @@
                         <ng-container matColumnDef="status">
                             <th mat-header-cell *matHeaderCellDef>{{ 'smartEnrollProjects.colStatus' | transloco }}</th>
                             <td mat-cell *matCellDef="let row">{{ row.status ?? '—' }}</td>
+                        </ng-container>
+                        <ng-container matColumnDef="currentStep">
+                            <th mat-header-cell *matHeaderCellDef>{{ 'smartEnrollProjects.colStep' | transloco }}</th>
+                            <td mat-cell *matCellDef="let row">
+                                @if (stepLabelKey(row.currentStep); as key) {
+                                    {{ key | transloco }}
+                                } @else {
+                                    {{ row.currentStep }}
+                                }
+                            </td>
                         </ng-container>
                         <ng-container matColumnDef="email">
                             <th mat-header-cell *matHeaderCellDef>{{ 'smartEnrollProjects.colEmail' | transloco }}</th>
