@@ -716,6 +716,16 @@
                 }
             },
             "taskReward": "+1,00 USD",
+            "quests": {
+                "nextUp": "À suivre",
+                "activeQuest": "Quête active",
+                "questsRemaining": "Il reste {{count}} quêtes pour débloquer vos récompenses",
+                "moreQuests": "+{{count}} quêtes supplémentaires ensuite",
+                "completedCount": "Terminées ({{count}})",
+                "milestoneReached": "Palier de {{value}} %",
+                "allDoneTitle": "Toutes les quêtes sont terminées",
+                "allDoneBody": "Vous avez terminé toute la liste. Vos récompenses arrivent."
+            },
             "statusLabels": {
                 "NOT_STARTED": "Non commencée",
                 "VISITED": "Visitée",
@@ -3305,7 +3315,22 @@
         "resetWallet": "Réinitialiser Portefeuille",
         "signOutWeb2": "Déconnexion du compte professionnel",
         "signOutWeb3": "Déconnecter Portefeuille",
-        "settings": "Paramètres"
+        "settings": "Paramètres",
+        "manageAccount": "Gérer votre compte",
+        "add": "Ajouter",
+        "view": "Voir",
+        "plan": "Forfait",
+        "billing": "Informations de facturation",
+        "teamSeats": "Sièges d'équipe",
+        "seatsAvailable": "{{count}} sièges disponibles",
+        "seatsFull": "Tous les sièges sont utilisés",
+        "seatsNoPlan": "Souscrivez à un forfait pour inviter votre équipe",
+        "shortcuts": {
+            "apiKey": "Clé API",
+            "postman": "Tests d'API",
+            "paymentHistory": "Historique des paiements",
+            "usageHistory": "Historique d'usage"
+        }
     },
     "layoutSettings": {
         "sections": {

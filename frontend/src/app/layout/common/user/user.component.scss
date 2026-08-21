@@ -1,0 +1,548 @@
+/* -------------------------------------------------------------------------- */
+/*  @ Account menu panel
+/*  Rendered inside the CDK overlay, so these rules live outside the component
+/*  view (ViewEncapsulation.None).
+/* -------------------------------------------------------------------------- */
+
+.mat-mdc-menu-panel.user-menu-panel {
+    --account-menu-surface: #ffffff;
+    --account-menu-well: rgb(248 250 252); /* slate-50 */
+    --account-menu-well-border: rgb(241 245 249); /* slate-100 */
+    --account-menu-border: rgb(226 232 240); /* slate-200 */
+    --account-menu-title: rgb(15 23 42); /* slate-900 */
+    --account-menu-text: rgb(51 65 85); /* slate-700 */
+    --account-menu-muted: rgb(100 116 139); /* slate-500 */
+    --account-menu-faint: rgb(148 163 184); /* slate-400 */
+    --account-menu-accent: rgb(79 70 229); /* indigo-600 */
+    --account-menu-accent-soft: rgb(238 242 255); /* indigo-50 */
+    --account-menu-hover: rgb(241 245 249);
+    --account-menu-danger: rgb(220 38 38);
+    --account-menu-danger-soft: rgb(254 242 242);
+
+    width: 360px;
+    max-width: min(360px, calc(100vw - 24px)) !important;
+    border-radius: 20px !important;
+    overflow: hidden;
+    background: var(--account-menu-surface);
+    border: 1px solid var(--account-menu-border);
+    box-shadow:
+        0 24px 48px -12px rgb(15 23 42 / 18%),
+        0 8px 16px -8px rgb(15 23 42 / 10%);
+
+    .mat-mdc-menu-content {
+        padding: 0 !important;
+    }
+}
+
+.dark .mat-mdc-menu-panel.user-menu-panel {
+    --account-menu-surface: rgb(15 23 42); /* slate-900 */
+    --account-menu-well: rgb(30 41 59 / 60%); /* slate-800 */
+    --account-menu-well-border: rgb(51 65 85 / 70%);
+    --account-menu-border: rgb(51 65 85); /* slate-700 */
+    --account-menu-title: #ffffff;
+    --account-menu-text: rgb(226 232 240); /* slate-200 */
+    --account-menu-muted: rgb(148 163 184); /* slate-400 */
+    --account-menu-faint: rgb(100 116 139); /* slate-500 */
+    --account-menu-accent: rgb(129 140 248); /* indigo-400 */
+    --account-menu-accent-soft: rgb(79 70 229 / 18%);
+    --account-menu-hover: rgb(51 65 85 / 55%);
+    --account-menu-danger: rgb(248 113 113);
+    --account-menu-danger-soft: rgb(153 27 27 / 25%);
+
+    box-shadow:
+        0 24px 48px -12px rgb(2 6 23 / 65%),
+        0 8px 16px -8px rgb(2 6 23 / 45%);
+}
+
+.account-menu {
+    display: flex;
+    flex-direction: column;
+    color: var(--account-menu-text);
+    font-size: 13px;
+
+    button {
+        font-family: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  @ Identity header
+/* -------------------------------------------------------------------------- */
+
+.account-menu__identity {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 18px 16px;
+    background:
+        radial-gradient(120% 140% at 0% 0%, var(--account-menu-accent-soft) 0%, transparent 62%),
+        var(--account-menu-surface);
+    border-bottom: 1px solid var(--account-menu-border);
+}
+
+.account-menu__identity-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.account-menu__avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, rgb(99 102 241), rgb(147 51 234));
+    box-shadow: 0 6px 16px -6px rgb(99 102 241 / 70%);
+    color: #ffffff;
+    font-size: 19px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.account-menu__identity-text {
+    flex: 1;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.account-menu__name {
+    margin: 0;
+    color: var(--account-menu-title);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-menu__email {
+    margin: 2px 0 0;
+    color: var(--account-menu-muted);
+    font-size: 12px;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-menu__env {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    background: rgb(245 158 11 / 14%);
+    color: rgb(180 83 9);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.dark .account-menu__env {
+    color: rgb(252 211 77);
+}
+
+.account-menu__env-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: currentColor;
+}
+
+.account-menu__env--live {
+    background: rgb(16 185 129 / 14%);
+    color: rgb(4 120 87);
+}
+
+.dark .account-menu__env--live {
+    color: rgb(110 231 183);
+}
+
+.account-menu__workspace {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 4px 10px 4px 8px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--account-menu-well);
+    color: var(--account-menu-muted);
+    font-size: 11px;
+    font-weight: 600;
+    transition: color 150ms ease, background-color 150ms ease;
+
+    &:hover {
+        background: var(--account-menu-hover);
+        color: var(--account-menu-title);
+    }
+
+    .mat-icon {
+        color: var(--account-menu-faint);
+    }
+}
+
+.account-menu__manage {
+    width: 100%;
+    padding: 9px 14px;
+    border: 1px solid var(--account-menu-accent);
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--account-menu-accent);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    transition: background-color 150ms ease;
+
+    &:hover {
+        background: var(--account-menu-accent-soft);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  @ Capacity meters
+/* -------------------------------------------------------------------------- */
+
+.account-menu__capacity {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 14px 14px 0;
+    padding: 6px;
+    border: 1px solid var(--account-menu-well-border);
+    border-radius: 16px;
+    background: var(--account-menu-well);
+}
+
+.account-menu__meter {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 8px;
+    border-radius: 10px;
+}
+
+.account-menu__meter--flush {
+    padding: 0;
+}
+
+.account-menu__meter-icon {
+    flex-shrink: 0;
+    color: var(--account-menu-accent);
+}
+
+.account-menu__meter-label {
+    color: var(--account-menu-muted);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.account-menu__meter-value {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    max-width: 45%;
+    color: var(--account-menu-title);
+    font-size: 12.5px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.account-menu__meter-value--muted {
+    color: var(--account-menu-faint);
+    font-weight: 500;
+}
+
+.account-menu__meter-cta {
+    flex-shrink: 0;
+    padding: 3px 9px;
+    border: 0;
+    border-radius: 9999px;
+    background: var(--account-menu-accent-soft);
+    color: var(--account-menu-accent);
+    font-size: 11px;
+    font-weight: 700;
+    transition: filter 150ms ease;
+
+    &:hover {
+        filter: brightness(0.94);
+    }
+}
+
+.account-menu__seats {
+    display: block;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    transition: background-color 150ms ease;
+
+    &:hover {
+        background: var(--account-menu-hover);
+    }
+}
+
+.account-menu__bar {
+    display: block;
+    height: 5px;
+    margin-top: 9px;
+    border-radius: 9999px;
+    background: var(--account-menu-border);
+    overflow: hidden;
+}
+
+.account-menu__bar-fill {
+    display: block;
+    height: 100%;
+    min-width: 4px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, rgb(99 102 241), rgb(168 85 247));
+    transition: width 320ms ease;
+}
+
+.account-menu__bar-fill--full {
+    background: linear-gradient(90deg, rgb(244 63 94), rgb(249 115 22));
+}
+
+.account-menu__hint {
+    display: block;
+    margin: 6px 0 0;
+    color: var(--account-menu-faint);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.account-menu__hint--center {
+    text-align: center;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  @ Shortcut grid
+/* -------------------------------------------------------------------------- */
+
+.account-menu__shortcuts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 12px 14px 0;
+}
+
+.account-menu__shortcut {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 11px;
+    border: 1px solid var(--account-menu-well-border);
+    border-radius: 12px;
+    background: var(--account-menu-surface);
+    color: var(--account-menu-text);
+    font-size: 12px;
+    font-weight: 600;
+    transition:
+        border-color 150ms ease,
+        transform 150ms ease,
+        background-color 150ms ease;
+
+    span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .mat-icon {
+        flex-shrink: 0;
+        color: var(--account-menu-accent);
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        border-color: var(--account-menu-accent);
+        background: var(--account-menu-accent-soft);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  @ Action rows
+/* -------------------------------------------------------------------------- */
+
+.account-menu__actions,
+.account-menu__connect,
+.account-menu__wallet {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 12px 8px 0;
+}
+
+.account-menu__connect {
+    gap: 6px;
+    margin: 14px 14px 0;
+}
+
+.account-menu__row {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    width: 100%;
+    padding: 9px 10px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--account-menu-text);
+    font-size: 13px;
+    font-weight: 500;
+    transition: background-color 150ms ease, color 150ms ease;
+
+    .mat-icon {
+        flex-shrink: 0;
+        color: var(--account-menu-faint);
+        transition: color 150ms ease;
+    }
+
+    &:hover {
+        background: var(--account-menu-hover);
+        color: var(--account-menu-title);
+
+        .mat-icon {
+            color: var(--account-menu-accent);
+        }
+    }
+}
+
+.account-menu__row--danger {
+    color: var(--account-menu-danger);
+
+    .mat-icon {
+        color: var(--account-menu-danger);
+    }
+
+    &:hover {
+        background: var(--account-menu-danger-soft);
+        color: var(--account-menu-danger);
+
+        .mat-icon {
+            color: var(--account-menu-danger);
+        }
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  @ Wallet
+/* -------------------------------------------------------------------------- */
+
+.account-menu__wallet {
+    margin: 14px 14px 0;
+    padding-top: 14px;
+    border-top: 1px solid var(--account-menu-border);
+}
+
+.account-menu__wallet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.account-menu__section-label {
+    color: var(--account-menu-muted);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.account-menu__badge {
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: rgb(16 185 129 / 14%);
+    color: rgb(4 120 87);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.dark .account-menu__badge {
+    color: rgb(110 231 183);
+}
+
+.account-menu__wallet-card {
+    padding: 10px 12px;
+    border: 1px solid var(--account-menu-well-border);
+    border-radius: 12px;
+    background: var(--account-menu-well);
+}
+
+.account-menu__wallet-address {
+    display: block;
+    max-width: 200px;
+    color: var(--account-menu-muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11.5px;
+}
+
+.account-menu__icon-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--account-menu-faint);
+    transition: color 150ms ease;
+
+    &:hover {
+        color: var(--account-menu-accent);
+    }
+}
+
+.account-menu__wallet-balance {
+    margin-top: 5px;
+    color: var(--account-menu-title);
+    font-size: 13px;
+    font-weight: 700;
+
+    span {
+        color: var(--account-menu-faint);
+        font-size: 11px;
+        font-weight: 500;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  @ Footer
+/* -------------------------------------------------------------------------- */
+
+.account-menu__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 12px;
+    padding: 10px 8px 10px;
+    border-top: 1px solid var(--account-menu-border);
+}
+
+.account-menu__role {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 10px 6px;
+}
+
+.account-menu__role-value {
+    color: var(--account-menu-text);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: capitalize;
+}

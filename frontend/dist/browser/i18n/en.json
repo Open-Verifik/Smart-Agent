@@ -716,6 +716,16 @@
                 }
             },
             "taskReward": "+$1.00 USD",
+            "quests": {
+                "nextUp": "Next up",
+                "activeQuest": "Active quest",
+                "questsRemaining": "{{count}} quests left to unlock your rewards",
+                "moreQuests": "+{{count}} more quests after these",
+                "completedCount": "Completed ({{count}})",
+                "milestoneReached": "{{value}}% milestone",
+                "allDoneTitle": "All quests complete",
+                "allDoneBody": "You finished the whole checklist. Your rewards are on the way."
+            },
             "statusLabels": {
                 "NOT_STARTED": "Not started",
                 "VISITED": "Visited",
@@ -3353,7 +3363,22 @@
         "resetWallet": "Reset Wallet",
         "signOutWeb2": "Sign Out Business Account",
         "signOutWeb3": "Sign Out Wallet",
-        "settings": "Settings"
+        "settings": "Settings",
+        "manageAccount": "Manage your account",
+        "add": "Add",
+        "view": "View",
+        "plan": "Plan",
+        "billing": "Billing details",
+        "teamSeats": "Team seats",
+        "seatsAvailable": "{{count}} seats available",
+        "seatsFull": "All seats in use",
+        "seatsNoPlan": "Subscribe to a plan to invite your team",
+        "shortcuts": {
+            "apiKey": "API key",
+            "postman": "API testing",
+            "paymentHistory": "Payment history",
+            "usageHistory": "Usage history"
+        }
     },
     "layoutSettings": {
         "sections": {

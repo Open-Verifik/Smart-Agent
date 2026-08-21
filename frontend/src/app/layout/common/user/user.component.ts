@@ -4,19 +4,24 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    inject,
     Input,
     OnDestroy,
     OnInit,
+    ViewChild,
     ViewEncapsulation,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 import { AuthService } from 'app/core/auth/auth.service';
 import { SessionService } from 'app/core/services/session.service';
 import { WalletEncryptionService } from 'app/core/services/wallet-encryption.service';
@@ -26,10 +31,20 @@ import { environment } from 'environments/environment';
 import { Subject, takeUntil } from 'rxjs';
 import { AgentWalletService } from '../../../modules/chat/services/agent-wallet.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
+import { AccountMenuService } from './account-menu.service';
+
+/** Quick link rendered in the account menu shortcut grid. */
+interface AccountMenuShortcut {
+    id: string;
+    icon: string;
+    labelKey: string;
+    link: string;
+}
 
 @Component({
     selector: 'user',
     templateUrl: './user.component.html',
+    styleUrl: './user.component.scss',
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     exportAs: 'user',
@@ -41,7 +56,9 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
         MatIconModule,
         MatMenuModule,
         MatDialogModule,
+        MatProgressSpinnerModule,
         MatSnackBarModule,
+        MatTooltipModule,
         TranslocoModule,
     ],
 })
@@ -51,6 +68,8 @@ export class UserComponent implements OnInit, OnDestroy {
     /* eslint-enable @typescript-eslint/naming-convention */
 
     @Input() showAvatar: boolean = true;
+    @ViewChild(MatMenuTrigger) menuTrigger?: MatMenuTrigger;
+
     user: any;
     tokenTicker = environment.tokenTicker || 'VKA';
 
@@ -75,6 +94,82 @@ export class UserComponent implements OnInit, OnDestroy {
     avaxBalance: string | null = null;
     tokenBalance: string | null = null;
     hasWeb2Auth: boolean = false; // Track if user has Web2 authentication
+
+    readonly accountMenu = inject(AccountMenuService);
+    readonly env = inject(AccountEnvironmentService);
+
+    readonly shortcuts: AccountMenuShortcut[] = [
+        {
+            id: 'api-key',
+            icon: 'heroicons_outline:key',
+            labelKey: 'userMenu.shortcuts.apiKey',
+            link: '/settings/api-key',
+        },
+        {
+            id: 'postman',
+            icon: 'heroicons_outline:command-line',
+            labelKey: 'userMenu.shortcuts.postman',
+            link: '/postman',
+        },
+        {
+            id: 'payment-history',
+            icon: 'heroicons_outline:document-text',
+            labelKey: 'userMenu.shortcuts.paymentHistory',
+            link: '/settings/payment-history',
+        },
+        {
+            id: 'usage-history',
+            icon: 'heroicons_outline:chart-bar',
+            labelKey: 'userMenu.shortcuts.usageHistory',
+            link: '/settings/usage-history',
+        },
+    ];
+
+    /**
+     * Initial rendered inside the avatar circle.
+     */
+    get avatarInitial(): string {
+        return (this.user?.name || 'U').charAt(0).toUpperCase();
+    }
+
+    /**
+     * Workspace name when loaded, otherwise the account name.
+     */
+    get workspaceName(): string {
+        return this.accountMenu.snapshot()?.workspaceName || this.user?.name || '';
+    }
+
+    /**
+     * True when the account has a plan that grants at least one staff seat.
+     */
+    get hasSeatData(): boolean {
+        const snapshot = this.accountMenu.snapshot();
+        return !!snapshot && snapshot.hasSubscription && snapshot.seatLimit > 0;
+    }
+
+    get seatsUsed(): number {
+        return this.accountMenu.snapshot()?.seatsUsed ?? 0;
+    }
+
+    get seatLimit(): number {
+        return this.accountMenu.snapshot()?.seatLimit ?? 0;
+    }
+
+    get seatsRemaining(): number {
+        return Math.max(0, this.seatLimit - this.seatsUsed);
+    }
+
+    get seatUsagePercentage(): number {
+        if (!this.seatLimit) return 0;
+        return Math.min(100, Math.round((this.seatsUsed / this.seatLimit) * 100));
+    }
+
+    /**
+     * Plan label for the capacity stack; empty until the snapshot resolves.
+     */
+    get planName(): string {
+        return this.accountMenu.snapshot()?.planName || '';
+    }
 
     /**
      * Check if user is authenticated via Web3 only (no Web2 account)
@@ -114,6 +209,17 @@ export class UserComponent implements OnInit, OnDestroy {
         }
         // Mark for check to update UI state (isWeb2Only, etc.)
         this._changeDetectorRef.markForCheck();
+    }
+
+    /**
+     * Refreshes wallet balances and lazily loads the plan / seat snapshot.
+     */
+    onMenuOpened(): void {
+        this.fetchWalletInfo();
+
+        if (this.hasWeb2Auth) {
+            this.accountMenu.load(this.user);
+        }
     }
 
     copyWalletAddress() {
@@ -251,6 +357,7 @@ export class UserComponent implements OnInit, OnDestroy {
         // Clear only Web2-related localStorage items
         localStorage.removeItem('accessToken');
         localStorage.removeItem('verifik_account');
+        this.accountMenu.reset();
         // Note: We don't set accessToken via setter as it would store "null" string
         // The removeItem above properly removes it from localStorage
 
@@ -338,6 +445,16 @@ export class UserComponent implements OnInit, OnDestroy {
      * Only available for Web2 accounts
      */
     navigateToSettings(): void {
-        this._router.navigate(['/settings']);
+        this.navigateTo('/settings');
+    }
+
+    /**
+     * Navigate to any account menu destination (shortcut tiles, capacity rows, action rows).
+     *
+     * @param link - Absolute router path
+     */
+    navigateTo(link: string): void {
+        this.menuTrigger?.closeMenu();
+        this._router.navigateByUrl(link);
     }
 }

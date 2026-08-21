@@ -25,6 +25,59 @@
 }
 
 /* -------------------------------------------------------------------------
+ * Dashboard shell — stats/charts on the left, sticky quest rail on the right
+ * ------------------------------------------------------------------------- */
+
+.dashboard-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+
+    @media (min-width: 1024px) {
+        grid-template-columns: minmax(0, 1fr) 340px;
+    }
+}
+
+/* Signed-out or onboarding not loaded: nothing occupies the rail column. */
+.dashboard-shell--no-rail {
+    @media (min-width: 1024px) {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.dashboard-main {
+    min-width: 0;
+
+    @media (min-width: 1024px) {
+        grid-area: 1 / 1;
+    }
+}
+
+/* Second row: reclaims the rail's column once the rail has run out. */
+.dashboard-wide {
+    min-width: 0;
+    grid-column: 1 / -1;
+}
+
+.dashboard-rail {
+    min-width: 0;
+    margin-bottom: 0.5rem;
+
+    @media (min-width: 1024px) {
+        /* Rail is first in the DOM so it stacks above the charts on narrow screens. */
+        grid-area: 1 / 2;
+        position: sticky;
+        top: 1.5rem;
+        max-height: calc(100vh - 3rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        margin-bottom: 0;
+    }
+}
+
+/* -------------------------------------------------------------------------
  * Flat promo / onboarding banners — solid tint + left accent strip
  * ------------------------------------------------------------------------- */
 
@@ -62,26 +115,14 @@
     }
 }
 
-.onboarding-section {
-    border-radius: 16px;
-    border: 1px solid rgba(148, 163, 184, 0.22);
-    border-left: 4px solid rgb(37, 99, 235);
-    background: rgb(255, 255, 255);
-    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.04);
-
-    :host-context(.dark) & {
-        background: rgb(30, 41, 59);
-        border-color: rgba(148, 163, 184, 0.18);
-        border-left-color: rgb(96, 165, 250);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    }
-}
-
 /* -------------------------------------------------------------------------
  * Stat strip — privy-style big numbers + hairline dividers
  * ------------------------------------------------------------------------- */
 
 .stat-strip {
+    /* Lets the items react to the strip's own width, not the viewport, since the
+       strip now shares the row with the quest rail. */
+    container-type: inline-size;
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
@@ -100,7 +141,7 @@
 }
 
 .stat-strip-item {
-    flex: 1 1 140px;
+    flex: 1 1 0;
     padding: 1.5rem 1.25rem;
     min-width: 0;
 
@@ -110,6 +151,53 @@
 
     :host-context(.dark) &:not(:first-child) {
         border-left-color: rgba(148, 163, 184, 0.18);
+    }
+}
+
+/* Fold to two-up, then one-up, so large credit totals wrap instead of clipping. */
+@container (max-width: 820px) {
+    .stat-strip-item {
+        flex: 1 1 50%;
+
+        &:not(:first-child) {
+            border-left: none;
+        }
+
+        &:nth-child(2n) {
+            border-left: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        &:nth-child(n + 3) {
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+    }
+
+    :host-context(.dark) .stat-strip-item {
+        &:nth-child(2n) {
+            border-left-color: rgba(148, 163, 184, 0.18);
+        }
+
+        &:nth-child(n + 3) {
+            border-top-color: rgba(148, 163, 184, 0.18);
+        }
+    }
+}
+
+@container (max-width: 420px) {
+    .stat-strip-item {
+        flex: 1 1 100%;
+
+        &:nth-child(2n) {
+            border-left: none;
+        }
+
+        &:nth-child(n + 2) {
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+    }
+
+    :host-context(.dark) .stat-strip-item:nth-child(n + 2) {
+        border-top-color: rgba(148, 163, 184, 0.18);
     }
 }
 
@@ -127,7 +215,7 @@
 }
 
 .stat-value {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 5cqi, 2rem);
     font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.02em;

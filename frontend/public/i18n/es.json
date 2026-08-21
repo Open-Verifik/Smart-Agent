@@ -716,6 +716,16 @@
                 }
             },
             "taskReward": "+$1.00 USD",
+            "quests": {
+                "nextUp": "Siguientes",
+                "activeQuest": "Misión activa",
+                "questsRemaining": "Te quedan {{count}} misiones para desbloquear tus recompensas",
+                "moreQuests": "+{{count}} misiones más después de estas",
+                "completedCount": "Completadas ({{count}})",
+                "milestoneReached": "Hito del {{value}}%",
+                "allDoneTitle": "Misiones completadas",
+                "allDoneBody": "Terminaste toda la lista. Tus recompensas están en camino."
+            },
             "statusLabels": {
                 "NOT_STARTED": "No iniciada",
                 "VISITED": "Visitada",
@@ -3353,7 +3363,22 @@
         "resetWallet": "Restablecer Billetera",
         "signOutWeb2": "Cerrar Sesión",
         "signOutWeb3": "Eliminar Billetera",
-        "settings": "Configuración"
+        "settings": "Configuración",
+        "manageAccount": "Administrar tu cuenta",
+        "add": "Agregar",
+        "view": "Ver",
+        "plan": "Plan",
+        "billing": "Datos de facturación",
+        "teamSeats": "Puestos del equipo",
+        "seatsAvailable": "{{count}} puestos disponibles",
+        "seatsFull": "Todos los puestos en uso",
+        "seatsNoPlan": "Suscríbete a un plan para invitar a tu equipo",
+        "shortcuts": {
+            "apiKey": "Clave API",
+            "postman": "Pruebas de API",
+            "paymentHistory": "Historial de pagos",
+            "usageHistory": "Historial de uso"
+        }
     },
     "layoutSettings": {
         "sections": {

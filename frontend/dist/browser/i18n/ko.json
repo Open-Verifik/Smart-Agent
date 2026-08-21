@@ -716,6 +716,16 @@
                 }
             },
             "taskReward": "+$1.00 USD",
+            "quests": {
+                "nextUp": "다음 퀘스트",
+                "activeQuest": "진행 중인 퀘스트",
+                "questsRemaining": "보상을 받으려면 {{count}}개의 퀘스트가 남았습니다",
+                "moreQuests": "이후 {{count}}개의 퀘스트가 더 있습니다",
+                "completedCount": "완료 ({{count}})",
+                "milestoneReached": "{{value}}% 마일스톤",
+                "allDoneTitle": "모든 퀘스트 완료",
+                "allDoneBody": "체크리스트를 모두 완료했습니다. 보상이 곧 지급됩니다."
+            },
             "statusLabels": {
                 "NOT_STARTED": "시작 전",
                 "VISITED": "방문함",
@@ -3341,7 +3351,22 @@
         "resetWallet": "지갑 재설정",
         "signOutWeb2": "비즈니스 계정 로그아웃",
         "signOutWeb3": "지갑 로그아웃",
-        "settings": "설정"
+        "settings": "설정",
+        "manageAccount": "계정 관리",
+        "add": "추가",
+        "view": "보기",
+        "plan": "요금제",
+        "billing": "청구 정보",
+        "teamSeats": "팀 좌석",
+        "seatsAvailable": "{{count}}개 좌석 사용 가능",
+        "seatsFull": "모든 좌석 사용 중",
+        "seatsNoPlan": "요금제를 구독하고 팀을 초대하세요",
+        "shortcuts": {
+            "apiKey": "API 키",
+            "postman": "API 테스트",
+            "paymentHistory": "결제 내역",
+            "usageHistory": "사용 내역"
+        }
     },
     "layoutSettings": {
         "sections": {

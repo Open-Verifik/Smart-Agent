@@ -26,6 +26,7 @@ import {
 } from './bring-back-offer-modal/bring-back-offer-storage';
 import { HomeNotificationBannersComponent } from './home-notification-banners/home-notification-banners.component';
 import { DashboardData, HomeService } from './home.service';
+import { OnboardingQuestsComponent } from './onboarding-quests/onboarding-quests.component';
 import { OnboardingExplanationModalComponent } from './onboarding-explanation-modal/onboarding-explanation-modal.component';
 import { HomeTutorialModalComponent } from './tutorial-modal/tutorial-modal.component';
 
@@ -74,6 +75,7 @@ interface PodiumEntry {
         RouterLink,
         TranslocoModule,
         HomeNotificationBannersComponent,
+        OnboardingQuestsComponent,
     ],
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
@@ -104,25 +106,6 @@ export class HomeComponent implements OnInit {
     onboarding = signal<Onboarding | null>(null);
     verifyingTaskId = signal<string | null>(null);
     verificationError = signal<string | null>(null);
-
-    completedTasksCount = computed(() => {
-        const tasks = this.onboarding()?.tasks ?? [];
-        return tasks.filter((t) => t.status === 'COMPLETED').length;
-    });
-
-    onboardingProgressPercentage = computed(() => {
-        const tasks = this.onboarding()?.tasks ?? [];
-        if (tasks.length === 0) return 0;
-        return (tasks.filter((t) => t.status === 'COMPLETED').length / tasks.length) * 100;
-    });
-
-    onboardingTotalRewarded = computed(() => {
-        return this.onboarding()?.totalRewardedAmount ?? 0;
-    });
-
-    onboardingActivated = computed(() => {
-        return this.onboarding()?.isActivated ?? false;
-    });
 
     chartWeeklyExpenses: ApexOptions | null = null;
     chartMonthlyExpenses: ApexOptions | null = null;
@@ -378,7 +361,8 @@ export class HomeComponent implements OnInit {
         });
     }
 
-    getTaskLink(taskId: string): string {
+    /** Passed by reference into the quest rail, so it must stay bound to the instance. */
+    getTaskLink = (taskId: string): string => {
         switch (taskId) {
             case 'test_smartcheck':
                 return '/postman';
@@ -407,7 +391,7 @@ export class HomeComponent implements OnInit {
             default:
                 return '/home';
         }
-    }
+    };
 
     startKycVerification(): void {
         this._accountEnv.startCompanyVerification();

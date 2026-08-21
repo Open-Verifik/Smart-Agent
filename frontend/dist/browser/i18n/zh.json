@@ -716,6 +716,16 @@
                 }
             },
             "taskReward": "+$1.00 USD",
+            "quests": {
+                "nextUp": "接下来",
+                "activeQuest": "进行中的任务",
+                "questsRemaining": "还差 {{count}} 个任务即可解锁奖励",
+                "moreQuests": "之后还有 {{count}} 个任务",
+                "completedCount": "已完成 ({{count}})",
+                "milestoneReached": "{{value}}% 里程碑",
+                "allDoneTitle": "全部任务已完成",
+                "allDoneBody": "您已完成整个清单，奖励即将发放。"
+            },
             "statusLabels": {
                 "NOT_STARTED": "未开始",
                 "VISITED": "已访问",
@@ -3341,7 +3351,22 @@
         "resetWallet": "重置钱包",
         "signOutWeb2": "退出企业账户",
         "signOutWeb3": "退出钱包",
-        "settings": "设置"
+        "settings": "设置",
+        "manageAccount": "管理你的账户",
+        "add": "充值",
+        "view": "查看",
+        "plan": "套餐",
+        "billing": "账单信息",
+        "teamSeats": "团队席位",
+        "seatsAvailable": "剩余 {{count}} 个席位",
+        "seatsFull": "所有席位已占用",
+        "seatsNoPlan": "订阅套餐即可邀请团队成员",
+        "shortcuts": {
+            "apiKey": "API 密钥",
+            "postman": "API 测试",
+            "paymentHistory": "付款记录",
+            "usageHistory": "使用记录"
+        }
     },
     "layoutSettings": {
         "sections": {

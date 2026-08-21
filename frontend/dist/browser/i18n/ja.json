@@ -716,6 +716,16 @@
                 }
             },
             "taskReward": "+$1.00 USD",
+            "quests": {
+                "nextUp": "次のクエスト",
+                "activeQuest": "進行中のクエスト",
+                "questsRemaining": "報酬の獲得まで残り {{count}} クエスト",
+                "moreQuests": "この後さらに {{count}} クエスト",
+                "completedCount": "完了 ({{count}})",
+                "milestoneReached": "{{value}}% のマイルストーン",
+                "allDoneTitle": "すべてのクエストを達成",
+                "allDoneBody": "チェックリストをすべて完了しました。報酬をまもなくお届けします。"
+            },
             "statusLabels": {
                 "NOT_STARTED": "未開始",
                 "VISITED": "閲覧済み",
@@ -3341,7 +3351,22 @@
         "resetWallet": "ウォレットをリセット",
         "signOutWeb2": "ビジネスアカウントからサインアウト",
         "signOutWeb3": "ウォレットからサインアウト",
-        "settings": "設定"
+        "settings": "設定",
+        "manageAccount": "アカウントを管理",
+        "add": "追加",
+        "view": "表示",
+        "plan": "プラン",
+        "billing": "請求情報",
+        "teamSeats": "チームシート",
+        "seatsAvailable": "残り{{count}}シート",
+        "seatsFull": "すべてのシートが使用中",
+        "seatsNoPlan": "プランに登録してチームを招待しましょう",
+        "shortcuts": {
+            "apiKey": "APIキー",
+            "postman": "APIテスト",
+            "paymentHistory": "支払い履歴",
+            "usageHistory": "利用履歴"
+        }
     },
     "layoutSettings": {
         "sections": {

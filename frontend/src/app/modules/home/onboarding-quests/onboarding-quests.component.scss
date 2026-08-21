@@ -1,0 +1,562 @@
+/* -------------------------------------------------------------------------
+ * Gamified onboarding quest card (home right rail)
+ * ------------------------------------------------------------------------- */
+
+.quest-card {
+    --quest-surface: rgb(255, 255, 255);
+    --quest-well: rgb(248, 250, 252);
+    --quest-border: rgba(148, 163, 184, 0.22);
+    --quest-hairline: rgba(148, 163, 184, 0.18);
+    --quest-title: rgb(15, 23, 42);
+    --quest-text: rgb(51, 65, 85);
+    --quest-muted: rgb(100, 116, 139);
+    --quest-faint: rgb(148, 163, 184);
+    --quest-accent: rgb(79, 70, 229);
+    --quest-accent-soft: rgb(238, 242, 255);
+    --quest-track: rgb(226, 232, 240);
+    --quest-success: rgb(5, 150, 105);
+    --quest-success-soft: rgba(16, 185, 129, 0.12);
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid var(--quest-border);
+    border-radius: 16px;
+    background: var(--quest-surface);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.dark .quest-card {
+    --quest-surface: rgb(30, 41, 59);
+    --quest-well: rgba(15, 23, 42, 0.55);
+    --quest-border: rgba(148, 163, 184, 0.18);
+    --quest-hairline: rgba(148, 163, 184, 0.14);
+    --quest-title: rgb(248, 250, 252);
+    --quest-text: rgb(226, 232, 240);
+    --quest-muted: rgb(148, 163, 184);
+    --quest-faint: rgb(100, 116, 139);
+    --quest-accent: rgb(129, 140, 248);
+    --quest-accent-soft: rgba(79, 70, 229, 0.18);
+    --quest-track: rgb(51, 65, 85);
+    --quest-success: rgb(52, 211, 153);
+    --quest-success-soft: rgba(16, 185, 129, 0.16);
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.quest-card--complete {
+    border-color: var(--quest-success-soft);
+}
+
+/* -------------------------------------------------------------------------
+ * Header + progress ring
+ * ------------------------------------------------------------------------- */
+
+.quest-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+}
+
+.quest-ring-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 72px;
+    height: 72px;
+}
+
+.quest-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.quest-ring__track {
+    fill: none;
+    stroke: var(--quest-track);
+    stroke-width: 7;
+}
+
+.quest-ring__fill {
+    fill: none;
+    stroke: var(--quest-accent);
+    stroke-width: 7;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.quest-card--complete .quest-ring__fill {
+    stroke: var(--quest-success);
+}
+
+.quest-ring__value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    color: var(--quest-title);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 72px;
+}
+
+.quest-ring__total {
+    color: var(--quest-faint);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.quest-card__intro {
+    min-width: 0;
+}
+
+.quest-card__title {
+    margin: 0;
+    color: var(--quest-title);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.quest-card__meta {
+    margin: 0.25rem 0 0;
+    color: var(--quest-muted);
+    font-size: 0.75rem;
+    line-height: 1.35;
+}
+
+/* -------------------------------------------------------------------------
+ * Reward summary
+ * ------------------------------------------------------------------------- */
+
+.quest-reward {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--quest-hairline);
+    border-radius: 12px;
+    background: var(--quest-well);
+
+    .mat-icon {
+        color: var(--quest-success);
+    }
+}
+
+.quest-reward__amount {
+    color: var(--quest-success);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.quest-reward__note {
+    flex: 1 1 100%;
+    color: var(--quest-muted);
+    font-size: 0.6875rem;
+    line-height: 1.3;
+}
+
+/* -------------------------------------------------------------------------
+ * Milestone track
+ * ------------------------------------------------------------------------- */
+
+.quest-track {
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.quest-track__bar {
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--quest-track);
+    overflow: hidden;
+}
+
+.quest-track__fill {
+    height: 100%;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, rgb(99, 102, 241), rgb(168, 85, 247));
+    transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.quest-card--complete .quest-track__fill {
+    background: linear-gradient(90deg, rgb(16, 185, 129), rgb(52, 211, 153));
+}
+
+.quest-track__markers {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 8px;
+}
+
+.quest-marker {
+    position: absolute;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--quest-surface);
+    border-radius: 9999px;
+    background: var(--quest-track);
+    color: var(--quest-faint);
+    transform: translate(-50%, -50%);
+    transition:
+        background-color 300ms ease,
+        color 300ms ease,
+        transform 300ms ease;
+
+    .mat-icon {
+        width: 10px;
+        height: 10px;
+        font-size: 10px;
+        line-height: 10px;
+    }
+}
+
+.quest-marker--reached {
+    background: rgb(251, 191, 36);
+    color: rgb(120, 53, 15);
+    transform: translate(-50%, -50%) scale(1.08);
+}
+
+/* -------------------------------------------------------------------------
+ * Error banner
+ * ------------------------------------------------------------------------- */
+
+.quest-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    border-radius: 10px;
+    background: rgba(254, 242, 242, 0.9);
+    color: rgb(185, 28, 28);
+    font-size: 0.75rem;
+
+    .mat-icon {
+        color: rgb(220, 38, 38);
+    }
+}
+
+.dark .quest-error {
+    background: rgba(153, 27, 27, 0.2);
+    border-color: rgba(248, 113, 113, 0.3);
+    color: rgb(252, 165, 165);
+}
+
+/* -------------------------------------------------------------------------
+ * Quest list
+ * ------------------------------------------------------------------------- */
+
+.quest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.quest-list__label {
+    margin: 0;
+    color: var(--quest-muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.quest-list__more {
+    margin: 0.125rem 0 0;
+    color: var(--quest-faint);
+    font-size: 0.6875rem;
+    text-align: center;
+}
+
+.quest-row {
+    padding: 0.75rem;
+    border: 1px solid var(--quest-hairline);
+    border-radius: 12px;
+    background: var(--quest-well);
+    animation: quest-row-in 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--quest-row-index, 0) * 70ms);
+    transition:
+        border-color 200ms ease,
+        transform 200ms ease;
+
+    &:hover {
+        border-color: var(--quest-accent);
+    }
+}
+
+.quest-row--active {
+    border-color: var(--quest-accent);
+    background: var(--quest-accent-soft);
+    box-shadow: 0 0 0 3px var(--quest-accent-soft);
+}
+
+.quest-row__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.quest-row__status {
+    flex-shrink: 0;
+    color: var(--quest-faint);
+
+    &[data-status='STUCK'] {
+        color: rgb(245, 158, 11);
+    }
+
+    &[data-status='STARTED'],
+    &[data-status='VISITED'] {
+        color: var(--quest-accent);
+    }
+}
+
+.quest-row__title {
+    flex: 1;
+    margin: 0;
+    color: var(--quest-title);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.quest-row__help {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: var(--quest-faint);
+    cursor: pointer;
+    transition: color 150ms ease;
+
+    &:hover {
+        color: var(--quest-accent);
+    }
+}
+
+.quest-row__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.625rem;
+}
+
+.quest-chip {
+    padding: 0.125rem 0.4rem;
+    border-radius: 6px;
+    background: var(--quest-success-soft);
+    color: var(--quest-success);
+    font-size: 0.625rem;
+    font-weight: 700;
+}
+
+.quest-chip--active {
+    background: var(--quest-accent-soft);
+    color: var(--quest-accent);
+}
+
+.quest-row__status-label {
+    color: var(--quest-faint);
+    font-size: 0.6875rem;
+}
+
+.quest-row__spinner {
+    margin-left: auto;
+}
+
+.quest-row__cta {
+    margin-left: auto;
+    padding: 0.3rem 0.7rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--quest-accent);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: filter 150ms ease;
+
+    &:hover {
+        filter: brightness(1.08);
+        text-decoration: none;
+    }
+}
+
+/* -------------------------------------------------------------------------
+ * Trophy (all quests complete)
+ * ------------------------------------------------------------------------- */
+
+.quest-trophy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 1rem 0.75rem;
+    border: 1px dashed var(--quest-success);
+    border-radius: 12px;
+    background: var(--quest-success-soft);
+    text-align: center;
+}
+
+.quest-trophy__badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, rgb(251, 191, 36), rgb(245, 158, 11));
+    color: rgb(120, 53, 15);
+    box-shadow: 0 6px 16px -6px rgba(245, 158, 11, 0.7);
+    animation: quest-trophy-pop 620ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.quest-trophy__title {
+    margin: 0;
+    color: var(--quest-title);
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.quest-trophy__body {
+    margin: 0;
+    color: var(--quest-muted);
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+/* -------------------------------------------------------------------------
+ * Completed accordion
+ * ------------------------------------------------------------------------- */
+
+.quest-completed {
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--quest-hairline);
+}
+
+.quest-completed__toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.375rem 0.25rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--quest-text);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 150ms ease;
+
+    &:hover {
+        color: var(--quest-title);
+    }
+}
+
+.quest-completed__check {
+    color: var(--quest-success);
+}
+
+.quest-completed__chevron {
+    margin-left: auto;
+    color: var(--quest-faint);
+    transition: transform 200ms ease;
+}
+
+.quest-completed__chevron--open {
+    transform: rotate(180deg);
+}
+
+.quest-completed__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.quest-done-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.25rem;
+    color: var(--quest-muted);
+    font-size: 0.75rem;
+    line-height: 1.3;
+    animation: quest-row-in 300ms ease backwards;
+    animation-delay: calc(var(--quest-row-index, 0) * 35ms);
+
+    .mat-icon {
+        flex-shrink: 0;
+        color: var(--quest-success);
+    }
+
+    span {
+        flex: 1;
+    }
+}
+
+/* -------------------------------------------------------------------------
+ * Motion
+ * ------------------------------------------------------------------------- */
+
+@keyframes quest-row-in {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes quest-trophy-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .quest-ring__fill,
+    .quest-track__fill,
+    .quest-marker,
+    .quest-completed__chevron {
+        transition: none;
+    }
+
+    .quest-row,
+    .quest-done-row,
+    .quest-trophy__badge {
+        animation: none;
+    }
+}

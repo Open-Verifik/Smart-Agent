@@ -11,7 +11,7 @@
     <button
         class="flex items-center gap-3 px-3 py-1.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm cursor-pointer hover:shadow-md transition-all group"
         [matMenuTriggerFor]="userActions"
-        (menuOpened)="fetchWalletInfo()"
+        (menuOpened)="onMenuOpened()"
     >
         <!-- Wallet/User Icon -->
         <div
@@ -57,195 +57,245 @@
 }
 
 <mat-menu [xPosition]="'before'" #userActions="matMenu" class="user-menu-panel">
-    <div class="px-4 py-4 min-w-[280px]">
-        <!-- User Info Section (Web2 Account) -->
-        @if (hasWeb2Auth) {
-            <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-start gap-3 mb-3">
-                    <!-- Avatar -->
-                    <div
-                        class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-md"
-                    >
-                        <span class="text-white font-bold text-lg">
-                            {{ (user?.name || 'U').charAt(0).toUpperCase() }}
+    <div class="account-menu">
+        <!-- Identity header -->
+        @if (hasWeb2Auth || isWeb3Only) {
+            <header class="account-menu__identity">
+                <div class="account-menu__identity-row">
+                    <div class="account-menu__avatar">{{ avatarInitial }}</div>
+
+                    <div class="account-menu__identity-text">
+                        <p class="account-menu__name">{{ user?.name || '—' }}</p>
+                        <p class="account-menu__email">{{ user?.email || '—' }}</p>
+                    </div>
+
+                    @if (hasWeb2Auth && env.isAuthenticated()) {
+                        <span
+                            class="account-menu__env"
+                            [class.account-menu__env--live]="env.productionModeOn()"
+                        >
+                            <span class="account-menu__env-dot"></span>
+                            {{
+                                env.productionModeOn()
+                                    ? ('accountEnv.toggle.productionLabel' | transloco)
+                                    : ('accountEnv.toggle.sandboxLabel' | transloco)
+                            }}
                         </span>
-                    </div>
-
-                    <!-- User Details -->
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                            {{ user?.name || '—' }}
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                            {{ user?.email || '—' }}
-                        </p>
-
-                        <!-- Credits Badge -->
-                        <div
-                            class="inline-flex items-center gap-1.5 mt-2 px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-md"
-                        >
-                            <svg
-                                class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">
-                                {{ totalCredits | number: '1.2-4' }}
-                            </span>
-                            <span
-                                class="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide"
-                            >
-                                {{ 'userMenu.credits' | transloco }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Settings & Sign Out Actions -->
-                <div class="flex flex-col gap-2.5 mt-4">
-                    <!-- Settings Button -->
-                    <button
-                        (click)="navigateToSettings()"
-                        class="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group"
-                    >
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                            />
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                        </svg>
-                        <span>{{ 'userMenu.settings' | transloco }}</span>
-                    </button>
-
-                    <!-- Sign Out Web2 Button (only show if hybrid or Web2-only) -->
-                    @if (isHybrid || isWeb2Only) {
-                        <button
-                            (click)="signOutWeb2()"
-                            class="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
-                        >
-                            <svg
-                                class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                                />
-                            </svg>
-                            <span>{{ 'userMenu.signOutWeb2' | transloco }}</span>
-                        </button>
                     }
                 </div>
-            </div>
-        } @else if (isWeb3Only) {
-            <!-- Web3-only: Show user info without logout button (logout is in wallet section) -->
-            <div class="pb-4 border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-start gap-3">
-                    <!-- Avatar -->
-                    <div
-                        class="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-md"
-                    >
-                        <span class="text-white font-bold text-lg">
-                            {{ (user?.name || 'U').charAt(0).toUpperCase() }}
-                        </span>
-                    </div>
 
-                    <!-- User Details -->
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-semibold text-slate-900 dark:text-white truncate">
-                            {{ user?.name || '—' }}
-                        </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                            {{ user?.email || '—' }}
-                        </p>
-                    </div>
+                @if (hasWeb2Auth) {
+                    @if (accountMenu.snapshot()?.workspaceName) {
+                        <button
+                            type="button"
+                            class="account-menu__workspace"
+                            (click)="navigateTo('/settings/general')"
+                        >
+                            <mat-icon
+                                class="icon-size-4"
+                                svgIcon="heroicons_outline:building-office"
+                            ></mat-icon>
+                            <span class="truncate">{{ workspaceName }}</span>
+                        </button>
+                    }
+
+                    <button
+                        type="button"
+                        class="account-menu__manage"
+                        (click)="navigateTo('/settings/profile')"
+                    >
+                        {{ 'userMenu.manageAccount' | transloco }}
+                    </button>
+                }
+            </header>
+        }
+
+        <!-- Capacity: credits, plan, team seats -->
+        @if (hasWeb2Auth) {
+            <section class="account-menu__capacity">
+                <div class="account-menu__meter">
+                    <mat-icon
+                        class="account-menu__meter-icon icon-size-4"
+                        svgIcon="heroicons_outline:banknotes"
+                    ></mat-icon>
+                    <span class="account-menu__meter-label">{{
+                        'userMenu.credits' | transloco
+                    }}</span>
+                    <span class="account-menu__meter-value">{{
+                        totalCredits | number: '1.2-4'
+                    }}</span>
+                    <button
+                        type="button"
+                        class="account-menu__meter-cta"
+                        (click)="navigateTo('/add-credits')"
+                    >
+                        {{ 'userMenu.add' | transloco }}
+                    </button>
                 </div>
-            </div>
+
+                <div class="account-menu__meter">
+                    <mat-icon
+                        class="account-menu__meter-icon icon-size-4"
+                        svgIcon="heroicons_outline:sparkles"
+                    ></mat-icon>
+                    <span class="account-menu__meter-label">{{ 'userMenu.plan' | transloco }}</span>
+                    @if (accountMenu.loading() && !planName) {
+                        <span class="account-menu__meter-value account-menu__meter-value--muted">
+                            <mat-spinner diameter="12"></mat-spinner>
+                        </span>
+                    } @else {
+                        <span class="account-menu__meter-value">{{ planName || '—' }}</span>
+                    }
+                    <button
+                        type="button"
+                        class="account-menu__meter-cta"
+                        (click)="navigateTo('/subscription-plans')"
+                    >
+                        {{ 'userMenu.view' | transloco }}
+                    </button>
+                </div>
+
+                <button
+                    type="button"
+                    class="account-menu__seats"
+                    (click)="navigateTo('/settings/team')"
+                >
+                    <span class="account-menu__meter account-menu__meter--flush">
+                        <mat-icon
+                            class="account-menu__meter-icon icon-size-4"
+                            svgIcon="heroicons_outline:user-group"
+                        ></mat-icon>
+                        <span class="account-menu__meter-label">{{
+                            'userMenu.teamSeats' | transloco
+                        }}</span>
+                        @if (hasSeatData) {
+                            <span class="account-menu__meter-value"
+                                >{{ seatsUsed }} / {{ seatLimit }}</span
+                            >
+                        } @else {
+                            <span class="account-menu__meter-value account-menu__meter-value--muted"
+                                >—</span
+                            >
+                        }
+                    </span>
+
+                    @if (hasSeatData) {
+                        <span class="account-menu__bar">
+                            <span
+                                class="account-menu__bar-fill"
+                                [class.account-menu__bar-fill--full]="seatsRemaining === 0"
+                                [style.width.%]="seatUsagePercentage"
+                            ></span>
+                        </span>
+                        <span class="account-menu__hint">
+                            @if (seatsRemaining > 0) {
+                                {{
+                                    'userMenu.seatsAvailable'
+                                        | transloco: { count: seatsRemaining }
+                                }}
+                            } @else {
+                                {{ 'userMenu.seatsFull' | transloco }}
+                            }
+                        </span>
+                    } @else {
+                        <span class="account-menu__hint">{{
+                            'userMenu.seatsNoPlan' | transloco
+                        }}</span>
+                    }
+                </button>
+            </section>
+
+            <!-- Shortcuts -->
+            <section class="account-menu__shortcuts">
+                @for (shortcut of shortcuts; track shortcut.id) {
+                    <button
+                        type="button"
+                        class="account-menu__shortcut"
+                        (click)="navigateTo(shortcut.link)"
+                    >
+                        <mat-icon class="icon-size-5" [svgIcon]="shortcut.icon"></mat-icon>
+                        <span>{{ shortcut.labelKey | transloco }}</span>
+                    </button>
+                }
+            </section>
+        }
+
+        <!-- Action rows -->
+        @if (hasWeb2Auth) {
+            <section class="account-menu__actions">
+                <button type="button" class="account-menu__row" (click)="navigateToSettings()">
+                    <mat-icon
+                        class="icon-size-5"
+                        svgIcon="heroicons_outline:cog-6-tooth"
+                    ></mat-icon>
+                    <span>{{ 'userMenu.settings' | transloco }}</span>
+                </button>
+
+                <button
+                    type="button"
+                    class="account-menu__row"
+                    (click)="navigateTo('/settings/billing-details')"
+                >
+                    <mat-icon
+                        class="icon-size-5"
+                        svgIcon="heroicons_outline:credit-card"
+                    ></mat-icon>
+                    <span>{{ 'userMenu.billing' | transloco }}</span>
+                </button>
+            </section>
         }
 
         <!-- Agent Wallet Section (Web3 Account) -->
         @if (walletAddress) {
-            <div class="py-3 border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{
+            <section class="account-menu__wallet">
+                <div class="account-menu__wallet-head">
+                    <span class="account-menu__section-label">{{
                         'userMenu.agentWallet' | transloco
                     }}</span>
-                    <span
-                        class="text-[10px] px-1.5 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full font-medium"
-                        >{{ 'userMenu.active' | transloco }}</span
-                    >
+                    <span class="account-menu__badge">{{ 'userMenu.active' | transloco }}</span>
                 </div>
-                <div
-                    class="bg-slate-50 dark:bg-slate-800 rounded-lg p-2.5 border border-slate-100 dark:border-slate-700 mb-3"
-                >
-                    <div class="flex items-center justify-between mb-1">
+
+                <div class="account-menu__wallet-card">
+                    <div class="flex items-center justify-between">
                         <span
-                            class="text-xs font-mono text-slate-500 max-w-[180px] block"
+                            class="account-menu__wallet-address"
                             [matTooltip]="walletAddress"
                             >{{ walletAddress.substring(0, 10) }}...{{
                                 walletAddress.substring(walletAddress.length - 8)
                             }}</span
                         >
                         <button
-                            class="text-slate-400 hover:text-indigo-600 transition-colors"
+                            type="button"
+                            class="account-menu__icon-button"
                             (click)="copyWalletAddress(); $event.stopPropagation()"
                         >
                             <mat-icon class="!w-3.5 !h-3.5 !text-[14px]">content_copy</mat-icon>
                         </button>
                     </div>
-                    <div class="text-sm font-bold text-slate-700 dark:text-slate-200">
+
+                    <div class="account-menu__wallet-balance">
                         {{ avaxBalance | number: '1.0-6' }}
-                        <span class="text-xs font-medium text-slate-400">AVAX</span>
+                        <span>AVAX</span>
                     </div>
+
                     @if (tokenBalance && tokenBalance !== '0.00' && tokenBalance !== '0.0') {
-                        <div class="text-sm font-bold text-slate-700 dark:text-slate-200 mt-1">
+                        <div class="account-menu__wallet-balance">
                             {{ tokenBalance | number: '1.0-2' }}
-                            <span class="text-xs font-medium text-slate-400">{{
-                                tokenTicker
-                            }}</span>
+                            <span>{{ tokenTicker }}</span>
                         </div>
                     }
                 </div>
 
-                <!-- Sign Out Web3 Button (only show if hybrid or Web3-only) -->
                 @if (isHybrid || isWeb3Only) {
                     <button
+                        type="button"
+                        class="account-menu__row account-menu__row--danger"
                         (click)="signOutWeb3()"
-                        class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors group"
                     >
-                        <svg
-                            class="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-300"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            />
-                        </svg>
+                        <mat-icon
+                            class="icon-size-5"
+                            svgIcon="heroicons_outline:arrow-path"
+                        ></mat-icon>
                         <span>{{
                             isHybrid
                                 ? ('userMenu.signOutWeb3' | transloco)
@@ -253,69 +303,57 @@
                         }}</span>
                     </button>
                 }
-            </div>
+            </section>
         }
 
-        <!-- Role Section (if exists) -->
-        @if (user?.role) {
-            <div class="py-3 border-b border-slate-100 dark:border-slate-700">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400">
-                        {{ 'userMenu.role' | transloco }}
-                    </span>
-                    <span
-                        class="text-xs font-semibold text-slate-700 dark:text-slate-300 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded"
-                    >
-                        {{ user.role }}
-                    </span>
-                </div>
-            </div>
-        }
-
-        <!-- Connect Web2 Account Button (Web3-only users) -->
+        <!-- Connect Business Account (Web3-only users) -->
         @if (isWeb3Only) {
-            <div class="py-3 border-b border-slate-100 dark:border-slate-700">
-                <button
-                    (click)="openAuthModal()"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group"
-                >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                        />
-                    </svg>
-                    <span>{{ 'userMenu.connectWeb2Account' | transloco }}</span>
+            <section class="account-menu__connect">
+                <button type="button" class="account-menu__manage" (click)="openAuthModal()">
+                    {{ 'userMenu.connectWeb2Account' | transloco }}
                 </button>
-                <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2">
+                <p class="account-menu__hint account-menu__hint--center">
                     {{ 'userMenu.connectWeb2AccountDescription' | transloco }}
                 </p>
-            </div>
+            </section>
         }
 
-        <!-- Connect Wallet Button (Web2-only users) -->
+        <!-- Connect Wallet (Web2-only users) -->
         @if (isWeb2Only) {
-            <div class="py-3 border-b border-slate-100 dark:border-slate-700">
-                <button
-                    (click)="openAuthModal(true)"
-                    class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-colors group"
-                >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                        />
-                    </svg>
-                    <span>{{ 'userMenu.connectWallet' | transloco }}</span>
+            <section class="account-menu__connect">
+                <button type="button" class="account-menu__manage" (click)="openAuthModal(true)">
+                    {{ 'userMenu.connectWallet' | transloco }}
                 </button>
-                <p class="text-[10px] text-slate-400 dark:text-slate-500 text-center mt-2">
+                <p class="account-menu__hint account-menu__hint--center">
                     {{ 'userMenu.connectWalletDescription' | transloco }}
                 </p>
-            </div>
+            </section>
         }
+
+        <!-- Footer: role + sign out -->
+        <footer class="account-menu__footer">
+            @if (user?.role) {
+                <span class="account-menu__role">
+                    <span class="account-menu__section-label">{{
+                        'userMenu.role' | transloco
+                    }}</span>
+                    <span class="account-menu__role-value">{{ user.role }}</span>
+                </span>
+            }
+
+            @if (isHybrid || isWeb2Only) {
+                <button
+                    type="button"
+                    class="account-menu__row account-menu__row--danger"
+                    (click)="signOutWeb2()"
+                >
+                    <mat-icon
+                        class="icon-size-5"
+                        svgIcon="heroicons_outline:arrow-right-on-rectangle"
+                    ></mat-icon>
+                    <span>{{ 'userMenu.signOutWeb2' | transloco }}</span>
+                </button>
+            }
+        </footer>
     </div>
 </mat-menu>

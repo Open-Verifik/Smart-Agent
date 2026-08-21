@@ -1,0 +1,208 @@
+<section class="quest-card" [class.quest-card--complete]="allQuestsComplete()">
+    <!-- Header: progress ring, tier, rewards -->
+    <header class="quest-card__header">
+        <div class="quest-ring-wrap">
+            <svg class="quest-ring" viewBox="0 0 80 80" aria-hidden="true">
+                <circle class="quest-ring__track" cx="40" cy="40" r="34"></circle>
+                <circle
+                    class="quest-ring__fill"
+                    cx="40"
+                    cy="40"
+                    r="34"
+                    [style.stroke-dasharray]="ringCircumference"
+                    [style.stroke-dashoffset]="ringOffset()"
+                ></circle>
+            </svg>
+            <span class="quest-ring__value">
+                <strong>{{ completedCount() }}</strong>
+                <span class="quest-ring__total">/{{ totalCount() }}</span>
+            </span>
+        </div>
+
+        <div class="quest-card__intro">
+            <h2 class="quest-card__title">{{ 'home.onboarding.title' | transloco }}</h2>
+            <p class="quest-card__meta">
+                @if (allQuestsComplete()) {
+                    {{ 'home.onboarding.quests.allDoneTitle' | transloco }}
+                } @else {
+                    {{
+                        'home.onboarding.quests.questsRemaining'
+                            | transloco: { count: openQuests().length }
+                    }}
+                }
+            </p>
+        </div>
+    </header>
+
+    <!-- Reward summary -->
+    <div class="quest-reward">
+        <mat-icon class="icon-size-5">savings</mat-icon>
+        <span class="quest-reward__amount">${{ totalRewarded() | number: '1.2-2' }} USD</span>
+        <span class="quest-reward__note">
+            @if (isActivated()) {
+                {{
+                    'home.onboarding.activated'
+                        | transloco: { amount: totalRewarded() | number: '1.2-2' }
+                }}
+            } @else {
+                {{
+                    'home.onboarding.pendingApproval'
+                        | transloco: { amount: totalRewarded() | number: '1.2-2' }
+                }}
+            }
+        </span>
+    </div>
+
+    <!-- Milestone track -->
+    <div class="quest-track">
+        <div class="quest-track__bar">
+            <div class="quest-track__fill" [style.width.%]="progressPercentage()"></div>
+        </div>
+        <div class="quest-track__markers">
+            @for (milestone of milestones; track milestone) {
+                <span
+                    class="quest-marker"
+                    [class.quest-marker--reached]="isMilestoneReached(milestone)"
+                    [style.left.%]="milestone"
+                    [attr.aria-label]="
+                        'home.onboarding.quests.milestoneReached' | transloco: { value: milestone }
+                    "
+                >
+                    <mat-icon class="icon-size-3">
+                        {{ milestone === 100 ? 'emoji_events' : 'star' }}
+                    </mat-icon>
+                </span>
+            }
+        </div>
+    </div>
+
+    @if (verificationError()) {
+        <div class="quest-error">
+            <mat-icon class="icon-size-4">error</mat-icon>
+            <span>{{ 'home.onboarding.failedVerification' | transloco }}</span>
+        </div>
+    }
+
+    @if (allQuestsComplete()) {
+        <!-- Trophy summary replaces the quest list once everything is done -->
+        <div class="quest-trophy">
+            <div class="quest-trophy__badge">
+                <mat-icon>emoji_events</mat-icon>
+            </div>
+            <p class="quest-trophy__title">{{ 'home.onboarding.quests.allDoneTitle' | transloco }}</p>
+            <p class="quest-trophy__body">{{ 'home.onboarding.quests.allDoneBody' | transloco }}</p>
+        </div>
+    } @else {
+        <div class="quest-list">
+            <p class="quest-list__label">{{ 'home.onboarding.quests.nextUp' | transloco }}</p>
+
+            @for (task of nextQuests(); track task.taskId; let first = $first, i = $index) {
+                <article
+                    class="quest-row"
+                    [class.quest-row--active]="first"
+                    [style.--quest-row-index]="i"
+                >
+                    <div class="quest-row__head">
+                        <span class="quest-row__status" [attr.data-status]="task.status">
+                            @if (task.status === 'STUCK') {
+                                <mat-icon class="icon-size-4">warning</mat-icon>
+                            } @else if (task.status === 'STARTED' || task.status === 'VISITED') {
+                                <mat-icon class="icon-size-4">play_circle</mat-icon>
+                            } @else {
+                                <mat-icon class="icon-size-4">radio_button_unchecked</mat-icon>
+                            }
+                        </span>
+
+                        <p class="quest-row__title">
+                            {{ 'home.onboarding.tasks.' + task.taskId | transloco }}
+                        </p>
+
+                        <button
+                            type="button"
+                            class="quest-row__help"
+                            (click)="onOpenExplanation(task)"
+                            [title]="'home.onboarding.explanationModal.helpTooltip' | transloco"
+                        >
+                            <mat-icon class="icon-size-4">help_outline</mat-icon>
+                        </button>
+                    </div>
+
+                    <div class="quest-row__foot">
+                        <span class="quest-chip">{{ 'home.onboarding.taskReward' | transloco }}</span>
+
+                        @if (first) {
+                            <span class="quest-chip quest-chip--active">
+                                {{ 'home.onboarding.quests.activeQuest' | transloco }}
+                            </span>
+                        } @else {
+                            <span class="quest-row__status-label">
+                                {{ 'home.onboarding.statusLabels.' + task.status | transloco }}
+                            </span>
+                        }
+
+                        @if (verifyingTaskId() === task.taskId) {
+                            <mat-spinner class="quest-row__spinner" diameter="18"></mat-spinner>
+                        } @else if (task.taskId === 'complete_kyc') {
+                            <button type="button" class="quest-row__cta" (click)="onStartKyc()">
+                                {{ 'home.onboarding.completeTask' | transloco }}
+                            </button>
+                        } @else {
+                            <a class="quest-row__cta" [routerLink]="taskLink()(task.taskId)">
+                                {{ 'home.onboarding.completeTask' | transloco }}
+                            </a>
+                        }
+                    </div>
+                </article>
+            }
+
+            @if (hiddenQuestCount() > 0) {
+                <p class="quest-list__more">
+                    {{
+                        'home.onboarding.quests.moreQuests'
+                            | transloco: { count: hiddenQuestCount() }
+                    }}
+                </p>
+            }
+        </div>
+    }
+
+    <!-- Completed accordion -->
+    @if (completedCount() > 0) {
+        <div class="quest-completed">
+            <button type="button" class="quest-completed__toggle" (click)="toggleCompleted()">
+                <mat-icon class="icon-size-4 quest-completed__check">check_circle</mat-icon>
+                <span>
+                    {{
+                        'home.onboarding.quests.completedCount'
+                            | transloco: { count: completedCount() }
+                    }}
+                </span>
+                <mat-icon
+                    class="icon-size-4 quest-completed__chevron"
+                    [class.quest-completed__chevron--open]="completedExpanded()"
+                >
+                    expand_more
+                </mat-icon>
+            </button>
+
+            @if (completedExpanded()) {
+                <ul class="quest-completed__list">
+                    @for (task of completedQuests(); track task.taskId; let i = $index) {
+                        <li class="quest-done-row" [style.--quest-row-index]="i">
+                            <mat-icon class="icon-size-4">check_circle</mat-icon>
+                            <span>{{ 'home.onboarding.tasks.' + task.taskId | transloco }}</span>
+                            <button
+                                type="button"
+                                class="quest-row__help"
+                                (click)="onOpenExplanation(task)"
+                                [title]="'home.onboarding.explanationModal.helpTooltip' | transloco"
+                            >
+                                <mat-icon class="icon-size-4">help_outline</mat-icon>
+                            </button>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+</section>
