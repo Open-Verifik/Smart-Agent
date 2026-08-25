@@ -6,9 +6,13 @@
         "serviceLevelAgreement": "Accord de niveau de service"
     },
     "nav": {
+        "console": "Console",
+        "workspace": "Espace de travail",
+        "products": "Produits",
         "home": "Accueil",
         "chat": "Discussion",
         "history": "Historique",
+        "help": "Aide",
         "settings": "Paramètres",
         "smart_check": "SmartCheck",
         "postman": "Postman",
@@ -103,7 +107,9 @@
         "deleteTitle": "Supprimer",
         "deleteConfirm": "Supprimer",
         "deleteCancel": "Annuler",
-        "noTemplatesDesc": "Créez et gérez vos modèles de rapport personnalisés."
+        "noTemplatesDesc": "Créez et gérez vos modèles de rapport personnalisés.",
+        "executorHint": "Async s'exécute en arrière-plan. Sync enchaîne les étapes sur le serveur. Les nouveaux lots héritent de ce choix.",
+        "executorUpdateFailed": "Impossible de mettre à jour l'exécuteur. Réessayez."
     },
     "smartBatchSystemPresets": {
         "cloning": "Clonage du modèle prédéfini...",
@@ -178,11 +184,28 @@
         "create": "Créer",
         "batchConfiguration": "Configuration de lot",
         "basicInformation": "Informations de base",
+        "notifications": "Notifications",
+        "notificationsOptional": "Facultatif",
+        "notificationsHint": "Ignorez cette partie si vous n'avez besoin ni d'un webhook ni d'un e-mail à la fin d'un lot.",
+        "notificationsConfigure": "Ajouter un webhook ou un e-mail",
         "configurationName": "Nom de la configuration",
         "namePlaceholder": "ex. Vérification quotidienne des citoyens",
         "nameRequired": "Le nom est requis",
         "description": "Description",
         "descriptionPlaceholder": "Fournissez une description pour cette configuration",
+        "webhookUrl": "URL du webhook",
+        "webhookUrlHint": "Facultatif. Nous envoyons les événements de ligne et de lot à cette adresse.",
+        "invalidWebhookUrl": "Saisissez une URL valide (https://...)",
+        "testWebhook": "Tester",
+        "testing": "Test en cours...",
+        "testSuccess": "Le point de terminaison a répondu",
+        "testFailed": "Le point de terminaison n'a pas accepté la requête d'exemple",
+        "webhookMustTest": "Testez le webhook avec succès avant de continuer.",
+        "emailOnCompletion": "E-mails à la fin",
+        "emailOnCompletionHint": "Facultatif. Appuyez sur Entrée ou une virgule pour ajouter une adresse.",
+        "emailChipPlaceholder": "nom@exemple.com",
+        "removeEmail": "Retirer l'e-mail",
+        "invalidEmails": "Saisissez une adresse e-mail valide",
         "country": "Pays",
         "countryRequired": "Le pays est requis",
         "mergeStrategy": "Stratégie de fusion",
@@ -191,6 +214,11 @@
         "parallelWithFallback": "Parallèle avec repli",
         "inputFieldsFormat": "Format des champs de saisie",
         "resultOutputFormat": "Format de sortie des résultats",
+        "runMode": "Mode d'exécution",
+        "runModeAsync": "Async",
+        "runModeSync": "Sync",
+        "runModeAsyncHint": "S'exécute en arrière-plan. Vous pouvez fermer cet onglet ; le lot continue.",
+        "runModeSyncHint": "S'exécute sur le serveur comme une chaîne d'étapes. Idéal si une étape a besoin du résultat de la précédente.",
         "saving": "Enregistrement...",
         "next": "Suivant",
         "selectEndpoints": "Sélectionner les points de terminaison",
@@ -215,17 +243,25 @@
         "estimatedCostPerRecord": "Coût estimé par enregistrement",
         "totalPerRecord": "Total par enregistrement",
         "updateConfiguration": "Mettre à jour la configuration",
-        "createConfiguration": "Créer la configuration"
+        "createConfiguration": "Créer la configuration",
+        "loadFailed": "Impossible de charger cette configuration. Vérifiez qu'elle existe encore et que vous y avez accès.",
+        "featuresLoadFailed": "Impossible de charger les endpoints disponibles. Réessayez.",
+        "saveFailed": "Impossible d'enregistrer la configuration. Vérifiez le formulaire et réessayez."
     },
     "batchDashboard": {
         "backToSmartBatch": "Retour à Smart Batch",
         "loading": "Chargement...",
         "batchProcessingDashboard": "Tableau de bord du traitement par lots",
         "createBatch": "Créer un lot",
+        "executor": "Mode d'exécution",
+        "executorHint": "Async s'exécute en arrière-plan. Sync enchaîne les étapes sur le serveur. Les nouveaux lots héritent de ce choix.",
+        "executorUpdateFailed": "Impossible de mettre à jour l'exécuteur. Réessayez.",
         "steps": "Étapes",
         "strategy": "Stratégie",
         "format": "Format",
         "costPerRow": "Coût par ligne",
+        "webhook": "Webhook",
+        "webhookNone": "Aucun",
         "processingSteps": "Étapes de traitement",
         "disabled": "Désactivé",
         "costBreakdown": "Répartition des coûts",
@@ -256,7 +292,11 @@
         "failedCount": "{{count}} échoué(s)",
         "partialCount": "{{count}} partiel(s)",
         "addInputs": "Ajouter des entrées",
-        "viewDetails": "Voir les détails"
+        "viewDetails": "Voir les détails",
+        "webhookEvents": "Événements webhook",
+        "webhookEventsHint": "Livraisons vers le webhook de cette configuration. Ouvrez Smart Monitor pour la boîte complète.",
+        "openSmartMonitorWebhooks": "Ouvrir Smart Monitor",
+        "webhookEventsEmpty": "Les événements apparaissent ici après la première livraison."
     },
     "smartReport": {
         "generateReport": "Générer un rapport",
@@ -974,7 +1014,7 @@
         },
         "detail": {
             "back": "Retour aux webhooks",
-            "subtitle": "Détails du point de terminaison, flux liés et journal de livraison",
+            "subtitle": "Détails du point de terminaison, flux et lots liés, et journal de livraison",
             "unnamed": "Webhook"
         },
         "events": {
@@ -983,13 +1023,13 @@
         },
         "list": {
             "title": "Webhooks",
-            "subtitle": "Envoyez des notifications lorsque les flux se terminent.",
+            "subtitle": "Envoyez des notifications lorsque les flux ou les lots se terminent.",
             "view": "Ouvrir",
             "edit": "Modifier",
             "card": {
                 "url": "URL du point de terminaison",
-                "related_projects": "Flux liés",
-                "not_related_projects": "Aucun flux lié",
+                "related_projects": "Flux et lots liés",
+                "not_related_projects": "Aucun flux ni lot lié",
                 "active": "Actif",
                 "disabled": "En pause"
             }
@@ -1034,7 +1074,8 @@
             "response": "Réponse",
             "request": "Requête",
             "select_event": "Sélectionnez un événement pour voir la charge et la réponse.",
-            "related_project": "Flux liés",
+            "related_project": "Flux et lots liés",
+            "batch_configuration": "Smart Batch",
             "filter_project": "Filtrer",
             "events": "événements",
             "notifications": "Notifications",
@@ -3227,6 +3268,14 @@
             "limit_reached": "Vous avez atteint le nombre maximum de membres d'équipe pour votre plan. Mettez à niveau pour en ajouter plus.",
             "no_plan_warning": "Vous avez besoin d'un plan d'abonnement actif pour ajouter des membres d'équipe.",
             "no_plan_error": "Impossible d'ajouter des membres d'équipe sans un plan d'abonnement actif.",
+            "errors": {
+                "duplicated_phone": "Ce numéro de téléphone fait déjà partie de votre équipe.",
+                "phone_in_other_org": "Ce numéro de téléphone appartient déjà à une autre organisation.",
+                "duplicated_email": "Cet e-mail fait déjà partie de votre équipe.",
+                "email_in_other_org": "Cet e-mail appartient déjà à une autre organisation.",
+                "client_exists_email": "Cet e-mail appartient déjà à un compte Verifik. Utilisez un autre e-mail.",
+                "client_exists_phone": "Ce numéro de téléphone appartient déjà à un compte Verifik. Utilisez un autre numéro."
+            },
             "view_plans": "Voir les plans SmartCheck"
         },
         "billing": {
@@ -3342,7 +3391,7 @@
             "auto": "Auto",
             "dark": "Sombre",
             "light": "Clair",
-            "autoTooltip": "Définit automatiquement le schéma selon la préférence système de l'utilisateur via la requête média 'prefer-color-scheme'."
+            "autoTooltip": "Active le mode sombre de 19 h à 7 h, selon votre heure locale."
         },
         "layouts": {
             "empty": "Vide",
@@ -3936,10 +3985,25 @@
         "purchaseDialog": {
             "title": "Acheter des crédits",
             "selectAmount": "Sélectionner le montant",
+            "change": "Modifier",
             "customAmount": "Montant personnalisé",
             "enterAmount": "Entrer le montant",
             "minimum": "Minimum 49$",
             "paymentMethod": "Méthode de paiement",
+            "savedCard": "Carte enregistrée",
+            "bold": {
+                "optionUsd": "Payer avec Bold en dollars",
+                "methodsUsd": "Carte de crédit ou de débit",
+                "optionCop": "Payer avec Bold en pesos",
+                "methodsCop": "Carte, PSE, Nequi ou Bancolombia",
+                "optionPse": "Payer avec PSE",
+                "methodsPse": "Virement bancaire en pesos colombiens",
+                "firstPurchasePseNote": "Pour un premier achat, nous acceptons uniquement les virements PSE. Dès que ce paiement est approuvé, tous les moyens de paiement sont débloqués, cartes incluses.",
+                "quoteApprox": "Vous serez débité de {{total}} au taux de {{rate}} COP par dollar.",
+                "quoteLoading": "Calcul du montant en pesos…",
+                "hint": "Vous finaliserez le paiement sur la passerelle sécurisée de Bold puis reviendrez ici. Les crédits sont ajoutés dès que Bold confirme le paiement.",
+                "payButton": "Payer avec Bold"
+            },
             "summary": "Résumé",
             "subtotal": "Sous-total",
             "processingFee": "Frais de traitement",
@@ -3964,7 +4028,11 @@
                 "kycVerificationStartFailed": "Impossible de démarrer la vérification KYC. Réessayez.",
                 "selectPaymentMethod": "Sélectionnez une méthode de paiement.",
                 "amountOutOfRange": "Le montant doit être compris dans la plage autorisée.",
-                "paymentPendingVerification": "Paiement en attente de vérification. Nous mettrons à jour votre solde dès confirmation."
+                "paymentPendingVerification": "Paiement en attente de vérification. Nous mettrons à jour votre solde dès confirmation.",
+                "boldUnavailable": "Le paiement Bold est indisponible pour le moment. Réessayez ou payez avec une carte enregistrée.",
+                "boldWholeAmount": "Bold n'accepte que des montants en dollars entiers. Retirez les centimes et réessayez.",
+                "boldFxUnavailable": "Nous n'avons pas pu obtenir le taux USD/COP du jour, le paiement en pesos est donc indisponible. Vous pouvez toujours payer en dollars par carte.",
+                "firstPurchaseRequiresPse": "Votre premier achat doit être payé par virement PSE. Une fois approuvé, vous pourrez payer par carte."
             },
             "kyc": {
                 "title": "KYC requis",
@@ -3975,6 +4043,15 @@
                 "contactSupport": "Contacter le support"
             },
             "maximum": "Maximum"
+        },
+        "bold": {
+            "return": {
+                "confirming": "Confirmation de votre paiement Bold…",
+                "approved": "Paiement confirmé. Vos crédits ont été ajoutés.",
+                "pending": "Bold traite encore votre paiement. Les crédits apparaîtront automatiquement après approbation, inutile de payer à nouveau.",
+                "failed": "Bold n'a pas pu traiter ce paiement. Aucun montant n'a été débité, vous pouvez réessayer.",
+                "dismiss": "Fermer"
+            }
         },
         "hero": {
             "title": "Des crédits pour chaque flux Verifik",
@@ -7218,8 +7295,13 @@
         "insufficientCreditsTitle": "Crédits insuffisants",
         "insufficientCreditsMessage": "Cette exécution nécessite {{required}} crédits et vous en avez {{available}}. Elle s'arrêtera dès que votre solde sera épuisé.",
         "startAnyway": "Démarrer quand même",
-        "serverManaged": "Exécution serveur",
-        "serverManagedHint": "Le traitement s'exécute sur les serveurs Verifik. Fermer cet onglet ne l'arrête pas.",
+        "serverManaged": "Async",
+        "serverManagedHint": "Ce lot s'exécute en arrière-plan. Fermer cet onglet ne l'arrête pas.",
+        "executorQueue": "Async",
+        "executorFeatureRunner": "Sync",
+        "executorBrowser": "Cet onglet",
+        "executorHint": "File : Python travaille onglet fermé. Serveur : FeatureRunner Node. Cet onglet : seulement tant que cette page est ouverte.",
+        "executorUpdateFailed": "Impossible de mettre à jour l'exécuteur. Réessayez.",
         "serverProgressHint": "{{completed}} réussis, {{failed}} en échec sur {{total}} enregistrements",
         "estimateCost": "Estimation de {{credits}} crédits pour {{rows}} enregistrement(s) en attente",
         "estimatePerRecord": "{{credits}} par enregistrement",
@@ -7250,6 +7332,9 @@
         "generatePdfReport": "Générer le rapport PDF",
         "inputData": "Données d'entrée",
         "stepResults": "Résultats par étape",
+        "attempts": "tentatives : {{count}}",
+        "attemptTimeline": "Historique des tentatives",
+        "attemptLabel": "Tentative {{attempt}}",
         "errors": "Erreurs",
         "stepError": "Étape {{step}} : {{code}}",
         "stepStatusCompleted": "{{step}} : Terminé",
