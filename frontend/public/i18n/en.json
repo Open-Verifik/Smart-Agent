@@ -3378,6 +3378,9 @@
             "business_country_placeholder": "Select your billing country",
             "dian_nit_not_found": "This NIT was not found in the tax registry.",
             "dian_name_mismatch": "The company name does not match the tax registry record for this NIT.",
+            "citizen_not_found": "This document was not found in the identity registry.",
+            "citizen_name_mismatch": "The name does not match the identity registry record for this document.",
+            "invalid_document_type": "This document type is not valid for the selected country.",
             "missing_billing_field": "Complete all required billing fields before saving.",
             "nit_format_invalid": "Enter a valid NIT (at least 5 digits).",
             "document_types": {
@@ -3385,11 +3388,28 @@
                 "CE": "Foreign ID Card (CE)",
                 "TI": "Identity Card (TI)",
                 "NIT": "Tax ID (NIT)",
-                "PPT": "Passport (PPT)",
+                "PPT": "Temporary Protection Permit (PPT)",
+                "PA": "Passport (PA)",
+                "PEP": "Special Permanence Permit (PEP)",
                 "DNI": "National ID (DNI)",
+                "DNIAR": "National ID (DNIAR)",
+                "DNIHN": "National ID (DNIHN)",
+                "DNIES": "National ID (DNIES)",
+                "NIE": "Foreigner ID (NIE)",
                 "RUC": "Tax Registry (RUC)",
                 "CURP": "CURP",
                 "RUT": "Tax Role (RUT)",
+                "RUN": "National ID (RUN)",
+                "CPF": "Individual Taxpayer ID (CPF)",
+                "CI": "Identity Card (CI)",
+                "CIC": "Identity Card (CIC)",
+                "CCCR": "Citizenship Card (CCCR)",
+                "CCEC": "Citizenship Card (CCEC)",
+                "CCPA": "Citizenship Card (CCPA)",
+                "CCUY": "Citizenship Card (CCUY)",
+                "CCVE": "Citizenship Card (CCVE)",
+                "DUI": "Unique Identity Document (DUI)",
+                "EPIC": "Voter ID (EPIC)",
                 "NO_TAX": "No Tax ID",
                 "INTERNATIONAL_TAX": "International Tax ID"
             }
@@ -4017,11 +4037,11 @@
         "promo": {
             "weekOneUsd50": {
                 "badge": "Limited promotion",
-                "title": "Double credit value when you recharge $50, $100, $150, or $200 in your first week",
-                "body": "If you purchase $50, $100, $150, or $200 USD of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge.",
-                "accountCreatedNotice": "You must complete one of the qualifying purchases ($50 / $100 / $150 / $200) before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
+                "title": "Double credit value on any recharge of $49 or more in your first week",
+                "body": "If you purchase $49 USD or more of credits within seven days after your Verifik client account is created (not merely your first sign-in—we mean the timestamp on your registered client profile), we add matching bonus credits. Your balance reflects twice the dollar value for that recharge. The matched bonus is capped at $2,000.",
+                "accountCreatedNotice": "You must complete a qualifying purchase of $49 or more before one full week passes after client account registration. After this window—or after you redeem the promo once—the standard rate applies.",
                 "deadline": "Complete your qualifying purchase by {{expiresAt}}",
-                "walletStrip": "Limited: pick {{amountUsd}} when you purchase credits—we double the credited value while this first-week promo is active (see banner above).",
+                "walletStrip": "Limited: recharge {{minUsd}} or more when you purchase credits—we double the credited value while this first-week promo is active (bonus capped at {{maxBonusUsd}}; see banner above).",
                 "dialogDouble": "First-week promo: you pay {{payUsd}} for this recharge and receive {{receivedUsd}} in total credited value—including the matched bonus."
             },
             "bringBack": {
@@ -4108,6 +4128,8 @@
                 "approved": "Payment confirmed. Your credits have been added.",
                 "pending": "Bold is still processing your payment. Credits appear automatically once it is approved — no need to pay again.",
                 "failed": "Bold could not process this payment. Nothing was charged, so you can try again.",
+                "abandoned": "You opened a payment at Bold but never completed it, so nothing was charged. Start a new purchase whenever you are ready.",
+                "unknown": "We could not check this payment right now. If you completed it, your credits are still added automatically.",
                 "dismiss": "Dismiss"
             }
         }

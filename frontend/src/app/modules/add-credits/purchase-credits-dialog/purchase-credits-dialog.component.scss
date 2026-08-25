@@ -1,22 +1,21 @@
 /**
  * Targets the overlay pane class set via `MatDialog.panelClass` (see AddCreditsComponent).
- * Keeps Tailwind-driven inner layout readable; trims default MDC slab padding/sharp corners.
+ * The pane is capped to the viewport so every resolution keeps header, body and footer on screen;
+ * only the middle scrolls when the form is taller than the leftover space.
  */
 
 .purchase-credits-dialog-panel.cdk-overlay-pane {
-    max-width: min(500px, 92vw);
+    max-width: min(500px, 94vw);
+    max-height: calc(100vh - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
 }
 
-/**
- * The card is drawn by the template root (bg-white, border, rounded-2xl, shadow-lg). Material's
- * surface and container are left transparent so the two do not stack into a visible double card.
- */
 .purchase-credits-dialog-panel {
     .mat-mdc-dialog-container {
         padding: 0 !important;
         overflow: hidden;
         display: flex;
-        justify-content: center;
+        max-height: inherit;
         --mdc-dialog-container-color: transparent;
         --mdc-dialog-container-elevation: none;
     }
@@ -24,20 +23,29 @@
     .mat-mdc-dialog-surface {
         background-color: transparent !important;
         box-shadow: none !important;
-        overflow: visible;
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: inherit;
+        overflow: hidden;
     }
 
-    // Grow with content; only scroll on short viewports (Material defaults a low max-height).
+    .purchase-credits-dialog-card {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        max-height: calc(100vh - 1.5rem);
+        max-height: calc(100dvh - 1.5rem);
+        width: 100%;
+    }
+
     .mat-mdc-dialog-content.purchase-credits-dialog-content {
+        flex: 1 1 auto;
+        min-height: 0;
         max-height: none !important;
-        overflow-y: visible !important;
-    }
-}
-
-@media (max-height: 700px) {
-    .purchase-credits-dialog-panel .mat-mdc-dialog-content.purchase-credits-dialog-content {
-        max-height: calc(100dvh - 14rem) !important;
         overflow-y: auto !important;
+        overscroll-behavior: contain;
+        -webkit-overflow-scrolling: touch;
     }
 }
 
@@ -51,7 +59,32 @@
     }
 }
 
-// Spinner alignment inside elevated buttons (fallback if flex gap skips baseline)
+@media (max-height: 720px) {
+    .purchase-credits-dialog-panel {
+        .purchase-credits-dialog-lead {
+            display: none;
+        }
+
+        .purchase-credits-dialog-header,
+        .purchase-credits-dialog-footer {
+            padding-top: 0.875rem;
+            padding-bottom: 0.875rem;
+        }
+
+        .mat-mdc-dialog-content.purchase-credits-dialog-content {
+            gap: 1rem;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .purchase-credits-dialog-panel.cdk-overlay-pane {
+        max-width: calc(100vw - 1rem);
+    }
+}
+
 .mat-mdc-raised-button,
 .mat-mdc-unelevated-button,
 .mat-mdc-outlined-button,

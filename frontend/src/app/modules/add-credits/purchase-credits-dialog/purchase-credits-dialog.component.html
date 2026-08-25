@@ -1,13 +1,13 @@
 <div
-    class="flex w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900"
+    class="purchase-credits-dialog-card flex w-full flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900"
 >
     <!-- Normal Purchase Flow -->
     <ng-container *ngIf="!kycRequired">
-        <header class="border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:p-6">
+        <header class="purchase-credits-dialog-header shrink-0 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:p-6">
             <h2 class="text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
                 {{ 'addCredits.purchaseDialog.title' | transloco }}
             </h2>
-            <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400">
+            <p class="purchase-credits-dialog-lead mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400">
                 {{ 'addCredits.hero.subtitle' | transloco }}
             </p>
         </header>
@@ -35,7 +35,7 @@
 
                 <!-- Collapsed: the chosen amount, one tap from the full grid again. -->
                 <button
-                    *ngIf="!amountExpanded"
+                    *ngIf="!amountExpanded && hasSelectedAmount()"
                     type="button"
                     class="flex min-h-[2.75rem] items-center justify-between gap-3 rounded-xl border border-indigo-500 bg-indigo-50 px-4 py-3 text-left transition ring-2 ring-indigo-500/20 disabled:opacity-50 dark:border-indigo-400 dark:bg-indigo-950/40"
                     (click)="expandAmounts()"
@@ -143,8 +143,8 @@
                             'addCredits.promo.weekOneUsd50.dialogDouble'
                                 | transloco
                                     : {
-                                          payUsd: '$' + selectedAmount,
-                                          receivedUsd: '$' + selectedAmount * 2,
+                                          payUsd: '$' + weekOneDoublePayAmount(),
+                                          receivedUsd: '$' + weekOneDoubleReceivedAmount(),
                                       }
                         }}
                     </p>
@@ -244,7 +244,7 @@
             </section>
         </mat-dialog-content>
 
-        <div class="flex flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
+        <div class="purchase-credits-dialog-footer flex shrink-0 flex-col-reverse gap-2 border-t border-stone-200/90 px-5 py-4 dark:border-gray-800 sm:flex-row sm:justify-end sm:gap-3 md:px-6">
             <button
                 mat-stroked-button
                 type="button"
@@ -271,7 +271,7 @@
                         ) | transloco
                     }}</span>
                     <span class="rounded bg-white/20 px-2 py-0.5 text-sm">
-                        {{ isBoldOptionSelected('COP') && boldCopTotalLabel() ? boldCopTotalLabel() : '$' + selectedAmount }}
+                        {{ isBoldOptionSelected('COP') && boldCopTotalLabel() ? boldCopTotalLabel() : hasSelectedAmount() ? '$' + selectedAmount : '' }}
                     </span>
                 </ng-container>
                 <span *ngIf="loading">{{ 'addCredits.purchaseDialog.purchasing' | transloco }}</span>

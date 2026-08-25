@@ -86,7 +86,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     readonly minPurchaseUsd = MIN_CREDIT_PURCHASE_USD;
     readonly maxPurchaseUsd = MAX_CREDIT_PURCHASE_USD;
 
-    selectedAmount: number = 100;
+    selectedAmount: number | null = null;
     selectedCardId?: string;
     loading = false;
     error: string | null = null;
@@ -333,7 +333,7 @@ export class PurchaseCreditsDialogComponent implements OnInit {
 
         this.boldQuoteLoading = true;
 
-        this._paymentService.getBoldQuote(this.selectedAmount, 'COP').subscribe({
+        this._paymentService.getBoldQuote(this.selectedAmount as number, 'COP').subscribe({
             next: (response) => {
                 this.boldQuoteLoading = false;
                 this.boldQuote = response.data ?? null;
@@ -386,10 +386,36 @@ export class PurchaseCreditsDialogComponent implements OnInit {
             return false;
         }
 
-        const amounts = p.purchaseUsdAmounts ?? [];
-        const active = this.isCustomAmount ? Number(this.customAmountValue) : this.selectedAmount;
+        const min = p.minPurchaseUsd ?? this.minPurchaseUsd;
+        const active = this._activePurchaseUsd();
 
-        return amounts.includes(active);
+        return Number.isFinite(active) && active >= min;
+    }
+
+    /** Pay amount currently in the dialog, whether a preset or a typed custom value. */
+    weekOneDoublePayAmount(): number {
+        return this._activePurchaseUsd();
+    }
+
+    /** Purchase plus the matched bonus, respecting the server-side cap. */
+    weekOneDoubleReceivedAmount(): number {
+        const active = this._activePurchaseUsd();
+        const cap = this.data?.promotion?.maxBonusUsd ?? this.maxPurchaseUsd;
+        const bonus = Math.min(active, cap);
+
+        return active + bonus;
+    }
+
+    private _activePurchaseUsd(): number {
+        if (this.isCustomAmount) {
+            return Number(this.customAmountValue);
+        }
+
+        return this.selectedAmount ?? Number.NaN;
+    }
+
+    hasSelectedAmount(): boolean {
+        return Number.isFinite(this._activePurchaseUsd());
     }
 
     selectPresetAmount(amount: number): void {
@@ -421,11 +447,10 @@ export class PurchaseCreditsDialogComponent implements OnInit {
     toggleCustomAmount(): void {
         this.isCustomAmount = !this.isCustomAmount;
         if (this.isCustomAmount) {
-            // When switching to custom, initialize with current selection or minimum
             this.customAmountValue =
-                this.selectedAmount >= MIN_CREDIT_PURCHASE_USD
+                this.selectedAmount != null && this.selectedAmount >= MIN_CREDIT_PURCHASE_USD
                     ? this.selectedAmount
-                    : MIN_CREDIT_PURCHASE_USD;
+                    : null;
             this.selectedAmount = this.customAmountValue;
         }
 
@@ -434,22 +459,24 @@ export class PurchaseCreditsDialogComponent implements OnInit {
 
     onCustomAmountChange(value: number): void {
         this.customAmountValue = value;
-        this.selectedAmount = value || 0;
+        this.selectedAmount = value || null;
 
         this._scheduleBoldQuote();
     }
 
     isValidAmount(): boolean {
+        const amount = this._activePurchaseUsd();
         const inRange =
-            this.selectedAmount >= MIN_CREDIT_PURCHASE_USD &&
-            this.selectedAmount <= MAX_CREDIT_PURCHASE_USD;
+            Number.isFinite(amount) &&
+            amount >= MIN_CREDIT_PURCHASE_USD &&
+            amount <= MAX_CREDIT_PURCHASE_USD;
 
         if (!inRange) {
             return false;
         }
 
         // Bold's integrity hash covers the amount as whole units, so cents cannot be charged.
-        return this.paymentMethod !== 'bold' || Number.isInteger(this.selectedAmount);
+        return this.paymentMethod !== 'bold' || Number.isInteger(amount);
     }
 
     canSubmit(): boolean {

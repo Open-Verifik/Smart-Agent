@@ -105,13 +105,32 @@ export interface BoldConfirmData {
     finalized?: boolean;
     updated?: boolean;
     pending?: boolean;
+    abandoned?: boolean;
     skipped?: boolean;
     reason?: string;
     transaction?: CreditPurchaseTransaction;
 }
 
-/** Order reference kept across the Bold redirect in case the return URL loses its query params. */
-export const BOLD_PENDING_ORDER_KEY = 'bold_pending_order_id';
+/**
+ * What the customer is told about a Bold order. `abandoned` is a checkout that was opened and never
+ * paid, which the gateway reports the same way as one still in flight until it ages out.
+ */
+export type BoldOrderState = 'pending' | 'approved' | 'failed' | 'abandoned';
+
+/** One unresolved Bold order, re-polled against the gateway when the page loads. */
+export interface BoldOpenOrder {
+    orderId: string;
+    state: BoldOrderState;
+    usdAmount: number;
+    currency: BoldCurrency;
+    total: number;
+    paymentMethod?: string;
+    ageMinutes: number;
+    createdAt?: string;
+}
+
+/** Marker written by the first version of the return flow; only read now so it can be discarded. */
+const LEGACY_BOLD_PENDING_ORDER_KEY = 'bold_pending_order_id';
 
 const BOLD_CHECKOUT_SCRIPT_URL = 'https://checkout.bold.co/library/boldPaymentButton.js';
 
@@ -299,7 +318,8 @@ export class PaymentService {
     }
 
     /**
-     * After Bold redirects back, reconcile the order (fallback for a delayed or sandbox webhook).
+     * After Bold redirects back, reconcile that specific order (fallback for a delayed or sandbox
+     * webhook).
      */
     confirmBoldPurchase(orderId: string) {
         const token = localStorage.getItem('accessToken');
@@ -308,6 +328,25 @@ export class PaymentService {
         return this._httpClient.post<{ data: BoldConfirmData }>(
             `${this.apiUrl}/v2/credits/bold/confirm`,
             { orderId },
+            { headers }
+        );
+    }
+
+    /**
+     * Re-polls every Bold order this client left open, asking the gateway again for each. The server
+     * owns that list, so a checkout is still followed up on days later or from another device — and
+     * an order nobody ever paid is reported as `abandoned` instead of pending forever.
+     */
+    reconcileBoldOrders() {
+        // Predecessor of this call kept the order in localStorage, where it outlived the checkout.
+        localStorage.removeItem(LEGACY_BOLD_PENDING_ORDER_KEY);
+
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.post<{ data: { orders: BoldOpenOrder[] } }>(
+            `${this.apiUrl}/v2/credits/bold/reconcile`,
+            {},
             { headers }
         );
     }
@@ -348,8 +387,6 @@ export class PaymentService {
             throw new Error('bold_script_load_failed');
         }
 
-        localStorage.setItem(BOLD_PENDING_ORDER_KEY, config.orderId);
-
         const checkout = new window.BoldCheckout({
             orderId: config.orderId,
             currency: config.currency,
@@ -368,15 +405,13 @@ export class PaymentService {
 
     /**
      * Sends the customer to a hosted Bold checkout (the PSE-only link a restricted first purchase
-     * gets). The order id is stored before navigating so the return page can reconcile it even if
-     * Bold comes back without query parameters.
+     * gets). Nothing is kept in the browser: the pending order lives in the database, so the return
+     * page reconciles it even if Bold comes back without query parameters.
      */
     redirectToBoldCheckout(config: BoldCheckoutConfig): void {
         if (!config.url) {
             throw new Error('bold_missing_checkout_url');
         }
-
-        localStorage.setItem(BOLD_PENDING_ORDER_KEY, config.orderId);
 
         window.location.href = config.url;
     }

@@ -393,7 +393,11 @@
                                 class="billing-details__input"
                                 formControlName="person_name"
                                 [placeholder]="t('settings.billing.full_name_placeholder')"
+                                [class.billing-details__input--error]="personNameError"
                             />
+                            <p *ngIf="personNameError" class="billing-details__error">
+                                {{ personNameError }}
+                            </p>
                         </div>
 
                         <div class="billing-details__field">
@@ -430,7 +434,11 @@
                                 type="text"
                                 class="billing-details__input"
                                 formControlName="person_documentNumber"
+                                [class.billing-details__input--error]="personDocumentError"
                             />
+                            <p *ngIf="personDocumentError" class="billing-details__error">
+                                {{ personDocumentError }}
+                            </p>
                         </div>
 
                         <div class="billing-details__field">

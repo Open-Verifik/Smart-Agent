@@ -839,6 +839,8 @@
               "enum": [
                 "CC",
                 "CE",
+                "PPT",
+                "NIT",
                 "PEP"
               ]
             },
@@ -852,6 +854,73 @@
               "type": "string"
             },
             "description": "Parameter: documentNumber"
+          }
+        ]
+      }
+    },
+    "/api/co/procuraduria": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_identity_lookup_procuraduria",
+        "summary": "Colombia - Citizen Lookup via Procuraduría",
+        "description": "Name-only identity lookup against Procuraduría General de la Nación. Unlike /v2/co/cedula, this endpoint does not try DIAN, ADRES, or Registraduría. Unlike /v2/co/procuraduria/antecedentes, it does not return disciplinary records. Supports CC, CE, PEP, NIT, and PPT.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CC",
+                "CE",
+                "PPT",
+                "NIT",
+                "PEP"
+              ]
+            },
+            "description": "One of CC, CE, PPT, NIT, PEP"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Document number without spaces or periods"
           }
         ]
       }
@@ -1676,6 +1745,8 @@
                     "enum": [
                       "CC",
                       "CE",
+                      "PPT",
+                      "NIT",
                       "PEP"
                     ]
                   },
@@ -10472,7 +10543,7 @@
         ],
         "operationId": "colombia_api_identity_lookup_registraduria",
         "summary": "Colombia - Citizen Lookup via Registraduría (SCCRC)",
-        "description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría, DIAN, and Olimpia)",
+        "description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría and DIAN)",
         "x-payment-info": {
           "price": {
             "mode": "fixed",

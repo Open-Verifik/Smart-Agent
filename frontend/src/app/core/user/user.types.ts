@@ -3,8 +3,10 @@ export interface SmartAgentWeekOneUsd50Promotion {
     eligible: boolean;
     consumed: boolean;
     expiresAt: string;
-    /** All USD amounts that qualify for the first-week double-credit promo. */
-    purchaseUsdAmounts: number[];
+    /** PAYG floor: any first-week purchase at or above this USD amount qualifies. */
+    minPurchaseUsd: number;
+    /** Matching bonus is capped at this USD amount. */
+    maxBonusUsd: number;
 }
 
 /** Win-back offer: next recharge or first subscription payment grants multiplied credits. */

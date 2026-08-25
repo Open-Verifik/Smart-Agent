@@ -9,8 +9,8 @@
             "description": "개인 시민 정보 접근 를 위한 Colombian nationals. 이 서비스는 포괄적인 개인 데이터를 제공 포함 detailed identity verification. 자세한 내용은 Verifik 고객 서비스에 문의하세요."
         },
         "colombia_api_identity_lookup": {
-            "title": "콜롬비아 — 국민 신분증 확인 (CC·PPT)",
-            "description": "콜롬비아 국민 신분증(CC) 또는 PPT로 신원을 확인합니다. GET /v2/co/cedula."
+            "title": "콜롬비아 — 국민 신분증 확인",
+            "description": "문서 번호(CC, CE, PPT, NIT, PEP)로 콜롬비아 신원을 확인합니다. GET /v2/co/cedula."
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "콜롬비아 — 경찰 범죄 경력 조회",
@@ -891,6 +891,10 @@
         "colombia_api_identity_lookup_registraduria": {
             "title": "콜롬비아 — Registraduría(SCCRC) 시민 조회",
             "description": "GET /v2/co/cedula/registraduria(Registraduría SCCRC 전용)로 문서 번호로 콜롬비아 출생 민사등록을 조회합니다."
+        },
+        "colombia_api_identity_lookup_procuraduria": {
+            "title": "콜롬비아 — Procuraduría 시민 조회",
+            "description": "GET /v2/co/procuraduria로 Procuraduría에서 이름만 조회합니다 (CC, CE, PPT, NIT, PEP). 징계 기록은 반환하지 않습니다."
         },
         "mexico_api_ine_ocr": {
             "title": "멕시코 — INE OCR",

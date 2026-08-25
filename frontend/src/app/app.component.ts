@@ -67,8 +67,16 @@ export class AppComponent implements OnInit {
         const urlParams = new URL(window.location.href).searchParams;
         const tokenFromUrl = urlParams.get('token');
         const userFromUrl = urlParams.get('user');
+        const projectType = (urlParams.get('type') || '').trim();
+        const isAccessAppHandoff = ['onboarding', 'login', 'admin-login'].includes(projectType);
 
         if (!tokenFromUrl) {
+            return;
+        }
+
+        // Exchange tokens must go through /bridge (project-login), not /v2/auth/session.
+        if (isAccessAppHandoff) {
+            window.location.replace(`/bridge?${urlParams.toString()}`);
             return;
         }
 

@@ -13,6 +13,7 @@ import type {
     BringBackOffer,
     PendingWelcomeCredits,
     SmartAgentWeekOneUsd50Promotion,
+    User,
 } from '../../core/user/user.types';
 import { UserService } from '../../core/user/user.service';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
@@ -27,7 +28,11 @@ import { AutoRechargeSettingsComponent } from './auto-recharge-settings/auto-rec
 import { PaymentCardComponent } from './payment-card/payment-card.component';
 import { PurchaseCreditsDialogComponent } from './purchase-credits-dialog/purchase-credits-dialog.component';
 import { CreditsService } from './services/credits.service';
-import { BOLD_PENDING_ORDER_KEY, PaymentService } from './services/payment.service';
+import {
+    BoldConfirmData,
+    BoldOpenOrder,
+    PaymentService,
+} from './services/payment.service';
 
 export type AddCreditsSidebarPlanTier = {
     plan: SubscriptionPlan;
@@ -35,10 +40,20 @@ export type AddCreditsSidebarPlanTier = {
     isBestValue: boolean;
 };
 
-/** Reconciliation state of a Bold order the customer just came back from. */
-export type BoldReturnState = 'confirming' | 'approved' | 'pending' | 'failed';
+/**
+ * How a Bold order is reported to the customer. `abandoned` is a checkout that was opened and never
+ * paid; `unknown` means we could not reach our own API, which must never be dressed up as a payment
+ * on its way.
+ */
+export type BoldReturnState =
+    | 'confirming'
+    | 'approved'
+    | 'pending'
+    | 'abandoned'
+    | 'failed'
+    | 'unknown';
 
-/** Bold's webhook can lag ~10 minutes, and sandbox never sends one, so the return URL polls. */
+/** Bold's webhook can lag ~10 minutes, and sandbox never sends one, so the return trip polls. */
 const BOLD_CONFIRM_ATTEMPTS = 5;
 const BOLD_CONFIRM_RETRY_MS = 3000;
 
@@ -100,11 +115,13 @@ export class AddCreditsComponent implements OnInit {
         return Boolean(pending?.lockedUntilApproval && (pending.amount ?? 0) > 0);
     });
 
-    /** Comma-separated promo tier list for the wallet strip, e.g. "$50, $100, $150, $200". */
-    weekOneUsd50PromoAmountsLabel = computed(() => {
-        const amounts = this.weekOneUsd50Promotion()?.purchaseUsdAmounts ?? [50];
-        return amounts.map((a) => `$${a}`).join(', ');
-    });
+    weekOneUsd50PromoMinLabel = computed(
+        () => `$${this.weekOneUsd50Promotion()?.minPurchaseUsd ?? 49}`,
+    );
+
+    weekOneUsd50PromoMaxBonusLabel = computed(
+        () => `$${this.weekOneUsd50Promotion()?.maxBonusUsd ?? 2000}`,
+    );
 
     bringBackExampleReceived = computed(() => {
         const multiplier = this.bringBackOffer()?.multiplier ?? 2;
@@ -143,33 +160,41 @@ export class AddCreditsComponent implements OnInit {
         }
 
         this._maybeSyncStripeCheckoutThenLoadData();
-        this._maybeConfirmBoldReturn();
+        this._reportBoldOrderState();
         this._loadBillingGateForAddCredits();
     }
 
     /**
-     * Bold redirects to `/add-credits?bold-order-id=...&bold-tx-status=...` after the gateway
-     * closes. Credits come from the webhook, so this only reconciles and reports the outcome.
-     * @returns True when a Bold order was picked up.
+     * Bold redirects to `/add-credits?bold-order-id=...` after the gateway closes, but a customer can
+     * equally come back hours later or from another device, so anything not handed over in the URL is
+     * read from the server. Credits come from the webhook; this only reports where the order stands.
      */
-    private _maybeConfirmBoldReturn(): boolean {
-        const qp = this._activatedRoute.snapshot.queryParamMap;
-        const orderId = qp.get('bold-order-id') ?? localStorage.getItem(BOLD_PENDING_ORDER_KEY);
+    private _reportBoldOrderState(): void {
+        const orderId = this._consumeBoldReturnOrderId();
+
+        if (orderId) {
+            this.boldReturnState.set('confirming');
+            this._confirmBoldOrder(orderId, 1);
+            return;
+        }
+
+        this._reconcileOpenBoldOrders();
+    }
+
+    /**
+     * Strips Bold's parameters from the URL so a refresh does not replay the return trip.
+     * @returns The order reference Bold came back with, if this load is that trip.
+     */
+    private _consumeBoldReturnOrderId(): string | null {
+        const orderId = this._activatedRoute.snapshot.queryParamMap.get('bold-order-id');
 
         if (!orderId) {
-            return false;
+            return null;
         }
 
-        localStorage.removeItem(BOLD_PENDING_ORDER_KEY);
+        void this._router.navigate(['/add-credits'], { replaceUrl: true });
 
-        if (qp.get('bold-order-id')) {
-            void this._router.navigate(['/add-credits'], { replaceUrl: true });
-        }
-
-        this.boldReturnState.set('confirming');
-        this._confirmBoldOrder(orderId, 1);
-
-        return true;
+        return orderId;
     }
 
     /**
@@ -179,44 +204,116 @@ export class AddCreditsComponent implements OnInit {
     private _confirmBoldOrder(orderId: string, attempt: number): void {
         this._paymentService.confirmBoldPurchase(orderId).subscribe({
             next: (response) => {
-                const status = response.data?.transaction?.status;
+                const state = this._boldStateFromConfirm(response.data);
 
-                if (status === 'approved') {
+                if (state === 'approved') {
                     this.boldReturnState.set('approved');
                     this._refreshSessionAndBalance();
                     return;
                 }
 
-                if (status === 'failed') {
-                    this.boldReturnState.set('failed');
+                if (state === 'pending' && attempt < BOLD_CONFIRM_ATTEMPTS) {
+                    setTimeout(
+                        () => this._confirmBoldOrder(orderId, attempt + 1),
+                        BOLD_CONFIRM_RETRY_MS,
+                    );
                     return;
                 }
 
-                if (attempt >= BOLD_CONFIRM_ATTEMPTS) {
-                    this.boldReturnState.set('pending');
-                    return;
-                }
-
-                setTimeout(
-                    () => this._confirmBoldOrder(orderId, attempt + 1),
-                    BOLD_CONFIRM_RETRY_MS,
-                );
+                this.boldReturnState.set(state);
             },
             error: (err) => {
                 console.error('Failed to confirm Bold order:', err);
-                this.boldReturnState.set('pending');
+                this.boldReturnState.set('unknown');
             },
         });
+    }
+
+    /** An order written off for never being paid also reads as `failed`, so check that flag first. */
+    private _boldStateFromConfirm(data?: BoldConfirmData): BoldReturnState {
+        if (data?.abandoned) {
+            return 'abandoned';
+        }
+
+        const status = data?.transaction?.status;
+
+        if (status === 'approved' || status === 'failed' || status === 'pending') {
+            return status;
+        }
+
+        return 'unknown';
+    }
+
+    /**
+     * A plain visit: the server re-polls whatever this client left open, so a PSE debit that settled
+     * hours later is picked up here. Only money that may still be moving is worth interrupting for —
+     * an old abandoned checkout resolves silently.
+     */
+    private _reconcileOpenBoldOrders(): void {
+        this._paymentService.reconcileBoldOrders().subscribe({
+            next: (response) => {
+                const order = this._mostRelevantBoldOrder(response.data?.orders ?? []);
+
+                if (order?.state === 'approved') {
+                    this.boldReturnState.set('approved');
+                    this._refreshSessionAndBalance();
+                    return;
+                }
+
+                if (order?.state === 'pending') {
+                    this.boldReturnState.set('pending');
+                }
+            },
+            error: (err) => console.error('Failed to reconcile Bold orders:', err),
+        });
+    }
+
+    /** Server sends newest first; an order that just settled outranks one still waiting. */
+    private _mostRelevantBoldOrder(orders: BoldOpenOrder[]): BoldOpenOrder | undefined {
+        return orders.find((order) => order.state === 'approved') ?? orders[0];
     }
 
     dismissBoldReturnNotice(): void {
         this.boldReturnState.set(null);
     }
 
+    /**
+     * A purchase consumes the first-week promo and can settle a win-back offer, so the refreshed
+     * session has to reach the banners too. Without this the page keeps advertising a promo the
+     * customer already redeemed until they reload.
+     */
     private _refreshSessionAndBalance(): void {
-        this._authService.refreshSession().subscribe(() => {
-            this._creditsService.getBalance().subscribe();
+        this._authService.refreshSession().subscribe({
+            next: (user) => {
+                this._applySessionOffers(user);
+                this._creditsService.getBalance().subscribe();
+            },
+            error: (err) => {
+                console.error('Failed to refresh session after payment:', err);
+                this._creditsService.getBalance().subscribe();
+            },
         });
+    }
+
+    /** @param user Session user, or null when the session call failed. */
+    private _applySessionOffers(user?: User | null): void {
+        const bringBack = user?.bringBackOffer;
+
+        this.bringBackOffer.set(
+            bringBack?.kind === 'bring_back' && bringBack.eligible ? bringBack : undefined,
+        );
+
+        const promo = user?.promotion;
+
+        this.weekOneUsd50Promotion.set(
+            promo?.kind === 'smart_agent_week1_usd50' && promo.eligible ? promo : undefined,
+        );
+
+        const pending = user?.pendingWelcomeCredits;
+
+        this.pendingWelcomeCredits.set(
+            pending?.lockedUntilApproval && (pending.amount ?? 0) > 0 ? pending : undefined,
+        );
     }
 
     /**
@@ -318,22 +415,7 @@ export class AddCreditsComponent implements OnInit {
                 ),
         }).subscribe({
             next: (result) => {
-                const bringBack = result.session?.bringBackOffer;
-                this.bringBackOffer.set(
-                    bringBack?.kind === 'bring_back' && bringBack.eligible ? bringBack : undefined,
-                );
-
-                const promo = result.session?.promotion;
-                this.weekOneUsd50Promotion.set(
-                    promo?.kind === 'smart_agent_week1_usd50' ? promo : undefined,
-                );
-
-                const pending = result.session?.pendingWelcomeCredits;
-                this.pendingWelcomeCredits.set(
-                    pending?.lockedUntilApproval && (pending.amount ?? 0) > 0
-                        ? pending
-                        : undefined,
-                );
+                this._applySessionOffers(result.session);
 
                 const rawPlans = result.pricing?.data?.plans ?? [];
                 this.sidebarPlanTiers.set(this._buildSidebarPlanTiers(rawPlans));
@@ -598,7 +680,8 @@ export class AddCreditsComponent implements OnInit {
 
         const dialogRef = this._dialog.open(PurchaseCreditsDialogComponent, {
             width: '500px',
-            maxWidth: '92vw',
+            maxWidth: '94vw',
+            maxHeight: 'calc(100dvh - 1.5rem)',
             panelClass: 'purchase-credits-dialog-panel',
             data: {
                 card: cardToUse,

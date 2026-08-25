@@ -1,6 +1,11 @@
 import { Injectable, NgZone, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRouteSnapshot, CanDeactivate, Router, RouterStateSnapshot } from '@angular/router';
+import {
+    ActivatedRouteSnapshot,
+    CanDeactivate,
+    Router,
+    RouterStateSnapshot,
+} from '@angular/router';
 import { Observable } from 'rxjs';
 
 import { SetupHostComponent } from './setup-host.component';
@@ -52,10 +57,14 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
         }
 
         if (navigatingBack) {
-            return currentStepIsValid ? this._triggerSave(component, currentStepIndex, nextStepIndex) : true;
+            return currentStepIsValid
+                ? this._triggerSave(component, currentStepIndex, nextStepIndex)
+                : true;
         }
 
-        return currentStepIsValid ? this._triggerSave(component, currentStepIndex, nextStepIndex) : false;
+        return currentStepIsValid
+            ? this._triggerSave(component, currentStepIndex, nextStepIndex)
+            : false;
     }
 
     private _triggerSave(
@@ -71,7 +80,10 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                     this._ngZone.run(() => {
                         component.saving.set(false);
 
-                        if ((!component.projectId || component.projectId === 'new') && response?.data?._id) {
+                        if (
+                            (!component.projectId || component.projectId === 'new') &&
+                            response?.data?._id
+                        ) {
                             const newId = response.data._id;
                             component.updateProjectId(newId);
                             component.form?.markAsPristine();
@@ -85,7 +97,12 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                                 if (isLast) {
                                     this._router.navigate(['/smart-enroll/projects', newId]);
                                 } else {
-                                    this._router.navigate(['/smart-enroll/projects', newId, 'setup', nextStepIndex]);
+                                    this._router.navigate([
+                                        '/smart-enroll/projects',
+                                        newId,
+                                        'setup',
+                                        nextStepIndex,
+                                    ]);
                                 }
                             }
                         } else {
@@ -97,7 +114,10 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
                 },
                 error: (error) => {
                     emitted = true;
-                    const msg = error?.error?.message || error?.message || 'smartEnrollProjects.setup.api_error';
+                    const msg =
+                        error?.error?.message ||
+                        error?.message ||
+                        'smartEnrollProjects.setup.api_error';
                     this._snack.open(msg, 'Close', { duration: 3000 });
                     this._ngZone.run(() => {
                         component.saving.set(false);
@@ -117,7 +137,10 @@ export class SetupSaveGuard implements CanDeactivate<SetupHostComponent> {
         });
     }
 
-    private _resolveCurrentStepIndex(route: ActivatedRouteSnapshot, fallbackStepIndex: number): number {
+    private _resolveCurrentStepIndex(
+        route: ActivatedRouteSnapshot,
+        fallbackStepIndex: number
+    ): number {
         const stepParam = route.paramMap.get('step');
         const parsedStep = stepParam === null ? Number.NaN : Number(stepParam);
         if (Number.isFinite(parsedStep)) return parsedStep;

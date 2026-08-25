@@ -199,8 +199,8 @@ export const API_ENDPOINTS: ApiEndpoint[] = [
                 value: 'CC',
                 type: 'string',
                 required: true,
-                description: 'One of CC, NIT.',
-                enum: ['CC', 'NIT'],
+                description: 'One of CC, CE, PPT, NIT, PEP.',
+                enum: ['CC', 'CE', 'PPT', 'NIT', 'PEP'],
             },
             {
                 key: 'documentNumber',

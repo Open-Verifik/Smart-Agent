@@ -39,12 +39,13 @@
             </div>
         </header>
 
-        <!-- Outcome of an order the customer just paid on Bold's gateway -->
+        <!-- Where a Bold order stands: settled, still at the bank, or never paid -->
         <section
             *ngIf="boldReturnState() as boldState"
             class="border-b px-5 py-4 md:px-8"
             [ngClass]="{
-                'border-stone-200/90 bg-white dark:border-gray-800 dark:bg-gray-950': boldState === 'confirming',
+                'border-stone-200/90 bg-white dark:border-gray-800 dark:bg-gray-950':
+                    boldState === 'confirming' || boldState === 'abandoned' || boldState === 'unknown',
                 'border-emerald-200/90 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/40':
                     boldState === 'approved',
                 'border-amber-200/90 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/40':
@@ -61,14 +62,20 @@
                     [ngClass]="{
                         'text-emerald-700 dark:text-emerald-400': boldState === 'approved',
                         'text-amber-700 dark:text-amber-400': boldState === 'pending',
-                        'text-rose-700 dark:text-rose-400': boldState === 'failed'
+                        'text-rose-700 dark:text-rose-400': boldState === 'failed',
+                        'text-stone-500 dark:text-stone-400':
+                            boldState === 'abandoned' || boldState === 'unknown'
                     }"
                     >{{
                         boldState === 'approved'
                             ? 'check_circle'
                             : boldState === 'pending'
                               ? 'schedule'
-                              : 'error_outline'
+                              : boldState === 'abandoned'
+                                ? 'remove_shopping_cart'
+                                : boldState === 'unknown'
+                                  ? 'help_outline'
+                                  : 'error_outline'
                     }}</mat-icon
                 >
 
@@ -217,7 +224,8 @@
                             <p class="m-0 flex-1 leading-relaxed text-emerald-950 dark:text-emerald-100">
                                 {{
                                     t('addCredits.promo.weekOneUsd50.walletStrip', {
-                                        amountUsd: weekOneUsd50PromoAmountsLabel(),
+                                        minUsd: weekOneUsd50PromoMinLabel(),
+                                        maxBonusUsd: weekOneUsd50PromoMaxBonusLabel(),
                                     })
                                 }}
                             </p>

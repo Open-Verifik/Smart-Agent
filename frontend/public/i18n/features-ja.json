@@ -10,7 +10,7 @@
         },
         "colombia_api_identity_lookup": {
             "title": "コロンビア - 国民ID検証",
-            "description": "検証 Colombian national ID (cédula) information. 取得 full name, document status, and basic citizen verification data."
+            "description": "書類番号（CC、CE、PPT、NIT、PEP）でコロンビアの身元を確認します。GET /v2/co/cedula。"
         },
         "colombia_special_api_police_identity_lookup": {
             "title": "コロンビア — 警察記録照会",
@@ -891,6 +891,10 @@
         "colombia_api_identity_lookup_registraduria": {
             "title": "コロンビア — Registraduría（SCCRC）市民照会",
             "description": "GET /v2/co/cedula/registraduria（Registraduría SCCRC のみ）で文書番号によりコロンビア出生民事登録を照会します。"
+        },
+        "colombia_api_identity_lookup_procuraduria": {
+            "title": "コロンビア — Procuraduría 市民照会",
+            "description": "GET /v2/co/procuraduria で Procuraduría から氏名のみを取得します（CC、CE、PPT、NIT、PEP）。懲戒記録は返しません。"
         },
         "mexico_api_ine_ocr": {
             "title": "メキシコ — INE OCR",

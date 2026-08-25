@@ -13,6 +13,7 @@
     "GET /api/br/cedula",
     "POST /api/communication/email",
     "GET /api/co/cedula",
+    "GET /api/co/procuraduria",
     "GET /api/co/cedula/rethus",
     "POST /api/co/contraloria/certificado",
     "GET /api/ve/cedula",

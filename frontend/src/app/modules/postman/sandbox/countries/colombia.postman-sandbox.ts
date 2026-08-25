@@ -27,6 +27,8 @@ import {
 
 export const COLOMBIA_CEDULA_ENDPOINT_CODE = 'colombia_api_identity_lookup';
 
+export const COLOMBIA_PROCURADURIA_ENDPOINT_CODE = 'colombia_api_identity_lookup_procuraduria';
+
 export const COLOMBIA_PEP_ENDPOINT_CODE = 'colombia_pep_lookup';
 
 export const COLOMBIA_CE_FOREIGNER_ENDPOINT_CODE = 'colombia_api_identity_ce_foreigner_id';
@@ -590,6 +592,19 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         defaultDocumentNumber: '10000001',
         documentTypeByCode: {
             [COLOMBIA_CEDULA_ENDPOINT_CODE]: 'CC',
+        },
+        showProfileMeta: false,
+    },
+    [COLOMBIA_PROCURADURIA_ENDPOINT_CODE]: {
+        profiles: appendSandboxResponseProfiles(COLOMBIA_SANDBOX_PROFILES, {
+            conflictProfiles: [
+                SANDBOX_CONFLICT_MISSING_DOCUMENT_NUMBER,
+                SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
+            ],
+        }),
+        defaultDocumentNumber: '10000001',
+        documentTypeByCode: {
+            [COLOMBIA_PROCURADURIA_ENDPOINT_CODE]: 'CC',
         },
         showProfileMeta: false,
     },

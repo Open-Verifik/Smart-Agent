@@ -39,28 +39,18 @@ import { map, startWith } from 'rxjs/operators';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
 import { ClientSettings, SettingsService } from '../settings.service';
+import {
+    BillingDocumentTypeOption,
+    filterBillingDocumentTypes,
+    getBillingDocumentTypes,
+} from './billing-document-types.util';
 
 interface CountryCodeOption {
     code: string;
     name: string;
 }
 
-interface DocumentTypeOption {
-    value: string;
-    label: string;
-}
-
 const COLOMBIA_COUNTRY = 'Colombia';
-
-const INTERNATIONAL_TAX_OPTION: DocumentTypeOption = {
-    value: 'INTERNATIONAL_TAX',
-    label: 'settings.billing.document_types.INTERNATIONAL_TAX',
-};
-
-const NIT_OPTION: DocumentTypeOption = {
-    value: 'NIT',
-    label: 'settings.billing.document_types.NIT',
-};
 
 const nitFormatValidator = (control: AbstractControl): ValidationErrors | null => {
     const digits = `${control.value || ''}`.replace(/\D/g, '');
@@ -107,17 +97,17 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
     businessNameError = '';
     businessDocumentError = '';
+    personNameError = '';
+    personDocumentError = '';
 
     /** JSON snapshot of the last successfully loaded/saved state — basis for dirty tracking. */
     private _initialSnapshot = '';
 
-    filteredDocumentTypes: Observable<DocumentTypeOption[]>;
+    filteredDocumentTypes: Observable<BillingDocumentTypeOption[]>;
     filteredBusinessCountryCodes: Observable<CountryCodeOption[]>;
     filteredPersonCountryCodes: Observable<CountryCodeOption[]>;
     filteredBusinessBillingCountries: Observable<CountryCodeOption[]>;
     filteredPersonBillingCountries: Observable<CountryCodeOption[]>;
-
-    private _allPersonDocumentTypes: DocumentTypeOption[] = [];
 
     billingCountryCodes: CountryCodeOption[] = [];
 
@@ -136,7 +126,6 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
             name: country.name,
         }));
         this._initBillingForms();
-        this._initDocumentTypes();
     }
 
     get userClientId(): string | undefined {
@@ -201,32 +190,12 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
         });
     }
 
-    private _initDocumentTypes(): void {
-        this._allPersonDocumentTypes = [
-            { value: 'CC', label: 'settings.billing.document_types.CC' },
-            { value: 'CE', label: 'settings.billing.document_types.CE' },
-            { value: 'TI', label: 'settings.billing.document_types.TI' },
-            { value: 'NIT', label: 'settings.billing.document_types.NIT' },
-            { value: 'PPT', label: 'settings.billing.document_types.PPT' },
-            { value: 'DNI', label: 'settings.billing.document_types.DNI' },
-            { value: 'RUC', label: 'settings.billing.document_types.RUC' },
-            { value: 'CURP', label: 'settings.billing.document_types.CURP' },
-            { value: 'RUT', label: 'settings.billing.document_types.RUT' },
-        ];
+    getBusinessDocumentTypes(): BillingDocumentTypeOption[] {
+        return getBillingDocumentTypes(this.payerForm?.get('business_country')?.value, 'business');
     }
 
-    getBusinessDocumentTypes(): DocumentTypeOption[] {
-        return this._isColombia(this.payerForm?.get('business_country')?.value)
-            ? [NIT_OPTION]
-            : [INTERNATIONAL_TAX_OPTION];
-    }
-
-    getPersonDocumentTypes(): DocumentTypeOption[] {
-        if (this._isColombia(this.payerForm?.get('person_country')?.value)) {
-            return this._allPersonDocumentTypes;
-        }
-
-        return this._allPersonDocumentTypes.filter((option) => option.value !== 'NIT');
+    getPersonDocumentTypes(): BillingDocumentTypeOption[] {
+        return getBillingDocumentTypes(this.payerForm?.get('person_country')?.value, 'person');
     }
 
     loadBillingData(): void {
@@ -404,6 +373,8 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
                     const resolved = this._resolveSaveErrorMessage(error);
                     this.businessNameError = resolved.businessNameError;
                     this.businessDocumentError = resolved.businessDocumentError;
+                    this.personNameError = resolved.personNameError;
+                    this.personDocumentError = resolved.personDocumentError;
 
                     this._snackBar.open(resolved.message, null, {
                         duration: 4000,
@@ -551,12 +522,13 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
         codeControl?.setValue(country, { emitEvent: false });
         this._syncDocumentTypeForCountry(type);
 
-        if (
-            type === 'business' &&
-            this._isColombia(country) &&
-            !this.payerForm.get('business_documentType')?.value
-        ) {
-            this.payerForm.patchValue({ business_documentType: 'NIT' });
+        const documentControlName =
+            type === 'business' ? 'business_documentType' : 'person_documentType';
+        const allowed =
+            type === 'business' ? this.getBusinessDocumentTypes() : this.getPersonDocumentTypes();
+
+        if (!this.payerForm.get(documentControlName)?.value && allowed[0]?.value) {
+            this.payerForm.patchValue({ [documentControlName]: allowed[0].value });
         }
 
         this._updatePayerValidators();
@@ -572,13 +544,8 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
         const current = this.payerForm.get(controlName)?.value;
 
         if (current && !allowed.some((option) => option.value === current)) {
-            const nextDocumentType =
-                isBusiness && this._isColombia(this.payerForm.get('business_country')?.value)
-                    ? 'NIT'
-                    : '';
-
             this.payerForm.patchValue({
-                [controlName]: nextDocumentType,
+                [controlName]: allowed[0]?.value || '',
                 [isBusiness ? 'business_documentNumber' : 'person_documentNumber']: '',
             });
         }
@@ -594,17 +561,9 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
                 const control = this.isABusiness()
                     ? this.payerForm.get('business_documentType')
                     : this.payerForm.get('person_documentType');
-                const value = control?.value;
-                const filterValue = typeof value === 'string' ? value.toLowerCase() : '';
-
-                return filterValue
-                    ? source.filter((opt) =>
-                          this._translocoService
-                              .translate(opt.label)
-                              .toLowerCase()
-                              .includes(filterValue)
-                      )
-                    : source;
+                return filterBillingDocumentTypes(source, control?.value, (key) =>
+                    this._translocoService.translate(key)
+                );
             })
         );
 
@@ -783,51 +742,58 @@ export class BillingDetailsComponent implements OnInit, OnChanges, OnDestroy {
     private _clearFieldErrors(): void {
         this.businessNameError = '';
         this.businessDocumentError = '';
+        this.personNameError = '';
+        this.personDocumentError = '';
+    }
+
+    private _emptySaveErrors(message: string) {
+        return {
+            message,
+            businessNameError: '',
+            businessDocumentError: '',
+            personNameError: '',
+            personDocumentError: '',
+        };
     }
 
     private _resolveSaveErrorMessage(error: any): {
         message: string;
         businessNameError: string;
         businessDocumentError: string;
+        personNameError: string;
+        personDocumentError: string;
     } {
         const backendMessage = `${error?.error?.message || ''}`.trim();
         const fallback = this._translocoService.translate('settings.billing.save_error');
+        const translate = (key: string) => this._translocoService.translate(key);
 
         switch (backendMessage) {
             case 'dian_nit_not_found':
                 return {
-                    message: this._translocoService.translate(
-                        'settings.billing.dian_nit_not_found'
-                    ),
-                    businessNameError: '',
-                    businessDocumentError: this._translocoService.translate(
-                        'settings.billing.dian_nit_not_found'
-                    ),
+                    ...this._emptySaveErrors(translate('settings.billing.dian_nit_not_found')),
+                    businessDocumentError: translate('settings.billing.dian_nit_not_found'),
                 };
             case 'dian_name_mismatch':
                 return {
-                    message: this._translocoService.translate(
-                        'settings.billing.dian_name_mismatch'
-                    ),
-                    businessNameError: this._translocoService.translate(
-                        'settings.billing.dian_name_mismatch'
-                    ),
-                    businessDocumentError: '',
+                    ...this._emptySaveErrors(translate('settings.billing.dian_name_mismatch')),
+                    businessNameError: translate('settings.billing.dian_name_mismatch'),
                 };
+            case 'citizen_not_found':
+                return {
+                    ...this._emptySaveErrors(translate('settings.billing.citizen_not_found')),
+                    personDocumentError: translate('settings.billing.citizen_not_found'),
+                };
+            case 'citizen_name_mismatch':
+                return {
+                    ...this._emptySaveErrors(translate('settings.billing.citizen_name_mismatch')),
+                    personNameError: translate('settings.billing.citizen_name_mismatch'),
+                };
+            case 'invalid_document_type':
+                return this._emptySaveErrors(translate('settings.billing.invalid_document_type'));
             case 'missing_billing_field':
-                return {
-                    message: this._translocoService.translate(
-                        'settings.billing.missing_billing_field'
-                    ),
-                    businessNameError: '',
-                    businessDocumentError: '',
-                };
+                return this._emptySaveErrors(translate('settings.billing.missing_billing_field'));
             default:
-                return {
-                    message: backendMessage || fallback,
-                    businessNameError: '',
-                    businessDocumentError: '',
-                };
+                return this._emptySaveErrors(backendMessage || fallback);
         }
     }
 
