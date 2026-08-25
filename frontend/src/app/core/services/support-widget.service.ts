@@ -32,6 +32,22 @@ export class SupportWidgetService {
         private _translocoService: TranslocoService
     ) {}
 
+    get isMounted(): boolean {
+        return this._mounted;
+    }
+
+    /**
+     * Show or hide the support bubble. The launcher is not on screen until this runs.
+     */
+    toggle = (): void => {
+        if (this._mounted) {
+            this.destroy();
+            return;
+        }
+
+        this.mount();
+    };
+
     /**
      * Mounts the support widget and keeps locale in sync with Transloco.
      */

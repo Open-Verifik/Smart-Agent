@@ -17,8 +17,9 @@ export class WebhooksService {
     get(params: Record<string, unknown> = {}): Observable<any> {
         const q = {
             ...params,
-            populates: ['projectFlow.project'],
-            populateSelects: '{"project":"name","projectFlow":"project name type"}',
+            populates: ['projectFlow.project', 'batchConfigurations'],
+            populateSelects:
+                '{"project":"name","projectFlow":"project name type","batchConfigurations":"name country executor"}',
         };
         return this._http.sendRequest('get', `${this.baseUrl}/v2/webhooks`, q);
     }
@@ -26,8 +27,9 @@ export class WebhooksService {
     getDetails(id: string, projectFlow?: string): Observable<any> {
         const params: Record<string, unknown> = {
             eventStatistics: 30,
-            populates: ['projectFlow.project'],
-            populateSelects: '{"project":"name","projectFlow":"project name type"}',
+            populates: ['projectFlow.project', 'batchConfigurations'],
+            populateSelects:
+                '{"project":"name","projectFlow":"project name type","batchConfigurations":"name country executor"}',
         };
         if (projectFlow) {
             params.projectFlow = projectFlow;
@@ -93,7 +95,9 @@ export class WebhooksService {
         return this._http.sendRequest('delete', `${this.baseUrl}/v2/webhooks/${webhookId}`);
     }
 
-    test(url: string): Observable<any> {
-        return this._http.sendRequest('post', `${this.baseUrl}/v2/webhooks/test`, { url });
+    test(url: string, type?: string): Observable<any> {
+        const body: Record<string, string> = { url };
+        if (type) body.type = type;
+        return this._http.sendRequest('post', `${this.baseUrl}/v2/webhooks/test`, body);
     }
 }

@@ -4,13 +4,18 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { WebhookEventsComponent } from '../../smart-monitor/webhooks/webhook-events.component';
+import { WebhooksService } from '../../smart-monitor/webhooks/webhooks.service';
+import { BatchExecutorControlComponent } from '../batch-executor-control.component';
 import {
     BatchConfiguration,
     DEFAULT_PER_PAGE,
     SmartBatch,
+    SmartBatchExecutor,
     SmartBatchService,
     SmartBatchStats,
 } from '../smart-batch.service';
@@ -29,6 +34,9 @@ import { inferBatchCategory, SmartBatchInputModeService } from '../smart-batch-i
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatProgressBarModule,
+        MatSnackBarModule,
+        WebhookEventsComponent,
+        BatchExecutorControlComponent,
     ],
     templateUrl: './batch-dashboard.component.html',
     encapsulation: ViewEncapsulation.None,
@@ -38,6 +46,9 @@ export class BatchDashboardComponent implements OnInit {
     private _router = inject(Router);
     private _route = inject(ActivatedRoute);
     private _inputModeService = inject(SmartBatchInputModeService);
+    private _webhooksService = inject(WebhooksService);
+    private _transloco = inject(TranslocoService);
+    private _snackBar = inject(MatSnackBar);
 
     configId = signal<string | null>(null);
     configuration = signal<BatchConfiguration | null>(null);
@@ -61,6 +72,22 @@ export class BatchDashboardComponent implements OnInit {
     // Panel visibility
     showStepsPanel = signal(false);
     showCostPanel = signal(false);
+    webhookId = signal<string | null>(null);
+    webhookName = signal('');
+    webhookUrl = computed(() => this.configuration()?.notification?.webhookUrl || '');
+    webhookLabel = computed(() => {
+        const name = this.webhookName().trim();
+        if (name) return name;
+        const url = this.webhookUrl();
+        if (!url) return '';
+        try {
+            return new URL(url).host;
+        } catch {
+            return url;
+        }
+    });
+    canOpenWebhook = computed(() => Boolean(this.webhookId() || this.webhookUrl()));
+    savingExecutor = signal(false);
 
     // Computed values
     stepsCount = computed(() => this.configuration()?.steps?.length ?? 0);
@@ -117,6 +144,7 @@ export class BatchDashboardComponent implements OnInit {
         this._smartBatchService.getConfiguration(configId).subscribe({
             next: (res) => {
                 this.configuration.set(res.data);
+                this.resolveWebhook(res.data);
             },
             error: () => {
                 this._router.navigate(['/smart-batch']);
@@ -131,6 +159,48 @@ export class BatchDashboardComponent implements OnInit {
                 this.stats.set(res.data);
             },
         });
+    }
+
+    private resolveWebhook(config?: BatchConfiguration | null): void {
+        const ref = config?.notification?.webhook;
+        const storedId = typeof ref === 'object' && ref ? ref._id : typeof ref === 'string' ? ref : '';
+
+        if (storedId) {
+            this.webhookId.set(storedId);
+            this.webhookName.set(typeof ref === 'object' && ref?.name ? ref.name : '');
+            return;
+        }
+
+        const trimmed = (config?.notification?.webhookUrl || '').trim();
+
+        if (!trimmed) {
+            this.webhookId.set(null);
+            this.webhookName.set('');
+            return;
+        }
+
+        this._webhooksService.get({ where_url: trimmed, where_isActive: true, perPage: 1 }).subscribe({
+            next: (res) => {
+                const match = (res.data || []).find((webhook: { url?: string; name?: string }) => webhook.url === trimmed);
+                this.webhookId.set(match?._id ?? null);
+                this.webhookName.set(match?.name ?? '');
+            },
+            error: () => {
+                this.webhookId.set(null);
+                this.webhookName.set('');
+            },
+        });
+    }
+
+    openLinkedWebhook(): void {
+        const id = this.webhookId();
+        if (id) {
+            this._router.navigate(['/smart-monitor/webhooks', id]);
+            return;
+        }
+        if (this.webhookUrl()) {
+            this._router.navigate(['/smart-monitor/webhooks']);
+        }
     }
 
     loadBatches(page: number) {
@@ -166,6 +236,28 @@ export class BatchDashboardComponent implements OnInit {
     nextPage() {
         if (!this.canGoNext()) return;
         this.loadBatches(this.page() + 1);
+    }
+
+    setConfigExecutor(executor: SmartBatchExecutor): void {
+        const config = this.configuration();
+        const id = this.configId();
+        if (!id || !config || this.savingExecutor() || config.executor === executor) return;
+
+        this.savingExecutor.set(true);
+        this._smartBatchService.updateConfiguration(id, { executor }).subscribe({
+            next: (res) => {
+                this.configuration.set({ ...config, ...res.data, executor });
+                this.savingExecutor.set(false);
+            },
+            error: () => {
+                this.savingExecutor.set(false);
+                this._snackBar.open(
+                    this._transloco.translate('batchDashboard.executorUpdateFailed'),
+                    undefined,
+                    { duration: 4000 }
+                );
+            },
+        });
     }
 
     createBatch() {

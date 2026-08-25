@@ -183,6 +183,12 @@
                                                         {{ t('smartBatchLanding.inactive') }}
                                                     </span>
                                                 }
+                                                <span
+                                                    class="inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium uppercase tracking-wide"
+                                                    [class]="executorBadgeClasses(config.executor)"
+                                                >
+                                                    {{ t(executorBadgeKey(config.executor)) }}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

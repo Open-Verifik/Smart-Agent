@@ -247,4 +247,20 @@ export class WebhookDetailComponent implements OnInit, OnDestroy {
         this.projectFlowSelected = value;
         this._cdr.markForCheck();
     }
+
+    hasLinkedSources(webhook: any): boolean {
+        return Boolean(webhook?.projectFlow?.length || webhook?.batchConfigurations?.length);
+    }
+
+    batchConfigName(config: any): string {
+        if (!config) return '';
+        if (typeof config === 'string') return config;
+        return config.name || String(config._id || '');
+    }
+
+    batchConfigId(config: any): string | null {
+        if (!config) return null;
+        if (typeof config === 'string') return config;
+        return config._id || null;
+    }
 }

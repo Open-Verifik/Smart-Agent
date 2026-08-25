@@ -3,29 +3,42 @@
 
 <!-- Navigation -->
 <fuse-vertical-navigation
-    class="bg-card dark:bg-gray-900 print:hidden"
+    class="main-nav print:hidden"
     [mode]="isScreenSmall ? 'over' : 'side'"
     [name]="'mainNavigation'"
     [navigation]="navigation.default"
     [opened]="!isScreenSmall"
 >
-    <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
-        <!-- Logo -->
-        <div class="flex h-20 items-center p-6 pb-0">
-            <!-- Light version -->
+        <div class="main-nav__brand">
             <img
-                class="w-30 dark:hidden"
+                class="main-nav__logo dark:hidden"
                 src="/images/logo/logo_verifik_brand.svg"
-                alt="Logo image"
+                alt="Verifik"
             />
-            <!-- Dark version (white wordmark; icon unchanged) -->
             <img
-                class="hidden w-30 dark:flex"
+                class="main-nav__logo hidden dark:block"
                 src="/images/logo/logo_verifik_brand_on_dark.svg"
-                alt="Logo image"
+                alt="Verifik"
             />
+            <p class="main-nav__eyebrow">{{ 'nav.console' | transloco }}</p>
         </div>
+    </ng-container>
+
+    <ng-container fuseVerticalNavigationFooter>
+        <button
+            type="button"
+            class="main-nav__settings"
+            [class.main-nav__settings--active]="isHelpOpen"
+            (click)="toggleHelp()"
+        >
+            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:chat-bubble-left-right'"></mat-icon>
+            <span>{{ 'nav.help' | transloco }}</span>
+        </button>
+        <a class="main-nav__settings" routerLink="/settings" routerLinkActive="main-nav__settings--active">
+            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_outline:cog-8-tooth'"></mat-icon>
+            <span>{{ 'nav.settings' | transloco }}</span>
+        </a>
     </ng-container>
 </fuse-vertical-navigation>
 

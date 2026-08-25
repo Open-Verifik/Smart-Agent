@@ -74,6 +74,8 @@ const readPagination = <T>(
     };
 };
 
+export type SmartBatchExecutor = 'queue' | 'featureRunner' | 'browser';
+
 export interface BatchConfiguration {
     _id?: string;
     id?: string;
@@ -86,11 +88,13 @@ export interface BatchConfiguration {
     mergeStrategy: 'sequential' | 'parallel-independent' | 'parallel-with-fallback';
     notification?: {
         webhookUrl?: string;
+        webhook?: string | { _id: string; url?: string; name?: string; isActive?: boolean };
         emailOnCompletion?: string[];
     };
     scheduleExpression?: string;
     preferredReportTemplate?: string | { _id: string };
     isActive?: boolean;
+    executor?: SmartBatchExecutor;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -406,6 +410,7 @@ export interface SmartBatch {
     client: string;
     name: string;
     status: SmartBatchStatus;
+    executor?: SmartBatchExecutor;
     rows: SmartBatchRow[];
     totalRows: number;
     completedRows: number;
@@ -485,12 +490,23 @@ export interface SmartBatchFileImportResult {
     };
 }
 
+export interface SmartBatchRowAttempt {
+    attempt: number;
+    at?: string;
+    status?: string;
+    statusCode?: number;
+    code?: string;
+    message?: string;
+}
+
 export interface SmartBatchRow {
     rowIndex: number;
     inputData: any;
     status: SmartBatchRowStatus;
     results: Record<number, any>;
     errors: { step: number; message: string; code: string }[];
+    attemptCount?: number;
+    attempts?: SmartBatchRowAttempt[];
     processedAt?: string;
 }
 

@@ -59,6 +59,24 @@
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center gap-3">
+                    @if (canEditExecutor()) {
+                        <mat-button-toggle-group
+                            [value]="batch()?.executor || 'featureRunner'"
+                            (change)="setExecutor($event.value)"
+                            class="!rounded-xl"
+                            [matTooltip]="'batchProcessing.executorHint' | transloco"
+                        >
+                            <mat-button-toggle value="queue">{{
+                                'batchProcessing.executorQueue' | transloco
+                            }}</mat-button-toggle>
+                            <mat-button-toggle value="featureRunner">{{
+                                'batchProcessing.executorFeatureRunner' | transloco
+                            }}</mat-button-toggle>
+                            <mat-button-toggle value="browser">{{
+                                'batchProcessing.executorBrowser' | transloco
+                            }}</mat-button-toggle>
+                        </mat-button-toggle-group>
+                    }
                     @if (batch() && !isProcessing()) {
                         <button mat-stroked-button (click)="editInputs()" class="!rounded-xl">
                             <span class="inline-flex items-center gap-2">
@@ -672,6 +690,16 @@
                     }}</span>
                 </div>
 
+                <ng-template #attemptBadge let-row>
+                    @if (row.attemptCount) {
+                        <span
+                            class="inline-flex items-center rounded-full bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300"
+                        >
+                            {{ 'batchProcessing.attempts' | transloco: { count: row.attemptCount } }}
+                        </span>
+                    }
+                </ng-template>
+
                 <!-- Table Body -->
                 @if (virtualTableItems().length > 0) {
                     <cdk-virtual-scroll-viewport itemSize="72" class="block h-[560px]">
@@ -724,6 +752,9 @@
                                                 ></span>
                                                 {{ 'batchProcessing.' + item.row.status | transloco }}
                                             </span>
+                                            <ng-container
+                                                *ngTemplateOutlet="attemptBadge; context: { $implicit: item.row }"
+                                            />
                                         </div>
                                     </div>
                                 }
@@ -783,6 +814,9 @@
                                                 ></span>
                                                 {{ 'batchProcessing.verified' | transloco }}
                                             </span>
+                                            <ng-container
+                                                *ngTemplateOutlet="attemptBadge; context: { $implicit: item.row }"
+                                            />
                                             <mat-icon
                                                 class="!text-base text-stone-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-stone-600"
                                                 >chevron_right</mat-icon
@@ -903,6 +937,9 @@
                                                 ></span>
                                                 {{ 'batchProcessing.partial' | transloco }}
                                             </span>
+                                            <ng-container
+                                                *ngTemplateOutlet="attemptBadge; context: { $implicit: item.row }"
+                                            />
                                             <mat-icon
                                                 class="!text-base text-stone-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-stone-600"
                                                 >chevron_right</mat-icon
@@ -1038,6 +1075,9 @@
                                                 ></span>
                                                 {{ 'batchProcessing.failed' | transloco }}
                                             </span>
+                                            <ng-container
+                                                *ngTemplateOutlet="attemptBadge; context: { $implicit: item.row }"
+                                            />
                                             <mat-icon
                                                 class="!text-base text-stone-300 opacity-0 transition-opacity group-hover:opacity-100 dark:text-stone-600"
                                                 >chevron_right</mat-icon
@@ -1364,6 +1404,49 @@
                                 }
                             </div>
                         </div>
+
+                        @if (selectedRow()?.attempts?.length) {
+                            <div class="mb-6">
+                                <h4 class="mb-3 text-sm font-medium text-stone-500 dark:text-stone-400">
+                                    {{ 'batchProcessing.attemptTimeline' | transloco }}
+                                </h4>
+                                <div class="space-y-2">
+                                    @for (item of selectedRow()!.attempts; track item.attempt) {
+                                        <div
+                                            class="flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-lg border border-stone-200 px-3 py-2 text-sm dark:border-gray-800"
+                                        >
+                                            <span class="font-medium text-stone-950 dark:text-white">
+                                                {{
+                                                    'batchProcessing.attemptLabel'
+                                                        | transloco: { attempt: item.attempt }
+                                                }}
+                                            </span>
+                                            @if (item.at) {
+                                                <span class="text-xs text-stone-400 dark:text-stone-500">{{
+                                                    item.at | date: 'short'
+                                                }}</span>
+                                            }
+                                            <span class="text-xs font-medium text-stone-600 dark:text-stone-300">{{
+                                                item.status
+                                            }}</span>
+                                            @if (item.statusCode) {
+                                                <span class="text-xs text-stone-400">{{ item.statusCode }}</span>
+                                            }
+                                            @if (item.code) {
+                                                <span class="text-xs text-stone-500 dark:text-stone-400">{{
+                                                    item.code
+                                                }}</span>
+                                            }
+                                            @if (item.message) {
+                                                <span class="min-w-0 break-words text-xs text-stone-500 dark:text-stone-400">{{
+                                                    item.message
+                                                }}</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
 
                         <!-- Step Results (second) -->
                         @if (configSteps().length > 0 && selectedRow()) {

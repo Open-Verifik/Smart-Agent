@@ -39,6 +39,55 @@
             </div>
         </header>
 
+        <!-- Outcome of an order the customer just paid on Bold's gateway -->
+        <section
+            *ngIf="boldReturnState() as boldState"
+            class="border-b px-5 py-4 md:px-8"
+            [ngClass]="{
+                'border-stone-200/90 bg-white dark:border-gray-800 dark:bg-gray-950': boldState === 'confirming',
+                'border-emerald-200/90 bg-emerald-50 dark:border-emerald-900/60 dark:bg-emerald-950/40':
+                    boldState === 'approved',
+                'border-amber-200/90 bg-amber-50 dark:border-amber-900/60 dark:bg-amber-950/40':
+                    boldState === 'pending',
+                'border-rose-200/90 bg-rose-50 dark:border-rose-900/60 dark:bg-rose-950/40': boldState === 'failed'
+            }"
+            role="status"
+        >
+            <div class="mx-auto flex w-full max-w-7xl items-center gap-3">
+                <mat-spinner *ngIf="boldState === 'confirming'" diameter="20"></mat-spinner>
+                <mat-icon
+                    *ngIf="boldState !== 'confirming'"
+                    class="shrink-0"
+                    [ngClass]="{
+                        'text-emerald-700 dark:text-emerald-400': boldState === 'approved',
+                        'text-amber-700 dark:text-amber-400': boldState === 'pending',
+                        'text-rose-700 dark:text-rose-400': boldState === 'failed'
+                    }"
+                    >{{
+                        boldState === 'approved'
+                            ? 'check_circle'
+                            : boldState === 'pending'
+                              ? 'schedule'
+                              : 'error_outline'
+                    }}</mat-icon
+                >
+
+                <p class="m-0 flex-1 text-sm leading-relaxed text-stone-800 dark:text-stone-100">
+                    {{ t('addCredits.bold.return.' + boldState) }}
+                </p>
+
+                <button
+                    *ngIf="boldState !== 'confirming'"
+                    mat-button
+                    type="button"
+                    class="!min-h-9 shrink-0 !rounded-lg text-sm font-medium"
+                    (click)="dismissBoldReturnNotice()"
+                >
+                    {{ t('addCredits.bold.return.dismiss') }}
+                </button>
+            </div>
+        </section>
+
         <section
             *ngIf="showBringBackPromoBanner()"
             class="border-b border-amber-200/80 bg-gradient-to-br from-amber-50 via-white to-orange-50/80 px-5 py-6 dark:border-amber-900/60 dark:from-amber-950/50 dark:via-gray-950 dark:to-gray-950 md:px-8"

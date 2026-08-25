@@ -84,6 +84,7 @@ export class NavigationMockApi {
         defaultNav: FuseNavigationItem[]
     ): FuseNavigationItem[] {
         return defaultNav
+            .flatMap((item) => (item.type === 'group' ? item.children ?? [] : [item]))
             .filter((item) => item.type !== 'divider')
             .map((item) => {
                 if (item.type === 'basic') {

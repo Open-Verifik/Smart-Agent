@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { CreateBatchConfigComponent } from './create/create-batch-config.component';
 import { SmartBatchComponent } from './smart-batch.component';
 
 export default [
@@ -8,17 +9,11 @@ export default [
     },
     {
         path: 'create',
-        loadComponent: () =>
-            import('app/modules/smart-batch/create/create-batch-config.component').then(
-                (m) => m.CreateBatchConfigComponent
-            ),
+        component: CreateBatchConfigComponent,
     },
     {
         path: 'edit/:id',
-        loadComponent: () =>
-            import('app/modules/smart-batch/create/create-batch-config.component').then(
-                (m) => m.CreateBatchConfigComponent
-            ),
+        component: CreateBatchConfigComponent,
     },
     {
         path: 'report-builder',

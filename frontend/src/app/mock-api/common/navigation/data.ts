@@ -4,17 +4,31 @@ import { cloneDeep } from 'lodash-es';
 
 export const defaultNavigation: FuseNavigationItem[] = [
     {
-        id: 'home',
-        title: 'nav.home',
-        type: 'basic',
-        icon: 'heroicons_outline:home',
-        link: '/home',
+        id: 'group-workspace',
+        title: 'nav.workspace',
+        type: 'group',
+        children: [
+            {
+                id: 'home',
+                title: 'nav.home',
+                type: 'basic',
+                icon: 'heroicons_outline:home',
+                link: '/home',
+                classes: { wrapper: 'nav-product nav-product--home' },
+            },
+        ],
     },
+    {
+        id: 'group-products',
+        title: 'nav.products',
+        type: 'group',
+        children: [
     {
         id: 'smart-check',
         title: 'nav.smart_check',
         type: 'collapsable',
         icon: 'heroicons_outline:sparkles',
+        classes: { wrapper: 'nav-product nav-product--check' },
         children: [
             {
                 id: 'chat',
@@ -74,6 +88,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_fleet',
         type: 'collapsable',
         icon: 'heroicons_outline:truck',
+        classes: { wrapper: 'nav-product nav-product--fleet' },
         children: [
             {
                 id: 'smart-fleet-dashboard',
@@ -115,6 +130,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_enroll',
         type: 'collapsable',
         icon: 'heroicons_outline:document-magnifying-glass',
+        classes: { wrapper: 'nav-product nav-product--enroll' },
         children: [
             {
                 id: 'smart-enroll-projects',
@@ -190,6 +206,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_access',
         type: 'collapsable',
         icon: 'heroicons_outline:key',
+        classes: { wrapper: 'nav-product nav-product--access' },
         children: [
             {
                 id: 'smart-access-projects',
@@ -217,6 +234,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_monitor',
         type: 'collapsable',
         icon: 'heroicons_outline:signal',
+        classes: { wrapper: 'nav-product nav-product--monitor' },
         children: [
             {
                 id: 'status-check',
@@ -249,6 +267,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_tools',
         type: 'collapsable',
         icon: 'heroicons_outline:wrench-screwdriver',
+        classes: { wrapper: 'nav-product nav-product--tools' },
         children: [
             {
                 id: 'smart-reduce',
@@ -274,6 +293,8 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 icon: 'heroicons_outline:device-phone-mobile',
                 link: '/smart-tools/sms-messages',
             },
+        ],
+    },
         ],
     },
     // {
@@ -361,6 +382,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_fleet',
         type: 'collapsable',
         icon: 'heroicons_outline:truck',
+        classes: { wrapper: 'nav-product nav-product--fleet' },
         children: [
             {
                 id: 'smart-fleet-dashboard',
@@ -402,6 +424,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_enroll',
         type: 'collapsable',
         icon: 'heroicons_outline:document-magnifying-glass',
+        classes: { wrapper: 'nav-product nav-product--enroll' },
         children: [
             {
                 id: 'smart-enroll-projects',
@@ -477,6 +500,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_access',
         type: 'collapsable',
         icon: 'heroicons_outline:key',
+        classes: { wrapper: 'nav-product nav-product--access' },
         children: [
             {
                 id: 'smart-access-projects',
@@ -504,6 +528,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_monitor',
         type: 'collapsable',
         icon: 'heroicons_outline:signal',
+        classes: { wrapper: 'nav-product nav-product--monitor' },
         children: [
             {
                 id: 'status-check',
@@ -536,6 +561,7 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         title: 'nav.smart_tools',
         type: 'collapsable',
         icon: 'heroicons_outline:wrench-screwdriver',
+        classes: { wrapper: 'nav-product nav-product--tools' },
         children: [
             {
                 id: 'smart-reduce',

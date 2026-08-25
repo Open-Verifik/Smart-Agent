@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { FuseLoadingBarComponent } from '@fuse/components/loading-bar';
 import {
     FuseNavigationService,
@@ -22,11 +22,14 @@ import { SandboxNoticeStripComponent } from 'app/layout/common/account-strips/sa
 import { ProductionModeToggleComponent } from 'app/layout/common/account-strips/production-mode-toggle.component';
 import { LayoutFooterComponent } from 'app/layout/common/layout-footer/layout-footer.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
+import { SupportWidgetService } from 'app/core/services/support-widget.service';
+import { TranslocoModule } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'classic-layout',
     templateUrl: './classic.component.html',
+    styleUrl: './classic.component.scss',
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,
@@ -34,6 +37,8 @@ import { Subject, takeUntil } from 'rxjs';
         MatButtonModule,
         MatIconModule,
         LanguagesComponent,
+        RouterLink,
+        TranslocoModule,
         // OCULTADO: Componentes comentados - Para futuras búsquedas busca: shortcuts messages notifications imports
         // ShortcutsComponent,
         // MessagesComponent,
@@ -61,8 +66,17 @@ export class ClassicLayoutComponent implements OnInit, OnDestroy {
         private _router: Router,
         private _navigationService: NavigationService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
-        private _fuseNavigationService: FuseNavigationService
+        private _fuseNavigationService: FuseNavigationService,
+        private _supportWidgetService: SupportWidgetService
     ) {}
+
+    get isHelpOpen(): boolean {
+        return this._supportWidgetService.isMounted;
+    }
+
+    toggleHelp(): void {
+        this._supportWidgetService.toggle();
+    }
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks

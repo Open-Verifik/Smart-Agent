@@ -103,4 +103,20 @@ export class WebhooksListComponent implements OnInit {
     goDetail(webhook: any): void {
         this._router.navigate(['/smart-monitor/webhooks', webhook._id]);
     }
+
+    hasLinkedSources(webhook: any): boolean {
+        return Boolean(webhook?.projectFlow?.length || webhook?.batchConfigurations?.length);
+    }
+
+    batchConfigName(config: any): string {
+        if (!config) return '';
+        if (typeof config === 'string') return config;
+        return config.name || String(config._id || '');
+    }
+
+    batchConfigId(config: any): string | null {
+        if (!config) return null;
+        if (typeof config === 'string') return config;
+        return config._id || null;
+    }
 }

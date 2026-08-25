@@ -10,6 +10,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CountryDialCode, CountryService } from 'app/core/services/country.service';
 import { SettingsService, StaffMember } from 'app/modules/settings/settings.service';
+import { resolveStaffSaveErrorMessage } from 'app/modules/settings/utils/staff-save-error.util';
 import { DateTime } from 'luxon';
 import { forkJoin, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -172,11 +173,10 @@ export class AccessProjectStaffComponent implements OnInit {
                     this._loadMembers();
                 },
                 error: (error: { error?: { message?: string }; status?: number }) => {
-                    let message = this._transloco.translate('settings.team.save_error');
-                    if (error?.error?.message === 'cannot_create_staff' || error?.status === 412) {
-                        message = this._transloco.translate('settings.team.no_plan_error');
-                    }
-                    this._snackBar.open(message, undefined, { duration: 4000 });
+                    const message = resolveStaffSaveErrorMessage(error, (key) =>
+                        this._transloco.translate(key)
+                    );
+                    this._snackBar.open(message, undefined, { duration: 5000 });
                 },
             });
     }

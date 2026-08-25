@@ -28,6 +28,7 @@ import {
     BatchStep,
     SmartBatch,
     SmartBatchEstimate,
+    SmartBatchExecutor,
     SmartBatchProgress,
     SmartBatchRow,
     SmartBatchService,
@@ -167,7 +168,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     isPaused = computed(() => this.batch()?.status === 'paused');
 
     /** True once the batch has been handed to the engine. */
-    isServerManaged = computed(() => Boolean(this.batch()?.run));
+    isServerManaged = computed(
+        () => Boolean(this.batch()?.run) || this.batch()?.executor === 'queue'
+    );
+
+    canEditExecutor = computed(() => {
+        const status = this.batch()?.status;
+        return status === 'draft' || status === 'pending';
+    });
 
     // Configuration steps (sorted by sequence)
     configSteps = computed(() => {
@@ -536,6 +544,20 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     // -------------------------------------------------------------------------
     // Run control — every operation is a single server call
     // -------------------------------------------------------------------------
+
+    async setExecutor(executor: SmartBatchExecutor): Promise<void> {
+        const batch = this.batch();
+        if (!batch?._id || !this.canEditExecutor() || batch.executor === executor) return;
+
+        try {
+            const res = await firstValueFrom(
+                this._smartBatchService.updateSmartBatch(batch._id, { executor })
+            );
+            this.batch.set(res.data);
+        } catch (err) {
+            this._reportFailure('batchProcessing.executorUpdateFailed', err);
+        }
+    }
 
     /**
      * Hand the batch to the engine. Returns as soon as the run is queued; the

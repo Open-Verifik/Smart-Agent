@@ -7,21 +7,24 @@
     max-width: min(500px, 92vw);
 }
 
+/**
+ * The card is drawn by the template root (bg-white, border, rounded-2xl, shadow-lg). Material's
+ * surface and container are left transparent so the two do not stack into a visible double card.
+ */
 .purchase-credits-dialog-panel {
     .mat-mdc-dialog-container {
         padding: 0 !important;
         overflow: hidden;
-        border-radius: 1rem;
-        --mdc-dialog-container-color: #ffffff;
+        display: flex;
+        justify-content: center;
+        --mdc-dialog-container-color: transparent;
+        --mdc-dialog-container-elevation: none;
     }
 
     .mat-mdc-dialog-surface {
-        border-radius: 1rem !important;
-        overflow: hidden;
-        background-color: #ffffff !important;
-        box-shadow:
-            0 20px 25px -5px rgb(15 23 42 / 0.2),
-            0 8px 10px -6px rgb(15 23 42 / 0.2);
+        background-color: transparent !important;
+        box-shadow: none !important;
+        overflow: visible;
     }
 
     // Grow with content; only scroll on short viewports (Material defaults a low max-height).
@@ -40,11 +43,11 @@
 
 .dark .purchase-credits-dialog-panel {
     .mat-mdc-dialog-container {
-        --mdc-dialog-container-color: #111827;
+        --mdc-dialog-container-color: transparent;
     }
 
     .mat-mdc-dialog-surface {
-        background-color: #111827 !important;
+        background-color: transparent !important;
     }
 }
 

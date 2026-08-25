@@ -13,7 +13,7 @@ import { AuthRequiredGateService } from 'app/core/services/auth-required-gate.se
 import { getPresetStepCount } from './batch-required-fields.util';
 import { getCountryFlag as flagForCountry } from './smart-batch-country.util';
 import { SmartBatchInputModeService } from './smart-batch-input-mode.service';
-import { BatchConfiguration, SmartBatchService } from './smart-batch.service';
+import { BatchConfiguration, SmartBatchExecutor, SmartBatchService } from './smart-batch.service';
 import { BatchConfigurationRef, SmartReportService, SmartReportTemplate } from './smart-report.service';
 
 @Component({
@@ -365,6 +365,22 @@ export class SmartBatchComponent implements OnInit {
             return this._transloco.translate('smartBatchSystemPresets.comprehensive');
         }
         return this._transloco.translate('smartBatchSystemPresets.essential');
+    }
+
+    executorBadgeKey(executor?: SmartBatchExecutor): string {
+        if (executor === 'queue') return 'createBatchConfig.runModeAsync';
+        if (executor === 'browser') return 'batchProcessing.executorBrowser';
+        return 'createBatchConfig.runModeSync';
+    }
+
+    executorBadgeClasses(executor?: SmartBatchExecutor): string {
+        if (executor === 'queue') {
+            return 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300';
+        }
+        if (executor === 'browser') {
+            return 'border-stone-200 bg-stone-50 text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300';
+        }
+        return 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-indigo-300';
     }
 
     editConfiguration(id: string, event: Event) {

@@ -6,9 +6,13 @@
         "serviceLevelAgreement": "サービスレベル契約"
     },
     "nav": {
+        "console": "コンソール",
+        "workspace": "ワークスペース",
+        "products": "プロダクト",
         "home": "ホーム",
         "chat": "チャット",
         "history": "履歴",
+        "help": "ヘルプ",
         "settings": "設定",
         "smart_check": "SmartCheck",
         "postman": "Postman",
@@ -103,7 +107,9 @@
         "deleteTitle": "削除",
         "deleteConfirm": "削除",
         "deleteCancel": "キャンセル",
-        "noTemplatesDesc": "カスタムレポートテンプレートを作成して管理します。"
+        "noTemplatesDesc": "カスタムレポートテンプレートを作成して管理します。",
+        "executorHint": "Asyncはバックグラウンドで実行します。Syncはサーバーでステップを連鎖します。新規バッチに継承されます。",
+        "executorUpdateFailed": "実行方法を更新できませんでした。もう一度お試しください。"
     },
     "smartBatchSystemPresets": {
         "cloning": "テンプレートプリセットを複製中...",
@@ -178,11 +184,28 @@
         "create": "作成",
         "batchConfiguration": "バッチ設定",
         "basicInformation": "基本情報",
+        "notifications": "通知",
+        "notificationsOptional": "任意",
+        "notificationsHint": "バッチ完了時にWebhookやメールが不要なら、この項目はスキップしてください。",
+        "notificationsConfigure": "Webhookまたはメールを追加",
         "configurationName": "設定名",
         "namePlaceholder": "例：日次市民検証",
         "nameRequired": "名前は必須です",
         "description": "説明",
         "descriptionPlaceholder": "この設定の説明を入力してください",
+        "webhookUrl": "Webhook URL",
+        "webhookUrlHint": "任意。行とバッチ完了イベントをこのアドレスに送信します。",
+        "invalidWebhookUrl": "有効なURLを入力してください（https://...）",
+        "testWebhook": "テスト",
+        "testing": "テスト中...",
+        "testSuccess": "エンドポイントが応答しました",
+        "testFailed": "エンドポイントはサンプルリクエストを受け付けませんでした",
+        "webhookMustTest": "続行する前にWebhookのテストを成功させてください。",
+        "emailOnCompletion": "完了時のメール",
+        "emailOnCompletionHint": "任意。Enterまたはカンマでアドレスを追加します。",
+        "emailChipPlaceholder": "name@example.com",
+        "removeEmail": "メールを削除",
+        "invalidEmails": "有効なメールアドレスを入力してください",
         "country": "国",
         "countryRequired": "国は必須です",
         "mergeStrategy": "マージ戦略",
@@ -191,6 +214,11 @@
         "parallelWithFallback": "フォールバック付き並列",
         "inputFieldsFormat": "入力フィールド形式",
         "resultOutputFormat": "結果出力形式",
+        "runMode": "実行モード",
+        "runModeAsync": "Async",
+        "runModeSync": "Sync",
+        "runModeAsyncHint": "バックグラウンドで実行します。このタブを閉じてもバッチは続きます。",
+        "runModeSyncHint": "サーバー上でステップを連鎖実行します。後続ステップが前の結果を使う場合に適します。",
         "saving": "保存中...",
         "next": "次へ",
         "selectEndpoints": "エンドポイントを選択",
@@ -215,17 +243,25 @@
         "estimatedCostPerRecord": "レコードあたりの推定コスト",
         "totalPerRecord": "レコードあたりの合計",
         "updateConfiguration": "設定を更新",
-        "createConfiguration": "設定を作成"
+        "createConfiguration": "設定を作成",
+        "loadFailed": "この設定を読み込めませんでした。存在することと、アクセス権があることを確認してください。",
+        "featuresLoadFailed": "利用可能なエンドポイントを読み込めませんでした。もう一度お試しください。",
+        "saveFailed": "設定を保存できませんでした。フォームを確認してもう一度お試しください。"
     },
     "batchDashboard": {
         "backToSmartBatch": "Smart Batchに戻る",
         "loading": "読み込み中...",
         "batchProcessingDashboard": "バッチ処理ダッシュボード",
         "createBatch": "バッチを作成",
+        "executor": "実行モード",
+        "executorHint": "Asyncはバックグラウンドで実行します。Syncはサーバーでステップを連鎖します。新規バッチに継承されます。",
+        "executorUpdateFailed": "実行方法を更新できませんでした。もう一度お試しください。",
         "steps": "ステップ",
         "strategy": "統合戦略",
         "format": "形式",
         "costPerRow": "行あたりのコスト",
+        "webhook": "Webhook",
+        "webhookNone": "なし",
         "processingSteps": "処理ステップ",
         "disabled": "無効",
         "costBreakdown": "コスト内訳",
@@ -256,7 +292,11 @@
         "failedCount": "{{count}} 件失敗",
         "partialCount": "{{count}} 件一部成功",
         "addInputs": "入力を追加",
-        "viewDetails": "詳細を表示"
+        "viewDetails": "詳細を表示",
+        "webhookEvents": "Webhookイベント",
+        "webhookEventsHint": "この設定のWebhookへの配信です。受信箱全体はSmart Monitorで確認できます。",
+        "openSmartMonitorWebhooks": "Smart Monitorを開く",
+        "webhookEventsEmpty": "最初の配信後にイベントがここに表示されます。"
     },
     "smartReport": {
         "generateReport": "レポートを生成",
@@ -962,7 +1002,7 @@
         },
         "detail": {
             "back": "Webhooks に戻る",
-            "subtitle": "エンドポイント、リンク済みフロー、配信ログ",
+            "subtitle": "エンドポイント、リンク済みフローとバッチ、配信ログ",
             "unnamed": "Webhook"
         },
         "events": {
@@ -971,13 +1011,13 @@
         },
         "list": {
             "title": "Webhooks",
-            "subtitle": "フロー完了時にサーバーへ通知します。",
+            "subtitle": "フローまたはバッチ完了時にサーバーへ通知します。",
             "view": "開く",
             "edit": "編集",
             "card": {
                 "url": "エンドポイント URL",
-                "related_projects": "リンク済みフロー",
-                "not_related_projects": "リンクされたフローはありません",
+                "related_projects": "リンク済みフローとバッチ",
+                "not_related_projects": "リンクされたフローまたはバッチはありません",
                 "active": "有効",
                 "disabled": "一時停止"
             }
@@ -1022,7 +1062,8 @@
             "response": "レスポンス",
             "request": "リクエスト",
             "select_event": "イベントを選択してペイロードを表示",
-            "related_project": "リンク済みフロー",
+            "related_project": "リンク済みフローとバッチ",
+            "batch_configuration": "Smart Batch",
             "filter_project": "絞り込み",
             "events": "件",
             "notifications": "通知",
@@ -3237,6 +3278,14 @@
             "limit_reached": "プランの最大チームメンバー数に達しました。追加するにはアップグレードしてください。",
             "no_plan_warning": "チームメンバーを追加するには、アクティブなサブスクリプションプランが必要です。",
             "no_plan_error": "アクティブなサブスクリプションプランなしではチームメンバーを追加できません。",
+            "errors": {
+                "duplicated_phone": "この電話番号はすでにチームに登録されています。",
+                "phone_in_other_org": "この電話番号はすでに別の組織に属しています。",
+                "duplicated_email": "このメールアドレスはすでにチームに登録されています。",
+                "email_in_other_org": "このメールアドレスはすでに別の組織に属しています。",
+                "client_exists_email": "このメールアドレスはすでにVerifikアカウントに登録されています。別のメールアドレスを使用してください。",
+                "client_exists_phone": "この電話番号はすでにVerifikアカウントに登録されています。別の番号を使用してください。"
+            },
             "view_plans": "SmartCheckのプランを表示"
         },
         "plans": " Plans",
@@ -3378,7 +3427,7 @@
             "auto": "自動",
             "dark": "ダーク",
             "light": "ライト",
-            "autoTooltip": "ユーザーのオペレーティングシステムのカラースキーム設定に基づき、'prefer-color-scheme' メディアクエリで自動的にスキームを設定します。"
+            "autoTooltip": "お使いの地域の時刻で、午後7時から午前7時までダークモードになります。"
         },
         "layouts": {
             "empty": "空",
@@ -3972,10 +4021,25 @@
         "purchaseDialog": {
             "title": "クレジットを購入",
             "selectAmount": "金額を選択",
+            "change": "変更",
             "customAmount": "カスタム金額",
             "enterAmount": "金額を入力",
             "minimum": "最小 $49",
             "paymentMethod": "支払い方法",
+            "savedCard": "保存済みカード",
+            "bold": {
+                "optionUsd": "Bold で米ドル払い",
+                "methodsUsd": "クレジットカードまたはデビットカード",
+                "optionCop": "Bold でコロンビアペソ払い",
+                "methodsCop": "カード、PSE、Nequi、Bancolombia",
+                "optionPse": "PSE で支払う",
+                "methodsPse": "コロンビアペソでの銀行振込",
+                "firstPurchasePseNote": "初回のお支払いは PSE の銀行振込のみとなります。この支払いが承認されると、カードを含むすべての支払い方法をご利用いただけます。",
+                "quoteApprox": "1 ドルあたり {{rate}} COP のレートで {{total}} が請求されます。",
+                "quoteLoading": "ペソ金額を計算しています…",
+                "hint": "Bold の安全な決済ページで支払いを完了し、この画面に戻ります。Bold が支払いを確認するとクレジットが追加されます。",
+                "payButton": "Bold で支払う"
+            },
             "summary": "概要",
             "subtotal": "小計",
             "processingFee": "処理手数料",
@@ -4000,7 +4064,11 @@
                 "kycVerificationStartFailed": "KYC認証を開けませんでした。再度お試しいただくか、サポートにお問い合わせください。",
                 "selectPaymentMethod": "続行するには保存済みのカードを選択してください。",
                 "amountOutOfRange": "{{minUsd}} から {{maxUsd}} の間の金額を入力してください。",
-                "paymentPendingVerification": "お支払いは保留中です。銀行が請求を確認した後、クレジットが反映されます。"
+                "paymentPendingVerification": "お支払いは保留中です。銀行が請求を確認した後、クレジットが反映されます。",
+                "boldUnavailable": "現在 Bold の決済を利用できません。もう一度お試しか、保存済みカードでお支払いください。",
+                "boldWholeAmount": "Bold はドル単位の金額のみ受け付けます。セントを削除してもう一度お試しください。",
+                "boldFxUnavailable": "本日の USD/COP レートを取得できないため、ペソでのお支払いはご利用いただけません。カードでのドル払いは引き続きご利用可能です。",
+                "firstPurchaseRequiresPse": "初回のお支払いは PSE の銀行振込が必要です。承認後はカードでお支払いいただけます。"
             },
             "kyc": {
                 "title": "KYC必須",
@@ -4011,6 +4079,15 @@
                 "contactSupport": "サポートに連絡"
             },
             "maximum": "最大"
+        },
+        "bold": {
+            "return": {
+                "confirming": "Bold のお支払いを確認しています…",
+                "approved": "お支払いを確認しました。クレジットを追加しました。",
+                "pending": "Bold がまだお支払いを処理しています。承認されるとクレジットは自動で追加されるため、再度お支払いいただく必要はありません。",
+                "failed": "Bold はこのお支払いを処理できませんでした。請求は発生していないため、もう一度お試しいただけます。",
+                "dismiss": "閉じる"
+            }
         },
         "hero": {
             "title": "Verifik のあらゆるワークフローに使えるクレジット",
@@ -6940,8 +7017,13 @@
         "insufficientCreditsTitle": "クレジット不足",
         "insufficientCreditsMessage": "この実行には {{required}} クレジットが必要ですが、残高は {{available}} です。残高がなくなると停止します。",
         "startAnyway": "それでも開始",
-        "serverManaged": "サーバー実行",
-        "serverManagedHint": "処理は Verifik のサーバーで実行されます。このタブを閉じても停止しません。",
+        "serverManaged": "Async",
+        "serverManagedHint": "このバッチはバックグラウンドで実行されます。このタブを閉じても停止しません。",
+        "executorQueue": "Async",
+        "executorFeatureRunner": "Sync",
+        "executorBrowser": "このタブ",
+        "executorHint": "キュー: タブを閉じても Python が処理します。サーバー: Node FeatureRunner。このタブ: このページが開いている間のみ。",
+        "executorUpdateFailed": "実行方法を更新できませんでした。再試行してください。",
         "serverProgressHint": "{{total}} 件のうち成功 {{completed}} 件、失敗 {{failed}} 件",
         "estimateCost": "保留中 {{rows}} 件で約 {{credits}} クレジット",
         "estimatePerRecord": "1 件あたり {{credits}}",
@@ -6972,6 +7054,9 @@
         "generatePdfReport": "PDFレポートを生成",
         "inputData": "入力データ",
         "stepResults": "ステップ結果",
+        "attempts": "試行: {{count}}",
+        "attemptTimeline": "試行履歴",
+        "attemptLabel": "試行 {{attempt}}",
         "errors": "エラー",
         "stepError": "ステップ {{step}}: {{code}}",
         "stepStatusCompleted": "{{step}}: 完了",

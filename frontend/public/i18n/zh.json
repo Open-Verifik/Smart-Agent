@@ -6,9 +6,13 @@
         "serviceLevelAgreement": "服务级别协议"
     },
     "nav": {
+        "console": "控制台",
+        "workspace": "工作区",
+        "products": "产品",
         "home": "首页",
         "chat": "聊天",
         "history": "历史",
+        "help": "帮助",
         "settings": "设置",
         "smart_check": "SmartCheck",
         "postman": "Postman",
@@ -103,7 +107,9 @@
         "deleteTitle": "删除",
         "deleteConfirm": "删除",
         "deleteCancel": "取消",
-        "noTemplatesDesc": "创建并管理您的自定义报告模板。"
+        "noTemplatesDesc": "创建并管理您的自定义报告模板。",
+        "executorHint": "Async 在后台运行。Sync 在服务器上按步骤链执行。新批次会继承此项。",
+        "executorUpdateFailed": "无法更新执行方式，请重试。"
     },
     "smartBatchSystemPresets": {
         "cloning": "正在复制模板预设...",
@@ -178,11 +184,28 @@
         "create": "创建",
         "batchConfiguration": "批处理配置",
         "basicInformation": "基本信息",
+        "notifications": "通知",
+        "notificationsOptional": "可选",
+        "notificationsHint": "如果批次完成时不需要 webhook 或邮件，请跳过此项。",
+        "notificationsConfigure": "添加 webhook 或邮箱",
         "configurationName": "配置名称",
         "namePlaceholder": "例如：每日公民核验",
         "nameRequired": "名称是必填项",
         "description": "描述",
         "descriptionPlaceholder": "为此配置提供描述",
+        "webhookUrl": "Webhook URL",
+        "webhookUrlHint": "可选。我们将向此地址发送行和批次完成事件。",
+        "invalidWebhookUrl": "请输入有效的 URL（https://...）",
+        "testWebhook": "测试",
+        "testing": "测试中...",
+        "testSuccess": "端点已成功响应",
+        "testFailed": "端点未接受示例请求",
+        "webhookMustTest": "请先成功测试 webhook，然后再继续。",
+        "emailOnCompletion": "完成时发送邮件",
+        "emailOnCompletionHint": "可选。按 Enter 或逗号添加地址。",
+        "emailChipPlaceholder": "name@example.com",
+        "removeEmail": "移除邮箱",
+        "invalidEmails": "请输入有效的电子邮件地址",
         "country": "国家",
         "countryRequired": "国家是必填项",
         "mergeStrategy": "合并策略",
@@ -191,6 +214,11 @@
         "parallelWithFallback": "并行带备用",
         "inputFieldsFormat": "输入字段格式",
         "resultOutputFormat": "结果输出格式",
+        "runMode": "运行模式",
+        "runModeAsync": "Async",
+        "runModeSync": "Sync",
+        "runModeAsyncHint": "在后台运行。关闭此标签页后，批次仍会继续处理。",
+        "runModeSyncHint": "在服务器上按步骤链运行。适合后一步需要前一步结果的情况。",
         "saving": "正在保存...",
         "next": "下一步",
         "selectEndpoints": "选择端点",
@@ -215,17 +243,25 @@
         "estimatedCostPerRecord": "单条记录预估成本",
         "totalPerRecord": "单条记录总计",
         "updateConfiguration": "更新配置",
-        "createConfiguration": "创建配置"
+        "createConfiguration": "创建配置",
+        "loadFailed": "无法加载此配置。请确认它仍然存在并且你有访问权限。",
+        "featuresLoadFailed": "无法加载可用端点。请重试。",
+        "saveFailed": "无法保存配置。请检查表单后重试。"
     },
     "batchDashboard": {
         "backToSmartBatch": "返回 Smart Batch",
         "loading": "正在加载...",
         "batchProcessingDashboard": "批处理控制台",
         "createBatch": "创建批处理",
+        "executor": "运行模式",
+        "executorHint": "Async 在后台运行。Sync 在服务器上按步骤链执行。新批次会继承此项。",
+        "executorUpdateFailed": "无法更新执行方式，请重试。",
         "steps": "步骤",
         "strategy": "策略",
         "format": "格式",
         "costPerRow": "单行成本",
+        "webhook": "Webhook",
+        "webhookNone": "无",
         "processingSteps": "处理步骤",
         "disabled": "已禁用",
         "costBreakdown": "费用明细",
@@ -256,7 +292,11 @@
         "failedCount": "{{count}} 个失败",
         "partialCount": "{{count}} 个部分成功",
         "addInputs": "添加输入",
-        "viewDetails": "查看详情"
+        "viewDetails": "查看详情",
+        "webhookEvents": "Webhook 事件",
+        "webhookEventsHint": "发往此配置 webhook 的投递。打开 Smart Monitor 查看完整收件箱。",
+        "openSmartMonitorWebhooks": "打开 Smart Monitor",
+        "webhookEventsEmpty": "首次投递后，事件会显示在这里。"
     },
     "smartReport": {
         "generateReport": "生成报告",
@@ -962,7 +1002,7 @@
         },
         "detail": {
             "back": "返回 Webhooks",
-            "subtitle": "端点详情、已关联流程与投递日志",
+            "subtitle": "端点详情、已关联流程与批次、投递日志",
             "unnamed": "Webhook"
         },
         "events": {
@@ -971,13 +1011,13 @@
         },
         "list": {
             "title": "Webhooks",
-            "subtitle": "在流程完成时向您的服务器发送通知。",
+            "subtitle": "在流程或批次完成时向您的服务器发送通知。",
             "view": "打开",
             "edit": "编辑",
             "card": {
                 "url": "端点 URL",
-                "related_projects": "已关联流程",
-                "not_related_projects": "尚未关联流程",
+                "related_projects": "已关联流程与批次",
+                "not_related_projects": "尚未关联流程或批次",
                 "active": "启用",
                 "disabled": "已暂停"
             }
@@ -1022,7 +1062,8 @@
             "response": "响应",
             "request": "请求",
             "select_event": "选择事件以查看负载与响应",
-            "related_project": "已关联流程",
+            "related_project": "已关联流程与批次",
+            "batch_configuration": "Smart Batch",
             "filter_project": "筛选",
             "events": "条",
             "notifications": "通知",
@@ -3237,6 +3278,14 @@
             "limit_reached": "您已达到计划的最大团队成员数。升级以添加更多。",
             "no_plan_warning": "您需要有效的订阅计划才能添加团队成员。",
             "no_plan_error": "没有有效的订阅计划无法添加团队成员。",
+            "errors": {
+                "duplicated_phone": "此电话号码已在您的团队中。",
+                "phone_in_other_org": "此电话号码已属于其他组织。",
+                "duplicated_email": "此邮箱已在您的团队中。",
+                "email_in_other_org": "此邮箱已属于其他组织。",
+                "client_exists_email": "此邮箱已属于一个 Verifik 账户。请使用其他邮箱。",
+                "client_exists_phone": "此电话号码已属于一个 Verifik 账户。请使用其他号码。"
+            },
             "view_plans": "查看 SmartCheck 方案"
         },
         "plans": " Plans",
@@ -3378,7 +3427,7 @@
             "auto": "自动",
             "dark": "深色",
             "light": "浅色",
-            "autoTooltip": "根据用户操作系统的配色偏好，通过 'prefer-color-scheme' 媒体查询自动设置配色方案。"
+            "autoTooltip": "按你的本地时间，晚上 7:00 到早上 7:00 使用深色模式。"
         },
         "layouts": {
             "empty": "空白",
@@ -3972,10 +4021,25 @@
         "purchaseDialog": {
             "title": "购买积分",
             "selectAmount": "选择金额",
+            "change": "更改",
             "customAmount": "自定义金额",
             "enterAmount": "输入金额",
             "minimum": "最低 $49",
             "paymentMethod": "支付方式",
+            "savedCard": "已保存的卡",
+            "bold": {
+                "optionUsd": "使用 Bold 以美元支付",
+                "methodsUsd": "信用卡或借记卡",
+                "optionCop": "使用 Bold 以哥伦比亚比索支付",
+                "methodsCop": "银行卡、PSE、Nequi 或 Bancolombia",
+                "optionPse": "使用 PSE 支付",
+                "methodsPse": "以哥伦比亚比索进行银行转账",
+                "firstPurchasePseNote": "首次购买仅支持 PSE 银行转账。该笔付款通过后，包括银行卡在内的所有支付方式都会解锁。",
+                "quoteApprox": "将按每美元 {{rate}} 比索的汇率收取 {{total}}。",
+                "quoteLoading": "正在计算比索金额…",
+                "hint": "您将在 Bold 的安全支付页面完成付款并返回此页面。Bold 确认付款后即会添加积分。",
+                "payButton": "使用 Bold 支付"
+            },
             "summary": "摘要",
             "subtotal": "小计",
             "processingFee": "处理费",
@@ -4000,7 +4064,11 @@
                 "kycVerificationStartFailed": "无法打开 KYC 验证。请重试或联系客服。",
                 "selectPaymentMethod": "请选择已保存的银行卡以继续。",
                 "amountOutOfRange": "请输入 {{minUsd}} 至 {{maxUsd}} 之间的金额。",
-                "paymentPendingVerification": "您的付款待处理。银行确认扣款后积分将到账。"
+                "paymentPendingVerification": "您的付款待处理。银行确认扣款后积分将到账。",
+                "boldUnavailable": "Bold 支付目前不可用。请重试或使用已保存的卡支付。",
+                "boldWholeAmount": "Bold 仅接受整美元金额。请去掉小数后重试。",
+                "boldFxUnavailable": "无法获取今日美元兑比索汇率，因此暂不支持比索支付。您仍可使用银行卡以美元支付。",
+                "firstPurchaseRequiresPse": "首次购买需通过 PSE 银行转账支付。付款通过后即可使用银行卡支付。"
             },
             "kyc": {
                 "title": "需要KYC",
@@ -4011,6 +4079,15 @@
                 "contactSupport": "联系支持"
             },
             "maximum": "最大"
+        },
+        "bold": {
+            "return": {
+                "confirming": "正在确认您的 Bold 付款…",
+                "approved": "付款已确认，积分已添加。",
+                "pending": "Bold 仍在处理您的付款。审核通过后积分会自动到账，无需重复支付。",
+                "failed": "Bold 无法处理这笔付款。未产生任何扣款，您可以重试。",
+                "dismiss": "关闭"
+            }
         },
         "hero": {
             "title": "适用于 Verifik 所有流程的积分",
@@ -6940,8 +7017,13 @@
         "insufficientCreditsTitle": "额度不足",
         "insufficientCreditsMessage": "本次运行需要 {{required}} 额度，当前仅有 {{available}}。余额用尽后将停止。",
         "startAnyway": "仍然开始",
-        "serverManaged": "服务器运行",
-        "serverManagedHint": "处理在 Verifik 服务器上运行，关闭此标签页不会中断。",
+        "serverManaged": "Async",
+        "serverManagedHint": "此批次在后台运行。关闭此标签页不会中断。",
+        "executorQueue": "Async",
+        "executorFeatureRunner": "Sync",
+        "executorBrowser": "此标签页",
+        "executorHint": "队列：关闭标签页后由 Python 处理。服务器：Node FeatureRunner。此标签页：仅在本页打开时。",
+        "executorUpdateFailed": "无法更新执行方式，请重试。",
         "serverProgressHint": "共 {{total}} 条记录，成功 {{completed}} 条，失败 {{failed}} 条",
         "estimateCost": "{{rows}} 条待处理记录预计消耗 {{credits}} 额度",
         "estimatePerRecord": "每条 {{credits}}",
@@ -6972,6 +7054,9 @@
         "generatePdfReport": "生成 PDF 报告",
         "inputData": "输入数据",
         "stepResults": "步骤结果",
+        "attempts": "尝试: {{count}}",
+        "attemptTimeline": "尝试记录",
+        "attemptLabel": "第 {{attempt}} 次",
         "errors": "错误",
         "stepError": "步骤 {{step}}：{{code}}",
         "stepStatusCompleted": "{{step}}：已完成",

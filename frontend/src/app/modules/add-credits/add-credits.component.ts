@@ -27,13 +27,20 @@ import { AutoRechargeSettingsComponent } from './auto-recharge-settings/auto-rec
 import { PaymentCardComponent } from './payment-card/payment-card.component';
 import { PurchaseCreditsDialogComponent } from './purchase-credits-dialog/purchase-credits-dialog.component';
 import { CreditsService } from './services/credits.service';
-import { PaymentService } from './services/payment.service';
+import { BOLD_PENDING_ORDER_KEY, PaymentService } from './services/payment.service';
 
 export type AddCreditsSidebarPlanTier = {
     plan: SubscriptionPlan;
     label: string;
     isBestValue: boolean;
 };
+
+/** Reconciliation state of a Bold order the customer just came back from. */
+export type BoldReturnState = 'confirming' | 'approved' | 'pending' | 'failed';
+
+/** Bold's webhook can lag ~10 minutes, and sandbox never sends one, so the return URL polls. */
+const BOLD_CONFIRM_ATTEMPTS = 5;
+const BOLD_CONFIRM_RETRY_MS = 3000;
 
 @Component({
     selector: 'add-credits',
@@ -104,6 +111,9 @@ export class AddCreditsComponent implements OnInit {
         return 50 * multiplier;
     });
 
+    /** Outcome banner for an order the customer just paid on Bold's gateway. */
+    boldReturnState = signal<BoldReturnState | null>(null);
+
     /** `GET /v2/client-settings` resolved (success or failure). */
     billingCheckResolved = signal(false);
 
@@ -133,7 +143,80 @@ export class AddCreditsComponent implements OnInit {
         }
 
         this._maybeSyncStripeCheckoutThenLoadData();
+        this._maybeConfirmBoldReturn();
         this._loadBillingGateForAddCredits();
+    }
+
+    /**
+     * Bold redirects to `/add-credits?bold-order-id=...&bold-tx-status=...` after the gateway
+     * closes. Credits come from the webhook, so this only reconciles and reports the outcome.
+     * @returns True when a Bold order was picked up.
+     */
+    private _maybeConfirmBoldReturn(): boolean {
+        const qp = this._activatedRoute.snapshot.queryParamMap;
+        const orderId = qp.get('bold-order-id') ?? localStorage.getItem(BOLD_PENDING_ORDER_KEY);
+
+        if (!orderId) {
+            return false;
+        }
+
+        localStorage.removeItem(BOLD_PENDING_ORDER_KEY);
+
+        if (qp.get('bold-order-id')) {
+            void this._router.navigate(['/add-credits'], { replaceUrl: true });
+        }
+
+        this.boldReturnState.set('confirming');
+        this._confirmBoldOrder(orderId, 1);
+
+        return true;
+    }
+
+    /**
+     * @param orderId Order reference sent to Bold.
+     * @param attempt 1-based; PSE and delayed webhooks need a few passes before giving up.
+     */
+    private _confirmBoldOrder(orderId: string, attempt: number): void {
+        this._paymentService.confirmBoldPurchase(orderId).subscribe({
+            next: (response) => {
+                const status = response.data?.transaction?.status;
+
+                if (status === 'approved') {
+                    this.boldReturnState.set('approved');
+                    this._refreshSessionAndBalance();
+                    return;
+                }
+
+                if (status === 'failed') {
+                    this.boldReturnState.set('failed');
+                    return;
+                }
+
+                if (attempt >= BOLD_CONFIRM_ATTEMPTS) {
+                    this.boldReturnState.set('pending');
+                    return;
+                }
+
+                setTimeout(
+                    () => this._confirmBoldOrder(orderId, attempt + 1),
+                    BOLD_CONFIRM_RETRY_MS,
+                );
+            },
+            error: (err) => {
+                console.error('Failed to confirm Bold order:', err);
+                this.boldReturnState.set('pending');
+            },
+        });
+    }
+
+    dismissBoldReturnNotice(): void {
+        this.boldReturnState.set(null);
+    }
+
+    private _refreshSessionAndBalance(): void {
+        this._authService.refreshSession().subscribe(() => {
+            this._creditsService.getBalance().subscribe();
+        });
     }
 
     /**
@@ -509,13 +592,8 @@ export class AddCreditsComponent implements OnInit {
         }
 
         const currentCards = this.cards();
-        if (currentCards.length === 0) {
-            // If no cards, open add card dialog first
-            this.openAddCardDialog();
-            return;
-        }
 
-        // Use default card or fallback to first card
+        // Without a saved card the dialog still opens: Bold's hosted checkout needs no stored card.
         const cardToUse = this.defaultCard() || currentCards[0];
 
         const dialogRef = this._dialog.open(PurchaseCreditsDialogComponent, {
@@ -532,11 +610,7 @@ export class AddCreditsComponent implements OnInit {
         // Refreshes user data when dialog closes successfully or after KYC unlock
         dialogRef.afterClosed().subscribe((result) => {
             if (result === 'success' || result?.alreadyCompleted === true) {
-                // Refresh user data to get updated credits without signing in again
-                this._authService.refreshSession().subscribe(() => {
-                    // Reload balance after user data is refreshed and synced to local storage
-                    this._creditsService.getBalance().subscribe();
-                });
+                this._refreshSessionAndBalance();
             }
         });
     }

@@ -9,10 +9,10 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { FuseConfig, FuseConfigService } from '@fuse/services/config';
-import { FuseMediaWatcherService } from '@fuse/services/media-watcher';
 import { FusePlatformService } from '@fuse/services/platform';
 import { FUSE_VERSION } from '@fuse/version';
-import { Subject, combineLatest, filter, map, takeUntil } from 'rxjs';
+import { Subject, combineLatest, filter, takeUntil } from 'rxjs';
+import { ResolvedSchemeService } from 'app/core/appearance/resolved-scheme.service';
 import { SupportWidgetService } from 'app/core/services/support-widget.service';
 import { SettingsComponent } from './common/settings/settings.component';
 import { EmptyLayoutComponent } from './layouts/empty/empty.component';
@@ -63,7 +63,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
         private _renderer2: Renderer2,
         private _router: Router,
         private _fuseConfigService: FuseConfigService,
-        private _fuseMediaWatcherService: FuseMediaWatcherService,
+        private _resolvedSchemeService: ResolvedSchemeService,
         private _fusePlatformService: FusePlatformService,
         private _supportWidgetService: SupportWidgetService
     ) {}
@@ -79,38 +79,13 @@ export class LayoutComponent implements OnInit, OnDestroy {
         // Set the theme and scheme based on the configuration
         combineLatest([
             this._fuseConfigService.config$,
-            this._fuseMediaWatcherService.onMediaQueryChange$([
-                '(prefers-color-scheme: dark)',
-                '(prefers-color-scheme: light)',
-            ]),
+            this._resolvedSchemeService.resolved$,
         ])
-            .pipe(
-                takeUntil(this._unsubscribeAll),
-                map(([config, mql]) => {
-                    const options = {
-                        scheme: config.scheme,
-                        theme: config.theme,
-                    };
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe(([config, scheme]) => {
+                this.scheme = scheme;
+                this.theme = config.theme;
 
-                    // If the scheme is set to 'auto'...
-                    if (config.scheme === 'auto') {
-                        // Decide the scheme using the media query
-                        options.scheme = mql.breakpoints[
-                            '(prefers-color-scheme: dark)'
-                        ]
-                            ? 'dark'
-                            : 'light';
-                    }
-
-                    return options;
-                })
-            )
-            .subscribe((options) => {
-                // Store the options
-                this.scheme = options.scheme;
-                this.theme = options.theme;
-
-                // Update the scheme and theme
                 this._updateScheme();
                 this._updateTheme();
             });
@@ -150,7 +125,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
             this._fusePlatformService.osName
         );
 
-        this._supportWidgetService.mount();
     }
 
     /**

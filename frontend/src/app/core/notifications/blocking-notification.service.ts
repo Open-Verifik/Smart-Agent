@@ -46,7 +46,7 @@ export class BlockingNotificationService {
                     this._current.set(blocking[0] ?? null);
                 })
             )
-            .subscribe();
+            .subscribe({ error: () => undefined });
     }
 
     advanceAfterAction(): void {

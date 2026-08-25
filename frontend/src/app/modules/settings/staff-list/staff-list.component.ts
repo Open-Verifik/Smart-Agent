@@ -36,6 +36,7 @@ import { SettingsService, StaffMember } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { extractClientSettingsPayload } from '../utils/invoice-billing-complete';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
+import { resolveStaffSaveErrorMessage } from '../utils/staff-save-error.util';
 
 @Component({
     selector: 'app-staff-list',
@@ -422,12 +423,10 @@ export class StaffListComponent implements OnInit, OnChanges, OnDestroy {
                     this.staffChanged.emit();
                 },
                 error: (error) => {
-                    let message = this._translocoService.translate('settings.team.save_error');
-                    // Check for specific backend error about subscription
-                    if (error?.error?.message === 'cannot_create_staff' || error?.status === 412) {
-                        message = this._translocoService.translate('settings.team.no_plan_error');
-                    }
-                    this._snackBar.open(message, null, { duration: 4000 });
+                    const message = resolveStaffSaveErrorMessage(error, (key) =>
+                        this._translocoService.translate(key)
+                    );
+                    this._snackBar.open(message, null, { duration: 5000 });
                 },
             });
     }

@@ -41,6 +41,92 @@ export interface CreditPurchaseResponse {
     message?: string;
 }
 
+/**
+ * Charge currency for a Bold order. Bold only offers PSE, Nequi and Botón Bancolombia on COP
+ * checkouts; USD is card-only. Credits are always priced in USD either way.
+ */
+export type BoldCurrency = 'USD' | 'COP';
+
+/** Rails Bold will offer for the chosen currency, as reported by the backend. */
+export type BoldMethod = 'card' | 'pse' | 'nequi' | 'bancolombia';
+
+/**
+ * Which rails this client may pay with. A Colombian client's first purchase is restricted to PSE (a
+ * bank transfer that cannot be charged back); everything unlocks once one payment is approved.
+ */
+export interface PurchasePolicy {
+    restricted: boolean;
+    isColombian: boolean;
+    hasApprovedPurchase: boolean;
+    allowedMethods: BoldMethod[] | null;
+}
+
+/** Priced checkout, so the dialog can show the peso total before opening the gateway. */
+export interface BoldQuote {
+    usdAmount: number;
+    currency: BoldCurrency;
+    /** Amount actually charged, in `currency` (whole COP, or the same USD figure). */
+    total: number;
+    exchangeRate: number;
+    methods: BoldMethod[];
+    restricted?: boolean;
+    allowedMethods?: BoldMethod[] | null;
+}
+
+/**
+ * Server-signed config for `new BoldCheckout(...)`; the integrity hash is never built client-side.
+ * A restricted client gets `mode: 'redirect'` and a hosted `url` instead, since Bold's button cannot
+ * limit which rails it offers.
+ */
+export interface BoldCheckoutConfig {
+    orderId: string;
+    transactionId?: string;
+    mode?: 'embedded' | 'redirect';
+    /** Hosted PSE-only checkout to navigate to; only set when `mode` is `redirect`. */
+    url?: string;
+    restricted?: boolean;
+    amount: string;
+    currency: BoldCurrency;
+    usdAmount?: number;
+    exchangeRate?: number;
+    methods?: BoldMethod[];
+    apiKey: string;
+    integritySignature: string;
+    description: string;
+    redirectionUrl: string;
+    originUrl?: string;
+    renderMode?: string;
+    /** True while Bold runs on sandbox keys (gateway shows a "Modo de pruebas" badge). */
+    testMode?: boolean;
+    customerData?: string;
+}
+
+export interface BoldConfirmData {
+    finalized?: boolean;
+    updated?: boolean;
+    pending?: boolean;
+    skipped?: boolean;
+    reason?: string;
+    transaction?: CreditPurchaseTransaction;
+}
+
+/** Order reference kept across the Bold redirect in case the return URL loses its query params. */
+export const BOLD_PENDING_ORDER_KEY = 'bold_pending_order_id';
+
+const BOLD_CHECKOUT_SCRIPT_URL = 'https://checkout.bold.co/library/boldPaymentButton.js';
+
+interface BoldCheckoutInstance {
+    open: () => void;
+    getConfig: (key: string) => string;
+    updateConfig: (key: string, value: string) => void;
+}
+
+declare global {
+    interface Window {
+        BoldCheckout?: new (config: Record<string, string>) => BoldCheckoutInstance;
+    }
+}
+
 export const isThreeDSCreditPurchase = (
     data: CreditPurchaseResponseData
 ): data is CreditPurchaseThreeDSData => {
@@ -60,6 +146,8 @@ export class PaymentService {
     error = signal<string | null>(null);
 
     private apiUrl = environment.apiUrl;
+
+    private _boldScriptPromise?: Promise<void>;
 
     constructor(private _httpClient: HttpClient) {}
 
@@ -159,6 +247,138 @@ export class PaymentService {
             { paymentIntentId },
             { headers }
         );
+    }
+
+    /**
+     * Which payment methods this client may use. Resolved server-side from billing country and
+     * payment history, so the dialog never has to guess.
+     */
+    getPurchasePolicy() {
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.get<{ data: PurchasePolicy }>(
+            `${this.apiUrl}/v2/credits/purchase-policy`,
+            { headers }
+        );
+    }
+
+    /**
+     * Prices a Bold order without creating one. Fails with `bold_fx_unavailable` when no USD/COP
+     * rate can be resolved, in which case only the USD option is offerable.
+     */
+    getBoldQuote(amount: number, currency: BoldCurrency) {
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.get<{ data: BoldQuote }>(`${this.apiUrl}/v2/credits/bold/quote`, {
+            headers,
+            params: { amount, currency },
+        });
+    }
+
+    /**
+     * Opens a Bold order (hosted checkout, no saved card). Returns the signed config the browser
+     * hands to Bold; credits are only granted once Bold confirms the sale.
+     */
+    createBoldCheckout(request: { amount: number; currency?: BoldCurrency; origin?: string }) {
+        this.error.set(null);
+
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.post<{ data: BoldCheckoutConfig }>(
+            `${this.apiUrl}/v2/credits/bold/checkout`,
+            {
+                amount: request.amount,
+                currency: request.currency || 'USD',
+                origin: request.origin || 'smart_agent',
+            },
+            { headers }
+        );
+    }
+
+    /**
+     * After Bold redirects back, reconcile the order (fallback for a delayed or sandbox webhook).
+     */
+    confirmBoldPurchase(orderId: string) {
+        const token = localStorage.getItem('accessToken');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+        return this._httpClient.post<{ data: BoldConfirmData }>(
+            `${this.apiUrl}/v2/credits/bold/confirm`,
+            { orderId },
+            { headers }
+        );
+    }
+
+    /**
+     * Bold's checkout library is only fetched when the user actually picks Bold.
+     */
+    loadBoldCheckoutScript(): Promise<void> {
+        if (window.BoldCheckout) {
+            return Promise.resolve();
+        }
+
+        if (!this._boldScriptPromise) {
+            this._boldScriptPromise = new Promise<void>((resolve, reject) => {
+                const script = document.createElement('script');
+
+                script.src = BOLD_CHECKOUT_SCRIPT_URL;
+                script.async = true;
+                script.onload = () => resolve();
+                script.onerror = () => {
+                    this._boldScriptPromise = undefined;
+                    reject(new Error('bold_script_load_failed'));
+                };
+
+                document.head.appendChild(script);
+            });
+        }
+
+        return this._boldScriptPromise;
+    }
+
+    /**
+     * Opens Bold's gateway over the current page. Bold navigates to `redirectionUrl` when the
+     * customer finishes, so the caller should not wait for a result.
+     */
+    openBoldCheckout(config: BoldCheckoutConfig): void {
+        if (!window.BoldCheckout) {
+            throw new Error('bold_script_load_failed');
+        }
+
+        localStorage.setItem(BOLD_PENDING_ORDER_KEY, config.orderId);
+
+        const checkout = new window.BoldCheckout({
+            orderId: config.orderId,
+            currency: config.currency,
+            amount: config.amount,
+            apiKey: config.apiKey,
+            integritySignature: config.integritySignature,
+            description: config.description,
+            redirectionUrl: config.redirectionUrl,
+            renderMode: config.renderMode || 'embedded',
+            ...(config.originUrl ? { originUrl: config.originUrl } : {}),
+            ...(config.customerData ? { customerData: config.customerData } : {}),
+        });
+
+        checkout.open();
+    }
+
+    /**
+     * Sends the customer to a hosted Bold checkout (the PSE-only link a restricted first purchase
+     * gets). The order id is stored before navigating so the return page can reconcile it even if
+     * Bold comes back without query parameters.
+     */
+    redirectToBoldCheckout(config: BoldCheckoutConfig): void {
+        if (!config.url) {
+            throw new Error('bold_missing_checkout_url');
+        }
+
+        localStorage.setItem(BOLD_PENDING_ORDER_KEY, config.orderId);
+
+        window.location.href = config.url;
     }
 
     /**

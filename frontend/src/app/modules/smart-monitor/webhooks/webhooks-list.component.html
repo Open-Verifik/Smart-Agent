@@ -64,7 +64,18 @@
                             <span class="chip" *ngFor="let projectFlow of webhook.projectFlow">
                                 {{ projectFlow.project?.name }} ({{ projectFlow.type }})
                             </span>
-                            <span class="chip-warn" *ngIf="!webhook.projectFlow?.length">
+                            <ng-container *ngFor="let config of webhook.batchConfigurations">
+                                <a
+                                    *ngIf="batchConfigId(config) as configId"
+                                    class="chip chip-batch"
+                                    [routerLink]="['/smart-batch', configId]"
+                                    [attr.aria-label]="batchConfigName(config)"
+                                >
+                                    {{ batchConfigName(config) }}
+                                    <span class="chip-kind">{{ t('webhooks.details.batch_configuration') }}</span>
+                                </a>
+                            </ng-container>
+                            <span class="chip-warn" *ngIf="!hasLinkedSources(webhook)">
                                 <mat-icon
                                     class="chip-ic"
                                     svgIcon="heroicons_outline:exclamation-triangle"

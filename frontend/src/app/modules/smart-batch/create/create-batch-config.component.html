@@ -57,18 +57,49 @@
     </header>
 
     <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
-        <div class="mx-auto w-full max-w-5xl">
+        <div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
             <div
-                class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:p-8"
+                *ngIf="errorMessage()"
+                class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-300"
+                role="alert"
             >
-                <mat-stepper #stepper orientation="vertical" class="bg-transparent" [linear]="true">
-                    <!-- Step 1: Basic Info -->
-                    <mat-step [stepControl]="step1Form">
-                        <ng-template matStepLabel>{{ 'createBatchConfig.basicInformation' | transloco }}</ng-template>
-                        <form
-                            [formGroup]="step1Form"
-                            class="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2"
-                        >
+                {{ errorMessage() }}
+            </div>
+            <nav
+                class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm"
+                aria-label="Wizard steps"
+            >
+                <ng-container *ngFor="let label of wizardLabels; let i = index">
+                    <span
+                        [class.font-semibold]="wizardStep() === i + 1"
+                        [class.text-stone-900]="wizardStep() === i + 1"
+                        [class.dark:text-white]="wizardStep() === i + 1"
+                        [class.text-stone-500]="wizardStep() !== i + 1"
+                    >
+                        {{ i + 1 }}. {{ label | transloco }}
+                    </span>
+                    <span
+                        *ngIf="i < wizardLabels.length - 1"
+                        class="hidden text-stone-300 dark:text-stone-600 sm:inline"
+                        aria-hidden="true"
+                    >
+                        /
+                    </span>
+                </ng-container>
+            </nav>
+
+            <form
+                *ngIf="wizardStep() === 1"
+                [formGroup]="step1Form"
+                class="flex flex-col gap-6"
+            >
+                <section
+                    class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:p-8"
+                >
+                        <h2 class="mb-2 text-base font-semibold text-stone-900 dark:text-white">
+                            {{ 'createBatchConfig.basicInformation' | transloco }}
+                        </h2>
+                        <div class="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2">
                             <mat-form-field appearance="outline" class="col-span-2 w-full">
                                 <mat-label>{{ 'createBatchConfig.configurationName' | transloco }}</mat-label>
                                 <input
@@ -137,25 +168,195 @@
                                 </mat-form-field>
                             </div>
 
-                            <div class="col-span-2 pt-4">
+                            <div class="col-span-2">
+                                <p class="mb-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+                                    {{ 'createBatchConfig.runMode' | transloco }}
+                                </p>
+                                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                    <button type="button" [class]="runModeCardClass(isAsyncSelected())" (click)="selectRunMode('queue')">
+                                        <span class="block text-sm font-semibold">{{ 'createBatchConfig.runModeAsync' | transloco }}</span>
+                                        <span [class]="runModeHintClass(isAsyncSelected())">{{ 'createBatchConfig.runModeAsyncHint' | transloco }}</span>
+                                    </button>
+                                    <button type="button" [class]="runModeCardClass(!isAsyncSelected())" (click)="selectRunMode('featureRunner')">
+                                        <span class="block text-sm font-semibold">{{ 'createBatchConfig.runModeSync' | transloco }}</span>
+                                        <span [class]="runModeHintClass(!isAsyncSelected())">{{ 'createBatchConfig.runModeSyncHint' | transloco }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+
+                <section
+                    class="rounded-2xl border border-dashed border-stone-300 bg-stone-50/70 p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900/40 md:p-6"
+                >
+                    <button
+                        type="button"
+                        class="flex w-full items-start justify-between gap-4 text-left"
+                        (click)="toggleNotifications()"
+                        [attr.aria-expanded]="showNotificationFields()"
+                    >
+                        <div class="min-w-0">
+                            <p
+                                class="mb-1 text-xs font-medium uppercase tracking-wider text-stone-400 dark:text-stone-500"
+                            >
+                                {{ 'createBatchConfig.notificationsOptional' | transloco }}
+                            </p>
+                            <h2 class="text-base font-semibold text-stone-900 dark:text-white">
+                                {{ 'createBatchConfig.notifications' | transloco }}
+                            </h2>
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ 'createBatchConfig.notificationsHint' | transloco }}
+                            </p>
+                            <p
+                                *ngIf="!showNotificationFields()"
+                                class="mt-3 text-sm font-medium text-indigo-600 dark:text-indigo-400"
+                            >
+                                {{ 'createBatchConfig.notificationsConfigure' | transloco }}
+                            </p>
+                        </div>
+                        <mat-icon class="mt-1 shrink-0 text-stone-400">
+                            {{ showNotificationFields() ? 'expand_less' : 'expand_more' }}
+                        </mat-icon>
+                    </button>
+                    <div class="mt-6 flex flex-col gap-6" *ngIf="showNotificationFields()">
+                            <div class="flex flex-col gap-3 md:flex-row md:items-start">
+                                <mat-form-field appearance="outline" class="min-w-0 flex-1">
+                                    <mat-label>{{ 'createBatchConfig.webhookUrl' | transloco }}</mat-label>
+                                    <input
+                                        matInput
+                                        type="url"
+                                        formControlName="webhookUrl"
+                                        inputmode="url"
+                                        autocomplete="url"
+                                        placeholder="https://example.com/webhooks/smart-batch"
+                                    />
+                                    <mat-error>{{ 'createBatchConfig.invalidWebhookUrl' | transloco }}</mat-error>
+                                </mat-form-field>
                                 <button
-                                    mat-flat-button
-                                    color="primary"
+                                    mat-stroked-button
                                     type="button"
-                                    class="rounded-xl"
-                                    (click)="onNext(1)"
-                                    [disabled]="step1Form.invalid || isSavingStep()"
+                                    class="h-14 shrink-0 rounded-xl md:mt-1"
+                                    (click)="testWebhook()"
+                                    [disabled]="!canTestWebhook()"
                                 >
-                                    <span *ngIf="isSavingStep()">{{ 'createBatchConfig.saving' | transloco }}</span>
-                                    <span *ngIf="!isSavingStep()">{{ 'createBatchConfig.next' | transloco }}</span>
+                                    <mat-progress-spinner
+                                        *ngIf="testingWebhook()"
+                                        class="mr-2 inline-block"
+                                        diameter="16"
+                                        mode="indeterminate"
+                                    ></mat-progress-spinner>
+                                    <span *ngIf="!testingWebhook()">{{
+                                        'createBatchConfig.testWebhook' | transloco
+                                    }}</span>
+                                    <span *ngIf="testingWebhook()">{{
+                                        'createBatchConfig.testing' | transloco
+                                    }}</span>
                                 </button>
                             </div>
-                        </form>
-                    </mat-step>
+                            <p
+                                class="-mt-3 text-xs text-stone-500 dark:text-stone-400"
+                                *ngIf="!step1Form.get('webhookUrl')?.invalid && !testResult() && isWebhookReady()"
+                            >
+                                {{ 'createBatchConfig.webhookUrlHint' | transloco }}
+                            </p>
+                            <p
+                                class="-mt-3 text-xs text-amber-700 dark:text-amber-300"
+                                *ngIf="currentWebhookUrl() && !isWebhookReady() && !testResult()"
+                            >
+                                {{ 'createBatchConfig.webhookMustTest' | transloco }}
+                            </p>
+                            <div
+                                class="-mt-3 rounded-xl border px-3 py-2 text-sm"
+                                *ngIf="testResult()"
+                                [ngClass]="
+                                    testResult()?.status === 'success'
+                                        ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950/40 dark:text-green-200'
+                                        : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200'
+                                "
+                            >
+                                <span class="font-medium">{{
+                                    (testResult()?.status === 'success'
+                                        ? 'createBatchConfig.testSuccess'
+                                        : 'createBatchConfig.testFailed'
+                                    ) | transloco
+                                }}</span>
+                                <span *ngIf="testResult()?.statusCode">
+                                    HTTP {{ testResult()?.statusCode }}
+                                </span>
+                                <span *ngIf="testResult()?.message"> {{ testResult()?.message }}</span>
+                            </div>
 
-                    <!-- Step 2: Feature Selection -->
-                    <mat-step>
-                        <ng-template matStepLabel>{{ 'createBatchConfig.selectEndpoints' | transloco }}</ng-template>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">
+                                    {{ 'createBatchConfig.emailOnCompletion' | transloco }}
+                                </label>
+                                <div
+                                    class="flex min-h-14 flex-wrap items-center gap-2 rounded-xl border border-stone-300 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-900"
+                                    [class.border-red-400]="emailDraftError()"
+                                >
+                                    <span
+                                        *ngFor="let email of emailChips()"
+                                        class="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2.5 py-1 text-sm text-indigo-800 dark:bg-indigo-950/50 dark:text-indigo-200"
+                                    >
+                                        {{ email }}
+                                        <button
+                                            type="button"
+                                            class="flex h-4 w-4 items-center justify-center rounded-full text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-900"
+                                            (click)="removeEmailChip(email)"
+                                            [attr.aria-label]="'createBatchConfig.removeEmail' | transloco"
+                                        >
+                                            <mat-icon class="icon-size-3">close</mat-icon>
+                                        </button>
+                                    </span>
+                                    <input
+                                        type="email"
+                                        class="min-w-[10rem] flex-1 border-0 bg-transparent py-1 text-sm text-stone-900 outline-none placeholder:text-stone-400 dark:text-white"
+                                        [placeholder]="'createBatchConfig.emailChipPlaceholder' | transloco"
+                                        [value]="emailDraft()"
+                                        (input)="onEmailInput($any($event.target).value)"
+                                        (keydown)="onEmailKeydown($event)"
+                                        (blur)="onEmailBlur()"
+                                    />
+                                </div>
+                                <p
+                                    class="mt-1.5 text-xs text-red-600 dark:text-red-400"
+                                    *ngIf="emailDraftError()"
+                                >
+                                    {{ 'createBatchConfig.invalidEmails' | transloco }}
+                                </p>
+                                <p
+                                    class="mt-1.5 text-xs text-stone-500 dark:text-stone-400"
+                                    *ngIf="!emailDraftError()"
+                                >
+                                    {{ 'createBatchConfig.emailOnCompletionHint' | transloco }}
+                                </p>
+                            </div>
+                    </div>
+                </section>
+
+                <div>
+                    <button
+                        mat-flat-button
+                        color="primary"
+                        type="button"
+                        class="rounded-xl"
+                        (click)="onNext(1)"
+                        [disabled]="!canContinueStep1()"
+                    >
+                        <span *ngIf="isSavingStep()">{{ 'createBatchConfig.saving' | transloco }}</span>
+                        <span *ngIf="!isSavingStep()">{{ 'createBatchConfig.next' | transloco }}</span>
+                    </button>
+                </div>
+            </form>
+
+            <div
+                *ngIf="wizardStep() !== 1"
+                class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 md:p-8"
+            >
+                <section *ngIf="wizardStep() === 2">
+                        <h2 class="mb-2 text-base font-semibold text-stone-900 dark:text-white">
+                            {{ 'createBatchConfig.selectEndpoints' | transloco }}
+                        </h2>
                         <div class="flex h-[600px] flex-col gap-6 pt-4">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-sm font-medium uppercase text-stone-500 dark:text-stone-400">
@@ -335,7 +536,7 @@
                             </div>
 
                             <div class="flex gap-3 pt-4">
-                                <button mat-button type="button" matStepperPrevious>{{
+                                <button mat-button type="button" (click)="goBack()">{{
                                     'createBatchConfig.back' | transloco
                                 }}</button>
                                 <button
@@ -351,43 +552,37 @@
                                 </button>
                             </div>
                         </div>
-                    </mat-step>
+                </section>
 
-                    <!-- Step 3: Review Parameters -->
-                    <mat-step>
-                        <ng-template matStepLabel>{{ 'createBatchConfig.reviewParameters' | transloco }}</ng-template>
+                <section *ngIf="wizardStep() === 3">
+                        <h2 class="mb-2 text-base font-semibold text-stone-900 dark:text-white">
+                            {{ 'createBatchConfig.reviewParameters' | transloco }}
+                        </h2>
                         <div class="flex flex-col gap-4 pt-4">
                             <p class="mb-2 text-sm text-stone-500 dark:text-stone-400">
                                 {{ 'createBatchConfig.reviewParamsIntro' | transloco }}
                             </p>
 
-                            <mat-accordion multi>
-                                <mat-expansion-panel
+                            <div class="flex flex-col gap-3">
+                                <article
                                     *ngFor="let feature of selectedFeatures(); let i = index"
-                                    [expanded]="i === 0"
-                                    class="!border !border-stone-200/90 !bg-white dark:!border-gray-800 dark:!bg-gray-900/80"
+                                    class="rounded-xl border border-stone-200/90 bg-white p-4 dark:border-gray-800 dark:bg-gray-900/80"
                                 >
-                                    <mat-expansion-panel-header class="!h-auto !min-h-[3.5rem]">
-                                        <mat-panel-title class="!mr-4 !min-w-0 !flex-1">
-                                            <span class="flex w-full flex-col gap-0.5">
-                                                <span class="flex w-full items-center gap-2">
-                                                    <span
-                                                        class="shrink-0 font-mono text-xs text-stone-400"
-                                                        >{{ i + 1 }}.</span
-                                                    >
-                                                    <span
-                                                        class="min-w-0 break-words font-medium text-stone-900 dark:text-white"
-                                                        >{{ feature.name }}</span
-                                                    >
-                                                </span>
-                                                <span
-                                                    class="pl-5 font-mono text-xs text-blue-600 dark:text-blue-400"
-                                                    >{{ getEndpointDisplay(feature) }}</span
-                                                >
-                                            </span>
-                                        </mat-panel-title>
-                                        <mat-panel-description class="!flex-none"></mat-panel-description>
-                                    </mat-expansion-panel-header>
+                                    <div class="flex w-full flex-col gap-0.5">
+                                        <div class="flex w-full items-center gap-2">
+                                            <span class="shrink-0 font-mono text-xs text-stone-400"
+                                                >{{ i + 1 }}.</span
+                                            >
+                                            <span
+                                                class="min-w-0 break-words font-medium text-stone-900 dark:text-white"
+                                                >{{ feature.name }}</span
+                                            >
+                                        </div>
+                                        <span
+                                            class="pl-5 font-mono text-xs text-blue-600 dark:text-blue-400"
+                                            >{{ getEndpointDisplay(feature) }}</span
+                                        >
+                                    </div>
 
                                     <div class="pt-4">
                                         <div *ngIf="visibleDependencies(feature).length > 0">
@@ -426,11 +621,11 @@
                                             {{ 'createBatchConfig.noParametersRequired' | transloco }}
                                         </div>
                                     </div>
-                                </mat-expansion-panel>
-                            </mat-accordion>
+                                </article>
+                            </div>
 
                             <div class="flex gap-3 pt-6">
-                                <button mat-button type="button" matStepperPrevious>{{
+                                <button mat-button type="button" (click)="goBack()">{{
                                     'createBatchConfig.back' | transloco
                                 }}</button>
                                 <button
@@ -446,11 +641,12 @@
                                 </button>
                             </div>
                         </div>
-                    </mat-step>
+                </section>
 
-                    <!-- Step 4: Review -->
-                    <mat-step>
-                        <ng-template matStepLabel>{{ 'createBatchConfig.reviewAndCreate' | transloco }}</ng-template>
+                <section *ngIf="wizardStep() === 4">
+                        <h2 class="mb-2 text-base font-semibold text-stone-900 dark:text-white">
+                            {{ 'createBatchConfig.reviewAndCreate' | transloco }}
+                        </h2>
                         <div class="max-w-2xl pt-6">
                             <h3 class="mb-4 text-lg font-bold text-stone-900 dark:text-white">
                                 {{ 'createBatchConfig.summary' | transloco }}
@@ -478,6 +674,14 @@
                                     </div>
                                     <div>
                                         <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
+                                            >{{ 'createBatchConfig.runMode' | transloco }}</span
+                                        >
+                                        <span class="font-medium text-stone-900 dark:text-white">{{
+                                            runModeLabelKey() | transloco
+                                        }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
                                             >{{ 'createBatchConfig.mergeStrategy' | transloco }}</span
                                         >
                                         <span
@@ -492,6 +696,22 @@
                                         <span class="font-medium text-stone-900 dark:text-white">{{
                                             'createBatchConfig.stepsCount'
                                                 | transloco: { count: selectedFeatures().length }
+                                        }}</span>
+                                    </div>
+                                    <div class="col-span-2" *ngIf="step1Form.get('webhookUrl')?.value">
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
+                                            >{{ 'createBatchConfig.webhookUrl' | transloco }}</span
+                                        >
+                                        <span class="break-all font-medium text-stone-900 dark:text-white">{{
+                                            step1Form.get('webhookUrl')?.value
+                                        }}</span>
+                                    </div>
+                                    <div class="col-span-2" *ngIf="emailChips().length">
+                                        <span class="block text-xs uppercase text-stone-500 dark:text-stone-400"
+                                            >{{ 'createBatchConfig.emailOnCompletion' | transloco }}</span
+                                        >
+                                        <span class="break-all font-medium text-stone-900 dark:text-white">{{
+                                            emailChips().join(', ')
                                         }}</span>
                                     </div>
                                 </div>
@@ -539,7 +759,7 @@
                             </div>
 
                             <div class="flex gap-3 pt-8">
-                                <button mat-button type="button" matStepperPrevious>{{
+                                <button mat-button type="button" (click)="goBack()">{{
                                     'createBatchConfig.back' | transloco
                                 }}</button>
                                 <button mat-flat-button color="primary" type="button" class="rounded-xl" (click)="submit()">
@@ -551,8 +771,7 @@
                                 </button>
                             </div>
                         </div>
-                    </mat-step>
-                </mat-stepper>
+                </section>
             </div>
         </div>
     </main>

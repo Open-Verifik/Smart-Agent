@@ -60,7 +60,7 @@
                         </select>
                     </div>
 
-                    <ul class="pf-list" *ngIf="webhookData.projectFlow?.length">
+                    <ul class="pf-list" *ngIf="hasLinkedSources(webhookData)">
                         <li class="pf-item" *ngFor="let pf of webhookData.projectFlow">
                             <div class="pf-info">
                                 <span class="pf-name">{{ pf.project?.name || '—' }}</span>
@@ -76,9 +76,22 @@
                                 </button>
                             </div>
                         </li>
+                        <li class="pf-item" *ngFor="let config of webhookData.batchConfigurations">
+                            <a
+                                *ngIf="batchConfigId(config) as configId"
+                                class="pf-batch-link"
+                                [routerLink]="['/smart-batch', configId]"
+                            >
+                                <span class="pf-info">
+                                    <span class="pf-name">{{ batchConfigName(config) }}</span>
+                                    <span class="pf-type">{{ t('webhooks.details.batch_configuration') }}</span>
+                                </span>
+                                <span class="pf-open">{{ t('webhooks.list.view') }}</span>
+                            </a>
+                        </li>
                     </ul>
 
-                    <div class="panel-empty" *ngIf="!webhookData.projectFlow?.length">
+                    <div class="panel-empty" *ngIf="!hasLinkedSources(webhookData)">
                         {{ t('webhooks.list.card.not_related_projects') }}
                     </div>
 

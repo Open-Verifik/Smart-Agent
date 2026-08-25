@@ -6,9 +6,13 @@
         "serviceLevelAgreement": "Service Level Agreement"
     },
     "nav": {
+        "console": "Console",
+        "workspace": "Workspace",
+        "products": "Products",
         "home": "Home",
         "chat": "Chat",
         "history": "History",
+        "help": "Help",
         "settings": "Settings",
         "smart_check": "SmartCheck",
         "postman": "Postman",
@@ -103,7 +107,9 @@
         "deleteTitle": "Delete",
         "deleteConfirm": "Delete",
         "deleteCancel": "Cancel",
-        "noTemplatesDesc": "Create and manage your custom report templates."
+        "noTemplatesDesc": "Create and manage your custom report templates.",
+        "executorHint": "Async runs in the background. Sync runs the step chain on the server. New batches inherit this.",
+        "executorUpdateFailed": "Could not update the executor. Try again."
     },
     "smartBatchSystemPresets": {
         "cloning": "Cloning template preset...",
@@ -178,11 +184,28 @@
         "create": "Create",
         "batchConfiguration": "Batch Configuration",
         "basicInformation": "Basic Information",
+        "notifications": "Notifications",
+        "notificationsOptional": "Optional",
+        "notificationsHint": "Skip this if you don't need a webhook or an email when a batch finishes.",
+        "notificationsConfigure": "Add webhook or email",
         "configurationName": "Configuration Name",
         "namePlaceholder": "e.g., Daily Citizen Verification",
         "nameRequired": "Name is required",
         "description": "Description",
         "descriptionPlaceholder": "Provide a description for this configuration",
+        "webhookUrl": "Webhook URL",
+        "webhookUrlHint": "Optional. We POST row and batch completion events to this address.",
+        "invalidWebhookUrl": "Enter a valid URL (https://...)",
+        "testWebhook": "Test",
+        "testing": "Testing...",
+        "testSuccess": "Endpoint responded OK",
+        "testFailed": "Endpoint did not accept the sample request",
+        "webhookMustTest": "Test the webhook successfully before continuing.",
+        "emailOnCompletion": "Emails on completion",
+        "emailOnCompletionHint": "Optional. Press Enter or comma to add an address.",
+        "emailChipPlaceholder": "name@example.com",
+        "removeEmail": "Remove email",
+        "invalidEmails": "Enter a valid email address",
         "country": "Country",
         "countryRequired": "Country is required",
         "mergeStrategy": "Merge Strategy",
@@ -191,6 +214,11 @@
         "parallelWithFallback": "Parallel with Fallback",
         "inputFieldsFormat": "Input Fields Format",
         "resultOutputFormat": "Result Output Format",
+        "runMode": "Run mode",
+        "runModeAsync": "Async",
+        "runModeSync": "Sync",
+        "runModeAsyncHint": "Runs in the background. You can close this tab; we keep processing the batch.",
+        "runModeSyncHint": "Runs on the server as a connected step chain. Best when later steps need earlier results.",
         "saving": "Saving...",
         "next": "Next",
         "selectEndpoints": "Select Endpoints",
@@ -215,17 +243,25 @@
         "estimatedCostPerRecord": "Estimated Cost per Record",
         "totalPerRecord": "Total per Record",
         "updateConfiguration": "Update Configuration",
-        "createConfiguration": "Create Configuration"
+        "createConfiguration": "Create Configuration",
+        "loadFailed": "Could not load this configuration. Check that it still exists and you have access.",
+        "featuresLoadFailed": "Could not load available endpoints. Try again.",
+        "saveFailed": "Could not save the configuration. Check the form and try again."
     },
     "batchDashboard": {
         "backToSmartBatch": "Back to Smart Batch",
         "loading": "Loading...",
         "batchProcessingDashboard": "Batch Processing Dashboard",
         "createBatch": "Create Batch",
+        "executor": "Run mode",
+        "executorHint": "Async runs in the background. Sync runs the step chain on the server. New batches inherit this.",
+        "executorUpdateFailed": "Could not update the executor. Try again.",
         "steps": "Steps",
         "strategy": "Strategy",
         "format": "Format",
         "costPerRow": "Cost per Row",
+        "webhook": "Webhook",
+        "webhookNone": "None",
         "processingSteps": "Processing Steps",
         "disabled": "Disabled",
         "costBreakdown": "Cost Breakdown",
@@ -256,7 +292,11 @@
         "failedCount": "{{count}} failed",
         "partialCount": "{{count}} partial",
         "addInputs": "Add Inputs",
-        "viewDetails": "View Details"
+        "viewDetails": "View Details",
+        "webhookEvents": "Webhook events",
+        "webhookEventsHint": "Deliveries to this configuration’s webhook. Open Smart Monitor for the full inbox.",
+        "openSmartMonitorWebhooks": "Open Smart Monitor",
+        "webhookEventsEmpty": "Events appear here after the first delivery."
     },
     "smartReport": {
         "generateReport": "Generate Report",
@@ -974,7 +1014,7 @@
         },
         "detail": {
             "back": "Back to webhooks",
-            "subtitle": "Endpoint details, linked flows, and delivery logs",
+            "subtitle": "Endpoint details, linked flows and batches, and delivery logs",
             "unnamed": "Webhook"
         },
         "events": {
@@ -983,13 +1023,13 @@
         },
         "list": {
             "title": "Webhooks",
-            "subtitle": "Send event notifications to your servers when flows complete.",
+            "subtitle": "Send event notifications to your servers when flows or batches complete.",
             "view": "Open",
             "edit": "Edit",
             "card": {
                 "url": "Endpoint URL",
-                "related_projects": "Linked flows",
-                "not_related_projects": "No flows linked yet",
+                "related_projects": "Linked flows & batches",
+                "not_related_projects": "No flows or batches linked yet",
                 "active": "Active",
                 "disabled": "Paused"
             }
@@ -1034,7 +1074,8 @@
             "response": "Response",
             "request": "Request",
             "select_event": "Select an event to inspect payload and response.",
-            "related_project": "Linked flows",
+            "related_project": "Linked flows & batches",
+            "batch_configuration": "Smart Batch",
             "filter_project": "Filter",
             "events": "events",
             "notifications": "Notifications",
@@ -3275,6 +3316,14 @@
             "limit_reached": "You've reached the maximum number of team members for your plan. Upgrade to add more.",
             "no_plan_warning": "You need an active subscription plan to add team members.",
             "no_plan_error": "Cannot add team members without an active subscription plan.",
+            "errors": {
+                "duplicated_phone": "This phone number is already on your team.",
+                "phone_in_other_org": "This phone number already belongs to another organization.",
+                "duplicated_email": "This email is already on your team.",
+                "email_in_other_org": "This email already belongs to another organization.",
+                "client_exists_email": "This email already belongs to a Verifik account. Use a different email.",
+                "client_exists_phone": "This phone number already belongs to a Verifik account. Use a different number."
+            },
             "view_plans": "View SmartCheck plans"
         },
         "billing": {
@@ -3390,7 +3439,7 @@
             "auto": "Auto",
             "dark": "Dark",
             "light": "Light",
-            "autoTooltip": "Automatically sets the scheme based on user's operating system's color scheme preference using 'prefer-color-scheme' media query."
+            "autoTooltip": "Uses dark mode from 7:00 PM to 7:00 AM in your local time."
         },
         "layouts": {
             "empty": "Empty",
@@ -3990,6 +4039,7 @@
         "purchaseDialog": {
             "title": "Purchase Credits",
             "selectAmount": "Select Amount",
+            "change": "Change",
             "customAmount": "Custom Amount",
             "enterAmount": "Enter amount",
             "minimum": "Minimum $49",
@@ -4018,7 +4068,25 @@
                 "kycVerificationStartFailed": "We could not open KYC verification. Please try again or contact support.",
                 "selectPaymentMethod": "Choose a saved card to continue.",
                 "amountOutOfRange": "Enter an amount between {{minUsd}} and {{maxUsd}}.",
-                "paymentPendingVerification": "Your payment is pending. Credits will appear after your bank confirms the charge."
+                "paymentPendingVerification": "Your payment is pending. Credits will appear after your bank confirms the charge.",
+                "boldUnavailable": "Bold checkout is unavailable right now. Please try again or pay with a saved card.",
+                "boldWholeAmount": "Bold only accepts whole dollar amounts. Remove the cents and try again.",
+                "boldFxUnavailable": "We could not get today's USD to COP rate, so paying in pesos is unavailable. You can still pay in USD with a card.",
+                "firstPurchaseRequiresPse": "Your first purchase has to be paid by PSE bank transfer. Once it is approved, you can pay with a card."
+            },
+            "savedCard": "Saved card",
+            "bold": {
+                "optionUsd": "Pay with Bold in USD",
+                "methodsUsd": "Credit or debit card",
+                "optionCop": "Pay with Bold in pesos",
+                "methodsCop": "Card, PSE, Nequi or Bancolombia",
+                "optionPse": "Pay with PSE",
+                "methodsPse": "Bank transfer in Colombian pesos",
+                "firstPurchasePseNote": "For a first purchase we accept PSE bank transfers only. Once this payment is approved, every method unlocks, cards included.",
+                "quoteApprox": "You will be charged {{total}} at a rate of {{rate}} COP per USD.",
+                "quoteLoading": "Calculating the amount in pesos…",
+                "hint": "You will finish the payment on Bold's secure gateway and return here. Credits are added once Bold confirms the payment.",
+                "payButton": "Pay with Bold"
             },
             "kyc": {
                 "title": "KYC Required",
@@ -4033,6 +4101,15 @@
         "hero": {
             "title": "Credits for every Verifik workflow",
             "subtitle": "Use credits across SmartCheck, SmartEnroll, API requests, and identity verification flows on the Verifik platform."
+        },
+        "bold": {
+            "return": {
+                "confirming": "Confirming your Bold payment…",
+                "approved": "Payment confirmed. Your credits have been added.",
+                "pending": "Bold is still processing your payment. Credits appear automatically once it is approved — no need to pay again.",
+                "failed": "Bold could not process this payment. Nothing was charged, so you can try again.",
+                "dismiss": "Dismiss"
+            }
         }
     },
     "pricing": {
@@ -6961,8 +7038,13 @@
         "insufficientCreditsTitle": "Not enough credits",
         "insufficientCreditsMessage": "This run needs {{required}} credits and you have {{available}}. It will stop once your balance runs out.",
         "startAnyway": "Start anyway",
-        "serverManaged": "Server run",
-        "serverManagedHint": "Processing runs on Verifik's servers. Closing this tab will not stop it.",
+        "serverManaged": "Async",
+        "serverManagedHint": "This batch is running in the background. Closing this tab will not stop it.",
+        "executorQueue": "Async",
+        "executorFeatureRunner": "Sync",
+        "executorBrowser": "This tab",
+        "executorHint": "Async: runs in the background. Sync: server step chain. This tab: only while this page is open.",
+        "executorUpdateFailed": "Could not update the executor. Try again.",
         "serverProgressHint": "{{completed}} succeeded, {{failed}} failed of {{total}} records",
         "estimateCost": "Estimated {{credits}} credits for {{rows}} pending record(s)",
         "estimatePerRecord": "{{credits}} per record",
@@ -7003,6 +7085,9 @@
         "generatePdfReport": "Generate PDF Report",
         "inputData": "Input Data",
         "stepResults": "Step Results",
+        "attempts": "attempts: {{count}}",
+        "attemptTimeline": "Attempt history",
+        "attemptLabel": "Attempt {{attempt}}",
         "errors": "Errors",
         "stepError": "Step {{step}}: {{code}}",
         "stepStatusCompleted": "{{step}}: Completed",
