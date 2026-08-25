@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import {
     resolvePostmanEndpointCopy,
     resolveAboutOverview,
@@ -187,6 +188,34 @@ describe('postman-endpoint-copy.util', () => {
             });
 
             expect(result.title).toBe('My Custom Name');
+        });
+
+        it('prefers Spanish i18n title when docs.es has overview but no title', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'colombia_api_identity_lookup',
+                    country: 'Colombia',
+                    label: 'Colombia - Colombian Citizen',
+                    docs: {
+                        en: {
+                            title: 'Colombian Citizen',
+                            overview:
+                                "Verifik's Identity Verification API helps you authenticate Colombian citizens.",
+                        },
+                        es: {
+                            overview:
+                                'La API de Verificación de Identidad de Verifik te ayuda a autenticar ciudadanos colombianos usando datos oficiales del gobierno.',
+                        },
+                    },
+                },
+                catalogTitle: 'Ciudadano Colombiano',
+                catalogDescription:
+                    'Valida identidad colombiana por número de documento (CC, CE, PPT, NIT o PEP) mediante GET /v2/co/cedula.',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('Ciudadano Colombiano');
+            expect(result.description).toContain('autenticar ciudadanos colombianos');
         });
 
         it('prefers Spanish i18n over English docs when locale is es and docs.es is missing', () => {

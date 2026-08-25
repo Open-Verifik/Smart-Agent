@@ -123,8 +123,11 @@ export interface AboutParamsColumnVisibility {
 
 const DOC_LOCALES: EndpointDocLocale[] = ['en', 'es', 'fr', 'pt', 'ko', 'ja', 'zh'];
 
-/** Locales where i18n bundles are the primary fallback before English docs. */
+/** Locales where i18n catalog titles win when localized docs omit `title`. */
 const PARTIAL_DOC_LOCALES = new Set<EndpointDocLocale>(['fr', 'pt', 'ko', 'ja', 'zh']);
+
+const prefersCatalogCopy = (locale: EndpointDocLocale | null): boolean =>
+    !!locale && (PARTIAL_DOC_LOCALES.has(locale) || locale === 'es');
 
 const toDocLocale = (locale: string | null | undefined): EndpointDocLocale | null => {
     if (!locale) return null;
@@ -208,23 +211,20 @@ export const resolvePostmanEndpointCopy = (
     const activeLocale = toDocLocale(locale ?? null);
     const activeDoc = pickActiveDocLang(endpoint.docs, locale);
     const enDoc = pickEnglishDocLang(endpoint.docs);
-    const preferCatalogOverEnglish =
-        !!activeLocale &&
-        !activeDoc &&
-        (PARTIAL_DOC_LOCALES.has(activeLocale) || activeLocale === 'es');
-
     const customTitle = sanitizePostmanCopyText(endpoint.layoutDisplayName);
     const activeDocTitle = sanitizePostmanCopyText(activeDoc?.title);
     const enDocTitle = sanitizePostmanCopyText(enDoc?.title);
     const catalog = sanitizePostmanCopyText(catalogTitle);
     const label = sanitizePostmanCopyText(endpoint.label);
+    const preferCatalogTitle = prefersCatalogCopy(activeLocale) && !activeDocTitle;
+    const preferCatalogOverEnglish = prefersCatalogCopy(activeLocale) && !activeDoc;
 
     let rawTitle = '';
     if (customTitle) {
         rawTitle = customTitle;
     } else if (activeDocTitle) {
         rawTitle = activeDocTitle;
-    } else if (preferCatalogOverEnglish && catalog) {
+    } else if (preferCatalogTitle && catalog) {
         rawTitle = catalog;
     } else if (enDocTitle) {
         rawTitle = enDocTitle;

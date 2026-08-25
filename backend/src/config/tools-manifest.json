@@ -380,12 +380,49 @@
 						"enum": [
 							"CC",
 							"CE",
+							"PPT",
+							"NIT",
 							"PEP"
 						]
 					},
 					"documentNumber": {
 						"type": "string",
 						"description": "Parameter: documentNumber"
+					}
+				},
+				"required": [
+					"documentType",
+					"documentNumber"
+				]
+			}
+		},
+		{
+			"id": "colombia_api_identity_lookup_procuraduria",
+			"name": "Colombia - Citizen Lookup via Procuraduría",
+			"category": "Colombia - Citizen Lookup via Procuraduría",
+			"url": "https://ai.verifik.co/api/co/procuraduria",
+			"verifikPath": "/v2/co/procuraduria",
+			"method": "GET",
+			"description": "Name-only identity lookup against Procuraduría General de la Nación. Unlike /v2/co/cedula, this endpoint does not try DIAN, ADRES, or Registraduría. Unlike /v2/co/procuraduria/antecedentes, it does not return disciplinary records. Supports CC, CE, PEP, NIT, and PPT.",
+			"country": "Colombia",
+			"priceUsd": 0.3,
+			"parameters": {
+				"type": "object",
+				"properties": {
+					"documentType": {
+						"type": "string",
+						"description": "One of CC, CE, PPT, NIT, PEP",
+						"enum": [
+							"CC",
+							"CE",
+							"PPT",
+							"NIT",
+							"PEP"
+						]
+					},
+					"documentNumber": {
+						"type": "string",
+						"description": "Document number without spaces or periods"
 					}
 				},
 				"required": [
@@ -798,6 +835,8 @@
 						"enum": [
 							"CC",
 							"CE",
+							"PPT",
+							"NIT",
 							"PEP"
 						]
 					},
@@ -5029,7 +5068,7 @@
 			"url": "https://ai.verifik.co/api/co/cedula/registraduria",
 			"verifikPath": "/v2/co/cedula/registraduria",
 			"method": "GET",
-			"description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría, DIAN, and Olimpia)",
+			"description": "Lookup Colombian birth civil registry records by document number via Registraduría SCCRC only (skips Procuraduría and DIAN)",
 			"country": "Colombia",
 			"priceUsd": 0.3,
 			"parameters": {
