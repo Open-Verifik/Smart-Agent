@@ -416,9 +416,11 @@
         type="text"
         inputmode="numeric"
         maxlength="1"
+        autocomplete="one-time-code"
         [value]="digit"
         [disabled]="isOtpExpired || isLoading()"
         (input)="onOtpInput($event, i)"
+        (paste)="onOtpPaste($event)"
         (keydown)="onKeyDown($event, i)"
         class="w-12 h-14 text-center text-2xl font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
       />
@@ -654,6 +656,7 @@
         maxlength="1"
         [value]="digit"
         (input)="onPinInput($event, i)"
+        (paste)="onPinPaste($event)"
         (keydown)="onPinKeyDown($event, i)"
         class="w-12 h-14 text-center text-2xl font-bold rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       />

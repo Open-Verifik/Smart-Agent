@@ -3,7 +3,6 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslocoModule } from '@jsverse/transloco';
 import {
-    HUMAN_AUTHN_DEMO_IDS,
     TRADITIONAL_SECTIONS,
     demoRoute,
     getDemoCatalogEntry,
@@ -38,17 +37,13 @@ export class DemosHubComponent {
         demos: section.demoIds.map((id) => this.demoCard(id)),
     }));
 
-    readonly humanAuthnDemos = HUMAN_AUTHN_DEMO_IDS.map((id, index) =>
-        this.demoCard(id, index + 1)
-    );
-
-    private demoCard(id: DemoId, humanAuthnStep?: number): DemoCard {
+    private demoCard(id: DemoId): DemoCard {
         const slug = id;
         const entry = getDemoCatalogEntry(id);
         return {
             id,
             href: demoRoute(id),
-            stepNumber: humanAuthnStep ?? entry.stepNumber,
+            stepNumber: entry.stepNumber,
             badgeKey: `smartEnrollDemos.hub.demos.${slug}.badge`,
             titleKey: `smartEnrollDemos.hub.demos.${slug}.title`,
             descriptionKey: `smartEnrollDemos.hub.demos.${slug}.description`,

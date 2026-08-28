@@ -65,6 +65,8 @@ export class BiometricsPeopleTableComponent implements AfterViewInit, OnChanges,
     dataSource = new MatTableDataSource<Person>([]);
     displayedColumns: string[] = [];
     selection = new SelectionModel<Person>(true, []);
+    readonly pageSizeOptions = [25, 50, 100];
+    pageSize = 25;
 
     constructor() {
         this.dataSource.filterPredicate = (person, filter) => {
@@ -145,6 +147,17 @@ export class BiometricsPeopleTableComponent implements AfterViewInit, OnChanges,
 
     deleteItem(person: Person): void {
         this.deletePerson.emit(person);
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize) return;
+        this.pageSize = pageSize;
+        if (this.paginator) {
+            this.paginator.pageIndex = 0;
+            this.paginator.pageSize = pageSize;
+            this.dataSource.paginator = this.paginator;
+        }
+        this._cdr.markForCheck();
     }
 
     private _syncColumns(): void {

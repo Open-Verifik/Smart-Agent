@@ -9,21 +9,27 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslocoModule } from '@jsverse/transloco';
+import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DateTime } from 'luxon';
-import { Subject } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
+import * as XLSX from 'xlsx';
 import { FACE_RECOGNITION_CODES } from '../biometrics/biometrics.constants';
 import {
     ApiRequestDetail,
@@ -33,8 +39,12 @@ import {
     UsageHistoryListParams,
 } from './usage-history.service';
 
-export type DatePreset = 'all' | 'this_month' | 'this_week' | 'today';
+export type DatePreset = 'all' | 'custom' | 'this_month' | 'this_week' | 'today';
+export type HistoryExportFormat = 'csv' | 'json' | 'xlsx';
 export type StatusFilter = 'all' | 'failed' | 'success';
+
+const EXPORT_MAX = 10000;
+const EXPORT_PAGE_SIZE = 200;
 
 @Component({
     selector: 'app-smart-enroll-usage-history',
@@ -42,14 +52,20 @@ export type StatusFilter = 'all' | 'failed' | 'success';
     imports: [
         CommonModule,
         FormsModule,
+        ReactiveFormsModule,
         RouterLink,
         MatButtonModule,
         MatButtonToggleModule,
+        MatDatepickerModule,
+        MatFormFieldModule,
         MatIconModule,
+        MatInputModule,
+        MatMenuModule,
         MatPaginatorModule,
         MatProgressSpinnerModule,
         MatSelectModule,
         MatSidenavModule,
+        MatSnackBarModule,
         MatTableModule,
         MatTooltipModule,
         TranslocoModule,
@@ -57,6 +73,9 @@ export type StatusFilter = 'all' | 'failed' | 'success';
     templateUrl: './usage-history.component.html',
     styleUrl: './usage-history.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        class: 'flex flex-auto min-w-0 w-full',
+    },
 })
 export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     @ViewChild('drawer') drawer?: MatSidenav;
@@ -64,17 +83,22 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     private _service = inject(SmartEnrollUsageHistoryService);
     private _router = inject(Router);
     private _cdr = inject(ChangeDetectorRef);
+    private _transloco = inject(TranslocoService);
+    private _snack = inject(MatSnackBar);
     private _searchChange$ = new Subject<string>();
     private _destroy$ = new Subject<void>();
 
     readonly serviceCodes = [...FACE_RECOGNITION_CODES];
-    readonly datePresets: DatePreset[] = ['all', 'today', 'this_week', 'this_month'];
-
-    displayedColumns = ['status', 'service', 'date', 'cost', 'actions'];
-    dataSource = new MatTableDataSource<ApiRequestRow>([]);
+    readonly datePresets: DatePreset[] = ['all', 'today', 'this_week', 'this_month', 'custom'];
+    readonly displayedColumns = ['status', 'service', 'date', 'cost', 'actions'];
+    readonly pageSizeOptions = [10, 25, 50];
+    readonly dataSource = new MatTableDataSource<ApiRequestRow>([]);
+    readonly rangeStart = new FormControl<DateTime | null>(null);
+    readonly rangeEnd = new FormControl<DateTime | null>(null);
 
     datePreset: DatePreset = 'all';
     loading = signal(false);
+    exporting = signal(false);
     searchText = '';
     serviceFilter = '';
     statusFilter: StatusFilter = 'all';
@@ -121,12 +145,17 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         );
     }
 
+    get canExport(): boolean {
+        const total = this.total();
+        if (total != null) return total > 0;
+        return this.dataSource.data.length > 0;
+    }
+
     loadData(): void {
         this.loading.set(true);
         const params: UsageHistoryListParams = {
             page: this.pageIndex() + 1,
             limit: this.pageSize(),
-            skipTotal: this.pageIndex() === 0 ? 1 : undefined,
             ...this._buildFilterParams(),
         };
 
@@ -166,6 +195,20 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     onDatePresetChange(value: DatePreset): void {
         this.datePreset = value;
         this.pageIndex.set(0);
+        if (value !== 'custom') {
+            this.rangeStart.setValue(null, { emitEvent: false });
+            this.rangeEnd.setValue(null, { emitEvent: false });
+            this.loadData();
+            return;
+        }
+        this._cdr.markForCheck();
+    }
+
+    onCustomRangeChange(): void {
+        const start = this.rangeStart.value;
+        const end = this.rangeEnd.value;
+        if (!start?.isValid || !end?.isValid) return;
+        this.pageIndex.set(0);
         this.loadData();
     }
 
@@ -200,6 +243,8 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
         this.statusFilter = 'all';
         this.serviceFilter = '';
         this.datePreset = 'all';
+        this.rangeStart.setValue(null, { emitEvent: false });
+        this.rangeEnd.setValue(null, { emitEvent: false });
         this.pageIndex.set(0);
         this.loadData();
         this._cdr.markForCheck();
@@ -208,6 +253,13 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
     onPaginatorEvent(event: PageEvent): void {
         this.pageIndex.set(event.pageIndex);
         this.pageSize.set(event.pageSize);
+        this.loadData();
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize()) return;
+        this.pageIndex.set(0);
+        this.pageSize.set(pageSize);
         this.loadData();
     }
 
@@ -275,8 +327,38 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
             today: 'smartEnrollUsageHistory.filterDateToday',
             this_week: 'smartEnrollUsageHistory.filterDateThisWeek',
             this_month: 'smartEnrollUsageHistory.filterDateThisMonth',
+            custom: 'smartEnrollUsageHistory.filterDateCustom',
         };
         return keys[preset];
+    }
+
+    /**
+     * Downloads every filtered SmartEnroll row, not just the current page.
+     */
+    async exportList(format: HistoryExportFormat): Promise<void> {
+        if (this.exporting() || !this.canExport) return;
+        this.exporting.set(true);
+        this._cdr.markForCheck();
+        try {
+            const { rows, total } = await this._collectExportRows();
+            if (!rows.length) {
+                this._snack.open(this._t('smartEnrollUsageHistory.exportEmpty'), undefined, { duration: 3000 });
+                return;
+            }
+            this._writeExportFile(format, rows);
+            if (total > rows.length) {
+                this._snack.open(
+                    this._t('smartEnrollUsageHistory.exportTruncated', { exported: rows.length, total }),
+                    undefined,
+                    { duration: 4500 }
+                );
+            }
+        } catch {
+            this._snack.open(this._t('smartEnrollUsageHistory.exportFailed'), undefined, { duration: 3000 });
+        } finally {
+            this.exporting.set(false);
+            this._cdr.markForCheck();
+        }
     }
 
     private _buildFilterParams(): UsageHistoryListParams {
@@ -298,6 +380,7 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
 
     private _dateRangeForPreset(preset: DatePreset): { end: DateTime; start: DateTime } | null {
         if (preset === 'all') return null;
+        if (preset === 'custom') return this._customDateRange();
 
         const now = DateTime.now();
         switch (preset) {
@@ -310,6 +393,103 @@ export class SmartEnrollUsageHistoryComponent implements OnInit, OnDestroy {
             default:
                 return null;
         }
+    }
+
+    private _customDateRange(): { end: DateTime; start: DateTime } | null {
+        const start = this.rangeStart.value;
+        const end = this.rangeEnd.value;
+        if (!start?.isValid || !end?.isValid) return null;
+        return { start: start.startOf('day'), end: end.endOf('day') };
+    }
+
+    private async _collectExportRows(): Promise<{ rows: ApiRequestRow[]; total: number }> {
+        const rows: ApiRequestRow[] = [];
+        let page = 1;
+        let total = 0;
+        while (rows.length < EXPORT_MAX) {
+            const response = await firstValueFrom(
+                this._service.listRequests({
+                    ...this._buildFilterParams(),
+                    page,
+                    limit: EXPORT_PAGE_SIZE,
+                })
+            );
+            const chunk = response.data || [];
+            total = response.total ?? total;
+            rows.push(...chunk);
+            if (!chunk.length || chunk.length < EXPORT_PAGE_SIZE || (total && rows.length >= total)) break;
+            page += 1;
+        }
+        return { rows: rows.slice(0, EXPORT_MAX), total: total || rows.length };
+    }
+
+    private _writeExportFile(format: HistoryExportFormat, rows: ApiRequestRow[]): void {
+        const fileName = this._exportFileName(format);
+        if (format === 'json') {
+            this._downloadBlob(
+                new Blob([JSON.stringify(rows.map((row) => this._mapExportJson(row)), null, 2)], {
+                    type: 'application/json;charset=utf-8;',
+                }),
+                fileName
+            );
+            return;
+        }
+        const sheet = XLSX.utils.json_to_sheet(rows.map((row) => this._mapExportSheetRow(row)));
+        if (format === 'csv') {
+            this._downloadBlob(
+                new Blob([`\uFEFF${XLSX.utils.sheet_to_csv(sheet)}`], { type: 'text/csv;charset=utf-8;' }),
+                fileName
+            );
+            return;
+        }
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, sheet, 'History');
+        XLSX.writeFile(workbook, fileName);
+    }
+
+    private _mapExportJson(row: ApiRequestRow): Record<string, unknown> {
+        return {
+            statusCode: row.statusCode ?? null,
+            status: row.status ?? '',
+            code: row.code ?? '',
+            endpoint: row.endpoint ?? '',
+            method: row.method ?? '',
+            createdAt: row.createdAt ?? '',
+            cost: row.cost ?? null,
+        };
+    }
+
+    private _mapExportSheetRow(row: ApiRequestRow): Record<string, string | number> {
+        return {
+            [this._t('smartEnrollUsageHistory.statusCode')]: row.statusCode ?? '',
+            [this._t('smartEnrollUsageHistory.status')]: row.status ?? '',
+            [this._t('smartEnrollUsageHistory.service')]: row.code ?? '',
+            [this._t('smartEnrollUsageHistory.endpoint')]: row.endpoint ?? '',
+            [this._t('smartEnrollUsageHistory.date')]: this.formatDate(row.createdAt),
+            [this._t('smartEnrollUsageHistory.cost')]: row.cost ?? '',
+        };
+    }
+
+    private _exportFileName(format: HistoryExportFormat): string {
+        const range = this._dateRangeForPreset(this.datePreset);
+        const from = range?.start.toFormat('yyyy-MM-dd') ?? 'all';
+        const to = range?.end.toFormat('yyyy-MM-dd') ?? 'all';
+        return `smartenroll-history_${from}_${to}_${DateTime.now().toFormat('yyyy-MM-dd_HHmm')}.${format}`;
+    }
+
+    private _downloadBlob(blob: Blob, fileName: string): void {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+    }
+
+    private _t(key: string, params?: Record<string, string | number>): string {
+        return this._transloco.translate(key, params);
     }
 
     private _loadTopSales(): void {

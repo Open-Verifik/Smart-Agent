@@ -1,0 +1,1 @@
+import"./chunk-66YHNWRR.js";var o=[{path:"",redirectTo:"demos",pathMatch:"full"},{path:"demos",loadComponent:()=>import("./chunk-7CMWXDV4.js").then(t=>t.HumanAuthnDemosHubComponent)},{path:"history",loadComponent:()=>import("./chunk-4QJHKYJ2.js").then(t=>t.HumanAuthnHistoryComponent)}];export{o as default};

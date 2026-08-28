@@ -101,13 +101,18 @@
                     </h3>
                     <p class="text-xs text-on-surface-variant mb-4">{{ 'smartEnrollDemos.liveness.samplesDescription' | transloco }}</p>
                     <div class="grid grid-cols-3 gap-2">
-                        @for (src of sampleImages; track src; let i = $index) {
+                        @for (sample of sampleImages; track sample.src) {
                             <button
                                 type="button"
-                                (click)="runSampleImage(src)"
+                                (click)="runSampleImage(sample)"
                                 class="relative aspect-square rounded-lg overflow-hidden border transition-all p-0 cursor-pointer hover:border-primary/40"
                             >
-                                <img [src]="src" alt="" class="absolute inset-0 w-full h-full object-cover" />
+                                <img [src]="sample.src" alt="" class="absolute inset-0 w-full h-full object-cover" />
+                                @if (sample.fail) {
+                                    <span class="absolute bottom-1 left-1 right-1 rounded bg-black/65 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+                                        {{ 'smartEnrollDemos.common.sampleFailHint' | transloco }}
+                                    </span>
+                                }
                             </button>
                         }
                     </div>
@@ -128,6 +133,7 @@
 
     @if (step === 'result' && result && !result.isApiError) {
         <div class="max-w-xl mx-auto w-full">
+            <app-demo-sandbox-result-banner />
             <div
                 class="rounded-2xl border p-8 text-center shadow-sm"
                 [ngClass]="
@@ -207,14 +213,25 @@
                     {{ 'smartEnrollDemos.liveness.errorResultTitle' | transloco }}
                 </h2>
                 <p class="text-base leading-7 text-stone-600 dark:text-stone-300 mb-8">{{ result.message }}</p>
-                <button
-                    type="button"
-                    (click)="reset()"
-                    class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-6 py-3.5 text-base font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98] dark:bg-white dark:text-stone-950"
-                >
-                    <span class="material-symbols-outlined text-xl">refresh</span>
-                    {{ 'smartEnrollDemos.liveness.tryAgain' | transloco }}
-                </button>
+                <div class="flex flex-col-reverse gap-3 sm:flex-row">
+                    <button
+                        type="button"
+                        (click)="reset()"
+                        class="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-6 py-3.5 text-base font-semibold text-stone-950 transition hover:bg-stone-50 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800"
+                    >
+                        <span class="material-symbols-outlined text-xl">refresh</span>
+                        {{ 'smartEnrollDemos.liveness.tryAgain' | transloco }}
+                    </button>
+                    @if (result.isInsufficientCredits) {
+                        <a
+                            routerLink="/add-credits"
+                            class="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-stone-950 px-6 py-3.5 text-base font-semibold text-white transition-opacity hover:opacity-90 active:scale-[0.98] dark:bg-white dark:text-stone-950"
+                        >
+                            <span class="material-symbols-outlined text-xl">add_card</span>
+                            {{ 'smartEnrollDemos.common.addCredits' | transloco }}
+                        </a>
+                    }
+                </div>
             </div>
         </div>
     }

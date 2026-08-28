@@ -853,12 +853,24 @@
             "description": "コロンビア国家刑務所・矯正機関（INPEC）の管理下で身柄拘束されている人の照会を行います。"
         },
         "zelf-proofs": {
-            "title": "Zelf Proofs",
-            "description": "Zelf Proofs service のidentity verification and document validation. This service provides comprehensive proof generation capabilities のvarious identity documents and verification processes."
+            "title": "HumanID を暗号化",
+            "description": "メタデータを暗号化して IPFS に保存する HumanID（検証可能な資格情報）を作成します"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "生体検知付き Zelf Proof",
-            "description": "強化された本人確認のための生体検知機能付き Zelf Proof サービス。 このサービスは、本人が確認時に物理的に存在することを保証するために、アクティブな生体検知による証明生成を提供します。"
+            "title": "HumanID（ライブネス・アクティブユーザー）",
+            "description": "復号時にライブネスを求める HumanID を作成します。requireLiveness が有効なときこのコードで課金され、HTTP パスは HumanID 暗号化と同じです。"
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "HumanID QR を暗号化",
+            "description": "HumanID を作成し QR 画像として返します"
+        },
+        "zelf-proof-decrypt": {
+            "title": "HumanID を復号化",
+            "description": "ライブの顔で HumanID を復号し、保存されたメタデータを取り出します"
+        },
+        "zelf-proof-preview": {
+            "title": "HumanID をプレビュー",
+            "description": "非公開メタデータを復号せずに HumanID の公開データをプレビューします"
         },
         "biometrics_api_create_person": {
             "title": "生体認証 - 人物の作成（生体検知なし）",

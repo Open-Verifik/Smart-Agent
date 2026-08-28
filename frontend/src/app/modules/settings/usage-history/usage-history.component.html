@@ -351,16 +351,32 @@
                 </table>
             </div>
 
-            <mat-paginator
+            <div
                 *ngIf="view() === 'detailed'"
-                [length]="total()"
-                [pageIndex]="pageIndex"
-                [pageSize]="pageSize"
-                [pageSizeOptions]="pageSizeOptions"
-                [disabled]="disableActions"
-                (page)="onPage($event)"
-                class="border-t border-stone-200/80 dark:border-gray-800"
-            ></mat-paginator>
+                class="flex flex-wrap items-center justify-end gap-3 border-t border-stone-200/80 px-3 py-2 dark:border-gray-800"
+            >
+                <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                    <select
+                        class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                        [value]="pageSize"
+                        [disabled]="disableActions"
+                        (change)="onPageSizeChange(+$any($event.target).value)"
+                    >
+                        @for (size of pageSizeOptions; track size) {
+                            <option [value]="size">{{ size }}</option>
+                        }
+                    </select>
+                </label>
+                <mat-paginator
+                    [length]="total()"
+                    [pageIndex]="pageIndex"
+                    [pageSize]="pageSize"
+                    [hidePageSize]="true"
+                    [disabled]="disableActions"
+                    (page)="onPage($event)"
+                    class="!bg-transparent"
+                ></mat-paginator>
+            </div>
         </section>
         </ng-container>
     </div>

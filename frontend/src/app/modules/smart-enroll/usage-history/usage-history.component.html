@@ -1,4 +1,4 @@
-<mat-drawer-container class="usage-history-container min-h-screen bg-stone-50 dark:bg-gray-950" *transloco="let t">
+<mat-drawer-container class="usage-history-container h-full min-h-0 w-full bg-stone-50 dark:bg-gray-950" *transloco="let t">
     <mat-drawer
         #drawer
         mode="over"
@@ -70,7 +70,7 @@
     </mat-drawer>
 
     <mat-drawer-content>
-        <div class="flex min-h-screen min-w-0 flex-auto flex-col">
+        <div class="flex h-full min-h-0 min-w-0 flex-auto flex-col overflow-auto">
             <header class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8">
                 <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
                     <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
@@ -136,16 +136,39 @@
                                     <mat-button-toggle value="failed">{{ t('smartEnrollUsageHistory.filterStatusFailed') }}</mat-button-toggle>
                                 </mat-button-toggle-group>
 
-                                <mat-button-toggle-group
-                                    [value]="datePreset"
-                                    (change)="onDatePresetChange($event.value)"
-                                    [disabled]="loading()"
-                                    class="rounded-xl"
-                                >
-                                    @for (preset of datePresets; track preset) {
-                                        <mat-button-toggle [value]="preset">{{ t(datePresetKey(preset)) }}</mat-button-toggle>
+                                <div class="flex flex-col gap-3">
+                                    <mat-button-toggle-group
+                                        [value]="datePreset"
+                                        (change)="onDatePresetChange($event.value)"
+                                        [disabled]="loading()"
+                                        class="rounded-xl"
+                                    >
+                                        @for (preset of datePresets; track preset) {
+                                            <mat-button-toggle [value]="preset">{{ t(datePresetKey(preset)) }}</mat-button-toggle>
+                                        }
+                                    </mat-button-toggle-group>
+                                    @if (datePreset === 'custom') {
+                                        <mat-form-field appearance="outline" class="history-date-range w-full sm:w-80" subscriptSizing="dynamic">
+                                            <mat-label>{{ t('smartEnrollUsageHistory.dateRange') }}</mat-label>
+                                            <mat-date-range-input [rangePicker]="picker">
+                                                <input
+                                                    matStartDate
+                                                    [formControl]="rangeStart"
+                                                    (dateChange)="onCustomRangeChange()"
+                                                    [placeholder]="t('smartEnrollUsageHistory.dateStart')"
+                                                />
+                                                <input
+                                                    matEndDate
+                                                    [formControl]="rangeEnd"
+                                                    (dateChange)="onCustomRangeChange()"
+                                                    [placeholder]="t('smartEnrollUsageHistory.dateEnd')"
+                                                />
+                                            </mat-date-range-input>
+                                            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                            <mat-date-range-picker #picker></mat-date-range-picker>
+                                        </mat-form-field>
                                     }
-                                </mat-button-toggle-group>
+                                </div>
 
                                 <div class="min-w-[220px] flex-1">
                                     <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
@@ -173,7 +196,7 @@
                             <h2 class="text-sm font-semibold text-stone-950 dark:text-white">
                                 {{ t('smartEnrollUsageHistory.topEndpointsTitle') }}
                             </h2>
-                            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                            <div class="grid gap-4 sm:grid-cols-2">
                                 @for (item of topEndpoints(); track item._id) {
                                     <button
                                         type="button"
@@ -186,7 +209,7 @@
                                                 <mat-icon class="!h-4 !w-4 !text-base">face</mat-icon>
                                             </div>
                                             <div class="min-w-0 flex-1">
-                                                <p class="truncate text-sm font-medium text-stone-950 dark:text-white">
+                                                <p class="text-sm font-medium leading-5 text-stone-950 dark:text-white">
                                                     {{ endpointDisplayName(item) }}
                                                 </p>
                                                 <p class="mt-1 text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">
@@ -224,9 +247,40 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-500 dark:bg-gray-800 dark:text-gray-400">
-                                <span class="h-2 w-2 rounded-full" [class.bg-emerald-400]="!loading()" [class.bg-amber-400]="loading()"></span>
-                                {{ loading() ? t('smartEnrollUsageHistory.loading') : t('smartEnrollUsageHistory.live') }}
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="!rounded-xl"
+                                    [matMenuTriggerFor]="exportMenu"
+                                    [disabled]="exporting() || !canExport"
+                                >
+                                    @if (exporting()) {
+                                        <mat-spinner class="mr-2" diameter="16"></mat-spinner>
+                                    } @else {
+                                        <mat-icon class="mr-1 !h-4 !w-4">download</mat-icon>
+                                    }
+                                    {{ exporting() ? t('smartEnrollUsageHistory.exporting') : t('smartEnrollUsageHistory.export') }}
+                                    <mat-icon class="!h-4 !w-4">arrow_drop_down</mat-icon>
+                                </button>
+                                <mat-menu #exportMenu="matMenu">
+                                    <button mat-menu-item type="button" (click)="exportList('xlsx')">
+                                        <mat-icon>table_chart</mat-icon>
+                                        <span>{{ t('smartEnrollUsageHistory.exportAsExcel') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="exportList('csv')">
+                                        <mat-icon>description</mat-icon>
+                                        <span>{{ t('smartEnrollUsageHistory.exportAsCsv') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="exportList('json')">
+                                        <mat-icon>data_object</mat-icon>
+                                        <span>{{ t('smartEnrollUsageHistory.exportAsJson') }}</span>
+                                    </button>
+                                </mat-menu>
+                                <div class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-500 dark:bg-gray-800 dark:text-gray-400">
+                                    <span class="h-2 w-2 rounded-full" [class.bg-emerald-400]="!loading()" [class.bg-amber-400]="loading()"></span>
+                                    {{ loading() ? t('smartEnrollUsageHistory.loading') : t('smartEnrollUsageHistory.live') }}
+                                </div>
                             </div>
                         </div>
 
@@ -321,14 +375,27 @@
                                     </table>
                                 </div>
 
-                                <mat-paginator
-                                    class="mt-4 !bg-transparent"
-                                    [length]="paginatorLength"
-                                    [pageSize]="pageSize()"
-                                    [pageIndex]="pageIndex()"
-                                    [pageSizeOptions]="[10, 25, 50]"
-                                    (page)="onPaginatorEvent($event)"
-                                ></mat-paginator>
+                                <div class="mt-4 flex flex-wrap items-center justify-end gap-3">
+                                    <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                                        <select
+                                            class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                            [value]="pageSize()"
+                                            (change)="onPageSizeChange(+$any($event.target).value)"
+                                        >
+                                            @for (size of pageSizeOptions; track size) {
+                                                <option [value]="size">{{ size }}</option>
+                                            }
+                                        </select>
+                                    </label>
+                                    <mat-paginator
+                                        class="!bg-transparent"
+                                        [length]="paginatorLength"
+                                        [pageSize]="pageSize()"
+                                        [pageIndex]="pageIndex()"
+                                        [hidePageSize]="true"
+                                        (page)="onPaginatorEvent($event)"
+                                    ></mat-paginator>
+                                </div>
                             }
                         </div>
                     </div>

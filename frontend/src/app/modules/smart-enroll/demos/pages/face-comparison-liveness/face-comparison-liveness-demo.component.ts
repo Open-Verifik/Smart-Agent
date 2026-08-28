@@ -27,6 +27,7 @@ import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.compo
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
+import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
 
 type Step = 1 | 2 | 3;
 type FaceSlot = { preview: string | null; b64: string | null };
@@ -49,6 +50,7 @@ const emptySlot = (): FaceSlot => ({ preview: null, b64: null });
         DemoUploadImageButtonComponent,
         FaceGuidedCameraComponent,
         DemoResultActionsComponent,
+        DemoSandboxResultBannerComponent,
     ],
     templateUrl: './face-comparison-liveness-demo.component.html',
     styleUrl: '../../styles/_demos-theme.scss',

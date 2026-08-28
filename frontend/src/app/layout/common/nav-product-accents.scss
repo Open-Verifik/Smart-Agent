@@ -1,0 +1,84 @@
+/**
+ * Product rail accents shared by compact, classy, dense, thin, and futuristic.
+ * Fuse puts `classes.wrapper` on `.fuse-vertical-navigation-item-wrapper`.
+ */
+
+.nav-product--home {
+    --product: rgb(71 85 105);
+    --product-soft: rgb(241 245 249);
+}
+.nav-product--check {
+    --product: rgb(79 70 229);
+    --product-soft: rgb(238 242 255);
+}
+.nav-product--fleet {
+    --product: rgb(217 119 6);
+    --product-soft: rgb(255 247 237);
+}
+.nav-product--enroll {
+    --product: rgb(13 148 136);
+    --product-soft: rgb(240 253 250);
+}
+.nav-product--human-authn {
+    --product: rgb(190 24 93);
+    --product-soft: rgb(253 242 248);
+}
+.nav-product--access {
+    --product: rgb(124 58 237);
+    --product-soft: rgb(245 243 255);
+}
+.nav-product--monitor {
+    --product: rgb(2 132 199);
+    --product-soft: rgb(240 249 255);
+}
+.nav-product--tools {
+    --product: rgb(71 85 105);
+    --product-soft: rgb(241 245 249);
+}
+
+.dark .nav-product--home {
+    --product: rgb(203 213 225);
+    --product-soft: rgb(51 65 85 / 55%);
+}
+.dark .nav-product--check {
+    --product: rgb(165 180 252);
+    --product-soft: rgb(79 70 229 / 18%);
+}
+.dark .nav-product--fleet {
+    --product: rgb(251 191 36);
+    --product-soft: rgb(180 83 9 / 22%);
+}
+.dark .nav-product--enroll {
+    --product: rgb(45 212 191);
+    --product-soft: rgb(13 148 136 / 18%);
+}
+.dark .nav-product--human-authn {
+    --product: rgb(251 113 133);
+    --product-soft: rgb(190 24 93 / 20%);
+}
+.dark .nav-product--access {
+    --product: rgb(196 181 253);
+    --product-soft: rgb(124 58 237 / 20%);
+}
+.dark .nav-product--monitor {
+    --product: rgb(56 189 248);
+    --product-soft: rgb(2 132 199 / 20%);
+}
+.dark .nav-product--tools {
+    --product: rgb(203 213 225);
+    --product-soft: rgb(51 65 85 / 55%);
+}
+
+.fuse-vertical-navigation-item-wrapper.nav-product {
+    .fuse-vertical-navigation-item-icon {
+        color: var(--product);
+    }
+
+    .fuse-vertical-navigation-item {
+        &.fuse-vertical-navigation-item-active,
+        &.fuse-vertical-navigation-item-active-forced {
+            background: var(--product-soft) !important;
+            box-shadow: inset 3px 0 0 0 var(--product);
+        }
+    }
+}

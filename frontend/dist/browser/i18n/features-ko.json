@@ -853,12 +853,24 @@
             "description": "콜롬비아 국립 교정·교도소 연구소(INPEC) 관할 시설의 수감자 명단을 조회합니다."
         },
         "zelf-proofs": {
-            "title": "Zelf Proofs",
-            "description": "Zelf Proofs service 를 위한 identity verification and document validation. This service provides comprehensive proof generation capabilities 를 위한 various identity documents and verification processes."
+            "title": "HumanID 암호화",
+            "description": "메타데이터를 암호화해 IPFS에 저장하는 HumanID(검증 가능한 자격 증명)를 만듭니다"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "활성 감지 포함 Zelf Proof",
-            "description": "강화된 신원 확인을 위한 활성 감지 기능이 포함된 Zelf Proof 서비스입니다. 이 서비스는 확인 중에 사람이 실제로 있는지 확인하기 위해 능동적인 활성 감지 기능을 갖춘 증명 생성을 제공합니다."
+            "title": "HumanID 라이브니스 (활성 사용자)",
+            "description": "복호화 시 라이브니스를 요구하는 HumanID를 만듭니다. requireLiveness가 켜지면 이 코드로 과금되며 HTTP 경로는 HumanID 암호화와 같습니다."
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "HumanID QR 암호화",
+            "description": "HumanID를 만들고 QR 이미지로 반환합니다"
+        },
+        "zelf-proof-decrypt": {
+            "title": "HumanID 복호화",
+            "description": "실시간 얼굴로 HumanID를 복호화하여 저장된 메타데이터를 복구합니다"
+        },
+        "zelf-proof-preview": {
+            "title": "HumanID 미리보기",
+            "description": "비공개 메타데이터를 복호화하지 않고 HumanID의 공개 데이터를 미리 봅니다"
         },
         "biometrics_api_create_person": {
             "title": "생체 인식 - 사람 생성 (활성 감지 없음)",

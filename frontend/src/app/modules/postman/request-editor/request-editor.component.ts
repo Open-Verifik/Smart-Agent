@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
+import { RouterLink } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { TranslocoService } from '@jsverse/transloco';
 import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
@@ -60,6 +61,7 @@ import {
 
 import { TranslocoPipe } from '@jsverse/transloco';
 import { isClientVisibleBatchDependencyField } from '../../smart-batch/smart-batch-dependency.constants';
+import { getHumanAuthnDemoRoute } from '../human-authn-postman.catalog';
 import { syncPostmanIncludeCostParam } from '../postman-include-cost.util';
 import {
     filterPostmanSexoEnumOptions,
@@ -90,6 +92,7 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
         MatIconModule,
         MatProgressSpinnerModule,
         MatSelectModule,
+        RouterLink,
         TranslocoPipe,
         AboutEndpointComponent,
         PostmanEndpointLabelComponent,
@@ -118,6 +121,32 @@ function formatPostmanPriceForDisplay(value: number, maxDecimals = 6): string {
                     <p class="text-sm text-slate-500 dark:text-slate-400">
                         {{ endpointHeaderCopy(ep).description }}
                     </p>
+                    @if (demoCtaLink(); as demoLink) {
+                        <div
+                            class="mt-3 flex items-start gap-3 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-slate-700 shadow-sm dark:border-violet-900/60 dark:bg-violet-950/40 dark:text-slate-200"
+                        >
+                            <div
+                                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-violet-600 shadow-sm dark:bg-slate-900 dark:text-violet-400"
+                            >
+                                <mat-icon class="icon-size-4">smart_display</mat-icon>
+                            </div>
+                            <div class="min-w-0 leading-tight">
+                                <div class="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                    {{ 'postman.demoCta.title' | transloco }}
+                                </div>
+                                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                    {{ 'postman.demoCta.subtitle' | transloco }}
+                                </p>
+                                <a
+                                    [routerLink]="demoLink"
+                                    class="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-violet-700 underline-offset-2 hover:underline dark:text-violet-300"
+                                >
+                                    {{ 'postman.demoCta.button' | transloco }}
+                                    <mat-icon class="icon-size-3">arrow_forward</mat-icon>
+                                </a>
+                            </div>
+                        </div>
+                    }
                 </ng-container>
                 <ng-template #defaultHeader>
                     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">
@@ -1153,6 +1182,7 @@ export class RequestEditorComponent {
     }
 
     endpoint = this._postmanService.selectedEndpoint;
+    readonly demoCtaLink = computed(() => getHumanAuthnDemoRoute(this.endpoint()?.code));
     isLoading = this._postmanService.isLoading;
     documentationContent = signal<string>('');
     currentSubscription = signal<ClientSubscription | null>(null);

@@ -154,10 +154,17 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     // Pagination for Table/JSON view
     pageIndex = signal(0);
     pageSize = signal(10);
+    readonly pageSizeOptions = [5, 10, 25, 100];
 
     handlePageEvent(e: PageEvent) {
         this.pageIndex.set(e.pageIndex);
         this.pageSize.set(e.pageSize);
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize()) return;
+        this.pageIndex.set(0);
+        this.pageSize.set(pageSize);
     }
 
     // PDF preview

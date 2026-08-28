@@ -73,6 +73,7 @@ export class AccessProjectRecordsComponent implements OnInit, OnDestroy {
     projectId = '';
     projectName = signal<string | null>(null);
     total = signal(0);
+    readonly pageSizeOptions = [10, 25, 50];
     pageSize = 10;
     pageIndex = 0;
 
@@ -146,6 +147,13 @@ export class AccessProjectRecordsComponent implements OnInit, OnDestroy {
     onPage(ev: PageEvent): void {
         this.pageIndex = ev.pageIndex;
         this.pageSize = ev.pageSize;
+        this.fetchRecords();
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize) return;
+        this.pageIndex = 0;
+        this.pageSize = pageSize;
         this.fetchRecords();
     }
 

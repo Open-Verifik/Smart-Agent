@@ -1,0 +1,1 @@
+var i=n=>typeof n=="string"?s(n):n?s(`${n.message??""} ${n.error??""} ${n.code??""}`):!1,s=n=>{let e=n.toLowerCase();return e.includes("enought")||e.includes("not enough")||e.includes("insufficient")||e.includes("credit")&&(e.includes("enough")||e.includes("falt")||e.includes("insuf"))};export{i as a};

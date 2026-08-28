@@ -27,6 +27,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'dense-layout',
     templateUrl: './dense.component.html',
+    styleUrls: ['../../../common/nav-product-accents.scss'],
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,

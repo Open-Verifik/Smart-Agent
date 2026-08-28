@@ -272,6 +272,13 @@ export class UsageHistoryComponent implements OnInit, OnChanges, OnDestroy {
         this._fetchDetailed();
     }
 
+    onPageSizeChange(pageSize: number): void {
+        if (this.view() !== 'detailed' || !pageSize || pageSize === this.pageSize) return;
+        this.pageIndex = 0;
+        this.pageSize = pageSize;
+        this._fetchDetailed();
+    }
+
     onSort(sort: Sort): void {
         this.sortActive.set(sort.active);
         this.sortDirection.set(sort.direction || 'desc');

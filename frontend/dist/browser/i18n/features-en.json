@@ -857,8 +857,20 @@
             "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof with Liveness (Active user)",
-            "description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification."
+            "title": "HumanID with liveness (active user)",
+            "description": "Create a HumanID with decrypt-side liveness. History bills this code when requireLiveness is enabled; the HTTP path is the same as Encrypt HumanID."
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "Encrypt HumanID QR",
+            "description": "Create a HumanID and encapsulate it in a QR code"
+        },
+        "zelf-proof-decrypt": {
+            "title": "Decrypt HumanID",
+            "description": "Decrypt a HumanID using a live face to recover the stored metadata"
+        },
+        "zelf-proof-preview": {
+            "title": "Preview HumanID",
+            "description": "Preview public data from a HumanID without decrypting private metadata"
         },
         "biometrics_api_create_person": {
             "title": "Biometrics - Create Person (no liveness)",

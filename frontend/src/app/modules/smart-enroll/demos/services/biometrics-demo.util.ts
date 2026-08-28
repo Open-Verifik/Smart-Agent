@@ -276,6 +276,8 @@ const LIVENESS_API_ERROR_CODE_SET = new Set<string>(LIVENESS_API_ERROR_CODES);
 export const isLivenessApiErrorCode = (code: string | null | undefined): code is LivenessApiErrorCode =>
     Boolean(code && LIVENESS_API_ERROR_CODE_SET.has(code));
 
+export { isInsufficientCreditsError } from 'app/core/utils/insufficient-credits.util';
+
 /**
  * Maps API liveness error codes to `smartEnrollDemos.liveness.errors.*` copy.
  * Falls back to the API message, then a generic translated string.
@@ -297,3 +299,13 @@ export const translateLivenessApiError = (
     if (detail) return detail;
     return translate('smartEnrollDemos.liveness.errors.fallback');
 };
+
+/** Backend sandbox fail marker — scanned in the image string, not decoded as JPEG. */
+export const FACE_SANDBOX_FAIL_MARKER = 'FACEFAIL';
+
+/**
+ * Prefix a fail marker so sandbox face endpoints return a spoof / no-match fixture.
+ * Only apply when the account is in sandbox; production must send a real image.
+ */
+export const applySandboxFaceFailMarker = (base64: string): string =>
+    base64.startsWith(FACE_SANDBOX_FAIL_MARKER) ? base64 : `${FACE_SANDBOX_FAIL_MARKER}${base64}`;

@@ -27,7 +27,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'compact-layout',
     templateUrl: './compact.component.html',
-    styleUrls: ['./compact.component.scss'],
+    styleUrls: ['./compact.component.scss', '../../../common/nav-product-accents.scss'],
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,

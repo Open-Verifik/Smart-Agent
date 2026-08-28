@@ -105,6 +105,7 @@
                         <p class="text-on-surface-variant">{{ 'smartEnrollDemos.faceComparisonLiveness.analyzing' | transloco }}</p>
                     </div>
                 } @else if (result) {
+                    <app-demo-sandbox-result-banner />
                     <div class="rounded-2xl p-8 text-center border" [ngClass]="isVerified() ? 'bg-surface-container-low border-primary/20' : 'bg-error-container/10 border-error/20'">
                         <h2 class="text-3xl font-black tracking-tight mb-2">
                             @if (isVerified()) {

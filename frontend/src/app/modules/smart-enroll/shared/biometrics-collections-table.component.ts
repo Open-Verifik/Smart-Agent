@@ -78,6 +78,8 @@ export class BiometricsCollectionsTableComponent implements AfterViewInit, OnCha
     displayedColumns = ['expand', 'name', 'description', 'updatedAt', 'actions'];
     expandedElement: Collection | null = null;
     peopleFilterText = '';
+    readonly pageSizeOptions = [25, 50, 100];
+    pageSize = 25;
 
     constructor() {
         this.dataSource.filterPredicate = (collection, filter) => {
@@ -110,6 +112,17 @@ export class BiometricsCollectionsTableComponent implements AfterViewInit, OnCha
     private _syncTableControls(): void {
         if (this.paginator) this.dataSource.paginator = this.paginator;
         if (this.sort) this.dataSource.sort = this.sort;
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize) return;
+        this.pageSize = pageSize;
+        if (this.paginator) {
+            this.paginator.pageIndex = 0;
+            this.paginator.pageSize = pageSize;
+            this.dataSource.paginator = this.paginator;
+        }
+        this._cdr.markForCheck();
     }
 
     clearPeopleFilters(): void {

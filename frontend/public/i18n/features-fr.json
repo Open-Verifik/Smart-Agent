@@ -853,12 +853,24 @@
             "description": "Statut de privation de liberté sous la responsabilité de l'INPEC (Colombie)."
         },
         "zelf-proofs": {
-            "title": "Zelf Proofs",
-            "description": "Zelf Proofs service for identity verification and document validation. This service provides comprehensive proof generation capabilities for various identity documents and verification processes."
+            "title": "Chiffrer HumanID",
+            "description": "Créer un HumanID (identifiant vérifiable) en chiffrant des métadonnées et en les stockant sur IPFS"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof avec Détection de Vie",
-            "description": "Service de Zelf Proof avec détection de liveness pour une vérification d'identité renforcée. Ce service fournit une génération de preuve avec détection de liveness active pour s'assurer que la personne est physiquement présente lors de la vérification."
+            "title": "HumanID avec liveness (utilisateur actif)",
+            "description": "Créer un HumanID avec liveness au déchiffrement. L'historique facture ce code lorsque requireLiveness est activé ; le chemin HTTP est le même que Chiffrer HumanID."
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "Chiffrer HumanID QR",
+            "description": "Créer un HumanID et le renvoyer sous forme d'image QR"
+        },
+        "zelf-proof-decrypt": {
+            "title": "Déchiffrer HumanID",
+            "description": "Déchiffrer un HumanID avec un visage vivant pour récupérer les métadonnées"
+        },
+        "zelf-proof-preview": {
+            "title": "Aperçu HumanID",
+            "description": "Aperçu des données publiques d'un HumanID sans déchiffrer les métadonnées privées"
         },
         "biometrics_api_create_person": {
             "title": "Biométrie - Créer une Personne (sans détection de vie)",

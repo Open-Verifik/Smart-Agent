@@ -24,7 +24,7 @@
 </fuse-vertical-navigation>
 
 <!-- Wrapper -->
-<div class="flex w-full min-w-0 flex-auto flex-col">
+<div class="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
     <!-- Verification strip (above header, only when canRecharge is false) -->
     <account-verification-strip></account-verification-strip>
 
@@ -67,7 +67,7 @@
     <sandbox-notice-strip></sandbox-notice-strip>
 
     <!-- Content -->
-    <div class="flex flex-auto flex-col">
+    <div class="relative flex min-h-0 min-w-0 flex-auto flex-col overflow-hidden">
         <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
              Otherwise, layout changes won't be registered and the view won't be updated! -->
         @if (true) {

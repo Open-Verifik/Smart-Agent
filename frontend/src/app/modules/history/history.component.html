@@ -1,425 +1,534 @@
-<ng-container *transloco="let t">
-  <mat-drawer-container class="history-drawer-container min-h-screen w-full bg-stone-50 dark:bg-gray-950">
+<mat-drawer-container class="history-drawer-container h-full min-h-0 w-full bg-stone-50 dark:bg-gray-950" *transloco="let t">
     <mat-drawer
-      #detailDrawer
-      mode="over"
-      position="end"
-      class="history-drawer w-full max-w-lg border-l border-stone-200/90 dark:border-gray-800"
+        #detailDrawer
+        mode="over"
+        position="end"
+        class="history-drawer w-full max-w-lg border-l border-stone-200/90 dark:border-gray-800"
     >
-      @if (selectedRequest(); as request) {
         <div class="flex h-full flex-col overflow-hidden bg-white dark:bg-gray-900/70">
-          <header class="flex items-start justify-between gap-4 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:px-6">
-            <div class="flex min-w-0 items-start gap-3">
-              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
-                <mat-icon class="!h-5 !w-5 !text-xl">receipt_long</mat-icon>
-              </div>
-              <div class="min-w-0">
-                <h2 class="truncate text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
-                  {{ t('history.dynamicQuery.detailTitle') }}
-                </h2>
-                <p class="mt-1 truncate text-sm leading-6 text-stone-500 dark:text-stone-400">
-                  {{ request.endpoint || request.code }}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-200"
-              (click)="closeDetail()"
-            >
-              <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
-            </button>
-          </header>
-
-          <div class="flex flex-wrap gap-2 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800 md:px-6">
-            @if (request.statusCode) {
-              <span class="rounded-full px-2.5 py-1 text-xs font-semibold" [ngClass]="getStatusColor(request.statusCode)">
-                {{ t(getStatusLabelKey(request.statusCode)) }} ({{ request.statusCode }})
-              </span>
-            }
-            <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
-              {{ formatCost(request.cost) }}
-            </span>
-            @if (request.createdAt) {
-              <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
-                {{ formatDate(request.createdAt) }}
-              </span>
-            }
-          </div>
-
-          <div class="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-6 md:px-6">
-            <section class="flex flex-col gap-2">
-              <h3 class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
-                {{ t('history.table.parameters') }}
-              </h3>
-              <div class="flex flex-wrap gap-1.5" *ngIf="formatParams(request.params).length > 0">
-                <span
-                  *ngFor="let param of formatParams(request.params)"
-                  class="rounded-lg border border-stone-200 bg-stone-50 px-2 py-1 text-xs text-stone-600 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-300"
-                >
-                  <span class="font-semibold text-stone-800 dark:text-gray-100">{{ param.key }}:</span>
-                  {{ formatParamValue(param.value) }}
-                </span>
-              </div>
-              <span *ngIf="formatParams(request.params).length === 0" class="text-xs italic text-stone-400 dark:text-gray-500">
-                {{ t('history.table.noParams') }}
-              </span>
-              <span class="inline-flex w-fit rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-stone-600 dark:bg-gray-800 dark:text-gray-300">
-                {{ request.method || 'GET' }}
-              </span>
-            </section>
-
-            @if (hasDynamicQueryBilling(request) && getDynamicQueryTooltipParams(request); as billing) {
-              <section class="flex flex-col gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
-                <div class="flex items-center gap-2">
-                  <span class="rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
-                    {{ t('history.dynamicQuery.badge') }}
-                  </span>
+            @if (detailLoading()) {
+                <div class="flex flex-1 flex-col items-center justify-center px-6 py-16">
+                    <mat-spinner diameter="36"></mat-spinner>
+                    <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">{{ t('history.table.loading') }}</p>
                 </div>
-                <p class="text-sm leading-6 text-stone-700 dark:text-stone-300">
-                  {{ t('history.dynamicQuery.detailExplanation') }}
-                </p>
-                <dl class="grid grid-cols-1 gap-3 text-sm">
-                  <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
-                      {{ t('history.dynamicQuery.standardCredits') }}
-                    </dt>
-                    <dd class="font-mono font-semibold text-stone-900 dark:text-white">{{ billing.standard }} credits</dd>
-                  </div>
-                  <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
-                    <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
-                      {{ t('history.dynamicQuery.chargedCredits') }}
-                    </dt>
-                    <dd class="font-mono font-semibold text-amber-800 dark:text-amber-200">{{ billing.charged }} credits</dd>
-                  </div>
-                  @if (request.billingStandardCode || request.code) {
-                    <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
-                      <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
-                        {{ t('history.dynamicQuery.featureCodes') }}
-                      </dt>
-                      <dd class="break-all font-mono text-xs text-stone-800 dark:text-stone-200">
-                        {{ request.billingStandardCode || '—' }} → {{ request.code || '—' }}
-                      </dd>
+            } @else if (selectedRequest()) {
+                @if (selectedRequest(); as request) {
+                <header class="flex items-start justify-between gap-4 border-b border-stone-200/90 px-5 py-5 dark:border-gray-800 md:px-6">
+                    <div class="flex min-w-0 items-start gap-3">
+                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                            <mat-icon class="!h-5 !w-5 !text-xl">data_object</mat-icon>
+                        </div>
+                        <div class="min-w-0">
+                            <h2 class="truncate text-xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                                {{ request.code || request.endpoint }}
+                            </h2>
+                            <p class="mt-1 truncate text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                {{ request.endpoint || request.code }}
+                            </p>
+                        </div>
                     </div>
-                  }
-                </dl>
-              </section>
-            }
+                    <button
+                        type="button"
+                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-200"
+                        (click)="closeDetail()"
+                    >
+                        <mat-icon class="!h-5 !w-5 !text-xl">close</mat-icon>
+                    </button>
+                </header>
 
-            <section class="mt-auto flex flex-wrap gap-2 border-t border-stone-100 pt-4 dark:border-gray-800">
-              <button
-                mat-stroked-button
-                type="button"
-                class="!rounded-xl"
-                [disabled]="!canRepeatRequest(request)"
-                (click)="repeatRequest(request)"
-              >
-                <mat-icon class="mr-1 !h-4 !w-4">replay</mat-icon>
-                {{ t('history.actions.repeat') }}
-              </button>
-            </section>
-          </div>
+                <div class="flex flex-wrap gap-2 border-b border-stone-200/90 px-5 py-4 dark:border-gray-800 md:px-6">
+                    @if (request.statusCode) {
+                        <span class="rounded-full px-2.5 py-1 text-xs font-semibold" [ngClass]="getStatusClass(request.statusCode)">
+                            {{ request.statusCode }}
+                        </span>
+                    }
+                    <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
+                        {{ formatCost(request.cost) }}
+                    </span>
+                    @if (request.createdAt) {
+                        <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-xs font-medium text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
+                            {{ formatDate(request.createdAt) }}
+                        </span>
+                    }
+                    <span class="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 font-mono text-xs font-semibold text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300">
+                        {{ request.method || 'GET' }}
+                    </span>
+                </div>
+
+                <div class="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-6 md:px-6">
+                    @if (hasDynamicQueryBilling(request) && getDynamicQueryTooltipParams(request); as billing) {
+                        <section class="flex flex-col gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 dark:border-amber-900/40 dark:bg-amber-950/20">
+                            <span class="w-fit rounded-full bg-amber-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                                {{ t('history.dynamicQuery.badge') }}
+                            </span>
+                            <p class="text-sm leading-6 text-stone-700 dark:text-stone-300">
+                                {{ t('history.dynamicQuery.detailExplanation') }}
+                            </p>
+                            <dl class="grid grid-cols-1 gap-3 text-sm">
+                                <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                        {{ t('history.dynamicQuery.standardCredits') }}
+                                    </dt>
+                                    <dd class="font-mono font-semibold text-stone-900 dark:text-white">{{ billing.standard }} credits</dd>
+                                </div>
+                                <div class="flex flex-col gap-1 rounded-xl border border-amber-100 bg-white/80 px-3 py-2 dark:border-amber-900/30 dark:bg-gray-950/40">
+                                    <dt class="text-xs font-semibold uppercase tracking-wide text-stone-500 dark:text-stone-400">
+                                        {{ t('history.dynamicQuery.chargedCredits') }}
+                                    </dt>
+                                    <dd class="font-mono font-semibold text-amber-800 dark:text-amber-200">{{ billing.charged }} credits</dd>
+                                </div>
+                            </dl>
+                        </section>
+                    }
+
+                    <section class="flex flex-col gap-2">
+                        <h3 class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
+                            {{ t('history.table.parameters') }}
+                        </h3>
+                        <pre class="max-h-56 overflow-auto rounded-xl border border-stone-200/80 bg-stone-50 p-4 text-xs leading-5 text-stone-800 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">{{ request.params | json }}</pre>
+                    </section>
+                    <section class="flex flex-col gap-2">
+                        <h3 class="text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400">
+                            {{ t('history.response') }}
+                        </h3>
+                        <pre class="max-h-80 overflow-auto rounded-xl border border-stone-200/80 bg-stone-50 p-4 text-xs leading-5 text-stone-800 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">{{ request.apiResponse | json }}</pre>
+                    </section>
+
+                    <section class="mt-auto flex flex-wrap gap-2 border-t border-stone-100 pt-4 dark:border-gray-800">
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            class="!rounded-xl"
+                            [disabled]="!canRepeatRequest(request)"
+                            (click)="repeatRequest(request)"
+                        >
+                            <mat-icon class="mr-1 !h-4 !w-4">replay</mat-icon>
+                            {{ t('history.actions.repeat') }}
+                        </button>
+                    </section>
+                </div>
+                }
+            }
         </div>
-      }
     </mat-drawer>
 
-    <mat-drawer-content class="!w-full">
-  <div class="flex min-h-screen w-full min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
-    <header
-      class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8"
-    >
-      <div class="flex w-full flex-col gap-5">
-        <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
-          <a
-            routerLink="/home"
-            class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
-          >
-            Verifik
-          </a>
-          <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
-          <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t('nav.history') }}</span>
-        </div>
-
-        <div class="flex flex-wrap items-start justify-between gap-4">
-          <div class="min-w-0">
-            <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-4xl">
-              {{ t('history.title') }}
-            </h1>
-            <p class="mt-2 max-w-2xl text-sm text-stone-500 dark:text-stone-400">
-              {{ t('history.subtitle') }}
-            </p>
-          </div>
-
-          <div
-            class="flex items-center rounded-xl border border-stone-200 bg-white p-1 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-          >
-            <button
-              type="button"
-              class="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
-              [class.bg-stone-950]="mode() === 'credits'"
-              [class.text-white]="mode() === 'credits'"
-              [class.text-stone-500]="mode() !== 'credits'"
-              [class.hover:text-stone-900]="mode() !== 'credits'"
-              [class.dark:bg-white]="mode() === 'credits'"
-              [class.dark:text-gray-950]="mode() === 'credits'"
-              [class.dark:text-gray-400]="mode() !== 'credits'"
-              [class.dark:hover:text-white]="mode() !== 'credits'"
-              (click)="setMode('credits')"
-            >
-              CREDITS
-            </button>
-            <button
-              type="button"
-              class="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
-              [class.bg-stone-950]="mode() === 'x402'"
-              [class.text-white]="mode() === 'x402'"
-              [class.text-stone-500]="mode() !== 'x402'"
-              [class.hover:text-stone-900]="mode() !== 'x402'"
-              [class.dark:bg-white]="mode() === 'x402'"
-              [class.dark:text-gray-950]="mode() === 'x402'"
-              [class.dark:text-gray-400]="mode() !== 'x402'"
-              [class.dark:hover:text-white]="mode() !== 'x402'"
-              (click)="setMode('x402')"
-            >
-              x402
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <main class="flex w-full flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
-      <div class="flex w-full flex-col gap-4">
-        <div
-          class="overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/80"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 px-5 py-4 dark:border-gray-800 md:px-6">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-gray-500">
-                {{ mode() === 'credits' ? 'CREDITS' : 'x402' }}
-              </p>
-              <p class="mt-1 text-sm font-medium text-stone-800 dark:text-gray-100">
-                {{ t('history.table.requestsCount', { count: total() }) }}
-              </p>
-            </div>
-            <div class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-500 dark:bg-gray-800 dark:text-gray-400">
-              <span class="h-2 w-2 rounded-full" [class.bg-emerald-400]="!loading()" [class.bg-amber-400]="loading()"></span>
-              {{ loading() ? t('history.table.loading') : t('history.table.live') }}
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table mat-table [dataSource]="dataSource" class="w-full bg-transparent" matSort>
-              <ng-container matColumnDef="status">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header class="w-16 pl-6">
-                  {{ t('history.table.status') }}
-                </th>
-                <td mat-cell *matCellDef="let request" class="w-16 pl-6 py-5">
-                  <span
-                    class="inline-flex h-8 w-8 items-center justify-center rounded-full"
-                    [ngClass]="getStatusColor(request.statusCode)"
-                    [matTooltip]="
-                      request.statusCode
-                        ? t(getStatusLabelKey(request.statusCode)) + ' (' + request.statusCode + ')'
-                        : t('history.table.confirmed')
-                    "
-                  >
-                    <mat-icon class="!h-4 !w-4">{{ getStatusIcon(request.statusCode) }}</mat-icon>
-                  </span>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="service">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                  {{ t('history.table.service') }}
-                </th>
-                <td mat-cell *matCellDef="let request" class="py-5">
-                  <div class="flex min-w-0 flex-col gap-1">
-                    <span class="truncate text-sm font-semibold text-stone-950 dark:text-white">
-                      {{ request.endpoint || request.code || request.serviceId }}
-                    </span>
-                    <span class="truncate font-mono text-xs text-stone-400 dark:text-gray-500">
-                      {{ request.code || request.project || request.serviceId }}
-                    </span>
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="parameters">
-                <th mat-header-cell *matHeaderCellDef>{{ t('history.table.parameters') }}</th>
-                <td mat-cell *matCellDef="let request" class="py-5">
-                  <div class="flex min-w-0 flex-col gap-2">
-                    <span
-                      class="inline-flex w-fit rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-stone-600 dark:bg-gray-800 dark:text-gray-300"
-                    >
-                      {{ request.method || 'GET' }}
-                    </span>
-                    <div class="flex flex-wrap gap-1.5" *ngIf="formatParams(request.params).length > 0">
-                      <span
-                        *ngFor="let param of formatParams(request.params)"
-                        class="max-w-full truncate rounded-lg border border-stone-200 bg-stone-50 px-2 py-1 text-xs text-stone-600 dark:border-gray-700 dark:bg-gray-800/80 dark:text-gray-300"
-                        [matTooltip]="param.key + ': ' + formatParamValue(param.value)"
-                      >
-                        <span class="font-semibold text-stone-800 dark:text-gray-100">{{ param.key }}:</span>
-                        {{ formatParamValue(param.value) }}
-                      </span>
+    <mat-drawer-content>
+        <div class="flex h-full min-h-0 min-w-0 flex-auto flex-col overflow-auto">
+            <header class="border-b border-stone-200/90 bg-white/90 px-5 py-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8 md:py-8">
+                <div class="mx-auto flex w-full max-w-7xl flex-col gap-5">
+                    <div class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400">
+                        <a routerLink="/home" class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300">
+                            Verifik
+                        </a>
+                        <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                        <span class="cursor-default text-stone-600 dark:text-stone-300">{{ t('nav.history') }}</span>
                     </div>
-                    <span
-                      *ngIf="formatParams(request.params).length === 0"
-                      class="text-xs italic text-stone-400 dark:text-gray-500"
-                    >
-                      {{ t('history.table.noParams') }}
-                    </span>
-                  </div>
-                </td>
-              </ng-container>
 
-              <ng-container matColumnDef="amount">
-                <th mat-header-cell *matHeaderCellDef>{{ t('history.table.amount') }}</th>
-                <td mat-cell *matCellDef="let request" class="py-5 font-mono text-xs text-emerald-600 dark:text-emerald-400">
-                  <ng-container *ngIf="mode() === 'x402'">
-                    {{ request.paymentAmount || request.cost || '-' }}
-                    <span class="text-stone-400">AVAX</span>
-                  </ng-container>
-                  <ng-container *ngIf="mode() !== 'x402'"> $ {{ request.cost || 0 }} </ng-container>
-                </td>
-              </ng-container>
+                    <div class="flex flex-wrap items-start justify-between gap-4">
+                        <div class="max-w-2xl">
+                            <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                                {{ t('history.title') }}
+                            </h1>
+                            <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
+                                {{ t('history.subtitle') }}
+                            </p>
+                        </div>
+                        <div class="flex items-center rounded-xl border border-stone-200 bg-white p-1 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                            <button
+                                type="button"
+                                class="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
+                                [class.bg-stone-950]="mode() === 'credits'"
+                                [class.text-white]="mode() === 'credits'"
+                                [class.text-stone-500]="mode() !== 'credits'"
+                                [class.dark:bg-white]="mode() === 'credits'"
+                                [class.dark:text-gray-950]="mode() === 'credits'"
+                                (click)="setMode('credits')"
+                            >
+                                CREDITS
+                            </button>
+                            <button
+                                type="button"
+                                class="rounded-lg px-3 py-2 text-xs font-semibold transition-all"
+                                [class.bg-stone-950]="mode() === 'x402'"
+                                [class.text-white]="mode() === 'x402'"
+                                [class.text-stone-500]="mode() !== 'x402'"
+                                [class.dark:bg-white]="mode() === 'x402'"
+                                [class.dark:text-gray-950]="mode() === 'x402'"
+                                (click)="setMode('x402')"
+                            >
+                                x402
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
 
-              <ng-container matColumnDef="transactionHash">
-                <th mat-header-cell *matHeaderCellDef>{{ t('history.table.txHash') }}</th>
-                <td mat-cell *matCellDef="let request" class="py-5">
-                  <div class="flex items-center gap-1" *ngIf="request.paymentTx; else noTransaction">
-                    <a
-                      [href]="snowtraceUrl + '/tx/' + request.paymentTx"
-                      target="_blank"
-                      class="font-mono text-xs font-medium text-blue-600 underline-offset-4 hover:underline dark:text-blue-400"
-                    >
-                      {{ shortHash(request.paymentTx) }}
-                    </a>
-                    <button mat-icon-button type="button" (click)="copyText(request.paymentTx)" class="!h-7 !w-7">
-                      <mat-icon class="icon-size-3">content_copy</mat-icon>
-                    </button>
-                  </div>
-                  <ng-template #noTransaction>
-                    <span class="text-xs text-stone-400">-</span>
-                  </ng-template>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="date">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                  {{ t('history.table.date') }}
-                </th>
-                <td mat-cell *matCellDef="let request" class="whitespace-nowrap py-5 text-sm text-stone-500 dark:text-gray-400">
-                  {{ formatDate(request.createdAt || request.timestamp) }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="cost">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                  {{ t('history.table.cost') }}
-                </th>
-                <td mat-cell *matCellDef="let request" class="whitespace-nowrap py-5">
-                  <div class="inline-flex flex-col items-start gap-1">
-                    <span class="inline-flex items-center gap-2 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700 dark:bg-gray-800 dark:text-gray-200">
-                      <span>{{ formatCost(request.cost) }}</span>
-                      <span
-                        *ngIf="hasDynamicQueryBilling(request)"
-                        class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
-                        [matTooltip]="
-                          t(getDynamicQueryTooltipKey(), getDynamicQueryTooltipParams(request) || {})
-                        "
-                      >
-                        {{ t('history.dynamicQuery.badge') }}
-                      </span>
-                    </span>
-                    <span
-                      *ngIf="hasDynamicQueryBilling(request) && getDynamicQueryTooltipParams(request) as billing"
-                      class="text-[11px] text-stone-500 dark:text-gray-400"
-                    >
-                      {{
-                        t('history.dynamicQuery.summary', {
-                          standard: billing.standard,
-                          charged: billing.charged,
-                        })
-                      }}
-                    </span>
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef class="w-28 pr-6 text-right">
-                  {{ t('history.table.actions') }}
-                </th>
-                <td mat-cell *matCellDef="let request" class="w-28 pr-6 py-5 text-right">
-                  <div class="inline-flex items-center justify-end gap-0.5">
+            <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+                <div class="mx-auto flex w-full max-w-7xl flex-col gap-6">
                     @if (mode() === 'credits') {
-                      <button
-                        mat-icon-button
-                        type="button"
-                        class="!h-8 !w-8"
-                        [matTooltip]="t('history.actions.viewDetails')"
-                        (click)="openDetail(request, $event)"
-                      >
-                        <mat-icon class="!h-4 !w-4">visibility</mat-icon>
-                      </button>
+                        <div class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                            <div class="flex flex-col gap-4">
+                                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                    <div class="relative min-w-0 flex-1">
+                                        <mat-icon class="pointer-events-none absolute left-3 top-1/2 !h-4 !w-4 -translate-y-1/2 text-stone-400">search</mat-icon>
+                                        <input
+                                            type="text"
+                                            class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 pl-10 pr-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:focus:border-gray-500 dark:focus:bg-gray-950"
+                                            [placeholder]="t('history.search')"
+                                            [ngModel]="searchText"
+                                            (ngModelChange)="onSearchInput($event)"
+                                        />
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-800 transition hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:text-stone-100 dark:hover:bg-gray-800"
+                                        (click)="clearFilters()"
+                                        [disabled]="disabledClearFilters || loading()"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-base">filter_list_off</mat-icon>
+                                        <span>{{ t('history.clearFilters') }}</span>
+                                    </button>
+                                </div>
+
+                                <div class="flex flex-col gap-3 xl:flex-row xl:flex-wrap xl:items-center">
+                                    <mat-button-toggle-group
+                                        [value]="statusFilter"
+                                        (change)="onStatusFilterChange($event.value)"
+                                        [disabled]="loading()"
+                                        class="rounded-xl"
+                                    >
+                                        <mat-button-toggle value="all">{{ t('history.filterStatusAll') }}</mat-button-toggle>
+                                        <mat-button-toggle value="success">{{ t('history.filterStatusSuccess') }}</mat-button-toggle>
+                                        <mat-button-toggle value="failed">{{ t('history.filterStatusFailed') }}</mat-button-toggle>
+                                    </mat-button-toggle-group>
+
+                                    <div class="flex flex-col gap-3">
+                                        <mat-button-toggle-group
+                                            [value]="datePreset"
+                                            (change)="onDatePresetChange($event.value)"
+                                            [disabled]="loading()"
+                                            class="rounded-xl"
+                                        >
+                                            @for (preset of datePresets; track preset) {
+                                                <mat-button-toggle [value]="preset">{{ t(datePresetKey(preset)) }}</mat-button-toggle>
+                                            }
+                                        </mat-button-toggle-group>
+                                        @if (datePreset === 'custom') {
+                                            <mat-form-field appearance="outline" class="history-date-range w-full sm:w-80" subscriptSizing="dynamic">
+                                                <mat-label>{{ t('history.dateRange') }}</mat-label>
+                                                <mat-date-range-input [rangePicker]="picker">
+                                                    <input
+                                                        matStartDate
+                                                        [formControl]="rangeStart"
+                                                        (dateChange)="onCustomRangeChange()"
+                                                        [placeholder]="t('history.dateStart')"
+                                                    />
+                                                    <input
+                                                        matEndDate
+                                                        [formControl]="rangeEnd"
+                                                        (dateChange)="onCustomRangeChange()"
+                                                        [placeholder]="t('history.dateEnd')"
+                                                    />
+                                                </mat-date-range-input>
+                                                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                                <mat-date-range-picker #picker></mat-date-range-picker>
+                                            </mat-form-field>
+                                        }
+                                    </div>
+
+                                    <div class="min-w-[220px] flex-1">
+                                        <label class="mb-1.5 block text-xs font-medium uppercase tracking-[0.12em] text-stone-500 dark:text-stone-400">
+                                            {{ t('history.filterService') }}
+                                        </label>
+                                        <select
+                                            class="h-11 w-full rounded-xl border border-stone-200 bg-stone-50 px-4 text-sm text-stone-900 outline-none transition focus:border-stone-400 focus:bg-white dark:border-gray-700 dark:bg-gray-950 dark:text-stone-100 dark:focus:border-gray-500"
+                                            [ngModel]="serviceFilter"
+                                            (ngModelChange)="onServiceFilterChange($event)"
+                                            [disabled]="loading()"
+                                        >
+                                            <option value="">{{ t('history.filterServiceAll') }}</option>
+                                            @for (item of topEndpoints(); track item._id) {
+                                                <option [value]="item._id">{{ endpointDisplayName(item) }}</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
-                    <button
-                      mat-icon-button
-                      type="button"
-                      class="!h-8 !w-8"
-                      [disabled]="!canRepeatRequest(request)"
-                      [matTooltip]="canRepeatRequest(request) ? t('history.actions.repeatTooltip') : t('history.actions.repeatUnavailable')"
-                      (click)="repeatRequest(request); $event.stopPropagation()"
-                    >
-                      <mat-icon class="!h-4 !w-4">replay</mat-icon>
-                    </button>
-                  </div>
-                </td>
-              </ng-container>
 
-              <tr
-                mat-header-row
-                *matHeaderRowDef="displayedColumns"
-                class="h-12 bg-stone-50 text-xs font-semibold uppercase tracking-[0.12em] text-stone-400 dark:bg-gray-900 dark:text-gray-500"
-              ></tr>
-              <tr
-                mat-row
-                *matRowDef="let row; columns: displayedColumns"
-                class="border-b border-stone-100 transition-colors hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
-                [class.cursor-pointer]="mode() === 'credits'"
-                (click)="mode() === 'credits' && openDetail(row)"
-              ></tr>
+                    @if (mode() === 'credits' && topEndpoints().length) {
+                        <section class="flex flex-col gap-3">
+                            <h2 class="text-sm font-semibold text-stone-950 dark:text-white">
+                                {{ t('history.topEndpointsTitle') }}
+                            </h2>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                @for (item of topEndpoints(); track item._id) {
+                                    <button
+                                        type="button"
+                                        class="flex flex-col gap-3 rounded-2xl border p-4 text-left transition hover:border-stone-300 hover:shadow-sm dark:hover:border-gray-600"
+                                        [ngClass]="endpointCardClasses(item._id)"
+                                        (click)="filterByEndpoint(item._id)"
+                                    >
+                                        <div class="flex items-start gap-3">
+                                            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                                                <mat-icon class="!h-4 !w-4 !text-base">query_stats</mat-icon>
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-sm font-medium leading-5 text-stone-950 dark:text-white">
+                                                    {{ endpointDisplayName(item) }}
+                                                </p>
+                                                <p class="mt-1 text-2xl font-semibold tracking-tight text-stone-950 dark:text-white">
+                                                    {{ item.total }}
+                                                </p>
+                                                <p class="text-xs text-stone-500 dark:text-stone-400">
+                                                    {{ t('history.requests') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </button>
+                                }
+                            </div>
+                        </section>
+                    }
 
-              <tr *matNoDataRow>
-                <td [attr.colspan]="displayedColumns.length" class="px-6 py-16 text-center">
-                  <div class="flex flex-col items-center justify-center">
-                    <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-gray-800">
-                      <mat-icon class="icon-size-7 text-stone-400" svgIcon="heroicons_outline:clipboard-document-list"></mat-icon>
+                    <div class="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
+                        <div class="flex flex-col gap-3 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6">
+                            <div class="flex items-start gap-3">
+                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200">
+                                    <mat-icon>history</mat-icon>
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-semibold text-stone-950 dark:text-white">
+                                        {{ t('history.tableTitle') }}
+                                    </h2>
+                                    <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                        {{ t('history.tableSubtitle', { count: total() }) }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="!rounded-xl"
+                                    [matMenuTriggerFor]="exportMenu"
+                                    [disabled]="exporting() || total() === 0"
+                                >
+                                    @if (exporting()) {
+                                        <mat-spinner class="mr-2" diameter="16"></mat-spinner>
+                                    } @else {
+                                        <mat-icon class="mr-1 !h-4 !w-4">download</mat-icon>
+                                    }
+                                    {{ exporting() ? t('history.exporting') : t('history.export') }}
+                                    <mat-icon class="!h-4 !w-4">arrow_drop_down</mat-icon>
+                                </button>
+                                <mat-menu #exportMenu="matMenu">
+                                    <button mat-menu-item type="button" (click)="exportList('xlsx')">
+                                        <mat-icon>table_chart</mat-icon>
+                                        <span>{{ t('history.exportAsExcel') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="exportList('csv')">
+                                        <mat-icon>description</mat-icon>
+                                        <span>{{ t('history.exportAsCsv') }}</span>
+                                    </button>
+                                    <button mat-menu-item type="button" (click)="exportList('json')">
+                                        <mat-icon>data_object</mat-icon>
+                                        <span>{{ t('history.exportAsJson') }}</span>
+                                    </button>
+                                </mat-menu>
+                                <div class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-xs font-medium text-stone-500 dark:bg-gray-800 dark:text-gray-400">
+                                    <span class="h-2 w-2 rounded-full" [class.bg-emerald-400]="!loading()" [class.bg-amber-400]="loading()"></span>
+                                    {{ loading() ? t('history.table.loading') : t('history.table.live') }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-5 md:p-6">
+                            @if (loading()) {
+                                <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 py-14 text-center dark:border-gray-800">
+                                    <mat-spinner diameter="40"></mat-spinner>
+                                    <p class="mt-4 text-sm text-stone-500 dark:text-stone-400">{{ t('history.table.loading') }}</p>
+                                </div>
+                            } @else if (!dataSource.data.length) {
+                                <div class="flex flex-col items-center justify-center rounded-xl border border-dashed border-stone-200 px-5 py-14 text-center dark:border-gray-800">
+                                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-gray-800 dark:text-stone-300">
+                                        <mat-icon>insights</mat-icon>
+                                    </div>
+                                    <h3 class="mt-4 text-base font-semibold text-stone-950 dark:text-white">
+                                        {{ t('history.emptyTitle') }}
+                                    </h3>
+                                    <p class="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                                        {{ t('history.emptySubtitle') }}
+                                    </p>
+                                </div>
+                            } @else {
+                                <div class="overflow-x-auto rounded-xl border border-stone-200/80 dark:border-gray-800">
+                                    <table mat-table [dataSource]="dataSource" class="w-full min-w-[720px] bg-transparent">
+                                        <ng-container matColumnDef="status">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.status') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4">
+                                                <span class="rounded-full px-2.5 py-1 text-xs font-semibold" [ngClass]="getStatusClass(row.statusCode)">
+                                                    {{ row.statusCode || row.status }}
+                                                </span>
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="service">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.service') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4">
+                                                <div class="flex flex-col gap-1">
+                                                    <span class="font-semibold text-stone-950 dark:text-white">{{ row.code || row.endpoint || row.serviceId }}</span>
+                                                    <span class="font-mono text-xs text-stone-500 dark:text-stone-400">{{ row.endpoint || row.project }}</span>
+                                                </div>
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="transactionHash">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.txHash') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4">
+                                                @if (row.paymentTx) {
+                                                    <div class="flex items-center gap-1">
+                                                        <a
+                                                            [href]="snowtraceUrl + '/tx/' + row.paymentTx"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="font-mono text-xs font-medium text-blue-600 underline-offset-4 hover:underline dark:text-blue-400"
+                                                        >
+                                                            {{ shortHash(row.paymentTx) }}
+                                                        </a>
+                                                        <button mat-icon-button type="button" class="!h-7 !w-7" (click)="copyText(row.paymentTx); $event.stopPropagation()">
+                                                            <mat-icon class="icon-size-3">content_copy</mat-icon>
+                                                        </button>
+                                                    </div>
+                                                } @else {
+                                                    <span class="text-xs text-stone-400">—</span>
+                                                }
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="amount">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.amount') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4 font-mono text-xs text-emerald-600 dark:text-emerald-400">
+                                                {{ row.paymentAmount || row.cost || '—' }}
+                                                <span class="text-stone-400">AVAX</span>
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="date">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.date') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4 text-sm text-stone-600 dark:text-stone-300">
+                                                {{ formatDate(row.createdAt || row.timestamp) }}
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="cost">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.cost') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4 text-sm font-medium text-stone-700 dark:text-stone-200">
+                                                <div class="inline-flex flex-col items-start gap-1">
+                                                    <span>{{ formatCost(row.cost) }}</span>
+                                                    @if (hasDynamicQueryBilling(row)) {
+                                                        <span
+                                                            class="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:bg-amber-900/40 dark:text-amber-200"
+                                                            [matTooltip]="t(getDynamicQueryTooltipKey(), getDynamicQueryTooltipParams(row) || {})"
+                                                        >
+                                                            {{ t('history.dynamicQuery.badge') }}
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </ng-container>
+
+                                        <ng-container matColumnDef="actions">
+                                            <th mat-header-cell *matHeaderCellDef class="!border-b !border-stone-200/80 !bg-stone-50/80 !px-4 !py-3 text-right text-xs font-semibold uppercase tracking-[0.12em] text-stone-500 dark:!border-gray-800 dark:!bg-gray-950/50 dark:text-stone-400">
+                                                {{ t('history.table.actions') }}
+                                            </th>
+                                            <td mat-cell *matCellDef="let row" class="!px-4 !py-4 text-right">
+                                                <div class="inline-flex items-center gap-1">
+                                                    @if (mode() === 'credits') {
+                                                        <button
+                                                            mat-icon-button
+                                                            type="button"
+                                                            class="!rounded-lg hover:!bg-stone-100 dark:hover:!bg-gray-800"
+                                                            [matTooltip]="t('history.actions.viewDetails')"
+                                                            (click)="openDetail(row, $event)"
+                                                        >
+                                                            <mat-icon class="!text-stone-600 dark:!text-stone-300">visibility</mat-icon>
+                                                        </button>
+                                                    }
+                                                    <button
+                                                        mat-icon-button
+                                                        type="button"
+                                                        class="!rounded-lg hover:!bg-stone-100 dark:hover:!bg-gray-800"
+                                                        [disabled]="!canRepeatRequest(row)"
+                                                        [matTooltip]="canRepeatRequest(row) ? t('history.actions.repeatTooltip') : t('history.actions.repeatUnavailable')"
+                                                        (click)="repeatRequest(row); $event.stopPropagation()"
+                                                    >
+                                                        <mat-icon class="!text-stone-600 dark:!text-stone-300">replay</mat-icon>
+                                                    </button>
+                                                    <button
+                                                        mat-icon-button
+                                                        type="button"
+                                                        class="!rounded-lg hover:!bg-stone-100 dark:hover:!bg-gray-800"
+                                                        [matTooltip]="t('history.openInApi')"
+                                                        [disabled]="!row.code"
+                                                        (click)="repeatRequest(row); $event.stopPropagation()"
+                                                    >
+                                                        <mat-icon class="!text-stone-600 dark:!text-stone-300">open_in_new</mat-icon>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </ng-container>
+
+                                        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                                        <tr
+                                            mat-row
+                                            *matRowDef="let row; columns: displayedColumns"
+                                            class="border-b border-stone-100 transition hover:bg-stone-50/80 dark:border-gray-800 dark:hover:bg-gray-800/40"
+                                            [class.cursor-pointer]="mode() === 'credits'"
+                                            (click)="mode() === 'credits' && openDetail(row)"
+                                        ></tr>
+                                    </table>
+                                </div>
+
+                                <div class="mt-4 flex flex-wrap items-center justify-end gap-3">
+                                    <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                                        <select
+                                            class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                            [value]="pageSize()"
+                                            (change)="onPageSizeChange(+$any($event.target).value)"
+                                        >
+                                            @for (size of pageSizeOptions; track size) {
+                                                <option [value]="size">{{ size }}</option>
+                                            }
+                                        </select>
+                                    </label>
+                                    <mat-paginator
+                                        class="!bg-transparent"
+                                        [length]="total()"
+                                        [pageSize]="pageSize()"
+                                        [pageIndex]="pageIndex()"
+                                        [hidePageSize]="true"
+                                        (page)="onPaginatorEvent($event)"
+                                    ></mat-paginator>
+                                </div>
+                            }
+                        </div>
                     </div>
-                    <span class="text-sm font-medium text-stone-700 dark:text-gray-200">{{ t('history.table.noRequests') }}</span>
-                  </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-
-          <mat-paginator
-            class="border-t border-stone-100 dark:border-gray-800"
-            [length]="total()"
-            [pageSize]="pageSize()"
-            [pageIndex]="pageIndex()"
-            [pageSizeOptions]="[5, 10, 25, 100]"
-            [showFirstLastButtons]="true"
-            (page)="onPaginatorEvent($event)"
-            aria-label="Select page of requests"
-          >
-          </mat-paginator>
+                </div>
+            </main>
         </div>
-      </div>
-    </main>
-  </div>
     </mat-drawer-content>
-  </mat-drawer-container>
-</ng-container>
+</mat-drawer-container>

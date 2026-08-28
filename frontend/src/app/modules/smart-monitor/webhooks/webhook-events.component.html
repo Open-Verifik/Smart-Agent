@@ -71,15 +71,30 @@
                 </div>
             </div>
 
-            <mat-paginator
+            <div
                 *ngIf="paginatorData.length > paginatorData.pageSize || paginatorData.length > 0"
-                class="paginator"
-                (page)="onPaginatorEvent($event)"
-                [length]="paginatorData.length"
-                [pageIndex]="paginatorData.pageIndex"
-                [pageSize]="paginatorData.pageSize"
-                [pageSizeOptions]="[10, 20, 50]"
-            ></mat-paginator>
+                class="flex flex-wrap items-center justify-end gap-3"
+            >
+                <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                    <select
+                        class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                        [value]="paginatorData.pageSize"
+                        (change)="onPageSizeChange(+$any($event.target).value)"
+                    >
+                        @for (size of pageSizeOptions; track size) {
+                            <option [value]="size">{{ size }}</option>
+                        }
+                    </select>
+                </label>
+                <mat-paginator
+                    class="paginator"
+                    (page)="onPaginatorEvent($event)"
+                    [length]="paginatorData.length"
+                    [pageIndex]="paginatorData.pageIndex"
+                    [pageSize]="paginatorData.pageSize"
+                    [hidePageSize]="true"
+                ></mat-paginator>
+            </div>
         </div>
 
         <div class="events-pane detail-pane">

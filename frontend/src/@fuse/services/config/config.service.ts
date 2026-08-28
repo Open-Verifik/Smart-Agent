@@ -71,7 +71,9 @@ export class FuseConfigService {
             const prefs: Partial<FuseConfig> = {};
 
             if (typeof parsed.layout === 'string') {
-                prefs.layout = parsed.layout as FuseConfig['layout'];
+                prefs.layout = (
+                    parsed.layout === 'classic' ? 'compact' : parsed.layout
+                ) as FuseConfig['layout'];
             }
 
             if (

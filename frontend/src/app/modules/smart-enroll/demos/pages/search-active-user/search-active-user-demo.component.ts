@@ -25,6 +25,7 @@ import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.compo
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { SearchActiveUserResultComponent } from '../../shared/search-active-user-result.component';
+import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
 
 const DOCS_BASE = 'https://docs.verifik.co';
 
@@ -56,6 +57,7 @@ const RELATED_DOC_BADGE_MUTED = [true, false, false, false, false, false] as con
         DemoRasterImageComponent,
         FaceGuidedCameraComponent,
         SearchActiveUserResultComponent,
+        DemoSandboxResultBannerComponent,
     ],
     templateUrl: './search-active-user-demo.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,

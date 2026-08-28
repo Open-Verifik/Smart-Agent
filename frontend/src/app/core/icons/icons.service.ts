@@ -51,5 +51,9 @@ export class IconsService {
                 'icons/heroicons-mini.svg'
             )
         );
+        matIconRegistry.addSvgIcon(
+            'face-id',
+            domSanitizer.bypassSecurityTrustResourceUrl('icons/face-id.svg')
+        );
     }
 }

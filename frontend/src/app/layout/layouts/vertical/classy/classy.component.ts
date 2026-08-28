@@ -29,7 +29,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'classy-layout',
     templateUrl: './classy.component.html',
-    styleUrls: ['./classy.component.scss'],
+    styleUrls: ['./classy.component.scss', '../../../common/nav-product-accents.scss'],
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,

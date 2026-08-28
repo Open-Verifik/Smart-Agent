@@ -45,6 +45,16 @@
             {{ item.cta.label || ('appNotifications.inbox.ctaDefault' | transloco) }}
         </button>
     }
+    @if (isInsufficientCredits()) {
+        <button
+            mat-stroked-button
+            type="button"
+            [disabled]="actionBusy()"
+            (click)="goToAddCredits()"
+        >
+            {{ 'nav.add_credits' | transloco }}
+        </button>
+    }
     <button
         mat-flat-button
         color="primary"

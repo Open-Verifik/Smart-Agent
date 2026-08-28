@@ -858,73 +858,6 @@
         ]
       }
     },
-    "/api/co/procuraduria": {
-      "get": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "LATAM"
-        ],
-        "operationId": "colombia_api_identity_lookup_procuraduria",
-        "summary": "Colombia - Citizen Lookup via Procuraduría",
-        "description": "Name-only identity lookup against Procuraduría General de la Nación. Unlike /v2/co/cedula, this endpoint does not try DIAN, ADRES, or Registraduría. Unlike /v2/co/procuraduria/antecedentes, it does not return disciplinary records. Supports CC, CE, PEP, NIT, and PPT.",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.3"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "parameters": [
-          {
-            "name": "documentType",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "CC",
-                "CE",
-                "PPT",
-                "NIT",
-                "PEP"
-              ]
-            },
-            "description": "One of CC, CE, PPT, NIT, PEP"
-          },
-          {
-            "name": "documentNumber",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Document number without spaces or periods"
-          }
-        ]
-      }
-    },
     "/api/co/cedula/rethus": {
       "get": {
         "tags": [
@@ -986,6 +919,78 @@
             "description": "Parameter: documentNumber"
           }
         ]
+      }
+    },
+    "/api/co/adres": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_adres",
+        "summary": "Colombia — ADRES affiliation",
+        "description": "Query Colombian ADRES (Administradora de los Recursos del Sistema General de Seguridad Social en Salud) / BDUA affiliation status by document type and number via GET /v2/co/adres.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "documentType": {
+                    "type": "string",
+                    "description": "Parameter: documentType",
+                    "enum": [
+                      "CC",
+                      "CE",
+                      "PA",
+                      "PE",
+                      "PEP",
+                      "PPT"
+                    ]
+                  },
+                  "documentNumber": {
+                    "type": "string",
+                    "description": "Parameter: documentNumber"
+                  }
+                },
+                "required": [
+                  "documentType",
+                  "documentNumber"
+                ]
+              }
+            }
+          }
+        }
       }
     },
     "/api/co/contraloria/certificado": {
@@ -5919,6 +5924,389 @@
         }
       }
     },
+    "/api/face-recognition/liveness-score": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "face_recognition_liveness_score",
+        "summary": "Global - Liveness Score (OpenCV)",
+        "description": "OpenCV-only liveness score (no Zelf arbitrage)",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.5"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "type": "string",
+                    "description": "Parameter: image"
+                  },
+                  "os": {
+                    "type": "string",
+                    "description": "Parameter: os"
+                  }
+                },
+                "required": [
+                  "image",
+                  "os"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/face-recognition/persons/search-live-face": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "face_recognition_persons_live",
+        "summary": "Global - Create Face Person With Liveness",
+        "description": "Enroll a person with liveness into a collection",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.53"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Parameter: name"
+                  },
+                  "images": {
+                    "type": "array",
+                    "description": "Parameter: images"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "description": "Parameter: gender",
+                    "enum": [
+                      "M",
+                      "F"
+                    ]
+                  },
+                  "date_of_birth": {
+                    "type": "string",
+                    "description": "Parameter: date_of_birth"
+                  },
+                  "nationality": {
+                    "type": "string",
+                    "description": "Parameter: nationality"
+                  },
+                  "collection_id": {
+                    "type": "string",
+                    "description": "Parameter: collection_id"
+                  },
+                  "liveness_min_score": {
+                    "type": "number",
+                    "description": "Parameter: liveness_min_score",
+                    "minimum": 0.5,
+                    "maximum": 1
+                  },
+                  "min_score": {
+                    "type": "number",
+                    "description": "Parameter: min_score",
+                    "minimum": 0.5,
+                    "maximum": 1
+                  },
+                  "search_mode": {
+                    "type": "string",
+                    "description": "Parameter: search_mode",
+                    "enum": [
+                      "FAST",
+                      "ACCURATE"
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "images",
+                  "gender",
+                  "date_of_birth",
+                  "collection_id",
+                  "liveness_min_score",
+                  "min_score",
+                  "search_mode"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/face-recognition/persons": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "face_recognition_persons",
+        "summary": "Global - Create Face Person",
+        "description": "Enroll a person into one or more face collections",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.03"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Parameter: name"
+                  },
+                  "images": {
+                    "type": "array",
+                    "description": "Parameter: images"
+                  },
+                  "gender": {
+                    "type": "string",
+                    "description": "Parameter: gender",
+                    "enum": [
+                      "M",
+                      "F"
+                    ]
+                  },
+                  "date_of_birth": {
+                    "type": "string",
+                    "description": "Parameter: date_of_birth"
+                  },
+                  "nationality": {
+                    "type": "string",
+                    "description": "Parameter: nationality"
+                  },
+                  "collections": {
+                    "type": "array",
+                    "description": "Parameter: collections"
+                  }
+                },
+                "required": [
+                  "name",
+                  "images",
+                  "gender",
+                  "date_of_birth",
+                  "collections"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/face-recognition/persons/@monitor.personId": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "face_recognition_persons_delete",
+        "summary": "Global - Delete Face Person",
+        "description": "Delete an enrolled face person by id",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.00001"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Parameter: id"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/face-recognition/collections": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "face_recognition_collections",
+        "summary": "Global - Create Face Collection",
+        "description": "Create a face recognition collection",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.0001"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Parameter: name"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Parameter: description"
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/face-recognition/detect": {
       "post": {
         "tags": [
@@ -9298,59 +9686,7 @@
         ]
       }
     },
-    "/api/zelf-proof/encrypt": {
-      "post": {
-        "tags": [
-          "KYC",
-          "KYB",
-          "Data",
-          "Global"
-        ],
-        "operationId": "zelf-proofs",
-        "summary": "Global - Encrypt HumanID",
-        "description": "Create a HumanID (verifiable credential) by encrypting metadata and storing it in IPFS",
-        "x-payment-info": {
-          "price": {
-            "mode": "fixed",
-            "currency": "USD",
-            "amount": "0.84"
-          },
-          "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {
-                "method": "POST",
-                "intent": "charge",
-                "currency": "USD"
-              }
-            }
-          ]
-        },
-        "responses": {
-          "200": {
-            "description": "Success — proxied Verifik response"
-          },
-          "402": {
-            "description": "Payment Required"
-          }
-        },
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {},
-                "required": []
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/zelf-proof/encrypt-with-liveness-active-user": {
+    "/api/human-id/encrypt": {
       "post": {
         "tags": [
           "KYC",
@@ -9359,8 +9695,8 @@
           "Global"
         ],
         "operationId": "zelf-proof-liveness-active-user",
-        "summary": "Zelf Proof with Liveness (Active user)",
-        "description": "Zelf Proof with Liveness detection service for enhanced identity verification. This service provides proof generation with active liveness detection to ensure the person is physically present during verification.",
+        "summary": "Global - HumanID with Liveness (Active user)",
+        "description": "Create a HumanID with decrypt-side liveness. History bills this code when requireLiveness is enabled; the HTTP path is the same as Encrypt HumanID.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -9394,8 +9730,358 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {},
-                "required": []
+                "properties": {
+                  "publicData": {
+                    "type": "object",
+                    "description": "Public metadata stored with the HumanID (string key-value pairs)",
+                    "default": {
+                      "name": "Jane Doe",
+                      "documentNumber": "12345678"
+                    }
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "Private metadata encrypted into the HumanID (string key-value pairs)",
+                    "default": {
+                      "secretKey": "example-secret"
+                    }
+                  },
+                  "faceBase64": {
+                    "type": "string",
+                    "description": "Base64 encoded facial image"
+                  },
+                  "os": {
+                    "type": "string",
+                    "description": "Client operating system",
+                    "enum": [
+                      "DESKTOP",
+                      "ANDROID",
+                      "IOS"
+                    ],
+                    "default": "DESKTOP"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "Alphanumeric identifier only (no spaces or special characters)",
+                    "default": "randomid"
+                  },
+                  "requireLiveness": {
+                    "type": "boolean",
+                    "description": "Require a live face when decrypting later",
+                    "default": true
+                  },
+                  "livenessDetectionPriorCreation": {
+                    "type": "boolean",
+                    "description": "Require a live face when creating the HumanID",
+                    "default": false
+                  },
+                  "tolerance": {
+                    "type": "string",
+                    "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
+                    "enum": [
+                      "SOFT",
+                      "REGULAR",
+                      "HARDENED",
+                      "REGULAR_HARD",
+                      "REGULAR_SOFT"
+                    ],
+                    "default": "HARDENED"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Optional password for additional security"
+                  },
+                  "referenceFaceBase64": {
+                    "type": "string",
+                    "description": "Optional reference face image"
+                  },
+                  "verifierKey": {
+                    "type": "string",
+                    "description": "Optional verifier key"
+                  }
+                },
+                "required": [
+                  "publicData",
+                  "metadata",
+                  "faceBase64",
+                  "os",
+                  "identifier",
+                  "requireLiveness"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/human-id/encrypt-qr-code": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "zelf-proof-encrypt-qr",
+        "summary": "Global - Encrypt HumanID QR",
+        "description": "Create a HumanID and return it as a QR code image",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.84"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "publicData": {
+                    "type": "object",
+                    "description": "Public metadata stored with the HumanID (string key-value pairs)",
+                    "default": {
+                      "name": "Jane Doe",
+                      "documentNumber": "12345678"
+                    }
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "Private metadata encrypted into the HumanID (string key-value pairs)",
+                    "default": {
+                      "secretKey": "example-secret"
+                    }
+                  },
+                  "faceBase64": {
+                    "type": "string",
+                    "description": "Base64 encoded facial image"
+                  },
+                  "os": {
+                    "type": "string",
+                    "description": "Client operating system",
+                    "enum": [
+                      "DESKTOP",
+                      "ANDROID",
+                      "IOS"
+                    ],
+                    "default": "DESKTOP"
+                  },
+                  "identifier": {
+                    "type": "string",
+                    "description": "Alphanumeric identifier only (no spaces or special characters)",
+                    "default": "randomid"
+                  },
+                  "requireLiveness": {
+                    "type": "boolean",
+                    "description": "Require a live face when decrypting later",
+                    "default": true
+                  },
+                  "livenessDetectionPriorCreation": {
+                    "type": "boolean",
+                    "description": "Require a live face when creating the HumanID",
+                    "default": false
+                  },
+                  "tolerance": {
+                    "type": "string",
+                    "description": "Liveness anti-spoof strictness (not forwarded as livenessLevel)",
+                    "enum": [
+                      "SOFT",
+                      "REGULAR",
+                      "HARDENED",
+                      "REGULAR_HARD",
+                      "REGULAR_SOFT"
+                    ],
+                    "default": "HARDENED"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Optional password for additional security"
+                  },
+                  "referenceFaceBase64": {
+                    "type": "string",
+                    "description": "Optional reference face image"
+                  },
+                  "verifierKey": {
+                    "type": "string",
+                    "description": "Optional verifier key"
+                  }
+                },
+                "required": [
+                  "publicData",
+                  "metadata",
+                  "faceBase64",
+                  "os",
+                  "identifier",
+                  "requireLiveness"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/human-id/decrypt": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "zelf-proof-decrypt",
+        "summary": "Global - Decrypt HumanID",
+        "description": "Decrypt a HumanID using a live face to recover the stored metadata",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.4"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "faceBase64": {
+                    "type": "string",
+                    "description": "Base64 encoded facial image of the HumanID owner"
+                  },
+                  "os": {
+                    "type": "string",
+                    "description": "Client operating system",
+                    "enum": [
+                      "DESKTOP",
+                      "ANDROID",
+                      "IOS"
+                    ],
+                    "default": "DESKTOP"
+                  },
+                  "zelfProof": {
+                    "type": "string",
+                    "description": "HumanID token returned by encrypt"
+                  },
+                  "password": {
+                    "type": "string",
+                    "description": "Password if one was set at encrypt time"
+                  },
+                  "verifierKey": {
+                    "type": "string",
+                    "description": "Optional verifier key"
+                  }
+                },
+                "required": [
+                  "faceBase64",
+                  "os",
+                  "zelfProof"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/human-id/preview": {
+      "post": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "Global"
+        ],
+        "operationId": "zelf-proof-preview",
+        "summary": "Global - Preview HumanID",
+        "description": "Preview public data from a HumanID without decrypting private metadata",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.01"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "zelfProof": {
+                    "type": "string",
+                    "description": "HumanID token returned by encrypt"
+                  },
+                  "verifierKey": {
+                    "type": "string",
+                    "description": "Optional verifier key"
+                  }
+                },
+                "required": [
+                  "zelfProof"
+                ]
               }
             }
           }
@@ -10596,6 +11282,73 @@
         ]
       }
     },
+    "/api/co/procuraduria": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_identity_lookup_procuraduria",
+        "summary": "Colombia - Citizen Lookup via Procuraduría",
+        "description": "Validate a Colombian document and extract names from Procuraduría only (no disciplinary records)",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "documentType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CC",
+                "CE",
+                "PPT",
+                "NIT",
+                "PEP"
+              ]
+            },
+            "description": "Document type supported by Procuraduría"
+          },
+          {
+            "name": "documentNumber",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Document number without spaces or periods"
+          }
+        ]
+      }
+    },
     "/api/proxy": {
       "get": {
         "tags": [
@@ -10622,7 +11375,7 @@
           "price": {
             "mode": "dynamic",
             "currency": "USD",
-            "min": "0.01",
+            "min": "0.00001",
             "max": "1"
           },
           "protocols": [
@@ -10683,7 +11436,7 @@
           "price": {
             "mode": "dynamic",
             "currency": "USD",
-            "min": "0.01",
+            "min": "0.00001",
             "max": "1"
           },
           "protocols": [

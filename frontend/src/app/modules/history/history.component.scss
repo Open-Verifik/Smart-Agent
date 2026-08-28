@@ -1,11 +1,25 @@
 :host {
-    display: block;
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
     width: 100%;
 }
 
 .history-drawer-container {
     width: 100%;
-    min-height: 100vh;
+    min-height: 0;
+
+    mat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    mat-button-toggle-group {
+        border-radius: 0.75rem;
+        overflow: hidden;
+    }
 
     .mat-drawer-content {
         width: 100%;
@@ -15,6 +29,12 @@
     .history-drawer {
         .mat-drawer-inner-container {
             overflow: hidden;
+        }
+    }
+
+    .history-date-range {
+        .mat-mdc-form-field-infix {
+            min-height: 2.5rem;
         }
     }
 }

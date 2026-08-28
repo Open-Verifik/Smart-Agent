@@ -1409,6 +1409,19 @@ export class AuthModalComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Paste a copied OTP into all boxes. maxlength=1 would otherwise keep only the first digit.
+   */
+  onOtpPaste = (event: ClipboardEvent): void => {
+    event.preventDefault();
+    const digits = this._digitsFromClipboard(event, 6);
+    if (!digits.length) return;
+    this._applyCodeDigits('otp', digits, (next) => {
+      this.otpArray.set(next);
+      if (next.every((value) => value !== '')) this._autoSubmitOtp();
+    });
+  };
+
   onKeyDown(event: KeyboardEvent, index: number) {
     if (event.key === 'Backspace' && !this.otpArray()[index] && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`);
@@ -1477,12 +1490,53 @@ export class AuthModalComponent implements OnDestroy {
     }
   }
 
+  /**
+   * Paste a copied PIN into all boxes. maxlength=1 would otherwise keep only the first digit.
+   */
+  onPinPaste = (event: ClipboardEvent): void => {
+    event.preventDefault();
+    const digits = this._digitsFromClipboard(event, 6);
+    if (!digits.length) return;
+    this._applyCodeDigits('pin', digits, (next) => this.pinArray.set(next));
+  };
+
   onPinKeyDown(event: KeyboardEvent, index: number) {
     if (event.key === 'Backspace' && !this.pinArray()[index] && index > 0) {
       const prevInput = document.getElementById(`pin-${index - 1}`);
       prevInput?.focus();
     }
   }
+
+  private _digitsFromClipboard = (event: ClipboardEvent, max: number): string[] =>
+    (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, max).split('');
+
+  private _applyCodeDigits = (
+    prefix: 'otp' | 'pin',
+    digits: string[],
+    commit: (next: string[]) => void
+  ): void => {
+    const next = new Array(6).fill('');
+    for (let i = 0; i < 6; i++) {
+      next[i] = digits[i] || '';
+      const input = document.getElementById(`${prefix}-${i}`) as HTMLInputElement | null;
+      if (input) input.value = next[i];
+    }
+    commit(next);
+    const focusIndex = Math.max(Math.min(digits.length, 6) - 1, 0);
+    setTimeout(() => {
+      const input = document.getElementById(`${prefix}-${focusIndex}`) as HTMLInputElement | null;
+      input?.focus();
+      input?.select();
+    }, 0);
+  };
+
+  private _autoSubmitOtp = (): void => {
+    setTimeout(() => {
+      if (this.state() === 'OTP_VERIFY_EMAIL') this.verifyEmailOtp();
+      if (this.state() === 'OTP_VERIFY_PHONE') this.verifyPhoneOtp();
+      if (this.state() === 'OTP_VERIFY_WHATSAPP') this.verifyWhatsAppOtp();
+    }, 100);
+  };
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {

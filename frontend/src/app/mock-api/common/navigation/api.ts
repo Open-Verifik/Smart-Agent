@@ -99,6 +99,7 @@ export class NavigationMockApi {
                         tooltip: item.tooltip ?? item.title,
                         type: 'aside',
                         icon: item.icon,
+                        classes: item.classes ? cloneDeep(item.classes) : undefined,
                         children: cloneDeep(item.children ?? []),
                     };
 

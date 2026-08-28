@@ -85,6 +85,7 @@ export class ScanListComponent implements OnInit {
     loading = this._scanService.loading;
     pageSize = this._scanService.pageSize;
     pageIndex = this._scanService.pageIndex;
+    readonly pageSizeOptions = [6, 12, 24, 48];
 
     quickSearch = '';
     showFilters = false;
@@ -181,6 +182,13 @@ export class ScanListComponent implements OnInit {
         }
         this.pageIndex.set(event.pageIndex);
         this.pageSize.set(event.pageSize);
+        this.loadData();
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize()) return;
+        this.pageIndex.set(0);
+        this.pageSize.set(pageSize);
         this.loadData();
     }
 

@@ -20,7 +20,6 @@ import { CenteredLayoutComponent } from './layouts/horizontal/centered/centered.
 import { EnterpriseLayoutComponent } from './layouts/horizontal/enterprise/enterprise.component';
 import { MaterialLayoutComponent } from './layouts/horizontal/material/material.component';
 import { ModernLayoutComponent } from './layouts/horizontal/modern/modern.component';
-import { ClassicLayoutComponent } from './layouts/vertical/classic/classic.component';
 import { ClassyLayoutComponent } from './layouts/vertical/classy/classy.component';
 import { CompactLayoutComponent } from './layouts/vertical/compact/compact.component';
 import { DenseLayoutComponent } from './layouts/vertical/dense/dense.component';
@@ -38,7 +37,6 @@ import { ThinLayoutComponent } from './layouts/vertical/thin/thin.component';
         EnterpriseLayoutComponent,
         MaterialLayoutComponent,
         ModernLayoutComponent,
-        ClassicLayoutComponent,
         ClassyLayoutComponent,
         CompactLayoutComponent,
         DenseLayoutComponent,
@@ -148,16 +146,18 @@ export class LayoutComponent implements OnInit, OnDestroy {
             route = route.firstChild;
         }
 
-        // 1. Set the layout from the config
-        this.layout = this.config.layout;
+        // 1. Set the layout from the config (classic was removed)
+        this.layout = this.config.layout === 'classic' ? 'compact' : this.config.layout;
 
         // 2. Get the query parameter from the current route and
         // set the layout and save the layout to the config
         const layoutFromQueryParam = route.snapshot.queryParamMap.get('layout');
         if (layoutFromQueryParam) {
-            this.layout = layoutFromQueryParam;
+            const resolvedLayout =
+                layoutFromQueryParam === 'classic' ? 'compact' : layoutFromQueryParam;
+            this.layout = resolvedLayout;
             if (this.config) {
-                this.config.layout = layoutFromQueryParam;
+                this.config.layout = resolvedLayout;
             }
         }
 

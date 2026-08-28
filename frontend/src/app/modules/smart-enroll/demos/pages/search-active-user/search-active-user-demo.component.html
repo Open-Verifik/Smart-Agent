@@ -82,6 +82,7 @@
             }
 
             @if (result) {
+                <app-demo-sandbox-result-banner />
                 <app-search-active-user-result [result]="result" (reset)="reset()" />
             }
         </div>

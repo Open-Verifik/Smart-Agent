@@ -19,6 +19,7 @@ import {
     openNotificationCta,
     shouldShowNotificationCta,
 } from 'app/core/notifications/notification-cta.util';
+import { isInsufficientCreditsError } from 'app/core/utils/insufficient-credits.util';
 import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 
 export interface BlockingNotificationModalData {
@@ -102,8 +103,31 @@ export class BlockingNotificationModalComponent {
         });
     }
 
+    /**
+     * True when this blocking notice is a credit-balance shortage.
+     */
+    isInsufficientCredits = (): boolean =>
+        isInsufficientCreditsError(
+            `${this.item.content.title ?? ''} ${this.item.content.summary ?? ''} ${this.item.content.body ?? ''}`
+        );
+
+    goToAddCredits = (): void => {
+        const id = this.item.notificationId;
+        this.actionBusy.set(true);
+        this._notifications.acknowledge(id).subscribe({
+            next: () => this._closeAndGoToCredits(),
+            error: () => this._closeAndGoToCredits(),
+        });
+    };
+
     private _closeSuccess(): void {
         this.actionBusy.set(false);
         this._dialogRef.close(true);
     }
+
+    private _closeAndGoToCredits = (): void => {
+        this.actionBusy.set(false);
+        this._dialogRef.close(true);
+        void this._router.navigate(['/add-credits']);
+    };
 }

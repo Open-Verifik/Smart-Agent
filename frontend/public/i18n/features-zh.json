@@ -853,12 +853,24 @@
             "description": "查询由 INPEC（哥伦比亚国家监狱与司法机构）羁押的被剥夺自由人员信息。"
         },
         "zelf-proofs": {
-            "title": "Zelf Proofs",
-            "description": "Zelf Proofs service 为 identity verification and document validation. This service provides comprehensive proof generation capabilities 为 various identity documents and verification processes."
+            "title": "加密 HumanID",
+            "description": "通过加密元数据并存储到 IPFS 来创建 HumanID（可验证凭证）"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof 活体检测",
-            "description": "具有活体检测功能的 Zelf Proof 服务，用于增强身份验证。 该服务提供具有主动活体检测的证明生成，以确保人员在验证期间亲身在场。"
+            "title": "HumanID 活体检测（活跃用户）",
+            "description": "创建解密时需要活体检测的 HumanID。启用 requireLiveness 时按此代码计费；HTTP 路径与加密 HumanID 相同。"
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "加密 HumanID QR",
+            "description": "创建 HumanID 并以二维码图片返回"
+        },
+        "zelf-proof-decrypt": {
+            "title": "解密 HumanID",
+            "description": "用真人脸解密 HumanID 并恢复存储的元数据"
+        },
+        "zelf-proof-preview": {
+            "title": "预览 HumanID",
+            "description": "在不解密私有元数据的情况下预览 HumanID 的公开数据"
         },
         "biometrics_api_create_person": {
             "title": "生物识别 - 创建人员（无活体检测）",

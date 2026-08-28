@@ -853,12 +853,24 @@
             "description": "Consulte a população privada de liberdade sob custódia do INPEC (Instituto Nacional Penitenciário e Carcerário da Colômbia)."
         },
         "zelf-proofs": {
-            "title": "Zelf Proofs",
-            "description": "Zelf Proofs serviço para verificação de identidade e validação de documentos. Este serviço fornece capacidades abrangentes de geração de provas para vários documentos de identidade e processos de verificação."
+            "title": "Criptografar HumanID",
+            "description": "Criar um HumanID (credencial verificável) criptografando metadados e armazenando-os no IPFS"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof com Detecção de Vida",
-            "description": "Serviço Zelf Proof com detecção de liveness para verificação de identidade aprimorada. Este serviço fornece geração de prova com detecção de liveness ativa para garantir que a pessoa esteja fisicamente presente durante a verificação."
+            "title": "HumanID com liveness (usuário ativo)",
+            "description": "Cria um HumanID com liveness na descriptografia. O histórico fatura este código quando requireLiveness está ativo; o caminho HTTP é o mesmo que Criptografar HumanID."
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "Criptografar HumanID QR",
+            "description": "Cria um HumanID e o devolve como imagem QR"
+        },
+        "zelf-proof-decrypt": {
+            "title": "Descriptografar HumanID",
+            "description": "Descriptografa um HumanID com um rosto ao vivo para recuperar os metadados"
+        },
+        "zelf-proof-preview": {
+            "title": "Pré-visualizar HumanID",
+            "description": "Pré-visualiza dados públicos de um HumanID sem descriptografar metadados privados"
         },
         "biometrics_api_create_person": {
             "title": "Biometria - Criar Pessoa (sem detecção de vida)",

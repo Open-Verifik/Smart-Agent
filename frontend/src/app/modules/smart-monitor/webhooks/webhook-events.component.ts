@@ -77,6 +77,7 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
 
     projectFlows: any[] = [];
 
+    readonly pageSizeOptions = [10, 20, 50];
     paginatorData = {
         length: 0,
         pageIndex: 0,
@@ -153,6 +154,13 @@ export class WebhookEventsComponent implements OnInit, OnChanges, OnDestroy {
         } else {
             this.paginatorData.pageIndex = 0;
         }
+        this._searchEvents();
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.paginatorData.pageSize) return;
+        this.paginatorData.pageSize = pageSize;
+        this.paginatorData.pageIndex = 0;
         this._searchEvents();
     }
 

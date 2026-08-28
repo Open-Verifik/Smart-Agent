@@ -27,6 +27,7 @@ import { Subject, takeUntil } from 'rxjs';
 @Component({
     selector: 'thin-layout',
     templateUrl: './thin.component.html',
+    styleUrls: ['../../../common/nav-product-accents.scss'],
     encapsulation: ViewEncapsulation.None,
     imports: [
         FuseLoadingBarComponent,

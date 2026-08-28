@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { DEFAULT_LIVENESS_STANDALONE_MIN_SCORE } from '../../services/biometrics-demo.types';
 import { BiometricsDemoApiService } from '../../services/biometrics-demo-api.service';
 import {
+    applySandboxFaceFailMarker,
     fileToBase64,
     getDemoOs,
     imageUrlToRawBase64,
+    isInsufficientCreditsError,
     parseLivenessResult,
     translateLivenessApiError,
 } from '../../services/biometrics-demo.util';
@@ -16,8 +19,10 @@ import { DemoOrDividerComponent } from '../../shared/demo-or-divider.component';
 import { DemoPageShellComponent } from '../../shared/demo-page-shell.component';
 import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
+import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
+import { AccountEnvironmentService } from 'app/core/account/account-environment.service';
 
 type Step = 'capture' | 'processing' | 'result';
 
@@ -28,15 +33,17 @@ type LivenessDemoResult = {
     price?: number | null;
     /** True when the API returned an ERR_* / quality failure instead of a scored verdict. */
     isApiError?: boolean;
+    /** True when the failure is a credit-balance shortage. */
+    isInsufficientCredits?: boolean;
 };
 
 const LIVENESS_SAMPLE_IMAGES = [
-    '/demos/assets/ppic1.jpg',
-    '/demos/assets/ppic2.jpg',
-    '/demos/assets/ppic3.jpg',
-    '/demos/assets/ppic4.jpg',
-    '/demos/assets/ppic5.jpg',
-    '/demos/assets/ppic6.jpg',
+    { src: '/demos/assets/ppic1.jpg', fail: false },
+    { src: '/demos/assets/ppic2.jpg', fail: false },
+    { src: '/demos/assets/ppic3.jpg', fail: false },
+    { src: '/demos/assets/ppic4.jpg', fail: false },
+    { src: '/demos/assets/ppic5.jpg', fail: true },
+    { src: '/demos/assets/ppic6.jpg', fail: true },
 ] as const;
 
 @Component({
@@ -44,6 +51,7 @@ const LIVENESS_SAMPLE_IMAGES = [
     standalone: true,
     imports: [
         CommonModule,
+        RouterLink,
         TranslocoModule,
         DemoPageShellComponent,
         DemoChooseOneCalloutComponent,
@@ -53,6 +61,7 @@ const LIVENESS_SAMPLE_IMAGES = [
         DemoOrDividerComponent,
         DemoUploadImageButtonComponent,
         DemoResultActionsComponent,
+        DemoSandboxResultBannerComponent,
     ],
     templateUrl: './liveness-demo.component.html',
     styleUrl: '../../styles/_demos-theme.scss',
@@ -72,6 +81,7 @@ export class LivenessDemoComponent {
     private _api = inject(BiometricsDemoApiService);
     private _cdr = inject(ChangeDetectorRef);
     private _transloco = inject(TranslocoService);
+    private _accountEnv = inject(AccountEnvironmentService);
 
     constructor() {
         this._api.ensureAuthenticated();
@@ -107,11 +117,15 @@ export class LivenessDemoComponent {
             });
     }
 
-    runSampleImage(src: string): void {
-        void imageUrlToRawBase64(src)
+    runSampleImage(sample: { src: string; fail: boolean }): void {
+        void imageUrlToRawBase64(sample.src)
             .then((b64) => {
-                this.previewUrl = src;
-                this.runLiveness(b64);
+                this.previewUrl = sample.src;
+                const payload =
+                    this._accountEnv.isSandboxModeActive() && sample.fail
+                        ? applySandboxFaceFailMarker(b64)
+                        : b64;
+                this.runLiveness(payload);
             })
             .catch(() => {
                 this.error = this._transloco.translate('smartEnrollDemos.liveness.sampleLoadError');
@@ -164,6 +178,7 @@ export class LivenessDemoComponent {
                     message: translateLivenessApiError((key) => this._transloco.translate(key), err),
                     price: typeof err?.creditsCharged === 'number' ? err.creditsCharged : null,
                     isApiError: true,
+                    isInsufficientCredits: isInsufficientCreditsError(err),
                 };
                 this.error = null;
                 this.step = 'result';

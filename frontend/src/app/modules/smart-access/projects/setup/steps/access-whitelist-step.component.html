@@ -277,14 +277,27 @@
                                 </table>
                             </div>
 
-                            <mat-paginator
-                                [length]="whitelistTotal"
-                                [pageIndex]="pageIndex"
-                                [pageSize]="pageSize"
-                                [pageSizeOptions]="pageSizeOptions"
-                                (page)="onPageEvent($event)"
-                                class="rounded-xl border border-stone-200 dark:border-gray-700"
-                            ></mat-paginator>
+                            <div class="mt-4 flex flex-wrap items-center justify-end gap-3">
+                                <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                                    <select
+                                        class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                        [value]="pageSize"
+                                        (change)="onPageSizeChange(+$any($event.target).value)"
+                                    >
+                                        @for (size of pageSizeOptions; track size) {
+                                            <option [value]="size">{{ size }}</option>
+                                        }
+                                    </select>
+                                </label>
+                                <mat-paginator
+                                    [length]="whitelistTotal"
+                                    [pageIndex]="pageIndex"
+                                    [pageSize]="pageSize"
+                                    [hidePageSize]="true"
+                                    (page)="onPageEvent($event)"
+                                    class="rounded-xl border border-stone-200 dark:border-gray-700"
+                                ></mat-paginator>
+                            </div>
                         }
                     } @else {
                         <div class="flex flex-col items-center gap-3 rounded-xl border border-dashed border-stone-300 py-10 text-center">

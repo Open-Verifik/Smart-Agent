@@ -75,6 +75,7 @@ export class MessagesListComponent implements OnInit, OnDestroy {
     statusFilter = '';
 
     displayedColumns = ['phone', 'status', 'source', 'project', 'createdAt'];
+    readonly pageSizeOptions = [10, 20, 50];
 
     ngOnInit(): void {
         this.phoneGateway =
@@ -121,6 +122,13 @@ export class MessagesListComponent implements OnInit, OnDestroy {
     onPage(event: PageEvent): void {
         this.page = event.pageIndex + 1;
         this.limit = event.pageSize;
+        this._load();
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.limit) return;
+        this.page = 1;
+        this.limit = pageSize;
         this._load();
     }
 

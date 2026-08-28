@@ -32,6 +32,12 @@ import {
     resolvePostmanIncludeCostForSend,
 } from './postman-include-cost.util';
 import { normalizePostmanSexoValue } from './postman-sexo.util';
+import {
+    defaultValueForDependency,
+    paramValueForDependency,
+    resolveHumanAuthnDependencies,
+    shouldListHumanAuthnParams,
+} from './human-authn-postman.catalog';
 
 import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
@@ -319,22 +325,10 @@ export class PostmanService {
 
     private _createEndpointFromFeature(feature: any, apiUrl: string): ApiEndpoint {
         const method = feature.group === 'apiRequest' ? 'GET' : feature.method || 'POST';
-
-        const rawDeps: any[] = Array.isArray(feature.dependencies) ? feature.dependencies : [];
-        const dependencies: PostmanDependencyMeta[] = rawDeps
-            .filter((d) => d && typeof d.field === 'string' && d.field.length > 0)
-            .map((dependency: any) => ({
-                field: dependency.field,
-                type: dependency.type,
-                required: dependency.required,
-                enum: dependency.enum ?? undefined,
-                description: dependency.description,
-                dependencyGroup: dependency.dependencyGroup,
-                requiredWhen: dependency.requiredWhen,
-                dateFormat: dependency.dateFormat,
-            }));
-
+        const rawDeps = resolveHumanAuthnDependencies(feature.code, feature.dependencies);
+        const dependencies = this._toPostmanDependencyMeta(rawDeps);
         const xorMeta = dependencies.length ? getPostmanXorGroupMetadata(dependencies) : null;
+        const listParams = method === 'GET' || shouldListHumanAuthnParams(feature.code);
 
         return {
             id: feature._id || feature.code,
@@ -358,61 +352,65 @@ export class PostmanService {
                 },
             ],
             ...(dependencies.length ? { dependencies } : {}),
-            params:
-                method === 'GET' && feature.dependencies
-                    ? feature.dependencies.map((dependency: any) => {
-                          const groupId =
-                              dependency.dependencyGroup != null
-                                  ? String(dependency.dependencyGroup).trim()
-                                  : '';
-                          const isXorDocumentType =
-                              dependency.field === 'documentType' &&
-                              xorMeta &&
-                              groupId.length > 0 &&
-                              xorMeta.docGroupIds.has(groupId);
-
-                          const defaultVal = isXorDocumentType
-                              ? dependency.default ?? ''
-                              : dependency.default ||
-                                (dependency.enum && dependency.enum.length
-                                    ? dependency.enum[0]
-                                    : '');
-
-                          let desc = dependency.description;
-                          if (!desc && dependency.enum && dependency.enum.length) {
-                              desc = `Pick a value from [${dependency.enum.join(', ')}]`;
-                          }
-
-                          const enumList =
-                              Array.isArray(dependency.enum) && dependency.enum.length
-                                  ? [...dependency.enum]
-                                  : undefined;
-
-                          return {
-                              key: dependency.field,
-                              value: defaultVal,
-                              type: dependency.type,
-                              required: dependency.required,
-                              description: desc,
-                              ...(enumList ? { enum: enumList } : {}),
-                              ...(dependency.dependencyGroup != null && String(dependency.dependencyGroup).trim()
-                                  ? { dependencyGroup: String(dependency.dependencyGroup).trim() }
-                                  : {}),
-                              ...(dependency.requiredWhen ? { requiredWhen: dependency.requiredWhen } : {}),
-                              ...(dependency.dateFormat ? { dateFormat: dependency.dateFormat } : {}),
-                          };
-                      })
-                    : [],
-            body:
-                method !== 'GET' && feature.dependencies
-                    ? feature.dependencies.reduce((acc: any, dep: any) => {
-                          acc[dep.field] =
-                              dep.default || (dep.enum && dep.enum.length ? dep.enum[0] : '');
-                          return acc;
-                      }, {})
-                    : null,
+            params: listParams ? this._paramsFromDependencies(rawDeps, xorMeta) : [],
+            body: method !== 'GET' && rawDeps.length ? this._bodyFromDependencies(rawDeps) : null,
             ...(feature.docs && typeof feature.docs === 'object' ? { docs: feature.docs } : {}),
         };
+    }
+
+    private _toPostmanDependencyMeta(rawDeps: any[]): PostmanDependencyMeta[] {
+        return rawDeps.map((dependency) => ({
+            field: dependency.field,
+            type: dependency.type,
+            required: dependency.required,
+            enum: dependency.enum ?? undefined,
+            description: dependency.description,
+            dependencyGroup: dependency.dependencyGroup,
+            requiredWhen: dependency.requiredWhen,
+            dateFormat: dependency.dateFormat,
+        }));
+    }
+
+    private _paramsFromDependencies(rawDeps: any[], xorMeta: ReturnType<typeof getPostmanXorGroupMetadata>) {
+        return rawDeps.map((dependency) => {
+            const groupId =
+                dependency.dependencyGroup != null ? String(dependency.dependencyGroup).trim() : '';
+            const isXorDocumentType =
+                dependency.field === 'documentType' &&
+                xorMeta &&
+                groupId.length > 0 &&
+                xorMeta.docGroupIds.has(groupId);
+            const defaultVal = isXorDocumentType
+                ? (dependency.default ?? '')
+                : paramValueForDependency(dependency);
+            let desc = dependency.description;
+            if (!desc && dependency.enum && dependency.enum.length) {
+                desc = `Pick a value from [${dependency.enum.join(', ')}]`;
+            }
+            const enumList =
+                Array.isArray(dependency.enum) && dependency.enum.length
+                    ? [...dependency.enum]
+                    : undefined;
+
+            return {
+                key: dependency.field,
+                value: typeof defaultVal === 'string' ? defaultVal : String(defaultVal ?? ''),
+                type: dependency.type,
+                required: dependency.required,
+                description: desc,
+                ...(enumList ? { enum: enumList } : {}),
+                ...(groupId ? { dependencyGroup: groupId } : {}),
+                ...(dependency.requiredWhen ? { requiredWhen: dependency.requiredWhen } : {}),
+                ...(dependency.dateFormat ? { dateFormat: dependency.dateFormat } : {}),
+            };
+        });
+    }
+
+    private _bodyFromDependencies(rawDeps: any[]): Record<string, unknown> {
+        return rawDeps.reduce((acc: Record<string, unknown>, dep) => {
+            acc[dep.field] = defaultValueForDependency(dep);
+            return acc;
+        }, {});
     }
 
     /**

@@ -857,8 +857,20 @@
             "description": "Crear un HumanID (credencial verificable) encriptando metadatos y almacenándolo en IPFS"
         },
         "zelf-proof-liveness-active-user": {
-            "title": "Zelf Proof con Detección de Vida",
-            "description": "Servicio de Zelf Proof con detección de vida para verificación de identidad mejorada. Este servicio proporciona generación de pruebas con detección activa de vida para asegurar que la persona esté físicamente presente durante la verificación."
+            "title": "HumanID con detección de vida (usuario activo)",
+            "description": "Crea un HumanID con liveness al descifrar. El historial factura este código cuando requireLiveness está activo; la ruta HTTP es la misma que Encriptar HumanID."
+        },
+        "zelf-proof-encrypt-qr": {
+            "title": "Encriptar HumanID QR",
+            "description": "Crea un HumanID y lo devuelve como imagen QR"
+        },
+        "zelf-proof-decrypt": {
+            "title": "Desencriptar HumanID",
+            "description": "Desencripta un HumanID con un rostro en vivo para recuperar los metadatos"
+        },
+        "zelf-proof-preview": {
+            "title": "Vista previa HumanID",
+            "description": "Vista previa de los datos públicos de un HumanID sin desencriptar metadatos privados"
         },
         "biometrics_api_create_person": {
             "title": "Biometría - Crear Persona (sin detección de vida)",

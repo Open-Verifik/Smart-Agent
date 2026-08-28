@@ -221,14 +221,27 @@
                         </div>
                     }
                 </div>
-                <mat-paginator
-                    class="mt-4 rounded-xl border border-stone-200/90 dark:border-gray-700"
-                    [length]="total()"
-                    [pageIndex]="pageIndex"
-                    [pageSize]="pageSize"
-                    [pageSizeOptions]="[10, 25, 50]"
-                    (page)="onPage($event)"
-                ></mat-paginator>
+                <div class="mt-4 flex flex-wrap items-center justify-end gap-3">
+                    <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                        <select
+                            class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                            [value]="pageSize"
+                            (change)="onPageSizeChange(+$any($event.target).value)"
+                        >
+                            @for (size of pageSizeOptions; track size) {
+                                <option [value]="size">{{ size }}</option>
+                            }
+                        </select>
+                    </label>
+                    <mat-paginator
+                        class="rounded-xl border border-stone-200/90 dark:border-gray-700"
+                        [length]="total()"
+                        [pageIndex]="pageIndex"
+                        [pageSize]="pageSize"
+                        [hidePageSize]="true"
+                        (page)="onPage($event)"
+                    ></mat-paginator>
+                </div>
             }
         </div>
     </main>

@@ -26,6 +26,7 @@ import { DemoScannerShellComponent } from '../../shared/demo-scanner-shell.compo
 import { DemoUploadImageButtonComponent } from '../../shared/demo-upload-image-button.component';
 import { FaceGuidedCameraComponent } from '../../shared/face-guided-camera.component';
 import { DemoResultActionsComponent } from '../../shared/demo-result-actions.component';
+import { DemoSandboxResultBannerComponent } from '../../shared/demo-sandbox-result-banner.component';
 
 const DOCS_BASE = 'https://docs.verifik.co';
 const DOCS_ES_BASE = 'https://docs.verifik.co/verifik-es';
@@ -63,6 +64,7 @@ type Step = 'form' | 'processing' | 'result' | 'conflict';
         DemoRasterImageComponent,
         FaceGuidedCameraComponent,
         DemoResultActionsComponent,
+        DemoSandboxResultBannerComponent,
     ],
     templateUrl: './create-person-with-liveness-demo.component.html',
     changeDetection: ChangeDetectionStrategy.OnPush,

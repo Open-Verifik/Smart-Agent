@@ -489,7 +489,8 @@
 }
 
 /* Hub page uses Privy shell but demo cards need HumanAuthn card styling */
-.smart-enroll-demos-hub {
+.smart-enroll-demos-hub,
+.human-authn-demos-hub {
     .demo-card {
         transition: all 0.3s;
 
@@ -501,7 +502,8 @@
     }
 }
 
-.dark .smart-enroll-demos-hub {
+.dark .smart-enroll-demos-hub,
+.dark .human-authn-demos-hub {
     .demo-card:hover {
         border-color: rgb(96 165 250 / 0.35);
         background: rgb(30 41 59 / 0.5);

@@ -70,7 +70,7 @@ export class AccessWhitelistStepComponent implements OnInit {
     whitelistLoading = false;
     whitelistTotal = 0;
     pageIndex = 0;
-    readonly pageSize = 20;
+    pageSize = 20;
     readonly pageSizeOptions = [20, 50, 100];
 
     // CSV staging state
@@ -159,6 +159,14 @@ export class AccessWhitelistStepComponent implements OnInit {
 
     onPageEvent(event: PageEvent): void {
         this.pageIndex = event.pageIndex;
+        this.pageSize = event.pageSize;
+        this._loadWhitelist();
+    }
+
+    onPageSizeChange(pageSize: number): void {
+        if (!pageSize || pageSize === this.pageSize) return;
+        this.pageIndex = 0;
+        this.pageSize = pageSize;
         this._loadWhitelist();
     }
 

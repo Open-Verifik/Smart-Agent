@@ -437,14 +437,28 @@
                                                 </button>
                                             </mat-form-field>
 
-                                            <mat-paginator
-                                                class="!bg-transparent flex-1 justify-end"
-                                                [length]="totalRecords()"
-                                                [pageSize]="pageSize()"
-                                                [pageSizeOptions]="[5, 10, 25, 100]"
-                                                (page)="handlePageEvent($event)"
-                                                [showFirstLastButtons]="true"
-                                            ></mat-paginator>
+                                            <div class="flex flex-1 flex-wrap items-center justify-end gap-3">
+                                                <label class="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+                                                    <select
+                                                        class="rounded-lg border border-stone-200 bg-white px-2 py-1 text-sm text-stone-800 dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                                                        [value]="pageSize()"
+                                                        (change)="onPageSizeChange(+$any($event.target).value)"
+                                                    >
+                                                        @for (size of pageSizeOptions; track size) {
+                                                            <option [value]="size">{{ size }}</option>
+                                                        }
+                                                    </select>
+                                                </label>
+                                                <mat-paginator
+                                                    class="!bg-transparent"
+                                                    [length]="totalRecords()"
+                                                    [pageSize]="pageSize()"
+                                                    [pageIndex]="pageIndex()"
+                                                    [hidePageSize]="true"
+                                                    (page)="handlePageEvent($event)"
+                                                    [showFirstLastButtons]="true"
+                                                ></mat-paginator>
+                                            </div>
                                         </div>
                                         <div
                                             class="mx-auto min-h-[400px] rounded-lg border border-stone-200 bg-stone-50 p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950/50"

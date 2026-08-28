@@ -140,63 +140,6 @@
                     </div>
                 </div>
 
-                <!-- Classic -->
-                <div
-                    class="flex cursor-pointer flex-col"
-                    (click)="setLayout('classic')"
-                >
-                    <div
-                        class="flex h-20 overflow-hidden rounded-md border-2 hover:opacity-80"
-                        [class.border-primary]="config.layout === 'classic'"
-                    >
-                        <div class="w-8 bg-gray-100 dark:bg-gray-800">
-                            <div class="mx-1.5 mt-3 space-y-1">
-                                <div
-                                    class="h-1 rounded-sm bg-gray-300 dark:bg-gray-700"
-                                ></div>
-                                <div
-                                    class="h-1 rounded-sm bg-gray-300 dark:bg-gray-700"
-                                ></div>
-                                <div
-                                    class="h-1 rounded-sm bg-gray-300 dark:bg-gray-700"
-                                ></div>
-                                <div
-                                    class="h-1 rounded-sm bg-gray-300 dark:bg-gray-700"
-                                ></div>
-                                <div
-                                    class="h-1 rounded-sm bg-gray-300 dark:bg-gray-700"
-                                ></div>
-                            </div>
-                        </div>
-                        <div class="flex flex-auto flex-col border-l">
-                            <div class="h-3 bg-gray-100 dark:bg-gray-800">
-                                <div
-                                    class="mr-1.5 flex h-full items-center justify-end"
-                                >
-                                    <div
-                                        class="ml-1 h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-700"
-                                    ></div>
-                                    <div
-                                        class="ml-1 h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-700"
-                                    ></div>
-                                    <div
-                                        class="ml-1 h-1 w-1 rounded-full bg-gray-300 dark:bg-gray-700"
-                                    ></div>
-                                </div>
-                            </div>
-                            <div
-                                class="flex flex-auto border-t bg-gray-50 dark:bg-gray-900"
-                            ></div>
-                        </div>
-                    </div>
-                    <div
-                        class="text-secondary mt-2 text-center text-md font-medium"
-                        [class.text-primary]="config.layout === 'classic'"
-                    >
-                        {{ 'layoutSettings.layouts.classic' | transloco }}
-                    </div>
-                </div>
-
                 <!-- Classy -->
                 <div
                     class="flex cursor-pointer flex-col"
