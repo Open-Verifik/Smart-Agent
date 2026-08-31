@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isMeasured, laneOf, measuredCount, uptimePercentage } from './status-lane.util';
+import { cardStatus, isMeasured, laneOf, measuredCount, probeHistory, uptimePercentage } from './status-lane.util';
 
 describe('status-lane.util', () => {
     describe('laneOf', () => {
@@ -91,6 +91,29 @@ describe('status-lane.util', () => {
     describe('measuredCount', () => {
         it('reports how much evidence the percentage rests on', () => {
             expect(measuredCount([{ status: 'ok' }, { status: 'failed' }, { status: 'awaiting' }])).toBe(2);
+        });
+    });
+
+    describe('cardStatus', () => {
+        it('does not render an outage when the latest probe tick is ok and the 360m bar is failed', () => {
+            expect(laneOf(cardStatus({ status: 'ok' }, 'failed'))).toBe('up');
+        });
+
+        it('keeps the outage when the latest tick is also failed', () => {
+            expect(laneOf(cardStatus({ status: 'failed' }, 'failed'))).toBe('down');
+        });
+    });
+
+    describe('probeHistory', () => {
+        it('keeps hourly probe ticks and drops 360-minute traffic bars', () => {
+            const rows = [
+                { status: 'ok', bucketMinutes: 360 },
+                { status: 'ok', bucketMinutes: null },
+                { status: 'failed', bucketMinutes: 360 },
+                { status: 'ok' },
+            ];
+
+            expect(probeHistory(rows, 50).map((row) => row.status)).toEqual(['ok', 'ok']);
         });
     });
 });

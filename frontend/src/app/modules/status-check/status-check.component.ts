@@ -23,12 +23,12 @@ import ApexCharts from 'apexcharts';
 import { DateTime } from 'luxon';
 import { catchError, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
 import { StatusCheckService } from './status-check.service';
-import { AWAITING, laneOf, measuredCount, uptimePercentage } from './status-lane.util';
+import { AWAITING, cardStatus, laneOf, measuredCount, probeHistory, uptimePercentage } from './status-lane.util';
 
-/** Matches the backend's traffic bucket width, so all 50 bars span equal time. */
-const BUCKET_MINUTES = 360;
-
+/** Same probe-tick count as Admin details. */
 const HISTORY_POINTS = 50;
+/** Mixed rows come back; keep enough to fill HISTORY_POINTS probe ticks. */
+const HISTORY_FETCH = 200;
 
 @Component({
     selector: 'status-check',
@@ -253,6 +253,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         this.dataSource = [];
+        this.sameData = [];
 
         forkJoin(obsList)
             .pipe(takeUntil(this._unsubscribeAll))
@@ -304,14 +305,8 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
         for (const method of features) {
             const payload = {
                 where_code: method.code,
-                /**
-                 * Traffic buckets only. Without this the 50 bars would mix 6-hour
-                 * buckets with 30-minute probe verdicts, so a bar's width would not
-                 * match the time it represents.
-                 */
-                where_bucketMinutes: BUCKET_MINUTES,
                 page: 1,
-                perPage: HISTORY_POINTS,
+                perPage: HISTORY_FETCH,
                 sort: '-createdAt',
             };
 
@@ -418,15 +413,15 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     processStatusRecord(listStatusRecord: any[], method: any): void {
-        const reported = listStatusRecord || [];
+        const probes = probeHistory(listStatusRecord, HISTORY_POINTS);
         const filler = {
             group: 'apiRequest',
             status: AWAITING,
             responseTime: 0,
             createdAt: null,
         };
-        const padding = Array.from({ length: Math.max(0, HISTORY_POINTS - reported.length) }, () => filler);
-        const points = [...reported, ...padding].reverse();
+        const padding = Array.from({ length: Math.max(0, HISTORY_POINTS - probes.length) }, () => filler);
+        const points = [...probes, ...padding].reverse();
 
         const latest = [...points].reverse().find((point) => point.createdAt && point.status !== AWAITING);
 
@@ -442,8 +437,8 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
                 percentage: uptimePercentage(points),
                 measuredPoints: measuredCount(points),
                 firstDate: points.find((point) => point.createdAt)?.createdAt,
-                lastDate: [...points].reverse().find((point) => point.createdAt)?.createdAt,
-                currentStatus: latest?.status || AWAITING,
+                lastDate: latest?.createdAt,
+                currentStatus: cardStatus(latest),
                 publicMessage: latest?.publicMessage || null,
                 isSubscribed: false,
                 subscription: null,

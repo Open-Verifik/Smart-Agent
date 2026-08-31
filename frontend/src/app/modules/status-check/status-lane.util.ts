@@ -86,3 +86,30 @@ export const uptimePercentage = (points: Array<{ status?: string }>): number | n
  */
 export const measuredCount = (points: Array<{ status?: string }>): number =>
     (points || []).filter((point) => isMeasured(point?.status)).length;
+
+/**
+ * Card lane follows Admin's latest record (probe tick or otherwise), not the
+ * newest 360-minute traffic bar. A working probe must not render as an outage
+ * just because the open bucket is still failed.
+ *
+ * @param latestTick Newest APIStatusRecord of any kind, same as summary
+ * @param fallbackStatus Status from the newest history bar
+ */
+export const cardStatus = (
+    latestTick: { status?: string } | null | undefined,
+    fallbackStatus?: string
+): string => latestTick?.status || fallbackStatus || AWAITING;
+
+/**
+ * Admin and Smart-Agent cards share probe ticks, not 360-minute traffic buckets.
+ *
+ * @param records Newest-first APIStatusRecords
+ * @param limit Bar count
+ */
+export const probeHistory = <T extends { bucketMinutes?: number | null }>(
+    records: T[] | null | undefined,
+    limit: number
+): T[] =>
+    (records || [])
+        .filter((record) => record?.bucketMinutes == null)
+        .slice(0, limit);
