@@ -794,17 +794,20 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     // Progress polling
     // -------------------------------------------------------------------------
 
+    private _isTerminalStatus(status?: string): boolean {
+        return status === 'completed' || status === 'failed' || status === 'cancelled';
+    }
+
     /**
-     * Queue the next progress poll. Active runs poll frequently; idle batches poll
-     * slowly so a run started from another tab still shows up here.
+     * Queue the next progress poll while work can still change. Finished batches
+     * do not poll; Start / Resume / Retry call this again.
      * @param immediate Poll on the next tick rather than after the interval.
      */
     private _schedulePoll(immediate = false): void {
         this._stopPolling();
 
-        if (this.isBrowserSync() && this._browserRunner.running()) {
-            return;
-        }
+        if (this._browserRunner.running()) return;
+        if (this._isTerminalStatus(this.batch()?.status)) return;
 
         const delay = immediate ? 0 : this.isProcessing() ? PROGRESS_POLL_INTERVAL_MS : IDLE_POLL_INTERVAL_MS;
 
