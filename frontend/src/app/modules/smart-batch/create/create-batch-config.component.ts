@@ -199,7 +199,7 @@ export class CreateBatchConfigComponent {
                 inputFormat: config.inputFormat,
                 outputFormat: config.outputFormat,
                 mergeStrategy: config.mergeStrategy,
-                executor: config.executor === 'queue' ? 'queue' : 'featureRunner',
+                executor: config.executor === 'queue' ? 'queue' : 'browser',
                 webhookUrl: config.notification?.webhookUrl || '',
             },
             { emitEvent: false }
@@ -442,15 +442,15 @@ export class CreateBatchConfigComponent {
         };
     }
 
-    currentRunMode(): 'queue' | 'featureRunner' {
-        return this.step1Form.get('executor')?.value === 'queue' ? 'queue' : 'featureRunner';
+    currentRunMode(): 'queue' | 'browser' {
+        return this.step1Form.get('executor')?.value === 'queue' ? 'queue' : 'browser';
     }
 
     isAsyncSelected(): boolean {
         return this.currentRunMode() === 'queue';
     }
 
-    selectRunMode(mode: 'queue' | 'featureRunner'): void {
+    selectRunMode(mode: 'queue' | 'browser'): void {
         this.step1Form.patchValue({ executor: mode });
     }
 

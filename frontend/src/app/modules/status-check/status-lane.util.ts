@@ -32,6 +32,9 @@ export const UNMEASURED_STATUSES = ['configError', 'billingBlocked', 'authError'
 /** Local placeholder for an interval that was never reported at all. */
 export const AWAITING = 'awaiting';
 
+/** Same slot count as Admin details (`HISTORY_POINTS`). */
+export const HISTORY_POINTS = 50;
+
 /**
  * @param status Raw status from an APIStatusRecord
  */
@@ -101,7 +104,7 @@ export const cardStatus = (
 ): string => latestTick?.status || fallbackStatus || AWAITING;
 
 /**
- * Admin and Smart-Agent cards share probe ticks, not 360-minute traffic buckets.
+ * Admin details and Smart-Agent cards share these ticks: no `bucketMinutes`.
  *
  * @param records Newest-first APIStatusRecords
  * @param limit Bar count
@@ -113,3 +116,38 @@ export const probeHistory = <T extends { bucketMinutes?: number | null }>(
     (records || [])
         .filter((record) => record?.bucketMinutes == null)
         .slice(0, limit);
+
+const HISTORY_FILLER = {
+    group: 'apiRequest',
+    status: AWAITING,
+    responseTime: 0,
+    createdAt: null as null,
+};
+
+/**
+ * Admin details padding: newest-first probes, then empty slots, then reverse
+ * so the chart reads oldest → newest.
+ *
+ * @param records Newest-first APIStatusRecords
+ * @param limit Bar count
+ */
+export const adminChartPoints = <T extends { bucketMinutes?: number | null; createdAt?: unknown }>(
+    records: T[] | null | undefined,
+    limit: number = HISTORY_POINTS
+): Array<T | typeof HISTORY_FILLER> => {
+    const probes = probeHistory(records, limit);
+    const padding = Array.from({ length: Math.max(0, limit - probes.length) }, () => ({
+        ...HISTORY_FILLER,
+    }));
+
+    return [...probes, ...padding].reverse();
+};
+
+/**
+ * Newest real reading on an Admin-padded series (ignores awaiting fillers).
+ */
+export const latestChartPoint = <T extends { createdAt?: unknown; status?: string }>(
+    points: T[] | null | undefined
+): T | null =>
+    [...(points || [])].reverse().find((point) => point?.createdAt && point.status !== AWAITING) ||
+    null;

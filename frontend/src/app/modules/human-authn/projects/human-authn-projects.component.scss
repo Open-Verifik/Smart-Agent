@@ -1,0 +1,189 @@
+:host {
+    display: block;
+}
+
+.page {
+    min-height: 100%;
+}
+
+.inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+}
+
+.hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.hero-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgb(241, 245, 249);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(15, 23, 42);
+    flex-shrink: 0;
+}
+
+.hero-icon mat-icon {
+    width: 26px;
+    height: 26px;
+    font-size: 26px;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.875rem;
+    font-weight: 650;
+    letter-spacing: -0.03em;
+    color: rgb(15, 23, 42);
+}
+
+.subtitle {
+    margin: 0.4rem 0 0;
+    font-size: 1rem;
+    color: rgb(100, 116, 139);
+    line-height: 1.45;
+}
+
+.crumb {
+    font-size: 0.75rem;
+    color: rgb(100, 116, 139);
+    margin-bottom: 1.5rem;
+}
+
+.crumb-link {
+    color: rgb(51, 65, 85);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.crumb-sep {
+    margin: 0 0.35rem;
+    color: rgb(203, 213, 225);
+}
+
+.crumb-here {
+    color: rgb(71, 85, 105);
+}
+
+.empty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgb(241, 245, 249);
+    padding: 3rem 1.5rem;
+}
+
+.empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin-bottom: 1rem;
+    border-radius: 1rem;
+    background: rgb(255, 255, 255);
+    color: rgb(15, 23, 42);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+.empty-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: rgb(15, 23, 42);
+}
+
+.empty-body {
+    margin: 0;
+    max-width: 28rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: rgb(71, 85, 105);
+}
+
+.state-loading,
+.banner-error,
+.plan-gate,
+.grid {
+    margin-top: 0.5rem;
+}
+
+.plan-gate,
+.card {
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 16px;
+    background: white;
+    padding: 1.25rem;
+}
+
+.plan-gate {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.card {
+    text-align: left;
+    cursor: pointer;
+}
+
+.card-create {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.banner-error {
+    color: rgb(185, 28, 28);
+}
+
+:host-context(.dark) {
+    .hero-icon,
+    .empty-icon {
+        background: rgb(30, 41, 59);
+        border-color: rgba(148, 163, 184, 0.22);
+        color: rgb(226, 232, 240);
+    }
+
+    .title,
+    .empty-title {
+        color: rgb(248, 250, 252);
+    }
+
+    .subtitle,
+    .crumb,
+    .crumb-here,
+    .empty-body {
+        color: rgb(148, 163, 184);
+    }
+
+    .crumb-link {
+        color: rgb(226, 232, 240);
+    }
+
+    .empty-card,
+    .plan-gate,
+    .card {
+        background: rgb(30, 41, 59);
+        border-color: rgba(148, 163, 184, 0.18);
+    }
+}

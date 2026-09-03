@@ -16,7 +16,7 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
     template: `
         @if (env.showVerifyStrip()) {
             <div
-                class="flex w-full items-center justify-between gap-3 bg-gradient-to-r from-verifikBrand-700 to-verifikBrand-600 px-4 py-2 dark:from-verifikBrand-800 dark:to-verifikBrand-700"
+                class="flex w-full items-center justify-between gap-3 bg-slate-950 px-4 py-2 dark:bg-black"
                 role="alert"
             >
                 <div class="flex min-w-0 items-center gap-2">
@@ -32,7 +32,7 @@ import { AccountEnvironmentService } from '../../../core/account/account-environ
                 <button
                     mat-flat-button
                     type="button"
-                    class="!shrink-0 !rounded-lg !bg-white !text-verifikBrand-800 !text-xs !font-semibold hover:!bg-verifikBrand-50 dark:!text-verifikBrand-900"
+                    class="!shrink-0 !rounded-lg !bg-white !text-slate-950 !text-xs !font-semibold hover:!bg-slate-100 dark:!bg-slate-100 dark:!text-slate-950"
                     [disabled]="env.verifyCompanyLoading() || env.verifyStripPendingReview()"
                     (click)="env.startCompanyVerification()"
                 >

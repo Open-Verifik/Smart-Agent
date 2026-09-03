@@ -177,7 +177,7 @@
                                         <span class="block text-sm font-semibold">{{ 'createBatchConfig.runModeAsync' | transloco }}</span>
                                         <span [class]="runModeHintClass(isAsyncSelected())">{{ 'createBatchConfig.runModeAsyncHint' | transloco }}</span>
                                     </button>
-                                    <button type="button" [class]="runModeCardClass(!isAsyncSelected())" (click)="selectRunMode('featureRunner')">
+                                    <button type="button" [class]="runModeCardClass(!isAsyncSelected())" (click)="selectRunMode('browser')">
                                         <span class="block text-sm font-semibold">{{ 'createBatchConfig.runModeSync' | transloco }}</span>
                                         <span [class]="runModeHintClass(!isAsyncSelected())">{{ 'createBatchConfig.runModeSyncHint' | transloco }}</span>
                                     </button>

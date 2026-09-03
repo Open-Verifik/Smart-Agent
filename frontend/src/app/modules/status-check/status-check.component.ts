@@ -23,12 +23,16 @@ import ApexCharts from 'apexcharts';
 import { DateTime } from 'luxon';
 import { catchError, forkJoin, Observable, of, Subject, takeUntil } from 'rxjs';
 import { StatusCheckService } from './status-check.service';
-import { AWAITING, cardStatus, laneOf, measuredCount, probeHistory, uptimePercentage } from './status-lane.util';
-
-/** Same probe-tick count as Admin details. */
-const HISTORY_POINTS = 50;
-/** Mixed rows come back; keep enough to fill HISTORY_POINTS probe ticks. */
-const HISTORY_FETCH = 200;
+import {
+    AWAITING,
+    HISTORY_POINTS,
+    adminChartPoints,
+    cardStatus,
+    laneOf,
+    latestChartPoint,
+    measuredCount,
+    uptimePercentage,
+} from './status-lane.util';
 
 @Component({
     selector: 'status-check',
@@ -306,7 +310,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
             const payload = {
                 where_code: method.code,
                 page: 1,
-                perPage: HISTORY_FETCH,
+                perPage: HISTORY_POINTS,
                 sort: '-createdAt',
             };
 
@@ -344,7 +348,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     /**
-     * Tooltip for one bar: when + scrubbed public copy (never raw probe internals).
+     * Same as Admin details `tickTooltip`: time · status · ms · source · N req.
      */
     tickTooltip(point: any): string {
         if (this.isAwaiting(point?.status)) {
@@ -353,14 +357,11 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
 
         const parts = [
             this.formatDate(point.createdAt),
-            point.publicMessage || this.laneLabel(point.status),
+            point.status,
+            point.responseTime ? `${point.responseTime}ms` : null,
+            point.source || null,
+            point.trafficSamples ? `${point.trafficSamples} req` : null,
         ];
-
-        if (point.responseTime) parts.push(`${point.responseTime}ms`);
-
-        if (point.trafficSamples) {
-            parts.push(`${point.trafficSamples} req`);
-        }
 
         return parts.filter(Boolean).join(' · ');
     }
@@ -369,15 +370,7 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
      * Latest measured point on the card (ignores awaiting fillers).
      */
     latestPoint(item: any): any | null {
-        const points = item?.data || [];
-
-        for (let index = points.length - 1; index >= 0; index -= 1) {
-            if (points[index]?.createdAt && !this.isAwaiting(points[index].status)) {
-                return points[index];
-            }
-        }
-
-        return null;
+        return latestChartPoint(item?.data);
     }
 
     currentLane(item: any): string {
@@ -413,17 +406,8 @@ export class StatusCheckComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     processStatusRecord(listStatusRecord: any[], method: any): void {
-        const probes = probeHistory(listStatusRecord, HISTORY_POINTS);
-        const filler = {
-            group: 'apiRequest',
-            status: AWAITING,
-            responseTime: 0,
-            createdAt: null,
-        };
-        const padding = Array.from({ length: Math.max(0, HISTORY_POINTS - probes.length) }, () => filler);
-        const points = [...probes, ...padding].reverse();
-
-        const latest = [...points].reverse().find((point) => point.createdAt && point.status !== AWAITING);
+        const points = adminChartPoints(listStatusRecord, HISTORY_POINTS);
+        const latest = latestChartPoint(points);
 
         const record = {
             data: points,

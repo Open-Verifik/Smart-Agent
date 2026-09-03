@@ -30,46 +30,6 @@
         }
 
         <ng-container [formGroup]="livenessFormGroup!">
-            <!-- 2. KYC type (only when liveness is enabled) -->
-            @if (isLivenessEnabled) {
-                <section
-                    class="flex flex-col gap-4 rounded-2xl border border-stone-200/90 bg-white px-6 py-6 dark:border-gray-700 dark:bg-gray-900/40"
-                >
-                    <header>
-                        <h2 class="text-base font-semibold tracking-tight text-stone-900 dark:text-white">
-                            {{ t('smartEnrollProjects.setup.liveness.kyc.title') }}
-                        </h2>
-                        <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">
-                            {{ t('smartEnrollProjects.setup.liveness.kyc.subtitle') }}
-                        </p>
-                    </header>
-                    <mat-radio-group formControlName="kycType" class="flex flex-wrap gap-4">
-                        <mat-radio-button value="traditional">
-                            {{ t('smartEnrollProjects.setup.liveness.kyc.traditional') }}
-                        </mat-radio-button>
-                        <mat-radio-button value="zero_knowledge">
-                            {{ t('smartEnrollProjects.setup.liveness.kyc.zeroKnowledge') }}
-                        </mat-radio-button>
-                    </mat-radio-group>
-
-                    @if (isTraditionalKyc) {
-                        <div
-                            class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
-                        >
-                            <mat-icon class="!h-4 !w-4">info</mat-icon>
-                            <span>{{ t('smartEnrollProjects.setup.liveness.kyc.traditionalDescription') }}</span>
-                        </div>
-                    } @else if (isZeroKnowledgeKyc) {
-                        <div
-                            class="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
-                        >
-                            <mat-icon class="!h-4 !w-4">info</mat-icon>
-                            <span>{{ t('smartEnrollProjects.setup.liveness.kyc.zeroKnowledgeDescription') }}</span>
-                        </div>
-                    }
-                </section>
-            }
-
             <!-- 3. Liveness score -->
             <section
                 class="flex flex-col gap-4 rounded-2xl border bg-white px-6 py-6 dark:bg-gray-900/40"

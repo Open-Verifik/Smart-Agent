@@ -64,6 +64,9 @@
         "demos_subtitle": "Interactive biometrics demos",
         "human_authn": "HumanAuthn",
         "human_authn_demos_subtitle": "HumanID and liveness demos",
+        "human_authn_projects": "Projects",
+        "human_authn_projects_subtitle": "HumanAuthn projects",
+        "human_authn_plans": "Plans",
         "whatsapp_messages": "WhatsApp Messages",
         "whatsapp_messages_subtitle": "OTP messages sent via WhatsApp",
         "sms_messages": "SMS Messages",
@@ -220,7 +223,7 @@
         "runModeAsync": "Async",
         "runModeSync": "Sync",
         "runModeAsyncHint": "Runs in the background. You can close this tab; we keep processing the batch.",
-        "runModeSyncHint": "Runs on the server as a connected step chain. Best when later steps need earlier results.",
+        "runModeSyncHint": "This tab calls each endpoint. Closing it stops the batch.",
         "saving": "Saving...",
         "next": "Next",
         "selectEndpoints": "Select Endpoints",
@@ -854,11 +857,44 @@
             }
         },
         "companyVerification": {
-            "title": "Verify your company to access the 14-day free trial.",
-            "body": "Complete company verification to unlock purchases and switch out of Sandbox when you're ready.",
-            "cta": "Verify company",
+            "title": "Verify your company to release {{amount}} USD in free credits.",
+            "body": "To release your free credits, we need to review your company information in order to meet the requirements of our regulators and partners. After verification, those credits become available and you can switch to Production.",
+            "cta": "Start company verification",
+            "pendingTitle": "Your company verification is under review.",
+            "pendingBody": "We're reviewing your company information. We'll release {{amount}} USD in free credits and unlock Production when verification is complete.",
+            "step1": "Provide company information",
+            "step2": "Review",
+            "step3": "Verification result",
             "errors": {
                 "startFailed": "Could not open verification. Try again or use Add credits."
+            }
+        },
+        "getStarted": {
+            "title": "Get started with Verifik",
+            "docsLink": "Check out the documentation",
+            "smartEnroll": {
+                "badgeStart": "Start",
+                "badgeNoCode": "No code",
+                "title": "Start with SmartEnroll",
+                "body": "Try document enrollment and biometric checks without writing code.",
+                "bulletId": "ID verification",
+                "bulletLiveness": "Liveness check",
+                "cta": "View projects"
+            },
+            "humanAuthn": {
+                "badgeNoCode": "No code",
+                "title": "Test HumanAuthn",
+                "body": "Create and verify HumanID proofs for decentralized identity.",
+                "cta": "View projects"
+            },
+            "smartCheck": {
+                "badge": "Integration",
+                "title": "Test SmartCheck",
+                "token": "Generate an App Token for Authentication",
+                "explore": "Explore APIs in Postman, or read the documentation.",
+                "postman": "Open Postman",
+                "docs": "View documentation",
+                "webhooks": "Create Webhooks to receive verification results"
             }
         },
         "tutorial": {
@@ -884,6 +920,90 @@
             "step5Title": "Credits and billing",
             "step5Desc": "Manage your subscription and add credits. Pay-per-verification with no fixed subscription required."
         }
+    },
+    "humanAuthnProjects": {
+        "title": "Projects",
+        "subtitle": "Create personal HumanAuthn projects for encrypted identity records.",
+        "emptyTitle": "No projects yet",
+        "emptyBody": "Create a project to configure enrollment, storage, and integrations.",
+        "emptyStaffTitle": "No assigned projects",
+        "emptyStaffBody": "Ask a workspace admin to assign you to a HumanAuthn project.",
+        "createProject": "Create project",
+        "loadError": "Could not load projects.",
+        "plansLoadError": "Could not load your HumanAuthn plan.",
+        "noPlanCardTitle": "A HumanAuthn plan is required",
+        "noPlanCardBody": "Subscribe to a HumanAuthn plan to create and manage projects.",
+        "goToPlans": "View plans",
+        "setup": {
+            "title": "Project setup",
+            "newProject": "New HumanAuthn project",
+            "previewComingSoon": "Preview coming soon",
+            "back": "Back",
+            "next": "Continue",
+            "finish": "Finish",
+            "unsavedChanges": "Unsaved changes",
+            "unsavedChangesMessage": "Leave this step without saving?",
+            "exitWithoutSaving": "Leave without saving",
+            "steps": {
+                "basic": "Project details",
+                "signup": "Sign-up form",
+                "documents": "Documents",
+                "humanAuthn": "HumanAuthn",
+                "storage": "Storage",
+                "integrations": "Integrations",
+                "ui": "User interface"
+            },
+            "humanAuthn": {
+                "privacy": "Verifik does not keep a face template. The encrypted proof is the record. Storage is only an index of the encrypted blob and public fields.",
+                "standardTitle": "Standard record",
+                "standardBody": "One-time encrypt. Later decrypt does not require a live face each time.",
+                "activeTitle": "Active user",
+                "activeBody": "Liveness is required on every decrypt. Billed as a monthly active user.",
+                "livenessAtCreation": "Require liveness when the record is created",
+                "livenessAtCreationHelp": "This only gates creation. It does not change the active-user or monthly model."
+            },
+            "storage": {
+                "ipfsTitle": "IPFS",
+                "ipfsBody": "Decentralized index with a public gateway URL.",
+                "cloudTitle": "Cloud Storage",
+                "cloudBody": "Verifik-hosted encrypted object for the same proof payload."
+            },
+            "integrations": {
+                "redirectUrl": "Redirect URL",
+                "webhook": "Webhook",
+                "noWebhook": "None",
+                "manageWebhooks": "Manage webhooks"
+            }
+        }
+    },
+    "humanAuthnPlans": {
+        "title": "HumanAuthn plans",
+        "subtitle": "Choose a plan for encrypts, active users, and decrypts.",
+        "active": "Active",
+        "changePlan": "Change plan",
+        "selectPlan": "Select plan",
+        "purchase": "Purchase this plan",
+        "back": "Back",
+        "month": "month",
+        "freeForever": "Free",
+        "monthlyEncrypts": "Monthly encrypts",
+        "encrypts": "Encrypts",
+        "activeUsers": "Active users",
+        "decrypts": "Decrypts",
+        "previews": "Previews",
+        "manageBilling": "Manage billing",
+        "loadError": "Could not load plans.",
+        "redirectError": "Could not open the billing portal.",
+        "checkoutError": "Could not start checkout.",
+        "checkoutNoPrice": "This plan is not ready for checkout yet.",
+        "billingRequiredTitle": "Billing details required",
+        "billingRequiredMessage": "Add billing details before you subscribe to a HumanAuthn plan.",
+        "billingRequiredCancel": "Cancel",
+        "billingRequiredGoSettings": "Go to billing details",
+        "volumeConfirmTitle": "Confirm volume",
+        "volumeConfirmMessage": "Subscribe with {{quantity}} monthly encrypts for {{total}} USD?",
+        "volumeConfirmCancel": "Cancel",
+        "volumeConfirmContinue": "Continue"
     },
     "accountEnv": {
         "verifyStrip": {
@@ -7173,6 +7293,8 @@
         "startFailed": "Could not start the run. Try again.",
         "resumed": "Resumed",
         "runQueued": "Run queued. Processing continues on the server, so you can close this tab.",
+        "runInTab": "Started in this tab. Keep it open until the batch finishes.",
+        "runInTabFailed": "This tab could not write a row result. Try Start again.",
         "runPaused": "Run paused. Records in flight will finish first.",
         "runResumed": "Run resumed.",
         "runCancelled": "Run cancelled.",

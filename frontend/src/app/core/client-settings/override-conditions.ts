@@ -1,6 +1,7 @@
 export interface OverrideConditionsSnapshot {
     requiresSmartEnrollSubscription?: boolean;
     requiresSmartAccessSubscription?: boolean;
+    requiresHumanAuthnSubscription?: boolean;
     staffSeatLimit?: number | null;
 }
 
@@ -15,3 +16,7 @@ export const requiresSmartEnrollSubscription = (
 export const requiresSmartAccessSubscription = (
     settings?: ClientSettingsOverrideSnapshot | null
 ): boolean => settings?.overrideConditions?.requiresSmartAccessSubscription !== false;
+
+export const requiresHumanAuthnSubscription = (
+    settings?: ClientSettingsOverrideSnapshot | null
+): boolean => settings?.overrideConditions?.requiresHumanAuthnSubscription !== false;

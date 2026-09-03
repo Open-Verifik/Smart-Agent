@@ -2,8 +2,8 @@
     <!-- Header -->
     <div class="sticky top-0 z-10 border-b border-stone-200/90 bg-white/90 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+                <div class="flex min-w-0 items-center gap-4">
                     <button
                         mat-icon-button
                         (click)="goBack()"
@@ -11,8 +11,8 @@
                     >
                         <mat-icon>arrow_back</mat-icon>
                     </button>
-                    <div>
-                        <div class="flex items-center gap-2.5">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2.5">
                             <h1 class="text-xl font-bold text-stone-950 dark:text-white">
                                 {{
                                     batch()?.name || ('batchProcessing.batchProcessing' | transloco)
@@ -40,15 +40,14 @@
                                     'batchProcessing.' + (batch()?.status || 'pending') | transloco
                                 }}
                             </span>
-                            @if (isServerManaged()) {
-                                <span
-                                    class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-600 dark:bg-gray-800 dark:text-stone-300"
-                                    [matTooltip]="'batchProcessing.serverManagedHint' | transloco"
-                                >
-                                    <mat-icon class="icon-size-3.5">cloud_done</mat-icon>
-                                    {{ 'batchProcessing.serverManaged' | transloco }}
-                                </span>
-                            }
+                            <span
+                                class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold"
+                                [ngClass]="runModeBadgeClass()"
+                                [matTooltip]="runModeHintKey() | transloco"
+                            >
+                                <mat-icon class="icon-size-3.5">{{ runModeIcon() }}</mat-icon>
+                                {{ runModeLabelKey() | transloco }}
+                            </span>
                         </div>
                         <p class="mt-0.5 text-sm text-stone-500 dark:text-stone-400">
                             {{ batch()?.totalRows || 0 }}
@@ -58,27 +57,19 @@
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2.5 sm:justify-end xl:shrink-0">
                     @if (canEditExecutor()) {
-                        <mat-button-toggle-group
-                            [value]="batch()?.executor || 'featureRunner'"
-                            (change)="setExecutor($event.value)"
-                            class="!rounded-xl"
-                            [matTooltip]="'batchProcessing.executorHint' | transloco"
-                        >
-                            <mat-button-toggle value="queue">{{
-                                'batchProcessing.executorQueue' | transloco
-                            }}</mat-button-toggle>
-                            <mat-button-toggle value="featureRunner">{{
-                                'batchProcessing.executorFeatureRunner' | transloco
-                            }}</mat-button-toggle>
-                            <mat-button-toggle value="browser">{{
-                                'batchProcessing.executorBrowser' | transloco
-                            }}</mat-button-toggle>
-                        </mat-button-toggle-group>
+                        <batch-executor-control
+                            [executor]="liveExecutor()"
+                            [saving]="savingExecutor()"
+                            [showBadge]="false"
+                            [compact]="true"
+                            hintKey="batchDashboard.executorHint"
+                            (executorChange)="setExecutor($event)"
+                        />
                     }
                     @if (batch() && !isProcessing()) {
-                        <button mat-stroked-button (click)="editInputs()" class="!rounded-xl">
+                        <button mat-stroked-button (click)="editInputs()" class="!m-0 !rounded-xl whitespace-nowrap">
                             <span class="inline-flex items-center gap-2">
                                 <mat-icon>playlist_add</mat-icon>
                                 {{ 'batchProcessing.addInputs' | transloco }}
@@ -88,14 +79,15 @@
                     @if (
                         batch()?.status === 'draft' ||
                         batch()?.status === 'pending' ||
-                        batch()?.status === 'failed'
+                        batch()?.status === 'failed' ||
+                        batch()?.status === 'cancelled'
                     ) {
                         <button
                             mat-flat-button
                             color="primary"
                             (click)="startProcessing()"
                             [disabled]="isStarting()"
-                            class="!rounded-xl"
+                            class="!m-0 !rounded-xl whitespace-nowrap"
                         >
                             <span class="inline-flex items-center gap-2">
                                 @if (isStarting()) {
@@ -118,7 +110,7 @@
                             mat-stroked-button
                             (click)="pauseProcessing()"
                             [disabled]="isPausing()"
-                            class="!rounded-xl"
+                            class="!m-0 !rounded-xl whitespace-nowrap"
                         >
                             <span class="inline-flex items-center gap-2">
                                 @if (isPausing()) {
@@ -134,7 +126,7 @@
                             mat-stroked-button
                             (click)="cancelProcessing()"
                             [disabled]="isCancelling()"
-                            class="!rounded-xl !border-red-400 !text-red-700 dark:!text-red-300"
+                            class="!m-0 !rounded-xl whitespace-nowrap !border-red-400 !text-red-700 dark:!text-red-300"
                         >
                             <span class="inline-flex items-center gap-2">
                                 @if (isCancelling()) {
@@ -153,7 +145,7 @@
                             color="primary"
                             (click)="resumeProcessing()"
                             [disabled]="isResuming()"
-                            class="!rounded-xl"
+                            class="!m-0 !rounded-xl whitespace-nowrap"
                         >
                             <span class="inline-flex items-center gap-2">
                                 @if (isResuming()) {
@@ -171,7 +163,7 @@
                             mat-stroked-button
                             (click)="retryAllFailedRows($event)"
                             [disabled]="isRetryingFailed()"
-                            class="!rounded-xl !border-amber-400 !text-amber-800 dark:!text-amber-300"
+                            class="!m-0 !rounded-xl whitespace-nowrap !border-amber-400 !text-amber-800 dark:!text-amber-300"
                             [matTooltip]="'batchProcessing.retryFailedTooltip' | transloco"
                         >
                             <span class="inline-flex items-center gap-2">
@@ -197,7 +189,7 @@
                             mat-flat-button
                             color="accent"
                             (click)="generateReport()"
-                            class="!rounded-xl !bg-indigo-600"
+                            class="!m-0 !rounded-xl !bg-indigo-600 whitespace-nowrap"
                         >
                             <span class="inline-flex items-center gap-2">
                                 <mat-icon>description</mat-icon>
@@ -1132,19 +1124,41 @@
                                         | transloco: { index: (selectedRow()?.rowIndex ?? 0) + 1 }
                                 }}
                             </h3>
-                            <div class="flex items-center gap-2">
-                                <mat-button-toggle-group
-                                    [value]="detailsViewMode()"
-                                    (change)="detailsViewMode.set($event.value)"
-                                    class="!rounded-lg"
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="inline-flex rounded-full bg-stone-100 p-0.5 dark:bg-gray-800"
+                                    role="group"
+                                    [attr.aria-label]="'batchProcessing.readable' | transloco"
                                 >
-                                    <mat-button-toggle value="readable">{{
-                                        'batchProcessing.readable' | transloco
-                                    }}</mat-button-toggle>
-                                    <mat-button-toggle value="json">{{
-                                        'batchProcessing.json' | transloco
-                                    }}</mat-button-toggle>
-                                </mat-button-toggle-group>
+                                    <button
+                                        type="button"
+                                        class="rounded-full px-3 py-1 text-xs font-semibold transition"
+                                        [class.bg-white]="detailsViewMode() === 'readable'"
+                                        [class.text-stone-900]="detailsViewMode() === 'readable'"
+                                        [class.shadow-sm]="detailsViewMode() === 'readable'"
+                                        [class.text-stone-500]="detailsViewMode() !== 'readable'"
+                                        [class.dark:bg-gray-950]="detailsViewMode() === 'readable'"
+                                        [class.dark:text-white]="detailsViewMode() === 'readable'"
+                                        [class.dark:text-stone-400]="detailsViewMode() !== 'readable'"
+                                        (click)="detailsViewMode.set('readable')"
+                                    >
+                                        {{ 'batchProcessing.readable' | transloco }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="rounded-full px-3 py-1 text-xs font-semibold transition"
+                                        [class.bg-white]="detailsViewMode() === 'json'"
+                                        [class.text-stone-900]="detailsViewMode() === 'json'"
+                                        [class.shadow-sm]="detailsViewMode() === 'json'"
+                                        [class.text-stone-500]="detailsViewMode() !== 'json'"
+                                        [class.dark:bg-gray-950]="detailsViewMode() === 'json'"
+                                        [class.dark:text-white]="detailsViewMode() === 'json'"
+                                        [class.dark:text-stone-400]="detailsViewMode() !== 'json'"
+                                        (click)="detailsViewMode.set('json')"
+                                    >
+                                        {{ 'batchProcessing.json' | transloco }}
+                                    </button>
+                                </div>
                                 @if (
                                     selectedRow() &&
                                     hasPendingSteps(selectedRow()!) &&

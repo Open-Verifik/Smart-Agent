@@ -440,7 +440,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                 compareMinScore: [currentData?.liveness?.compareMinScore || 0.85, [Validators.min(0.7), Validators.max(0.95)]],
                 searchMinScore: [currentData?.liveness?.searchMinScore || 0.85, [Validators.min(0.81), Validators.max(0.95)]],
                 searchMode: [currentData?.liveness?.searchMode || 'FAST'],
-                kycType: [currentData?.liveness?.kycType || 'traditional'],
+                kycType: ['traditional'],
             }),
             representatives: this._formBuilder.group({
                 maxRepresentatives: [
@@ -495,7 +495,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
                     compareMinScore: [currentData?.representatives?.liveness?.compareMinScore || 0.85, [Validators.min(0.7), Validators.max(0.95)]],
                     searchMinScore: [currentData?.representatives?.liveness?.searchMinScore || 0.85, [Validators.min(0.81), Validators.max(0.95)]],
                     searchMode: [currentData?.representatives?.liveness?.searchMode || 'FAST'],
-                    kycType: [currentData?.representatives?.liveness?.kycType || 'traditional'],
+                    kycType: ['traditional'],
                 }),
             }),
             signUpForm: this._formBuilder.group(
@@ -587,12 +587,12 @@ export class SetupHostComponent implements OnInit, OnDestroy {
 
                 if (steps.liveness === 'skip') {
                     formData.projectFlow.liveness = {
-                        kycType: livenessRawValue?.kycType || liveness?.kycType || 'traditional',
+                        kycType: 'traditional',
                     };
                 } else {
                     formData.projectFlow.liveness = {
                         ...livenessRawValue,
-                        kycType: livenessRawValue?.kycType || liveness?.kycType || 'traditional',
+                        kycType: 'traditional',
                     };
                 }
             }
@@ -784,6 +784,7 @@ export class SetupHostComponent implements OnInit, OnDestroy {
             }
         });
         const kycTypeControl = livenessGroup.get('kycType');
+        kycTypeControl?.setValue('traditional', { emitEvent: false });
         kycTypeControl?.enable({ emitEvent: false });
 
         if (shouldDisable) {

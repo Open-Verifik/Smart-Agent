@@ -1,0 +1,77 @@
+:host {
+    display: block;
+}
+
+.plans-page {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+}
+
+.hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 650;
+}
+
+.hero p,
+.muted {
+    color: rgb(100, 116, 139);
+}
+
+.catalog {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+}
+
+.catalog-card,
+.plan-card,
+.select-card {
+    border: 1px solid rgb(226, 232, 240);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    background: white;
+}
+
+.catalog-card--popular {
+    border-color: rgb(15, 23, 42);
+}
+
+.catalog-card ul {
+    padding-left: 1.1rem;
+    margin: 0.75rem 0 1rem;
+    color: rgb(71, 85, 105);
+}
+
+.price {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.volume {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.badge {
+    border-radius: 999px;
+    background: rgb(220, 252, 231);
+    color: rgb(22, 101, 52);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.55rem;
+}
+
+.current-card {
+    margin-bottom: 1.5rem;
+}

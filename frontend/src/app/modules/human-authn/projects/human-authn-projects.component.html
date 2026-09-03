@@ -1,0 +1,70 @@
+<div class="page" *transloco="let t">
+    <div class="inner">
+        <header class="hero">
+            <div class="hero-icon">
+                <mat-icon svgIcon="heroicons_outline:rectangle-stack"></mat-icon>
+            </div>
+            <div>
+                <h1 class="title">{{ t('humanAuthnProjects.title') }}</h1>
+                <p class="subtitle">{{ t('humanAuthnProjects.subtitle') }}</p>
+            </div>
+        </header>
+
+        <div class="crumb">
+            <a routerLink="/home" class="crumb-link">Verifik</a>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-here">{{ t('nav.human_authn') }}</span>
+            <span class="crumb-sep">/</span>
+            <span class="crumb-here">{{ t('humanAuthnProjects.title') }}</span>
+        </div>
+
+        @if (loading()) {
+            <div class="state-loading">
+                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            </div>
+        } @else if (error()) {
+            <div class="banner-error">{{ error()! | transloco }}</div>
+        } @else if (noActivePlan()) {
+            <div class="plan-gate">
+                <div>
+                    <h2>{{ t('humanAuthnProjects.noPlanCardTitle') }}</h2>
+                    <p>{{ t('humanAuthnProjects.noPlanCardBody') }}</p>
+                </div>
+                <button mat-flat-button color="primary" type="button" (click)="goToPlans()">
+                    {{ t('humanAuthnProjects.goToPlans') }}
+                </button>
+            </div>
+        } @else if (projects().length === 0) {
+            <div class="empty-card">
+                <div class="empty-icon">
+                    <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                </div>
+                @if (isWorkspaceStaff()) {
+                    <h2 class="empty-title">{{ t('humanAuthnProjects.emptyStaffTitle') }}</h2>
+                    <p class="empty-body">{{ t('humanAuthnProjects.emptyStaffBody') }}</p>
+                } @else {
+                    <h2 class="empty-title">{{ t('humanAuthnProjects.emptyTitle') }}</h2>
+                    <p class="empty-body">{{ t('humanAuthnProjects.emptyBody') }}</p>
+                    <button mat-flat-button color="primary" type="button" (click)="createProject()">
+                        {{ t('humanAuthnProjects.createProject') }}
+                    </button>
+                }
+            </div>
+        } @else {
+            <div class="grid">
+                @if (!isWorkspaceStaff()) {
+                    <button type="button" class="card card-create" (click)="createProject()">
+                        <mat-icon svgIcon="heroicons_outline:plus-circle"></mat-icon>
+                        <span>{{ t('humanAuthnProjects.createProject') }}</span>
+                    </button>
+                }
+                @for (project of projects(); track project._id) {
+                    <button type="button" class="card" (click)="openProject(project)">
+                        <h2>{{ project.name }}</h2>
+                        <p>{{ project.status || 'draft' }}</p>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+</div>

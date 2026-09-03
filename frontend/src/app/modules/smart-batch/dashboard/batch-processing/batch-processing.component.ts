@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, effect, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -35,6 +34,8 @@ import {
 } from '../../smart-batch.service';
 import { getStepDisplayFields } from '../../step-result-presenters/registry';
 import { inferBatchCategory, SmartBatchInputModeService } from '../../smart-batch-input-mode.service';
+import { BatchExecutorControlComponent } from '../../batch-executor-control.component';
+import { BatchBrowserRunnerService } from '../../batch-browser-runner.service';
 
 type RowFilter = 'all' | 'pending' | 'completed' | 'failed' | 'partial';
 
@@ -99,8 +100,8 @@ const RUES_CATEGORY_FALLBACK_SORTED = [
         FormsModule,
         RouterModule,
         MatButtonModule,
-        MatButtonToggleModule,
         MatFormFieldModule,
+        BatchExecutorControlComponent,
         MatIconModule,
         MatInputModule,
         MatProgressBarModule,
@@ -124,6 +125,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _snack = inject(MatSnackBar);
     private _confirm = inject(FuseConfirmationService);
     private _inputModeService = inject(SmartBatchInputModeService);
+    private _browserRunner = inject(BatchBrowserRunnerService);
     private _destroy$ = new Subject<void>();
     private _pollTimer: ReturnType<typeof setTimeout> | null = null;
     private _shouldAutostart = false;
@@ -131,6 +133,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     private _reportRowIndex = '0';
     /** Guards the one-shot redirect so a late poll cannot navigate twice. */
     private _reportRedirectDone = false;
+    /** One refetch when GET batch omitted `rows` so the tab runner can start. */
+    private _didRefetchRowsForRunner = false;
 
     // Route params
     configId = signal<string | null>(null);
@@ -167,21 +171,53 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
     isPaused = computed(() => this.batch()?.status === 'paused');
 
-    /** True once the batch has been handed to the engine. */
-    isServerManaged = computed(
-        () => Boolean(this.batch()?.run) || this.batch()?.executor === 'queue'
-    );
+    /**
+     * Dashboard Run mode is the source of truth. The batch copy can stay
+     * frozen as queue after the config was flipped to Sync.
+     */
+    liveExecutor = computed((): SmartBatchExecutor => {
+        const fromConfig = this.configuration()?.executor;
+        const raw = fromConfig || this.batch()?.executor;
+        return raw === 'queue' ? 'queue' : 'browser';
+    });
+
+    /** True when the Python queue owns the work (not this tab). */
+    isServerManaged = computed(() => this.liveExecutor() === 'queue');
+
+    /** Sync is this tab — includes leftover featureRunner configs. */
+    isBrowserSync = computed(() => this.liveExecutor() !== 'queue');
 
     canEditExecutor = computed(() => {
         const status = this.batch()?.status;
-        return status === 'draft' || status === 'pending';
+        return status === 'draft' || status === 'pending' || status === 'cancelled';
+    });
+
+    savingExecutor = signal(false);
+
+    runModeLabelKey = computed(() => {
+        if (this.liveExecutor() === 'queue') return 'createBatchConfig.runModeAsync';
+        return 'createBatchConfig.runModeSync';
+    });
+
+    runModeHintKey = computed(() => {
+        if (this.liveExecutor() === 'queue') return 'createBatchConfig.runModeAsyncHint';
+        return 'createBatchConfig.runModeSyncHint';
+    });
+
+    runModeIcon = computed(() => (this.liveExecutor() === 'queue' ? 'cloud_queue' : 'bolt'));
+
+    runModeBadgeClass = computed(() => {
+        if (this.liveExecutor() === 'queue') {
+            return 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-200';
+        }
+        return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200';
     });
 
     // Configuration steps (sorted by sequence)
     configSteps = computed(() => {
         const config = this.configuration();
         if (!config?.steps) return [];
-        return config.steps.filter((s) => s.enabled).sort((a, b) => a.sequence - b.sequence);
+        return config.steps.filter((s) => s.enabled !== false).sort((a, b) => a.sequence - b.sequence);
     });
 
     /** Concurrency the engine is actually applying, from the run's mergeStrategy. */
@@ -467,12 +503,14 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this._route.params.subscribe((params) => {
             this.configId.set(params['configId']);
             this.batchId.set(params['batchId']);
+            this._didRefetchRowsForRunner = false;
             this._loadConfiguration();
             this._loadBatch();
         });
     }
 
     ngOnDestroy(): void {
+        this._browserRunner.stop();
         this._stopPolling();
         this._clearBatchJsonCopyTimer();
         this._destroy$.next();
@@ -486,6 +524,39 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         this._smartBatchService.getConfiguration(configId).subscribe({
             next: (res) => {
                 this.configuration.set(res.data);
+                this._maybeStartBrowserRunner();
+            },
+        });
+    }
+
+    /** Drive Sync from this tab when the batch is processing and has leftover rows. */
+    private _maybeStartBrowserRunner(): void {
+        const batch = this.batch();
+        if (!batch?._id || !this.isBrowserSync()) return;
+        if (batch.status !== 'processing' || this._browserRunner.running()) return;
+        if (!this.configSteps().length) return;
+        if (!batch.rows?.length) {
+            this._refetchBatchThenStartRunner();
+            return;
+        }
+        const pending = batch.rows.filter((row) => row.status === 'pending' || row.status === 'processing');
+        if (!pending.length) return;
+        void this._browserRunner.runBatch(
+            batch,
+            this.configSteps(),
+            (next) => this.batch.set(next),
+            (err) => this._reportFailure('batchProcessing.runInTabFailed', err)
+        );
+    }
+
+    private _refetchBatchThenStartRunner(): void {
+        const id = this.batchId();
+        if (!id || this._didRefetchRowsForRunner) return;
+        this._didRefetchRowsForRunner = true;
+        this._smartBatchService.getSmartBatch(id).subscribe({
+            next: (res) => {
+                this.batch.set(res.data);
+                this._maybeStartBrowserRunner();
             },
         });
     }
@@ -513,6 +584,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
                     void this.startProcessing();
                     return;
                 }
+                this._maybeStartBrowserRunner();
                 this._schedulePoll();
             },
             error: (err) => {
@@ -545,23 +617,30 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
     // Run control — every operation is a single server call
     // -------------------------------------------------------------------------
 
-    async setExecutor(executor: SmartBatchExecutor): Promise<void> {
-        const batch = this.batch();
-        if (!batch?._id || !this.canEditExecutor() || batch.executor === executor) return;
+    setExecutor(executor: SmartBatchExecutor): void {
+        const config = this.configuration();
+        const id = this.configId();
+        if (!id || !config || !this.canEditExecutor() || this.savingExecutor()) return;
+        if (this.liveExecutor() === executor) return;
 
-        try {
-            const res = await firstValueFrom(
-                this._smartBatchService.updateSmartBatch(batch._id, { executor })
-            );
-            this.batch.set(res.data);
-        } catch (err) {
-            this._reportFailure('batchProcessing.executorUpdateFailed', err);
-        }
+        this.savingExecutor.set(true);
+        this._smartBatchService.updateConfiguration(id, { executor }).subscribe({
+            next: (res) => {
+                this.configuration.set({ ...config, ...res.data, executor });
+                this.batch.update((current) => (current ? { ...current, executor } : current));
+                this.savingExecutor.set(false);
+                if (executor === 'queue') this._browserRunner.stop();
+                else this._maybeStartBrowserRunner();
+            },
+            error: (err) => {
+                this.savingExecutor.set(false);
+                this._reportFailure('batchProcessing.executorUpdateFailed', err);
+            },
+        });
     }
 
     /**
-     * Hand the batch to the engine. Returns as soon as the run is queued; the
-     * worker owns execution from there, so closing this tab is now safe.
+     * Async queues the Python worker. Sync starts catalog calls in this tab.
      */
     async startProcessing(): Promise<void> {
         const batchId = this.batchId();
@@ -582,7 +661,8 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
         try {
             const res = await firstValueFrom(this._smartBatchService.startSmartBatch(batchId));
             this.batch.set(res.data);
-            this._notify('batchProcessing.runQueued');
+            this._notify(this.isBrowserSync() ? 'batchProcessing.runInTab' : 'batchProcessing.runQueued');
+            this._maybeStartBrowserRunner();
             this._schedulePoll(true);
         } catch (err) {
             this._reportFailure('batchProcessing.startFailed', err);
@@ -597,6 +677,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
         this.isPausing.set(true);
         try {
+            this._browserRunner.stop();
             const res = await firstValueFrom(this._smartBatchService.pauseSmartBatch(batchId));
             this.batch.set(res.data);
             this._notify('batchProcessing.runPaused');
@@ -617,6 +698,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             const res = await firstValueFrom(this._smartBatchService.resumeSmartBatch(batchId));
             this.batch.set(res.data);
             this._notify('batchProcessing.runResumed');
+            this._maybeStartBrowserRunner();
         } catch (err) {
             this._reportFailure('batchProcessing.resumeFailed', err);
         } finally {
@@ -647,6 +729,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             const res = await firstValueFrom(this._smartBatchService.retrySmartBatchFailedRows(batchId));
             this.batch.set(res.data.batch);
             this._notify('batchProcessing.retryQueued', { count: res.data.retried });
+            this._maybeStartBrowserRunner();
         } catch (err) {
             this._reportFailure('batchProcessing.retryAllFailedError', err);
         } finally {
@@ -669,6 +752,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
             );
             this.batch.set(res.data.batch);
             this._notify('batchProcessing.retryQueued', { count: res.data.retried });
+            this._maybeStartBrowserRunner();
         } catch (err) {
             this._reportFailure('batchProcessing.retryRowFailedError', err);
         } finally {
@@ -694,6 +778,7 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
 
         this.isCancelling.set(true);
         try {
+            this._browserRunner.stop();
             const res = await firstValueFrom(this._smartBatchService.cancelSmartBatch(batchId));
             this.batch.set(res.data);
             this._notify('batchProcessing.runCancelled');
@@ -716,6 +801,10 @@ export class BatchProcessingComponent implements OnInit, OnDestroy {
      */
     private _schedulePoll(immediate = false): void {
         this._stopPolling();
+
+        if (this.isBrowserSync() && this._browserRunner.running()) {
+            return;
+        }
 
         const delay = immediate ? 0 : this.isProcessing() ? PROGRESS_POLL_INTERVAL_MS : IDLE_POLL_INTERVAL_MS;
 

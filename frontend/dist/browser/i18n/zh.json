@@ -64,6 +64,9 @@
         "demos_subtitle": "交互式生物识别演示",
         "human_authn": "HumanAuthn",
         "human_authn_demos_subtitle": "HumanID 与活体检测演示",
+        "human_authn_projects": "项目",
+        "human_authn_projects_subtitle": "HumanAuthn 项目",
+        "human_authn_plans": "套餐",
         "whatsapp_messages": "WhatsApp 消息",
         "whatsapp_messages_subtitle": "通过 WhatsApp 发送的 OTP 消息",
         "sms_messages": "短信消息",
@@ -220,7 +223,7 @@
         "runModeAsync": "Async",
         "runModeSync": "Sync",
         "runModeAsyncHint": "在后台运行。关闭此标签页后，批次仍会继续处理。",
-        "runModeSyncHint": "在服务器上按步骤链运行。适合后一步需要前一步结果的情况。",
+        "runModeSyncHint": "此标签页会调用每个接口。关闭后批次会停止。",
         "saving": "正在保存...",
         "next": "下一步",
         "selectEndpoints": "选择端点",
@@ -854,11 +857,44 @@
             }
         },
         "companyVerification": {
-            "title": "完成企业验证即可享受14天免费试用。",
-            "body": "完成企业认证后即可购买，并在准备好时退出沙盒。",
-            "cta": "验证企业",
+            "title": "完成企业验证即可发放 {{amount}} USD 免费额度。",
+            "body": "为发放免费额度，我们需要审核贵司信息，以满足监管机构和合作伙伴的要求。验证完成后，这些额度即可使用，并可切换到生产环境。",
+            "cta": "开始企业验证",
+            "pendingTitle": "您的企业验证正在审核中。",
+            "pendingBody": "我们正在审核贵司信息。验证完成后将发放 {{amount}} USD 免费额度并开通生产环境。",
+            "step1": "提供公司信息",
+            "step2": "审核",
+            "step3": "验证结果",
             "errors": {
                 "startFailed": "无法打开验证流程，请重试或使用添加积分。"
+            }
+        },
+        "getStarted": {
+            "title": "开始使用 Verifik",
+            "docsLink": "查看文档",
+            "smartEnroll": {
+                "badgeStart": "开始",
+                "badgeNoCode": "无代码",
+                "title": "从 SmartEnroll 开始",
+                "body": "无需编写代码即可试用证件登记和生物识别核验。",
+                "bulletId": "身份核验",
+                "bulletLiveness": "活体检测",
+                "cta": "查看项目"
+            },
+            "humanAuthn": {
+                "badgeNoCode": "无代码",
+                "title": "试用 HumanAuthn",
+                "body": "创建并验证用于去中心化身份的 HumanID 证明。",
+                "cta": "查看项目"
+            },
+            "smartCheck": {
+                "badge": "集成",
+                "title": "试用 SmartCheck",
+                "token": "生成用于身份验证的应用令牌",
+                "explore": "在 Postman 中探索 API，或阅读文档。",
+                "postman": "打开 Postman",
+                "docs": "查看文档",
+                "webhooks": "创建 Webhook 以接收核验结果"
             }
         },
         "tutorial": {
@@ -884,6 +920,90 @@
             "step5Title": "积分和计费",
             "step5Desc": "管理您的订阅并添加积分。按验证付费，无需固定订阅。"
         }
+    },
+    "humanAuthnProjects": {
+        "title": "项目",
+        "subtitle": "创建个人 HumanAuthn 项目，用于加密身份记录。",
+        "emptyTitle": "暂无项目",
+        "emptyBody": "创建项目以配置注册、存储和集成。",
+        "emptyStaffTitle": "没有已分配的项目",
+        "emptyStaffBody": "请让管理员将你分配到 HumanAuthn 项目。",
+        "createProject": "创建项目",
+        "loadError": "无法加载项目。",
+        "plansLoadError": "无法加载 HumanAuthn 套餐。",
+        "noPlanCardTitle": "需要 HumanAuthn 套餐",
+        "noPlanCardBody": "订阅 HumanAuthn 套餐后即可创建和管理项目。",
+        "goToPlans": "查看套餐",
+        "setup": {
+            "title": "项目设置",
+            "newProject": "新建 HumanAuthn 项目",
+            "previewComingSoon": "预览即将推出",
+            "back": "返回",
+            "next": "继续",
+            "finish": "完成",
+            "unsavedChanges": "未保存的更改",
+            "unsavedChangesMessage": "不保存就离开此步骤？",
+            "exitWithoutSaving": "不保存离开",
+            "steps": {
+                "basic": "项目详情",
+                "signup": "注册表单",
+                "documents": "证件",
+                "humanAuthn": "HumanAuthn",
+                "storage": "存储",
+                "integrations": "集成",
+                "ui": "用户界面"
+            },
+            "humanAuthn": {
+                "privacy": "Verifik 不保存人脸模板。加密证明即记录。存储只索引加密数据和公开字段。",
+                "standardTitle": "标准记录",
+                "standardBody": "一次性加密。之后解密不必每次都提供活体人脸。",
+                "activeTitle": "活跃用户",
+                "activeBody": "每次解密都需要活体检测。按月活跃用户计费。",
+                "livenessAtCreation": "创建记录时要求活体检测",
+                "livenessAtCreationHelp": "这只限制创建，不会改变月活跃用户模型。"
+            },
+            "storage": {
+                "ipfsTitle": "IPFS",
+                "ipfsBody": "带公开网关 URL 的去中心化索引。",
+                "cloudTitle": "云存储",
+                "cloudBody": "由 Verifik 托管的加密对象，载荷相同。"
+            },
+            "integrations": {
+                "redirectUrl": "跳转 URL",
+                "webhook": "Webhook",
+                "noWebhook": "无",
+                "manageWebhooks": "管理 webhooks"
+            }
+        }
+    },
+    "humanAuthnPlans": {
+        "title": "HumanAuthn 套餐",
+        "subtitle": "为加密、活跃用户和解密选择套餐。",
+        "active": "有效",
+        "changePlan": "更换套餐",
+        "selectPlan": "选择套餐",
+        "purchase": "购买此套餐",
+        "back": "返回",
+        "month": "月",
+        "freeForever": "免费",
+        "monthlyEncrypts": "每月加密次数",
+        "encrypts": "加密",
+        "activeUsers": "活跃用户",
+        "decrypts": "解密",
+        "previews": "预览",
+        "manageBilling": "管理账单",
+        "loadError": "无法加载套餐。",
+        "redirectError": "无法打开账单门户。",
+        "checkoutError": "无法开始结账。",
+        "checkoutNoPrice": "此套餐尚未开放结账。",
+        "billingRequiredTitle": "需要账单信息",
+        "billingRequiredMessage": "订阅 HumanAuthn 套餐前请先填写账单信息。",
+        "billingRequiredCancel": "取消",
+        "billingRequiredGoSettings": "前往账单信息",
+        "volumeConfirmTitle": "确认用量",
+        "volumeConfirmMessage": "以每月 {{quantity}} 次加密、{{total}} 美元订阅？",
+        "volumeConfirmCancel": "取消",
+        "volumeConfirmContinue": "继续"
     },
     "accountEnv": {
         "verifyStrip": {
@@ -7152,6 +7272,8 @@
         "startFailed": "无法启动运行，请重试。",
         "resumed": "已恢复",
         "runQueued": "运行已排队。处理在服务器上继续，可以关闭此标签页。",
+        "runInTab": "已在此标签页启动。请保持打开直到批次完成。",
+        "runInTabFailed": "此标签页无法写入行结果。请再点一次开始。",
         "runPaused": "运行已暂停，正在处理的记录会先完成。",
         "runResumed": "运行已恢复。",
         "runCancelled": "运行已取消。",

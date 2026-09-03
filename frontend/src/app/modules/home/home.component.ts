@@ -16,7 +16,11 @@ import { catchError, of } from 'rxjs';
 import { AccountEnvironmentService } from '../../core/account/account-environment.service';
 import { SessionService } from '../../core/services/session.service';
 import { UserService } from '../../core/user/user.service';
-import type { BringBackOffer, SmartAgentWeekOneUsd50Promotion } from '../../core/user/user.types';
+import type {
+    BringBackOffer,
+    PendingWelcomeCredits,
+    SmartAgentWeekOneUsd50Promotion,
+} from '../../core/user/user.types';
 import { AuthModalComponent } from '../../layout/common/auth-modal/auth-modal.component';
 import { QuickChatService } from '../../layout/common/quick-chat/quick-chat.service';
 import { BringBackOfferModalComponent } from './bring-back-offer-modal/bring-back-offer-modal.component';
@@ -24,6 +28,7 @@ import {
     dismissBringBackModal,
     isBringBackModalDismissed,
 } from './bring-back-offer-modal/bring-back-offer-storage';
+import { HomeGetStartedComponent } from './get-started/get-started.component';
 import { HomeNotificationBannersComponent } from './home-notification-banners/home-notification-banners.component';
 import { DashboardData, HomeService } from './home.service';
 import { OnboardingQuestsComponent } from './onboarding-quests/onboarding-quests.component';
@@ -75,6 +80,7 @@ interface PodiumEntry {
         RouterLink,
         TranslocoModule,
         HomeNotificationBannersComponent,
+        HomeGetStartedComponent,
         OnboardingQuestsComponent,
     ],
     templateUrl: './home.component.html',
@@ -96,12 +102,29 @@ export class HomeComponent implements OnInit {
 
     private _schemeAutoListenerCleanup: (() => void) | null = null;
     private _onboardingService = inject(OnboardingService);
-    private _accountEnv = inject(AccountEnvironmentService);
+    readonly accountEnv = inject(AccountEnvironmentService);
 
     isAuthenticated = signal(false);
     userFirstName = signal('');
     loading = this._homeService.loading;
     dashboardData = this._homeService.dashboardData;
+
+    canRecharge = signal<boolean | undefined>(undefined);
+    approvalRequestStatus = signal<'requested' | 'approved' | 'rejected' | undefined>(undefined);
+    pendingWelcomeCredits = signal<PendingWelcomeCredits | undefined>(undefined);
+
+    showCompanyVerificationCard = computed(
+        () =>
+            this.isAuthenticated() &&
+            this.canRecharge() === false &&
+            this.approvalRequestStatus() !== 'approved'
+    );
+
+    companyVerificationPending = computed(() => this.approvalRequestStatus() === 'requested');
+
+    companyVerificationStep = computed(() => (this.companyVerificationPending() ? 2 : 1));
+
+    welcomeCreditsAmount = computed(() => this.pendingWelcomeCredits()?.amount ?? 0);
 
     onboarding = signal<Onboarding | null>(null);
     verifyingTaskId = signal<string | null>(null);
@@ -319,10 +342,17 @@ export class HomeComponent implements OnInit {
 
                 this.userFirstName.set(rawName ? rawName.split(/\s+/)[0] : '');
 
+                this.canRecharge.set(typeof user?.canRecharge === 'boolean' ? user.canRecharge : undefined);
+                this.approvalRequestStatus.set(user?.approvalRequestStatus);
+                this.pendingWelcomeCredits.set(
+                    user?.pendingWelcomeCredits?.lockedUntilApproval &&
+                        (user.pendingWelcomeCredits.amount ?? 0) > 0
+                        ? user.pendingWelcomeCredits
+                        : undefined
+                );
+
                 if (activeBringBack) {
                     this._maybeOpenBringBackOfferModal(clientId, activeBringBack);
-                } else {
-                    this._maybeOpenProductionVerificationModal(user);
                 }
             });
     }
@@ -394,7 +424,7 @@ export class HomeComponent implements OnInit {
     };
 
     startKycVerification(): void {
-        this._accountEnv.startCompanyVerification();
+        this.accountEnv.startCompanyVerification();
     }
 
     /** Display name for API code - uses appFeatures translation or falls back to code */
@@ -465,31 +495,6 @@ export class HomeComponent implements OnInit {
                 void this._router.navigate(['/subscription-plans']);
             }
         });
-    }
-
-    /**
-     * Invasive nudge on every Home visit for unverified accounts to complete KYC and unlock
-     * Production Mode. Uses the fresh `/v2/auth/session` user only — never stale
-     * `accountSnapshot` / localStorage — so approved production clients are not prompted.
-     */
-    private _maybeOpenProductionVerificationModal(
-        user: {
-            canRecharge?: boolean;
-            approvalRequestStatus?: 'requested' | 'approved' | 'rejected';
-        } | null
-    ): void {
-        if (!user || user.canRecharge !== false) {
-            return;
-        }
-
-        if (
-            user.approvalRequestStatus === 'requested' ||
-            user.approvalRequestStatus === 'approved'
-        ) {
-            return;
-        }
-
-        this._accountEnv.startCompanyVerification();
     }
 
     openTutorial(): void {

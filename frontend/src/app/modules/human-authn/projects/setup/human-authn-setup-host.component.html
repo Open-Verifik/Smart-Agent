@@ -1,0 +1,85 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen flex-col bg-stone-50 dark:bg-gray-950">
+        <header class="border-b border-stone-200 bg-white px-5 py-6 dark:border-gray-800 dark:bg-gray-950 md:px-8">
+            <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
+                <div class="flex items-center gap-2 text-xs text-stone-500">
+                    <a routerLink="/human-authn/projects" class="underline">{{ t('humanAuthnProjects.title') }}</a>
+                    <span>/</span>
+                    <span>{{ t('humanAuthnProjects.setup.title') }}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button mat-icon-button type="button" (click)="previousStep()">
+                        <mat-icon>arrow_back</mat-icon>
+                    </button>
+                    <h1 class="text-2xl font-semibold">
+                        {{ projectId === 'new' ? t('humanAuthnProjects.setup.newProject') : form?.get('name')?.value }}
+                    </h1>
+                </div>
+                <nav class="flex flex-wrap gap-2">
+                    @for (step of steps; track step; let i = $index) {
+                        <button
+                            type="button"
+                            class="rounded-full border px-3 py-1 text-xs"
+                            [class.border-stone-900]="i === stepIndex"
+                            [class.border-stone-200]="i !== stepIndex"
+                            [disabled]="saving() || loading()"
+                            (click)="goToStep(i)"
+                        >
+                            {{ t(step) }}
+                        </button>
+                    }
+                </nav>
+            </div>
+        </header>
+
+        <main class="mx-auto grid w-full max-w-7xl flex-auto gap-8 px-5 py-8 md:grid-cols-[minmax(0,1fr)_20rem] md:px-8">
+            @if (loading()) {
+                <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+            } @else if (form) {
+                <section>
+                    @if (stepIndex === 0) {
+                        <setup-basic-setup [form]="form" [loading]="loading()" [saving]="saving()"></setup-basic-setup>
+                    }
+                    @if (stepIndex === 1) {
+                        <setup-sign-up-form
+                            [form]="form"
+                            [formGroup]="signUpFormGroup()"
+                            formType="personal"
+                            [loading]="loading()"
+                            [saving]="saving()"
+                        ></setup-sign-up-form>
+                    }
+                    @if (stepIndex === 2) {
+                        <setup-documents
+                            [form]="form"
+                            [formGroup]="documentsFormGroup()"
+                            [loading]="loading()"
+                            [saving]="saving()"
+                        ></setup-documents>
+                    }
+                    @if (stepIndex === 3) {
+                        <human-authn-mode-step [form]="form"></human-authn-mode-step>
+                    }
+                    @if (stepIndex === 4) {
+                        <human-authn-storage-step [form]="form"></human-authn-storage-step>
+                    }
+                    @if (stepIndex === 5) {
+                        <human-authn-integrations-step [form]="form"></human-authn-integrations-step>
+                    }
+                    @if (stepIndex === 6) {
+                        <setup-user-interface [form]="form" [loading]="loading()" [saving]="saving()"></setup-user-interface>
+                    }
+                    <div class="mt-8 flex justify-between">
+                        <button mat-stroked-button type="button" (click)="previousStep()">{{ t('humanAuthnProjects.setup.back') }}</button>
+                        <button mat-flat-button color="primary" type="button" [disabled]="!isFormValidForStep(stepIndex) || saving()" (click)="nextStep()">
+                            {{ stepIndex === steps.length - 1 ? t('humanAuthnProjects.setup.finish') : t('humanAuthnProjects.setup.next') }}
+                        </button>
+                    </div>
+                </section>
+                <aside>
+                    <human-authn-preview-placeholder></human-authn-preview-placeholder>
+                </aside>
+            }
+        </main>
+    </div>
+</ng-container>

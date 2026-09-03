@@ -64,6 +64,9 @@
         "demos_subtitle": "Demos interativos de biometria",
         "human_authn": "HumanAuthn",
         "human_authn_demos_subtitle": "Demos de HumanID e liveness",
+        "human_authn_projects": "Projetos",
+        "human_authn_projects_subtitle": "Projetos HumanAuthn",
+        "human_authn_plans": "Planos",
         "whatsapp_messages": "Mensagens WhatsApp",
         "whatsapp_messages_subtitle": "Mensagens OTP enviadas via WhatsApp",
         "sms_messages": "Mensagens SMS",
@@ -220,7 +223,7 @@
         "runModeAsync": "Async",
         "runModeSync": "Sync",
         "runModeAsyncHint": "Roda em segundo plano. Você pode fechar esta aba; o lote continua.",
-        "runModeSyncHint": "Roda no servidor como uma cadeia de etapas. Melhor quando uma etapa precisa do resultado da anterior.",
+        "runModeSyncHint": "Esta aba chama cada endpoint. Fechá-la interrompe o lote.",
         "saving": "Salvando...",
         "next": "Avançar",
         "selectEndpoints": "Selecionar endpoints",
@@ -854,11 +857,44 @@
             }
         },
         "companyVerification": {
-            "title": "Verifique a sua empresa para aceder ao teste gratuito de 14 dias.",
-            "body": "Complete a verificação da empresa para desbloquear compras e sair do Sandbox quando estiver pronto.",
-            "cta": "Verificar empresa",
+            "title": "Verifique a sua empresa para libertar {{amount}} USD em créditos gratuitos.",
+            "body": "Para libertar os seus créditos gratuitos, precisamos de rever as informações da sua empresa para cumprir os requisitos dos nossos reguladores e parceiros. Após a verificação, esses créditos ficam disponíveis e pode passar para Produção.",
+            "cta": "Iniciar verificação da empresa",
+            "pendingTitle": "A verificação da sua empresa está em análise.",
+            "pendingBody": "Estamos a rever as informações da sua empresa. Libertaremos {{amount}} USD em créditos gratuitos e desbloquearemos a Produção quando a verificação estiver concluída.",
+            "step1": "Fornecer informações da empresa",
+            "step2": "Revisão",
+            "step3": "Resultado da verificação",
             "errors": {
                 "startFailed": "Não foi possível abrir a verificação. Tente novamente ou use Adicionar créditos."
+            }
+        },
+        "getStarted": {
+            "title": "Comece com a Verifik",
+            "docsLink": "Consultar a documentação",
+            "smartEnroll": {
+                "badgeStart": "Início",
+                "badgeNoCode": "Sem código",
+                "title": "Começar com SmartEnroll",
+                "body": "Experimente o enrolamento de documentos e as verificações biométricas sem escrever código.",
+                "bulletId": "Verificação de identidade",
+                "bulletLiveness": "Prova de vida",
+                "cta": "Ver projetos"
+            },
+            "humanAuthn": {
+                "badgeNoCode": "Sem código",
+                "title": "Testar HumanAuthn",
+                "body": "Crie e verifique provas HumanID para identidade descentralizada.",
+                "cta": "Ver projetos"
+            },
+            "smartCheck": {
+                "badge": "Integração",
+                "title": "Testar SmartCheck",
+                "token": "Gerar um token de aplicação para autenticação",
+                "explore": "Explore as APIs no Postman ou leia a documentação.",
+                "postman": "Abrir Postman",
+                "docs": "Ver documentação",
+                "webhooks": "Criar webhooks para receber resultados de verificação"
             }
         },
         "tutorial": {
@@ -884,6 +920,90 @@
             "step5Title": "Créditos e faturamento",
             "step5Desc": "Gerencie sua assinatura e adicione créditos. Pagamento por verificação sem assinatura fixa necessária."
         }
+    },
+    "humanAuthnProjects": {
+        "title": "Projetos",
+        "subtitle": "Crie projetos pessoais de HumanAuthn para registos de identidade cifrados.",
+        "emptyTitle": "Ainda não há projetos",
+        "emptyBody": "Crie um projeto para configurar o cadastro, o armazenamento e as integrações.",
+        "emptyStaffTitle": "Nenhum projeto atribuído",
+        "emptyStaffBody": "Peça a um administrador que o atribua a um projeto HumanAuthn.",
+        "createProject": "Criar projeto",
+        "loadError": "Não foi possível carregar os projetos.",
+        "plansLoadError": "Não foi possível carregar o seu plano HumanAuthn.",
+        "noPlanCardTitle": "É necessário um plano HumanAuthn",
+        "noPlanCardBody": "Subscreva um plano HumanAuthn para criar e gerir projetos.",
+        "goToPlans": "Ver planos",
+        "setup": {
+            "title": "Configuração do projeto",
+            "newProject": "Novo projeto HumanAuthn",
+            "previewComingSoon": "Pré-visualização em breve",
+            "back": "Voltar",
+            "next": "Continuar",
+            "finish": "Concluir",
+            "unsavedChanges": "Alterações não guardadas",
+            "unsavedChangesMessage": "Sair deste passo sem guardar?",
+            "exitWithoutSaving": "Sair sem guardar",
+            "steps": {
+                "basic": "Detalhes do projeto",
+                "signup": "Formulário de cadastro",
+                "documents": "Documentos",
+                "humanAuthn": "HumanAuthn",
+                "storage": "Armazenamento",
+                "integrations": "Integrações",
+                "ui": "Interface"
+            },
+            "humanAuthn": {
+                "privacy": "A Verifik não guarda um modelo facial. A prova cifrada é o registo. O armazenamento apenas indexa o blob cifrado e os campos públicos.",
+                "standardTitle": "Registo padrão",
+                "standardBody": "Cifragem única. A descifragem posterior não exige um rosto ao vivo de cada vez.",
+                "activeTitle": "Utilizador ativo",
+                "activeBody": "A liveness é exigida em cada descifragem. Faturado como utilizador ativo mensal.",
+                "livenessAtCreation": "Exigir liveness na criação",
+                "livenessAtCreationHelp": "Isto só aplica à criação, não ao modelo mensal de utilizador ativo."
+            },
+            "storage": {
+                "ipfsTitle": "IPFS",
+                "ipfsBody": "Índice descentralizado com URL pública.",
+                "cloudTitle": "Armazenamento na nuvem",
+                "cloudBody": "Objeto cifrado alojado pela Verifik com o mesmo payload."
+            },
+            "integrations": {
+                "redirectUrl": "URL de redirecionamento",
+                "webhook": "Webhook",
+                "noWebhook": "Nenhum",
+                "manageWebhooks": "Gerir webhooks"
+            }
+        }
+    },
+    "humanAuthnPlans": {
+        "title": "Planos HumanAuthn",
+        "subtitle": "Escolha um plano para cifragens, utilizadores ativos e descifragens.",
+        "active": "Ativo",
+        "changePlan": "Alterar plano",
+        "selectPlan": "Selecionar plano",
+        "purchase": "Comprar este plano",
+        "back": "Voltar",
+        "month": "mês",
+        "freeForever": "Grátis",
+        "monthlyEncrypts": "Cifragens mensais",
+        "encrypts": "Cifragens",
+        "activeUsers": "Utilizadores ativos",
+        "decrypts": "Descifragens",
+        "previews": "Pré-visualizações",
+        "manageBilling": "Gerir faturação",
+        "loadError": "Não foi possível carregar os planos.",
+        "redirectError": "Não foi possível abrir o portal de faturação.",
+        "checkoutError": "Não foi possível iniciar o pagamento.",
+        "checkoutNoPrice": "Este plano ainda não está pronto para pagamento.",
+        "billingRequiredTitle": "Dados de faturação necessários",
+        "billingRequiredMessage": "Adicione os dados de faturação antes de subscrever.",
+        "billingRequiredCancel": "Cancelar",
+        "billingRequiredGoSettings": "Ir para faturação",
+        "volumeConfirmTitle": "Confirmar volume",
+        "volumeConfirmMessage": "Subscrever com {{quantity}} cifragens mensais por {{total}} USD?",
+        "volumeConfirmCancel": "Cancelar",
+        "volumeConfirmContinue": "Continuar"
     },
     "accountEnv": {
         "verifyStrip": {
@@ -7152,6 +7272,8 @@
         "startFailed": "Não foi possível iniciar a execução. Tente novamente.",
         "resumed": "Retomado",
         "runQueued": "Execução na fila. O processamento continua no servidor, você pode fechar esta aba.",
+        "runInTab": "Iniciado nesta aba. Mantenha-a aberta até o lote terminar.",
+        "runInTabFailed": "Esta aba não conseguiu gravar o resultado. Tente Start de novo.",
         "runPaused": "Execução pausada. Os registros em andamento terminarão primeiro.",
         "runResumed": "Execução retomada.",
         "runCancelled": "Execução cancelada.",

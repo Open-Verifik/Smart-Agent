@@ -9,36 +9,53 @@ import {
     inject,
     signal,
 } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
+import {
+    AbstractControl,
+    FormArray,
+    FormBuilder,
+    FormGroup,
+    ReactiveFormsModule,
+    ValidatorFn,
+    Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { FuseConfirmationService } from '@fuse/services/confirmation';
+import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { CountryService } from 'app/core/services/country.service';
 import {
     ADDRESS_PATTERN,
     CITY_NAME_PATTERN,
     PERSON_NAME_PATTERN,
     STRICT_URL_PATTERN,
 } from 'app/shared/validators/validation-patterns';
-import { CountryService } from 'app/core/services/country.service';
-import { FuseConfirmationDialogComponent } from '@fuse/services/confirmation/dialog/dialog.component';
-import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { environment } from 'environments/environment';
-import { Observable, Subject, catchError, finalize, of, switchMap, takeUntil, throwError } from 'rxjs';
+import {
+    Observable,
+    Subject,
+    catchError,
+    finalize,
+    of,
+    switchMap,
+    takeUntil,
+    throwError,
+} from 'rxjs';
 
+import { SetupBasicSetupComponent } from '../../../smart-enroll/projects/setup/steps/basic-setup/basic-setup.component';
+import { SetupUserInterfaceComponent } from '../../../smart-enroll/projects/setup/steps/user-interface/user-interface.component';
+import { SmartAccessProjectsService } from '../smart-access-projects.service';
 import type { SmartAccessSecurity } from '../smart-access-projects.types';
 import type { AccessProjectLike } from '../smart-access-setup.service';
 import { SmartAccessSetupService } from '../smart-access-setup.service';
-import { SmartAccessProjectsService } from '../smart-access-projects.service';
-import { SetupBasicSetupComponent } from '../../../smart-enroll/projects/setup/steps/basic-setup/basic-setup.component';
-import { SetupUserInterfaceComponent } from '../../../smart-enroll/projects/setup/steps/user-interface/user-interface.component';
-import { AccessWhitelistStepComponent } from './steps/access-whitelist-step.component';
-import { AccessLoginMethodsStepComponent } from './steps/access-login-methods-step.component';
 import { AccessSignInPreviewComponent } from './preview/access-sign-in-preview.component';
 import { patchSmartAccessSetupDevSample } from './smart-access-setup-dev-sample.util';
+import { AccessLoginMethodsStepComponent } from './steps/access-login-methods-step.component';
+import { AccessWhitelistStepComponent } from './steps/access-whitelist-step.component';
 
 /** Step-local form control paths validated before save/navigate. */
 const BASIC_KEYS = [
@@ -81,7 +98,8 @@ const loginSettingsGroupValidator: ValidatorFn = (control) => {
     const phoneGateway = `${g.get('phoneGateway')?.value ?? ''}`;
     const errors: Record<string, boolean> = {};
     if (!email && !phone && !faceLiveness) errors['atLeastOneMethod'] = true;
-    if (phone && !['whatsapp', 'sms', 'both'].includes(phoneGateway)) errors['phoneGatewayRequired'] = true;
+    if (phone && !['whatsapp', 'sms', 'both'].includes(phoneGateway))
+        errors['phoneGatewayRequired'] = true;
     return Object.keys(errors).length ? errors : null;
 };
 
@@ -112,7 +130,7 @@ const optionalStrictUrlValidator: ValidatorFn = (control) => {
     return STRICT_URL_PATTERN.test(raw) ? null : { strictUrl: true };
 };
 
-const DEFAULT_SMART_ACCESS_REDIRECT = 'https://app.verifik.co/smart-access-preview';
+const DEFAULT_SMART_ACCESS_REDIRECT = 'https://ai.verifik.co/smart-access-preview';
 
 @Component({
     selector: 'smart-access-setup-host',
@@ -262,7 +280,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         if (this.stepIndex === 2) {
             const pending = this._whitelistStep?.pendingCsvPayload ?? null;
             const flowId = this.loginFlowShellId;
-            const pf = (this.form.getRawValue() as Record<string, unknown>)['projectFlow'] as Record<string, unknown>;
+            const pf = (this.form.getRawValue() as Record<string, unknown>)[
+                'projectFlow'
+            ] as Record<string, unknown>;
             const security = pf['security'] as Record<string, unknown>;
             const integrations = pf['integrations'] as Record<string, unknown>;
 
@@ -280,9 +300,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                             whiteList: pending.whiteList,
                             replaceList: pending.replaceList,
                         };
-                        return this._projects.updateProjectFlow(flowId, v2Payload).pipe(
-                            switchMap(() => of(v3Res))
-                        );
+                        return this._projects
+                            .updateProjectFlow(flowId, v2Payload)
+                            .pipe(switchMap(() => of(v3Res)));
                     }),
                     finalize(() => {
                         this.saving.set(false);
@@ -333,9 +353,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         const baseRaw =
             environment.production && environment.kycBaseUrl
                 ? environment.kycBaseUrl
-                : (environment as { sandBoxKYCBaseUrl?: string }).sandBoxKYCBaseUrl ??
+                : ((environment as { sandBoxKYCBaseUrl?: string }).sandBoxKYCBaseUrl ??
                   environment.kycBaseUrl ??
-                  '';
+                  '');
         const baseUrl = `${baseRaw}`.replace(/\/+$/, '');
         if (!baseUrl || this.projectId === 'new') return;
         window.open(`${baseUrl}/sign-in/${this.projectId}`, '_blank');
@@ -346,14 +366,24 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             this.returnToProjects();
             return;
         }
-        this._router.navigate(['/smart-access/projects', this.projectId, 'setup', this.stepIndex - 1]);
+        this._router.navigate([
+            '/smart-access/projects',
+            this.projectId,
+            'setup',
+            this.stepIndex - 1,
+        ]);
     }
 
     nextStep(): void {
         if (!this.isFormValidForStep(this.stepIndex)) return;
         const isLast = this.stepIndex >= this.stepsLength - 1;
         if (!isLast) {
-            void this._router.navigate(['/smart-access/projects', this.projectId, 'setup', this.stepIndex + 1]);
+            void this._router.navigate([
+                '/smart-access/projects',
+                this.projectId,
+                'setup',
+                this.stepIndex + 1,
+            ]);
             return;
         }
         void this._router.navigate(['/smart-access/projects', this.projectId]);
@@ -366,8 +396,13 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         if (!this.devQuickFillEnabled || this.projectId !== 'new' || !this.form) return;
         if (this.loading() || this.saving()) return;
 
-        const allowedCountryPool = this._countryService.ipCountries.map((c) => c.country).filter((c) => c !== 'All');
-        patchSmartAccessSetupDevSample(this.form, { redirectOrigin: environment.thisUrl, allowedCountryPool });
+        const allowedCountryPool = this._countryService.ipCountries
+            .map((c) => c.country)
+            .filter((c) => c !== 'All');
+        patchSmartAccessSetupDevSample(this.form, {
+            redirectOrigin: environment.thisUrl,
+            allowedCountryPool,
+        });
 
         const secSource = this.form.get('projectFlow.security')?.get('source')?.value ?? null;
         this._adjustSecurityValidators(secSource as string | null);
@@ -376,7 +411,11 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         this._markControlTreeState(this.form, 'touched');
         this._triggerFormValidation();
 
-        this._snack.open(this._t('smartAccessProjects.setup.dev_quick_fill_applied'), this._t('close'), { duration: 3500 });
+        this._snack.open(
+            this._t('smartAccessProjects.setup.dev_quick_fill_applied'),
+            this._t('close'),
+            { duration: 3500 }
+        );
         this._cdr.markForCheck();
     }
 
@@ -386,13 +425,15 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
 
         if (source === 'API') {
             const url = this.form.get('projectFlow.security.apiUrl')?.value?.trim?.() ?? '';
-            const tester = this.form.get('projectFlow.security.apiTestValue')?.value?.trim?.() ?? '';
+            const tester =
+                this.form.get('projectFlow.security.apiTestValue')?.value?.trim?.() ?? '';
             return controlsOk && url.length > 0 && tester.length > 0;
         }
 
         if (source === 'CSV') {
             const hasExistingRows = (this._whitelistStep?.whitelistTotal ?? 0) > 0;
-            const hasPendingRows = (this._whitelistStep?.pendingCsvPayload?.whiteList?.length ?? 0) > 0;
+            const hasPendingRows =
+                (this._whitelistStep?.pendingCsvPayload?.whiteList?.length ?? 0) > 0;
             return controlsOk && (hasExistingRows || hasPendingRows);
         }
 
@@ -410,7 +451,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                 this._cdr.markForCheck();
             },
             error: () => {
-                this._snack.open(this._t('smartAccessProjects.setup.api_error'), this._t('close'), { duration: 3000 });
+                this._snack.open(this._t('smartAccessProjects.setup.api_error'), this._t('close'), {
+                    duration: 3000,
+                });
                 this.project = this._setup.getDefaultProjectShell() as AccessProjectLike;
                 this._initForm();
                 this.loading.set(false);
@@ -443,7 +486,10 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             ],
             defaultLanguage: [p?.defaultLanguage || 'en', Validators.required],
             name: [p?.name || '', [Validators.required, Validators.maxLength(60)]],
-            privacyUrl: [p?.privacyUrl || '', [Validators.required, Validators.pattern(STRICT_URL_PATTERN)]],
+            privacyUrl: [
+                p?.privacyUrl || '',
+                [Validators.required, Validators.pattern(STRICT_URL_PATTERN)],
+            ],
             target: [(p?.target || 'personal') as string],
             termsAndConditionsUrl: [
                 p?.termsAndConditionsUrl || '',
@@ -451,22 +497,40 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
             ],
             version: [p?.version ?? 3],
             branding: this._fb.group({
-                backgroundColor: [(p?.branding?.backgroundColor || defaultBranding.backgroundColor)!, Validators.required],
-                buttonColor: [(p?.branding?.buttonColor || defaultBranding.buttonColor)!, Validators.required],
-                buttonTextColor: [(p?.branding?.buttonTextColor || defaultBranding.buttonTextColor)!, Validators.required],
+                backgroundColor: [
+                    (p?.branding?.backgroundColor || defaultBranding.backgroundColor)!,
+                    Validators.required,
+                ],
+                buttonColor: [
+                    (p?.branding?.buttonColor || defaultBranding.buttonColor)!,
+                    Validators.required,
+                ],
+                buttonTextColor: [
+                    (p?.branding?.buttonTextColor || defaultBranding.buttonTextColor)!,
+                    Validators.required,
+                ],
                 image: [p?.branding?.image ?? defaultBranding.image],
                 imageBackgroundColor: [
                     (p?.branding?.imageBackgroundColor || defaultBranding.imageBackgroundColor)!,
                     Validators.required,
                 ],
                 logo: [p?.branding?.logo ?? defaultBranding.logo, Validators.required],
-                textColor: [(p?.branding?.textColor || defaultBranding.textColor)!, Validators.required],
+                textColor: [
+                    (p?.branding?.textColor || defaultBranding.textColor)!,
+                    Validators.required,
+                ],
                 titleColor: [p?.branding?.titleColor || defaultBranding.titleColor],
             }),
             dataProtection: this._fb.group({
-                address: [(p?.dataProtection?.address || '')!, [Validators.required, Validators.pattern(ADDRESS_PATTERN)]],
+                address: [
+                    (p?.dataProtection?.address || '')!,
+                    [Validators.required, Validators.pattern(ADDRESS_PATTERN)],
+                ],
                 address2: [p?.dataProtection?.address2 || ''],
-                city: [(p?.dataProtection?.city || '')!, [Validators.required, Validators.pattern(CITY_NAME_PATTERN)]],
+                city: [
+                    (p?.dataProtection?.city || '')!,
+                    [Validators.required, Validators.pattern(CITY_NAME_PATTERN)],
+                ],
                 country: [(p?.dataProtection?.country || '')!, Validators.required],
                 email: [
                     (p?.dataProtection?.email || '')!,
@@ -475,7 +539,10 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                         Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/),
                     ],
                 ],
-                name: [(p?.dataProtection?.name || '')!, [Validators.required, Validators.pattern(PERSON_NAME_PATTERN)]],
+                name: [
+                    (p?.dataProtection?.name || '')!,
+                    [Validators.required, Validators.pattern(PERSON_NAME_PATTERN)],
+                ],
                 postalCode: [
                     (p?.dataProtection?.postalCode || '')!,
                     [Validators.required, Validators.pattern(/^[A-Za-z0-9\s\-]{3,12}$/)],
@@ -490,7 +557,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                     {
                         email: [!!flow.loginSettings?.email],
                         emailGateway: [
-                            flow.loginSettings?.email ? (flow.loginSettings?.emailGateway ?? 'mailgun') : 'none',
+                            flow.loginSettings?.email
+                                ? (flow.loginSettings?.emailGateway ?? 'mailgun')
+                                : 'none',
                         ],
                         faceLiveness: [!!flow.loginSettings?.faceLiveness],
                         phone: [!!flow.loginSettings?.phone],
@@ -504,7 +573,9 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
                             [Validators.min(0.71), Validators.max(0.95)],
                         ],
                         searchMode: [flow.loginSettings?.searchMode || 'FAST'],
-                        showFaceLivenessRecommendation: [!!flow.loginSettings?.showFaceLivenessRecommendation],
+                        showFaceLivenessRecommendation: [
+                            !!flow.loginSettings?.showFaceLivenessRecommendation,
+                        ],
                         allowPasskeys: [!!flow.loginSettings?.allowPasskeys],
                     },
                     { validators: loginSettingsGroupValidator }
@@ -579,7 +650,10 @@ export class SmartAccessSetupHostComponent implements OnInit, OnDestroy {
         this.form.updateValueAndValidity({ emitEvent: false });
     }
 
-    private _buildPayload(): Partial<AccessProjectLike> & { projectFlow?: Record<string, unknown>; projectFlowType: 'login' } {
+    private _buildPayload(): Partial<AccessProjectLike> & {
+        projectFlow?: Record<string, unknown>;
+        projectFlowType: 'login';
+    } {
         const raw = this.form.getRawValue() as Record<string, unknown>;
 
         const dataProtection = raw['dataProtection'] as Record<string, unknown>;

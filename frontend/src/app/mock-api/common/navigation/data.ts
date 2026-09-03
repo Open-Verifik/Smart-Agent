@@ -209,6 +209,22 @@ export const defaultNavigation: FuseNavigationItem[] = [
         classes: { wrapper: 'nav-product nav-product--human-authn' },
         children: [
             {
+                id: 'human-authn-projects',
+                title: 'nav.human_authn_projects',
+                subtitle: 'nav.human_authn_projects_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:rectangle-stack',
+                link: '/human-authn/projects',
+            },
+            {
+                id: 'human-authn-plans',
+                title: 'nav.human_authn_plans',
+                subtitle: 'nav.manage_subscription',
+                type: 'basic',
+                icon: 'heroicons_outline:credit-card',
+                link: '/human-authn/plans',
+            },
+            {
                 id: 'human-authn-demos',
                 title: 'nav.demos',
                 subtitle: 'nav.human_authn_demos_subtitle',
@@ -527,6 +543,22 @@ export const horizontalNavigation: FuseNavigationItem[] = [
         icon: 'face-id',
         classes: { wrapper: 'nav-product nav-product--human-authn' },
         children: [
+            {
+                id: 'human-authn-projects',
+                title: 'nav.human_authn_projects',
+                subtitle: 'nav.human_authn_projects_subtitle',
+                type: 'basic',
+                icon: 'heroicons_outline:rectangle-stack',
+                link: '/human-authn/projects',
+            },
+            {
+                id: 'human-authn-plans',
+                title: 'nav.human_authn_plans',
+                subtitle: 'nav.manage_subscription',
+                type: 'basic',
+                icon: 'heroicons_outline:credit-card',
+                link: '/human-authn/plans',
+            },
             {
                 id: 'human-authn-demos',
                 title: 'nav.demos',

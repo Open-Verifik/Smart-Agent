@@ -1,0 +1,98 @@
+<section class="get-started" aria-labelledby="get-started-heading">
+    <header class="get-started__header">
+        <h2 id="get-started-heading" class="get-started__title">
+            {{ 'home.getStarted.title' | transloco }}
+        </h2>
+        <a
+            class="get-started__docs"
+            [href]="docsHome"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+            <mat-icon class="get-started__docs-icon">menu_book</mat-icon>
+            {{ 'home.getStarted.docsLink' | transloco }}
+        </a>
+    </header>
+
+    <div class="get-started__grid">
+        <article class="get-started-card">
+            <div class="get-started-card__badges">
+                <span class="get-started-card__badge">{{
+                    'home.getStarted.smartEnroll.badgeStart' | transloco
+                }}</span>
+                <span class="get-started-card__badge">{{
+                    'home.getStarted.smartEnroll.badgeNoCode' | transloco
+                }}</span>
+            </div>
+            <h3 class="get-started-card__title">
+                {{ 'home.getStarted.smartEnroll.title' | transloco }}
+            </h3>
+            <p class="get-started-card__body">
+                {{ 'home.getStarted.smartEnroll.body' | transloco }}
+            </p>
+            <ul class="get-started-card__list">
+                <li>{{ 'home.getStarted.smartEnroll.bulletId' | transloco }}</li>
+                <li>{{ 'home.getStarted.smartEnroll.bulletLiveness' | transloco }}</li>
+            </ul>
+            <a mat-flat-button routerLink="/smart-enroll/projects" class="get-started-card__cta">
+                {{ 'home.getStarted.smartEnroll.cta' | transloco }}
+            </a>
+        </article>
+
+        <article class="get-started-card">
+            <div class="get-started-card__badges">
+                <span class="get-started-card__badge">{{
+                    'home.getStarted.humanAuthn.badgeNoCode' | transloco
+                }}</span>
+            </div>
+            <h3 class="get-started-card__title">
+                {{ 'home.getStarted.humanAuthn.title' | transloco }}
+            </h3>
+            <p class="get-started-card__body">
+                {{ 'home.getStarted.humanAuthn.body' | transloco }}
+            </p>
+            <a mat-flat-button routerLink="/human-authn/projects" class="get-started-card__cta">
+                {{ 'home.getStarted.humanAuthn.cta' | transloco }}
+            </a>
+        </article>
+
+        <article class="get-started-card">
+            <div class="get-started-card__badges">
+                <span class="get-started-card__badge">{{
+                    'home.getStarted.smartCheck.badge' | transloco
+                }}</span>
+            </div>
+            <h3 class="get-started-card__title">
+                {{ 'home.getStarted.smartCheck.title' | transloco }}
+            </h3>
+            <ul class="get-started-card__links">
+                <li>
+                    <mat-icon>vpn_key</mat-icon>
+                    <a routerLink="/settings/api-key">
+                        {{ 'home.getStarted.smartCheck.token' | transloco }}
+                    </a>
+                </li>
+                <li>
+                    <mat-icon>terminal</mat-icon>
+                    <div>
+                        <p>{{ 'home.getStarted.smartCheck.explore' | transloco }}</p>
+                        <div class="get-started-card__inline-links">
+                            <a routerLink="/postman">{{
+                                'home.getStarted.smartCheck.postman' | transloco
+                            }}</a>
+                            <a [href]="docsHome" target="_blank" rel="noopener noreferrer">{{
+                                'home.getStarted.smartCheck.docs' | transloco
+                            }}</a>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <mat-icon>link</mat-icon>
+                    <a routerLink="/smart-monitor/webhooks">
+                        {{ 'home.getStarted.smartCheck.webhooks' | transloco }}
+                    </a>
+                </li>
+            </ul>
+        </article>
+    </div>
+</section>

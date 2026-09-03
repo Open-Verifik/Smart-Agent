@@ -64,7 +64,7 @@ export class SetupLivenessComponent implements OnInit, OnChanges {
             grp.addControl('kycType', new FormControl('traditional'));
             return;
         }
-        if (!ctrl.value) ctrl.setValue('traditional', { emitEvent: false });
+        if (ctrl.value !== 'traditional') ctrl.setValue('traditional', { emitEvent: false });
     }
 
     get isFormReady(): boolean {

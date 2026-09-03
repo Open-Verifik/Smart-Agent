@@ -7,7 +7,11 @@
     <div class="mb-8">
         @if (isAuthenticated()) {
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                {{ 'home.welcome.greeting' | transloco: { name: userFirstName() || ('home.welcome.fallbackName' | transloco) } }}
+                {{
+                    'home.welcome.greeting'
+                        | transloco
+                            : { name: userFirstName() || ('home.welcome.fallbackName' | transloco) }
+                }}
             </h1>
             <p class="text-slate-600 dark:text-slate-400 text-sm max-w-2xl">
                 {{ 'home.welcome.greetingSubtitle' | transloco }}
@@ -22,10 +26,133 @@
         }
     </div>
 
-    @if (isAuthenticated() && showBringBackPromoBanner()) {
+    @if (showCompanyVerificationCard()) {
         <section
-            class="promo-banner promo-banner-amber mb-8 px-5 py-6 md:px-8"
+            class="company-verification-card mb-8"
+            aria-labelledby="company-verification-heading"
         >
+            <ol class="company-verification-stepper" [attr.data-step]="companyVerificationStep()">
+                <li
+                    class="company-verification-step"
+                    [class.company-verification-step--active]="companyVerificationStep() === 1"
+                    [class.company-verification-step--complete]="companyVerificationStep() > 1"
+                >
+                    <span class="company-verification-step__meta">
+                        <span class="company-verification-step__index" aria-hidden="true">1</span>
+                        <span class="company-verification-step__label">
+                            {{ 'home.companyVerification.step1' | transloco }}
+                        </span>
+                    </span>
+                </li>
+                <li
+                    class="company-verification-step"
+                    [class.company-verification-step--active]="companyVerificationStep() === 2"
+                    [class.company-verification-step--complete]="companyVerificationStep() > 2"
+                >
+                    <span class="company-verification-step__meta">
+                        <span class="company-verification-step__index" aria-hidden="true">2</span>
+                        <span class="company-verification-step__label">
+                            {{ 'home.companyVerification.step2' | transloco }}
+                        </span>
+                    </span>
+                </li>
+                <li class="company-verification-step">
+                    <span class="company-verification-step__meta">
+                        <span class="company-verification-step__index" aria-hidden="true">3</span>
+                        <span class="company-verification-step__label">
+                            {{ 'home.companyVerification.step3' | transloco }}
+                        </span>
+                    </span>
+                </li>
+            </ol>
+
+            <div class="company-verification-body">
+                <div class="company-verification-copy">
+                    <h2 id="company-verification-heading" class="company-verification-title">
+                        @if (companyVerificationPending()) {
+                            {{
+                                'home.companyVerification.pendingTitle'
+                                    | transloco
+                                        : { amount: welcomeCreditsAmount() | number: '1.0-2' }
+                            }}
+                        } @else {
+                            {{
+                                'home.companyVerification.title'
+                                    | transloco
+                                        : { amount: welcomeCreditsAmount() | number: '1.0-2' }
+                            }}
+                        }
+                    </h2>
+                    <p class="company-verification-text">
+                        @if (companyVerificationPending()) {
+                            {{
+                                'home.companyVerification.pendingBody'
+                                    | transloco
+                                        : { amount: welcomeCreditsAmount() | number: '1.0-2' }
+                            }}
+                        } @else {
+                            {{
+                                'home.companyVerification.body'
+                                    | transloco
+                                        : { amount: welcomeCreditsAmount() | number: '1.0-2' }
+                            }}
+                        }
+                    </p>
+                    <button
+                        mat-flat-button
+                        type="button"
+                        class="company-verification-cta"
+                        [disabled]="
+                            accountEnv.verifyCompanyLoading() || companyVerificationPending()
+                        "
+                        (click)="startKycVerification()"
+                    >
+                        @if (accountEnv.verifyCompanyLoading()) {
+                            <mat-spinner
+                                diameter="18"
+                                class="mr-2 inline-block align-middle"
+                            ></mat-spinner>
+                        }
+                        {{ 'home.companyVerification.cta' | transloco }}
+                    </button>
+                </div>
+
+                <div class="company-verification-art" aria-hidden="true">
+                    <svg class="company-verification-art__svg" viewBox="0 0 220 160" fill="none">
+                        <rect
+                            class="company-verification-art__slab"
+                            x="36"
+                            y="58"
+                            width="148"
+                            height="78"
+                            rx="10"
+                            transform="rotate(-8 110 97)"
+                        />
+                        <rect
+                            class="company-verification-art__slab-face"
+                            x="44"
+                            y="50"
+                            width="132"
+                            height="70"
+                            rx="8"
+                            transform="rotate(-8 110 85)"
+                        />
+                        <circle class="company-verification-art__badge" cx="148" cy="48" r="22" />
+                        <path
+                            class="company-verification-art__check"
+                            d="M138 48.5l6.2 6.2L158.5 40"
+                            stroke-width="3.2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        />
+                    </svg>
+                </div>
+            </div>
+        </section>
+    }
+
+    @if (isAuthenticated() && showBringBackPromoBanner()) {
+        <section class="promo-banner promo-banner-amber mb-8 px-5 py-6 md:px-8">
             <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                 <div class="flex min-w-0 flex-1 items-start gap-4">
                     <div
@@ -39,14 +166,17 @@
                         >
                             {{ 'addCredits.promo.bringBack.badge' | transloco }}
                         </p>
-                        <h2 class="text-lg font-semibold leading-snug text-amber-950 dark:text-amber-50">
+                        <h2
+                            class="text-lg font-semibold leading-snug text-amber-950 dark:text-amber-50"
+                        >
                             {{
                                 'addCredits.promo.bringBack.title'
-                                    | transloco
-                                        : { multiplier: bringBackOffer()?.multiplier || 2 }
+                                    | transloco: { multiplier: bringBackOffer()?.multiplier || 2 }
                             }}
                         </h2>
-                        <p class="max-w-3xl text-sm leading-relaxed text-amber-950/95 dark:text-amber-100/95">
+                        <p
+                            class="max-w-3xl text-sm leading-relaxed text-amber-950/95 dark:text-amber-100/95"
+                        >
                             @if (bringBackOffer()?.tier === 'triple') {
                                 {{
                                     'addCredits.promo.bringBack.bodyTriple'
@@ -70,27 +200,19 @@
                                     | transloco
                                         : {
                                               expiresAt:
-                                                  (bringBackOffer()?.expiresAt | date: 'medium') || '',
+                                                  (bringBackOffer()?.expiresAt | date: 'medium') ||
+                                                  '',
                                           }
                             }}
                         </p>
                     </div>
                 </div>
                 <div class="flex shrink-0 flex-col gap-2 sm:pt-1">
-                    <a
-                        mat-flat-button
-                        color="primary"
-                        routerLink="/add-credits"
-                        class="rounded-xl"
-                    >
+                    <a mat-flat-button color="primary" routerLink="/add-credits" class="rounded-xl">
                         <mat-icon class="mr-2">payments</mat-icon>
                         {{ 'addCredits.promo.bringBack.ctaRecharge' | transloco }}
                     </a>
-                    <a
-                        mat-stroked-button
-                        routerLink="/subscription-plans"
-                        class="rounded-xl"
-                    >
+                    <a mat-stroked-button routerLink="/subscription-plans" class="rounded-xl">
                         <mat-icon class="mr-2">credit_card</mat-icon>
                         {{ 'addCredits.promo.bringBack.ctaSubscribe' | transloco }}
                     </a>
@@ -100,56 +222,73 @@
     }
 
     @if (isAuthenticated() && showWeekOneUsd50PromoBanner()) {
-        <section
-            class="promo-banner promo-banner-emerald mb-8 px-5 py-6 md:px-8"
-        >
-            <div class="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
-                <div class="flex min-w-0 flex-1 items-start gap-4">
-                    <div
-                        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600/15 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"
-                    >
-                        <mat-icon style="transform: scale(1.08)">verified</mat-icon>
-                    </div>
-                    <div class="min-w-0 space-y-2">
-                        <p
-                            class="inline-flex rounded-full border border-emerald-200/90 bg-emerald-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-900 dark:border-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-200"
-                        >
-                            {{ 'addCredits.promo.weekOneUsd50.badge' | transloco }}
-                        </p>
-                        <h2 class="text-lg font-semibold leading-snug text-emerald-950 dark:text-emerald-50">
-                            {{ 'addCredits.promo.weekOneUsd50.title' | transloco }}
-                        </h2>
-                        <p class="max-w-3xl text-sm leading-relaxed text-emerald-950/95 dark:text-emerald-100/95">
-                            {{ 'addCredits.promo.weekOneUsd50.body' | transloco }}
-                        </p>
-                        <p class="text-xs font-medium leading-relaxed text-emerald-900 dark:text-emerald-200">
-                            {{ 'addCredits.promo.weekOneUsd50.accountCreatedNotice' | transloco }}
-                        </p>
-                        <p class="text-sm font-semibold text-emerald-950 dark:text-emerald-50">
-                            {{
-                                'addCredits.promo.weekOneUsd50.deadline'
-                                    | transloco
-                                        : {
-                                              expiresAt:
-                                                  (weekOneUsd50Promotion()?.expiresAt | date: 'medium') || '',
-                                          }
-                            }}
-                        </p>
-                    </div>
-                </div>
-                <div class="shrink-0 sm:pt-1">
+        <section class="home-promo-card mb-8" aria-labelledby="week-one-promo-heading">
+            <div class="home-promo-card__body">
+                <div class="home-promo-card__copy">
+                    <p class="home-promo-card__badge">
+                        {{ 'addCredits.promo.weekOneUsd50.badge' | transloco }}
+                    </p>
+                    <h2 id="week-one-promo-heading" class="home-promo-card__title">
+                        {{ 'addCredits.promo.weekOneUsd50.title' | transloco }}
+                    </h2>
+                    <p class="home-promo-card__text">
+                        {{ 'addCredits.promo.weekOneUsd50.body' | transloco }}
+                    </p>
+                    <p class="home-promo-card__note">
+                        {{ 'addCredits.promo.weekOneUsd50.accountCreatedNotice' | transloco }}
+                    </p>
+                    <p class="home-promo-card__deadline">
+                        {{
+                            'addCredits.promo.weekOneUsd50.deadline'
+                                | transloco
+                                    : {
+                                          expiresAt:
+                                              (weekOneUsd50Promotion()?.expiresAt
+                                                  | date: 'medium') || '',
+                                      }
+                        }}
+                    </p>
                     <a
                         mat-flat-button
-                        color="primary"
                         routerLink="/add-credits"
-                        class="rounded-xl"
+                        class="home-promo-card__cta"
                     >
-                        <mat-icon class="mr-2">payments</mat-icon>
                         {{ 'addCredits.purchaseCredits' | transloco }}
                     </a>
                 </div>
+
+                <div class="home-promo-card__art" aria-hidden="true">
+                    <svg class="home-promo-card__svg" viewBox="0 0 220 160" fill="none">
+                        <rect
+                            class="home-promo-card__slab"
+                            x="36"
+                            y="58"
+                            width="148"
+                            height="78"
+                            rx="10"
+                            transform="rotate(-8 110 97)"
+                        />
+                        <rect
+                            class="home-promo-card__slab-face"
+                            x="44"
+                            y="50"
+                            width="132"
+                            height="70"
+                            rx="8"
+                            transform="rotate(-8 110 85)"
+                        />
+                        <circle class="home-promo-card__badge-circle" cx="148" cy="48" r="22" />
+                        <text class="home-promo-card__badge-text" x="148" y="53" text-anchor="middle">
+                            2x
+                        </text>
+                    </svg>
+                </div>
             </div>
         </section>
+    }
+
+    @if (isAuthenticated()) {
+        <app-home-get-started></app-home-get-started>
     }
 
     <!--
@@ -174,126 +313,144 @@
         }
 
         <div class="dashboard-main">
+            <!-- Statistics Section -->
+            <section class="mb-8">
+                <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
+                    {{ 'home.stats.title' | transloco }}
+                </h2>
 
-    <!-- Statistics Section -->
-    <section class="mb-8">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
-            {{ 'home.stats.title' | transloco }}
-        </h2>
+                @if (isAuthenticated()) {
+                    @if (loading()) {
+                        <div class="flex items-center gap-2 py-8">
+                            <mat-spinner diameter="24"></mat-spinner>
+                            <span class="text-slate-500 text-sm">{{
+                                'home.stats.loading' | transloco
+                            }}</span>
+                        </div>
+                    } @else {
+                        @let totals = getTotals();
+                        <div class="stat-strip">
+                            <div class="stat-strip-item">
+                                <div class="stat-value">{{ totals.total }}</div>
+                                <div class="stat-label">
+                                    {{ 'home.stats.totalValidations' | transloco }}
+                                </div>
+                            </div>
+                            <div class="stat-strip-item">
+                                <div class="stat-value">{{ totals.ok }}</div>
+                                <div class="stat-label">
+                                    {{ 'home.stats.successful' | transloco }}
+                                </div>
+                            </div>
+                            <div class="stat-strip-item">
+                                <div class="stat-value">{{ totals.failed }}</div>
+                                <div class="stat-label">{{ 'home.stats.failed' | transloco }}</div>
+                            </div>
+                            <div class="stat-strip-item">
+                                <div class="stat-value">{{ totals.credits | number: '1.0-3' }}</div>
+                                <div class="stat-label">
+                                    {{ 'home.stats.creditsUsed' | transloco }}
+                                </div>
+                            </div>
+                        </div>
+                    }
+                } @else {
+                    <div class="sign-in-card p-6 text-center">
+                        <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                            {{ 'home.stats.signInPrompt' | transloco }}
+                        </p>
+                        <button mat-flat-button color="primary" (click)="openAuthModal()">
+                            {{ 'home.stats.signIn' | transloco }}
+                        </button>
+                    </div>
+                }
+            </section>
 
-        @if (isAuthenticated()) {
-            @if (loading()) {
-                <div class="flex items-center gap-2 py-8">
-                    <mat-spinner diameter="24"></mat-spinner>
-                    <span class="text-slate-500 text-sm">{{ 'home.stats.loading' | transloco }}</span>
-                </div>
-            } @else {
-                @let totals = getTotals();
-                <div class="stat-strip">
-                    <div class="stat-strip-item">
-                        <div class="stat-value">{{ totals.total }}</div>
-                        <div class="stat-label">{{ 'home.stats.totalValidations' | transloco }}</div>
+            <!-- Dashboard Charts Section (only when authenticated and data has loaded) -->
+            @if (isAuthenticated() && !loading() && dashboardData(); as dashboard) {
+                <section class="dashboard-charts mb-8">
+                    <!-- Row 1: Expense Sparklines (weekly / monthly / yearly) -->
+                    <div class="charts-grid charts-grid-3">
+                        <div class="chart-card chart-card-sparkline">
+                            <div class="chart-card-label">
+                                {{ 'home.stats.weeklyExpenses' | transloco }}
+                            </div>
+                            <div class="chart-card-value">
+                                {{ formatCredits(dashboard.weeklyExpenses?.amount) }}
+                                <span class="chart-card-unit">{{
+                                    'home.stats.creditsUnit' | transloco
+                                }}</span>
+                            </div>
+                            <div class="chart-card-spark">
+                                @if (chartWeeklyExpenses) {
+                                    <apx-chart
+                                        class="w-full h-full block"
+                                        [chart]="chartWeeklyExpenses.chart!"
+                                        [colors]="chartWeeklyExpenses.colors!"
+                                        [series]="chartWeeklyExpenses.series!"
+                                        [stroke]="chartWeeklyExpenses.stroke!"
+                                        [tooltip]="chartWeeklyExpenses.tooltip!"
+                                        [xaxis]="chartWeeklyExpenses.xaxis!"
+                                        [yaxis]="chartWeeklyExpenses.yaxis!"
+                                    ></apx-chart>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="chart-card chart-card-sparkline">
+                            <div class="chart-card-label">
+                                {{ 'home.stats.monthlyExpenses' | transloco }}
+                            </div>
+                            <div class="chart-card-value">
+                                {{ formatCredits(dashboard.monthlyExpenses?.amount) }}
+                                <span class="chart-card-unit">{{
+                                    'home.stats.creditsUnit' | transloco
+                                }}</span>
+                            </div>
+                            <div class="chart-card-spark">
+                                @if (chartMonthlyExpenses) {
+                                    <apx-chart
+                                        class="w-full h-full block"
+                                        [chart]="chartMonthlyExpenses.chart!"
+                                        [colors]="chartMonthlyExpenses.colors!"
+                                        [series]="chartMonthlyExpenses.series!"
+                                        [stroke]="chartMonthlyExpenses.stroke!"
+                                        [tooltip]="chartMonthlyExpenses.tooltip!"
+                                        [xaxis]="chartMonthlyExpenses.xaxis!"
+                                        [yaxis]="chartMonthlyExpenses.yaxis!"
+                                    ></apx-chart>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="chart-card chart-card-sparkline">
+                            <div class="chart-card-label">
+                                {{ 'home.stats.yearlyExpenses' | transloco }}
+                            </div>
+                            <div class="chart-card-value">
+                                {{ formatCredits(dashboard.yearlyExpenses?.amount) }}
+                                <span class="chart-card-unit">{{
+                                    'home.stats.creditsUnit' | transloco
+                                }}</span>
+                            </div>
+                            <div class="chart-card-spark">
+                                @if (chartYearlyExpenses) {
+                                    <apx-chart
+                                        class="w-full h-full block"
+                                        [chart]="chartYearlyExpenses.chart!"
+                                        [colors]="chartYearlyExpenses.colors!"
+                                        [series]="chartYearlyExpenses.series!"
+                                        [stroke]="chartYearlyExpenses.stroke!"
+                                        [tooltip]="chartYearlyExpenses.tooltip!"
+                                        [xaxis]="chartYearlyExpenses.xaxis!"
+                                        [yaxis]="chartYearlyExpenses.yaxis!"
+                                    ></apx-chart>
+                                }
+                            </div>
+                        </div>
                     </div>
-                    <div class="stat-strip-item">
-                        <div class="stat-value">{{ totals.ok }}</div>
-                        <div class="stat-label">{{ 'home.stats.successful' | transloco }}</div>
-                    </div>
-                    <div class="stat-strip-item">
-                        <div class="stat-value">{{ totals.failed }}</div>
-                        <div class="stat-label">{{ 'home.stats.failed' | transloco }}</div>
-                    </div>
-                    <div class="stat-strip-item">
-                        <div class="stat-value">{{ totals.credits | number: '1.0-3' }}</div>
-                        <div class="stat-label">{{ 'home.stats.creditsUsed' | transloco }}</div>
-                    </div>
-                </div>
+                </section>
             }
-        } @else {
-            <div class="sign-in-card p-6 text-center">
-                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
-                    {{ 'home.stats.signInPrompt' | transloco }}
-                </p>
-                <button mat-flat-button color="primary" (click)="openAuthModal()">
-                    {{ 'home.stats.signIn' | transloco }}
-                </button>
-            </div>
-        }
-    </section>
-
-    <!-- Dashboard Charts Section (only when authenticated and data has loaded) -->
-    @if (isAuthenticated() && !loading() && dashboardData(); as dashboard) {
-        <section class="dashboard-charts mb-8">
-            <!-- Row 1: Expense Sparklines (weekly / monthly / yearly) -->
-            <div class="charts-grid charts-grid-3">
-                <div class="chart-card chart-card-sparkline">
-                    <div class="chart-card-label">{{ 'home.stats.weeklyExpenses' | transloco }}</div>
-                    <div class="chart-card-value">
-                        {{ formatCredits(dashboard.weeklyExpenses?.amount) }}
-                        <span class="chart-card-unit">{{ 'home.stats.creditsUnit' | transloco }}</span>
-                    </div>
-                    <div class="chart-card-spark">
-                        @if (chartWeeklyExpenses) {
-                            <apx-chart
-                                class="w-full h-full block"
-                                [chart]="chartWeeklyExpenses.chart!"
-                                [colors]="chartWeeklyExpenses.colors!"
-                                [series]="chartWeeklyExpenses.series!"
-                                [stroke]="chartWeeklyExpenses.stroke!"
-                                [tooltip]="chartWeeklyExpenses.tooltip!"
-                                [xaxis]="chartWeeklyExpenses.xaxis!"
-                                [yaxis]="chartWeeklyExpenses.yaxis!"
-                            ></apx-chart>
-                        }
-                    </div>
-                </div>
-
-                <div class="chart-card chart-card-sparkline">
-                    <div class="chart-card-label">{{ 'home.stats.monthlyExpenses' | transloco }}</div>
-                    <div class="chart-card-value">
-                        {{ formatCredits(dashboard.monthlyExpenses?.amount) }}
-                        <span class="chart-card-unit">{{ 'home.stats.creditsUnit' | transloco }}</span>
-                    </div>
-                    <div class="chart-card-spark">
-                        @if (chartMonthlyExpenses) {
-                            <apx-chart
-                                class="w-full h-full block"
-                                [chart]="chartMonthlyExpenses.chart!"
-                                [colors]="chartMonthlyExpenses.colors!"
-                                [series]="chartMonthlyExpenses.series!"
-                                [stroke]="chartMonthlyExpenses.stroke!"
-                                [tooltip]="chartMonthlyExpenses.tooltip!"
-                                [xaxis]="chartMonthlyExpenses.xaxis!"
-                                [yaxis]="chartMonthlyExpenses.yaxis!"
-                            ></apx-chart>
-                        }
-                    </div>
-                </div>
-
-                <div class="chart-card chart-card-sparkline">
-                    <div class="chart-card-label">{{ 'home.stats.yearlyExpenses' | transloco }}</div>
-                    <div class="chart-card-value">
-                        {{ formatCredits(dashboard.yearlyExpenses?.amount) }}
-                        <span class="chart-card-unit">{{ 'home.stats.creditsUnit' | transloco }}</span>
-                    </div>
-                    <div class="chart-card-spark">
-                        @if (chartYearlyExpenses) {
-                            <apx-chart
-                                class="w-full h-full block"
-                                [chart]="chartYearlyExpenses.chart!"
-                                [colors]="chartYearlyExpenses.colors!"
-                                [series]="chartYearlyExpenses.series!"
-                                [stroke]="chartYearlyExpenses.stroke!"
-                                [tooltip]="chartYearlyExpenses.tooltip!"
-                                [xaxis]="chartYearlyExpenses.xaxis!"
-                                [yaxis]="chartYearlyExpenses.yaxis!"
-                            ></apx-chart>
-                        }
-                    </div>
-                </div>
-            </div>
-        </section>
-    }
-
         </div>
         <!-- /dashboard-main -->
 
@@ -302,211 +459,250 @@
             shortcuts and tutorial span both columns instead of staying narrow.
         -->
         <div class="dashboard-wide">
-
-    @if (isAuthenticated() && !loading() && dashboardData(); as dashboard) {
-        <section class="dashboard-charts mb-8">
-            <!-- Row 2: Last 30 days requests (KPIs + area chart) -->
-            @if (dashboard.lastMonthRequests; as last30) {
-                <div class="chart-card">
-                    <div class="chart-card-header">
-                        <h3 class="chart-card-title">{{ 'home.stats.last30Days' | transloco }}</h3>
-                        <span class="chart-card-pill">30 {{ 'home.stats.days' | transloco }}</span>
-                    </div>
-
-                    @let okSum = sumSeries(last30.series?.[0]?.data);
-                    @let notFoundSum = sumSeries(last30.series?.[1]?.data);
-                    @let totalReq = last30.amount || (okSum + notFoundSum);
-                    <div class="kpi-row">
-                        <div class="kpi-item">
-                            <div class="kpi-label">{{ 'home.stats.requestsTotal' | transloco }}</div>
-                            <div class="kpi-value">
-                                <span>{{ totalReq }}</span>
-                                <span class="kpi-pct kpi-pct-positive">100%</span>
+            @if (isAuthenticated() && !loading() && dashboardData(); as dashboard) {
+                <section class="dashboard-charts mb-8">
+                    <!-- Row 2: Last 30 days requests (KPIs + area chart) -->
+                    @if (dashboard.lastMonthRequests; as last30) {
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">
+                                    {{ 'home.stats.last30Days' | transloco }}
+                                </h3>
+                                <span class="chart-card-pill"
+                                    >30 {{ 'home.stats.days' | transloco }}</span
+                                >
                             </div>
-                        </div>
-                        <div class="kpi-item">
-                            <div class="kpi-label">{{ 'home.stats.requestsSuccess' | transloco }}</div>
-                            <div class="kpi-value">
-                                <span>{{ okSum }}</span>
-                                <span class="kpi-pct kpi-pct-positive">{{ percentOf(okSum, totalReq) }}%</span>
-                            </div>
-                        </div>
-                        <div class="kpi-item">
-                            <div class="kpi-label">{{ 'home.stats.requestsNotFound' | transloco }}</div>
-                            <div class="kpi-value">
-                                <span>{{ notFoundSum }}</span>
-                                <span class="kpi-pct kpi-pct-negative">{{ percentOf(notFoundSum, totalReq) }}%</span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="chart-card-tall">
-                        @if (chartLastMonth) {
-                            <apx-chart
-                                class="w-full h-full block"
-                                [chart]="chartLastMonth.chart!"
-                                [colors]="chartLastMonth.colors!"
-                                [dataLabels]="chartLastMonth.dataLabels!"
-                                [grid]="chartLastMonth.grid!"
-                                [legend]="chartLastMonth.legend!"
-                                [series]="chartLastMonth.series!"
-                                [stroke]="chartLastMonth.stroke!"
-                                [tooltip]="chartLastMonth.tooltip!"
-                                [xaxis]="chartLastMonth.xaxis!"
-                                [yaxis]="chartLastMonth.yaxis!"
-                            ></apx-chart>
-                        }
-                    </div>
-                </div>
-            }
-
-            <!-- Row 3: Top endpoints podium + Weekly usage line -->
-            <div class="charts-grid charts-grid-2 mt-6">
-                <div class="chart-card">
-                    <div class="chart-card-header">
-                        <h3 class="chart-card-title">{{ 'home.stats.topEndpoints' | transloco }}</h3>
-                    </div>
-
-                    @if (podium().length > 0) {
-                        @let maxCount = podium()[0]?.count || 1;
-                        <div class="performers-list">
-                            @for (top of podium(); track top.code; let i = $index) {
-                                <div class="performer-row" [class.performer-row-top]="i === 0">
-                                    <div class="performer-rank">{{ i + 1 }}</div>
-                                    <div class="performer-info">
-                                        <div class="performer-name">{{ top.displayName }}</div>
-                                        <div class="performer-bar-track">
-                                            <div class="performer-bar-fill" [style.width.%]="(top.count / maxCount) * 100"></div>
-                                        </div>
+                            @let okSum = sumSeries(last30.series?.[0]?.data);
+                            @let notFoundSum = sumSeries(last30.series?.[1]?.data);
+                            @let totalReq = last30.amount || okSum + notFoundSum;
+                            <div class="kpi-row">
+                                <div class="kpi-item">
+                                    <div class="kpi-label">
+                                        {{ 'home.stats.requestsTotal' | transloco }}
                                     </div>
-                                    <div class="performer-stats">
-                                        <span class="performer-count">{{ top.count }}</span>
-                                        @if (top.failed > 0) {
-                                            <span class="api-failed-badge">
-                                                {{ top.failed }} {{ 'home.stats.failed' | transloco }}
-                                            </span>
-                                        }
+                                    <div class="kpi-value">
+                                        <span>{{ totalReq }}</span>
+                                        <span class="kpi-pct kpi-pct-positive">100%</span>
                                     </div>
                                 </div>
+                                <div class="kpi-item">
+                                    <div class="kpi-label">
+                                        {{ 'home.stats.requestsSuccess' | transloco }}
+                                    </div>
+                                    <div class="kpi-value">
+                                        <span>{{ okSum }}</span>
+                                        <span class="kpi-pct kpi-pct-positive"
+                                            >{{ percentOf(okSum, totalReq) }}%</span
+                                        >
+                                    </div>
+                                </div>
+                                <div class="kpi-item">
+                                    <div class="kpi-label">
+                                        {{ 'home.stats.requestsNotFound' | transloco }}
+                                    </div>
+                                    <div class="kpi-value">
+                                        <span>{{ notFoundSum }}</span>
+                                        <span class="kpi-pct kpi-pct-negative"
+                                            >{{ percentOf(notFoundSum, totalReq) }}%</span
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chart-card-tall">
+                                @if (chartLastMonth) {
+                                    <apx-chart
+                                        class="w-full h-full block"
+                                        [chart]="chartLastMonth.chart!"
+                                        [colors]="chartLastMonth.colors!"
+                                        [dataLabels]="chartLastMonth.dataLabels!"
+                                        [grid]="chartLastMonth.grid!"
+                                        [legend]="chartLastMonth.legend!"
+                                        [series]="chartLastMonth.series!"
+                                        [stroke]="chartLastMonth.stroke!"
+                                        [tooltip]="chartLastMonth.tooltip!"
+                                        [xaxis]="chartLastMonth.xaxis!"
+                                        [yaxis]="chartLastMonth.yaxis!"
+                                    ></apx-chart>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Row 3: Top endpoints podium + Weekly usage line -->
+                    <div class="charts-grid charts-grid-2 mt-6">
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">
+                                    {{ 'home.stats.topEndpoints' | transloco }}
+                                </h3>
+                            </div>
+
+                            @if (podium().length > 0) {
+                                @let maxCount = podium()[0]?.count || 1;
+                                <div class="performers-list">
+                                    @for (top of podium(); track top.code; let i = $index) {
+                                        <div
+                                            class="performer-row"
+                                            [class.performer-row-top]="i === 0"
+                                        >
+                                            <div class="performer-rank">{{ i + 1 }}</div>
+                                            <div class="performer-info">
+                                                <div class="performer-name">
+                                                    {{ top.displayName }}
+                                                </div>
+                                                <div class="performer-bar-track">
+                                                    <div
+                                                        class="performer-bar-fill"
+                                                        [style.width.%]="
+                                                            (top.count / maxCount) * 100
+                                                        "
+                                                    ></div>
+                                                </div>
+                                            </div>
+                                            <div class="performer-stats">
+                                                <span class="performer-count">{{ top.count }}</span>
+                                                @if (top.failed > 0) {
+                                                    <span class="api-failed-badge">
+                                                        {{ top.failed }}
+                                                        {{ 'home.stats.failed' | transloco }}
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            } @else {
+                                <p class="text-sm text-slate-500 dark:text-slate-400">
+                                    {{ 'home.stats.noData' | transloco }}
+                                </p>
                             }
                         </div>
-                    } @else {
-                        <p class="text-sm text-slate-500 dark:text-slate-400">
-                            {{ 'home.stats.noData' | transloco }}
-                        </p>
+
+                        <div class="chart-card">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">
+                                    {{ 'home.stats.weeklyUsage' | transloco }}
+                                </h3>
+                            </div>
+                            <div class="chart-card-tall">
+                                @if (chartUsageLine) {
+                                    <apx-chart
+                                        class="w-full h-full block"
+                                        [chart]="chartUsageLine.chart!"
+                                        [colors]="chartUsageLine.colors!"
+                                        [dataLabels]="chartUsageLine.dataLabels!"
+                                        [grid]="chartUsageLine.grid!"
+                                        [labels]="chartUsageLine.labels!"
+                                        [legend]="chartUsageLine.legend!"
+                                        [plotOptions]="chartUsageLine.plotOptions!"
+                                        [series]="chartUsageLine.series!"
+                                        [states]="chartUsageLine.states!"
+                                        [stroke]="chartUsageLine.stroke!"
+                                        [tooltip]="chartUsageLine.tooltip!"
+                                        [xaxis]="chartUsageLine.xaxis!"
+                                        [yaxis]="chartUsageLine.yaxis!"
+                                    ></apx-chart>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Distribution radar -->
+                    @if (dashboard.distribution) {
+                        <div class="chart-card mt-6">
+                            <div class="chart-card-header">
+                                <h3 class="chart-card-title">
+                                    {{ 'home.stats.serviceDistribution' | transloco }}
+                                </h3>
+                                <span class="chart-card-pill"
+                                    >30 {{ 'home.stats.days' | transloco }}</span
+                                >
+                            </div>
+                            <div class="chart-card-tall">
+                                @if (chartDistribution) {
+                                    <apx-chart
+                                        class="w-full h-full block"
+                                        [chart]="chartDistribution.chart!"
+                                        [colors]="chartDistribution.colors!"
+                                        [dataLabels]="chartDistribution.dataLabels!"
+                                        [markers]="chartDistribution.markers!"
+                                        [plotOptions]="chartDistribution.plotOptions!"
+                                        [series]="chartDistribution.series!"
+                                        [stroke]="chartDistribution.stroke!"
+                                        [tooltip]="chartDistribution.tooltip!"
+                                        [xaxis]="chartDistribution.xaxis!"
+                                        [yaxis]="chartDistribution.yaxis!"
+                                    ></apx-chart>
+                                }
+                            </div>
+                        </div>
+                    }
+                </section>
+            }
+
+            <!-- Helper Shortcuts -->
+            <section class="shortcuts-section">
+                <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
+                    {{ 'home.shortcuts.title' | transloco }}
+                </h2>
+                <div class="shortcuts-grid">
+                    @for (item of shortcuts; track item.id) {
+                        @if (isShortcutLink(item)) {
+                            <a [routerLink]="item.link!" class="shortcut-card">
+                                <div class="shortcut-icon">
+                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                </div>
+                                <div>
+                                    <div class="shortcut-title">
+                                        {{ item.titleKey | transloco }}
+                                    </div>
+                                    <div class="shortcut-subtitle">
+                                        {{ item.subtitleKey | transloco }}
+                                    </div>
+                                </div>
+                            </a>
+                        } @else {
+                            <button
+                                type="button"
+                                class="shortcut-card"
+                                [class.shortcut-card--support]="item.accent === 'support'"
+                                (click)="onShortcutActivate(item)"
+                            >
+                                <div
+                                    class="shortcut-icon"
+                                    [class.shortcut-icon--support]="item.accent === 'support'"
+                                >
+                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                </div>
+                                <div>
+                                    <div class="shortcut-title">
+                                        {{ item.titleKey | transloco }}
+                                    </div>
+                                    <div class="shortcut-subtitle">
+                                        {{ item.subtitleKey | transloco }}
+                                    </div>
+                                </div>
+                            </button>
+                        }
                     }
                 </div>
+            </section>
 
-                <div class="chart-card">
-                    <div class="chart-card-header">
-                        <h3 class="chart-card-title">{{ 'home.stats.weeklyUsage' | transloco }}</h3>
-                    </div>
-                    <div class="chart-card-tall">
-                        @if (chartUsageLine) {
-                            <apx-chart
-                                class="w-full h-full block"
-                                [chart]="chartUsageLine.chart!"
-                                [colors]="chartUsageLine.colors!"
-                                [dataLabels]="chartUsageLine.dataLabels!"
-                                [grid]="chartUsageLine.grid!"
-                                [labels]="chartUsageLine.labels!"
-                                [legend]="chartUsageLine.legend!"
-                                [plotOptions]="chartUsageLine.plotOptions!"
-                                [series]="chartUsageLine.series!"
-                                [states]="chartUsageLine.states!"
-                                [stroke]="chartUsageLine.stroke!"
-                                [tooltip]="chartUsageLine.tooltip!"
-                                [xaxis]="chartUsageLine.xaxis!"
-                                [yaxis]="chartUsageLine.yaxis!"
-                            ></apx-chart>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <!-- Row 4: Distribution radar -->
-            @if (dashboard.distribution) {
-                <div class="chart-card mt-6">
-                    <div class="chart-card-header">
-                        <h3 class="chart-card-title">{{ 'home.stats.serviceDistribution' | transloco }}</h3>
-                        <span class="chart-card-pill">30 {{ 'home.stats.days' | transloco }}</span>
-                    </div>
-                    <div class="chart-card-tall">
-                        @if (chartDistribution) {
-                            <apx-chart
-                                class="w-full h-full block"
-                                [chart]="chartDistribution.chart!"
-                                [colors]="chartDistribution.colors!"
-                                [dataLabels]="chartDistribution.dataLabels!"
-                                [markers]="chartDistribution.markers!"
-                                [plotOptions]="chartDistribution.plotOptions!"
-                                [series]="chartDistribution.series!"
-                                [stroke]="chartDistribution.stroke!"
-                                [tooltip]="chartDistribution.tooltip!"
-                                [xaxis]="chartDistribution.xaxis!"
-                                [yaxis]="chartDistribution.yaxis!"
-                            ></apx-chart>
-                        }
-                    </div>
-                </div>
-            }
-        </section>
-    }
-
-    <!-- Helper Shortcuts -->
-    <section class="shortcuts-section">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">
-            {{ 'home.shortcuts.title' | transloco }}
-        </h2>
-        <div class="shortcuts-grid">
-            @for (item of shortcuts; track item.id) {
-                @if (isShortcutLink(item)) {
-                    <a [routerLink]="item.link!" class="shortcut-card">
-                        <div class="shortcut-icon">
-                            <mat-icon>{{ item.icon }}</mat-icon>
-                        </div>
-                        <div>
-                            <div class="shortcut-title">{{ item.titleKey | transloco }}</div>
-                            <div class="shortcut-subtitle">{{ item.subtitleKey | transloco }}</div>
-                        </div>
-                    </a>
-                } @else {
-                    <button
-                        type="button"
-                        class="shortcut-card"
-                        [class.shortcut-card--support]="item.accent === 'support'"
-                        (click)="onShortcutActivate(item)"
-                    >
-                        <div
-                            class="shortcut-icon"
-                            [class.shortcut-icon--support]="item.accent === 'support'"
-                        >
-                            <mat-icon>{{ item.icon }}</mat-icon>
-                        </div>
-                        <div>
-                            <div class="shortcut-title">{{ item.titleKey | transloco }}</div>
-                            <div class="shortcut-subtitle">{{ item.subtitleKey | transloco }}</div>
-                        </div>
-                    </button>
-                }
-            }
-        </div>
-    </section>
-
-    <!-- Tutorial Section -->
-    <section class="tutorial-section">
-        <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">
-            {{ 'home.tutorial.title' | transloco }}
-        </h2>
-        <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
-            {{ 'home.tutorial.description' | transloco }}
-        </p>
-        <button mat-flat-button color="primary" (click)="openTutorial()">
-            <mat-icon class="mr-2">school</mat-icon>
-            {{ 'home.tutorial.start' | transloco }}
-        </button>
-    </section>
-
+            <!-- Tutorial Section -->
+            <section class="tutorial-section">
+                <h2 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">
+                    {{ 'home.tutorial.title' | transloco }}
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                    {{ 'home.tutorial.description' | transloco }}
+                </p>
+                <button mat-flat-button color="primary" (click)="openTutorial()">
+                    <mat-icon class="mr-2">school</mat-icon>
+                    {{ 'home.tutorial.start' | transloco }}
+                </button>
+            </section>
         </div>
         <!-- /dashboard-wide -->
     </div>

@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { cardStatus, isMeasured, laneOf, measuredCount, probeHistory, uptimePercentage } from './status-lane.util';
+import {
+    AWAITING,
+    adminChartPoints,
+    cardStatus,
+    isMeasured,
+    laneOf,
+    latestChartPoint,
+    measuredCount,
+    probeHistory,
+    uptimePercentage,
+} from './status-lane.util';
 
 describe('status-lane.util', () => {
     describe('laneOf', () => {
@@ -114,6 +124,43 @@ describe('status-lane.util', () => {
             ];
 
             expect(probeHistory(rows, 50).map((row) => row.status)).toEqual(['ok', 'ok']);
+        });
+    });
+
+    describe('adminChartPoints', () => {
+        it('pads mixed rows to 50 and puts the newest no-bucket tick last', () => {
+            const extras = Array.from({ length: 48 }, (_, index) => ({
+                status: index % 2 === 0 ? 'failed' : 'ok',
+                createdAt: `extra-${index}`,
+                bucketMinutes: index % 2 === 0 ? 360 : null,
+            }));
+            const rows = [
+                { status: 'failed', createdAt: 'newest-bucket', bucketMinutes: 360 },
+                { status: 'ok', createdAt: 'newest-probe', bucketMinutes: null },
+                ...extras,
+            ];
+
+            const points = adminChartPoints(rows, 50);
+
+            expect(points).toHaveLength(50);
+            expect(points[0].status).toBe(AWAITING);
+            expect(points[points.length - 1]).toMatchObject({
+                status: 'ok',
+                createdAt: 'newest-probe',
+            });
+            expect(points.some((point) => point.bucketMinutes === 360)).toBe(false);
+        });
+
+        it('uses the newest bucketMinutes-null row as the newest bar', () => {
+            const rows = [
+                { status: 'ok', createdAt: 'newest-probe', bucketMinutes: null },
+                { status: 'failed', createdAt: 'bucket', bucketMinutes: 360 },
+                { status: 'failed', createdAt: 'older-probe', bucketMinutes: null },
+            ];
+            const points = adminChartPoints(rows, 50);
+
+            expect(latestChartPoint(points)?.createdAt).toBe('newest-probe');
+            expect(points[points.length - 1].createdAt).toBe('newest-probe');
         });
     });
 });

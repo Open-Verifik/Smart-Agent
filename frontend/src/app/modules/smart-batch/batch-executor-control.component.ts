@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SmartBatchExecutor } from './smart-batch.service';
@@ -7,7 +6,7 @@ import { SmartBatchExecutor } from './smart-batch.service';
 @Component({
     selector: 'batch-executor-control',
     standalone: true,
-    imports: [MatButtonToggleModule, MatTooltipModule, TranslocoModule],
+    imports: [MatTooltipModule, TranslocoModule],
     template: `
         <div
             class="flex flex-wrap items-center gap-2"
@@ -22,57 +21,32 @@ import { SmartBatchExecutor } from './smart-batch.service';
                     {{ badgeLabelKey | transloco }}
                 </span>
             }
-            <mat-button-toggle-group
-                [value]="resolvedExecutor"
-                (change)="onChange($event)"
-                [disabled]="saving"
-                hideSingleSelectionIndicator
-                class="!rounded-lg"
-                [class.batch-executor-control-compact]="compact"
+            <div
+                class="inline-flex rounded-full bg-stone-100 p-0.5 dark:bg-gray-800"
                 [matTooltip]="hintKey | transloco"
             >
-                <mat-button-toggle value="queue">{{
-                    'createBatchConfig.runModeAsync' | transloco
-                }}</mat-button-toggle>
-                <mat-button-toggle value="featureRunner">{{
-                    'createBatchConfig.runModeSync' | transloco
-                }}</mat-button-toggle>
-            </mat-button-toggle-group>
+                <button
+                    type="button"
+                    [disabled]="saving"
+                    [class]="optionClass('queue')"
+                    (click)="select('queue')"
+                >
+                    {{ 'createBatchConfig.runModeAsync' | transloco }}
+                </button>
+                <button
+                    type="button"
+                    [disabled]="saving"
+                    [class]="optionClass('browser')"
+                    (click)="select('browser')"
+                >
+                    {{ 'createBatchConfig.runModeSync' | transloco }}
+                </button>
+            </div>
         </div>
-    `,
-    styles: `
-        :host ::ng-deep .mat-button-toggle {
-            border: 2px solid transparent !important;
-        }
-
-        :host ::ng-deep .mat-button-toggle-checked {
-            border-color: rgb(28 25 23) !important;
-            background-color: rgb(28 25 23) !important;
-        }
-
-        :host ::ng-deep .mat-button-toggle-checked .mat-button-toggle-label-content {
-            color: #fff !important;
-            font-weight: 700;
-        }
-
-        :host-context(.dark) ::ng-deep .mat-button-toggle-checked {
-            border-color: #fff !important;
-            background-color: rgb(255 255 255 / 0.12) !important;
-        }
-
-        :host-context(.dark) ::ng-deep .mat-button-toggle-checked .mat-button-toggle-label-content {
-            color: #fff !important;
-        }
-
-        :host ::ng-deep .batch-executor-control-compact .mat-button-toggle-label-content {
-            padding: 0 0.65rem;
-            font-size: 0.75rem;
-            line-height: 1.8rem;
-        }
     `,
 })
 export class BatchExecutorControlComponent {
-    @Input() executor: SmartBatchExecutor | undefined = 'featureRunner';
+    @Input() executor: SmartBatchExecutor | undefined = 'browser';
     @Input() saving = false;
     @Input() showBadge = true;
     @Input() compact = false;
@@ -80,13 +54,12 @@ export class BatchExecutorControlComponent {
 
     @Output() executorChange = new EventEmitter<SmartBatchExecutor>();
 
-    get resolvedExecutor(): 'queue' | 'featureRunner' {
-        return this.executor === 'queue' ? 'queue' : 'featureRunner';
+    get resolvedExecutor(): 'queue' | 'browser' {
+        return this.executor === 'queue' ? 'queue' : 'browser';
     }
 
     get badgeLabelKey(): string {
         if (this.executor === 'queue') return 'createBatchConfig.runModeAsync';
-        if (this.executor === 'browser') return 'batchProcessing.executorBrowser';
         return 'createBatchConfig.runModeSync';
     }
 
@@ -100,10 +73,21 @@ export class BatchExecutorControlComponent {
         return 'border-indigo-200 bg-indigo-50 text-indigo-700 dark:border-indigo-900/60 dark:bg-indigo-950/30 dark:text-indigo-300';
     }
 
-    onChange(event: MatButtonToggleChange): void {
-        const value = event.value as SmartBatchExecutor;
-        if (value !== 'queue' && value !== 'featureRunner') return;
-        if (this.saving || value === this.resolvedExecutor) return;
+    optionClass(value: 'queue' | 'browser'): string {
+        const compact = this.compact ? 'px-2.5 py-1 text-xs' : 'px-3.5 py-1.5 text-sm';
+        const base = `${compact} rounded-full font-semibold transition disabled:opacity-50`;
+
+        if (this.resolvedExecutor === value) {
+            return `${base} bg-white text-blue-700 shadow-sm ring-1 ring-blue-200 dark:bg-blue-950 dark:text-blue-200 dark:ring-blue-800`;
+        }
+
+        return `${base} text-stone-600 hover:text-stone-900 dark:text-stone-300 dark:hover:text-white`;
+    }
+
+    select(value: 'queue' | 'browser'): void {
+        if (this.saving) return;
+        if (value === 'queue' && this.executor === 'queue') return;
+        if (value === 'browser' && this.executor === 'browser') return;
         this.executorChange.emit(value);
     }
 }

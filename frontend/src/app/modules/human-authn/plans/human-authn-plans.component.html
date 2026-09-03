@@ -1,0 +1,92 @@
+<ng-container *transloco="let t">
+    <div class="plans-page">
+        <header class="hero">
+            <div>
+                <h1>{{ t('humanAuthnPlans.title') }}</h1>
+                <p>{{ t('humanAuthnPlans.subtitle') }}</p>
+            </div>
+            @if (currentSubscription.length) {
+                <button mat-stroked-button type="button" (click)="manageBilling()">
+                    {{ t('humanAuthnPlans.manageBilling') }}
+                </button>
+            }
+        </header>
+
+        @if (currentView === 'current' && currentSubscription.length) {
+            <section class="current-card">
+                @for (subscription of currentSubscription; track subscription._id) {
+                    <div class="plan-card">
+                        <div class="plan-card__head">
+                            <h2>{{ subscription.name }}</h2>
+                            <span class="badge">{{ t('humanAuthnPlans.active') }}</span>
+                        </div>
+                        <p class="muted">
+                            {{ t('humanAuthnPlans.encrypts') }}: {{ subscription.encryptLimit || 0 }} ·
+                            {{ t('humanAuthnPlans.activeUsers') }}: {{ subscription.activeUserLimit || 0 }}
+                        </p>
+                        <button mat-flat-button color="primary" type="button" (click)="changeView('change')">
+                            {{ t('humanAuthnPlans.changePlan') }}
+                        </button>
+                    </div>
+                }
+            </section>
+        }
+
+        @if (currentView !== 'select') {
+            <section class="catalog">
+                @for (key of ['free', 'plus', 'business']; track key) {
+                    @if (getPlan(key); as plan) {
+                        <article class="catalog-card" [class.catalog-card--popular]="key === 'plus'">
+                            <h3>{{ plan.name }}</h3>
+                            <p class="price">
+                                {{ key === 'free' ? (t('humanAuthnPlans.freeForever')) : (monthlyTotal(key) | currency) }}
+                            </p>
+                            <ul>
+                                <li>{{ t('humanAuthnPlans.encrypts') }}: {{ plan.encryptLimit }}</li>
+                                <li>{{ t('humanAuthnPlans.activeUsers') }}: {{ plan.activeUserLimit }}</li>
+                                <li>{{ t('humanAuthnPlans.decrypts') }}: {{ plan.decryptLimit }}</li>
+                                <li>{{ t('humanAuthnPlans.previews') }}: {{ plan.previewLimit }}</li>
+                            </ul>
+                            <button mat-flat-button color="primary" type="button" (click)="changeView('select', key)">
+                                {{ t('humanAuthnPlans.selectPlan') }}
+                            </button>
+                        </article>
+                    }
+                }
+            </section>
+        }
+
+        @if (currentView === 'select' && selectedPlan) {
+            <section class="select-card">
+                <button mat-button type="button" (click)="changeView('change')">
+                    {{ t('humanAuthnPlans.back') }}
+                </button>
+                <h2>{{ getPlan(selectedPlan)?.name }}</h2>
+                @if (selectedPlan !== 'free') {
+                    <label class="volume">
+                        <span>{{ t('humanAuthnPlans.monthlyEncrypts') }}</span>
+                        <input
+                            type="range"
+                            min="{{ selectedPlan === 'plus' ? 300 : 1000 }}"
+                            max="{{ selectedPlan === 'plus' ? 1000 : 2500 }}"
+                            step="100"
+                            [ngModel]="volumeFor(selectedPlan)"
+                            (ngModelChange)="selectedPlan === 'plus' ? plusVolume = $event : businessVolume = $event"
+                        />
+                        <strong>{{ volumeFor(selectedPlan) }}</strong>
+                    </label>
+                    <p class="price">{{ monthlyTotal(selectedPlan) | currency }} / {{ t('humanAuthnPlans.month') }}</p>
+                }
+                <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    [disabled]="subscribingToPlan"
+                    (click)="checkout()"
+                >
+                    {{ t('humanAuthnPlans.purchase') }}
+                </button>
+            </section>
+        }
+    </div>
+</ng-container>

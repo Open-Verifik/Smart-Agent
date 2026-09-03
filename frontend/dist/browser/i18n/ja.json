@@ -64,6 +64,9 @@
         "demos_subtitle": "インタラクティブな生体認証デモ",
         "human_authn": "HumanAuthn",
         "human_authn_demos_subtitle": "HumanIDとライブネスのデモ",
+        "human_authn_projects": "プロジェクト",
+        "human_authn_projects_subtitle": "HumanAuthnプロジェクト",
+        "human_authn_plans": "プラン",
         "whatsapp_messages": "WhatsAppメッセージ",
         "whatsapp_messages_subtitle": "WhatsAppで送信されたOTPメッセージ",
         "sms_messages": "SMSメッセージ",
@@ -220,7 +223,7 @@
         "runModeAsync": "Async",
         "runModeSync": "Sync",
         "runModeAsyncHint": "バックグラウンドで実行します。このタブを閉じてもバッチは続きます。",
-        "runModeSyncHint": "サーバー上でステップを連鎖実行します。後続ステップが前の結果を使う場合に適します。",
+        "runModeSyncHint": "このタブが各エンドポイントを呼び出します。閉じるとバッチは止まります。",
         "saving": "保存中...",
         "next": "次へ",
         "selectEndpoints": "エンドポイントを選択",
@@ -854,11 +857,44 @@
             }
         },
         "companyVerification": {
-            "title": "法人認証を完了すると14日間の無料トライアルが利用できます。",
-            "body": "法人認証を完了すると購入が可能になり、準備ができたらサンドボックスを終了できます。",
-            "cta": "法人認証する",
+            "title": "法人認証を完了すると{{amount}} USDの無料クレジットが付与されます。",
+            "body": "無料クレジットを付与するには、規制当局およびパートナーの要件を満たすため、会社情報の確認が必要です。認証完了後、クレジットが利用可能になり、本番環境に切り替えられます。",
+            "cta": "法人認証を開始",
+            "pendingTitle": "法人認証は審査中です。",
+            "pendingBody": "会社情報を確認しています。認証が完了すると{{amount}} USDの無料クレジットを付与し、本番環境を有効にします。",
+            "step1": "会社情報の提供",
+            "step2": "審査",
+            "step3": "認証結果",
             "errors": {
                 "startFailed": "認証を開けませんでした。再試行するかクレジット追加をご利用ください。"
+            }
+        },
+        "getStarted": {
+            "title": "Verifikを始める",
+            "docsLink": "ドキュメントを見る",
+            "smartEnroll": {
+                "badgeStart": "開始",
+                "badgeNoCode": "ノーコード",
+                "title": "SmartEnrollから始める",
+                "body": "コードを書かずに書類登録と生体認証チェックを試せます。",
+                "bulletId": "本人確認",
+                "bulletLiveness": "ライブネスチェック",
+                "cta": "プロジェクトを見る"
+            },
+            "humanAuthn": {
+                "badgeNoCode": "ノーコード",
+                "title": "HumanAuthnを試す",
+                "body": "分散型アイデンティティ向けのHumanID証明を作成・検証します。",
+                "cta": "プロジェクトを見る"
+            },
+            "smartCheck": {
+                "badge": "連携",
+                "title": "SmartCheckを試す",
+                "token": "認証用アプリトークンを生成",
+                "explore": "PostmanでAPIを試すか、ドキュメントを確認してください。",
+                "postman": "Postmanを開く",
+                "docs": "ドキュメントを見る",
+                "webhooks": "検証結果を受け取るWebhookを作成"
             }
         },
         "tutorial": {
@@ -884,6 +920,90 @@
             "step5Title": "クレジットと請求",
             "step5Desc": "サブスクリプションを管理し、クレジットを追加。固定サブスクリプション不要の検証ごとの支払い。"
         }
+    },
+    "humanAuthnProjects": {
+        "title": "プロジェクト",
+        "subtitle": "暗号化された本人確認記録のためのHumanAuthnプロジェクトを作成します。",
+        "emptyTitle": "プロジェクトはまだありません",
+        "emptyBody": "登録、保存、連携を設定するにはプロジェクトを作成してください。",
+        "emptyStaffTitle": "割り当てられたプロジェクトがありません",
+        "emptyStaffBody": "管理者にHumanAuthnプロジェクトへの割り当てを依頼してください。",
+        "createProject": "プロジェクトを作成",
+        "loadError": "プロジェクトを読み込めませんでした。",
+        "plansLoadError": "HumanAuthnプランを読み込めませんでした。",
+        "noPlanCardTitle": "HumanAuthnプランが必要です",
+        "noPlanCardBody": "プロジェクトを作成するにはHumanAuthnプランに加入してください。",
+        "goToPlans": "プランを見る",
+        "setup": {
+            "title": "プロジェクト設定",
+            "newProject": "新しいHumanAuthnプロジェクト",
+            "previewComingSoon": "プレビューは近日公開",
+            "back": "戻る",
+            "next": "続行",
+            "finish": "完了",
+            "unsavedChanges": "未保存の変更",
+            "unsavedChangesMessage": "保存せずにこのステップを離れますか？",
+            "exitWithoutSaving": "保存せずに離れる",
+            "steps": {
+                "basic": "プロジェクト詳細",
+                "signup": "登録フォーム",
+                "documents": "書類",
+                "humanAuthn": "HumanAuthn",
+                "storage": "保存",
+                "integrations": "連携",
+                "ui": "ユーザーインターフェース"
+            },
+            "humanAuthn": {
+                "privacy": "Verifikは顔テンプレートを保持しません。暗号化された証明が記録です。保存は暗号化済みデータと公開項目のインデックスのみです。",
+                "standardTitle": "標準レコード",
+                "standardBody": "一度だけ暗号化します。以降の復号では毎回のライブ顔は不要です。",
+                "activeTitle": "アクティブユーザー",
+                "activeBody": "復号のたびにライブネスが必要です。月額アクティブユーザーとして請求されます。",
+                "livenessAtCreation": "作成時にライブネスを必須にする",
+                "livenessAtCreationHelp": "作成時のみです。月額アクティブユーザーモデルは変わりません。"
+            },
+            "storage": {
+                "ipfsTitle": "IPFS",
+                "ipfsBody": "公開ゲートウェイURL付きの分散インデックスです。",
+                "cloudTitle": "クラウドストレージ",
+                "cloudBody": "同じ証明ペイロードのVerifikホスト暗号化オブジェクトです。"
+            },
+            "integrations": {
+                "redirectUrl": "リダイレクトURL",
+                "webhook": "Webhook",
+                "noWebhook": "なし",
+                "manageWebhooks": "Webhookを管理"
+            }
+        }
+    },
+    "humanAuthnPlans": {
+        "title": "HumanAuthnプラン",
+        "subtitle": "暗号化、アクティブユーザー、復号のプランを選びます。",
+        "active": "有効",
+        "changePlan": "プランを変更",
+        "selectPlan": "プランを選択",
+        "purchase": "このプランを購入",
+        "back": "戻る",
+        "month": "月",
+        "freeForever": "無料",
+        "monthlyEncrypts": "月間暗号化",
+        "encrypts": "暗号化",
+        "activeUsers": "アクティブユーザー",
+        "decrypts": "復号",
+        "previews": "プレビュー",
+        "manageBilling": "請求を管理",
+        "loadError": "プランを読み込めませんでした。",
+        "redirectError": "請求ポータルを開けませんでした。",
+        "checkoutError": "チェックアウトを開始できませんでした。",
+        "checkoutNoPrice": "このプランはまだ購入できません。",
+        "billingRequiredTitle": "請求情報が必要です",
+        "billingRequiredMessage": "HumanAuthnプランに加入する前に請求情報を追加してください。",
+        "billingRequiredCancel": "キャンセル",
+        "billingRequiredGoSettings": "請求情報へ",
+        "volumeConfirmTitle": "数量を確認",
+        "volumeConfirmMessage": "月間{{quantity}}件の暗号化を{{total}} USDで加入しますか？",
+        "volumeConfirmCancel": "キャンセル",
+        "volumeConfirmContinue": "続行"
     },
     "accountEnv": {
         "verifyStrip": {
@@ -7152,6 +7272,8 @@
         "startFailed": "実行を開始できませんでした。もう一度お試しください。",
         "resumed": "再開しました",
         "runQueued": "実行をキューに追加しました。処理はサーバーで続くため、このタブを閉じても問題ありません。",
+        "runInTab": "このタブで開始しました。バッチが終わるまで開いたままにしてください。",
+        "runInTabFailed": "このタブで行結果を保存できませんでした。もう一度開始してください。",
         "runPaused": "実行を一時停止しました。進行中のレコードは先に完了します。",
         "runResumed": "実行を再開しました。",
         "runCancelled": "実行をキャンセルしました。",
