@@ -199,6 +199,15 @@ export class PurchaseCreditsDialogComponent implements OnInit {
                 title: `•••• ${this.data.card.lastFour}`,
                 subtitle: this._transloco.translate('addCredits.purchaseDialog.savedCard'),
             });
+        } else {
+            options.push({
+                id: 'stripe',
+                logoText: 'Stripe',
+                title: this._transloco.translate('addCredits.purchaseDialog.stripe.addCardTitle'),
+                subtitle: this._transloco.translate(
+                    'addCredits.purchaseDialog.stripe.addCardSubtitle'
+                ),
+            });
         }
 
         options.push({
@@ -479,8 +488,21 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         return this.paymentMethod !== 'bold' || Number.isInteger(amount);
     }
 
+    /** Stripe is selected but this client has no saved card yet. */
+    needsAddCard(): boolean {
+        return this.paymentMethod === 'stripe' && !this.data?.card;
+    }
+
     canSubmit(): boolean {
-        if (this.loading || !this.isValidAmount()) {
+        if (this.loading) {
+            return false;
+        }
+
+        if (this.needsAddCard()) {
+            return true;
+        }
+
+        if (!this.isValidAmount()) {
             return false;
         }
 
@@ -681,7 +703,30 @@ export class PurchaseCreditsDialogComponent implements OnInit {
         this._dialogRef.close('bold-checkout-opened');
     }
 
+    /** Same Stripe Checkout setup as the page Add Card button. */
+    private _startAddCard(): void {
+        this.loading = true;
+        this.error = null;
+
+        this._paymentService.createStripeCard().subscribe({
+            next: () => {
+                // Redirect happens in the service.
+            },
+            error: () => {
+                this.loading = false;
+                this.error = this._transloco.translate(
+                    'addCredits.purchaseDialog.errors.purchaseFailed'
+                );
+            },
+        });
+    }
+
     purchase(): void {
+        if (this.needsAddCard()) {
+            this._startAddCard();
+            return;
+        }
+
         if (this.paymentMethod === 'bold') {
             if (!Number.isInteger(this.selectedAmount)) {
                 this.error = this._translatePurchaseError('boldWholeAmount');

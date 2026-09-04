@@ -4189,6 +4189,12 @@
             "minimum": "Minimum 49$",
             "paymentMethod": "Méthode de paiement",
             "savedCard": "Carte enregistrée",
+            "addCardButton": "Ajouter une carte",
+            "stripe": {
+                "addCardTitle": "Payer avec Stripe",
+                "addCardSubtitle": "Ajoutez une carte pour payer avec une carte enregistrée",
+                "addCardHint": "Vous ajouterez votre carte sur la page sécurisée de Stripe puis reviendrez ici. Vous pourrez ensuite acheter des crédits avec cette carte."
+            },
             "bold": {
                 "optionUsd": "Payer avec Bold en dollars",
                 "methodsUsd": "Carte de crédit ou de débit",

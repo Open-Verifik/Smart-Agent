@@ -4225,6 +4225,12 @@
             "minimum": "最小 $49",
             "paymentMethod": "支払い方法",
             "savedCard": "保存済みカード",
+            "addCardButton": "カードを追加",
+            "stripe": {
+                "addCardTitle": "Stripe で支払う",
+                "addCardSubtitle": "保存済みカードで支払うにはカードを追加してください",
+                "addCardHint": "Stripe の安全なページでカードを追加し、この画面に戻ります。その後、そのカードでクレジットを購入できます。"
+            },
             "bold": {
                 "optionUsd": "Bold で米ドル払い",
                 "methodsUsd": "クレジットカードまたはデビットカード",

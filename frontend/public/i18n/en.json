@@ -4273,6 +4273,12 @@
                 "firstPurchaseRequiresPse": "Your first purchase has to be paid by PSE bank transfer. Once it is approved, you can pay with a card."
             },
             "savedCard": "Saved card",
+            "addCardButton": "Add card",
+            "stripe": {
+                "addCardTitle": "Pay with Stripe",
+                "addCardSubtitle": "Add a card to pay with a saved card",
+                "addCardHint": "You'll add your card on Stripe's secure page and return here. Then you can buy credits with that card."
+            },
             "bold": {
                 "optionUsd": "Pay with Bold in USD",
                 "methodsUsd": "Credit or debit card",

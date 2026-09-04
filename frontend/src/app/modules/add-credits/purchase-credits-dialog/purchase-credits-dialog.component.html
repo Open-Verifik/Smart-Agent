@@ -238,6 +238,10 @@
                     {{ 'addCredits.purchaseDialog.errors.boldFxUnavailable' | transloco }}
                 </p>
 
+                <p *ngIf="needsAddCard()" class="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
+                    {{ 'addCredits.purchaseDialog.stripe.addCardHint' | transloco }}
+                </p>
+
                 <p *ngIf="paymentMethod === 'bold'" class="text-xs leading-relaxed text-stone-500 dark:text-stone-400">
                     {{ 'addCredits.purchaseDialog.bold.hint' | transloco }}
                 </p>
@@ -265,12 +269,17 @@
                 <mat-spinner *ngIf="loading" diameter="20" class="inline-block"></mat-spinner>
                 <ng-container *ngIf="!loading">
                     <span>{{
-                        (paymentMethod === 'bold'
-                            ? 'addCredits.purchaseDialog.bold.payButton'
-                            : 'chat.payment.payBtn'
+                        (needsAddCard()
+                            ? 'addCredits.purchaseDialog.addCardButton'
+                            : paymentMethod === 'bold'
+                              ? 'addCredits.purchaseDialog.bold.payButton'
+                              : 'chat.payment.payBtn'
                         ) | transloco
                     }}</span>
-                    <span class="rounded bg-white/20 px-2 py-0.5 text-sm">
+                    <span
+                        *ngIf="!needsAddCard()"
+                        class="rounded bg-white/20 px-2 py-0.5 text-sm"
+                    >
                         {{ isBoldOptionSelected('COP') && boldCopTotalLabel() ? boldCopTotalLabel() : hasSelectedAmount() ? '$' + selectedAmount : '' }}
                     </span>
                 </ng-container>

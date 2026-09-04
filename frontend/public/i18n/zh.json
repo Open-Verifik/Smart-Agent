@@ -4225,6 +4225,12 @@
             "minimum": "最低 $49",
             "paymentMethod": "支付方式",
             "savedCard": "已保存的卡",
+            "addCardButton": "添加银行卡",
+            "stripe": {
+                "addCardTitle": "使用 Stripe 支付",
+                "addCardSubtitle": "添加一张卡以便使用已保存的卡付款",
+                "addCardHint": "您将在 Stripe 的安全页面添加银行卡并返回此页面。之后即可用该卡购买积分。"
+            },
             "bold": {
                 "optionUsd": "使用 Bold 以美元支付",
                 "methodsUsd": "信用卡或借记卡",

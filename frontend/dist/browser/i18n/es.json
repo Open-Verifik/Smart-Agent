@@ -4273,6 +4273,12 @@
                 "firstPurchaseRequiresPse": "Tu primera compra debe pagarse con transferencia PSE. Cuando quede aprobada podrás pagar con tarjeta."
             },
             "savedCard": "Tarjeta guardada",
+            "addCardButton": "Agregar tarjeta",
+            "stripe": {
+                "addCardTitle": "Pagar con Stripe",
+                "addCardSubtitle": "Agrega una tarjeta para pagar con una tarjeta guardada",
+                "addCardHint": "Agregarás tu tarjeta en la página segura de Stripe y volverás aquí. Luego podrás comprar créditos con esa tarjeta."
+            },
             "bold": {
                 "optionUsd": "Pagar con Bold en dólares",
                 "methodsUsd": "Tarjeta de crédito o débito",

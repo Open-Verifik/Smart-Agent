@@ -4225,6 +4225,12 @@
             "minimum": "Mínimo $49",
             "paymentMethod": "Método de Pagamento",
             "savedCard": "Cartão salvo",
+            "addCardButton": "Adicionar cartão",
+            "stripe": {
+                "addCardTitle": "Pagar com Stripe",
+                "addCardSubtitle": "Adicione um cartão para pagar com um cartão salvo",
+                "addCardHint": "Você adicionará o cartão na página segura da Stripe e voltará para cá. Depois poderá comprar créditos com esse cartão."
+            },
             "bold": {
                 "optionUsd": "Pagar com Bold em dólares",
                 "methodsUsd": "Cartão de crédito ou débito",
