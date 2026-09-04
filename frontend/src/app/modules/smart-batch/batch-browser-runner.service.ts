@@ -70,6 +70,7 @@ export class BatchBrowserRunnerService {
 
         for (const step of enabled) {
             if (this._abort) return batch;
+            if (results[step.sequence] != null) continue;
             const outcome = await this._invokeStep(step, row.inputData || {}, results);
             if (outcome.ok) {
                 results[step.sequence] = outcome.body;
