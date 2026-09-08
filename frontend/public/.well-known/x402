@@ -160,6 +160,7 @@
     "GET /api/bo/vehicle-soat",
     "POST /api/bo/votacion",
     "GET /api/cl/vehicle-soap-plate",
+    "GET /api/cl/vehicle-stolen",
     "POST /api/hn/votacion",
     "POST /api/cr/votacion",
     "POST /api/mx/ine",

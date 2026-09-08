@@ -2943,7 +2943,7 @@
           "price": {
             "mode": "fixed",
             "currency": "USD",
-            "amount": "0.2"
+            "amount": "0.3"
           },
           "protocols": [
             {
@@ -10616,6 +10616,57 @@
               ]
             },
             "description": "When true, bypasses cached records and fetches fresh data from the source."
+          }
+        ]
+      }
+    },
+    "/api/cl/vehicle-stolen": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "chile_api_vehicle_stolen",
+        "summary": "Chile - Stolen Vehicle",
+        "description": "Query whether a Chilean vehicle has an active stolen or theft report (encargo por robo o hurto).",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "0.3"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Chilean license plate (Patente), 4–7 alphanumeric characters."
           }
         ]
       }
