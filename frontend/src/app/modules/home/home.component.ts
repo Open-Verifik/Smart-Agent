@@ -197,7 +197,7 @@ export class HomeComponent implements OnInit {
         {
             id: 'smart-batch',
             titleKey: 'home.shortcuts.smartBatch',
-            subtitleKey: 'nav.batch_automation',
+            subtitleKey: 'nav.visita_guide_subtitle',
             link: '/smart-batch',
             icon: 'queue',
         },

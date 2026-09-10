@@ -1,0 +1,443 @@
+<ng-container *transloco="let t">
+    <div class="flex min-h-screen min-w-0 flex-auto flex-col bg-stone-50 dark:bg-gray-950">
+        <header
+            class="border-b border-stone-200/90 bg-white/90 px-5 py-5 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-950/90 md:px-8"
+        >
+            <div class="mx-auto flex w-full max-w-3xl flex-col gap-4">
+                <div
+                    class="flex flex-wrap items-center text-xs font-medium leading-none text-stone-500 dark:text-stone-400"
+                >
+                    <a
+                        routerLink="/home"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >Verifik</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <span class="cursor-default text-stone-600 dark:text-stone-300">{{
+                        t('visitaGuide.brand')
+                    }}</span>
+                </div>
+
+                <div class="flex items-start gap-3">
+                    @if (canGoBack()) {
+                        <button
+                            type="button"
+                            (click)="goBack()"
+                            class="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-white text-stone-700 transition hover:bg-stone-50 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200 dark:hover:bg-gray-800"
+                            [attr.aria-label]="t('visitaGuide.back')"
+                        >
+                            <mat-icon class="!h-5 !w-5 !text-[20px]">arrow_back</mat-icon>
+                        </button>
+                    }
+                    <div class="min-w-0 flex-1">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                            {{ t('visitaGuide.progress', { current: stepIndex() + 1, total: stepCount() }) }}
+                        </p>
+                        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
+                            {{ t(currentTitleKey()) }}
+                        </h1>
+                        <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                            {{ t('visitaGuide.nowHint') }}
+                        </p>
+                    </div>
+                </div>
+
+                @if (entities().length || countryIso()) {
+                    <div class="flex flex-wrap gap-2 text-xs">
+                        @for (key of entityTitleKeys(); track key) {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                >{{ t(key) }}</span
+                            >
+                        }
+                        @if (countryIso()) {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                >{{ countryFlag() }} Colombia</span
+                            >
+                        }
+                        @if (mode() === 'batch') {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                >{{ t('visitaGuide.modeBatch') }}</span
+                            >
+                        }
+                        @if (mode() === 'single') {
+                            <span
+                                class="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-700 dark:border-gray-800 dark:bg-gray-900 dark:text-stone-200"
+                                >{{ t('visitaGuide.modeSingle') }}</span
+                            >
+                        }
+                    </div>
+                }
+            </div>
+        </header>
+
+        <main class="flex flex-auto flex-col px-5 py-8 md:px-8 md:py-10">
+            <div class="mx-auto flex w-full max-w-3xl flex-col gap-4">
+                @switch (step()) {
+                    @case ('intent') {
+                        @for (item of intents; track item.id) {
+                            <button
+                                type="button"
+                                class="group flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 hover:shadow-sm dark:border-gray-800 dark:bg-gray-900/70 dark:hover:border-white"
+                                (click)="selectIntent(item.id)"
+                            >
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                >
+                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t(item.titleKey)
+                                    }}</span>
+                                    <span class="mt-1 block text-sm text-stone-500 dark:text-stone-400">{{
+                                        t(item.descKey)
+                                    }}</span>
+                                </div>
+                                <mat-icon class="mt-1 shrink-0 text-stone-300">arrow_forward</mat-icon>
+                            </button>
+                        }
+                    }
+                    @case ('entity') {
+                        @if (allowsMultiEntity()) {
+                            <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.entityMultiHint') }}</p>
+                        }
+                        @for (item of entityOptions; track item.id) {
+                            <button
+                                type="button"
+                                class="group flex w-full items-start gap-4 rounded-2xl border bg-white p-4 text-left transition hover:border-stone-950 dark:bg-gray-900/70"
+                                [class.border-stone-950]="isEntitySelected(item.id)"
+                                [class.border-stone-200]="!isEntitySelected(item.id)"
+                                (click)="toggleEntity(item.id)"
+                            >
+                                <div
+                                    class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200"
+                                >
+                                    <mat-icon>{{ item.icon }}</mat-icon>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="block text-sm font-semibold text-stone-950 dark:text-white">{{
+                                        t(item.titleKey)
+                                    }}</span>
+                                    <span class="mt-1 block text-sm text-stone-500 dark:text-stone-400">{{
+                                        t(item.descKey)
+                                    }}</span>
+                                </div>
+                                @if (isEntitySelected(item.id)) {
+                                    <mat-icon class="text-stone-900 dark:text-white">check_circle</mat-icon>
+                                }
+                            </button>
+                        }
+                        @if (allowsMultiEntity()) {
+                            <button
+                                type="button"
+                                class="mt-2 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                (click)="confirmEntities()"
+                            >
+                                {{ t('visitaGuide.continue') }}
+                            </button>
+                        }
+                    }
+                    @case ('mode') {
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
+                            (click)="selectMode('single')"
+                        >
+                            <mat-icon>person_search</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.modeSingle') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{ t('visitaGuide.modeSingleDesc') }}</span>
+                            </div>
+                        </button>
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
+                            (click)="selectMode('batch')"
+                        >
+                            <mat-icon>upload_file</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.modeBatch') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{ t('visitaGuide.modeBatchDesc') }}</span>
+                            </div>
+                        </button>
+                    }
+                    @case ('country') {
+                        @for (country of countries; track country.iso) {
+                            <button
+                                type="button"
+                                class="flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition hover:border-stone-950 dark:border-gray-800 dark:bg-gray-900/70"
+                                (click)="selectCountry(country.iso)"
+                            >
+                                <span class="text-xl">{{ flagFor(country.iso) }}</span>
+                                <span class="text-sm font-semibold text-stone-950 dark:text-white">{{
+                                    country.name
+                                }}</span>
+                            </button>
+                        }
+                    }
+                    @case ('input') {
+                        <div
+                            class="rounded-2xl border border-stone-200/90 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            @if (isMixed()) {
+                                <p class="mb-4 text-sm text-stone-500">{{ t('visitaGuide.mixedHint') }}</p>
+                            }
+                            @if (consultError()) {
+                                <p class="mb-3 text-sm text-red-600 dark:text-red-400">{{ consultError() }}</p>
+                            }
+                            @for (field of inputFields(); track field.key) {
+                                <label class="mt-4 block text-sm font-medium text-stone-800 first:mt-0 dark:text-stone-100" [attr.for]="'guide-' + field.key">{{
+                                    t(field.labelKey)
+                                }}</label>
+                                <input
+                                    [id]="'guide-' + field.key"
+                                    type="text"
+                                    class="mt-2 w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-base text-stone-950 outline-none focus:border-stone-950 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                                    [placeholder]="t(field.placeholderKey)"
+                                    [ngModel]="fieldValue(field.key)"
+                                    (ngModelChange)="setFieldValue(field.key, $event)"
+                                    (keyup.enter)="goNext()"
+                                />
+                            }
+                            <button
+                                type="button"
+                                class="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950"
+                                (click)="goNext()"
+                            >
+                                {{ t('visitaGuide.searchAction') }}
+                            </button>
+                        </div>
+                    }
+                    @case ('consult') {
+                        <div
+                            class="flex flex-col items-center rounded-2xl border border-dashed border-stone-200 px-5 py-16 text-center dark:border-gray-800"
+                        >
+                            <mat-spinner diameter="40"></mat-spinner>
+                            <p class="mt-4 text-sm font-medium text-stone-800 dark:text-stone-100">
+                                {{ t(mode() === 'batch' ? 'visitaGuide.preparingBatch' : 'visitaGuide.searching') }}
+                            </p>
+                            <p class="mt-1 max-w-sm text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.searchingHint') }}
+                            </p>
+                        </div>
+                    }
+                    @case ('results') {
+                        @if (resultCards().length === 0) {
+                            <div
+                                class="rounded-2xl border border-dashed border-stone-200 px-5 py-12 text-center dark:border-gray-800"
+                            >
+                                <p class="text-sm text-stone-500">{{ t('visitaGuide.noResults') }}</p>
+                            </div>
+                        }
+                        @for (card of resultCards(); track card.sequence) {
+                            <article
+                                class="rounded-2xl border border-stone-200/90 bg-white p-5 dark:border-gray-800 dark:bg-gray-900/70"
+                            >
+                                <h2 class="text-sm font-semibold text-stone-950 dark:text-white">{{ card.label }}</h2>
+                                @if (card.error && !card.hasData) {
+                                    <p class="mt-2 text-sm text-stone-500">{{ card.error }}</p>
+                                }
+                                @for (field of card.fields; track field.label) {
+                                    <div class="mt-2 flex justify-between gap-4 text-sm">
+                                        <span class="text-stone-500">{{ field.label }}</span>
+                                        <span class="text-right text-stone-900 dark:text-stone-100">{{
+                                            field.value
+                                        }}</span>
+                                    </div>
+                                }
+                            </article>
+                        }
+                        <div class="mt-2 flex flex-col gap-3">
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                (click)="continueToReport()"
+                            >
+                                {{ t('visitaGuide.continueToReport') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                (click)="openFullReport()"
+                            >
+                                {{ t('visitaGuide.openFullReport') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-11 items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium text-stone-700 dark:border-gray-700 dark:text-stone-200"
+                                (click)="startOver()"
+                            >
+                                {{ t('visitaGuide.newConsultation') }}
+                            </button>
+                        </div>
+                    }
+                    @case ('include') {
+                        <p class="text-sm text-stone-500 dark:text-stone-400">{{ t('visitaGuide.includeHint') }}</p>
+                        <div class="flex flex-col gap-2" cdkDropList (cdkDropListDropped)="dropInclude($event)">
+                            @for (item of includeItems(); track item.sequence) {
+                                <button
+                                    type="button"
+                                    cdkDrag
+                                    class="flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white p-4 text-left dark:border-gray-800 dark:bg-gray-900/70"
+                                    (click)="toggleInclude(item.sequence)"
+                                >
+                                    <span
+                                        class="flex h-5 w-5 items-center justify-center rounded border"
+                                        [class.bg-stone-950]="item.included"
+                                        [class.border-stone-950]="item.included"
+                                        [class.border-stone-300]="!item.included"
+                                    >
+                                        @if (item.included) {
+                                            <mat-icon class="!h-4 !w-4 !text-[16px] text-white">check</mat-icon>
+                                        }
+                                    </span>
+                                    <span class="flex-1 text-sm font-medium text-stone-900 dark:text-white">{{
+                                        item.label
+                                    }}</span>
+                                    <mat-icon class="text-stone-300" cdkDragHandle>drag_indicator</mat-icon>
+                                </button>
+                            }
+                        </div>
+                        <button
+                            type="button"
+                            class="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                            (click)="goNext()"
+                        >
+                            {{ t('visitaGuide.continue') }}
+                        </button>
+                    }
+                    @case ('template') {
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-4 rounded-2xl border p-4 text-left"
+                            [class.border-stone-950]="templateChoice() === 'visita'"
+                            [class.border-stone-200]="templateChoice() !== 'visita'"
+                            (click)="pickVisitaTemplate(); goNext()"
+                        >
+                            <mat-icon>verified</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.templateVisita') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{
+                                    t('visitaGuide.templateVisitaDesc')
+                                }}</span>
+                            </div>
+                        </button>
+                        @for (template of myTemplates(); track template._id) {
+                            <button
+                                type="button"
+                                class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 p-4 text-left dark:border-gray-800"
+                                (click)="pickMyTemplate(template); goNext()"
+                            >
+                                <mat-icon>folder</mat-icon>
+                                <div>
+                                    <span class="block text-sm font-semibold">{{ template.name }}</span>
+                                    <span class="mt-1 block text-sm text-stone-500">{{
+                                        t('visitaGuide.templateMine')
+                                    }}</span>
+                                </div>
+                            </button>
+                        }
+                        <button
+                            type="button"
+                            class="flex w-full items-start gap-4 rounded-2xl border border-stone-200 p-4 text-left dark:border-gray-800"
+                            (click)="pickScratch()"
+                        >
+                            <mat-icon>add</mat-icon>
+                            <div>
+                                <span class="block text-sm font-semibold">{{ t('visitaGuide.templateScratch') }}</span>
+                                <span class="mt-1 block text-sm text-stone-500">{{
+                                    t('visitaGuide.templateScratchDesc')
+                                }}</span>
+                            </div>
+                        </button>
+                    }
+                    @case ('customize') {
+                        <div
+                            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <p class="text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+                                {{ t('visitaGuide.designerHint') }}
+                            </p>
+                            <ul class="mt-4 space-y-2 text-sm text-stone-600 dark:text-stone-300">
+                                <li>{{ t('visitaGuide.designerHintData') }}</li>
+                                <li>{{ t('visitaGuide.designerHintBlocks') }}</li>
+                                <li>{{ t('visitaGuide.designerHintBrand') }}</li>
+                            </ul>
+                            <button
+                                type="button"
+                                class="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                                (click)="openMoldEditor()"
+                            >
+                                {{ t('visitaGuide.openDesigner') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-stone-200 px-4 text-sm font-medium dark:border-gray-700"
+                                (click)="goNext()"
+                            >
+                                {{ t('visitaGuide.skipDesigner') }}
+                            </button>
+                        </div>
+                    }
+                    @case ('preview') {
+                        @if (previewTemplate(); as template) {
+                            <report-preview
+                                [template]="template"
+                                [previewData]="previewData()"
+                                [primaryColor]="primaryColor()"
+                                [logoUrl]="logoDataUrl()"
+                            ></report-preview>
+                        } @else {
+                            <p class="text-sm text-stone-500">{{ t('visitaGuide.needTemplate') }}</p>
+                        }
+                        <button
+                            type="button"
+                            class="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl bg-stone-950 px-4 text-sm font-medium text-white dark:bg-white dark:text-gray-950"
+                            (click)="goNext()"
+                        >
+                            {{ t('visitaGuide.continue') }}
+                        </button>
+                    }
+                    @case ('generate') {
+                        <div
+                            class="rounded-2xl border border-stone-200/90 bg-white p-6 dark:border-gray-800 dark:bg-gray-900/70"
+                        >
+                            <p class="text-sm text-stone-500">{{ t('visitaGuide.generateHint') }}</p>
+                            <button
+                                type="button"
+                                class="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-medium text-white disabled:opacity-60 dark:bg-white dark:text-gray-950"
+                                [disabled]="isGenerating()"
+                                (click)="generatePdf()"
+                            >
+                                @if (isGenerating()) {
+                                    <mat-spinner diameter="18"></mat-spinner>
+                                } @else {
+                                    <mat-icon>picture_as_pdf</mat-icon>
+                                }
+                                {{ t('visitaGuide.downloadPdf') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 text-sm font-medium dark:border-gray-700"
+                                (click)="downloadJson()"
+                            >
+                                <mat-icon>data_object</mat-icon>
+                                {{ t('visitaGuide.downloadJson') }}
+                            </button>
+                            <button
+                                type="button"
+                                class="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-medium text-stone-600"
+                                (click)="startOver()"
+                            >
+                                {{ t('visitaGuide.newConsultation') }}
+                            </button>
+                        </div>
+                    }
+                }
+            </div>
+        </main>
+    </div>
+</ng-container>

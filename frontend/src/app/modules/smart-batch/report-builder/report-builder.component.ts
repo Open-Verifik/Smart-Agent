@@ -686,7 +686,7 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     if (configId) {
                         this._router.navigate(['/smart-batch', configId]);
                     } else {
-                        this._router.navigate(['/smart-batch']);
+                        this._router.navigate(['/smart-batch/workspace']);
                     }
                     return;
                 }
@@ -1345,15 +1345,19 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
                     this.isSaving.set(false);
                     if (onSuccess) onSuccess();
                     const linkedId = this.linkedConfigId();
+                    const fromGuide = this._route.snapshot.queryParamMap.get('from') === 'guide';
+                    const queryParams = fromGuide
+                        ? { from: 'guide' }
+                        : undefined;
                     if (linkedId) {
-                        this._router.navigate([
-                            '/smart-batch',
-                            linkedId,
-                            'report-builder',
-                            created._id,
-                        ]);
+                        this._router.navigate(
+                            ['/smart-batch', linkedId, 'report-builder', created._id],
+                            { queryParams }
+                        );
                     } else {
-                        this._router.navigate(['/smart-batch', 'report-builder', created._id]);
+                        this._router.navigate(['/smart-batch', 'report-builder', created._id], {
+                            queryParams,
+                        });
                     }
                 },
                 error: (err) => {
@@ -1573,11 +1577,20 @@ export class ReportBuilderComponent implements OnInit, OnDestroy {
     // ============================================
 
     goBack(): void {
+        if (this._route.snapshot.queryParamMap.get('from') === 'guide') {
+            this._router.navigate(['/smart-batch'], {
+                queryParams: this.templateId()
+                    ? { resume: 'preview', templateId: this.templateId() }
+                    : {},
+            });
+            return;
+        }
+
         const configId = this.configId() ?? this.linkedConfigId();
         if (configId) {
             this._router.navigate(['/smart-batch', configId]);
         } else {
-            this._router.navigate(['/smart-batch'], { queryParams: { tab: 'templates' } });
+            this._router.navigate(['/smart-batch/workspace'], { queryParams: { tab: 'templates' } });
         }
     }
 

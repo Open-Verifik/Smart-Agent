@@ -6,7 +6,7 @@ const localDefaults = {
     thisUrl: 'http://localhost:4201',
     baseUrl: 'http://localhost:3006',
     smartAgentUrl: 'http://localhost:3060',
-    apiUrl: 'https://verifik.app',
+    apiUrl: 'http://localhost:3001',
     documentationBaseUrl: 'https://docs.verifik.co',
     appUrl: 'http://localhost:3006',
     projectId: '6266193db77ccc8111730c90',

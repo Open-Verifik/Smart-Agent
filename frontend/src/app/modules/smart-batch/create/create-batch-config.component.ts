@@ -111,7 +111,7 @@ export class CreateBatchConfigComponent {
     step1Form: FormGroup = this._formBuilder.group({
         name: ['', [Validators.required, Validators.maxLength(150)]],
         description: ['', [Validators.maxLength(800)]],
-        country: ['', Validators.required],
+        country: ['Colombia', Validators.required],
         inputFormat: ['csv', Validators.required],
         outputFormat: ['csv', Validators.required],
         mergeStrategy: ['sequential', Validators.required],
@@ -128,6 +128,9 @@ export class CreateBatchConfigComponent {
     // Step 2: Selection
     selectedFeatures = signal<any[]>([]); // Ordered list of selected features
     endpointSearchQuery = signal('');
+    endpointGroupFilter = signal<'all' | 'citizen' | 'vehicle' | 'company' | 'other'>('all');
+    advancedOpen = signal(false);
+    fromGuide = this._route.snapshot.queryParamMap.get('from') === 'guide';
     /** Country selected in Basic Info; used to limit endpoints to that country + world. */
     selectedCountryForEndpoints = signal<string>('');
 
@@ -139,14 +142,33 @@ export class CreateBatchConfigComponent {
     // Filtered by search (title / URL) within country-filtered list
     filteredAvailableFeatures = computed(() => {
         const query = this.endpointSearchQuery().trim().toLowerCase();
-        const features = this.availableFeaturesForCountry();
-        if (!query) return features;
-        return features.filter((feature) => {
+        const group = this.endpointGroupFilter();
+        const features = this.availableFeaturesForCountry().filter((feature) => {
+            if (group !== 'all' && this.featureGroup(feature) !== group) return false;
+            if (!query) return true;
             const name = (feature.name ?? '').toLowerCase();
             const url = this.getEndpointDisplay(feature).toLowerCase();
             const code = (feature.code ?? '').toLowerCase();
             return name.includes(query) || url.includes(query) || code.includes(query);
         });
+        return features;
+    });
+
+    groupedAvailableFeatures = computed(() => {
+        const buckets: {
+            id: 'citizen' | 'vehicle' | 'company' | 'other';
+            items: any[];
+        }[] = [
+            { id: 'citizen', items: [] },
+            { id: 'vehicle', items: [] },
+            { id: 'company', items: [] },
+            { id: 'other', items: [] },
+        ];
+        for (const feature of this.filteredAvailableFeatures()) {
+            const group = buckets.find((item) => item.id === this.featureGroup(feature));
+            group?.items.push(feature);
+        }
+        return buckets.filter((bucket) => bucket.items.length > 0);
     });
 
     // Cost calculation
@@ -170,6 +192,11 @@ export class CreateBatchConfigComponent {
             this.fetchFeatures(country, { resetSelection: true });
         });
         this.step1Form.get('webhookUrl')?.valueChanges.subscribe(() => this.testResult.set(null));
+
+        if (!id) {
+            this.selectedCountryForEndpoints.set('Colombia');
+            this.fetchFeatures('Colombia');
+        }
     }
 
     loadConfiguration(id: string) {
@@ -387,7 +414,48 @@ export class CreateBatchConfigComponent {
         return this.selectedFeatures().some((f) => f._id === feature._id);
     }
 
-    /** Display endpoint URL/path for a feature (e.g. /v2/co/cedula), fallback to code. */
+    featureGroup(feature: { code?: string; name?: string; url?: string; description?: string }):
+        | 'citizen'
+        | 'vehicle'
+        | 'company'
+        | 'other' {
+        const blob = `${feature.code ?? ''} ${feature.name ?? ''} ${feature.url ?? ''} ${feature.description ?? ''}`.toLowerCase();
+        if (
+            /vehicle|vehículo|placa|plate|runt|simit|fasecolda|soat|transit/.test(blob)
+        ) {
+            return 'vehicle';
+        }
+        if (/rues|empresa|company|business|dian|nit|rut|camara|cámara|comercial/.test(blob)) {
+            return 'company';
+        }
+        if (
+            /cedula|cédula|citizen|persona|registrad|pep|antecedent|procurad|policia|policía|contralor|inpec|migrac/.test(
+                blob
+            )
+        ) {
+            return 'citizen';
+        }
+        return 'other';
+    }
+
+    featureGroupLabel(group: 'citizen' | 'vehicle' | 'company' | 'other'): string {
+        const keys = {
+            citizen: 'visitaGuide.entityPerson',
+            vehicle: 'visitaGuide.entityVehicle',
+            company: 'visitaGuide.entityCompany',
+            other: 'createBatchConfig.groupOther',
+        };
+        return this._transloco.translate(keys[group]);
+    }
+
+    setEndpointGroupFilter(group: 'all' | 'citizen' | 'vehicle' | 'company' | 'other'): void {
+        this.endpointGroupFilter.set(group);
+    }
+
+    backLink(): string {
+        return this.fromGuide ? '/smart-batch' : '/smart-batch/workspace';
+    }
+
     getEndpointDisplay(feature: any): string {
         const url = feature?.url;
         if (!url) return feature?.code ?? '';
@@ -524,7 +592,7 @@ export class CreateBatchConfigComponent {
         if (this.isEditMode() && this.editConfigId()) {
             this._smartBatchService.updateConfiguration(this.editConfigId()!, config).subscribe({
                 next: () => {
-                    this._router.navigate(['/smart-batch']);
+                    this._router.navigate(['/smart-batch/workspace']);
                 },
                 error: (err) => {
                     console.error('Error updating batch', err);
@@ -539,7 +607,7 @@ export class CreateBatchConfigComponent {
                         this._router.navigate(['/smart-batch', id]);
                         return;
                     }
-                    this._router.navigate(['/smart-batch']);
+                    this._router.navigate(['/smart-batch/workspace']);
                 },
                 error: (err) => {
                     console.error('Error creating batch', err);

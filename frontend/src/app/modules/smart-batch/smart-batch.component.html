@@ -13,10 +13,24 @@
                         >Verifik</a
                     >
                     <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
+                    <a
+                        routerLink="/smart-batch"
+                        class="cursor-pointer text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                        >{{ t('visitaGuide.brand') }}</a
+                    >
+                    <mat-icon class="icon-size-4 mx-2 text-stone-400" svgIcon="heroicons_solid:chevron-right"></mat-icon>
                     <span class="cursor-default text-stone-600 dark:text-stone-300">{{
-                        t('smartBatchLanding.title')
+                        t('smartBatchLanding.workspaceTitle')
                     }}</span>
                 </div>
+
+                <a
+                    routerLink="/smart-batch"
+                    class="inline-flex w-fit items-center gap-2 text-sm font-medium text-stone-700 underline-offset-4 hover:underline dark:text-stone-300"
+                >
+                    <mat-icon class="icon-size-4">arrow_back</mat-icon>
+                    {{ t('smartBatchLanding.backToGuide') }}
+                </a>
 
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-2xl">

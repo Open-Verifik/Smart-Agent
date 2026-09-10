@@ -129,7 +129,7 @@ export class SmartBatchComponent implements OnInit {
     }
 
     createConfiguration() {
-        this._router.navigate(['smart-batch/create']);
+        this._router.navigate(['/smart-batch/create'], { queryParams: { from: 'guide' } });
     }
 
     createBlankTemplate(): void {
