@@ -1021,9 +1021,24 @@
         "emptyHeroTitle": "最初のプロジェクトを作成",
         "emptyHeroSubtitle": "登録、保存、連携をステップごとに設定し、HumanAuthnフローを公開します。",
         "createProject": "プロジェクトを作成",
+        "updated": "更新",
         "list": {
             "newProjectTitle": "新しいHumanAuthnプロジェクト",
-            "newProjectSubtitle": "独自のフォーム、HumanAuthn、保存、ブランディングで別の登録フローを設定します。"
+            "newProjectSubtitle": "独自のフォーム、HumanAuthn、保存、ブランディングで別の登録フローを設定します。",
+            "draft": "下書き",
+            "active": "有効",
+            "demoMode": "デモ",
+            "signupForm": "登録フォーム",
+            "documents": "書類",
+            "humanAuthn": "HumanAuthn",
+            "integrations": "連携",
+            "members": "メンバー",
+            "edit": "編集",
+            "seeLogs": "ログを見る",
+            "openSetup": "設定を開く",
+            "menuEdit": "設定を開く",
+            "menuHistory": "履歴",
+            "moreActions": "その他の操作"
         },
         "loadError": "プロジェクトを読み込めませんでした。",
         "plansLoadError": "HumanAuthnプランを読み込めませんでした。",
@@ -1051,12 +1066,67 @@
             },
             "humanAuthn": {
                 "privacy": "Verifikは顔テンプレートを保持しません。暗号化された証明が記録です。保存は暗号化済みデータと公開項目のインデックスのみです。",
+                "journeyTitle": "HumanIDを作成",
+                "stageLabel": "ステージ{{number}}",
+                "verifyStageTitle": "本人を確認",
+                "verifyStageHelp": "HumanIDを作成する前の本人確認とライブネス確認方法を設定します。",
+                "verificationActive": "ライブ確認オン",
+                "verificationStandard": "標準確認",
+                "compareUnavailable": "前の手順で書類収集を有効にすると、ライブ顔を書類写真と照合できます。",
+                "publicDataCount": "{{total}}件中{{selected}}件を公開",
+                "source": {
+                    "signup": "登録時に収集",
+                    "documents": "書類から収集"
+                },
+                "enableSource": {
+                    "signup": "登録でこの項目を有効にしてください",
+                    "documents": "この項目には書類を有効にしてください"
+                },
+                "protectStageTitle": "今後のアクセスを保護",
+                "protectStageHelp": "このHumanIDを後で使用するときに本人が提示するものを設定します。",
+                "accessActive": "ライブ顔が必要",
+                "accessStandard": "標準アクセス",
+                "outputStringHelp": "APIや保存に使える暗号化文字列を返します。",
+                "outputQrHelp": "スキャン可能なQRコードとして暗号化HumanIDを返します。",
+                "readySummary": "確認方法、公開項目、アクセスポリシー、出力形式がまとめて保存されます。",
                 "standardTitle": "標準レコード",
                 "standardBody": "一度だけ暗号化します。以降の復号では毎回のライブ顔は不要です。",
                 "activeTitle": "アクティブユーザー",
                 "activeBody": "復号のたびにライブネスが必要です。月額アクティブユーザーとして請求されます。",
+                "requireLivenessTitle": "復号時のライブネス",
+                "requireLiveness": "後で復号するときにライブ顔を必須にする",
+                "requireLivenessHelp": "Encrypt HumanID の requireLiveness に対応します。オンにすると月額のアクティブユーザー記録になります。",
                 "livenessAtCreation": "作成時にライブネスを必須にする",
-                "livenessAtCreationHelp": "作成時のみです。月額アクティブユーザーモデルは変わりません。"
+                "livenessAtCreationHelp": "作成時のみです。月額アクティブユーザーモデルは変わりません。",
+                "outputFormatTitle": "HumanIDの形式",
+                "outputFormatHelp": "文字列は Encrypt HumanID、QRコードは Encrypt HumanID QR Code を使います。",
+                "outputString": "文字列",
+                "outputQr": "QRコード",
+                "toleranceTitle": "ライブネスの許容",
+                "toleranceHelp": "ライブ顔が必要なときのなりすまし対策の厳しさです。復号ライブネスがオンのときは HARDENED が初期値です。",
+                "tolerance": {
+                    "SOFT": "ソフト",
+                    "REGULAR": "レギュラー",
+                    "HARDENED": "強化",
+                    "REGULAR_HARD": "レギュラー強化",
+                    "REGULAR_SOFT": "レギュラーソフト"
+                },
+                "compareTitle": "書類との照合",
+                "compareHelp": "暗号化する前に、ライブ顔と書類写真の最小一致率です。",
+                "compareScoreLabel": "スコア",
+                "verifierKeyTitle": "検証キー",
+                "verifierKeyHelp": "暗号化・復号・プレビューで verifierKey として送る任意のプロジェクトパスワードです。",
+                "verifierKeyLabel": "検証キー",
+                "verifierKeyToggle": "検証キーを表示または非表示",
+                "publicDataTitle": "公開フィールド",
+                "publicDataHelp": "これらの登録・書類の値は HumanID の publicData になります。それ以外は非公開メタデータです。",
+                "publicDataEmpty": "公開フィールドを選ぶには、前の手順で氏名、メール、電話、または書類スキャンを有効にしてください。",
+                "publicData": {
+                    "fullName": "氏名",
+                    "email": "メール",
+                    "phone": "電話",
+                    "documentNumber": "書類番号"
+                }
             },
             "storage": {
                 "ipfsTitle": "IPFS",
@@ -2519,6 +2589,34 @@
                 "confirm_skip_back": "戻る",
                 "title": "書類の確認",
                 "subtitle": "顧客が公式書類を提示する必要があるか、どのように提示するかを設定します。",
+                "journey": {
+                    "title": "書類確認の流れを設計",
+                    "subtitle": "要否、受付書類、提出方法、追加確認の順に顧客体験を設定します。",
+                    "stage": "ステージ{{number}}",
+                    "requirementTitle": "書類を要求",
+                    "requirementSubtitle": "この手順を必須にするか、顧客がスキップできるかを選びます。",
+                    "requirement": {
+                        "skip": "不要",
+                        "optional": "任意",
+                        "mandatory": "必須"
+                    },
+                    "requirementHelp": {
+                        "skip": "書類を提示せず登録します。",
+                        "optional": "続行するか顧客が選べます。",
+                        "mandatory": "続行には有効な書類が必要です。"
+                    },
+                    "businessToggleHelp": "オンにすると、企業は続行前に受付可能な書類を提出する必要があります。",
+                    "documentSummary": "{{countries}}か国 · {{documents}}件の書類",
+                    "enableToConfigure": "このステージを設定するには、ステージ1で書類確認を有効にしてください。",
+                    "collectionTitle": "提出方法を設定",
+                    "collectionHelp": "書類の提出方法と顧客の試行回数を選びます。",
+                    "collectionSummary": "{{methods}}方式 · {{attempts}}回",
+                    "attemptSummary": "{{attempts}}回",
+                    "screeningTitle": "追加確認を設定",
+                    "screeningHelp": "書類受付後に公的データベースを照会します。",
+                    "screeningSummary": "{{count}}件の確認が有効",
+                    "screeningOff": "追加確認なし"
+                },
                 "business": {
                     "title": "企業の確認",
                     "subtitle": "オンボーディング時に企業書類を確認します。",
@@ -3858,7 +3956,8 @@
                 "documentTypePlaceholder": "書類の種類を選択",
                 "otherParameters": "その他のパラメータ",
                 "requiredFieldLegend": "* 必須項目",
-                "includeCostDescription": "true の場合、レスポンスにクレジット情報ブロック（credits, creditsCharged, charged, featureCode）が含まれます。省略するには false にするか、この行を削除してください。"
+                "includeCostDescription": "true の場合、レスポンスにクレジット情報ブロック（credits, creditsCharged, charged, featureCode）が含まれます。省略するには false にするか、この行を削除してください。",
+                "pickValue": "[{{values}}] から値を選択してください"
             },
             "headers": {
                 "key": "キー",

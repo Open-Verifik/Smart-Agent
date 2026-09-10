@@ -74,6 +74,7 @@ type LocalApiFeature = {
         DocumentVerificationTypeListComponent,
     ],
     templateUrl: './documents.component.html',
+    styleUrl: './documents.component.scss',
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SetupDocumentsComponent implements OnInit {
@@ -148,6 +149,49 @@ export class SetupDocumentsComponent implements OnInit {
         return !this.loading && !!this.form && !!this.formGroup && !!this.stepFormGroup && !!this.documentTypesFormArray;
     }
 
+    get showRequirementStage(): boolean {
+        return this.stepFormControlName !== 'legalRepresentative';
+    }
+
+    get isBusinessVerification(): boolean {
+        return this.stepFormControlName === 'businessVerification';
+    }
+
+    get requirementValue(): string {
+        if (this.isBusinessVerification) {
+            return this.stepFormGroup?.get('businessVerification')?.value ? 'mandatory' : 'skip';
+        }
+        return this.stepFormGroup?.get(this.stepFormControlName)?.value || 'skip';
+    }
+
+    get configuredCountriesCount(): number {
+        return this.documentTypesFormArray?.controls.filter((control) => !!control.get('country')?.value).length || 0;
+    }
+
+    get selectedDocumentsCount(): number {
+        return (
+            this.documentTypesFormArray?.controls.reduce((total, documentControl) => {
+                const configurations = documentControl.get('configurations') as FormArray | null;
+                if (!configurations) return total;
+                return (
+                    total +
+                    configurations.controls.reduce((configurationTotal, configuration) => {
+                        const templates = configuration.get('documentTemplates') as FormArray | null;
+                        return configurationTotal + (templates?.controls.filter((template) => !!template.get('promptTemplate')?.value).length || 0);
+                    }, 0)
+                );
+            }, 0) || 0
+        );
+    }
+
+    get attemptLimit(): number {
+        return Number(this.formGroup?.get('attemptLimit')?.value || 1);
+    }
+
+    get screeningChecksCount(): number {
+        return ['informationVerification', 'criminalHistoryVerification'].filter((key) => !!this.formGroup?.get(key)?.value).length;
+    }
+
     get verificationMethodsValue(): string[] {
         return (this.formGroup?.get('verificationMethods')?.value as string[]) || [];
     }
@@ -161,6 +205,10 @@ export class SetupDocumentsComponent implements OnInit {
         const errs = this.documentTypesFormArray?.errors;
         if (!errs) return [];
         return Object.keys(errs).filter((k) => (errs as Record<string, unknown>)[k] === true);
+    }
+
+    stageNumber(defaultStage: number): number {
+        return this.showRequirementStage ? defaultStage : defaultStage - 1;
     }
 
     isVerificationMethodSelected(method: string): boolean {

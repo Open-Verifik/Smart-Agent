@@ -40,6 +40,7 @@ import {
 } from './human-authn-postman.catalog';
 
 import { mergeParamsFromDocs } from './postman-docs-params.util';
+import { TranslocoService } from '@jsverse/transloco';
 import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
 import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
@@ -53,6 +54,7 @@ export class PostmanService {
     private _authService = inject(AuthService);
     private _agentWalletService = inject(AgentWalletService);
     private _accountEnv = inject(AccountEnvironmentService);
+    private _transloco = inject(TranslocoService);
 
     endpoints = signal<ApiEndpoint[]>(API_ENDPOINTS);
 
@@ -334,6 +336,9 @@ export class PostmanService {
         const created: ApiEndpoint = {
             id: feature._id || feature.code,
             label: feature.name,
+            ...(typeof feature.nameES === 'string' && feature.nameES.trim()
+                ? { nameES: feature.nameES.trim() }
+                : {}),
             code: feature.code,
             category: this._mapCategory(feature.baseCategory || feature.group),
             country: feature.country,
@@ -390,7 +395,9 @@ export class PostmanService {
                 : paramValueForDependency(dependency);
             let desc = dependency.description;
             if (!desc && dependency.enum && dependency.enum.length) {
-                desc = `Pick a value from [${dependency.enum.join(', ')}]`;
+                desc = this._transloco.translate('postman.params.pickValue', {
+                    values: dependency.enum.join(', '),
+                });
             }
             const enumList =
                 Array.isArray(dependency.enum) && dependency.enum.length

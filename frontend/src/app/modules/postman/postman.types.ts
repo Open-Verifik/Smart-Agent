@@ -101,6 +101,8 @@ export interface PostmanDependencyMeta {
 export interface ApiEndpoint {
     id: string;
     label: string;
+    /** Spanish catalog name from AppFeature.nameES. Used when locale is es and docs.es.title is missing. */
+    nameES?: string;
     code?: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     url: string;

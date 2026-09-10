@@ -48,6 +48,7 @@ import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.compone
 import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
 import {
   getAppFeatureCatalogCopy,
+  localizedCatalogFallbackTitle,
   postmanEndpointMatchesSearch,
   resolvePostmanEndpointCopy,
 } from '../postman-endpoint-copy.util';
@@ -761,7 +762,7 @@ export class SidebarComponent {
       const copy = getAppFeatureCatalogCopy(this._transloco, endpoint.code);
       if (copy.title) return copy.title;
     }
-    return endpoint.label;
+    return localizedCatalogFallbackTitle(endpoint, this._transloco.getActiveLang());
   }
 
   /** Same visible label as the sidebar row (custom display name or catalog title). */

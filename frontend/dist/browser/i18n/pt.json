@@ -1021,9 +1021,24 @@
         "emptyHeroTitle": "Crie o seu primeiro projeto",
         "emptyHeroSubtitle": "Configure o cadastro, o armazenamento e as integrações passo a passo e publique o seu fluxo HumanAuthn.",
         "createProject": "Criar projeto",
+        "updated": "Atualizado",
         "list": {
             "newProjectTitle": "Novo projeto HumanAuthn",
-            "newProjectSubtitle": "Configure outro fluxo de cadastro com o seu próprio formulário, HumanAuthn, armazenamento e branding."
+            "newProjectSubtitle": "Configure outro fluxo de cadastro com o seu próprio formulário, HumanAuthn, armazenamento e branding.",
+            "draft": "Rascunho",
+            "active": "Ativo",
+            "demoMode": "Demo",
+            "signupForm": "Formulário de cadastro",
+            "documents": "Documentos",
+            "humanAuthn": "HumanAuthn",
+            "integrations": "Integrações",
+            "members": "Membros",
+            "edit": "Editar",
+            "seeLogs": "Ver registros",
+            "openSetup": "Abrir configuração",
+            "menuEdit": "Abrir configuração",
+            "menuHistory": "Histórico",
+            "moreActions": "Mais ações"
         },
         "loadError": "Não foi possível carregar os projetos.",
         "plansLoadError": "Não foi possível carregar o seu plano HumanAuthn.",
@@ -1051,12 +1066,67 @@
             },
             "humanAuthn": {
                 "privacy": "A Verifik não guarda um modelo facial. A prova cifrada é o registo. O armazenamento apenas indexa o blob cifrado e os campos públicos.",
+                "journeyTitle": "Crie o seu HumanID",
+                "stageLabel": "Etapa {{number}}",
+                "verifyStageTitle": "Verifique a pessoa",
+                "verifyStageHelp": "Defina como a identidade e a liveness são verificadas antes da criação do HumanID.",
+                "verificationActive": "Verificações ao vivo ativas",
+                "verificationStandard": "Verificações padrão",
+                "compareUnavailable": "Ative a recolha de documentos no passo anterior para comparar o rosto ao vivo com a foto do documento.",
+                "publicDataCount": "{{selected}} de {{total}} públicos",
+                "source": {
+                    "signup": "Recolhido durante o registo",
+                    "documents": "Recolhido do documento"
+                },
+                "enableSource": {
+                    "signup": "Ative este campo no Registo",
+                    "documents": "Ative Documentos para usar este campo"
+                },
+                "protectStageTitle": "Proteja o acesso futuro",
+                "protectStageHelp": "Defina o que a pessoa deve fornecer quando usar este HumanID mais tarde.",
+                "accessActive": "Rosto ao vivo obrigatório",
+                "accessStandard": "Acesso padrão",
+                "outputStringHelp": "Devolve uma cadeia cifrada portátil para APIs e armazenamento.",
+                "outputQrHelp": "Devolve o HumanID cifrado pronto para leitura como código QR.",
+                "readySummary": "A verificação, os campos públicos, a política de acesso e o formato serão guardados em conjunto.",
                 "standardTitle": "Registo padrão",
                 "standardBody": "Cifragem única. A descifragem posterior não exige um rosto ao vivo de cada vez.",
                 "activeTitle": "Utilizador ativo",
                 "activeBody": "A liveness é exigida em cada descifragem. Faturado como utilizador ativo mensal.",
+                "requireLivenessTitle": "Liveness na descifragem",
+                "requireLiveness": "Exigir um rosto ao vivo ao descifrar mais tarde",
+                "requireLivenessHelp": "Corresponde a requireLiveness no Encrypt HumanID. Ativo cria um registo de utilizador ativo faturado mensalmente.",
                 "livenessAtCreation": "Exigir liveness na criação",
-                "livenessAtCreationHelp": "Isto só aplica à criação, não ao modelo mensal de utilizador ativo."
+                "livenessAtCreationHelp": "Isto só aplica à criação, não ao modelo mensal de utilizador ativo.",
+                "outputFormatTitle": "Formato do HumanID",
+                "outputFormatHelp": "Texto usa Encrypt HumanID. Código QR usa Encrypt HumanID QR Code.",
+                "outputString": "Texto",
+                "outputQr": "Código QR",
+                "toleranceTitle": "Tolerância de liveness",
+                "toleranceHelp": "Rigor anti-spoof quando é exigido um rosto ao vivo. O predefinido é HARDENED quando a liveness na descifragem está ativa.",
+                "tolerance": {
+                    "SOFT": "Suave",
+                    "REGULAR": "Regular",
+                    "HARDENED": "Rigoroso",
+                    "REGULAR_HARD": "Regular rigoroso",
+                    "REGULAR_SOFT": "Regular suave"
+                },
+                "compareTitle": "Comparar com o documento",
+                "compareHelp": "Correspondência mínima entre o rosto ao vivo e a foto do documento antes de cifrar.",
+                "compareScoreLabel": "pontuação",
+                "verifierKeyTitle": "Chave do verificador",
+                "verifierKeyHelp": "Palavra-passe opcional do projeto enviada como verifierKey ao cifrar, descifrar e pré-visualizar.",
+                "verifierKeyLabel": "Chave do verificador",
+                "verifierKeyToggle": "Mostrar ou ocultar a chave",
+                "publicDataTitle": "Campos públicos",
+                "publicDataHelp": "Estes valores do registo e do documento ficam como publicData no HumanID. O resto fica em metadados privados.",
+                "publicDataEmpty": "Ative nome, email, telefone ou leitura de documento nos passos anteriores para escolher campos públicos.",
+                "publicData": {
+                    "fullName": "Nome completo",
+                    "email": "Email",
+                    "phone": "Telefone",
+                    "documentNumber": "Número do documento"
+                }
             },
             "storage": {
                 "ipfsTitle": "IPFS",
@@ -2519,6 +2589,34 @@
                 "confirm_skip_back": "Voltar",
                 "title": "Verificação de documentos",
                 "subtitle": "Decida se e como os clientes devem apresentar um documento oficial.",
+                "journey": {
+                    "title": "Defina o percurso dos documentos",
+                    "subtitle": "Siga a ordem vivida pelo cliente: requisito, documentos aceites, captura e verificações.",
+                    "stage": "Etapa {{number}}",
+                    "requirementTitle": "Exija um documento",
+                    "requirementSubtitle": "Defina se esta etapa bloqueia o registo ou pode ser ignorada pelo cliente.",
+                    "requirement": {
+                        "skip": "Não obrigatório",
+                        "optional": "Opcional",
+                        "mandatory": "Obrigatório"
+                    },
+                    "requirementHelp": {
+                        "skip": "Registe sem apresentar um documento.",
+                        "optional": "Permita que o cliente escolha continuar.",
+                        "mandatory": "Exija um documento válido para continuar."
+                    },
+                    "businessToggleHelp": "Quando ativo, as empresas devem enviar um documento aceite antes de continuar.",
+                    "documentSummary": "{{countries}} países · {{documents}} documentos",
+                    "enableToConfigure": "Ative a verificação de documentos na etapa 1 para configurar esta etapa.",
+                    "collectionTitle": "Defina a recolha",
+                    "collectionHelp": "Escolha como os documentos são enviados e quantas tentativas o cliente recebe.",
+                    "collectionSummary": "{{methods}} métodos · {{attempts}} tentativas",
+                    "attemptSummary": "{{attempts}} tentativas",
+                    "screeningTitle": "Adicione verificações",
+                    "screeningHelp": "Consulte bases de dados oficiais depois de o documento ser aceite.",
+                    "screeningSummary": "{{count}} verificações ativas",
+                    "screeningOff": "Sem verificações extra"
+                },
                 "business": {
                     "title": "Verificação da empresa",
                     "subtitle": "Verifique os documentos da empresa durante o onboarding.",
@@ -3858,7 +3956,8 @@
                 "documentTypePlaceholder": "Selecione o tipo de documento",
                 "otherParameters": "Outros parâmetros",
                 "requiredFieldLegend": "* Campo obrigatório",
-                "includeCostDescription": "Quando verdadeiro, a resposta inclui um bloco de créditos (credits, creditsCharged, charged, featureCode). Defina como falso ou remova esta linha para omitir."
+                "includeCostDescription": "Quando verdadeiro, a resposta inclui um bloco de créditos (credits, creditsCharged, charged, featureCode). Defina como falso ou remova esta linha para omitir.",
+                "pickValue": "Escolha um valor de [{{values}}]"
             },
             "headers": {
                 "key": "Chave",

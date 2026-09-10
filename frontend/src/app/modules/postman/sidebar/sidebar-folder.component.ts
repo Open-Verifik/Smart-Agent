@@ -26,6 +26,7 @@ import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.compone
 import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
 import {
   getAppFeatureCatalogCopy,
+  localizedCatalogFallbackTitle,
   resolvePostmanEndpointCopy,
 } from '../postman-endpoint-copy.util';
 
@@ -292,7 +293,9 @@ export class PostmanSidebarFolderComponent {
       : {};
     return resolvePostmanEndpointCopy({
       endpoint,
-      catalogTitle: catalogCopy.title ?? endpoint.label,
+      catalogTitle:
+        catalogCopy.title ??
+        localizedCatalogFallbackTitle(endpoint, this._transloco.getActiveLang()),
       catalogDescription: catalogCopy.description ?? endpoint.description ?? '',
       locale: this._transloco.getActiveLang(),
     });

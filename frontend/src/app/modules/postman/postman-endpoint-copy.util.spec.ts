@@ -6,6 +6,7 @@ import {
     overviewLeadParagraph,
     postmanEndpointMatchesSearch,
     sanitizePostmanCopyText,
+    localizedCatalogFallbackTitle,
 } from './postman-endpoint-copy.util';
 
 describe('postman-endpoint-copy.util', () => {
@@ -219,6 +220,34 @@ describe('postman-endpoint-copy.util', () => {
             expect(result.description).toContain('autenticar ciudadanos colombianos');
         });
 
+        it('uses nameES when locale is es, docs.es has overview but no title, and catalog is missing', () => {
+            const result = resolvePostmanEndpointCopy({
+                endpoint: {
+                    code: 'colombia_api_criminal_history',
+                    country: 'Colombia',
+                    label: 'Colombia - Disciplinary Records in Colombia (attorney\'s office)',
+                    nameES: 'Colombia - Antecedentes Disciplinarios (Procuraduría)',
+                    docs: {
+                        en: {
+                            title: 'Disciplinary Records in Colombia (attorney\'s office)',
+                            overview:
+                                'The service checks disciplinary records of individuals in Colombia.',
+                        },
+                        es: {
+                            overview:
+                                'El servicio para verificar antecedentes disciplinarios de individuos en Colombia (procuraduría). Al proporcionar el tipo de documento y número, puede recuperar información sobre el nombre del individuo.',
+                        },
+                    },
+                },
+                catalogTitle: '',
+                catalogDescription: '',
+                locale: 'es',
+            });
+
+            expect(result.title).toBe('Antecedentes Disciplinarios (Procuraduría)');
+            expect(result.description).toContain('antecedentes disciplinarios');
+        });
+
         it('prefers Spanish i18n over English docs when locale is es and docs.es is missing', () => {
             const result = resolvePostmanEndpointCopy({
                 endpoint: {
@@ -294,6 +323,32 @@ describe('postman-endpoint-copy.util', () => {
                     'Ecuador - \\U0001F1EA\\U0001F1E8 Ecuador - Vehicle Fines'
                 )
             ).toBe('Ecuador - Ecuador - Vehicle Fines');
+        });
+    });
+
+    describe('localizedCatalogFallbackTitle', () => {
+        it('returns nameES when locale is es', () => {
+            expect(
+                localizedCatalogFallbackTitle(
+                    {
+                        label: 'Colombia - Disciplinary Records in Colombia (attorney\'s office)',
+                        nameES: 'Colombia - Antecedentes Disciplinarios (Procuraduría)',
+                    },
+                    'es'
+                )
+            ).toBe('Colombia - Antecedentes Disciplinarios (Procuraduría)');
+        });
+
+        it('returns English label when locale is en', () => {
+            expect(
+                localizedCatalogFallbackTitle(
+                    {
+                        label: 'Colombia - Disciplinary Records in Colombia (attorney\'s office)',
+                        nameES: 'Colombia - Antecedentes Disciplinarios (Procuraduría)',
+                    },
+                    'en'
+                )
+            ).toBe('Colombia - Disciplinary Records in Colombia (attorney\'s office)');
         });
     });
 

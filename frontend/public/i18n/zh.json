@@ -1021,9 +1021,24 @@
         "emptyHeroTitle": "创建你的第一个项目",
         "emptyHeroSubtitle": "逐步配置注册、存储和集成，然后发布你的 HumanAuthn 流程。",
         "createProject": "创建项目",
+        "updated": "已更新",
         "list": {
             "newProjectTitle": "新建 HumanAuthn 项目",
-            "newProjectSubtitle": "用独立的表单、HumanAuthn、存储和品牌再配置一条注册流程。"
+            "newProjectSubtitle": "用独立的表单、HumanAuthn、存储和品牌再配置一条注册流程。",
+            "draft": "草稿",
+            "active": "已启用",
+            "demoMode": "演示",
+            "signupForm": "注册表单",
+            "documents": "证件",
+            "humanAuthn": "HumanAuthn",
+            "integrations": "集成",
+            "members": "成员",
+            "edit": "编辑",
+            "seeLogs": "查看日志",
+            "openSetup": "打开设置",
+            "menuEdit": "打开设置",
+            "menuHistory": "历史记录",
+            "moreActions": "更多操作"
         },
         "loadError": "无法加载项目。",
         "plansLoadError": "无法加载 HumanAuthn 套餐。",
@@ -1051,12 +1066,67 @@
             },
             "humanAuthn": {
                 "privacy": "Verifik 不保存人脸模板。加密证明即记录。存储只索引加密数据和公开字段。",
+                "journeyTitle": "创建 HumanID",
+                "stageLabel": "第 {{number}} 阶段",
+                "verifyStageTitle": "验证本人",
+                "verifyStageHelp": "设置创建 HumanID 前的身份和活体验证方式。",
+                "verificationActive": "已开启活体验证",
+                "verificationStandard": "标准验证",
+                "compareUnavailable": "请在上一步开启证件采集，以便将活体人脸与证件照片进行比对。",
+                "publicDataCount": "公开 {{selected}} / {{total}} 项",
+                "source": {
+                    "signup": "注册时采集",
+                    "documents": "从证件采集"
+                },
+                "enableSource": {
+                    "signup": "请在注册中开启此字段",
+                    "documents": "请开启证件以使用此字段"
+                },
+                "protectStageTitle": "保护后续访问",
+                "protectStageHelp": "设置用户以后使用此 HumanID 时必须提供的内容。",
+                "accessActive": "需要活体人脸",
+                "accessStandard": "标准访问",
+                "outputStringHelp": "返回适用于 API 和存储的可移植加密字符串。",
+                "outputQrHelp": "以可扫描二维码形式返回加密 HumanID。",
+                "readySummary": "验证、公开字段、访问策略和输出格式将一并保存。",
                 "standardTitle": "标准记录",
                 "standardBody": "一次性加密。之后解密不必每次都提供活体人脸。",
                 "activeTitle": "活跃用户",
                 "activeBody": "每次解密都需要活体检测。按月活跃用户计费。",
+                "requireLivenessTitle": "解密时的活体检测",
+                "requireLiveness": "之后解密时要求活体人脸",
+                "requireLivenessHelp": "对应 Encrypt HumanID 的 requireLiveness。开启后按月活跃用户计费。",
                 "livenessAtCreation": "创建记录时要求活体检测",
-                "livenessAtCreationHelp": "这只限制创建，不会改变月活跃用户模型。"
+                "livenessAtCreationHelp": "这只限制创建，不会改变月活跃用户模型。",
+                "outputFormatTitle": "HumanID 格式",
+                "outputFormatHelp": "字符串使用 Encrypt HumanID。二维码使用 Encrypt HumanID QR Code。",
+                "outputString": "字符串",
+                "outputQr": "二维码",
+                "toleranceTitle": "活体容差",
+                "toleranceHelp": "需要活体人脸时的防伪严格程度。开启解密活体时默认 HARDENED。",
+                "tolerance": {
+                    "SOFT": "宽松",
+                    "REGULAR": "常规",
+                    "HARDENED": "严格",
+                    "REGULAR_HARD": "常规偏严",
+                    "REGULAR_SOFT": "常规偏松"
+                },
+                "compareTitle": "与证件比对",
+                "compareHelp": "加密前，活体人脸与证件照片的最低匹配分。",
+                "compareScoreLabel": "分数",
+                "verifierKeyTitle": "验证密钥",
+                "verifierKeyHelp": "可选的项目密码，会在加密、解密和预览时作为 verifierKey 发送。",
+                "verifierKeyLabel": "验证密钥",
+                "verifierKeyToggle": "显示或隐藏验证密钥",
+                "publicDataTitle": "公开字段",
+                "publicDataHelp": "这些注册和证件值会作为 HumanID 的 publicData。其余保存在私有元数据中。",
+                "publicDataEmpty": "请先在前面的步骤开启姓名、邮箱、电话或证件扫描，再选择公开字段。",
+                "publicData": {
+                    "fullName": "姓名",
+                    "email": "邮箱",
+                    "phone": "电话",
+                    "documentNumber": "证件号码"
+                }
             },
             "storage": {
                 "ipfsTitle": "IPFS",
@@ -2519,6 +2589,34 @@
                 "confirm_skip_back": "返回",
                 "title": "证件验证",
                 "subtitle": "决定客户是否需要以及如何出示官方证件。",
+                "journey": {
+                    "title": "设计证件流程",
+                    "subtitle": "按照客户体验顺序设置：要求、可接受证件、采集方式和附加验证。",
+                    "stage": "第 {{number}} 阶段",
+                    "requirementTitle": "要求提供证件",
+                    "requirementSubtitle": "选择此步骤是否阻止注册，或允许客户跳过。",
+                    "requirement": {
+                        "skip": "不需要",
+                        "optional": "可选",
+                        "mandatory": "必需"
+                    },
+                    "requirementHelp": {
+                        "skip": "无需出示证件即可注册。",
+                        "optional": "让客户选择是否继续。",
+                        "mandatory": "必须提供有效证件才能继续。"
+                    },
+                    "businessToggleHelp": "开启后，企业必须先提交可接受的证件才能继续。",
+                    "documentSummary": "{{countries}} 个国家 · {{documents}} 个证件",
+                    "enableToConfigure": "请在阶段 1 开启证件验证以配置此阶段。",
+                    "collectionTitle": "定义采集方式",
+                    "collectionHelp": "选择证件提交方式以及客户可尝试的次数。",
+                    "collectionSummary": "{{methods}} 种方式 · {{attempts}} 次尝试",
+                    "attemptSummary": "{{attempts}} 次尝试",
+                    "screeningTitle": "添加验证检查",
+                    "screeningHelp": "证件接受后查询官方数据库。",
+                    "screeningSummary": "已开启 {{count}} 项检查",
+                    "screeningOff": "无附加检查"
+                },
                 "business": {
                     "title": "企业验证",
                     "subtitle": "在入驻过程中核验企业证件。",
@@ -3858,7 +3956,8 @@
                 "documentTypePlaceholder": "选择证件类型",
                 "otherParameters": "其他参数",
                 "requiredFieldLegend": "* 必填字段",
-                "includeCostDescription": "为 true 时，响应会包含积分信息块（credits、creditsCharged、charged、featureCode）。设为 false 或删除此行即可省略。"
+                "includeCostDescription": "为 true 时，响应会包含积分信息块（credits、creditsCharged、charged、featureCode）。设为 false 或删除此行即可省略。",
+                "pickValue": "请从 [{{values}}] 中选择一个值"
             },
             "headers": {
                 "key": "键",

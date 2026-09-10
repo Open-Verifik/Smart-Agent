@@ -1025,9 +1025,24 @@
         "emptyHeroTitle": "Create your first project",
         "emptyHeroSubtitle": "Configure enrollment, storage, and integrations step by step, then publish your HumanAuthn flow.",
         "createProject": "Create project",
+        "updated": "Updated",
         "list": {
             "newProjectTitle": "New HumanAuthn project",
-            "newProjectSubtitle": "Set up another enrollment flow with its own form, HumanAuthn, storage and branding."
+            "newProjectSubtitle": "Set up another enrollment flow with its own form, HumanAuthn, storage and branding.",
+            "draft": "Draft",
+            "active": "Active",
+            "demoMode": "Demo",
+            "signupForm": "Sign-up form",
+            "documents": "Documents",
+            "humanAuthn": "HumanAuthn",
+            "integrations": "Integrations",
+            "members": "Members",
+            "edit": "Edit",
+            "seeLogs": "See logs",
+            "openSetup": "Open setup",
+            "menuEdit": "Open setup",
+            "menuHistory": "History",
+            "moreActions": "More actions"
         },
         "loadError": "Could not load projects.",
         "plansLoadError": "Could not load your HumanAuthn plan.",
@@ -1055,12 +1070,67 @@
             },
             "humanAuthn": {
                 "privacy": "Verifik does not keep a face template. The encrypted proof is the record. Storage is only an index of the encrypted blob and public fields.",
+                "journeyTitle": "Build your HumanID",
+                "stageLabel": "Stage {{number}}",
+                "verifyStageTitle": "Verify the person",
+                "verifyStageHelp": "Decide how identity and liveness are checked before the HumanID is created.",
+                "verificationActive": "Live checks on",
+                "verificationStandard": "Standard checks",
+                "compareUnavailable": "Enable document collection in the previous step to compare the live face with the document photo.",
+                "publicDataCount": "{{selected}} of {{total}} public",
+                "source": {
+                    "signup": "Collected during sign-up",
+                    "documents": "Collected from the document"
+                },
+                "enableSource": {
+                    "signup": "Enable this field in Sign-up",
+                    "documents": "Enable Documents to use this field"
+                },
+                "protectStageTitle": "Protect future access",
+                "protectStageHelp": "Choose what a person must provide when this HumanID is used later.",
+                "accessActive": "Live face required",
+                "accessStandard": "Standard access",
+                "outputStringHelp": "Return a portable encrypted string for APIs and storage.",
+                "outputQrHelp": "Return the encrypted HumanID ready to scan as a QR code.",
+                "readySummary": "Your verification, public fields, access policy, and output will be saved together.",
                 "standardTitle": "Standard record",
                 "standardBody": "One-time encrypt. Later decrypt does not require a live face each time.",
                 "activeTitle": "Active user",
                 "activeBody": "Liveness is required on every decrypt. Billed as a monthly active user.",
+                "requireLivenessTitle": "Liveness on decrypt",
+                "requireLiveness": "Require a live face when decrypting later",
+                "requireLivenessHelp": "Maps to requireLiveness on Encrypt HumanID. On means an active-user record billed monthly.",
                 "livenessAtCreation": "Require liveness when the record is created",
-                "livenessAtCreationHelp": "This only gates creation. It does not change the active-user or monthly model."
+                "livenessAtCreationHelp": "This only gates creation. It does not change the active-user or monthly model.",
+                "outputFormatTitle": "HumanID format",
+                "outputFormatHelp": "String uses Encrypt HumanID. QR code uses Encrypt HumanID QR Code.",
+                "outputString": "String",
+                "outputQr": "QR code",
+                "toleranceTitle": "Liveness tolerance",
+                "toleranceHelp": "Anti-spoof strictness when a live face is required. Defaults to HARDENED when decrypt liveness is on.",
+                "tolerance": {
+                    "SOFT": "Soft",
+                    "REGULAR": "Regular",
+                    "HARDENED": "Hardened",
+                    "REGULAR_HARD": "Regular hard",
+                    "REGULAR_SOFT": "Regular soft"
+                },
+                "compareTitle": "Compare with document",
+                "compareHelp": "Minimum match between the live face and the document photo before encrypting.",
+                "compareScoreLabel": "score",
+                "verifierKeyTitle": "Verifier key",
+                "verifierKeyHelp": "Optional project password sent as verifierKey on encrypt, decrypt, and preview.",
+                "verifierKeyLabel": "Verifier key",
+                "verifierKeyToggle": "Show or hide verifier key",
+                "publicDataTitle": "Public fields",
+                "publicDataHelp": "These signup and document values are stored as publicData on the HumanID. Everything else stays in private metadata.",
+                "publicDataEmpty": "Turn on name, email, phone, or document scanning in earlier steps to choose public fields.",
+                "publicData": {
+                    "fullName": "Full name",
+                    "email": "Email",
+                    "phone": "Phone",
+                    "documentNumber": "Document number"
+                }
             },
             "storage": {
                 "ipfsTitle": "IPFS",
@@ -2070,6 +2140,34 @@
                 "confirm_skip_back": "Go back",
                 "title": "Document verification",
                 "subtitle": "Decide whether and how customers must present an official document.",
+                "journey": {
+                    "title": "Design the document journey",
+                    "subtitle": "Follow the same order your customers experience: requirement, accepted documents, collection, and verification checks.",
+                    "stage": "Stage {{number}}",
+                    "requirementTitle": "Require a document",
+                    "requirementSubtitle": "Choose whether this step blocks enrollment or can be skipped by the customer.",
+                    "requirement": {
+                        "skip": "Not required",
+                        "optional": "Optional",
+                        "mandatory": "Required"
+                    },
+                    "requirementHelp": {
+                        "skip": "Enroll without presenting a document.",
+                        "optional": "Let customers choose whether to continue.",
+                        "mandatory": "Require a valid document to continue."
+                    },
+                    "businessToggleHelp": "When enabled, businesses must submit an accepted document before continuing.",
+                    "documentSummary": "{{countries}} countries · {{documents}} documents",
+                    "enableToConfigure": "Enable document verification in stage 1 to configure this stage.",
+                    "collectionTitle": "Define collection",
+                    "collectionHelp": "Choose how documents are provided and how many attempts customers receive.",
+                    "collectionSummary": "{{methods}} methods · {{attempts}} attempts",
+                    "attemptSummary": "{{attempts}} attempts",
+                    "screeningTitle": "Add verification checks",
+                    "screeningHelp": "Run official-database checks after the document is accepted.",
+                    "screeningSummary": "{{count}} checks enabled",
+                    "screeningOff": "No extra checks"
+                },
                 "business": {
                     "title": "Business verification",
                     "subtitle": "Verify business documents during onboarding.",
@@ -3876,7 +3974,8 @@
                 "sexoMale": "Male (MASCULINO)",
                 "otherParameters": "Other parameters",
                 "requiredFieldLegend": "* Required field",
-                "includeCostDescription": "When true, the response includes a credits block (credits, creditsCharged, charged, featureCode). Set to false or delete this row to omit it."
+                "includeCostDescription": "When true, the response includes a credits block (credits, creditsCharged, charged, featureCode). Set to false or delete this row to omit it.",
+                "pickValue": "Pick a value from [{{values}}]"
             },
             "headers": {
                 "key": "Key",

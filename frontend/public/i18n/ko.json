@@ -1021,9 +1021,24 @@
         "emptyHeroTitle": "첫 프로젝트를 만드세요",
         "emptyHeroSubtitle": "가입, 저장소, 연동을 단계별로 구성한 뒤 HumanAuthn 플로우를 게시하세요.",
         "createProject": "프로젝트 만들기",
+        "updated": "업데이트",
         "list": {
             "newProjectTitle": "새 HumanAuthn 프로젝트",
-            "newProjectSubtitle": "자체 폼, HumanAuthn, 저장소, 브랜딩으로 다른 가입 플로우를 설정하세요."
+            "newProjectSubtitle": "자체 폼, HumanAuthn, 저장소, 브랜딩으로 다른 가입 플로우를 설정하세요.",
+            "draft": "초안",
+            "active": "활성",
+            "demoMode": "데모",
+            "signupForm": "가입 양식",
+            "documents": "문서",
+            "humanAuthn": "HumanAuthn",
+            "integrations": "연동",
+            "members": "멤버",
+            "edit": "편집",
+            "seeLogs": "로그 보기",
+            "openSetup": "설정 열기",
+            "menuEdit": "설정 열기",
+            "menuHistory": "기록",
+            "moreActions": "추가 작업"
         },
         "loadError": "프로젝트를 불러올 수 없습니다.",
         "plansLoadError": "HumanAuthn 요금제를 불러올 수 없습니다.",
@@ -1051,12 +1066,67 @@
             },
             "humanAuthn": {
                 "privacy": "Verifik는 얼굴 템플릿을 보관하지 않습니다. 암호화된 증명이 기록입니다. 저장소는 암호화된 데이터와 공개 필드의 인덱스일 뿐입니다.",
+                "journeyTitle": "HumanID 만들기",
+                "stageLabel": "단계 {{number}}",
+                "verifyStageTitle": "사용자 확인",
+                "verifyStageHelp": "HumanID를 만들기 전에 신원과 라이브니스를 확인하는 방법을 설정합니다.",
+                "verificationActive": "실시간 확인 켜짐",
+                "verificationStandard": "표준 확인",
+                "compareUnavailable": "이전 단계에서 문서 수집을 켜면 실시간 얼굴과 문서 사진을 비교할 수 있습니다.",
+                "publicDataCount": "{{total}}개 중 {{selected}}개 공개",
+                "source": {
+                    "signup": "가입 중 수집",
+                    "documents": "문서에서 수집"
+                },
+                "enableSource": {
+                    "signup": "가입에서 이 필드를 켜세요",
+                    "documents": "이 필드를 사용하려면 문서를 켜세요"
+                },
+                "protectStageTitle": "향후 접근 보호",
+                "protectStageHelp": "나중에 이 HumanID를 사용할 때 사용자가 제공해야 할 항목을 설정합니다.",
+                "accessActive": "실시간 얼굴 필요",
+                "accessStandard": "표준 접근",
+                "outputStringHelp": "API와 저장소에 사용할 수 있는 암호화 문자열을 반환합니다.",
+                "outputQrHelp": "스캔할 수 있는 QR 코드로 암호화된 HumanID를 반환합니다.",
+                "readySummary": "확인, 공개 필드, 접근 정책, 출력 형식이 함께 저장됩니다.",
                 "standardTitle": "표준 기록",
                 "standardBody": "한 번 암호화합니다. 이후 복호화는 매번 실시간 얼굴을 요구하지 않습니다.",
                 "activeTitle": "활성 사용자",
                 "activeBody": "복호화마다 라이브니스가 필요합니다. 월간 활성 사용자로 청구됩니다.",
+                "requireLivenessTitle": "복호화 시 라이브니스",
+                "requireLiveness": "나중에 복호화할 때 실시간 얼굴을 요구",
+                "requireLivenessHelp": "Encrypt HumanID의 requireLiveness에 해당합니다. 켜면 월간 활성 사용자 기록이 됩니다.",
                 "livenessAtCreation": "생성 시 라이브니스 요구",
-                "livenessAtCreationHelp": "생성만 제한합니다. 월간 활성 사용자 모델은 바뀌지 않습니다."
+                "livenessAtCreationHelp": "생성만 제한합니다. 월간 활성 사용자 모델은 바뀌지 않습니다.",
+                "outputFormatTitle": "HumanID 형식",
+                "outputFormatHelp": "문자열은 Encrypt HumanID, QR 코드는 Encrypt HumanID QR Code를 사용합니다.",
+                "outputString": "문자열",
+                "outputQr": "QR 코드",
+                "toleranceTitle": "라이브니스 허용치",
+                "toleranceHelp": "실시간 얼굴이 필요할 때의 스푸핑 방지 강도입니다. 복호화 라이브니스가 켜져 있으면 기본값은 HARDENED입니다.",
+                "tolerance": {
+                    "SOFT": "소프트",
+                    "REGULAR": "일반",
+                    "HARDENED": "강화",
+                    "REGULAR_HARD": "일반 강화",
+                    "REGULAR_SOFT": "일반 소프트"
+                },
+                "compareTitle": "문서와 비교",
+                "compareHelp": "암호화 전에 실시간 얼굴과 문서 사진의 최소 일치율입니다.",
+                "compareScoreLabel": "점수",
+                "verifierKeyTitle": "검증 키",
+                "verifierKeyHelp": "암호화, 복호화, 미리보기에서 verifierKey로 보내는 선택적 프로젝트 비밀번호입니다.",
+                "verifierKeyLabel": "검증 키",
+                "verifierKeyToggle": "검증 키 표시 또는 숨기기",
+                "publicDataTitle": "공개 필드",
+                "publicDataHelp": "이 가입 및 문서 값은 HumanID의 publicData로 저장됩니다. 나머지는 비공개 메타데이터입니다.",
+                "publicDataEmpty": "공개 필드를 선택하려면 이전 단계에서 이름, 이메일, 전화 또는 문서 스캔을 켜세요.",
+                "publicData": {
+                    "fullName": "이름",
+                    "email": "이메일",
+                    "phone": "전화",
+                    "documentNumber": "문서 번호"
+                }
             },
             "storage": {
                 "ipfsTitle": "IPFS",
@@ -2519,6 +2589,34 @@
                 "confirm_skip_back": "뒤로",
                 "title": "문서 확인",
                 "subtitle": "고객이 공식 문서를 제시해야 하는지, 어떻게 제시할지 결정합니다.",
+                "journey": {
+                    "title": "문서 여정 설계",
+                    "subtitle": "고객이 경험하는 순서대로 요구 사항, 허용 문서, 수집, 추가 확인을 설정합니다.",
+                    "stage": "단계 {{number}}",
+                    "requirementTitle": "문서 요구",
+                    "requirementSubtitle": "이 단계가 등록을 차단할지 고객이 건너뛸 수 있을지 선택합니다.",
+                    "requirement": {
+                        "skip": "필요 없음",
+                        "optional": "선택 사항",
+                        "mandatory": "필수"
+                    },
+                    "requirementHelp": {
+                        "skip": "문서 없이 등록합니다.",
+                        "optional": "고객이 계속할지 선택할 수 있습니다.",
+                        "mandatory": "계속하려면 유효한 문서가 필요합니다."
+                    },
+                    "businessToggleHelp": "켜면 기업은 계속하기 전에 허용된 문서를 제출해야 합니다.",
+                    "documentSummary": "{{countries}}개 국가 · {{documents}}개 문서",
+                    "enableToConfigure": "이 단계를 설정하려면 단계 1에서 문서 확인을 켜세요.",
+                    "collectionTitle": "수집 방법 정의",
+                    "collectionHelp": "문서 제출 방법과 고객에게 제공할 시도 횟수를 선택합니다.",
+                    "collectionSummary": "{{methods}}개 방법 · {{attempts}}회 시도",
+                    "attemptSummary": "{{attempts}}회 시도",
+                    "screeningTitle": "추가 확인 설정",
+                    "screeningHelp": "문서 승인 후 공식 데이터베이스를 조회합니다.",
+                    "screeningSummary": "{{count}}개 확인 활성",
+                    "screeningOff": "추가 확인 없음"
+                },
                 "business": {
                     "title": "기업 확인",
                     "subtitle": "온보딩 중 기업 문서를 확인합니다.",
@@ -3858,7 +3956,8 @@
                 "documentTypePlaceholder": "문서 유형 선택",
                 "otherParameters": "기타 매개변수",
                 "requiredFieldLegend": "* 필수 항목",
-                "includeCostDescription": "true이면 응답에 크레딧 정보 블록(credits, creditsCharged, charged, featureCode)이 포함됩니다. 생략하려면 false로 설정하거나 이 행을 삭제하세요."
+                "includeCostDescription": "true이면 응답에 크레딧 정보 블록(credits, creditsCharged, charged, featureCode)이 포함됩니다. 생략하려면 false로 설정하거나 이 행을 삭제하세요.",
+                "pickValue": "[{{values}}] 중에서 값을 선택하세요"
             },
             "headers": {
                 "key": "키",

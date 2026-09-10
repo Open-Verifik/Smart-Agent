@@ -52,6 +52,7 @@ import { AboutEndpointComponent } from './about-endpoint.component';
 import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.component';
 import {
     getAppFeatureCatalogCopy,
+    localizedCatalogFallbackTitle,
     resolvePostmanEndpointCopy,
 } from '../postman-endpoint-copy.util';
 import {
@@ -1175,7 +1176,8 @@ export class RequestEditorComponent {
             : {};
         return resolvePostmanEndpointCopy({
             endpoint: ep,
-            catalogTitle: catalogCopy.title ?? ep.label,
+            catalogTitle:
+                catalogCopy.title ?? localizedCatalogFallbackTitle(ep, this._activeLang()),
             catalogDescription: catalogCopy.description ?? ep.description ?? '',
             locale: this._activeLang(),
         });
