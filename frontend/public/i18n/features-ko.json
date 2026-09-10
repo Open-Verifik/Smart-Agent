@@ -592,6 +592,10 @@
             "title": "콜롬비아 - 차량 소유자(RUNT)",
             "description": "Verify vehicle ownership and registered owners through the RUNT system."
         },
+        "colombia_api_vehicle_owners": {
+            "title": "콜롬비아 - 차량 소유자 이력",
+            "description": "번호판으로 콜롬비아 차량 소유자를 조회합니다. 차량 정보와 전체 소유 이력을 반환합니다."
+        },
         "chile_api_driver_license": {
             "title": "칠레 — 운전면허",
             "description": "면허 번호로 칠레 운전면허를 조회합니다. 등급, 제한, 통제 일자, RUT, 주소를 공식 자동차 등록부에서 제공하여 차량 및 인력 컴플라이언스에 활용합니다."

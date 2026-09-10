@@ -64,7 +64,7 @@ export const COLOMBIA_RUNT_VEHICLE_SIMPLIFIED_ENDPOINT_CODE = 'colombia_api_vehi
 export const COLOMBIA_RUNT_VEHICLE_VIN_ENDPOINT_CODE = 'colombia_api_vehicle_complete_by_vin';
 export const COLOMBIA_RUNT_VEHICLE_SOAT_ENDPOINT_CODE = 'colombia_api_vehicle_soat';
 export const COLOMBIA_RUNT_VEHICLE_COMPLETE_ENDPOINT_CODE = 'colombia_api_vehicle_complete';
-export const COLOMBIA_RUNT_OWNERS_ENDPOINT_CODE = 'colombia_api_runt_owners';
+export const COLOMBIA_RUNT_VEHICLE_OWNERS_ENDPOINT_CODE = 'colombia_api_vehicle_owners';
 export const COLOMBIA_SIMIT_PLATE_ENDPOINT_CODE = 'colombia_api_simit_plate';
 export const COLOMBIA_PICO_PLACA_ENDPOINT_CODE = 'colombia_api_pico_placa';
 export const COLOMBIA_BOGOTA_FINES_ENDPOINT_CODE = 'colombia_api_vehicle_fines_bogota';
@@ -372,6 +372,14 @@ const COLOMBIA_RUNT_VEHICLE_PROFILES: PostmanSandboxProfile[] = COLOMBIA_SANDBOX
         fullName: `${profile.fullName} — valid`,
     })
 );
+
+const COLOMBIA_RUNT_VEHICLE_OWNERS_PROFILES: PostmanSandboxProfile[] = [
+    {
+        plate: 'CRL299',
+        documentNumber: 'CRL299',
+        fullName: 'CRL299 — vehicle owner history',
+    },
+];
 
 const COLOMBIA_RUNT_CONFLICT_INVALID_DOCUMENT_TYPE: PostmanSandboxProfile = {
     ...SANDBOX_CONFLICT_INVALID_DOCUMENT_TYPE,
@@ -865,10 +873,13 @@ export const COLOMBIA_POSTMAN_SANDBOX_BY_CODE: Record<string, PostmanSandboxEndp
         defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
         showProfileMeta: false,
     },
-    [COLOMBIA_RUNT_OWNERS_ENDPOINT_CODE]: {
-        profiles: appendVehiclePlateSandboxProfiles(),
-        defaultPlate: SANDBOX_DEFAULT_PLATE,
-        defaultDocumentNumber: SANDBOX_DEFAULT_PLATE,
+    [COLOMBIA_RUNT_VEHICLE_OWNERS_ENDPOINT_CODE]: {
+        profiles: [
+            ...COLOMBIA_RUNT_VEHICLE_OWNERS_PROFILES,
+            SANDBOX_CONFLICT_MISSING_PLATE,
+        ],
+        defaultPlate: 'CRL299',
+        defaultDocumentNumber: 'CRL299',
         showProfileMeta: false,
     },
     [COLOMBIA_SIMIT_PLATE_ENDPOINT_CODE]: {

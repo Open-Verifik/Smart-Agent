@@ -1,92 +1,479 @@
 <ng-container *transloco="let t">
-    <div class="plans-page">
-        <header class="hero">
-            <div>
-                <h1>{{ t('humanAuthnPlans.title') }}</h1>
-                <p>{{ t('humanAuthnPlans.subtitle') }}</p>
-            </div>
-            @if (currentSubscription.length) {
-                <button mat-stroked-button type="button" (click)="manageBilling()">
-                    {{ t('humanAuthnPlans.manageBilling') }}
+    <div class="plans-container w-full flex justify-center">
+        <div class="w-full max-w-4xl px-4 sm:px-8 py-8">
+            <div class="current-plan-header flex items-center gap-4 mb-8">
+                <button
+                    *ngIf="(currentView === 'change' && currentSubscription.length) || currentView === 'select'"
+                    (click)="goBack(currentView === 'select' ? 'change' : 'current')"
+                    class="back-button"
+                    mat-icon-button
+                    type="button"
+                >
+                    <mat-icon>arrow_back</mat-icon>
                 </button>
-            }
-        </header>
+                <div class="header-icon">
+                    <mat-icon>fingerprint</mat-icon>
+                </div>
+                <div>
+                    <h1 class="current-plan-title">{{ t("humanAuthnPlans.title") }}</h1>
+                    <p class="current-plan-subtitle">{{ t("humanAuthnPlans.subtitle") }}</p>
+                </div>
+            </div>
 
-        @if (currentView === 'current' && currentSubscription.length) {
-            <section class="current-card">
-                @for (subscription of currentSubscription; track subscription._id) {
-                    <div class="plan-card">
-                        <div class="plan-card__head">
-                            <h2>{{ subscription.name }}</h2>
-                            <span class="badge">{{ t('humanAuthnPlans.active') }}</span>
+            <ng-container *ngIf="currentSubscription.length && currentView === 'current'">
+                <ng-container *ngFor="let subscription of currentSubscription; let i = index">
+                    <div class="plan-card mb-6 animate-fadeIn" [class.payment-failed]="subscription.paymentFailedAt">
+                        <div class="card-header">
+                            <div class="flex items-center gap-3">
+                                <div class="card-icon" [ngClass]="getPlanColorClass(subscription.code)">
+                                    <mat-icon>workspace_premium</mat-icon>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">
+                                        {{ i === 0 ? t("humanAuthnPlans.yourPlan") : t("humanAuthnPlans.yourNextPlan") }}
+                                    </p>
+                                    <h2 class="font-semibold text-gray-900 text-lg">{{ subscription.name }}</h2>
+                                </div>
+                            </div>
+                            <div
+                                class="status-badge"
+                                [ngClass]="subscription.paymentFailedAt ? 'error' : subscription.cancelAt ? 'warning' : 'success'"
+                            >
+                                <span class="status-dot"></span>
+                                <span *ngIf="!subscription.paymentFailedAt && !subscription.cancelAt">{{ t("humanAuthnPlans.active") }}</span>
+                                <span *ngIf="subscription.cancelAt">{{ t("humanAuthnPlans.cancelled") }}</span>
+                                <span *ngIf="subscription.paymentFailedAt">{{ t("humanAuthnPlans.paymentFailed") }}</span>
+                            </div>
                         </div>
-                        <p class="muted">
-                            {{ t('humanAuthnPlans.encrypts') }}: {{ subscription.encryptLimit || 0 }} ·
-                            {{ t('humanAuthnPlans.activeUsers') }}: {{ subscription.activeUserLimit || 0 }}
+
+                        <div *ngIf="subscription.paymentFailedAt" class="payment-alert">
+                            <mat-icon class="text-red-500">error_outline</mat-icon>
+                            <span>{{ t("humanAuthnPlans.paymentFailedDescription") }}</span>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="price-section">
+                                <div class="price-label">{{ t("humanAuthnPlans.planValue") }}</div>
+                                <div class="price-amount">
+                                    {{ calculateSubscriptionPrice(subscription) | currency }} <span class="price-currency">USD</span>
+                                </div>
+                                <div class="price-period">
+                                    <ng-container *ngIf="!subscription.cancelAt">
+                                        <span *ngIf="i === 0"
+                                            >{{ t("humanAuthnPlans.nextPayment") }}: {{ subscription.endDate | date : "longDate" }}</span
+                                        >
+                                        <span *ngIf="i > 0"
+                                            >{{ t("humanAuthnPlans.startsIn") }}: {{ subscription.startDate | date : "longDate" }}</span
+                                        >
+                                    </ng-container>
+                                    <span *ngIf="subscription.cancelAt"
+                                        >{{ t("humanAuthnPlans.canceledPlan") }}: {{ subscription.cancelAt | date : "longDate" }}</span
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="payment-method">
+                                <ng-container *ngIf="subscription?.cardBrand === 'link'">
+                                    <div class="payment-icon link">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-16" viewBox="0 0 72 24" fill="none">
+                                            <path
+                                                fill="currentColor"
+                                                d="M36.12 3.67683c0-1.12801.9504-2.04481 2.0688-2.04481 1.1184 0 2.0688.9216 2.0688 2.04481 0 1.1232-.9168 2.0688-2.0688 2.0688-1.152 0-2.0688-.9168-2.0688-2.0688ZM29.9808 1.92001h3.6V22.08h-3.6V1.92001ZM40.008 7.68001h-3.6288V22.08h3.6288V7.68001ZM66.096 14.3904c2.7312-1.68 4.5888-4.1808 5.3232-6.71516h-3.6288c-.9456 2.41916-3.1152 4.23836-5.5008 5.01116V1.91523h-3.6288V22.0752h3.6288V16.08c2.7696.6912 4.9584 3.0864 5.7072 5.9952h3.6528c-.5568-3.0528-2.6448-5.9088-5.5536-7.6848ZM46.44 9.29283c.9504-1.2624 2.8032-1.99681 4.3056-1.99681 2.8032 0 5.1216 2.04961 5.1264 5.14558v9.6336h-3.6288v-8.832c0-1.272-.5664-2.7408-2.4048-2.7408-2.16 0-3.4032 1.9152-3.4032 4.1568v7.4256h-3.6288V7.68962H46.44v1.60321Z"
+                                            ></path>
+                                            <path
+                                                fill="#00D66F"
+                                                d="M12 24c6.6274 0 12-5.3726 12-12 0-6.62743-5.3726-12-12-12C5.37259 0 0 5.37257 0 12c0 6.6274 5.37259 12 12 12Z"
+                                            ></path>
+                                            <path
+                                                fill="#011e0f"
+                                                d="M11.4479 4.80005H7.74707c.72 3.0096 2.82243 5.58235 5.45283 7.19995-2.6352 1.6176-4.73283 4.1904-5.45283 7.2h3.70083c.9168-2.784 3.456-5.2032 6.576-5.6976v-3.0095c-3.1248-.4896-5.664-2.90885-6.576-5.69285Z"
+                                            ></path>
+                                        </svg>
+                                    </div>
+                                    <span class="payment-text">{{ t("humanAuthnPlans.paidWithStripeLink") }}</span>
+                                </ng-container>
+                                <ng-container *ngIf="subscription?.cardBrand && subscription?.cardBrand !== 'link' && subscription?.lastFour">
+                                    <img [src]="creditCardLogo(subscription.cardBrand)" class="h-8 w-12 object-contain" alt="card" />
+                                    <div class="payment-details">
+                                        <span class="payment-text"
+                                            >{{ capitalizeFirstLetter(subscription.cardBrand) }} {{ t("humanAuthnPlans.ended") }}
+                                            {{ subscription.lastFour }}</span
+                                        >
+                                        <span class="payment-expiry"
+                                            >{{ t("humanAuthnPlans.expires") }} {{ subscription.cardExpMonth }}/{{ subscription.cardExpYear }}</span
+                                        >
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="!subscription?.cardBrand && !subscription?.lastFour">
+                                    <mat-icon class="text-gray-400">credit_card_off</mat-icon>
+                                    <span class="payment-text text-gray-500">{{ t("humanAuthnPlans.noPayment") }}</span>
+                                </ng-container>
+                            </div>
+
+                            <div class="features-grid">
+                                <div class="feature-card">
+                                    <div class="feature-icon biometrics">
+                                        <mat-icon>how_to_reg</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("humanAuthnPlans.encrypts") }}</span>
+                                        <span class="feature-value">{{ subscription.encryptLimit | number }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status" [class.active]="subscription.encryptLimit > 0">
+                                        {{ subscription.encryptLimit > 0 ? "check_circle" : "cancel" }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon email">
+                                        <mat-icon>verified_user</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("humanAuthnPlans.planCredits") }}</span>
+                                        <span class="feature-value">{{ subscription.credits || 0 | number }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status" [class.active]="(subscription.credits || 0) > 0">
+                                        {{ (subscription.credits || 0) > 0 ? "check_circle" : "cancel" }}
+                                    </mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon whitelabel">
+                                        <mat-icon>fingerprint</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("humanAuthnPlans.zkLiveness") }}</span>
+                                        <span class="feature-value">{{ t("humanAuthnPlans.enabled") }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status active">check_circle</mat-icon>
+                                </div>
+
+                                <div class="feature-card">
+                                    <div class="feature-icon api">
+                                        <mat-icon>group</mat-icon>
+                                    </div>
+                                    <div class="feature-content">
+                                        <span class="feature-label">{{ t("humanAuthnPlans.activeUsers") }}</span>
+                                        <span class="feature-value">{{
+                                            subscription.activeUserLimit > 0
+                                                ? (subscription.activeUserLimit | number)
+                                                : t("humanAuthnPlans.available")
+                                        }}</span>
+                                    </div>
+                                    <mat-icon class="feature-status" [class.active]="subscription.activeUserLimit > 0">
+                                        {{ subscription.activeUserLimit > 0 ? "check_circle" : "add_circle_outline" }}
+                                    </mat-icon>
+                                </div>
+                            </div>
+
+                            <div class="optional-section">
+                                <h3 class="optional-title">{{ t("humanAuthnPlans.includedPrivacy") }}</h3>
+                                <p class="optional-subtitle">{{ t("humanAuthnPlans.includedPrivacyDesc") }}</p>
+
+                                <div class="optional-grid">
+                                    <div class="optional-card">
+                                        <div class="optional-icon sms">
+                                            <mat-icon>visibility_off</mat-icon>
+                                        </div>
+                                        <div class="optional-content">
+                                            <span class="optional-label">{{ t("humanAuthnPlans.benefitNoBiometrics") }}</span>
+                                            <span class="optional-value">{{ t("humanAuthnPlans.benefitNoFaceDb") }}</span>
+                                        </div>
+                                        <mat-icon class="feature-status active">check_circle</mat-icon>
+                                    </div>
+
+                                    <div class="optional-card">
+                                        <div class="optional-icon whatsapp">
+                                            <mat-icon>verified_user</mat-icon>
+                                        </div>
+                                        <div class="optional-content">
+                                            <span class="optional-label">{{ t("humanAuthnPlans.benefitZkProof") }}</span>
+                                            <span class="optional-value">{{ t("humanAuthnPlans.benefitNoHostedDb") }}</span>
+                                        </div>
+                                        <mat-icon class="feature-status active">check_circle</mat-icon>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-actions">
+                                <button
+                                    (click)="manageBilling()"
+                                    class="action-button primary"
+                                    [class.error]="subscription.paymentFailedAt"
+                                    mat-flat-button
+                                    type="button"
+                                >
+                                    {{ t("humanAuthnPlans.manageSubscription") }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </ng-container>
+
+                <div class="upgrade-section animate-fadeIn">
+                    <div class="upgrade-header">
+                        <div class="upgrade-header-content">
+                            <div class="upgrade-badge">
+                                <mat-icon>auto_awesome</mat-icon>
+                                <span>{{ t("humanAuthnPlans.upgradeAvailable") }}</span>
+                            </div>
+                            <h2 class="upgrade-headline">{{ t("humanAuthnPlans.betterPlan") }}</h2>
+                            <p class="upgrade-subheadline">{{ t("humanAuthnPlans.betterPlanText") }}</p>
+                        </div>
+                        <div class="upgrade-illustration">
+                            <div class="floating-icon icon-1">
+                                <mat-icon>verified</mat-icon>
+                            </div>
+                            <div class="floating-icon icon-2">
+                                <mat-icon>speed</mat-icon>
+                            </div>
+                            <div class="floating-icon icon-3">
+                                <mat-icon>security</mat-icon>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upgrade-benefits">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <mat-icon>trending_up</mat-icon>
+                            </div>
+                            <div class="benefit-text">
+                                <span class="benefit-title">{{ t("humanAuthnPlans.higherLimits") }}</span>
+                                <span class="benefit-desc">{{ t("humanAuthnPlans.higherLimitsDesc") }}</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <mat-icon>support_agent</mat-icon>
+                            </div>
+                            <div class="benefit-text">
+                                <span class="benefit-title">{{ t("humanAuthnPlans.prioritySupport") }}</span>
+                                <span class="benefit-desc">{{ t("humanAuthnPlans.prioritySupportDesc") }}</span>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <mat-icon>tune</mat-icon>
+                            </div>
+                            <div class="benefit-text">
+                                <span class="benefit-title">{{ t("humanAuthnPlans.advancedFeatures") }}</span>
+                                <span class="benefit-desc">{{ t("humanAuthnPlans.advancedFeaturesDesc") }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="upgrade-cta">
+                        <button (click)="changeView('change')" class="upgrade-button" mat-flat-button type="button">
+                            <span>{{ t("humanAuthnPlans.explorePlans") }}</span>
+                            <mat-icon>arrow_forward</mat-icon>
+                        </button>
+                        <span class="upgrade-hint">{{ t("humanAuthnPlans.noCommitment") }}</span>
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentView === 'change'">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900">{{ t("humanAuthnPlans.selectPlan") }}</h2>
+                    <p class="text-gray-500 mt-1">{{ t("humanAuthnPlans.chooseBestPlan") }}</p>
+                </div>
+
+                <div class="plans-grid">
+                    <div
+                        class="select-plan-card animate-fadeIn"
+                        [class.select-plan-card--current]="isActiveCatalogPlan('plus')"
+                    >
+                        <div *ngIf="isActiveCatalogPlan('plus')" class="current-plan-badge">{{ t("humanAuthnPlans.currentPlanBadge") }}</div>
+                        <div class="plan-badge plus">{{ t("humanAuthnPlans.plus") }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price">{{ calculatePrice("plus") | currency }}</span>
+                            <span class="plan-period">/{{ t("humanAuthnPlans.month") }}</span>
+                        </div>
+                        <p class="plan-range">
+                            {{ getPlan("plus")?.encryptLimit || 300 | number }} {{ t("humanAuthnPlans.enrollments") }}
                         </p>
-                        <button mat-flat-button color="primary" type="button" (click)="changeView('change')">
-                            {{ t('humanAuthnPlans.changePlan') }}
+                        <div class="plan-features">
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("humanAuthnPlans.enrollCost") }}</span>
+                                <span class="stat-value">{{ getPlan("plus")?.unitPrice || 0.6 | currency }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("humanAuthnPlans.activeUserCost") }}</span>
+                                <span class="stat-value">{{ activeUserCreditCost("plus") }} {{ t("humanAuthnPlans.creditsUnit") }}</span>
+                            </div>
+                        </div>
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t("humanAuthnPlans.included") }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoBiometrics") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoFaceDb") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoHostedDb") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitZkProof") }}</li>
+                            </ul>
+                        </div>
+                        <button (click)="changeView('select', 'plus')" class="select-button plus" mat-flat-button type="button">
+                            {{ isActiveCatalogPlan("plus") ? t("humanAuthnPlans.adjustVolume") : t("humanAuthnPlans.viewPlan") }}
                         </button>
                     </div>
-                }
-            </section>
-        }
 
-        @if (currentView !== 'select') {
-            <section class="catalog">
-                @for (key of ['free', 'plus', 'business']; track key) {
-                    @if (getPlan(key); as plan) {
-                        <article class="catalog-card" [class.catalog-card--popular]="key === 'plus'">
-                            <h3>{{ plan.name }}</h3>
-                            <p class="price">
-                                {{ key === 'free' ? (t('humanAuthnPlans.freeForever')) : (monthlyTotal(key) | currency) }}
-                            </p>
-                            <ul>
-                                <li>{{ t('humanAuthnPlans.encrypts') }}: {{ plan.encryptLimit }}</li>
-                                <li>{{ t('humanAuthnPlans.activeUsers') }}: {{ plan.activeUserLimit }}</li>
-                                <li>{{ t('humanAuthnPlans.decrypts') }}: {{ plan.decryptLimit }}</li>
-                                <li>{{ t('humanAuthnPlans.previews') }}: {{ plan.previewLimit }}</li>
+                    <div
+                        class="select-plan-card featured animate-fadeIn"
+                        [class.select-plan-card--current]="isActiveCatalogPlan('business')"
+                    >
+                        <div *ngIf="isActiveCatalogPlan('business')" class="current-plan-badge current-plan-badge--offset">
+                            {{ t("humanAuthnPlans.currentPlanBadge") }}
+                        </div>
+                        <div class="featured-badge">{{ t("humanAuthnPlans.mostPopular") }}</div>
+                        <div class="plan-badge business">{{ t("humanAuthnPlans.business") }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price">{{ calculatePrice("business") | currency }}</span>
+                            <span class="plan-period">/{{ t("humanAuthnPlans.month") }}</span>
+                        </div>
+                        <p class="plan-range">
+                            {{ getPlan("business")?.encryptLimit || 1000 | number }} {{ t("humanAuthnPlans.enrollments") }}
+                        </p>
+                        <div class="plan-features">
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("humanAuthnPlans.enrollCost") }}</span>
+                                <span class="stat-value">{{ getPlan("business")?.unitPrice || 0.5 | currency }}</span>
+                            </div>
+                            <div class="plan-stat">
+                                <span class="stat-label">{{ t("humanAuthnPlans.activeUserCost") }}</span>
+                                <span class="stat-value">{{ activeUserCreditCost("business") }} {{ t("humanAuthnPlans.creditsUnit") }}</span>
+                            </div>
+                        </div>
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t("humanAuthnPlans.included") }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoBiometrics") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoFaceDb") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoHostedDb") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitZkProof") }}</li>
                             </ul>
-                            <button mat-flat-button color="primary" type="button" (click)="changeView('select', key)">
-                                {{ t('humanAuthnPlans.selectPlan') }}
-                            </button>
-                        </article>
-                    }
-                }
-            </section>
-        }
+                        </div>
+                        <button (click)="changeView('select', 'business')" class="select-button business" mat-flat-button type="button">
+                            {{ isActiveCatalogPlan("business") ? t("humanAuthnPlans.adjustVolume") : t("humanAuthnPlans.viewPlan") }}
+                        </button>
+                    </div>
 
-        @if (currentView === 'select' && selectedPlan) {
-            <section class="select-card">
-                <button mat-button type="button" (click)="changeView('change')">
-                    {{ t('humanAuthnPlans.back') }}
-                </button>
-                <h2>{{ getPlan(selectedPlan)?.name }}</h2>
-                @if (selectedPlan !== 'free') {
-                    <label class="volume">
-                        <span>{{ t('humanAuthnPlans.monthlyEncrypts') }}</span>
-                        <input
-                            type="range"
-                            min="{{ selectedPlan === 'plus' ? 300 : 1000 }}"
-                            max="{{ selectedPlan === 'plus' ? 1000 : 2500 }}"
-                            step="100"
-                            [ngModel]="volumeFor(selectedPlan)"
-                            (ngModelChange)="selectedPlan === 'plus' ? plusVolume = $event : businessVolume = $event"
-                        />
-                        <strong>{{ volumeFor(selectedPlan) }}</strong>
-                    </label>
-                    <p class="price">{{ monthlyTotal(selectedPlan) | currency }} / {{ t('humanAuthnPlans.month') }}</p>
-                }
-                <button
-                    mat-flat-button
-                    color="primary"
-                    type="button"
-                    [disabled]="subscribingToPlan"
-                    (click)="checkout()"
+                    <div class="select-plan-card animate-fadeIn">
+                        <div class="plan-badge enterprise">{{ t("humanAuthnPlans.enterprise") }}</div>
+                        <div class="plan-pricing">
+                            <span class="plan-price custom">{{ t("humanAuthnPlans.contactSales") }}</span>
+                        </div>
+                        <p class="plan-range">+2,500 {{ t("humanAuthnPlans.enrollments") }}</p>
+                        <div class="plan-includes">
+                            <p class="includes-title">{{ t("humanAuthnPlans.included") }}</p>
+                            <ul class="includes-list">
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.everythingInBusiness") }}</li>
+                                <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.dedicatedSupport") }}</li>
+                            </ul>
+                        </div>
+                        <button (click)="purchaseEnterprise()" class="select-button enterprise" mat-flat-button type="button">
+                            {{ t("humanAuthnPlans.contactSales") }}
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    class="select-plan-card free-plan-card animate-fadeIn mt-6"
+                    [class.select-plan-card--current]="isActiveCatalogPlan('free')"
                 >
-                    {{ t('humanAuthnPlans.purchase') }}
-                </button>
-            </section>
-        }
+                    <div *ngIf="isActiveCatalogPlan('free')" class="current-plan-badge">{{ t("humanAuthnPlans.currentPlanBadge") }}</div>
+                    <div class="plan-badge free">{{ t("humanAuthnPlans.free") }}</div>
+                    <div class="plan-pricing">
+                        <span class="plan-price">$0</span>
+                        <span class="plan-period">/{{ t("humanAuthnPlans.month") }}</span>
+                    </div>
+                    <p class="plan-range">{{ getPlan("free")?.encryptLimit || 20 | number }} {{ t("humanAuthnPlans.enrollments") }}</p>
+                    <div class="plan-includes">
+                        <p class="includes-title">{{ t("humanAuthnPlans.included") }}</p>
+                        <ul class="includes-list">
+                            <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoBiometrics") }}</li>
+                            <li><mat-icon>check</mat-icon>{{ t("humanAuthnPlans.benefitNoFaceDb") }}</li>
+                        </ul>
+                    </div>
+                    <button (click)="changeView('select', 'free')" class="select-button free" mat-stroked-button type="button">
+                        {{ t("humanAuthnPlans.viewPlan") }}
+                        <mat-icon>arrow_forward</mat-icon>
+                    </button>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="currentView === 'select' && selectedPlan">
+                <div *ngIf="selectedPlan !== 'free'" class="landing-slider-section animate-fadeIn">
+                    <h2 class="landing-slider-title">{{ t("humanAuthnPlans.howManyEnrollments") }}</h2>
+                    <p class="landing-slider-subtitle">{{ t("humanAuthnPlans.selectVolume") }}</p>
+                    <div class="landing-slider-track">
+                        <span class="track-label">{{ sliderOptions?.notches?.[0] | number }}</span>
+                        <div class="track-slider">
+                            <div class="range-slider range-slider--dotted" [style.--track-fill-percentage]="getTrackFillPercentage() + '%'">
+                                <input
+                                    [max]="(sliderOptions?.notches?.length || 1) - 1"
+                                    [min]="0"
+                                    [(ngModel)]="sliderOptions.value"
+                                    class="range-slider__input"
+                                    type="range"
+                                />
+                            </div>
+                        </div>
+                        <span class="track-label">+{{ sliderOptions?.notches?.[sliderOptions?.notches?.length - 1] | number }}</span>
+                    </div>
+                    <div class="landing-slider-pill">
+                        <strong>{{ getSliderAmount(selectedPlan) | number }}</strong> {{ t("humanAuthnPlans.enrollments") }}
+                    </div>
+                </div>
+
+                <div class="checkout-card animate-fadeIn" [ngClass]="'checkout-' + selectedPlan">
+                    <div class="checkout-header" [ngClass]="'header-' + selectedPlan">
+                        <div class="checkout-plan-info">
+                            <div class="checkout-badge" [ngClass]="selectedPlan">
+                                <mat-icon>{{ selectedPlan === "free" ? "card_giftcard" : selectedPlan === "plus" ? "star" : "diamond" }}</mat-icon>
+                                <span>{{ getPlan(selectedPlan)?.name || selectedPlan }}</span>
+                            </div>
+                            <span class="checkout-plan-type">{{ t("humanAuthnPlans.perEnrollment") }}</span>
+                        </div>
+                        <div class="checkout-price">
+                            <span class="price-currency">$</span>
+                            <span class="price-value">{{ calculatePrice(selectedPlan) | number: "1.0-0" }}</span>
+                            <span class="price-period">/{{ t("humanAuthnPlans.month") }}</span>
+                        </div>
+                    </div>
+                    <div class="checkout-stats">
+                        <div class="stat-item">
+                            <mat-icon>how_to_reg</mat-icon>
+                            <span class="stat-value">{{ getSliderAmount(selectedPlan) | number }}</span>
+                            <span class="stat-label">{{ t("humanAuthnPlans.enrollments") }}</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <mat-icon>payments</mat-icon>
+                            <span class="stat-value">{{ getPlan(selectedPlan)?.unitPrice || 0 | currency }}</span>
+                            <span class="stat-label">{{ t("humanAuthnPlans.enrollCost") }}</span>
+                        </div>
+                        <div class="stat-divider"></div>
+                        <div class="stat-item">
+                            <mat-icon>verified_user</mat-icon>
+                            <span class="stat-value">{{ activeUserCreditCost(selectedPlan) }}</span>
+                            <span class="stat-label">{{ t("humanAuthnPlans.activeUserCost") }}</span>
+                        </div>
+                    </div>
+                    <div class="checkout-actions">
+                        <button
+                            (click)="checkout()"
+                            [disabled]="subscribingToPlan"
+                            class="checkout-button"
+                            [ngClass]="selectedPlan"
+                            mat-flat-button
+                            type="button"
+                        >
+                            <mat-spinner *ngIf="subscribingToPlan" diameter="20" class="mr-2"></mat-spinner>
+                            {{ t("humanAuthnPlans.purchase") }}
+                        </button>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
     </div>
 </ng-container>

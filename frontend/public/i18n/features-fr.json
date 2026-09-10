@@ -592,6 +592,10 @@
             "title": "Colombie - Propriétaires (RUNT)",
             "description": "Verify vehicle ownership and registered owners through the RUNT system."
         },
+        "colombia_api_vehicle_owners": {
+            "title": "Colombie - Historique des propriétaires du véhicule",
+            "description": "Consultez les propriétaires d’un véhicule colombien par plaque. Renvoie les données du véhicule et l’historique complet des propriétaires."
+        },
         "chile_api_driver_license": {
             "title": "Chili — Permis de conduire",
             "description": "Permis chilien par numéro : classe, restrictions, dates de contrôle et RUT."

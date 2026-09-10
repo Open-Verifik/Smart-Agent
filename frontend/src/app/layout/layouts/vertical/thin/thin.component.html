@@ -46,9 +46,7 @@
             <!-- <shortcuts></shortcuts> -->
             <!-- <messages></messages> -->
             <!-- <notifications></notifications> -->
-            <button class="lg:hidden" mat-icon-button (click)="quickChat.toggle()">
-                <mat-icon [svgIcon]="'heroicons_outline:lifebuoy'"></mat-icon>
-            </button>
+            <support-nav-button></support-nav-button>
             <user></user>
         </div>
     </div>
@@ -75,4 +73,4 @@
 
 <!-- Quick chat -->
 <app-blocking-notification-modal-host></app-blocking-notification-modal-host>
-<quick-chat #quickChat="quickChat"></quick-chat>
+<quick-chat></quick-chat>

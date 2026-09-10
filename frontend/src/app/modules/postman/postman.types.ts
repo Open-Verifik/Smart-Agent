@@ -125,6 +125,8 @@ export interface ApiEndpoint {
     body?: any;
     category?: string;
     country?: string;
+    /** Check List domains resolved from AppFeature (`people`, `vehicles`, `businesses`). */
+    checkListDomains?: Array<'people' | 'vehicles' | 'businesses'>;
     documentationUrl?: string;
     estimatedCost?: number;
     /** Upper bound when Dynamic Query may escalate pricing (e.g. Colombia cédula). */

@@ -436,6 +436,57 @@
         ]
       }
     },
+    "/api/co/runt/vehiculo/owners": {
+      "get": {
+        "tags": [
+          "KYC",
+          "KYB",
+          "Data",
+          "LATAM"
+        ],
+        "operationId": "colombia_api_vehicle_owners",
+        "summary": "Colombia - Vehicle Owner History",
+        "description": "Retrieve the ownership history for a vehicle registered in Colombia by license plate.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USD",
+            "amount": "6"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {
+                "method": "POST",
+                "intent": "charge",
+                "currency": "USD"
+              }
+            }
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Success — proxied Verifik response"
+          },
+          "402": {
+            "description": "Payment Required"
+          }
+        },
+        "parameters": [
+          {
+            "name": "plate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Vehicle license plate to query, without spaces or punctuation."
+          }
+        ]
+      }
+    },
     "/api/co/simit/suspensiones": {
       "post": {
         "tags": [
@@ -11427,7 +11478,7 @@
             "mode": "dynamic",
             "currency": "USD",
             "min": "0.00001",
-            "max": "1"
+            "max": "6"
           },
           "protocols": [
             {
@@ -11488,7 +11539,7 @@
             "mode": "dynamic",
             "currency": "USD",
             "min": "0.00001",
-            "max": "1"
+            "max": "6"
           },
           "protocols": [
             {

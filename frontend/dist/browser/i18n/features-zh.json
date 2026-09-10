@@ -592,6 +592,10 @@
             "title": "哥伦比亚 - 车辆所有者(RUNT)",
             "description": "Verify vehicle ownership and registered owners through the RUNT system."
         },
+        "colombia_api_vehicle_owners": {
+            "title": "哥伦比亚 - 车辆所有人历史",
+            "description": "通过车牌查询哥伦比亚车辆所有人，返回车辆数据和完整所有权历史。"
+        },
         "chile_api_driver_license": {
             "title": "智利 — 驾驶证",
             "description": "通过驾驶证号查询智利驾驶证：从车辆机动登记官方记录获取证件等级、限制条件、控制日期、RUT 与地址，适用于车队与员工合规场景。"

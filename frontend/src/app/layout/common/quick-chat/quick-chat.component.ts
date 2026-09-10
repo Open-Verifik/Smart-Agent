@@ -1,5 +1,5 @@
 import { ScrollStrategy, ScrollStrategyOptions } from '@angular/cdk/overlay';
-import { DOCUMENT, NgClass } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import {
     AfterViewInit,
     Component,
@@ -32,7 +32,6 @@ import { SupportTicketChatPanelComponent } from 'app/modules/support-tickets/sup
     encapsulation: ViewEncapsulation.None,
     exportAs: 'quickChat',
     imports: [
-        NgClass,
         MatIconModule,
         MatButtonModule,
         TranslocoModule,

@@ -1,7 +1,7 @@
 <ng-container *transloco="let t">
-    <div class="flex min-h-screen flex-col bg-stone-50 dark:bg-gray-950">
+    <div class="flex min-h-screen min-w-0 w-full flex-auto flex-col bg-stone-50 dark:bg-gray-950">
         <header class="border-b border-stone-200 bg-white px-5 py-6 dark:border-gray-800 dark:bg-gray-950 md:px-8">
-            <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
+            <div class="flex w-full flex-col gap-4">
                 <div class="flex items-center gap-2 text-xs text-stone-500">
                     <a routerLink="/human-authn/projects" class="underline">{{ t('humanAuthnProjects.title') }}</a>
                     <span>/</span>
@@ -32,11 +32,11 @@
             </div>
         </header>
 
-        <main class="mx-auto grid w-full max-w-7xl flex-auto gap-8 px-5 py-8 md:grid-cols-[minmax(0,1fr)_20rem] md:px-8">
+        <main class="grid w-full min-w-0 flex-auto gap-8 px-5 py-8 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,28rem)] md:px-8">
             @if (loading()) {
                 <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
             } @else if (form) {
-                <section>
+                <section class="min-w-0 w-full">
                     @if (stepIndex === 0) {
                         <setup-basic-setup [form]="form" [loading]="loading()" [saving]="saving()"></setup-basic-setup>
                     }
@@ -76,7 +76,7 @@
                         </button>
                     </div>
                 </section>
-                <aside>
+                <aside class="min-w-0 w-full xl:sticky xl:top-8 xl:self-start">
                     <human-authn-preview-placeholder></human-authn-preview-placeholder>
                 </aside>
             }

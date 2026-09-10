@@ -6,7 +6,7 @@ vi.mock('environments/environment', () => ({
     },
 }));
 
-import { getVerifikDocsUrls } from './verifik-docs-urls';
+import { docsPageUrl, getVerifikDocsUrls } from './verifik-docs-urls';
 
 describe('getVerifikDocsUrls', () => {
     it('should point docsHome to each locale intro page', () => {
@@ -50,6 +50,12 @@ describe('getVerifikDocsUrls', () => {
         );
         expect(urls.serviceLevelAgreement).toBe(
             'https://docs.verifik.co/verifik-es/acuerdo-de-niveles-de-servicio/'
+        );
+    });
+
+    it('should prefix docsPageUrl with the environment documentation base', () => {
+        expect(docsPageUrl('/smartenroll/resume')).toBe(
+            'https://docs.verifik.co/smartenroll/resume'
         );
     });
 });

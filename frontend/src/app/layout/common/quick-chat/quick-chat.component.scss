@@ -1,22 +1,12 @@
 quick-chat {
     z-index: 399;
 
-    > div {
-        overflow: hidden;
+    &:not(.quick-chat-opened) {
+        display: none;
     }
 
     &.quick-chat-opened {
-        > div {
-            overflow: visible;
-        }
-    }
-
-    &:not(.quick-chat-opened) {
-        > div {
-            overflow: visible;
-            animation: addOverflowHidden 1ms linear 400ms;
-            animation-fill-mode: forwards;
-        }
+        display: block;
     }
 
     &.quick-chat-expanded {
@@ -41,7 +31,6 @@ quick-chat {
     }
 }
 
-/* Adjustments depending on the selected layout */
 .quick-chat-header {
     min-height: 64px;
     height: auto;
@@ -67,11 +56,6 @@ quick-chat {
     color: rgb(45 212 191);
 }
 
-.quick-chat-rail-badge {
-    line-height: 1;
-}
-
-/* Overlay */
 .quick-chat-overlay {
     position: fixed;
     top: 0;
@@ -81,16 +65,4 @@ quick-chat {
     z-index: 299;
     opacity: 1;
     background-color: transparent;
-}
-
-@keyframes addOverflowHidden {
-    0% {
-        overflow: visible;
-    }
-    99% {
-        overflow: visible;
-    }
-    100% {
-        overflow: hidden;
-    }
 }

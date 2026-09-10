@@ -39,6 +39,7 @@ import {
     shouldListHumanAuthnParams,
 } from './human-authn-postman.catalog';
 
+import { mergeParamsFromDocs } from './postman-docs-params.util';
 import { environment } from 'environments/environment';
 import { isBiometricsEndpoint } from 'app/modules/smart-enroll/biometrics/biometrics.constants';
 import { Observable, catchError, distinctUntilChanged, finalize, forkJoin, map, of, skip, tap, throwError } from 'rxjs';
@@ -330,12 +331,15 @@ export class PostmanService {
         const xorMeta = dependencies.length ? getPostmanXorGroupMetadata(dependencies) : null;
         const listParams = method === 'GET' || shouldListHumanAuthnParams(feature.code);
 
-        return {
+        const created: ApiEndpoint = {
             id: feature._id || feature.code,
             label: feature.name,
             code: feature.code,
             category: this._mapCategory(feature.baseCategory || feature.group),
             country: feature.country,
+            ...(Array.isArray(feature.checkListDomains) && feature.checkListDomains.length
+                ? { checkListDomains: feature.checkListDomains }
+                : {}),
             method,
             url: feature.url
                 ? feature.url.startsWith('http')
@@ -356,6 +360,7 @@ export class PostmanService {
             body: method !== 'GET' && rawDeps.length ? this._bodyFromDependencies(rawDeps) : null,
             ...(feature.docs && typeof feature.docs === 'object' ? { docs: feature.docs } : {}),
         };
+        return mergeParamsFromDocs(created);
     }
 
     private _toPostmanDependencyMeta(rawDeps: any[]): PostmanDependencyMeta[] {

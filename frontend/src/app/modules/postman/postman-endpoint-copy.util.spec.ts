@@ -4,6 +4,7 @@ import {
     resolveAboutOverview,
     resolveAboutParamsColumnVisibility,
     overviewLeadParagraph,
+    postmanEndpointMatchesSearch,
     sanitizePostmanCopyText,
 } from './postman-endpoint-copy.util';
 
@@ -377,6 +378,45 @@ describe('postman-endpoint-copy.util', () => {
             });
 
             expect(result).toBe(esOverview);
+        });
+    });
+
+    describe('postmanEndpointMatchesSearch', () => {
+        const ownersEndpoint = {
+            code: 'colombia_api_vehicle_owners',
+            country: 'Colombia',
+            label: 'Colombia - Vehicle Owner History',
+            url: 'https://api.verifik.co/v2/co/runt/vehiculo/owners',
+            docs: {
+                es: {
+                    title: 'RUNT - Propietarios de vehículo por placa',
+                    description: 'Consulta un vehículo colombiano y sus registros de propiedad usando únicamente la placa.',
+                },
+            },
+        };
+
+        it('matches Spanish docs title propietarios even in English UI', () => {
+            expect(
+                postmanEndpointMatchesSearch(ownersEndpoint, 'propietarios', {}, 'en')
+            ).toBe(true);
+        });
+
+        it('matches Spanish catalog copy', () => {
+            expect(
+                postmanEndpointMatchesSearch(
+                    ownersEndpoint,
+                    'propietarios',
+                    {
+                        title: 'Colombia - Historial de Propietarios del Vehículo',
+                        description: 'Consulta los propietarios de un vehículo colombiano por placa.',
+                    },
+                    'es'
+                )
+            ).toBe(true);
+        });
+
+        it('does not match unrelated queries', () => {
+            expect(postmanEndpointMatchesSearch(ownersEndpoint, 'cedula', {}, 'en')).toBe(false);
         });
     });
 });

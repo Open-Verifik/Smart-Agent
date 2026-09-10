@@ -195,6 +195,13 @@ export class HomeComponent implements OnInit {
             icon: 'terminal',
         },
         {
+            id: 'check-list',
+            titleKey: 'home.shortcuts.checkList',
+            subtitleKey: 'nav.check_list_subtitle',
+            link: '/check-list',
+            icon: 'checklist',
+        },
+        {
             id: 'smart-batch',
             titleKey: 'home.shortcuts.smartBatch',
             subtitleKey: 'nav.batch_automation',

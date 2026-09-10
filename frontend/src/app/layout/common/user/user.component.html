@@ -211,12 +211,23 @@
                     <button
                         type="button"
                         class="account-menu__shortcut"
-                        (click)="navigateTo(shortcut.link)"
+                        (click)="onShortcutClick(shortcut)"
                     >
                         <mat-icon class="icon-size-5" [svgIcon]="shortcut.icon"></mat-icon>
                         <span>{{ shortcut.labelKey | transloco }}</span>
                     </button>
                 }
+            </section>
+        } @else {
+            <section class="account-menu__shortcuts">
+                <button
+                    type="button"
+                    class="account-menu__shortcut"
+                    (click)="openSupport()"
+                >
+                    <mat-icon class="icon-size-5" svgIcon="heroicons_outline:lifebuoy"></mat-icon>
+                    <span>{{ 'userMenu.support' | transloco }}</span>
+                </button>
             </section>
         }
 

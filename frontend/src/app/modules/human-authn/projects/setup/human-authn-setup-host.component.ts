@@ -47,6 +47,9 @@ import { HumanAuthnStorageStepComponent } from './steps/storage-step.component';
         HumanAuthnPreviewPlaceholderComponent,
     ],
     templateUrl: './human-authn-setup-host.component.html',
+    host: {
+        class: 'flex min-w-0 w-full flex-auto',
+    },
 })
 export class HumanAuthnSetupHostComponent implements OnInit, OnDestroy {
     private _route = inject(ActivatedRoute);

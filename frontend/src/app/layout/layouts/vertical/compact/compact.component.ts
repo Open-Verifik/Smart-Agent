@@ -21,6 +21,7 @@ import { AccountVerificationStripComponent } from 'app/layout/common/account-str
 import { SandboxNoticeStripComponent } from 'app/layout/common/account-strips/sandbox-notice-strip.component';
 import { ProductionModeToggleComponent } from 'app/layout/common/account-strips/production-mode-toggle.component';
 import { LayoutFooterComponent } from 'app/layout/common/layout-footer/layout-footer.component';
+import { SupportNavButtonComponent } from 'app/layout/common/support-nav-button/support-nav-button.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 
@@ -39,6 +40,7 @@ import { Subject, takeUntil } from 'rxjs';
         // MessagesComponent,
         // NotificationsComponent,
         UserComponent,
+        SupportNavButtonComponent,
         RouterOutlet,
         QuickChatComponent,
         BlockingNotificationModalHostComponent,

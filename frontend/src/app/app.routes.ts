@@ -40,6 +40,11 @@ export const appRoutes: Route[] = [
                     import('app/modules/postman/postman.routes').then((m) => m.default),
             },
             {
+                path: 'check-list',
+                loadChildren: () =>
+                    import('app/modules/check-list/check-list.routes').then((m) => m.default),
+            },
+            {
                 path: 'zelf-id',
                 loadChildren: () =>
                     import('app/modules/zelf-id/zelf-id.routes').then((m) => m.default),

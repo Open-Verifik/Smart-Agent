@@ -48,6 +48,7 @@ import { PostmanEndpointLabelComponent } from '../postman-endpoint-label.compone
 import { PostmanEndpointActionsComponent } from './postman-endpoint-actions.component';
 import {
   getAppFeatureCatalogCopy,
+  postmanEndpointMatchesSearch,
   resolvePostmanEndpointCopy,
 } from '../postman-endpoint-copy.util';
 
@@ -439,24 +440,17 @@ export class SidebarComponent {
   }
 
   /**
-   * Matches catalog fields, custom display name, and translated appFeatures title (same sources as visible labels).
+   * Matches the same copy the sidebar shows, plus every locale docs title (e.g. "propietarios").
    */
   private endpointSearchTextMatches(endpoint: ApiEndpoint, query: string): boolean {
-    if (
-      endpoint.label.toLowerCase().includes(query) ||
-      endpoint.url.toLowerCase().includes(query) ||
-      (endpoint.code && endpoint.code.toLowerCase().includes(query)) ||
-      (endpoint.layoutDisplayName && endpoint.layoutDisplayName.toLowerCase().includes(query))
-    ) {
-      return true;
-    }
-    if (endpoint.code) {
-      const copy = getAppFeatureCatalogCopy(this._transloco, endpoint.code);
-      if (copy.title && copy.title.toLowerCase().includes(query)) {
-        return true;
-      }
-    }
-    return false;
+    const catalog = endpoint.code ? getAppFeatureCatalogCopy(this._transloco, endpoint.code) : {};
+
+    return postmanEndpointMatchesSearch(
+      endpoint,
+      query,
+      catalog,
+      this._transloco.getActiveLang()
+    );
   }
 
   /**

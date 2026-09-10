@@ -276,6 +276,64 @@ export const resolvePostmanEndpointCopy = (
 };
 
 /**
+ * Haystack for Postman sidebar search: visible label, catalog copy, and every locale docs title.
+ */
+export const collectPostmanEndpointSearchText = (
+    endpoint: Pick<
+        ApiEndpoint,
+        'code' | 'country' | 'label' | 'url' | 'description' | 'layoutDisplayName' | 'docs'
+    >,
+    catalog: { title?: string; description?: string } = {},
+    locale?: PostmanCopyLocale | null
+): string => {
+    const resolved = resolvePostmanEndpointCopy({
+        endpoint,
+        catalogTitle: catalog.title ?? endpoint.label,
+        catalogDescription: catalog.description ?? endpoint.description ?? '',
+        locale,
+    });
+    const docsText = Object.values(endpoint.docs ?? {})
+        .flatMap((block) => [block?.title, block?.description])
+        .filter((value): value is string => Boolean(value?.trim()));
+
+    return [
+        endpoint.label,
+        endpoint.url,
+        endpoint.code,
+        endpoint.layoutDisplayName,
+        endpoint.description,
+        catalog.title,
+        catalog.description,
+        resolved.title,
+        resolved.fullTitle,
+        resolved.description,
+        ...docsText,
+    ]
+        .filter((value): value is string => Boolean(value?.trim()))
+        .join(' ')
+        .toLowerCase();
+};
+
+/**
+ * True when the sidebar search query matches the same copy the explorer shows.
+ */
+export const postmanEndpointMatchesSearch = (
+    endpoint: Pick<
+        ApiEndpoint,
+        'code' | 'country' | 'label' | 'url' | 'description' | 'layoutDisplayName' | 'docs'
+    >,
+    query: string,
+    catalog: { title?: string; description?: string } = {},
+    locale?: PostmanCopyLocale | null
+): boolean => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (!normalizedQuery) return true;
+
+    return collectPostmanEndpointSearchText(endpoint, catalog, locale).includes(normalizedQuery);
+};
+
+/**
  * Resolves the About-tab overview markdown from docs, i18n catalog, and OpenAPI fallback.
  * Prefers active-locale content and avoids English OpenAPI text when a localized catalog exists.
  */
