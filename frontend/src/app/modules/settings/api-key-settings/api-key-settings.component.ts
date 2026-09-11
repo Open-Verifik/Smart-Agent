@@ -20,10 +20,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { Subject, takeUntil } from 'rxjs';
+import { ApiKeyHelpModalComponent, ApiKeyHelpModalContent } from './api-key-help-modal.component';
 import {
-    ApiKeyHelpModalComponent,
-    ApiKeyHelpModalContent,
-} from './api-key-help-modal.component';
+    addCalendarMonths,
+    getTokenExpirationDate,
+    getTokenLifecycleStatus,
+    getTokenRemainingDays,
+    TokenLifecycleStatus,
+} from './api-key-expiration.util';
 import { SettingsService } from '../settings.service';
 import { SettingsBusinessAccountEmptyStateComponent } from '../shared/settings-business-account-empty-state.component';
 import { getBusinessUserClientId } from '../utils/settings-business-user.util';
@@ -32,7 +36,10 @@ type ApiKeyHelpTopic = 'overview' | 'token' | 'extend' | 'revoke';
 
 interface TokenExpiration {
     value: number;
-    label: string;
+    durationKey: string;
+    descriptorKey?: string;
+    badgeKey?: string;
+    longLived?: boolean;
 }
 
 @Component({
@@ -67,19 +74,49 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
     isRevoking = false;
     showRenewPanel = false;
     showRevokeConfirm = false;
-    selectedExpiration = 1;
+    selectedExpiration = 3;
     newlyGeneratedToken: string = null;
     showNewTokenAlert = false;
     activeHelp: ApiKeyHelpTopic | null = null;
 
     expirationOptions: TokenExpiration[] = [
-        { value: 1, label: '1' },
-        { value: 2, label: '2' },
-        { value: 3, label: '3' },
-        { value: 6, label: '6' },
-        { value: 12, label: '12' },
-        { value: 24, label: '24' },
-        { value: 36, label: '36' },
+        {
+            value: 1,
+            durationKey: 'settings.api_key.duration_1_month',
+            descriptorKey: 'settings.api_key.duration_short_term',
+        },
+        {
+            value: 2,
+            durationKey: 'settings.api_key.duration_2_months',
+        },
+        {
+            value: 3,
+            durationKey: 'settings.api_key.duration_3_months',
+            descriptorKey: 'settings.api_key.duration_balanced',
+            badgeKey: 'settings.api_key.recommended',
+        },
+        {
+            value: 6,
+            durationKey: 'settings.api_key.duration_6_months',
+        },
+        {
+            value: 12,
+            durationKey: 'settings.api_key.duration_1_year',
+            descriptorKey: 'settings.api_key.duration_long_running',
+            longLived: true,
+        },
+        {
+            value: 24,
+            durationKey: 'settings.api_key.duration_2_years',
+            descriptorKey: 'settings.api_key.duration_long_lived',
+            longLived: true,
+        },
+        {
+            value: 36,
+            durationKey: 'settings.api_key.duration_3_years',
+            descriptorKey: 'settings.api_key.duration_long_lived',
+            longLived: true,
+        },
     ];
 
     constructor(
@@ -104,6 +141,33 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
         return getBusinessUserClientId(this.user);
     }
 
+    get currentTokenExpiration(): Date | null {
+        return getTokenExpirationDate(this.accessToken);
+    }
+
+    get currentTokenStatus(): TokenLifecycleStatus {
+        return getTokenLifecycleStatus(this.currentTokenExpiration);
+    }
+
+    get currentTokenRemainingDays(): number | null {
+        return getTokenRemainingDays(this.currentTokenExpiration);
+    }
+
+    get selectedExpirationDate(): Date {
+        return addCalendarMonths(new Date(), this.selectedExpiration);
+    }
+
+    get selectedExpirationOption(): TokenExpiration {
+        return (
+            this.expirationOptions.find((option) => option.value === this.selectedExpiration) ||
+            this.expirationOptions[0]
+        );
+    }
+
+    get isLongLivedSelection(): boolean {
+        return Boolean(this.selectedExpirationOption.longLived);
+    }
+
     get activeHelpContent(): ApiKeyHelpModalContent | null {
         if (!this.activeHelp) {
             return null;
@@ -120,13 +184,13 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
             title: this._translocoService.translate(`${baseKey}.title`),
             intro: this._translocoService.translate(`${baseKey}.intro`),
             points,
-            codeExample: topic === 'token'
-                ? this._translocoService.translate(`${baseKey}.code`)
-                : undefined,
+            codeExample:
+                topic === 'token' ? this._translocoService.translate(`${baseKey}.code`) : undefined,
             note: note || undefined,
-            docsUrl: topic === 'overview' || topic === 'token'
-                ? 'https://docs.verifik.co/authentication/renew-your-token-jwt'
-                : undefined,
+            docsUrl:
+                topic === 'overview' || topic === 'token'
+                    ? 'https://docs.verifik.co/authentication/renew-your-token-jwt'
+                    : undefined,
             docsLabel: this._translocoService.translate('settings.api_key.view_docs'),
         };
     }
@@ -166,6 +230,63 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
             this.showRevokeConfirm = false;
         }
         this._cdr.markForCheck();
+    }
+
+    selectExpiration(value: number): void {
+        this.selectedExpiration = value;
+        this._cdr.markForCheck();
+    }
+
+    onExpirationSelect(event: Event): void {
+        this.selectExpiration(Number((event.target as HTMLSelectElement).value));
+    }
+
+    onExpirationKeydown(event: KeyboardEvent): void {
+        const directionByKey: Record<string, number> = {
+            ArrowDown: 1,
+            ArrowRight: 1,
+            ArrowUp: -1,
+            ArrowLeft: -1,
+        };
+        const direction = directionByKey[event.key];
+        const isBoundaryKey = event.key === 'Home' || event.key === 'End';
+
+        if (!direction && !isBoundaryKey) return;
+
+        event.preventDefault();
+
+        const currentIndex = this.expirationOptions.findIndex(
+            (option) => option.value === this.selectedExpiration
+        );
+        const lastIndex = this.expirationOptions.length - 1;
+        const nextIndex =
+            event.key === 'Home'
+                ? 0
+                : event.key === 'End'
+                  ? lastIndex
+                  : (currentIndex + direction + this.expirationOptions.length) %
+                    this.expirationOptions.length;
+
+        this.selectExpiration(this.expirationOptions[nextIndex].value);
+
+        const radioOptions = (event.currentTarget as HTMLElement).querySelectorAll<HTMLElement>(
+            '[role="radio"]'
+        );
+        radioOptions[nextIndex]?.focus();
+    }
+
+    formatDate(value: Date | null): string {
+        if (!value) return '';
+
+        try {
+            return new Intl.DateTimeFormat(this._translocoService.getActiveLang() || 'en', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            }).format(value);
+        } catch {
+            return value.toLocaleDateString();
+        }
     }
 
     toggleRevokeConfirm(): void {
@@ -215,7 +336,7 @@ export class ApiKeySettingsComponent implements OnInit, OnChanges, OnDestroy {
         this._cdr.markForCheck();
 
         this._settingsService
-            .revokeAndGenerateNew()
+            .revokeAndGenerateNew(this.selectedExpiration)
             .pipe(takeUntil(this._destroy$))
             .subscribe({
                 next: (response) => {

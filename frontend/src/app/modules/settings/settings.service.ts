@@ -198,21 +198,21 @@ export class SettingsService {
      *
      * This service performs two actions:
      * 1. Expires all tokens that were previously generated
-     * 2. Creates an entirely new token (valid for 30 days)
+     * 2. Creates an entirely new token with the selected validity period
      *
      * @returns Observable with the new token
      *
      * API: POST /v2/auth/renew-and-revoke
      * Docs: https://docs.verifik.co/authentication/create-new-token-and-revoke-previous-tokens
      */
-    revokeAndGenerateNew(): Observable<TokenRevokeResponse> {
+    revokeAndGenerateNew(expiresIn: number): Observable<TokenRevokeResponse> {
         if (!this.accessToken) {
             return throwError(() => new Error('No access token available'));
         }
 
         const url = `${this.apiUrl}/v2/auth/renew-and-revoke`;
 
-        return this._httpWrapper.sendRequest('post', url, {}).pipe(
+        return this._httpWrapper.sendRequest('post', url, { expiresIn }).pipe(
             map((response: TokenRevokeResponse) => {
                 // The response can have either 'token' or 'accessToken'
                 const newToken = response?.token || (response as any)?.accessToken;

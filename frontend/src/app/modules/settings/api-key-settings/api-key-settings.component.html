@@ -5,14 +5,35 @@
         (close)="closeHelp()"
     ></app-api-key-help-modal>
 
-    <div class="flex flex-col gap-6">
-        <header class="max-w-2xl">
-            <h1 class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl">
-                {{ t('settings.api_key.title') }}
-            </h1>
-            <p class="mt-2 text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base">
-                {{ t('settings.api_key.subtitle') }}
-            </p>
+    <div class="api-key-console flex flex-col gap-6">
+        <header class="flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+                <p
+                    class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400"
+                >
+                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                    {{ t('settings.api_key.security_eyebrow') }}
+                </p>
+                <h1
+                    class="text-2xl font-semibold tracking-tight text-stone-950 dark:text-white md:text-3xl"
+                >
+                    {{ t('settings.api_key.title') }}
+                </h1>
+                <p
+                    class="mt-2 max-w-2xl text-sm leading-6 text-stone-500 dark:text-stone-400 md:text-base"
+                >
+                    {{ t('settings.api_key.subtitle') }}
+                </p>
+            </div>
+            <button
+                *ngIf="userClientId"
+                type="button"
+                class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-sm font-medium text-stone-700 shadow-sm transition hover:-translate-y-0.5 hover:border-stone-300 hover:shadow dark:border-gray-700 dark:bg-gray-900 dark:text-stone-200"
+                (click)="openHelp('overview')"
+            >
+                <mat-icon class="!h-4 !w-4 !text-base">help_outline</mat-icon>
+                {{ t('settings.api_key.how_tokens_work') }}
+            </button>
         </header>
 
         <app-settings-business-account-empty-state
@@ -39,6 +60,27 @@
                         <p class="mt-1 text-sm leading-6 text-emerald-900 dark:text-emerald-100">
                             {{ t('settings.api_key.copy_token_warning') }}
                         </p>
+                        <div class="mt-4 flex flex-col gap-2 sm:flex-row">
+                            <code
+                                class="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-emerald-200 bg-white/80 px-4 py-3 font-mono text-xs text-emerald-950 dark:border-emerald-900/60 dark:bg-gray-950/60 dark:text-emerald-100"
+                            >
+                                {{ newlyGeneratedToken }}
+                            </code>
+                            <button
+                                type="button"
+                                class="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-xl bg-stone-950 px-4 text-sm font-semibold text-white transition hover:bg-stone-800 dark:bg-white dark:text-gray-950 dark:hover:bg-stone-200"
+                                (click)="copyToken()"
+                            >
+                                <mat-icon class="!h-4 !w-4 !text-base">content_copy</mat-icon>
+                                {{ t('settings.api_key.copy_new_token') }}
+                            </button>
+                        </div>
+                        <p
+                            class="mt-3 flex items-start gap-2 text-xs leading-5 text-emerald-800 dark:text-emerald-200"
+                        >
+                            <mat-icon class="mt-0.5 !h-3.5 !w-3.5 !text-sm">checklist</mat-icon>
+                            {{ t('settings.api_key.update_integrations_hint') }}
+                        </p>
                     </div>
                     <button
                         type="button"
@@ -51,73 +93,21 @@
                 </div>
             </div>
 
-            <section class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
-                <div class="flex items-start justify-between gap-4">
-                    <div class="flex items-start gap-3">
-                        <div
-                            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
-                        >
-                            <mat-icon>lightbulb</mat-icon>
-                        </div>
-                        <div>
-                            <h2 class="text-base font-semibold text-stone-950 dark:text-white">
-                                {{ t('settings.api_key.how_it_works_title') }}
-                            </h2>
-                            <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
-                                {{ t('settings.api_key.how_it_works_subtitle') }}
-                            </p>
-                        </div>
-                    </div>
-                    <button
-                        type="button"
-                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 text-stone-500 transition hover:bg-stone-50 hover:text-stone-800 dark:border-gray-700 dark:text-stone-400 dark:hover:bg-gray-800 dark:hover:text-stone-100"
-                        (click)="openHelp('overview')"
-                        [matTooltip]="t('settings.api_key.help_label')"
-                        [attr.aria-label]="t('settings.api_key.help_label')"
-                    >
-                        <mat-icon class="!h-4 !w-4 !text-base">help_outline</mat-icon>
-                    </button>
-                </div>
-
-                <div class="mt-5 grid gap-3 md:grid-cols-3">
-                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            01
-                        </span>
-                        <h3 class="mt-2 text-sm font-semibold text-stone-950 dark:text-white">
-                            {{ t('settings.api_key.step1_title') }}
-                        </h3>
-                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
-                            {{ t('settings.api_key.step1_desc') }}
-                        </p>
-                    </div>
-                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            02
-                        </span>
-                        <h3 class="mt-2 text-sm font-semibold text-stone-950 dark:text-white">
-                            {{ t('settings.api_key.step2_title') }}
-                        </h3>
-                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
-                            {{ t('settings.api_key.step2_desc') }}
-                        </p>
-                    </div>
-                    <div class="rounded-xl border border-stone-200 p-4 dark:border-gray-800">
-                        <span class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            03
-                        </span>
-                        <h3 class="mt-2 text-sm font-semibold text-stone-950 dark:text-white">
-                            {{ t('settings.api_key.step3_title') }}
-                        </h3>
-                        <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
-                            {{ t('settings.api_key.step3_desc') }}
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70">
-                <div class="flex flex-col gap-4 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6">
+            <section
+                class="api-key-credential-card overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/70"
+            >
+                <div
+                    class="h-1 w-full"
+                    [ngClass]="{
+                        'bg-emerald-500': currentTokenStatus === 'active',
+                        'bg-amber-500': currentTokenStatus === 'expiring',
+                        'bg-red-500': currentTokenStatus === 'expired',
+                        'bg-stone-300 dark:bg-gray-700': currentTokenStatus === 'unknown',
+                    }"
+                ></div>
+                <div
+                    class="flex flex-col gap-4 border-b border-stone-200/80 p-5 dark:border-gray-800 md:flex-row md:items-center md:justify-between md:p-6"
+                >
                     <div class="flex items-start gap-3">
                         <div
                             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 text-stone-700 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-200"
@@ -144,22 +134,79 @@
                             </p>
                         </div>
                     </div>
-                    <div
-                        class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300"
-                    >
-                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                        {{ t('settings.api_key.active') }}
+                    <div class="flex flex-wrap items-center gap-2">
+                        <div
+                            class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold"
+                            [ngClass]="{
+                                'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/30 dark:text-emerald-300':
+                                    currentTokenStatus === 'active',
+                                'border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/30 dark:text-amber-300':
+                                    currentTokenStatus === 'expiring',
+                                'border-red-200 bg-red-50 text-red-700 dark:border-red-900/70 dark:bg-red-950/30 dark:text-red-300':
+                                    currentTokenStatus === 'expired',
+                                'border-stone-200 bg-stone-50 text-stone-600 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-300':
+                                    currentTokenStatus === 'unknown',
+                            }"
+                        >
+                            <span
+                                class="h-1.5 w-1.5 rounded-full"
+                                [ngClass]="{
+                                    'bg-emerald-500': currentTokenStatus === 'active',
+                                    'bg-amber-500': currentTokenStatus === 'expiring',
+                                    'bg-red-500': currentTokenStatus === 'expired',
+                                    'bg-stone-400': currentTokenStatus === 'unknown',
+                                }"
+                            ></span>
+                            {{ t('settings.api_key.status_' + currentTokenStatus) }}
+                        </div>
                     </div>
                 </div>
 
                 <div class="p-5 md:p-6">
+                    <div
+                        class="mb-5 grid gap-3 rounded-xl border border-stone-200 bg-stone-50/80 p-4 dark:border-gray-800 dark:bg-gray-950/70 sm:grid-cols-2"
+                    >
+                        <div>
+                            <p
+                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                            >
+                                {{ t('settings.api_key.expires_label') }}
+                            </p>
+                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                {{
+                                    currentTokenExpiration
+                                        ? formatDate(currentTokenExpiration)
+                                        : t('settings.api_key.expiry_unavailable')
+                                }}
+                            </p>
+                        </div>
+                        <div *ngIf="currentTokenRemainingDays !== null">
+                            <p
+                                class="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400 dark:text-stone-500"
+                            >
+                                {{ t('settings.api_key.time_remaining_label') }}
+                            </p>
+                            <p class="mt-1 text-sm font-semibold text-stone-900 dark:text-white">
+                                {{
+                                    currentTokenStatus === 'expired'
+                                        ? t('settings.api_key.expired')
+                                        : t('settings.api_key.days_remaining', {
+                                              count: currentTokenRemainingDays,
+                                          })
+                                }}
+                            </p>
+                        </div>
+                    </div>
+
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-stretch">
                         <button
                             type="button"
                             class="min-w-0 flex-1 rounded-xl border border-stone-800 bg-stone-950 px-4 py-4 text-left transition hover:bg-stone-900 dark:border-gray-700 dark:bg-gray-950 dark:hover:bg-gray-900"
                             (click)="copyToken()"
                         >
-                            <code class="block break-all font-mono text-xs leading-relaxed text-stone-200 sm:text-sm">
+                            <code
+                                class="block break-all font-mono text-xs leading-relaxed text-stone-200 sm:text-sm"
+                            >
                                 {{ hidePassword ? getMaskedToken() : accessToken }}
                             </code>
                         </button>
@@ -174,7 +221,9 @@
                                         : t('settings.api_key.hide_token')
                                 "
                             >
-                                <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+                                <mat-icon>{{
+                                    hidePassword ? 'visibility' : 'visibility_off'
+                                }}</mat-icon>
                             </button>
                             <button
                                 type="button"
@@ -190,14 +239,18 @@
                     <p
                         class="mt-4 flex items-start gap-2 rounded-xl border border-dashed border-stone-200 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-500 dark:border-gray-800 dark:bg-gray-950 dark:text-stone-400"
                     >
-                        <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-stone-400">info</mat-icon>
+                        <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-stone-400"
+                            >info</mat-icon
+                        >
                         <span>{{ t('settings.api_key.usage_hint') }}</span>
                     </p>
                 </div>
             </section>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                <section class="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900/70 md:p-6">
+                <section
+                    class="rounded-2xl border border-blue-200/80 bg-gradient-to-br from-blue-50/70 via-white to-white p-5 shadow-sm dark:border-blue-900/50 dark:from-blue-950/20 dark:via-gray-900/70 dark:to-gray-900/70 md:col-span-2 md:p-6"
+                >
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3">
                             <div
@@ -209,8 +262,18 @@
                                 <h3 class="text-base font-semibold text-stone-950 dark:text-white">
                                     {{ t('settings.api_key.renew_token') }}
                                 </h3>
-                                <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                <p
+                                    class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400"
+                                >
                                     {{ t('settings.api_key.renew_description') }}
+                                </p>
+                                <p
+                                    class="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300"
+                                >
+                                    <mat-icon class="!h-3.5 !w-3.5 !text-sm"
+                                        >verified_user</mat-icon
+                                    >
+                                    {{ t('settings.api_key.current_token_stays_valid') }}
                                 </p>
                             </div>
                         </div>
@@ -236,35 +299,121 @@
                         </button>
                     </div>
 
-                    <div *ngIf="showRenewPanel" class="mt-5 border-t border-stone-200/80 pt-5 dark:border-gray-800">
+                    <div
+                        *ngIf="showRenewPanel"
+                        class="mt-5 border-t border-blue-200/80 pt-5 dark:border-blue-900/40"
+                    >
                         <p
                             class="mb-4 flex items-start gap-2 rounded-xl border border-blue-200/90 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100"
                         >
-                            <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-blue-600 dark:text-blue-400"
+                            <mat-icon
+                                class="mt-0.5 shrink-0 !h-4 !w-4 !text-base text-blue-600 dark:text-blue-400"
                                 >info</mat-icon
                             >
                             <span>{{ t('settings.api_key.extend_new_token_notice') }}</span>
                         </p>
-                        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400 dark:text-stone-500">
-                            {{ t('settings.api_key.select_expiration') }}
-                        </p>
-                        <div class="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                            <button
-                                *ngFor="let option of expirationOptions"
-                                type="button"
-                                (click)="selectedExpiration = option.value"
-                                class="flex flex-col items-center justify-center rounded-xl border px-2 py-3 text-sm font-semibold transition"
-                                [ngClass]="
-                                    selectedExpiration === option.value
-                                        ? 'border-stone-950 bg-stone-950 text-white dark:border-white dark:bg-white dark:text-gray-950'
-                                        : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50 dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200 dark:hover:bg-gray-800'
-                                "
+                        <fieldset
+                            role="radiogroup"
+                            [attr.aria-label]="t('settings.api_key.select_expiration')"
+                            (keydown)="onExpirationKeydown($event)"
+                        >
+                            <legend
+                                class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400"
                             >
-                                <span class="text-lg leading-none">{{ option.label }}</span>
-                                <span class="mt-1 text-[10px] font-medium uppercase tracking-wide opacity-70">
-                                    {{ t('settings.api_key.months') }}
-                                </span>
-                            </button>
+                                {{ t('settings.api_key.select_expiration') }}
+                            </legend>
+                            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                                {{ t('settings.api_key.duration_helper') }}
+                            </p>
+                            <div class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                                <button
+                                    *ngFor="let option of expirationOptions"
+                                    type="button"
+                                    role="radio"
+                                    [attr.aria-checked]="selectedExpiration === option.value"
+                                    [attr.tabindex]="selectedExpiration === option.value ? 0 : -1"
+                                    (click)="selectExpiration(option.value)"
+                                    class="api-key-duration-option relative flex min-h-24 flex-col items-start justify-between gap-3 rounded-xl border p-4 text-left transition"
+                                    [ngClass]="
+                                        selectedExpiration === option.value
+                                            ? 'is-selected border-blue-600 bg-blue-600 text-white shadow-md shadow-blue-600/15 dark:border-blue-400 dark:bg-blue-500 dark:text-white'
+                                            : 'border-stone-200 bg-white text-stone-700 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-sm dark:border-gray-700 dark:bg-gray-950 dark:text-stone-200 dark:hover:border-blue-700'
+                                    "
+                                >
+                                    <span
+                                        class="flex w-full flex-wrap items-start justify-between gap-x-2 gap-y-1.5"
+                                    >
+                                        <span class="min-w-0 text-base font-semibold leading-tight">
+                                            {{ t(option.durationKey) }}
+                                        </span>
+                                        <span
+                                            *ngIf="option.badgeKey"
+                                            class="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide whitespace-nowrap"
+                                            [ngClass]="
+                                                selectedExpiration === option.value
+                                                    ? 'bg-white/20 text-white'
+                                                    : 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                                            "
+                                        >
+                                            {{ t(option.badgeKey) }}
+                                        </span>
+                                    </span>
+                                    <span
+                                        *ngIf="option.descriptorKey"
+                                        class="mt-3 text-xs font-medium opacity-75"
+                                    >
+                                        {{ t(option.descriptorKey) }}
+                                    </span>
+                                    <span
+                                        *ngIf="selectedExpiration === option.value"
+                                        class="absolute bottom-3 right-3 flex h-6 w-6 items-center justify-center rounded-full bg-white text-blue-700 shadow-sm ring-1 ring-blue-100"
+                                    >
+                                        <mat-icon class="!h-4 !w-4 !text-base !leading-4"
+                                            >check</mat-icon
+                                        >
+                                    </span>
+                                </button>
+                            </div>
+                        </fieldset>
+
+                        <div
+                            class="api-key-expiry-preview mt-5 overflow-hidden rounded-2xl border border-stone-200 bg-stone-950 text-white shadow-lg dark:border-gray-700"
+                        >
+                            <div
+                                class="grid gap-4 p-5 sm:grid-cols-[auto_1fr] sm:items-center md:p-6"
+                            >
+                                <div
+                                    class="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-blue-300"
+                                >
+                                    <mat-icon>event_available</mat-icon>
+                                </div>
+                                <div>
+                                    <p
+                                        class="text-xs font-semibold uppercase tracking-[0.18em] text-stone-400"
+                                    >
+                                        {{ t('settings.api_key.new_expiration_preview') }}
+                                    </p>
+                                    <p class="mt-1 text-xl font-semibold tracking-tight text-white">
+                                        {{ formatDate(selectedExpirationDate) }}
+                                    </p>
+                                    <p class="mt-1 text-sm leading-6 text-stone-300">
+                                        {{
+                                            t('settings.api_key.validity_starts_today', {
+                                                duration: t(selectedExpirationOption.durationKey),
+                                            })
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                *ngIf="isLongLivedSelection"
+                                class="flex items-start gap-2 border-t border-amber-400/20 bg-amber-400/10 px-5 py-3 text-xs leading-5 text-amber-100 md:px-6"
+                            >
+                                <mat-icon class="mt-0.5 shrink-0 !h-4 !w-4 !text-base"
+                                    >shield</mat-icon
+                                >
+                                {{ t('settings.api_key.long_lived_warning') }}
+                            </div>
                         </div>
 
                         <div class="mt-5 flex flex-wrap justify-end gap-3">
@@ -287,7 +436,9 @@
                                     {{
                                         isRenewing
                                             ? t('settings.api_key.renewing')
-                                            : t('settings.api_key.renew_now')
+                                            : t('settings.api_key.create_with_expiry', {
+                                                  date: formatDate(selectedExpirationDate),
+                                              })
                                     }}
                                 </span>
                             </button>
@@ -296,7 +447,7 @@
                 </section>
 
                 <section
-                    class="rounded-2xl border border-red-200/80 bg-white p-5 shadow-sm dark:border-red-900/50 dark:bg-gray-900/70 md:p-6"
+                    class="rounded-2xl border border-red-200/80 bg-white p-5 shadow-sm dark:border-red-900/50 dark:bg-gray-900/70 md:col-span-2 md:p-6"
                 >
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-start gap-3">
@@ -309,7 +460,9 @@
                                 <h3 class="text-base font-semibold text-stone-950 dark:text-white">
                                     {{ t('settings.api_key.revoke_generate') }}
                                 </h3>
-                                <p class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400">
+                                <p
+                                    class="mt-1 text-sm leading-6 text-stone-500 dark:text-stone-400"
+                                >
                                     {{ t('settings.api_key.revoke_description') }}
                                 </p>
                             </div>
@@ -336,18 +489,114 @@
                         </button>
                     </div>
 
-                    <div *ngIf="showRevokeConfirm" class="mt-5 border-t border-red-200/80 pt-5 dark:border-red-900/40">
+                    <div
+                        *ngIf="showRevokeConfirm"
+                        class="mt-5 border-t border-red-200/80 pt-5 dark:border-red-900/40"
+                    >
                         <div
-                            class="flex gap-3 rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-3 dark:border-amber-900/60 dark:bg-amber-950/30"
+                            class="overflow-hidden rounded-2xl border border-red-300 bg-gradient-to-br from-red-50 via-white to-red-50/60 shadow-sm dark:border-red-900/70 dark:from-red-950/35 dark:via-gray-950 dark:to-red-950/20"
                         >
-                            <mat-icon class="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400">warning</mat-icon>
-                            <div>
-                                <p class="text-sm font-semibold text-amber-950 dark:text-amber-50">
-                                    {{ t('settings.api_key.warning_title') }}
-                                </p>
-                                <p class="mt-1 text-sm leading-6 text-amber-900 dark:text-amber-100">
-                                    {{ t('settings.api_key.warning_text') }}
-                                </p>
+                            <div
+                                class="flex items-start gap-3 border-b border-red-200/80 p-4 dark:border-red-900/50 md:p-5"
+                            >
+                                <div
+                                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white shadow-sm shadow-red-600/20"
+                                >
+                                    <mat-icon class="!h-5 !w-5 !text-xl">gpp_bad</mat-icon>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-semibold text-red-950 dark:text-red-50">
+                                        {{ t('settings.api_key.revoke_impact_title') }}
+                                    </p>
+                                    <p
+                                        class="mt-1 text-sm leading-6 text-red-800 dark:text-red-200"
+                                    >
+                                        {{ t('settings.api_key.revoke_impact_subtitle') }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid gap-5 p-4 md:grid-cols-2 md:p-5">
+                                <div class="flex gap-3">
+                                    <span
+                                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700 ring-1 ring-red-200 dark:bg-red-950 dark:text-red-300 dark:ring-red-900"
+                                        >1</span
+                                    >
+                                    <div>
+                                        <p
+                                            class="text-sm font-semibold text-stone-950 dark:text-white"
+                                        >
+                                            {{ t('settings.api_key.revoke_step_tokens_title') }}
+                                        </p>
+                                        <p
+                                            class="mt-1 text-sm leading-6 text-stone-600 dark:text-stone-300"
+                                        >
+                                            {{ t('settings.api_key.revoke_step_tokens_desc') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="flex gap-3">
+                                    <span
+                                        class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 ring-1 ring-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:ring-blue-900"
+                                        >2</span
+                                    >
+                                    <div class="min-w-0 flex-1">
+                                        <p
+                                            class="text-sm font-semibold text-stone-950 dark:text-white"
+                                        >
+                                            {{ t('settings.api_key.revoke_step_new_title') }}
+                                        </p>
+                                        <p
+                                            class="mt-1 text-sm leading-6 text-stone-600 dark:text-stone-300"
+                                        >
+                                            {{ t('settings.api_key.revoke_step_new_desc') }}
+                                        </p>
+                                        <label
+                                            for="revoke-token-expiration"
+                                            class="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-stone-500 dark:text-stone-400"
+                                        >
+                                            {{ t('settings.api_key.revoke_length_label') }}
+                                        </label>
+                                        <select
+                                            id="revoke-token-expiration"
+                                            class="mt-2 min-h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm font-semibold text-stone-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                                            [value]="selectedExpiration"
+                                            (change)="onExpirationSelect($event)"
+                                        >
+                                            <option
+                                                *ngFor="let option of expirationOptions"
+                                                [value]="option.value"
+                                                [selected]="selectedExpiration === option.value"
+                                            >
+                                                {{ t(option.durationKey) }}
+                                            </option>
+                                        </select>
+                                        <div
+                                            class="mt-3 flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-sm text-blue-950 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-100"
+                                        >
+                                            <mat-icon class="mt-0.5 !h-4 !w-4 shrink-0 !text-base"
+                                                >event</mat-icon
+                                            >
+                                            <span>
+                                                {{
+                                                    t('settings.api_key.revoke_expiry_summary', {
+                                                        date: formatDate(selectedExpirationDate),
+                                                    })
+                                                }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="flex items-start gap-2 border-t border-red-200/80 bg-red-100/70 px-4 py-3 text-xs font-medium leading-5 text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-100 md:px-5"
+                            >
+                                <mat-icon class="mt-0.5 !h-4 !w-4 shrink-0 !text-base"
+                                    >warning</mat-icon
+                                >
+                                {{ t('settings.api_key.revoke_service_warning') }}
                             </div>
                         </div>
 
@@ -371,7 +620,9 @@
                                     {{
                                         isRevoking
                                             ? t('settings.api_key.revoking')
-                                            : t('settings.api_key.confirm_revoke')
+                                            : t('settings.api_key.confirm_revoke_with_expiry', {
+                                                  duration: t(selectedExpirationOption.durationKey),
+                                              })
                                     }}
                                 </span>
                             </button>
